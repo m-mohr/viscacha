@@ -16,19 +16,7 @@ if (empty($config['furl']) == false) {
 	$furl = $config['furl'];
 }
 else {
-	// HTTP_HOST is having the correct browser url in most cases...
-	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
-	$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
-
-	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
-	if (!$source) {
-		$source = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
-	}
-	// Replace backslashes and doubled slashes (could happen on some proxy setups)
-	$source = str_replace(array('\\', '//', '/install'), '/', $source);
-	$source = trim(trim(dirname($source)), '/');
-
-	$furl = $https.$server_name.'/'.$source;
+	$furl = getFUrl();
 }
 
 if (empty($config['forenmail']) == false) {
@@ -68,7 +56,7 @@ $d->close();
 	  <td class="mbox" width="50%"><input type="text" name="fdesc" value="<?php echo $config['fdesc']; ?>" size="50" /></td>
 	 </tr>
 	 <tr>
-	  <td class="mbox" width="50%">Site URL:<br /><span class="stext">URL without trailing slash (/) to the folder containing the files.</span></td>
+	  <td class="mbox" width="50%">Site URL:<br /><span class="stext">URL without trailing slash (/) to the folder containing the files, beginning with http(s)://.</span></td>
 	  <td class="mbox" width="50%"><input type="text" name="furl" value="<?php echo $furl; ?>" size="50" /></td>
 	 </tr>
 	 <tr>

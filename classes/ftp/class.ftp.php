@@ -276,7 +276,7 @@ class ftp_base {
 	function pwd() {
 		if(!$this->_exec("PWD", "pwd")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		return ereg_replace("^[0-9]{3} \"(.+)\" .+".CRLF, "\\1", $this->_message);
+		return preg_replace("~^[0-9]{3} \"(.+)\" .+".CRLF."~", "\\1", $this->_message);
 	}
 
 	function cdup() {
@@ -320,7 +320,7 @@ class ftp_base {
 		}
 		if(!$this->_exec("SIZE ".$pathname, "filesize")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		return ereg_replace("^[0-9]{3} ([0-9]+)".CRLF, "\\1", $this->_message);
+		return preg_replace("~^[0-9]{3} ([0-9]+)".CRLF."~", "\\1", $this->_message);
 	}
 
 	function abort() {
@@ -340,7 +340,7 @@ class ftp_base {
 		}
 		if(!$this->_exec("MDTM ".$pathname, "mdtm")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		$mdtm = ereg_replace("^[0-9]{3} ([0-9]+)".CRLF, "\\1", $this->_message);
+		$mdtm = preg_replace("~^[0-9]{3} ([0-9]+)".CRLF."~", "\\1", $this->_message);
 		$date = sscanf($mdtm, "%4d%2d%2d%2d%2d%2d");
 		$timestamp = mktime($date[3], $date[4], $date[5], $date[1], $date[2], $date[0]);
 		return $timestamp;
@@ -657,10 +657,12 @@ class ftp_base {
 		$chunks=explode(';',$pattern);
 		foreach($chunks as $pattern) {
 			$escape=array('$','^','.','{','}','(',')','[',']','|');
-			while(strpos($pattern,'**')!==false)
+			while(strpos($pattern,'**')!==false) {
 				$pattern=str_replace('**','*',$pattern);
-			foreach($escape as $probe)
+			}
+			foreach($escape as $probe) {
 				$pattern=str_replace($probe,"\\$probe",$pattern);
+			}
 			$pattern=str_replace('?*','*',
 				str_replace('*?','*',
 					str_replace('*',".*",
@@ -677,8 +679,8 @@ class ftp_base {
 
 	function glob_regexp($pattern,$probe) {
 		return (isWindows() != true ?
-			ereg($pattern,$probe):
-			eregi($pattern,$probe)
+			preg_match("~{$pattern}~", $probe) :
+			preg_match("~{$pattern}~i", $probe)
 		);
 	}
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -732,7 +734,7 @@ class ftp_base {
 }
 
 function pemftp_class_module() {
-	if (extension_loaded('ftp') && version_compare(PHP_VERSION, '5.0.0', '>=')) {
+	if (extension_loaded('ftp')) {
 		return 'ext';
 	}
 	else {
@@ -755,7 +757,7 @@ function pemftp_class_module() {
 			return 'pure';
 		}
 		else {
-			trigger_error('Viscacha needs at least fsockopen, sockets extension or ftp extension to work! Please enable one of this features or you cannot use Viscacha!', E_USER_ERROR);
+			return null;
 		}
 	}
 }

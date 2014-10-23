@@ -5,6 +5,16 @@ echo "<strong>Starting Update:</strong><br />";
 require('data/config.inc.php');
 require_once('install/classes/class.phpconfig.php');
 
+function loadSettingArray($path) {
+	include("{$path}/settings.lng.php");
+	if (isset($lang['lang_code'])) {
+		return $lang;
+	}
+	else {
+		return array('lang_code' => 'en');
+	}
+}
+
 echo "- Source files loaded<br />";
 
 if (!class_exists('filesystem')) {
@@ -20,27 +30,50 @@ if (!class_exists('DB')) {
 
 echo "- FTP class loaded, Database connection started.<br />";
 
-// Hooks
+// Hooks (ToDo: this sould be done in one step!)
 $hooks = array_map('trim', file('admin/data/hooks.txt'));
 removeHook($hooks, 'pdf');
 removeHook($hooks, 'components_');
 $hooks[] = '';
 $hooks[] = 'admin/packages_admin.php';
 $filesystem->file_put_contents('admin/data/hooks.txt', implode("\r\n", $hooks));
+
+$hooks = file_get_contents('admin/data/hooks.txt');
+$add_com = array('components.php');
+$add_acom = array('admin/packages_admin.php');
+$result = $db->query("SELECT internal FROM {$db->pre}packages");
+while ($row = $db->fetch_assoc($result)) {
+	$internal = preg_quote($row['internal'], "~");
+	if (!preg_match("~^-component_{$internal}$~im", $hooks)) {
+		$add_com[] = "-component_{$row['internal']}";
+	}
+	if (!preg_match("~^-admin_component_{$internal}$~im", $hooks)) {
+		$add_acom[] = "-admin_component_{$row['internal']}";
+	}
+}
+if (count($add_com) > 1) {
+	$hooks = preg_replace("~^components.php$~im", implode("\r\n", $add_com), $hooks);
+}
+if (count($add_acom) > 1) {
+	$hooks = preg_replace("~^admin/packages_admin.php$~im", implode("\r\n", $add_acom), $hooks);
+}
+$filesystem->file_put_contents('admin/data/hooks.txt', $hooks);
 echo "- Hooks updated.<br />";
 
 // Config
 $c = new manageconfig();
 $c->getdata('data/config.inc.php');
 $c->updateconfig('version', str, VISCACHA_VERSION);
-$c->updateconfig('fname', str, htmlentities($config['fname'], ENT_QUOTES));
-$c->updateconfig('fdesc', str, htmlentities($config['fdesc'], ENT_QUOTES));
+$c->updateconfig('fname', html_enc);
+$c->updateconfig('fdesc', html_enc);
 $c->updateconfig('spider_logvisits', int, 2);
 $c->updateconfig('vote_change', int, 0);
 $c->updateconfig('botgfxtest_width', int, 150);
 $c->updateconfig('botgfxtest_height', int, 40);
 $c->updateconfig('botgfxtest_recaptcha_private', str, '');
 $c->updateconfig('botgfxtest_recaptcha_public', str, '');
+$c->updateconfig('local_mode', int, 0);
+$c->updateconfig('multiple_instant_notifications', int, 0);
 $c->delete('always_send_js');
 $c->delete('pdfcompress');
 $c->delete('pdfdownload');
@@ -207,8 +240,8 @@ $ini = array (
       'admin_wysiwyg_table_properties' => 'Table Properties',
       'admin_wysiwyg_table_rows' => 'Rows:',
       'admin_wysiwyg_table_width' => 'Width:',
-      'admin_wysiwyg_upload_x' => 'Upload image',
       'admin_wysiwyg_target' => 'Target Window:',
+      'admin_wysiwyg_upload_x' => 'Upload image',
       'admin_wysiwyg_url' => 'URL:',
       'admin_wysiwyg_vspace' => 'Vertical Space:',
       'admin_wysiwyg_width' => 'Width:',
@@ -241,6 +274,17 @@ $ini = array (
       'admin_design_create_new_template_directory' => 'Create a new directory for templates and use the templates from the standard design as base.',
     ),
   ),
+  'admin/forums' =>
+  array (
+    'language_de' =>
+    array (
+      'admin_forum_until' => 'bis ',
+    ),
+    'language' =>
+    array (
+      'admin_forum_until' => 'until ',
+    ),
+  ),
   'admin/frames' =>
   array (
     'language_de' =>
@@ -262,6 +306,7 @@ $ini = array (
       'admin_gll_pdf' => NULL,
       'admin_gls_docs' => NULL,
       'admin_gls_pdf' => NULL,
+      'gmt' => 'GMT',
     ),
     'language' =>
     array (
@@ -269,6 +314,7 @@ $ini = array (
       'admin_gll_pdf' => NULL,
       'admin_gls_docs' => NULL,
       'admin_gls_pdf' => NULL,
+      'gmt' => 'GMT',
     ),
   ),
   'admin/javascript' =>
@@ -362,6 +408,7 @@ $ini = array (
       'admin_lang_edit_langfile_package_id' => NULL,
       'admin_lang_files' => NULL,
       'admin_lang_packages_phrases' => 'Pakete',
+      'admin_lang_imported_successfully' => 'Sprachpaket wurde erfolgreich importiert.',
     ),
     'language' =>
     array (
@@ -371,6 +418,7 @@ $ini = array (
       'admin_lang_edit_langfile_package_id' => NULL,
       'admin_lang_files' => NULL,
       'admin_lang_packages_phrases' => 'Packages',
+      'admin_lang_imported_successfully' => 'Languagepack imported successfully.',
     ),
   ),
   'admin/members' =>
@@ -380,6 +428,7 @@ $ini = array (
       'admin_member_activate_by_admin' => NULL,
       'admin_member_activate_via_mail' => NULL,
       'admin_member_at_least_one_match' => 'oder',
+      'admin_member_keep_time_zone' => NULL,
       'admin_member_not_activated' => NULL,
       'admin_member_whole_match' => 'und',
       'admin_member_at_least_one_match_desc' => 'Nur eine der Angaben muss passen, um zu einem Treffer zu führen',
@@ -390,6 +439,7 @@ $ini = array (
       'admin_member_activate_by_admin' => NULL,
       'admin_member_activate_via_mail' => NULL,
       'admin_member_at_least_one_match' => 'or',
+      'admin_member_keep_time_zone' => NULL,
       'admin_member_not_activated' => NULL,
       'admin_member_whole_match' => 'and',
       'admin_member_at_least_one_match_desc' => 'at least one of the input have to lead to a match',
@@ -401,12 +451,18 @@ $ini = array (
     'language_de' =>
     array (
       'admin_misc_dictionary' => NULL,
+      'admin_misc_license_not_forun' => NULL,
       'admin_misc_save' => NULL,
+      'admin_misc_license_not_found' => 'Lizenztext wurde leider nicht gefunden.',
+      'admin_misc_mysql_version' => 'Datenbank-Version:',
     ),
     'language' =>
     array (
       'admin_misc_dictionary' => NULL,
+      'admin_misc_license_not_forun' => NULL,
       'admin_misc_save' => NULL,
+      'admin_misc_license_not_found' => 'License not found.',
+      'admin_misc_mysql_version' => 'Database version:',
     ),
   ),
   'admin/packages' =>
@@ -424,6 +480,7 @@ $ini = array (
       'admin_packages_com_delete_head_delete_component' => NULL,
       'admin_packages_com_th_component' => NULL,
       'admin_packages_com_th_package' => NULL,
+      'admin_packages_conf_add_a_new_group_for_settings' => 'Gruppe für Einstellungen hinzufügen',
       'admin_packages_err_no_package_with_this_id' => NULL,
       'admin_packages_err_section_not_found' => NULL,
       'admin_packages_err_specified_component_is_required' => NULL,
@@ -438,6 +495,7 @@ $ini = array (
       'admin_packages_plugins_edit_add_edit_phrases' => NULL,
       'admin_packages_plugins_edit_file_for_code_text' => NULL,
       'admin_packages_plugins_template_file_for_code_text' => NULL,
+      'admin_packages_plugins_template_manage_templates_for_package' => ' Template-Verwaltung des Pakets ',
     ),
     'language' =>
     array (
@@ -465,6 +523,7 @@ $ini = array (
       'admin_packages_plugins_edit_add_edit_phrases' => NULL,
       'admin_packages_plugins_edit_file_for_code_text' => NULL,
       'admin_packages_plugins_template_file_for_code_text' => NULL,
+      'admin_packages_plugins_template_manage_templates_for_package' => 'Template Management for Package ',
     ),
   ),
   'admin/settings' =>
@@ -489,6 +548,7 @@ $ini = array (
       'admin_e_warning' => NULL,
       'admin_file_typ_captcha' => 'Dateityp:',
       'admin_ftp_directory_does_not_exist' => 'Verzeichnis "{$ftp_path}" existiert leider nicht!',
+      'admin_htaccess_error_doc_info' => 'Bei einem Server-Fehler (400, 403, 404, 500) wird die benutzerdefinierte Fehlerseite angezeigt. Beispiel: <a href="misc.php?action=error&id=404" target="_blank">Fehler 404</a>',
       'admin_ignor_words_less_chackters' => NULL,
       'admin_ignor_words_less_chackters_info' => NULL,
       'admin_image_height_captcha' => 'Standard Bildhöhe:',
@@ -508,17 +568,23 @@ $ini = array (
       'admin_suggestions_fast_mode' => NULL,
       'admin_suggestions_normal_mode' => NULL,
       'admin_suggestions_slow_mode' => NULL,
+      'admin_test_ftp_connection' => 'Daten speichern und FTP-Verbindung ggf. testen',
+      'admin_timezone_maintain' => NULL,
       'admin_topics_posts_pdf' => NULL,
       'admin_wave_filter_captcha' => 'Wende den "Wellen"-Filter auf das Spamschutz-Bild an:',
+      'admin_wordwrap_character_html_tag_long_words' => 'Wordwrap: Text (HTML erlaubt) der für die Trennung von zu langen Wörtern genutzt wird:',
       'admin_captcha_type0' => 'Nicht aktiviert',
       'admin_captcha_type1' => 'Standard (VeriWord)',
       'admin_captcha_type2' => 'reCaptcha',
       'admin_enable_change_vote' => 'Erlaubt sich bei einer Umfrage umzuentscheiden',
       'admin_enable_change_vote_info' => 'Diese Option ermöglicht es Mitgliedern, sich, nach ihrer Stimmabgabe, bei einer Umfrage nochmal umzuentscheiden.',
       'admin_e_none' => 'Keine Fehlermeldungen ausgeben',
+      'admin_ftp_php_extension_error' => 'Viscacha benötigt mindestens fsockopen, die Sockets-Erweiterung oder die FTP-Erweiterung für die FTP-Funktionalität. Bitte aktiviere eines dieser Features oder deaktiviere FTP.',
       'admin_logvisits_count_logging' => 'Nur Anzahl der Besuche protokollieren',
       'admin_logvisits_full_logging' => 'Zeit und Anzahl der Besuche protokollieren',
       'admin_logvisits_no_logging' => 'Keine Protokollierung',
+      'admin_multiple_instant_notifications' => 'Pro Antwort eine E-Mail-Benachrichtigungen schicken:',
+      'admin_multiple_instant_notifications_info' => 'Bei der sofortigen E-Mail-Benachrichtigung (Abonnements) von Themen wird, wenn diese Option aktiviert ist, pro Antwort eine Benachrichtigung geschickt. Andernfalls wird nur bei der ersten Antwort seit dem letzten Besuch eine Benachrichtigung verschickt.',
       'admin_recaptcha_private_key' => 'Interner Schlüssel:',
       'admin_recaptcha_private_key_info' => '\'Private Key\', der Ihnen von {$re_link} zur Verfügung gestellt wurde.',
       'admin_recaptcha_public_key' => 'Öffentlicher Schlüssel:',
@@ -528,6 +594,7 @@ $ini = array (
       'admin_spambot_recaptcha_info' => 'reCaptcha ist ein Online-Service zur Spam-Abwehr. Sie brauchen einen persönlichen Schlüssel um diesen Service in Anspruch zu nehmen (siehe unten). Ein Bild mit zwei Wörtern wird den Nutzern angezeigt. Diese Überprüfung unterstützt Audio und erlaubt blinden Benutzern sich ebenfalls zu registrieren.',
       'admin_spambot_veriword' => 'VeriWord-Einstellungen',
       'admin_spambot_veriword_info' => 'VeriWord ist der Standard-Spam-Schutz von Viscacha. Ein Bild, bestehend aus mehreren Zeichen in variierenden Schriften/Farben, wird dem Nutzer angezeigt. Das Verhalten und Aussehen des Bildes wird von diversen Optionen bestimmt, die unten angepasst werden können.',
+      'admin_topics_subscriptions' => 'Themen & Beiträge » Abonnements',
     ),
     'language' =>
     array (
@@ -548,6 +615,7 @@ $ini = array (
       'admin_e_warning' => NULL,
       'admin_file_typ_captcha' => 'File type:',
       'admin_ftp_directory_does_not_exist' => 'Directory "{$ftp_path}" does not exist!',
+      'admin_htaccess_error_doc_info' => 'On Server-Errors (400, 403, 404, 500) the custom Error-sites will be shown. Example: <a href="misc.php?action=error&id=404" target="_blank">Error 404</a>',
       'admin_ignor_words_less_chackters' => NULL,
       'admin_ignor_words_less_chackters_info' => NULL,
       'admin_image_height_captcha' => 'Standard image height:',
@@ -566,17 +634,23 @@ $ini = array (
       'admin_suggestions_fast_mode' => NULL,
       'admin_suggestions_normal_mode' => NULL,
       'admin_suggestions_slow_mode' => NULL,
+      'admin_test_ftp_connection' => 'Save data and if so test FTP connection',
+      'admin_timezone_maintain' => NULL,
       'admin_topics_posts_pdf' => NULL,
       'admin_wave_filter_captcha' => 'Use "wave"-filter on Spam-Bot-Protection-Picture:',
+      'admin_wordwrap_character_html_tag_long_words' => 'Wordwrap: Text (HTML allowed) which will be used for separation of too long words:',
       'admin_captcha_type0' => 'Not active',
       'admin_captcha_type1' => 'Standard (VeriWord)',
       'admin_captcha_type2' => 'reCaptcha',
       'admin_enable_change_vote' => 'Allow to change one\'s mind of a survey',
       'admin_enable_change_vote_info' => 'This option allows members to change their vote in surveys again.',
       'admin_e_none' => 'Keine Fehlermeldungen ausgeben',
+      'admin_ftp_php_extension_error' => 'Viscacha needs at least fsockopen, sockets extension or ftp extension to work! Please enable one of this features or disable ftp.',
       'admin_logvisits_count_logging' => 'Log only number of visits',
       'admin_logvisits_full_logging' => 'Log time and number of visits',
       'admin_logvisits_no_logging' => 'No logging',
+      'admin_multiple_instant_notifications' => 'Send one e-mail subscriptions per reply:',
+      'admin_multiple_instant_notifications_info' => 'For instant e-mail notifications (subscriptions) of replies you can receive one notification per reply, if this option is turned on. In the other case, you only get one notification for the first reply since your last visit.',
       'admin_recaptcha_private_key' => 'Private Key:',
       'admin_recaptcha_private_key_info' => 'Private key provided to you by {$re_link}.',
       'admin_recaptcha_public_key' => 'Public Key:',
@@ -586,6 +660,7 @@ $ini = array (
       'admin_spambot_recaptcha_info' => 'reCaptcha is an online service to protect against spam. You\'ll need to get your personal keys to use this service (see below). An image containing two words will be shown to the user. This verification supports audio, allowing blind users to register.',
       'admin_spambot_veriword' => 'VeriWord Settings',
       'admin_spambot_veriword_info' => 'VeriWord is the default spam protection of Viscacha. An image consisting of letters in varying fonts/colors will be shown to the user. The appearance of this image is dictated by several options that you may control below.',
+      'admin_topics_subscriptions' => 'Topics & Posts » Subscriptions',
     ),
   ),
   'admin/slog' =>
@@ -594,13 +669,46 @@ $ini = array (
     array (
       'admin_slog_sql_error_logfile' => 'Protokoll der Systemfehler',
       'admin_slog_backtrace' => 'Laufzeitinformationen',
+      'admin_slog_day' => 'Tag',
       'admin_slog_error_num' => 'Nr.',
+      'admin_slog_month' => 'Monat',
+      'admin_slog_week' => 'Woche',
     ),
     'language' =>
     array (
       'admin_slog_sql_error_logfile' => 'System Error Logfile',
       'admin_slog_backtrace' => 'Runtime information',
+      'admin_slog_day' => 'Day',
       'admin_slog_error_num' => 'No.',
+      'admin_slog_month' => 'Month',
+      'admin_slog_week' => 'Week',
+    ),
+  ),
+  'bbcodes' =>
+  array (
+    'language_de' =>
+    array (
+      'bb_edit_author' => 'Nachträgliche Anmerkung des Autors:',
+      'bb_edit_mod' => 'Nachträgliche Anmerkung von',
+      'bb_hidden_content' => 'Versteckter Inhalt:',
+      'bb_offtopic' => 'Off-Topic:',
+      'bb_quote' => 'Zitat:',
+      'bb_quote_by' => 'Zitat von',
+      'bb_sourcecode' => 'Quelltext:',
+      'geshi_hlcode_title' => '{$lang_name}-Quelltext:',
+      'geshi_hlcode_txtdownload' => 'Download',
+    ),
+    'language' =>
+    array (
+      'bb_edit_author' => 'Additional note by the author:',
+      'bb_edit_mod' => 'Additional note by',
+      'bb_hidden_content' => 'Hidden Content:',
+      'bb_offtopic' => 'Off Topic:',
+      'bb_quote' => 'Quote:',
+      'bb_quote_by' => 'Quote by',
+      'bb_sourcecode' => 'Source Code:',
+      'geshi_hlcode_title' => 'Source code ({$lang_name}):',
+      'geshi_hlcode_txtdownload' => 'Download',
     ),
   ),
   'classes' =>
@@ -618,10 +726,21 @@ $ini = array (
   array (
     'language_de' =>
     array (
+      'bb_edit_author' => NULL,
+      'bb_edit_mod' => NULL,
+      'bb_hidden_content' => NULL,
+      'bb_offtopic' => NULL,
+      'bb_quote' => NULL,
+      'bb_quote_by' => NULL,
+      'bb_sourcecode' => NULL,
       'box_newtopic' => NULL,
       'editprofile_signature_longdesc' => NULL,
       'editprofile_standard' => NULL,
       'forum_options_search_reset' => NULL,
+      'geshi_hlcode_title' => NULL,
+      'geshi_hlcode_txtdownload' => NULL,
+      'htaccess_errdesc_401' => NULL,
+      'htaccess_error_401' => NULL,
       'im_msgtitle' => NULL,
       'index_headline' => NULL,
       'no_board_given' => NULL,
@@ -640,6 +759,10 @@ $ini = array (
       'section_not_available' => NULL,
       'showtopic_options_pdf' => NULL,
       'thumb_error' => 'Konnte Miniaturansicht nicht erstellen',
+      'timestamps_gmt_diff' => 'Alle Zeitangaben in {%my->timezone_str}.',
+      'timezone_current' => NULL,
+      'timezone_desc' => 'Aktuelle Uhrzeit: {%my->current_time}.',
+      'timezone_summer' => NULL,
       'x_article' => NULL,
       'benchmark_bbc_smileys' => 'BB-Codes + Smileys:',
       'benchmark_failed' => 'fehlerhaft',
@@ -652,19 +775,33 @@ $ini = array (
       'benchmark_templates' => 'Templates:',
       'benchmark_templates_time' => 'Zeit für Templates:',
       'error_no_forum_permissions' => 'Sie haben leider keine Berechtigung die versteckten Foren anzusehen. Bitte melden Sie sich mit den nötigen Rechten an!',
+      'gmt' => 'GMT',
       'img_captcha_session_expired_error' => 'Sitzung beendet<br>Aktualisiere die Seite',
       'page_gzip_off' => 'Aus',
       'page_gzip_on' => 'An<br />Komprimierungsrate: ',
       'post_info_postcount' => 'Beiträge: ',
+      'showtopic_options_fav_remove' => 'Aus den Favoriten entfernen',
       'vote_change_option' => 'Votum ändern',
       'vote_go_form' => 'Votum abgeben',
+      'vote_reply_too_long' => 'Die Antwortmöglichkeit {$i} ist zu lang.',
     ),
     'language' =>
     array (
+      'bb_edit_author' => NULL,
+      'bb_edit_mod' => NULL,
+      'bb_hidden_content' => NULL,
+      'bb_offtopic' => NULL,
+      'bb_quote' => NULL,
+      'bb_quote_by' => NULL,
+      'bb_sourcecode' => NULL,
       'box_newtopic' => NULL,
       'editprofile_signature_longdesc' => NULL,
       'editprofile_standard' => NULL,
       'forum_options_search_reset' => NULL,
+      'geshi_hlcode_title' => NULL,
+      'geshi_hlcode_txtdownload' => NULL,
+      'htaccess_errdesc_401' => NULL,
+      'htaccess_error_401' => NULL,
       'im_msgtitle' => NULL,
       'index_headline' => NULL,
       'no_board_given' => NULL,
@@ -682,6 +819,10 @@ $ini = array (
       'section_closed' => NULL,
       'section_not_available' => NULL,
       'showtopic_options_pdf' => NULL,
+      'timestamps_gmt_diff' => 'All times are {%my->timezone_str}.',
+      'timezone_current' => NULL,
+      'timezone_desc' => 'Current time: {%my->current_time}.',
+      'timezone_summer' => NULL,
       'x_article' => NULL,
       'benchmark_bbc_smileys' => 'BB-Codes + Smileys:',
       'benchmark_failed' => 'failed',
@@ -694,23 +835,39 @@ $ini = array (
       'benchmark_templates' => 'Templates:',
       'benchmark_templates_time' => 'Templates Time:',
       'error_no_forum_permissions' => 'Sorry, you haven\'t got the permission to view the hidden forums. Please log in with the necessary permissions!',
+      'gmt' => 'GMT',
       'img_captcha_session_expired_error' => 'Session expired<br>Refresh the Page',
       'page_gzip_off' => 'Off',
       'page_gzip_on' => 'On<br />Compression Rate: ',
       'post_info_postcount' => 'Posts: ',
+      'showtopic_options_fav_remove' => 'Remove from favorites',
       'vote_change_option' => 'Change vote',
       'vote_go_form' => 'Cast your vote',
+      'vote_reply_too_long' => 'Option {$i} of your vote is too long.',
+    ),
+  ),
+  'modules' =>
+  array (
+    'language_de' =>
+    array (
+      'ps_nav_package_overview' => NULL,
+      'ps_nav_title' => NULL,
+    ),
+    'language' =>
+    array (
+      'ps_nav_package_overview' => NULL,
+      'ps_nav_title' => NULL,
     ),
   ),
   'settings' =>
   array (
     'language_de' =>
     array (
-      'compatible_version' => '0.8 RC7',
+      'compatible_version' => '0.8',
     ),
     'language' =>
     array (
-      'compatible_version' => '0.8 RC7',
+      'compatible_version' => '0.8',
     ),
   ),
   'wwo' =>
@@ -724,10 +881,36 @@ $ini = array (
     array (
       'wwo_pdf' => NULL,
       'wwo_pdf_fallback' => NULL,
+      'wwo_showforum' => 'is viewing the following board: <a href="showforum.php?id={$id}">{$title}</a>',
+      'wwo_showforum_fallback' => 'is viewing a board',
     ),
   ),
 );
 updateLanguageFiles($ini);
+
+$dir = dir('language');
+while (false !== ($entry = $dir->read())) {
+	$path = "{$dir->path}/{$entry}";
+	if (is_dir($path) && is_id($entry)) {
+		$lng_settings = loadSettingArray($path);
+		if ($lng_settings['lang_code'] != 'de') {
+			$lng_settings['lang_code'] = 'en';
+		}
+		$filesystem->file_put_contents(
+			"{$path}/mails/digest_d.php",
+			file_get_contents('install/package/update/language/'.$lng_settings['lang_code'].'/digest_d.php')
+		);
+		$filesystem->file_put_contents(
+			"{$path}/mails/digest_w.php",
+			file_get_contents('install/package/update/language/'.$lng_settings['lang_code'].'/digest_w.php')
+		);
+		$filesystem->file_put_contents(
+			"{$path}/mails/digest_s.php",
+			file_get_contents('install/package/update/language/'.$lng_settings['lang_code'].'/digest_s.php')
+		);
+	}
+}
+
 echo "- Language files updated.<br />";
 
 // Stylesheets
@@ -737,6 +920,7 @@ while (false !== ($entry = $dir->read())) {
 	if (is_dir($path) && is_id($entry)) {
 		if (file_exists("{$path}/standard.css")) {
 			$css = file_get_contents("{$path}/standard.css");
+			$css = preg_replace("~\.popup\s+\{~i", ".popup {\r\n\toverflow: hidden;", $css);
 			$css .= "\r\ntt {\r\n\tfont-family: 'Courier New', monospace;\r\n}";
 			$filesystem->file_put_contents("{$path}/standard.css", $css);
 		}

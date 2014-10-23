@@ -5,8 +5,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 Snoopy - the PHP net client
 Author: Monte Ohrt <monte@ispi.net>
-Copyright (c): 1999-2005 ispi, all rights reserved
-Version: 1.2.3 (CVS Rev. 1.24)
+Copyright (c): 1999-2008 New Digital Group, all rights reserved
+Version: 1.2.4
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,13 +23,7 @@ Version: 1.2.3 (CVS Rev. 1.24)
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 You may contact the author of Snoopy by e-mail at:
-monte@ispi.net
-
-Or, write to:
-Monte Ohrt
-CTO, ispi
-237 S. 70th suite 220
-Lincoln, NE 68510
+monte@ohrt.com
 
 The latest version of Snoopy can be obtained from:
 http://snoopy.sourceforge.net/
@@ -49,7 +43,7 @@ class Snoopy
 	var $proxy_user		=	"";					// proxy user to use
 	var $proxy_pass		=	"";					// proxy password to use
 
-	var $agent			=	"Mozilla/4.0 (compatible; Snoopy 1.2.3; Viscacha)";	// agent we masquerade as
+	var $agent			=	"Mozilla/4.0 (compatible; Snoopy 1.2.4; Viscacha)";	// agent we masquerade as
 	var	$referer		=	"";					// referer info to pass
 	var $cookies		=	array();			// array of cookies to pass
 												// $cookies["username"]="joe";
@@ -172,7 +166,7 @@ class Snoopy
 						if($this->maxredirs > $this->_redirectdepth)
 						{
 							// only follow redirect if it's on this site, or offsiteok is true
-							if(preg_match("|^http://".preg_quote($this->host)."|i",$this->_redirectaddr) || $this->offsiteok)
+							if(preg_match("|^http://".preg_quote($this->host, '|')."|i",$this->_redirectaddr) || $this->offsiteok)
 							{
 								/* follow the redirect */
 								$this->_redirectdepth++;
@@ -232,7 +226,7 @@ class Snoopy
 					if($this->maxredirs > $this->_redirectdepth)
 					{
 						// only follow redirect if it's on this site, or offsiteok is true
-						if(preg_match("|^http://".preg_quote($this->host)."|i",$this->_redirectaddr) || $this->offsiteok)
+						if(preg_match("|^http://".preg_quote($this->host, '|')."|i",$this->_redirectaddr) || $this->offsiteok)
 						{
 							/* follow the redirect */
 							$this->_redirectdepth++;
@@ -327,7 +321,7 @@ class Snoopy
 								$this->_redirectaddr = $this->_expandlinks($this->_redirectaddr,$URI_PARTS["scheme"]."://".$URI_PARTS["host"]);
 
 							// only follow redirect if it's on this site, or offsiteok is true
-							if(preg_match("|^http://".preg_quote($this->host)."|i",$this->_redirectaddr) || $this->offsiteok)
+							if(preg_match("|^http://".preg_quote($this->host, '|')."|i",$this->_redirectaddr) || $this->offsiteok)
 							{
 								/* follow the redirect */
 								$this->_redirectdepth++;
@@ -394,7 +388,7 @@ class Snoopy
 							$this->_redirectaddr = $this->_expandlinks($this->_redirectaddr,$URI_PARTS["scheme"]."://".$URI_PARTS["host"]);
 
 						// only follow redirect if it's on this site, or offsiteok is true
-						if(preg_match("|^http://".preg_quote($this->host)."|i",$this->_redirectaddr) || $this->offsiteok)
+						if(preg_match("|^http://".preg_quote($this->host, '|')."|i",$this->_redirectaddr) || $this->offsiteok)
 						{
 							/* follow the redirect */
 							$this->_redirectdepth++;
@@ -756,7 +750,7 @@ class Snoopy
 		$match_root =
 		$match_part["scheme"]."://".$match_part["host"];
 
-		$search = array( 	"|^http://".preg_quote($this->host)."|i",
+		$search = array( 	"|^http://".preg_quote($this->host, '|')."|i",
 							"|^(\/)|i",
 							"|^(?!http://)(?!mailto:)|i",
 							"|/\./|",
@@ -787,6 +781,8 @@ class Snoopy
 
 	function _httprequest($url,$fp,$URI,$http_method,$content_type="",$body="")
 	{
+		$temp_dir = "";
+		$cmdline_params = "";
 		$cookie_headers = '';
 		if($this->passcookies && $this->_redirectaddr)
 			$this->setcookies();
@@ -806,18 +802,10 @@ class Snoopy
 		if(!empty($this->accept))
 			$headers .= "Accept: ".$this->accept."\r\n";
 
-		if($this->use_gzip) {
+		if($this->use_gzip && viscacha_function_exists('gzinflate')) {
 			// make sure PHP was built with --with-zlib
 			// and we can handle gzipp'ed data
-			if ( viscacha_function_exists('gzinflate') ) {
-			   $headers .= "Accept-encoding: gzip\r\n";
-			}
-			else {
-			   trigger_error(
-			   	"use_gzip is on, but PHP was built without zlib support.".
-				"  Requesting file(s) without gzip encoding.",
-				E_USER_NOTICE);
-			}
+			$headers .= "Accept-encoding: gzip\r\n";
 		}
 
 		if(!empty($this->referer))
@@ -955,8 +943,7 @@ class Snoopy
 		if(($this->_framedepth < $this->maxframes) && preg_match_all("'<frame\s+.*src[\s]*=[\'\"]?([^\'\"\>]+)'i",$results,$match))
 		{
 			$this->results[] = $results;
-			$cnt = count($match[1]);
-			for($x=0; $x<$cnt; $x++)
+			for($x=0; $x<count($match[1]); $x++)
 				$this->_frameurls[] = $this->_expandlinks($match[1][$x],$URI_PARTS["scheme"]."://".$this->host);
 		}
 		// have we already fetched framed content?
@@ -980,6 +967,8 @@ class Snoopy
 
 	function _httpsrequest($url,$URI,$http_method,$content_type="",$body="")
 	{
+		$temp_dir = "";
+		$cmdline_params = "";
 		if($this->passcookies && $this->_redirectaddr)
 			$this->setcookies();
 
@@ -1033,8 +1022,7 @@ class Snoopy
 		if(!empty($this->user) || !empty($this->pass))
 			$headers[] = "Authorization: BASIC ".base64_encode($this->user.":".$this->pass);
 
-		$c_h = count($headers);
-		for($curr_header = 0; $curr_header < $c_h; $curr_header++) {
+		for($curr_header = 0; $curr_header < count($headers); $curr_header++) {
 			$safer_header = strtr( $headers[$curr_header], "\"", " " );
 			$cmdline_params .= " -H \"".$safer_header."\"";
 		}
@@ -1047,8 +1035,7 @@ class Snoopy
 
 		$headerfile = tempnam($temp_dir, "sno");
 
-		$safer_URI = strtr( $URI, "\"", " " ); // strip quotes from the URI to avoid shell access
-		exec($this->curl_path." -D \"$headerfile\"".$cmdline_params." \"".$safer_URI."\"",$results,$return);
+		exec($this->curl_path." -k -D \"$headerfile\"".$cmdline_params." \"".escapeshellcmd($URI)."\"",$results,$return);
 
 		if($return)
 		{
@@ -1068,10 +1055,10 @@ class Snoopy
 		{
 
 			// if a header begins with Location: or URI:, set the redirect
-			if(preg_match("/^(Location: |URI: )/i",$result_headers[$currentHeader]))
+			if(preg_match("/^(Location:|URI:)/i",$result_headers[$currentHeader]))
 			{
 				// get URL portion of the redirect
-				preg_match("/^(Location: |URI:)\s+(.*)/",chop($result_headers[$currentHeader]),$matches);
+				preg_match("/^(Location:|URI:)[ ]+(.*)/",chop($result_headers[$currentHeader]),$matches);
 				// look for :// in the Location header to see if hostname is included
 				if(!preg_match("|\:\/\/|",$matches[2]))
 				{
@@ -1087,8 +1074,12 @@ class Snoopy
 					$this->_redirectaddr = $matches[2];
 			}
 
-			if(preg_match("|^HTTP/|",$result_headers[$currentHeader]))
+			if(preg_match("|^HTTP/|",$result_headers[$currentHeader])) {
+				if(preg_match("|^HTTP/[^\s]*\s(.*?)\s|",$result_headers[$currentHeader], $status)) {
+					$this->status = $status[1];
+				}
 				$this->response_code = $result_headers[$currentHeader];
+			}
 
 			$this->headers[] = $result_headers[$currentHeader];
 		}
@@ -1182,9 +1173,6 @@ class Snoopy
 
 		// Mod: Added IDNA support
 		list($fp,$errno,$errstr,$host) = fsockopen_idna($host, $port, $this->_fp_timeout);
-		if ($this->_isproxy) {
-			$this->proxy_host = $host;
-		}
 
 		if($fp)
 		{

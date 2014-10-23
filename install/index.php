@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 
 chdir('../');
 
-define('VISCACHA_VERSION', '0.8 RC7');
+define('VISCACHA_VERSION', '0.8');
 define('VISCACHA_CORE', '1');
 define('SCRIPTNAME', 'install');
 define('SCRIPT_LOCKED', file_exists('./locked.txt'));
@@ -16,8 +16,12 @@ if (!SCRIPT_LOCKED) {
 
 	$old_versions = array();
 	if (file_exists("install/package/update/steps.inc.php")) {
-		$old_versions['update'] = '0.8 RC6';
+		$old_versions['update'] = '0.8 RC7';
 	}
+	if (file_exists("install/package/update_rc6/steps.inc.php")) {
+		$old_versions['update_rc6'] = '0.8 RC6';
+	}
+
 	if (file_exists("install/package/update_rc5/steps.inc.php")) {
 		$old_versions['update_rc5'] = '0.8 RC5';
 	}
@@ -32,14 +36,14 @@ if (!SCRIPT_LOCKED) {
 	else {
 		$packages[] = array(
 			'title' => 'Installation',
-			'description' => 'For a fresh installation you need to download the Install-Package for Viscacha 0.8 RC7!'
+			'description' => 'For a fresh installation you need to download the Install-Package for Viscacha '.VISCACHA_VERSION.'!'
 		);
 	}
 	if (count($old_versions) > 0) {
 		foreach ($old_versions as $dir => $old_version) {
 			$packages[$dir] = array(
 				'title' => 'Update '.$old_version.' to '.VISCACHA_VERSION,
-				'description' => 'Already running Viscacha? Then choose this option to update from '.$old_version.' to the new Version!'
+				'description' => 'Already running Viscacha? Choose this option to update from '.$old_version.' to the new version!'
 			);
 		}
 	}
@@ -52,13 +56,13 @@ if (!SCRIPT_LOCKED) {
 
 	$package = null;
 	if (isset($_REQUEST['package']) && isset($packages[$_REQUEST['package']])) {
-		$package = trim($_REQUEST['package']);
+		$package = GPC_escape($_REQUEST['package'], GPC_ALNUM);
 		$package_data = $packages[$_REQUEST['package']];
 	}
 	if (!empty($package)) {
 		require_once('install/package/'.$package.'/steps.inc.php');
 		if (isset($_REQUEST['step'])) {
-			$step = intval(trim($_REQUEST['step']));
+			$step = intval($_REQUEST['step']);
 			if (!isset($steps[$step])) {
 				$step = 1;
 			}
@@ -135,14 +139,16 @@ if (!SCRIPT_LOCKED) {
 		</div>
 		</form>
 		<?php } elseif (!SCRIPT_LOCKED) { ?>
-		<?php if (version_compare(PHP_VERSION, '5.0.0', '<')) { ?>
+		<?php if (version_compare(PHP_VERSION, '5.0.0', '<') && empty($_REQUEST['skip_php'])) { ?>
 		<div class="border">
-			<h3>Warning: PHP Version mismatch</h3>
+			<h3>Error: PHP Version mismatch</h3>
 			<div class="bbody">
-			Support for PHP 4 has been discontinued since Viscacha 0.8 RC7. Please consider upgrading to the latest version of PHP 5. However it can be possible to run Viscacha with PHP 4, but you won't get any support for errors you will notice.
+			Support for PHP 4 has been discontinued since Viscacha 0.8 RC7.<br />
+			Please consider upgrading to (the latest version of) PHP 5 or you can't use Viscacha.
 			</div>
+			<div class="bfoot center"><a class="submit" href="index.php?skip_php=1">Continue anyway</a></div>
 		</div>
-		<?php } ?>
+		<?php } else { ?>
 		<div class="border">
 		<h3>Viscacha Setup</h3>
 		<div class="bbody">
@@ -161,7 +167,7 @@ if (!SCRIPT_LOCKED) {
 			</ul>
 		</div>
 		</div>
-		<?php } else { ?>
+		<?php } } else { ?>
 		<div class="border">
 			<h3>Viscacha is currently locked</h3>
 			<div class="bbody">

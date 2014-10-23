@@ -38,14 +38,8 @@ function ImageHexColorAllocate(&$image, $string) {
 
 ($code = $plugins->load('images_start')) ? eval($code) : null;
 
-// Change $gpc->plain_str(..., false) to true when Charts-lib can use utf-8
 if ($_GET['action'] == 'vote') {
-	$result = $db->query('
-	SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix
-	FROM '.$db->pre.'topics
-	WHERE id = '.$_GET['id'].'
-	LIMIT 1
-	');
+	$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
 	$info = $db->fetch_assoc($result);
 
 	require_once('classes/class.charts.php');
@@ -54,8 +48,8 @@ if ($_GET['action'] == 'vote') {
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);
 
-	$PG->title     = $gpc->plain_str($info['vquestion'], false);
-	$PG->axis_y    = $gpc->plain_str($lang->phrase('vote_export_votes'), false);
+	$PG->title     = $gpc->plain_str($info['vquestion']);
+	$PG->axis_y    = $gpc->plain_str($lang->phrase('vote_export_votes'));
 	$PG->type      = $modus;
 	$PG->skin      = $skin;
 	$PG->dp 	   = $lang->phrase('decpoint');
@@ -67,13 +61,13 @@ if ($_GET['action'] == 'vote') {
 	while ($row = $db->fetch_assoc($result)) {
 		$votes += $row['votes'];
 
-		$PG->x[$i] = $gpc->plain_str($row['answer'], false);
+		$PG->x[$i] = $gpc->plain_str($row['answer']);
 		$PG->y[$i] = $row['votes'];
 
 		$i++;
 	}
 
-	$PG->credits   = $gpc->plain_str($lang->phrase('vote_counter').$votes, false);
+	$PG->credits   = $gpc->plain_str($lang->phrase('vote_counter').$votes);
 
 	$PG->start();
 }
@@ -181,6 +175,32 @@ elseif ($_GET['action'] == 'postrating' || $_GET['action'] == 'memberrating' || 
 	ImageRectangle($image,0,0,$width+1,$height+1,$border);
 	imagePNG($image);
 	imagedestroy($image);
+}
+elseif ($_GET['action'] == 'm_email' || $_GET['action'] == 'g_email') {
+	$email = $lang->phrase('profile_mail_1');
+	
+	if ($_GET['action'] == 'm_email') {
+		$result = $db->query("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
+		if ($db->num_rows($result) == 1) {
+			$row = $db->fetch_assoc($result);
+			if ($row['opt_hidemail'] == 0) {
+				$email = $row['mail'];
+			}
+		}
+	}
+	else {
+		$result = $db->query("SELECT email FROM {$db->pre}replies WHERE id = '{$_GET['id']}' AND guest = '1'");
+		if ($db->num_rows($result) == 1) {
+			$row = $db->fetch_assoc($result);
+			$email = $row['email'];
+		}
+	}
+
+	include('classes/graphic/class.text2image.php');
+	$img = new text2image();
+	$img->prepare($email, 0, 10);
+	$img->build();
+	$img->output();
 }
 ($code = $plugins->load('images_end')) ? eval($code) : null;
 

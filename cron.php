@@ -66,13 +66,9 @@ $maxJobs = $config['pccron_maxjobs'];
 
 $resultsSummary = "";
 
-$debug = false;
-
 ($code = $plugins->load('cron_start')) ? eval($code) : null;
 
-if (!$debug) {
-	PixelImage();
-}
+PixelImage();
 InitCron();
 
 ($code = $plugins->load('cron_end')) ? eval($code) : null;

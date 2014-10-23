@@ -1,12 +1,35 @@
  <tr class="tbody">
-  <td><a href="profile.php?id=<?php echo $mod[$i]->mid.SID2URL_x; ?>"><?php echo $mod[$i]->member; ?></a><?php echo iif($mod[$i]->fullname,"<br /><em>".$mod[$i]->fullname."</em>"); ?></td>
-  <td class="center"><a href="pm.php?action=new&amp;id=<?php echo $mod[$i]->mid.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
-  <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $mod[$i]->mid.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td>
-  <td class="center"><?php echo iif($mod[$i]->hp,'<a href="'.$mod[$i]->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
-  <td><ul>
-  <?php foreach ($inner['moderator_bit_forum'] as $modb) { ?>
-	<li><a href="showforum.php?id=<?php echo $modb->bid.SID2URL_x; ?>"><?php echo $modb->board; ?></a>
-	<?php echo iif($modb->time > 0,'<br /><span class="stext">(<em>'.$lang->phrase('team_moderator_until').$modb->time.'</em>)</span>'); ?></li>
-  <?php } ?>
-  </ul></td>
+  <td>
+    <a href="profile.php?id=<?php echo $mid.SID2URL_x; ?>"><?php echo $mdata->member; ?></a>
+    <?php echo iif($mdata->fullname, "<br /><em>{$mdata->fullname}</em>"); ?>
+  </td>
+  <td class="center">
+    <a href="pm.php?action=new&amp;id=<?php echo $mid.SID2URL_x; ?>">
+      <img src="<?php echo $tpl->img('pm'); ?>" alt="" />
+    </a>
+  </td>
+  <td class="center">
+    <a href="profile.php?action=mail&amp;id=<?php echo $mid.SID2URL_x; ?>">
+      <img src="<?php echo $tpl->img('email'); ?>" alt="" />
+    </a>
+  </td>
+  <td class="center">
+    <?php if (!empty($mdata->hp)) { ?>
+    <a href="<?php echo $mdata->hp; ?>" target="_blank"><img src="<?php echo $tpl->img('homepage'); ?>" alt="" /></a>
+    <?php } else { echo $lang->phrase('homepage_no_data'); } ?>
+  </td>
+  <td>
+    <?php if (count($inner['moderator_bit_forum']) > 0) { ?>
+    <ul>
+      <?php foreach ($inner['moderator_bit_forum'] as $modb) { ?>
+	  <li>
+	    <a href="showforum.php?id=<?php echo $modb->bid.SID2URL_x; ?>"><?php echo $modb->board; ?></a>
+	    <?php if($modb->time > 0) { ?>
+	    <br /><span class="stext">(<em><?php echo $lang->phrase('team_moderator_until').$modb->time; ?></em>)</span>
+	    <?php } ?>
+	  </li>
+    <?php } ?>
+    </ul>
+  <?php } else { echo $lang->phrase('homepage_no_data'); } ?>
+  </td>
  </tr>

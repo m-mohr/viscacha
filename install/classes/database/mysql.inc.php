@@ -114,11 +114,21 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function errno() {
-		return mysql_errno();
+		if ($this->hasConnection()) {
+			return mysql_errno($this->conn);
+		}
+		else {
+			return mysql_errno();
+		}
 	}
 
 	function errstr() {
-		return mysql_error();
+		if ($this->hasConnection()) {
+			return mysql_error($this->conn);
+		}
+		else {
+			return mysql_error();
+		}
 	}
 
 	function query($sql, $die = true) {

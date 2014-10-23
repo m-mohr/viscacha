@@ -104,4 +104,5 @@ $lang['admin_settings_successfully_saved'] = 'Settings successfully saved!';
 $lang['admin_successfully_logged_in'] = 'You have successfully logged in!';
 $lang['admin_successfully_logged_off'] = 'You have successfully logged off!';
 $lang['admin_yes'] = 'Yes';
+$lang['gmt'] = 'GMT';
 ?>

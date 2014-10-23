@@ -56,7 +56,7 @@ class UniversalCodeCache extends CacheItem {
 				$language = '';
 			}
 			else {
-				$language = $geshi->get_language_name();
+				$language = $geshi->get_language_name($language);
 			}
 
 			$this->data = array(

@@ -24,6 +24,9 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+// Load flood check (essential for this class)
+include_once("classes/function.flood.php");
+
 class slog {
 
 var $statusdata;
@@ -356,19 +359,64 @@ function getStatus($groups, $implode = '') {
  * This is a quick and dirty helper function to set some data.
  *
  * This function sets some language-data (name for guests and the timezone) and sets $my->ip.
- *
- * @param string Language: Guest's name
- * @param string Language: Timezone
  */
-function setlang($l1, $l2) {
-	global $my;
+function setlang() {
+	global $my, $lang;
 	if (!$my->vlogin) {
-		$my->name = $l1;
+		$my->name = $lang->phrase('fallback_no_username');
 	}
-	if (date('I', times()) == 1) {
-		$my->timezonestr .= $l2;
-	}
+	$my->timezone_str = $this->getTimezone();
+	$my->current_time = gmdate($lang->phrase('dformat3'), times());
 	$my->ip = $this->ip;
+}
+
+/**
+ * Returns the timezone for the current user (GMT +/-??:?? or just GMT).
+ */
+function getTimezone($base = null) {
+	global $my, $lang;
+
+	$tz = $lang->phrase('gmt');
+
+	if ($base === null) {
+		$base = $my->timezone;
+	}
+
+	if ($base != 0) {
+		preg_match('~^(\+|-)?(\d{1,2})\.?(\d{0,2})?$~', $base, $parts);
+		$parts[2] = intval($parts[2]);
+		$parts[3] = intval($parts[3]);
+	}
+	else {
+		$parts = array(
+			1 => '',
+			2 => 0,
+			3 => 0
+		);
+	}
+
+	$summer = (date('I', times()) == 1);
+	if ($summer && $parts[1] == '-') {
+		$parts[2] = $parts[2] - 1;
+	}
+	else if ($summer) {
+		$parts[2] = $parts[2] + 1;
+	}
+
+	if ($parts[2] != 0) {
+		if (empty($parts[1])) {
+			$parts[1] = '+';
+		}
+
+		$parts[2] = leading_zero($parts[2]);
+
+		$parts[3] = $parts[3]/100*60;
+		$parts[3] = leading_zero($parts[3]);
+
+		$tz .= ' '.$parts[1].$parts[2].':'.$parts[3];
+	}
+
+	return $tz;
 }
 
 /**
@@ -548,18 +596,8 @@ function logged () {
 		}
 	}
 
-	if (!isset($my->timezone) || $my->timezone == NULL) {
+	if (!isset($my->timezone) || $my->timezone === null) {
 		$my->timezone = $config['timezone'];
-	}
-
-	$my->timezonestr = '';
-	if ($my->timezone <> 0) {
-		if ($my->timezone{0} != '+' && $my->timezone > 0) {
-			$my->timezonestr = '+'.$my->timezone;
-		}
-		else {
-			$my->timezonestr = $my->timezone;
-		}
 	}
 
 	$admin = $gpc->get('admin', str);
@@ -672,8 +710,14 @@ function checkBan() {
 	}
 	else {
 		// Try to ban other banned people or do nothing
-		$bannedip = file('data/bannedip.php');
-		$bannedip = array_map('trim', $bannedip);
+		if (file_exists('data/bannedip.php')) {
+			$bannedip = file('data/bannedip.php');
+			$bannedip = array_map('trim', $bannedip);
+		}
+		else {
+			$bannedip = array();
+			$filesystem->file_put_contents('data/bannedip.php', '');
+		}
 		$ban = false;
 		foreach ($bannedip as $row) {
 			$row = explode("\t", $row, 6);
@@ -907,18 +951,8 @@ function sid_login($remember = true) {
 		$my->vlogin = true;
 		$my->p = $this->Permissions();
 
-		if (!isset($my->timezone)) {
+		if (!isset($my->timezone) || $my->timezone === null) {
 			$my->timezone = $config['timezone'];
-		}
-
-		$my->timezonestr = '';
-		if ($my->timezone <> 0) {
-			if ($my->timezone{0} != '+' && $my->timezone > 0) {
-				$my->timezonestr = '+'.$my->timezone;
-			}
-			else {
-				$my->timezonestr = $my->timezone;
-			}
 		}
 
 		$loaddesign_obj = $scache->load('loaddesign');
@@ -1014,19 +1048,29 @@ function sid2url($my = null) {
 }
 
 function cleanUserData($data) {
+	global $gpc;
+	$trust = array(
+		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'icq', 'opt_textarea', 'language',
+		'opt_pmnotify', 'opt_hidebad', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
+		'ufid', // from userfields-table
+		'mid', 'active', 'wiw_id', 'last_visit', 'is_bot', 'mark', 'pwfaccess', 'settings' // from session-table
+	);
 	if (is_object($data)) {
-		global $gpc;
-		$trust = array(
-		 	'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'icq', 'opt_textarea', 'language',
-		 	'opt_pmnotify', 'opt_hidebad', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
-		 	'ufid', // from userfields-table
-		 	'mid', 'active', 'wiw_id', 'last_visit', 'is_bot', 'mark', 'pwfaccess', 'settings' // from session-table
-		);
 		foreach ($data as $key => $value) {
 			if (in_array($key, $trust) == false) {
 				$data->$key = $gpc->prepare($value);
 			}
 		}
+	}
+	else if (is_array($data)) {
+		foreach ($data as $key => $value) {
+			if (in_array($key, $trust) == false) {
+				$data[$key] = $gpc->prepare($value);
+			}
+		}
+	}
+	else {
+		trigger_error('Data passed to cleanUserData has not been not secured! Wrong data type specified.', E_WARNING);
 	}
 	return $data;
 }
@@ -1338,8 +1382,6 @@ function GlobalPermissions() {
 
 	}
 
-	$this->pwboards();
-
 	return $permissions;
 }
 
@@ -1460,7 +1502,7 @@ function setTopicRead($tid, $parents) {
 	// Erstelle ein Array mit schon gelesenen Beiträgen
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last > '{$my->clv}' AND id NOT IN({$inkeys})");
+		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");
 		$row = $db->fetch_num($result);
 		if ($row[0] == 0) {
 			$my->mark['f'][$tf] = time();
@@ -1470,7 +1512,7 @@ function setTopicRead($tid, $parents) {
 
 function setForumRead($fid) {
 	global $db, $my;
-	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last > '{$my->clv}'");
+	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last >= '{$my->clv}'");
 	while ($row = $db->fetch_assoc($result)) {
 		$my->mark['t'][$row['id']] = time();
 	}
@@ -1506,12 +1548,12 @@ function setAllRead() {
 
 function isForumRead($fid, $last_change) {
 	global $my;
-	return ((isset($my->mark['f'][$fid]) && $my->mark['f'][$fid] > $last_change) || $last_change < $my->clv);
+	return ((isset($my->mark['f'][$fid]) && $my->mark['f'][$fid] >= $last_change) || $last_change <= $my->clv);
 }
 
 function isTopicRead($tid, $last_change) {
 	global $my;
-	return ((isset($my->mark['t'][$tid]) && $my->mark['t'][$tid] > $last_change) || $last_change < $my->clv);
+	return ((isset($my->mark['t'][$tid]) && $my->mark['t'][$tid] >= $last_change) || $last_change <= $my->clv);
 }
 
 }

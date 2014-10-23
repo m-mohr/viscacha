@@ -147,8 +147,7 @@ elseif ($job == 'ftp') {
 	echo foot();
 }
 elseif ($job == 'ftp2') {
-	require_once("classes/ftp/class.ftp.php");
-	require_once("classes/ftp/class.ftp_".pemftp_class_module().".php");
+	$error = false;
 
 	$temp = array(
 		'ftp_server' => $gpc->get('ftp_server', none),
@@ -158,8 +157,16 @@ elseif ($job == 'ftp2') {
 		'ftp_path' => $gpc->get('ftp_path', none, DIRECTORY_SEPARATOR)
 	);
 
-	$error = false;
-	$dataGiven = count(array_unique($temp)) == 5;
+	require_once("classes/ftp/class.ftp.php");
+	$pemftp_class = pemftp_class_module();
+	if ($pemftp_class !== null) {
+		require_once("classes/ftp/class.ftp_{$pemftp_class}.php");
+	}
+	elseif (empty($temp['ftp_server'])) {
+		$error = 'admin_ftp_php_extension_error';
+	}
+
+	$dataGiven = (!empty($temp['ftp_server']) && !empty($temp['ftp_port']) && !empty($temp['ftp_user']) && !empty($temp['ftp_pw']) && !empty($temp['ftp_path']) && $error === false);
 	if ($dataGiven) {
 		ob_start();
 		$ftp = new ftp(true, true);
@@ -199,7 +206,7 @@ elseif ($job == 'ftp2') {
 		$c->updateconfig('ftp_port', int, $temp['ftp_port']);
 		$c->savedata();
 
-		$msg = $dataGiven ? $lang->phrase('admin_connection_is_ok') : null;
+		$msg = $dataGiven ? $lang->phrase('admin_connection_is_ok').'<br />'.$lang->phrase('admin_settings_successfully_saved') : null;
 
 		ok('admin.php?action=settings&job=settings', $msg);
 	}
@@ -289,10 +296,6 @@ elseif ($job == 'posts') {
 	   <td class="mbox" width="50%"><input type="text" name="resizebigimgwidth" value="<?php echo $config['resizebigimgwidth']; ?>" size="6"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_number_of_subscriptions_per_page'); ?></td>
-	   <td class="mbox" width="50%"><input type="text" name="abozahl" value="<?php echo $config['abozahl']; ?>" size="4"></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_show_real_name_post'); ?></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="fullname_posts" value="1"<?php echo iif($config['fullname_posts'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
@@ -303,6 +306,23 @@ elseif ($job == 'posts') {
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enable_change_vote'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_enable_change_vote_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="vote_change" value="1"<?php echo iif($config['vote_change'] == 1, ' checked="checked"'); ?> /></td>
+	  </tr>
+	  <tr>
+	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
+	  </tr>
+	 </table>
+	 <br class="minibr" />
+	 <table class="border" border="0" cellspacing="0" cellpadding="4">
+	  <tr>
+	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_topics_subscriptions'); ?></td>
+	  </tr>
+	  <tr>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_number_of_subscriptions_per_page'); ?></td>
+	   <td class="mbox" width="50%"><input type="text" name="abozahl" value="<?php echo $config['abozahl']; ?>" size="4"></td>
+	  </tr>
+	  <tr>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_multiple_instant_notifications'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_multiple_instant_notifications_info'); ?></span></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="multiple_instant_notifications" value="1"<?php echo iif($config['multiple_instant_notifications'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
@@ -349,6 +369,7 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('postrating_counter', int);
 	$c->updateconfig('guest_email_optional', int);
 	$c->updateconfig('abozahl', int);
+	$c->updateconfig('multiple_instant_notifications', int);
 	$c->updateconfig('fullname_posts', int);
 	$c->updateconfig('post_user_status', int);
 	$c->updateconfig('vote_change', int);
@@ -623,7 +644,7 @@ elseif ($job == 'server') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_htaccess_top_domain'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_htaccess_top_domain_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="correctsubdomains" value="1"<?php echo iif($config['hterrordocs'] == 1,' checked="checked"'); ?>></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="correctsubdomains" value="1"<?php echo iif($config['correctsubdomains'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_htaccess_error_doc'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_htaccess_error_doc_info'); ?></span></td>
@@ -1601,39 +1622,38 @@ elseif ($job == 'datetime') {
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_from_timezone'); ?><br><font class="stext"><?php echo $lang->phrase('admin_from_timezone_info'); ?></font></td>
 	   <td class="mbox" width="50%"><select name="timezone">
-			<option selected value="<?php echo $config['timezone']; ?>"><?php echo $lang->phrase('admin_timezone_maintain'); ?></option>
-			<option value="-12"><?php echo $lang->phrase('timezone_n12'); ?></option>
-			<option value="-11"><?php echo $lang->phrase('timezone_n11'); ?></option>
-			<option value="-10"><?php echo $lang->phrase('timezone_n10'); ?></option>
-			<option value="-9"><?php echo $lang->phrase('timezone_n9'); ?></option>
-			<option value="-8"><?php echo $lang->phrase('timezone_n8'); ?></option>
-			<option value="-7"><?php echo $lang->phrase('timezone_n7'); ?></option>
-			<option value="-6"><?php echo $lang->phrase('timezone_n6'); ?></option>
-			<option value="-5"><?php echo $lang->phrase('timezone_n5'); ?></option>
-			<option value="-4"><?php echo $lang->phrase('timezone_n4'); ?></option>
-			<option value="-3.5"><?php echo $lang->phrase('timezone_n35'); ?></option>
-			<option value="-3"><?php echo $lang->phrase('timezone_n3'); ?></option>
-			<option value="-2"><?php echo $lang->phrase('timezone_n2'); ?></option>
-			<option value="-1"><?php echo $lang->phrase('timezone_n1'); ?></option>
-			<option value="0"><?php echo $lang->phrase('timezone_0'); ?></option>
-			<option value="+1"><?php echo $lang->phrase('timezone_p1'); ?></option>
-			<option value="+2"><?php echo $lang->phrase('timezone_p2'); ?></option>
-			<option value="+3"><?php echo $lang->phrase('timezone_p3'); ?></option>
-			<option value="+3.5"><?php echo $lang->phrase('timezone_p35'); ?></option>
-			<option value="+4"><?php echo $lang->phrase('timezone_p4'); ?></option>
-			<option value="+4.5"><?php echo $lang->phrase('timezone_p45'); ?></option>
-			<option value="+5"><?php echo $lang->phrase('timezone_p5'); ?></option>
-			<option value="+5.5"><?php echo $lang->phrase('timezone_p55'); ?></option>
-			<option value="+5.75"><?php echo $lang->phrase('timezone_p575'); ?></option>
-			<option value="+6"><?php echo $lang->phrase('timezone_p6'); ?></option>
-			<option value="+6.5"><?php echo $lang->phrase('timezone_p65'); ?></option>
-			<option value="+7"><?php echo $lang->phrase('timezone_p7'); ?></option>
-			<option value="+8"><?php echo $lang->phrase('timezone_p8'); ?></option>
-			<option value="+9"><?php echo $lang->phrase('timezone_p9'); ?></option>
-			<option value="+9.5"><?php echo $lang->phrase('timezone_p95'); ?></option>
-			<option value="+10"><?php echo $lang->phrase('timezone_p10'); ?></option>
-			<option value="+11"><?php echo $lang->phrase('timezone_p11'); ?></option>
-			<option value="+12"><?php echo $lang->phrase('timezone_p12'); ?></option>
+			<option value="-12"<?php selectTZ($config['timezone'], -12); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
+			<option value="-11"<?php selectTZ($config['timezone'], -11); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
+			<option value="-10"<?php selectTZ($config['timezone'], -10); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
+			<option value="-9"<?php selectTZ($config['timezone'], -9); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
+			<option value="-8"<?php selectTZ($config['timezone'], -8); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
+			<option value="-7"<?php selectTZ($config['timezone'], -7); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
+			<option value="-6"<?php selectTZ($config['timezone'], -6); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
+			<option value="-5"<?php selectTZ($config['timezone'], -5); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
+			<option value="-4"<?php selectTZ($config['timezone'], -4); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
+			<option value="-3.5"<?php selectTZ($config['timezone'], -3.5); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
+			<option value="-3"<?php selectTZ($config['timezone'], -3); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
+			<option value="-2"<?php selectTZ($config['timezone'], -2); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
+			<option value="-1"<?php selectTZ($config['timezone'], -1); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
+			<option value="0"<?php selectTZ($config['timezone'], 0); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
+			<option value="+1"<?php selectTZ($config['timezone'], 1); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
+			<option value="+2"<?php selectTZ($config['timezone'], 2); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
+			<option value="+3"<?php selectTZ($config['timezone'], 3); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
+			<option value="+3.5"<?php selectTZ($config['timezone'], 3.5); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
+			<option value="+4"<?php selectTZ($config['timezone'], 4); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
+			<option value="+4.5"<?php selectTZ($config['timezone'], 4.5); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
+			<option value="+5"<?php selectTZ($config['timezone'], 5); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
+			<option value="+5.5"<?php selectTZ($config['timezone'], 5.5); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
+			<option value="+5.75"<?php selectTZ($config['timezone'], 5.75); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
+			<option value="+6"<?php selectTZ($config['timezone'], 6); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
+			<option value="+6.5"<?php selectTZ($config['timezone'], 6.5); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
+			<option value="+7"<?php selectTZ($config['timezone'], 7); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
+			<option value="+8"<?php selectTZ($config['timezone'], 8); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
+			<option value="+9"<?php selectTZ($config['timezone'], 9); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
+			<option value="+9.5"<?php selectTZ($config['timezone'], 9.5); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
+			<option value="+10"<?php selectTZ($config['timezone'], 10); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
+			<option value="+11"<?php selectTZ($config['timezone'], 11); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
+			<option value="+12"<?php selectTZ($config['timezone'], 12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
 		</select></td>
 	  </tr>
 	  <tr>

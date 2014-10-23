@@ -196,7 +196,7 @@ elseif ($job == 'import2') {
 
 	$inserted = false;
 	if ($overwrite == 0) {
-		$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES ($lang->phrase('admin_lang_new_langpack'), $lang->phrase('admin_lang_langpack_import_error'))");
+		$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES (".$lang->phrase('admin_lang_new_langpack').", ".$lang->phrase('admin_lang_langpack_import_error').")");
 		$inserted = true;
 		$overwrite = $db->insert_id();
 	}
@@ -216,7 +216,7 @@ elseif ($job == 'import2') {
 		}
 		$delobj = $scache->load('loadlanguage');
 		$delobj->delete();
-		ok('admin.php?action=language&job=manage', 'Languagepack import successful.');
+		ok('admin.php?action=language&job=manage', $lang->phrase('admin_lang_imported_successfully'));
 	}
 	else {
 		if ($inserted) {
@@ -770,7 +770,7 @@ elseif ($job == 'lang_emailtpl') {
   </tr>
   <tr>
    <td class="mbox" width="20%"><?php echo $lang->phrase('admin_lang_message'); ?></td>
-   <td class="mbox" width="80%"><textarea name="tpl" rows="10" cols="80"><?php echo $tpl[2]; ?></textarea></td>
+   <td class="mbox" width="80%"><textarea name="tpl" rows="10" cols="80"><?php echo $gpc->prepare($tpl[2]); ?></textarea></td>
   </tr>
   <tr>
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
@@ -928,7 +928,6 @@ elseif ($job == 'lang_edit') {
    <li><strong><?php echo $lang->phrase('admin_lang_text_templates'); ?></strong>
 	  <ul>
 	   	<li><a href="admin.php?action=language&job=lang_txttpl&id=<?php echo $id; ?>&file=moved"><?php echo $lang->phrase('admin_lang_topic_moved'); ?></a></li>
-	   	<li><a href="admin.php?action=language&job=lang_txttpl&id=<?php echo $id; ?>&file=notice"><?php echo $lang->phrase('admin_lang_copied_posts'); ?></a></li>
 	  </ul>
    </li>
    <li><a href="admin.php?action=language&job=lang_ignore&id=<?php echo $id; ?>"><?php echo $lang->phrase('admin_lang_ignored_search_keys'); ?></a></li>
@@ -1338,7 +1337,7 @@ elseif ($job == 'phrase_file_edit2') {
 	$encfile = base64_decode($file);
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
-	$language = $gpc->get('langt', none);
+	$language = $gpc->get('langt', arr_none);
 
 	$c = new manageconfig();
 	foreach ($language as $id => $t) {
@@ -1628,7 +1627,7 @@ elseif ($job == 'phrase_add2') {
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
 	$file = base64_decode($gpc->get('file', none));
-	$language = $gpc->get('langt', none);
+	$language = $gpc->get('langt', arr_none);
 
 	$c = new manageconfig();
 	foreach ($language as $id => $t) {

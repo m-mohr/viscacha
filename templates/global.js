@@ -327,9 +327,6 @@ function ShowMenu(id) {
 		elementmenu.style.left = posx+'px';
 		elementmenu.style.top = posy+'px';
 		elementmenu.style.visibility = 'visible';
-		if (!document.all || window.opera) {
-			elementmenu.style.overflow = 'auto';
-		}
 		active = id;
 		MenuEvent();
 	}
@@ -340,9 +337,6 @@ function HideMenu(menu) {
 	elementhide.style.left = '-1000px';
 	elementhide.style.top = '-1000px';
 	elementhide.style.visibility = 'hidden';
-	if (!document.all || window.opera) {
-		elementhide.style.overflow = 'hidden';
-	}
 	active = 0;
 }
 function Click() {

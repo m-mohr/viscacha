@@ -501,6 +501,7 @@ label, .labeldiv {
 	border-top: 0px solid;
 	text-align: left;
 	font-weight: normal;
+	overflow: hidden;
 }
 .popup select {
 	width: 194px;

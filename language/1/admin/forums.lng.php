@@ -163,6 +163,7 @@ $lang['admin_forum_title'] = 'Titel:';
 $lang['admin_forum_topic'] = 'Themen';
 $lang['admin_forum_topic_article'] = 'ein Thema als Artikel zu deklarieren';
 $lang['admin_forum_topic_news'] = 'ein Thema als Nachricht zu deklarieren';
+$lang['admin_forum_until'] = 'bis ';
 $lang['admin_forum_up'] = 'Hoch';
 $lang['admin_forum_username'] = 'Benutzername:';
 $lang['admin_forum_use_groups'] = 'Benutze für Gruppe(n):';

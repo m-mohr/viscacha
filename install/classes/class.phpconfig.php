@@ -39,6 +39,9 @@ class manageconfig {
 		if (!defined('int')) {
 			define('int', 1);
 		}
+		if (!defined('html_enc')) {
+			define('html_enc', 7);
+		}
 	}
 
 	function getdata($file='data/config.inc.php', $varname = 'config') {
@@ -135,20 +138,31 @@ class manageconfig {
 		if ($val == null) {
 	        if (isset($_REQUEST[$key])) {
 	            if ($type == int) {
-	                $val = intval(trim($_REQUEST[$key]));
+	                $val = intval($_REQUEST[$key]);
+	            }
+	            elseif ($type == html_enc) {
+	                $val = GPC_escape($_REQUEST[$key]);
 	            }
 	            else {
 	                $val = $_REQUEST[$key];
 	            }
 	        }
 	        else {
-	            if ($type == str) {
+	            if ($type == str || $type == html_enc) {
 	                $val = '';
 	            }
 	            elseif ($type == int) {
 	                $val = 0;
 	            }
 	        }
+		}
+		else {
+            if ($type == int) {
+                $val = intval($val);
+            }
+            elseif ($type == html_enc) {
+                $val = GPC_escape($val);
+            }
 		}
 
 		if (isset($group)) {

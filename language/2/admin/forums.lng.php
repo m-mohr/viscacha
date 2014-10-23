@@ -164,6 +164,7 @@ $lang['admin_forum_title'] = 'Title:';
 $lang['admin_forum_topic'] = 'Topics';
 $lang['admin_forum_topics_page'] = 'Number of Topics per Forumpage:';
 $lang['admin_forum_topic_article'] = 'specify a topic as article';
+$lang['admin_forum_until'] = 'until ';
 $lang['admin_forum_up'] = 'Up';
 $lang['admin_forum_username'] = 'Username:';
 $lang['admin_forum_use_groups'] = 'Use for group(s):';

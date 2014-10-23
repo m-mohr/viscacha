@@ -4,7 +4,7 @@
 <div class="bbody">
 <?php if ($row->opt_hidemail == 0) { ?>
 <label><?php echo $lang->phrase('email'); ?></label>
-<span class="iefix_left"><?php echo $row->mail; ?></span>
+<span class="iefix_left"><img src="images.php?action=m_email&amp;id=<?php echo $row->id.SID2URL_x; ?>" alt="" /></span>
 <br class="newinput" /><hr class="formsep" />
 <?php } ?>
 <label for="topic"><?php echo $lang->phrase('email_title'); ?></label>

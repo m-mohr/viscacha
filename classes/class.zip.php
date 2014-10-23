@@ -25,7 +25,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 //   The use of this software is at the risk of the user.
 //
 // --------------------------------------------------------------------------------
-// $Id: pclzip.lib.php,v 1.47 2007/07/20 13:56:07 vblavet Exp $
+// $Id: pclzip.lib.php,v 1.55 2009/04/22 07:38:36 vblavet Exp $
 // --------------------------------------------------------------------------------
 
   // ----- Constants
@@ -69,12 +69,24 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     define( 'PCLZIP_TEMPORARY_DIR', '' );
   }
 
+  // ----- Optional threshold ratio for use of temporary files
+  //       Pclzip sense the size of the file to add/extract and decide to
+  //       use or not temporary file. The algorythm is looking for
+  //       memory_limit of PHP and apply a ratio.
+  //       threshold = memory_limit * ratio.
+  //       Recommended values are under 0.5. Default 0.47.
+  //       Samples :
+  // define( 'PCLZIP_TEMPORARY_FILE_RATIO', 0.5 );
+  if (!defined('PCLZIP_TEMPORARY_FILE_RATIO')) {
+    define( 'PCLZIP_TEMPORARY_FILE_RATIO', 0.47 );
+  }
+
 // --------------------------------------------------------------------------------
 // ***** UNDER THIS LINE NOTHING NEEDS TO BE MODIFIED *****
 // --------------------------------------------------------------------------------
 
   // ----- Global variables
-  $g_pclzip_version = "2.6";
+  $g_pclzip_version = "2.8";
 
   // ----- Error codes
   //   -1 : Unable to open file in binary write mode
@@ -125,7 +137,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
   define( 'PCLZIP_OPT_NO_COMPRESSION', 77007 );
   define( 'PCLZIP_OPT_BY_NAME', 77008 );
   define( 'PCLZIP_OPT_BY_INDEX', 77009 );
-  define( 'PCLZIP_OPT_BY_EREG', 77010 );
   define( 'PCLZIP_OPT_BY_PREG', 77011 );
   define( 'PCLZIP_OPT_COMMENT', 77012 );
   define( 'PCLZIP_OPT_ADD_COMMENT', 77013 );
@@ -137,6 +148,12 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
   // which is not correctly supported by PHP ...
   //define( 'PCLZIP_OPT_CRYPT', 77018 );
   define( 'PCLZIP_OPT_EXTRACT_DIR_RESTRICTION', 77019 );
+  define( 'PCLZIP_OPT_TEMP_FILE_THRESHOLD', 77020 );
+  define( 'PCLZIP_OPT_ADD_TEMP_FILE_THRESHOLD', 77020 ); // alias
+  define( 'PCLZIP_OPT_TEMP_FILE_ON', 77021 );
+  define( 'PCLZIP_OPT_ADD_TEMP_FILE_ON', 77021 ); // alias
+  define( 'PCLZIP_OPT_TEMP_FILE_OFF', 77022 );
+  define( 'PCLZIP_OPT_ADD_TEMP_FILE_OFF', 77022 ); // alias
 
   // ----- File description attributes
   define( 'PCLZIP_ATT_FILE_NAME', 79001 );
@@ -287,7 +304,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
                                                    PCLZIP_CB_PRE_ADD => 'optional',
                                                    PCLZIP_CB_POST_ADD => 'optional',
                                                    PCLZIP_OPT_NO_COMPRESSION => 'optional',
-                                                   PCLZIP_OPT_COMMENT => 'optional'
+                                                   PCLZIP_OPT_COMMENT => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_THRESHOLD => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_ON => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_OFF => 'optional'
                                                    //, PCLZIP_OPT_CRYPT => 'optional'
                                              ));
         if ($v_result != 1) {
@@ -314,6 +334,9 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         }
       }
     }
+
+    // ----- Look for default option values
+    $this->privOptionDefaultThreshold($v_options);
 
     // ----- Init
     $v_string_list = array();
@@ -466,7 +489,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
                                                    PCLZIP_OPT_NO_COMPRESSION => 'optional',
                                                    PCLZIP_OPT_COMMENT => 'optional',
                                                    PCLZIP_OPT_ADD_COMMENT => 'optional',
-                                                   PCLZIP_OPT_PREPEND_COMMENT => 'optional'
+                                                   PCLZIP_OPT_PREPEND_COMMENT => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_THRESHOLD => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_ON => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_OFF => 'optional'
                                                    //, PCLZIP_OPT_CRYPT => 'optional'
 												   ));
         if ($v_result != 1) {
@@ -495,6 +521,9 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         }
       }
     }
+
+    // ----- Look for default option values
+    $this->privOptionDefaultThreshold($v_options);
 
     // ----- Init
     $v_string_list = array();
@@ -713,14 +742,16 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
                                                    PCLZIP_CB_POST_EXTRACT => 'optional',
                                                    PCLZIP_OPT_SET_CHMOD => 'optional',
                                                    PCLZIP_OPT_BY_NAME => 'optional',
-                                                   PCLZIP_OPT_BY_EREG => 'optional',
                                                    PCLZIP_OPT_BY_PREG => 'optional',
                                                    PCLZIP_OPT_BY_INDEX => 'optional',
                                                    PCLZIP_OPT_EXTRACT_AS_STRING => 'optional',
                                                    PCLZIP_OPT_EXTRACT_IN_OUTPUT => 'optional',
                                                    PCLZIP_OPT_REPLACE_NEWER => 'optional'
                                                    ,PCLZIP_OPT_STOP_ON_ERROR => 'optional'
-                                                   ,PCLZIP_OPT_EXTRACT_DIR_RESTRICTION => 'optional'
+                                                   ,PCLZIP_OPT_EXTRACT_DIR_RESTRICTION => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_THRESHOLD => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_ON => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_OFF => 'optional'
 												    ));
         if ($v_result != 1) {
           return 0;
@@ -766,6 +797,9 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         }
       }
     }
+
+    // ----- Look for default option values
+    $this->privOptionDefaultThreshold($v_options);
 
     // ----- Trace
 
@@ -870,7 +904,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
                                                    PCLZIP_OPT_SET_CHMOD => 'optional',
                                                    PCLZIP_OPT_REPLACE_NEWER => 'optional'
                                                    ,PCLZIP_OPT_STOP_ON_ERROR => 'optional'
-                                                   ,PCLZIP_OPT_EXTRACT_DIR_RESTRICTION => 'optional'
+                                                   ,PCLZIP_OPT_EXTRACT_DIR_RESTRICTION => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_THRESHOLD => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_ON => 'optional',
+                                                   PCLZIP_OPT_TEMP_FILE_OFF => 'optional'
 												   ));
         if ($v_result != 1) {
           return 0;
@@ -936,6 +973,9 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     }
     $v_options[PCLZIP_OPT_BY_INDEX] = $v_options_trick[PCLZIP_OPT_BY_INDEX];
 
+    // ----- Look for default option values
+    $this->privOptionDefaultThreshold($v_options);
+
     // ----- Call the extracting fct
     if (($v_result = $this->privExtractByRule($p_list, $v_path, $v_remove_path, $v_remove_all_path, $v_options)) < 1) {
         return(0);
@@ -957,7 +997,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
   // Options :
   //   PCLZIP_OPT_BY_INDEX :
   //   PCLZIP_OPT_BY_NAME :
-  //   PCLZIP_OPT_BY_EREG :
   //   PCLZIP_OPT_BY_PREG :
   // Return Values :
   //   0 on failure,
@@ -990,7 +1029,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       // ----- Parse the options
       $v_result = $this->privParseOptions($v_arg_list, $v_size, $v_options,
                                         array (PCLZIP_OPT_BY_NAME => 'optional',
-                                               PCLZIP_OPT_BY_EREG => 'optional',
                                                PCLZIP_OPT_BY_PREG => 'optional',
                                                PCLZIP_OPT_BY_INDEX => 'optional' ));
       if ($v_result != 1) {
@@ -1421,6 +1459,56 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
           $i++;
         break;
 
+        case PCLZIP_OPT_TEMP_FILE_THRESHOLD :
+          // ----- Check the number of parameters
+          if (($i+1) >= $p_size) {
+            PclZip::privErrorLog(PCLZIP_ERR_MISSING_OPTION_VALUE, "Missing parameter value for option '".PclZipUtilOptionText($p_options_list[$i])."'");
+            return PclZip::errorCode();
+          }
+
+          // ----- Check for incompatible options
+          if (isset($v_result_list[PCLZIP_OPT_TEMP_FILE_OFF])) {
+            PclZip::privErrorLog(PCLZIP_ERR_INVALID_PARAMETER, "Option '".PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_OFF'");
+            return PclZip::errorCode();
+          }
+
+          // ----- Check the value
+          $v_value = $p_options_list[$i+1];
+          if ((!is_integer($v_value)) || ($v_value<0)) {
+            PclZip::privErrorLog(PCLZIP_ERR_INVALID_OPTION_VALUE, "Integer expected for option '".PclZipUtilOptionText($p_options_list[$i])."'");
+            return PclZip::errorCode();
+          }
+
+          // ----- Get the value (and convert it in bytes)
+          $v_result_list[$p_options_list[$i]] = $v_value*1048576;
+          $i++;
+        break;
+
+        case PCLZIP_OPT_TEMP_FILE_ON :
+          // ----- Check for incompatible options
+          if (isset($v_result_list[PCLZIP_OPT_TEMP_FILE_OFF])) {
+            PclZip::privErrorLog(PCLZIP_ERR_INVALID_PARAMETER, "Option '".PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_OFF'");
+            return PclZip::errorCode();
+          }
+
+          $v_result_list[$p_options_list[$i]] = true;
+        break;
+
+        case PCLZIP_OPT_TEMP_FILE_OFF :
+          // ----- Check for incompatible options
+          if (isset($v_result_list[PCLZIP_OPT_TEMP_FILE_ON])) {
+            PclZip::privErrorLog(PCLZIP_ERR_INVALID_PARAMETER, "Option '".PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_ON'");
+            return PclZip::errorCode();
+          }
+          // ----- Check for incompatible options
+          if (isset($v_result_list[PCLZIP_OPT_TEMP_FILE_THRESHOLD])) {
+            PclZip::privErrorLog(PCLZIP_ERR_INVALID_PARAMETER, "Option '".PclZipUtilOptionText($p_options_list[$i])."' can not be used with option 'PCLZIP_OPT_TEMP_FILE_THRESHOLD'");
+            return PclZip::errorCode();
+          }
+
+          $v_result_list[$p_options_list[$i]] = true;
+          break;
+
         case PCLZIP_OPT_EXTRACT_DIR_RESTRICTION :
           // ----- Check the number of parameters
           if (($i+1) >= $p_size) {
@@ -1470,8 +1558,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
           $i++;
         break;
 
-        // ----- Look for options that request an EREG or PREG expression
-        case PCLZIP_OPT_BY_EREG :
+        // ----- Look for options that request a PREG expression
         case PCLZIP_OPT_BY_PREG :
         //case PCLZIP_OPT_CRYPT :
           // ----- Check the number of parameters
@@ -1722,6 +1809,47 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
   // --------------------------------------------------------------------------------
 
   // --------------------------------------------------------------------------------
+  // Function : privOptionDefaultThreshold()
+  // Description :
+  // Parameters :
+  // Return Values :
+  // --------------------------------------------------------------------------------
+  function privOptionDefaultThreshold(&$p_options)
+  {
+    $v_result=1;
+
+    if (isset($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD])
+        || isset($p_options[PCLZIP_OPT_TEMP_FILE_OFF])) {
+      return $v_result;
+    }
+
+    // ----- Get 'memory_limit' configuration value
+    $v_memory_limit = ini_get('memory_limit');
+    $v_memory_limit = trim($v_memory_limit);
+    $last = strtolower(substr($v_memory_limit, -1));
+
+    if($last == 'g')
+        //$v_memory_limit = $v_memory_limit*1024*1024*1024;
+        $v_memory_limit = $v_memory_limit*1073741824;
+    if($last == 'm')
+        //$v_memory_limit = $v_memory_limit*1024*1024;
+        $v_memory_limit = $v_memory_limit*1048576;
+    if($last == 'k')
+        $v_memory_limit = $v_memory_limit*1024;
+
+    $p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] = floor($v_memory_limit*PCLZIP_TEMPORARY_FILE_RATIO);
+
+    // ----- Sanity check : No threshold if value lower than 1M
+    if ($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] < 1048576) {
+      unset($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD]);
+    }
+
+    // ----- Return
+    return $v_result;
+  }
+  // --------------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------------
   // Function : privFileDescrParseAtt()
   // Description :
   // Parameters :
@@ -1867,7 +1995,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       $v_descr = $p_filedescr_list[$i];
 
       // ----- Reduce the filename
-      $v_descr['filename'] = PclZipUtilTranslateWinPath($v_descr['filename']);
+      $v_descr['filename'] = PclZipUtilTranslateWinPath($v_descr['filename'], false);
       $v_descr['filename'] = PclZipUtilPathReduction($v_descr['filename']);
 
       // ----- Look for real file or folder
@@ -1896,7 +2024,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       // ----- Missing file
       else {
         // ----- Error log
-        PclZip::privErrorLog(PCLZIP_ERR_MISSING_FILE, "File '".$v_descr['filename']."' does not exists");
+        PclZip::privErrorLog(PCLZIP_ERR_MISSING_FILE, "File '".$v_descr['filename']."' does not exist");
 
         // ----- Return
         return PclZip::errorCode();
@@ -2340,7 +2468,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       // ----- Check the filename
       if (   ($p_filedescr_list[$j]['type'] != 'virtual_file')
           && (!file_exists($p_filedescr_list[$j]['filename']))) {
-        PclZip::privErrorLog(PCLZIP_ERR_MISSING_FILE, "File '".$p_filedescr_list[$j]['filename']."' does not exists");
+        PclZip::privErrorLog(PCLZIP_ERR_MISSING_FILE, "File '".$p_filedescr_list[$j]['filename']."' does not exist");
         return PclZip::errorCode();
       }
 
@@ -2449,7 +2577,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       $p_header['mtime'] = $p_filedescr['mtime'];
     }
     else if ($p_filedescr['type'] == 'virtual_file') {
-      $p_header['mtime'] = mktime();
+      $p_header['mtime'] = time();
     }
     else {
       $p_header['mtime'] = filemtime($p_filename);
@@ -2503,12 +2631,20 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     if ($p_header['status'] == 'ok') {
 
       // ----- Look for a file
-//      if (is_file($p_filename))
-      if (   ($p_filedescr['type'] == 'file')
-          || ($p_filedescr['type'] == 'virtual_file')) {
+      if ($p_filedescr['type'] == 'file') {
+        // ----- Look for using temporary file to zip
+        if ( (!isset($p_options[PCLZIP_OPT_TEMP_FILE_OFF]))
+            && (isset($p_options[PCLZIP_OPT_TEMP_FILE_ON])
+                || (isset($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD])
+                    && ($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] <= $p_header['size'])) ) ) {
+          $v_result = $this->privAddFileUsingTempFile($p_filedescr, $p_header, $p_options);
+          if ($v_result < PCLZIP_ERR_NO_ERROR) {
+            return $v_result;
+          }
+        }
 
-        // ----- Get content from real file
-        if ($p_filedescr['type'] == 'file') {
+        // ----- Use "in memory" zip algo
+        else {
 
           // ----- Open the source file
           if (($v_file = @fopen($p_filename, "rb")) == 0) {
@@ -2519,12 +2655,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
           // ----- Read the file content
           $v_content = @fread($v_file, $p_header['size']);
 
-          // ----- Close the file
-          @fclose($v_file);
-        }
-        else if ($p_filedescr['type'] == 'virtual_file') {
-          $v_content = $p_filedescr['content'];
-        }
+        // ----- Close the file
+        @fclose($v_file);
 
         // ----- Calculate the CRC
         $p_header['crc'] = @crc32($v_content);
@@ -2546,26 +2678,43 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
           $p_header['compression'] = 8;
         }
 
-        // ----- Look for encryption
-        /*
-        if ((isset($p_options[PCLZIP_OPT_CRYPT]))
-		    && ($p_options[PCLZIP_OPT_CRYPT] != "")) {
-
-          // Should be a random header
-          $v_header = 'xxxxxxxxxxxx';
-	      $v_content_compressed = PclZipUtilZipEncrypt($v_content_compressed,
-		                                           $p_header['compressed_size'],
-	                                               $v_header,
-												   $p_header['crc'],
-												   "test");
-
-          $p_header['compressed_size'] += 12;
-          $p_header['flag'] = 1;
-
-          // ----- Add the header to the data
-          $v_content_compressed = $v_header.$v_content_compressed;
+        // ----- Call the header generation
+        if (($v_result = $this->privWriteFileHeader($p_header)) != 1) {
+          @fclose($v_file);
+          return $v_result;
         }
-        */
+
+        // ----- Write the compressed (or not) content
+        @fwrite($this->zip_fd, $v_content, $p_header['compressed_size']);
+
+        }
+
+      }
+
+      // ----- Look for a virtual file (a file from string)
+      else if ($p_filedescr['type'] == 'virtual_file') {
+
+        $v_content = $p_filedescr['content'];
+
+        // ----- Calculate the CRC
+        $p_header['crc'] = @crc32($v_content);
+
+        // ----- Look for no compression
+        if ($p_options[PCLZIP_OPT_NO_COMPRESSION]) {
+          // ----- Set header parameters
+          $p_header['compressed_size'] = $p_header['size'];
+          $p_header['compression'] = 0;
+        }
+
+        // ----- Look for normal compression
+        else {
+          // ----- Compress the content
+          $v_content = @gzdeflate($v_content);
+
+          // ----- Set header parameters
+          $p_header['compressed_size'] = strlen($v_content);
+          $p_header['compression'] = 8;
+        }
 
         // ----- Call the header generation
         if (($v_result = $this->privWriteFileHeader($p_header)) != 1) {
@@ -2623,6 +2772,115 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
   // --------------------------------------------------------------------------------
 
   // --------------------------------------------------------------------------------
+  // Function : privAddFileUsingTempFile()
+  // Description :
+  // Parameters :
+  // Return Values :
+  // --------------------------------------------------------------------------------
+  function privAddFileUsingTempFile($p_filedescr, &$p_header, &$p_options)
+  {
+    $v_result=PCLZIP_ERR_NO_ERROR;
+
+    // ----- Working variable
+    $p_filename = $p_filedescr['filename'];
+
+    // ----- Open the source file
+    if (($v_file = @fopen($p_filename, "rb")) == 0) {
+      PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, "Unable to open file '$p_filename' in binary read mode");
+      return PclZip::errorCode();
+    }
+
+    // ----- Creates a compressed temporary file
+    $v_gzip_temp_name = PCLZIP_TEMPORARY_DIR.uniqid('pclzip-').'.gz';
+    if (($v_file_compressed = @gzopen($v_gzip_temp_name, "wb")) == 0) {
+      fclose($v_file);
+      PclZip::privErrorLog(PCLZIP_ERR_WRITE_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary write mode');
+      return PclZip::errorCode();
+    }
+
+    // ----- Read the file by PCLZIP_READ_BLOCK_SIZE octets blocks
+    $v_size = filesize($p_filename);
+    while ($v_size != 0) {
+      $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
+      $v_buffer = @fread($v_file, $v_read_size);
+      //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
+      @gzputs($v_file_compressed, $v_buffer, $v_read_size);
+      $v_size -= $v_read_size;
+    }
+
+    // ----- Close the file
+    @fclose($v_file);
+    @gzclose($v_file_compressed);
+
+    // ----- Check the minimum file size
+    if (filesize($v_gzip_temp_name) < 18) {
+      PclZip::privErrorLog(PCLZIP_ERR_BAD_FORMAT, 'gzip temporary file \''.$v_gzip_temp_name.'\' has invalid filesize - should be minimum 18 bytes');
+      return PclZip::errorCode();
+    }
+
+    // ----- Extract the compressed attributes
+    if (($v_file_compressed = @fopen($v_gzip_temp_name, "rb")) == 0) {
+      PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary read mode');
+      return PclZip::errorCode();
+    }
+
+    // ----- Read the gzip file header
+    $v_binary_data = @fread($v_file_compressed, 10);
+    $v_data_header = unpack('a1id1/a1id2/a1cm/a1flag/Vmtime/a1xfl/a1os', $v_binary_data);
+
+    // ----- Check some parameters
+    $v_data_header['os'] = bin2hex($v_data_header['os']);
+
+    // ----- Read the gzip file footer
+    @fseek($v_file_compressed, filesize($v_gzip_temp_name)-8);
+    $v_binary_data = @fread($v_file_compressed, 8);
+    $v_data_footer = unpack('Vcrc/Vcompressed_size', $v_binary_data);
+
+    // ----- Set the attributes
+    $p_header['compression'] = ord($v_data_header['cm']);
+    //$p_header['mtime'] = $v_data_header['mtime'];
+    $p_header['crc'] = $v_data_footer['crc'];
+    $p_header['compressed_size'] = filesize($v_gzip_temp_name)-18;
+
+    // ----- Close the file
+    @fclose($v_file_compressed);
+
+    // ----- Call the header generation
+    if (($v_result = $this->privWriteFileHeader($p_header)) != 1) {
+      return $v_result;
+    }
+
+    // ----- Add the compressed data
+    if (($v_file_compressed = @fopen($v_gzip_temp_name, "rb")) == 0)
+    {
+      PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary read mode');
+      return PclZip::errorCode();
+    }
+
+    // ----- Read the file by PCLZIP_READ_BLOCK_SIZE octets blocks
+    fseek($v_file_compressed, 10);
+    $v_size = $p_header['compressed_size'];
+    while ($v_size != 0)
+    {
+      $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
+      $v_buffer = @fread($v_file_compressed, $v_read_size);
+      //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
+      @fwrite($this->zip_fd, $v_buffer, $v_read_size);
+      $v_size -= $v_read_size;
+    }
+
+    // ----- Close the file
+    @fclose($v_file_compressed);
+
+    // ----- Unlink the temporary file
+    @unlink($v_gzip_temp_name);
+
+    // ----- Return
+    return $v_result;
+  }
+  // --------------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------------
   // Function : privCalculateStoredFilename()
   // Description :
   //   Based on file descriptor properties and global options, this method
@@ -2657,13 +2915,15 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
     // ----- Look for full name change
     if (isset($p_filedescr['new_full_name'])) {
-      $v_stored_filename = $p_filedescr['new_full_name'];
+      // ----- Remove drive letter if any
+      $v_stored_filename = PclZipUtilTranslateWinPath($p_filedescr['new_full_name']);
     }
 
     // ----- Look for path and/or short name change
     else {
 
       // ----- Look for short name change
+      // Its when we cahnge just the filename but not the path
       if (isset($p_filedescr['new_short_name'])) {
         $v_path_info = pathinfo($p_filename);
         $v_dir = '';
@@ -2711,6 +2971,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
           }
         }
       }
+
+      // ----- Remove drive letter if any
+      $v_stored_filename = PclZipUtilTranslateWinPath($v_stored_filename);
+
       // ----- Look for path to add
       if ($p_add_dir != "") {
         if (substr($p_add_dir, -1) == "/")
@@ -2956,8 +3220,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     $v_result=1;
 
     // ----- Get the interesting attributes
-    $p_info['filename'] = $p_header['filename'];
-    $p_info['stored_filename'] = $p_header['stored_filename'];
+    $v_temp_path = PclZipUtilPathReduction($p_header['filename']);
+    $p_info['filename'] = $v_temp_path;
+    $v_temp_path = PclZipUtilPathReduction($p_header['stored_filename']);
+    $p_info['stored_filename'] = $v_temp_path;
     $p_info['size'] = $p_header['size'];
     $p_info['compressed_size'] = $p_header['compressed_size'];
     $p_info['mtime'] = $p_header['mtime'];
@@ -3100,15 +3366,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
               elseif ($v_header['stored_filename'] == $p_options[PCLZIP_OPT_BY_NAME][$j]) {
                   $v_extract = true;
               }
-          }
-      }
-
-      // ----- Look for extract by ereg rule
-      else if (   (isset($p_options[PCLZIP_OPT_BY_EREG]))
-               && ($p_options[PCLZIP_OPT_BY_EREG] != "")) {
-
-          if (ereg($p_options[PCLZIP_OPT_BY_EREG], $v_header['stored_filename'])) {
-              $v_extract = true;
           }
       }
 
@@ -3426,7 +3683,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       $p_entry['filename'] = $v_local_header['filename'];
     }
 
-
     // ----- Look if extraction should be done
     if ($p_entry['status'] == 'ok') {
 
@@ -3452,7 +3708,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 								 ."already used by an existing directory");
 
             return PclZip::errorCode();
-		}
+		    }
       }
       // ----- Look if file is write protected
       else if (!is_writeable($p_entry['filename']))
@@ -3472,7 +3728,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 								 ."and is write protected");
 
             return PclZip::errorCode();
-		}
+		    }
       }
 
       // ----- Look if the extracted file is older
@@ -3481,8 +3737,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         // ----- Change the file status
         if (   (isset($p_options[PCLZIP_OPT_REPLACE_NEWER]))
 		    && ($p_options[PCLZIP_OPT_REPLACE_NEWER]===true)) {
-		}
-		else {
+	  	  }
+		    else {
             $p_entry['status'] = "newer_exist";
 
             // ----- Look for PCLZIP_OPT_STOP_ON_ERROR
@@ -3496,8 +3752,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 					    ."and option PCLZIP_OPT_REPLACE_NEWER is not selected");
 
                 return PclZip::errorCode();
+		      }
 		    }
-		}
       }
       else {
       }
@@ -3512,17 +3768,16 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       else
         $v_dir_to_check = dirname($p_entry['filename']);
 
-      if (($v_result = $this->privDirCheck($v_dir_to_check, (($p_entry['external']&0x00000010)==0x00000010))) != 1) {
+        if (($v_result = $this->privDirCheck($v_dir_to_check, (($p_entry['external']&0x00000010)==0x00000010))) != 1) {
 
-        // ----- Change the file status
-        $p_entry['status'] = "path_creation_fail";
+          // ----- Change the file status
+          $p_entry['status'] = "path_creation_fail";
 
-        // ----- Return
-        ////--(MAGIC-PclTrace)--//PclTraceFctEnd(__FILE__, __LINE__, $v_result);
-        //return $v_result;
-        $v_result = 1;
+          // ----- Return
+          //return $v_result;
+          $v_result = 1;
+        }
       }
-    }
     }
 
     // ----- Look if extraction should be done
@@ -3534,7 +3789,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         // ----- Look for not compressed file
         if ($p_entry['compression'] == 0) {
 
-		  // ----- Opening destination file
+    		  // ----- Opening destination file
           if (($v_dest_file = @fopen($p_entry['filename'], 'wb')) == 0)
           {
 
@@ -3544,7 +3799,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
             // ----- Return
             return $v_result;
           }
-
 
           // ----- Read the file by PCLZIP_READ_BLOCK_SIZE octets blocks
           $v_size = $p_entry['compressed_size'];
@@ -3572,59 +3826,56 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
           // ----- TBC
           // Need to be finished
           if (($p_entry['flag'] & 1) == 1) {
-            /*
-              // ----- Read the encryption header
-              $v_encryption_header = @fread($this->zip_fd, 12);
-
-              // ----- Read the encrypted & compressed file in a buffer
-              $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']-12);
-
-              // ----- Decrypt the buffer
-              $this->privDecrypt($v_encryption_header, $v_buffer,
-			                     $p_entry['compressed_size']-12, $p_entry['crc']);
-              */
+            PclZip::privErrorLog(PCLZIP_ERR_UNSUPPORTED_ENCRYPTION, 'File \''.$p_entry['filename'].'\' is encrypted. Encrypted files are not supported.');
+            return PclZip::errorCode();
           }
+
+          // ----- Look for using temporary file to unzip
+          if ( (!isset($p_options[PCLZIP_OPT_TEMP_FILE_OFF]))
+              && (isset($p_options[PCLZIP_OPT_TEMP_FILE_ON])
+                  || (isset($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD])
+                      && ($p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] <= $p_entry['size'])) ) ) {
+            $v_result = $this->privExtractFileUsingTempFile($p_entry, $p_options);
+            if ($v_result < PCLZIP_ERR_NO_ERROR) {
+              return $v_result;
+            }
+          }
+
+          // ----- Look for extract in memory
           else {
-              // ----- Read the compressed file in a buffer (one shot)
-              $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
+
+            // ----- Read the compressed file in a buffer (one shot)
+            $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
+
+            // ----- Decompress the file
+            $v_file_content = @gzinflate($v_buffer);
+            unset($v_buffer);
+            if ($v_file_content === FALSE) {
+
+              // ----- Change the file status
+              // TBC
+              $p_entry['status'] = "error";
+
+              return $v_result;
+            }
+
+            // ----- Opening destination file
+            if (($v_dest_file = @fopen($p_entry['filename'], 'wb')) == 0) {
+
+              // ----- Change the file status
+              $p_entry['status'] = "write_error";
+
+              return $v_result;
+            }
+
+            // ----- Write the uncompressed data
+            @fwrite($v_dest_file, $v_file_content, $p_entry['size']);
+            unset($v_file_content);
+
+            // ----- Closing the destination file
+            @fclose($v_dest_file);
+
           }
-
-          // ----- Decompress the file
-          $v_file_content = @gzinflate($v_buffer);
-          unset($v_buffer);
-          if ($v_file_content === FALSE) {
-
-            // ----- Change the file status
-            // TBC
-            $p_entry['status'] = "error";
-
-            return $v_result;
-          }
-
-/*
-          // ----- Opening destination file
-          if (($v_dest_file = @fopen($p_entry['filename'], 'wb')) == 0) {
-
-            // ----- Change the file status
-            $p_entry['status'] = "write_error";
-
-            return $v_result;
-          }
-
-          // ----- Write the uncompressed data
-          @fwrite($v_dest_file, $v_file_content, $p_entry['size']);
-          unset($v_file_content);
-
-          // ----- Closing the destination file
-          @fclose($v_dest_file);
-*/
-		  // Mod: filesystem
-		  global $filesystem;
-		  if (!$filesystem->file_put_contents($p_entry['filename'], $v_file_content)) {
-            $p_entry['status'] = "write_error";
-            return $v_result;
-		  }
-		  unset($v_file_content);
 
           // ----- Change the file mtime
           @touch($p_entry['filename'], $p_entry['mtime']);
@@ -3634,10 +3885,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         if (isset($p_options[PCLZIP_OPT_SET_CHMOD])) {
 
           // ----- Change the mode of the file
-          // @chmod($p_entry['filename'], $p_options[PCLZIP_OPT_SET_CHMOD]);
-          // Mod: filesystem
-          global $filesystem;
-          $filesystem->chmod($p_entry['filename'], $p_options[PCLZIP_OPT_SET_CHMOD]);
+          @chmod($p_entry['filename'], $p_options[PCLZIP_OPT_SET_CHMOD]);
         }
 
       }
@@ -3672,6 +3920,80 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
   // --------------------------------------------------------------------------------
 
   // --------------------------------------------------------------------------------
+  // Function : privExtractFileUsingTempFile()
+  // Description :
+  // Parameters :
+  // Return Values :
+  // --------------------------------------------------------------------------------
+  function privExtractFileUsingTempFile(&$p_entry, &$p_options)
+  {
+    $v_result=1;
+
+    // ----- Creates a temporary file
+    $v_gzip_temp_name = PCLZIP_TEMPORARY_DIR.uniqid('pclzip-').'.gz';
+    if (($v_dest_file = @fopen($v_gzip_temp_name, "wb")) == 0) {
+      fclose($v_file);
+      PclZip::privErrorLog(PCLZIP_ERR_WRITE_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary write mode');
+      return PclZip::errorCode();
+    }
+
+    // ----- Write gz file format header
+    $v_binary_data = pack('va1a1Va1a1', 0x8b1f, Chr($p_entry['compression']), Chr(0x00), time(), Chr(0x00), Chr(3));
+    @fwrite($v_dest_file, $v_binary_data, 10);
+
+    // ----- Read the file by PCLZIP_READ_BLOCK_SIZE octets blocks
+    $v_size = $p_entry['compressed_size'];
+    while ($v_size != 0)
+    {
+      $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
+      $v_buffer = @fread($this->zip_fd, $v_read_size);
+      //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
+      @fwrite($v_dest_file, $v_buffer, $v_read_size);
+      $v_size -= $v_read_size;
+    }
+
+    // ----- Write gz file format footer
+    $v_binary_data = pack('VV', $p_entry['crc'], $p_entry['size']);
+    @fwrite($v_dest_file, $v_binary_data, 8);
+
+    // ----- Close the temporary file
+    @fclose($v_dest_file);
+
+    // ----- Opening destination file
+    if (($v_dest_file = @fopen($p_entry['filename'], 'wb')) == 0) {
+      $p_entry['status'] = "write_error";
+      return $v_result;
+    }
+
+    // ----- Open the temporary gz file
+    if (($v_src_file = @gzopen($v_gzip_temp_name, 'rb')) == 0) {
+      @fclose($v_dest_file);
+      $p_entry['status'] = "read_error";
+      PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary read mode');
+      return PclZip::errorCode();
+    }
+
+    // ----- Read the file by PCLZIP_READ_BLOCK_SIZE octets blocks
+    $v_size = $p_entry['size'];
+    while ($v_size != 0) {
+      $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
+      $v_buffer = @gzread($v_src_file, $v_read_size);
+      //$v_binary_data = pack('a'.$v_read_size, $v_buffer);
+      @fwrite($v_dest_file, $v_buffer, $v_read_size);
+      $v_size -= $v_read_size;
+    }
+    @fclose($v_dest_file);
+    @gzclose($v_src_file);
+
+    // ----- Delete the temporary file
+    @unlink($v_gzip_temp_name);
+
+    // ----- Return
+    return $v_result;
+  }
+  // --------------------------------------------------------------------------------
+
+  // --------------------------------------------------------------------------------
   // Function : privExtractFileInOutput()
   // Description :
   // Parameters :
@@ -3685,7 +4007,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     if (($v_result = $this->privReadFileHeader($v_header)) != 1) {
       return $v_result;
     }
-
 
     // ----- Check that the file header is coherent with $p_entry info
     if ($this->privCheckFileHeaders($v_header, $p_entry) != 1) {
@@ -3720,8 +4041,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       // Only some fields can be modified
       $p_entry['filename'] = $v_local_header['filename'];
     }
-
-    // ----- Trace
 
     // ----- Look if extraction should be done
     if ($p_entry['status'] == 'ok') {
@@ -3922,7 +4241,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       $v_day = $p_header['mdate'] & 0x001F;
 
       // ----- Get UNIX date format
-      $p_header['mtime'] = mktime($v_hour, $v_minute, $v_seconde, $v_month, $v_day, $v_year);
+      $p_header['mtime'] = @mktime($v_hour, $v_minute, $v_seconde, $v_month, $v_day, $v_year);
 
     }
     else
@@ -4346,15 +4665,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
               elseif ($v_header_list[$v_nb_extracted]['stored_filename'] == $p_options[PCLZIP_OPT_BY_NAME][$j]) {
                   $v_found = true;
               }
-          }
-      }
-
-      // ----- Look for extract by ereg rule
-      else if (   (isset($p_options[PCLZIP_OPT_BY_EREG]))
-               && ($p_options[PCLZIP_OPT_BY_EREG] != "")) {
-
-          if (ereg($p_options[PCLZIP_OPT_BY_EREG], $v_header_list[$v_nb_extracted]['stored_filename'])) {
-              $v_found = true;
           }
       }
 
@@ -4897,27 +5207,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
       $this->error_code = 0;
       $this->error_string = '';
     }
-  }
-  // --------------------------------------------------------------------------------
-
-  // --------------------------------------------------------------------------------
-  // Function : privDecrypt()
-  // Description :
-  // Parameters :
-  // Return Values :
-  // --------------------------------------------------------------------------------
-  function privDecrypt($p_encryption_header, &$p_buffer, $p_size, $p_crc)
-  {
-    $v_result=1;
-
-    // ----- To Be Modified ;-)
-    $v_pwd = "test";
-
-    $p_buffer = PclZipUtilZipDecrypt($p_buffer, $p_size, $p_encryption_header,
-	                                 $p_crc, $v_pwd);
-
-    // ----- Return
-    return $v_result;
   }
   // --------------------------------------------------------------------------------
 

@@ -58,7 +58,7 @@ elseif ($config['error_log'] == 1) {
 }
 else {
 	// Display PHP error reporting
-	ini_set('display_errors', 'On');
+	@ini_set('display_errors', 'On');
 }
 
 /**
@@ -99,7 +99,7 @@ function log_handler($errno, $errtext, $errfile, $errline) {
 	else {
 		$lines = array();
 	}
-	
+
 	if (viscacha_function_exists('debug_backtrace')) {
 		$backtrace = debug_backtrace();
 		foreach ($backtrace as $key => $value) {

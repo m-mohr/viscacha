@@ -1,6 +1,13 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
+$lang['bb_edit_author'] = 'Nachträgliche Anmerkung des Autors:';
+$lang['bb_edit_mod'] = 'Nachträgliche Anmerkung von';
+$lang['bb_hidden_content'] = 'Versteckter Inhalt:';
+$lang['bb_offtopic'] = 'Off-Topic:';
+$lang['bb_quote'] = 'Zitat:';
+$lang['bb_quote_by'] = 'Zitat von';
+$lang['bb_sourcecode'] = 'Quelltext:';
 $lang['bbcodes_align'] = 'Ausrichtung';
 $lang['bbcodes_align_center'] = 'Zentriert';
 $lang['bbcodes_align_desc'] = 'Der [align] Tag ermöglicht die Ausirchtung von Texten/Absätzen. Als Parameter für die Ausrichtung können folgende Arten benutzt werden: left (Linksbündig, standard), center (Zentriert), right (Rechtsbündig), justify (Blocksatz).';
@@ -81,6 +88,8 @@ $lang['bbcode_help_smileys'] = 'Smileys';
 $lang['bbcode_help_smileys_desc'] = 'Folgende Smileys stehen auf dieser Seite zur Verfügung:';
 $lang['bbhelp_title'] = 'BB-Code Hilfe';
 $lang['geshi_bbcode_nohighlighting'] = 'Kein Highlighting';
+$lang['geshi_hlcode_title'] = '{$lang_name}-Quelltext:';
+$lang['geshi_hlcode_txtdownload'] = 'Download';
 $lang['more_smileys'] = 'mehr Smileys';
 $lang['textarea_check_length'] = 'Überprüfe Textlänge';
 $lang['textarea_decrease_size'] = 'Verkleinern';

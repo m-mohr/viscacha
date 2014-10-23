@@ -678,34 +678,38 @@ function GoBoardPW ($bpw, $bid) {
 	}
 }
 
-function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
+function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	extract($GLOBALS, EXTR_SKIP);
 
-	if ($errormsg == NULL) {
-		$errormsg = $lang->phrase('not_allowed');
+	if ($errorurl == null) {
+		$errorurl = getRefererURL();
 	}
-	if ($errorurl == NULL) {
-		$errorurl = htmlspecialchars($_SERVER['REQUEST_URI']);
+
+	if (!empty($errorurl)) {
+		$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
+		$errorurl = preg_replace('~&(?!amp;)~i', '&amp;', $errorurl);
 	}
-	if (!is_array($errormsg)) {
-		$errormsg = array($errormsg);
+	else {
+		$js_errorurl = $errorurl = "javascript:history.back(-1)";
 	}
+
 	if (!isset($my->p)) {
 		$my->p = $slog->Permissions();
 	}
+
 	$breadcrumb->Add($lang->phrase('breadcrumb_errorok'));
 	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
 		echo $tpl->parse('header');
 	}
 
-	($code = $plugins->load('frontend_errorlogin')) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg","errorurl"));
-	echo $tpl->parse("main/not_allowed");
+	($code = $plugins->load('frontend_'.$errorhook)) ? eval($code) : null;
+	$tpl->globalvars(compact("errormsg", "errorurl", "js_errorurl"));
+	echo $tpl->parse("main/{$errortpl}");
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
 	$tpl->globalvars(compact("zeitmessung"));
-	if ($EOS != NULL) {
+	if ($EOS != null) {
 		echo $tpl->parse($EOS);
 	}
 	elseif ($tpl->tplsent('popup/header')) {
@@ -719,83 +723,41 @@ function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 	exit;
 }
 
-function error ($errormsg = null,$errorurl = 'javascript:history.back(-1);', $EOS = NULL) {
-	extract($GLOBALS, EXTR_SKIP);
-
-	$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
-	$errorurl = urldecode(str_replace('&', '&amp;', $js_errorurl));
-
-	if ($errormsg == NULL) {
-		$errormsg = $lang->phrase('unknown_error');
+function errorLogin($errormsg = null, $errorurl = null, $EOS = null) {
+	if ($errormsg == null) {
+		global $lang;
+		$errormsg = array($lang->phrase('not_allowed'));
 	}
-	if (!is_array($errormsg)) {
+	elseif (!is_array($errormsg)) {
 		$errormsg = array($errormsg);
 	}
-	if (!isset($my->p)) {
-		$my->p = $slog->Permissions();
-	}
-	$breadcrumb->Add($lang->phrase('breadcrumb_errorok'));
-	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
-		echo $tpl->parse('header');
+
+	if ($errorurl == null) {
+		$errorurl = htmlspecialchars(getRequestURI());
 	}
 
-	($code = $plugins->load('frontend_error')) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
-	echo $tpl->parse("main/error");
-
-	$slog->updatelogged();
-	$zeitmessung = t2();
-	$tpl->globalvars(compact("zeitmessung"));
-	if ($EOS != NULL) {
-		echo $tpl->parse($EOS);
-	}
-	elseif ($tpl->tplsent('popup/header')) {
-		echo $tpl->parse('popup/footer');
-	}
-	else {
-		echo $tpl->parse('footer');
-	}
-	$phpdoc->Out();
-	$db->close();
-	exit;
+	general_message('not_allowed', 'errorlogin', $errormsg, $errorurl, $EOS);
 }
 
-function ok ($errormsg = NULL, $errorurl = "javascript:history.back(-1)", $EOS = NULL) {
-	extract($GLOBALS, EXTR_SKIP);
+function error($errormsg = null, $errorurl = null, $EOS = null) {
+	if ($errormsg == null) {
+		global $lang;
+		$errormsg = array($lang->phrase('unknown_error'));
+	}
+	elseif (!is_array($errormsg)) {
+		$errormsg = array($errormsg);
+	}
 
-	$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
-	$errorurl = urldecode(str_replace('&', '&amp;', $js_errorurl));
+	general_message('error', 'error', $errormsg, $errorurl, $EOS);
+}
 
-	if ($errormsg == NULL) {
+function ok($errormsg = null, $errorurl = null, $EOS = null) {
+	if ($errormsg == null) {
+		global $lang;
 		$errormsg = $lang->phrase('unknown_ok');
 	}
-	if (!isset($my->p)) {
-		$my->p = $slog->Permissions();
-	}
-	$breadcrumb->Add($lang->phrase('breadcrumb_errorok'));
-	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
-		echo $tpl->parse('header');
-	}
 
-	($code = $plugins->load('frontend_ok')) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
-	echo $tpl->parse("main/ok");
-
-	$slog->updatelogged();
-	$zeitmessung = t2();
-	$tpl->globalvars(compact("zeitmessung"));
-	if ($EOS != NULL) {
-		echo $tpl->parse($EOS);
-	}
-	elseif ($tpl->tplsent('popup/header')) {
-		echo $tpl->parse('popup/footer');
-	}
-	else {
-		echo $tpl->parse('footer');
-	}
-	$phpdoc->Out();
-	$db->close();
-	exit;
+	general_message('ok', 'ok', $errormsg, $errorurl, $EOS);
 }
 
 function forum_opt($array, $check = 'forum') {

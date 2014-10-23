@@ -38,8 +38,8 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 						'tables have not been changed',
 					 ),
 				1 => array(
-						'table has been emptied',
-						'tables have been emptied',
+						'table has been cleared',
+						'tables have been cleared',
 					 ),
 				0 => array(
 						'table has been recreated',

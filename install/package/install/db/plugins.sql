@@ -8,7 +8,7 @@ CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `required` enum('0','1') NOT NULL default '1',
   PRIMARY KEY  (`id`),
   KEY `position` (`position`)
-) TYPE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=22 ;
+) TYPE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=23 ;
 
 INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active`, `position`, `required`) VALUES
 (1, 'Related Topics', 1, 2, '1', 'showtopic_end', '0'),
@@ -31,4 +31,5 @@ INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active
 (18, 'Quick Reply Extended Switcher', 7, 1, '1', 'addreply_save_errorhandling', '1'),
 (19, 'Recent Topics', 8, 2, '1', 'portal', '0'),
 (20, 'Recent Topics', 8, 2, '1', 'forum_end', '0'),
-(21, 'PM Notification', 6, 0, '1', 'template_forum_menu', '0');
+(21, 'PM Notification', 6, 0, '1', 'template_forum_menu', '0'),
+(22, 'Document on Portal', 9, 0, '1', 'portal', '0');

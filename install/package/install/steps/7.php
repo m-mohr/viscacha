@@ -6,19 +6,19 @@ $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	include('install/classes/class.phpconfig.php');
 	if (isset($_REQUEST['host'])) {
-		$config['host'] = trim($_REQUEST['host']);
+		$config['host'] = $_REQUEST['host'];
 	}
 	else {
 		$config['host'] = 'localhost';
 	}
 	if (isset($_REQUEST['dbuser'])) {
-		$config['dbuser'] = trim($_REQUEST['dbuser']);
+		$config['dbuser'] = $_REQUEST['dbuser'];
 	}
 	if (isset($_REQUEST['dbpw'])) {
-		$config['dbpw'] = trim($_REQUEST['dbpw']);
+		$config['dbpw'] = $_REQUEST['dbpw'];
 	}
 	if (isset($_REQUEST['database'])) {
-		$config['database'] = trim($_REQUEST['database']);
+		$config['database'] = $_REQUEST['database'];
 	}
 	if (isset($_REQUEST['pconnect']) && isset($_REQUEST['dbsystem']) && $_REQUEST['dbsystem'] == 'mysql') {
 		$config['pconnect'] = $_REQUEST['pconnect'];
@@ -27,13 +27,13 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 		$config['pconnect'] = 0;
 	}
 	if (isset($_REQUEST['dbprefix'])) {
-		$config['dbprefix'] = trim($_REQUEST['dbprefix']);
+		$config['dbprefix'] = $_REQUEST['dbprefix'];
 	}
 	else {
 		$config['dbprefix'] = '';
 	}
 	if (isset($_REQUEST['dbsystem'])) {
-		$config['dbsystem'] = $_REQUEST['dbsystem'];
+		$config['dbsystem'] = GPC_escape($_REQUEST['dbsystem'], GPC_ALNUM);
 	}
 	else {
 		$config['dbsystem'] = 'mysql';

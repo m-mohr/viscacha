@@ -1,10 +1,10 @@
 <h3><img src="<?php echo $tpl->img('members'); ?>" alt="" /> <?php echo $lang->phrase('team'); ?></h3>
 <br class="minibr" />
 <table class="tables">
-    <tr> 
+    <tr>
       <th colspan="5"><?php echo $lang->phrase('team_admins'); ?></th>
     </tr>
-    <tr class="tfoot"> 
+    <tr class="tfoot">
       <td width="40%"><?php echo $lang->phrase('th_name'); ?></td>
       <td width="7%"><?php echo $lang->phrase('th_pm'); ?></td>
       <td width="7%"><?php echo $lang->phrase('th_email'); ?></td>
@@ -12,22 +12,22 @@
       <td width="39%"><?php echo $lang->phrase('th_location'); ?></td>
     </tr>
 	<?php foreach($admin_cache as $row) { ?>
-	<tr class="tbody"> 
-      <td><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td> 
-      <td class="center"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td> 
-      <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td> 
+	<tr class="tbody">
+      <td><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td>
+      <td class="center"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
+      <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td>
       <td class="center"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
       <td><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
     </tr>
 	<?php } ?>
 </table>
 <?php if(count($gmod_cache) > 0) { ?>
-<br class="minibr" />  
+<br class="minibr" />
 <table class="tables">
-    <tr> 
+    <tr>
       <th colspan="5"><?php echo $lang->phrase('team_gmods'); ?></th>
     </tr>
-    <tr class="tfoot"> 
+    <tr class="tfoot">
       <td width="40%"><?php echo $lang->phrase('th_name'); ?></td>
       <td width="7%"><?php echo $lang->phrase('th_pm'); ?></td>
       <td width="7%"><?php echo $lang->phrase('th_email'); ?></td>
@@ -35,22 +35,22 @@
       <td width="39%"><?php echo $lang->phrase('th_location'); ?></td>
     </tr>
 <?php foreach($gmod_cache as $row) { ?>
-	<tr class="tbody"> 
-      <td><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td> 
-      <td class="center"><a href="pm.php?action=new&id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td> 
-      <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a</td> 
+	<tr class="tbody">
+      <td><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td>
+      <td class="center"><a href="pm.php?action=new&id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
+      <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a</td>
       <td class="center"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
       <td><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
     </tr>
-<?php } ?> 
+<?php } ?>
 </table>
-<?php } if(isset($mid_cache)) { ?>
+<?php } if(!empty($inner['moderator_bit'])) { ?>
 <br class="minibr" />
 <table class="tables">
-	<tr> 
+	<tr>
 	  <th colspan="5"><?php echo $lang->phrase('team_mods'); ?></th>
 	</tr>
-    <tr class="tfoot"> 
+    <tr class="tfoot">
       <td width="40%"><?php echo $lang->phrase('th_name'); ?></td>
       <td width="7%"><?php echo $lang->phrase('th_pm'); ?></td>
       <td width="7%"><?php echo $lang->phrase('th_email'); ?></td>

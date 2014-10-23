@@ -13,7 +13,7 @@ class cache_version_check extends CacheItem {
 		}
 		else {
 			if (viscacha_function_exists('xml_parser_create')) {
-				$rssnews = get_remote('http://version.viscacha.org/news/rss');
+				$rssnews = get_remote('http://version.viscacha.org/news/rss/?version='.base64_encode($config['version']));
 				include('classes/magpie_rss/rss_fetch.inc.php');
 				$rss = new MagpieRSS($rssnews);
 				$news = '';
@@ -31,9 +31,20 @@ class cache_version_check extends CacheItem {
 			else {
 				$news = get_remote('http://version.viscacha.org/news');
 			}
+
+			$comp = get_remote('http://version.viscacha.org/compare/?version='.base64_encode($config['version']));
+			if ($comp < 1 && $comp > 3) {
+				$comp = 0;
+			}
+
+			$current_version = get_remote('http://version.viscacha.org/version');
+			if ($current_version == REMOTE_CLIENT_ERROR || $current_version == REMOTE_INVALID_URL) {
+				$current_version = null;
+			}
+
 			$this->data = array(
-				'comp' => get_remote('http://version.viscacha.org/compare/?version='.base64_encode($config['version'])),
-				'version' => get_remote('http://version.viscacha.org/version'),
+				'comp' => $comp,
+				'version' => $current_version,
 				'news' => $news
 			);
 			$this->export();

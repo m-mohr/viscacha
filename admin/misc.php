@@ -596,60 +596,11 @@ elseif ($job == "captcha_fonts") {
 elseif ($job == "credits") {
 	echo head();
 
-	$ext = get_loaded_extensions();
-	if (in_array("zlib", $ext)) {
-		$zlibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$zlibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("mysql", $ext)) {
-		$mylibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$mylibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("mysqli", $ext)) {
-		$myilibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$myilibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("pcre", $ext)) {
-		$relibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$relibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("gd", $ext)) {
-		$gdlibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$gdlibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>>";
-	}
-	if (in_array("xml", $ext)) {
-		$xmllibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$xmllibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("iconv", $ext)) {
-		$ivlibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$ivlibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("mbstring", $ext)) {
-		$mblibext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$mblibext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
-	}
-	if (in_array("mhash", $ext)) {
-		$mhashext = "<span style='color: green'>".$lang->phrase('admin_misc_ok')."</span>";
-	}
-	else {
-		$mhashext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
+	$loaded_extensions = array_map('strtolower', get_loaded_extensions());
+	$needed_extensions = array('MySQL', 'MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
+	$extensions = array();
+	foreach ($needed_extensions as $needed) {
+		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);
 	}
 
 	if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
@@ -657,6 +608,12 @@ elseif ($job == "credits") {
 	}
 	else {
 		$phpv = '<span style="color: red">'.$lang->phrase('admin_misc_no').'</span>';
+	}
+	if (version_compare($db->version(), '4.0', '>=')) {
+		$sqlv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
+	}
+	else {
+		$sqlv = '<span style="color: red">'.$lang->phrase('admin_misc_no').'</span>';
 	}
 
 	$webserver = get_webserver();
@@ -679,17 +636,18 @@ elseif ($job == "credits") {
 		<strong>Used Scripts</strong>:
 		<ul>
 		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Roman Numeral Conversion by Huda M Elmatsani</a> (Roman Numeral Conversion; Freeware)</li>
-		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.6 by Vincent Blavet</a> (Zip File Handling; LPGL)</li>
-		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.8.2 by Nigel McNie and Benny Baumann</a> (Syntax Highlighting; GPL)</li>
-		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing Newsfeeds; GPL)</li>
-		<li><a href="http://phpmailer.sourceforge.net/" target="_blank">PHPMailer 2.0.3 (with POP3 and SMTP) by Andy Prevost</a> (Sending E-mails; LGPL)</li>
-		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating Newsfeeds; LGPL)</li>
+		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.8 by Vincent Blavet</a> (Zip File Handling; GNU LPGL)</li>
+		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.8.4 by Nigel McNie and Benny Baumann</a> (Syntax Highlighting; GNU GPL)</li>
+		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing Newsfeeds; GNU GPL)</li>
+		<li><a href="http://phpmailer.sourceforge.net" target="_blank">PHPMailer 2.0.3 (with POP3 and SMTP) by Andy Prevost</a> (Sending E-mails; GNU LGPL)</li>
+		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating Newsfeeds; GNU LGPL)</li>
 		<li><a href="http://pear.php.net/package/PHP_Compat" target="_blank">PHP_Compat 1.6.0a2 by Aidan Lister, Stephan Schmidt</a> (PHP Core Functions; PHP)</li>
-		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GPL)</li>
-		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR File Handling; GPL)</li>
+		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GNU GPL)</li>
+		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR File Handling; GNU GPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/98157.html" target="_blank">Advanced FTP client class (Build 2008-09-17) by Alexey Dotsenko</a> (PHP FTP Client; Freely Distributable)</li>
-		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.6.0 by phlyLabs</a> (Punycode Converter; LGPL)</li>
-		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG Editor; LGPL)</li>
+		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.6.3 by phlyLabs</a> (Punycode Converter; GNU LGPL)</li>
+		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG Editor; GNU LGPL)</li>
+		<li><a href="http://snoopy.sourceforge.net" target="_blank">Snoopy 1.2.4 by New Digital Group</a> (HTTP File Access; GNU LGPL)</li>
 		<li>and many more code snippets, classes and functions...</li>
 		</ul>
 		<br class="minibr" />
@@ -701,31 +659,33 @@ elseif ($job == "credits") {
 		<br class="minibr" />
 		<strong><?php echo $lang->phrase('admin_misc_my_server'); ?></strong>:
 		<ul>
-		<li><?php echo $lang->phrase('admin_misc_php_version'); ?> <?php echo PHP_VERSION; ?>, <?php echo $lang->phrase('admin_misc_compatible').' '.$phpv; ?></li>
-		<li><?php echo $lang->phrase('admin_misc_server_software'); ?> <?php echo $webserver; ?></li>
+		<li><?php echo $lang->phrase('admin_misc_php_version').' '.PHP_VERSION.', '.$lang->phrase('admin_misc_compatible').' '.$phpv; ?></li>
+		<li><?php echo $lang->phrase('admin_misc_mysql_version').' '.$db->version().', '.$lang->phrase('admin_misc_compatible').' '.$sqlv; ?></li>
+		<li><?php echo $lang->phrase('admin_misc_server_software').' '.$webserver; ?></li>
 		</ul>
 		<br class="minibr" />
 		<strong><?php echo $lang->phrase('admin_misc_my_php_extensions'); ?></strong>:
 		<ul>
-		<li>PCRE-<?php echo $lang->phrase('admin_misc_extension').' '.$relibext; ?></li>
-		<li>MySQL-<?php echo $lang->phrase('admin_misc_extension').' '.$mylibext; ?> / MySQLi-<?php echo $lang->phrase('admin_misc_extension').' '.$myilibext; ?></li>
-		<li>GD-<?php echo $lang->phrase('admin_misc_extension').' '.$gdlibext; ?></li>
-		<li>Zlib-<?php echo $lang->phrase('admin_misc_extension').' '.$zlibext; ?></li>
-		<li>XML-<?php echo $lang->phrase('admin_misc_extension').' '.$xmllibext; ?></li>
-		<li>IconV-<?php echo $lang->phrase('admin_misc_extension').' '.$ivlibext; ?></li>
-		<li>MBString-<?php echo $lang->phrase('admin_misc_extension').' '.$mblibext; ?></li>
-		<li>MHash-<?php echo $lang->phrase('admin_misc_extension').' '.$mhashext; ?></li>
+		<?php foreach ($extensions as $extension => $status) { ?>
+			<li><?php echo $extension.'-'.$lang->phrase('admin_misc_extension'); ?>:
+			<?php if ($status == true) { ?>
+				<span style="color: green;"><?php echo $lang->phrase('admin_misc_ok'); ?></span>
+			<?php } else { ?>
+				<span style="color: red;"><?php echo $lang->phrase('admin_misc_n_a'); ?></span>
+			<?php } ?>
+			</li>
+		<?php } ?>
 		</ul>
 	</p>
 	<br class="minibr" />
 	<p>
 		<strong>License</strong>:<br />
-		Viscacha is Free Software released under the GNU/GPL License.<br />
+		Viscacha is Free Software released under the GNU GPL License.<br />
 		Some parts of this Software are released under other Licenses.<br />
 		You can read the licence texts here:
 		<ul>
-		<li><a href="admin.php?action=misc&amp;job=license&v=gpl">GNU/GPL License</li>
-		<li><a href="admin.php?action=misc&amp;job=license&v=lgpl">GNU/LGPL License</li>
+		<li><a href="admin.php?action=misc&amp;job=license&v=gpl">GNU GPL License</li>
+		<li><a href="admin.php?action=misc&amp;job=license&v=lgpl">GNU LGPL License</li>
 		<li><a href="admin.php?action=misc&amp;job=license&v=bsd">BSD License</li>
 		<li><a href="admin.php?action=misc&amp;job=license&v=php">PHP License</li>
 		</ul>
@@ -736,12 +696,12 @@ elseif ($job == "credits") {
 }
 elseif ($job == 'license') {
 	$license = $gpc->get('v', str, 'gpl');
-	$file = "admin/data/licenses/".$license.'.txt';
+	$file = "admin/data/licenses/{$license}.txt";
 	if (file_exists($file)) {
 		$content = file_get_contents($file);
 	}
 	else {
-		$content = $lang->phrase('admin_misc_license_not_forun');
+		$content = $lang->phrase('admin_misc_license_not_found');
 	}
 	echo head();
 	?>

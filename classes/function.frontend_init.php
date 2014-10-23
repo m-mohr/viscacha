@@ -34,7 +34,7 @@ require_once("classes/function.phpcore.php");
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
 	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
 }
-if (empty($config['dbpw']) || empty($config['dbuser'])) {
+if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'] == 0) {
 	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
 }
 
@@ -140,7 +140,7 @@ $inner = array();
 $htmlhead = '';
 $htmlonload = '';
 if (defined('SCRIPTNAME')) {
-    $htmlbody = ' id="css_'.SCRIPTNAME.'"';
+	$htmlbody = ' id="css_'.SCRIPTNAME.'"';
 }
 if ($config['nocache'] == 1) {
 	$htmlhead .= '
@@ -165,26 +165,25 @@ require_once ("classes/class.template.php");
 include_once ("classes/class.breadcrumb.php");
 // Global functions
 require_once ("classes/function.global.php");
-// Load Flood-Check
-include_once ("classes/function.flood.php");
 
 if (!file_exists('.htaccess')) {
 	$htaccess = array();
 	if ($config['hterrordocs'] == 1) {
-	    $htaccess[] = "ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400";
-	    $htaccess[] = "ErrorDocument 401	{$config['furl']}/misc.php?action=error&id=401";
-	    $htaccess[] = "ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403";
-	    $htaccess[] = "ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404";
-	    $htaccess[] = "ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500";
-	    $htaccess[] = "";
+		$htaccess[] = "ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400";
+		// 401 ErrorDocument entfernt wegen Fehlermeldung (Bug #293): "Cannot use a full URL in a 401 ErrorDocument directive"
+		// Grund: Relative Angaben beschädigen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
+		$htaccess[] = "ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403";
+		$htaccess[] = "ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404";
+		$htaccess[] = "ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500";
+		$htaccess[] = "";
 	}
 	if ($config['correctsubdomains'] == 1) {
-	    $url = parse_url($config['furl']);
-	    $host = str_ireplace('www.', '', $url['host']);
-	    $htaccess[] = "RewriteEngine On";
-	    $htaccess[] = "RewriteCond %{HTTP_HOST} ^www\.".preg_quote($host)."$ [NC]";
-	    $htaccess[] = "RewriteRule ^(.*)$ http://".$host."/$1 [R=301,L]";
-	    $htaccess[] = "";
+		$url = parse_url($config['furl']);
+		$host = str_ireplace('www.', '', $url['host']);
+		$htaccess[] = "RewriteEngine On";
+		$htaccess[] = "RewriteCond %{HTTP_HOST} ^www\.".preg_quote($host)."$ [NC]";
+		$htaccess[] = "RewriteRule ^(.*)$ http://".$host."/$1 [R=301,L]";
+		$htaccess[] = "";
 	}
 	$filesystem->file_put_contents('.htaccess', implode("\r\n", $htaccess));
 }

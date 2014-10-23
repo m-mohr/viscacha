@@ -61,37 +61,35 @@ class GPC {
 
 	function get($index, $type = none, $standard = NULL) {
 		if (isset($_REQUEST[$index])) {
-			if (is_array($_REQUEST[$index]) && $type != arr_str && $type != arr_int && $type != arr_none) {
-				$_REQUEST[$index] = null;
+			$value = $_REQUEST[$index];
+			if (is_array($value) && $type != arr_str && $type != arr_int && $type != arr_none) {
+				$value = null;
 			}
 			if ($type == str || $type == arr_str) {
 				if ($type == str) {
-					$_REQUEST[$index] = trim($_REQUEST[$index]);
+					$value = trim($value);
 				}
-				$var = $this->save_str($_REQUEST[$index]);
+				$var = $this->save_str($value);
 				if ($type == arr_str && !is_array($var)) {
 					$var = array($var);
 				}
 			}
 			elseif ($type == int || $type == arr_int) {
-				$var = $this->save_int($_REQUEST[$index]);
+				$var = $this->save_int($value);
 				if ($type == arr_int && !is_array($var)) {
 					$var = array($var);
 				}
 			}
 			elseif ($type == db_esc) {
 				global $db;
-				$var = $this->secure_null($_REQUEST[$index]);
+				$var = $this->secure_null($value);
 				$var = $db->escape_string($var);
 			}
 			elseif ($type == html_enc) {
-				if ($type == str) {
-					$_REQUEST[$index] = trim($_REQUEST[$index]);
-				}
-				$var = $this->save_str($_REQUEST[$index], false);
+				$var = $this->save_str($value, false);
 			}
 			else {
-				$var = $this->secure_null($_REQUEST[$index]);
+				$var = $this->secure_null($value);
 				if ($type == arr_none && !is_array($var)) {
 					$var = array($var);
 				}
@@ -174,6 +172,7 @@ class GPC {
 				$var = htmlentities($var, ENT_QUOTES, $lang->charset());
 				$var = str_replace('&amp;#', '&#', $var);
 			}
+			$var = preg_replace("~\\\\(\r|\n)~", "&#92;\\1", $var); // NL Hack
 			if ($db_esc == true && is_object($db)) {
 				$var = $db->escape_string($var);
 			}

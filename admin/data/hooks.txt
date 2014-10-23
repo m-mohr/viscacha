@@ -48,6 +48,15 @@ attachments.php
 -attachments_upload_form_end
 
 components.php
+-component_viscacha_addreply_last_replies
+-component_viscacha_document_on_portal
+-component_viscacha_help_legends
+-component_viscacha_news_boxes
+-component_viscacha_personal_panels
+-component_viscacha_quick_reply
+-component_viscacha_recent_topics
+-component_viscacha_related_topics
+-component_viscacha_who_is_online
 
 cron.php
 -cron_start
@@ -415,6 +424,15 @@ admin/packages.php
 -admin_packages_jobs
 
 admin/packages_admin.php
+-admin_component_viscacha_addreply_last_replies
+-admin_component_viscacha_document_on_portal
+-admin_component_viscacha_help_legends
+-admin_component_viscacha_news_boxes
+-admin_component_viscacha_personal_panels
+-admin_component_viscacha_quick_reply
+-admin_component_viscacha_recent_topics
+-admin_component_viscacha_related_topics
+-admin_component_viscacha_who_is_online
 
 admin/posts.php
 -admin_posts_jobs

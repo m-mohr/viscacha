@@ -51,6 +51,7 @@ class tar {
 	var $tarfile_path = "";
 	var $tarfile_path_name = "";
 	var $workfiles = array();
+	var $dirs = array();
 
 	//+--------------------------------------------------------------------------
 	// Set the tarname. If we are extracting a tarball, then it must be the
@@ -138,10 +139,18 @@ class tar {
 
 		$count	= 0;
 
+		if (!is_array($files)) {
+			$files = array($files);
+		}
+
 		foreach ($files as $file) {
 
 			// is it a Mac OS X work file?
-			if (preg_match("/\.ds_store/i", $file )) {
+			if (preg_match("/\.ds_store$/i", $file )) {
+				continue;
+			}
+			// is it a Windows thumbnail cache file?
+			if (preg_match("/Thumbs\.db$/i", $file )) {
 				continue;
 			}
 
@@ -156,22 +165,22 @@ class tar {
 				continue;
 			}
 
-			$mode  = fileperms($file);
-			$uid   = $stat[4];
-			$gid   = $stat[5];
-			$rdev  = $stat[6];
-			$size  = filesize($file);
-			$mtime = filemtime($file);
+			$mode  = $stat['mode']; // prior: fileperms($file)
+			$uid   = $stat['uid'];
+			$gid   = $stat['gid'];
+			$rdev  = $stat['rdev'];
+			$size  = $stat['size']; // prior: filesize($file)
+			$mtime = $stat['mtime']; // prior: filemtime($file)
 
 			if (is_file($file)) {
 				// It's a plain file, so lets suck it up
 				$typeflag = 0;
 				if ($FH = fopen($file, 'rb')) {
-					$data = fread($FH, filesize($file));
+					$data = fread($FH, $stat['size']); // prior: filesize($file)
 					fclose($FH);
 				}
 				else {
-					$this->warnings[] = "Failed to open $file";
+					$this->warnings[] = "Failed to open {$file}";
 					continue;
 				}
 			}
@@ -181,6 +190,11 @@ class tar {
 			}
 			else if (is_dir($file)) {
 				$typeflag = 5;
+				// Mod: Add / after directory if needed
+				$last = substr($file, -1);
+				if ($last == '/' || $last == '\\') {
+					$file = rtrim($file, '/\\').'/';
+				}
 			}
 			else {
 				// Sockets, Pipes and char/block specials are not
@@ -189,24 +203,36 @@ class tar {
 				$typeflag = 9;
 			}
 
+			$filename = str_replace($remove_path, '', $file);
+
+			// Mod: Add missing directories
+			if ($typeflag == 5) {
+				$this->dirs[$remove_path.$filename] = null;
+				$this->addSubDirs($filename, $remove_path);
+			}
+			else if ($typeflag == 0 && strpos($filename, '/') !== false) {
+				$dirname = dirname($filename).'/';
+				$this->addSubDirs($dirname, $remove_path);
+			}
+
 			// Add this data to our in memory tar file
 			$this->tar_in_mem[] = array (
-										'name'	 => str_replace($remove_path, '', $file),
+										'name'	 => $filename,
 										'mode'	 => $mode,
 										'uid'	  => $uid,
 										'gid'	  => $gid,
-										'size'	 => strlen($data),
+										'size'	 => $stat['size'], // prior: strlen($data)
 										'mtime'	=> $mtime,
-										'chksum'   => "	  ",
+										'chksum'   => "      ",
 										'typeflag' => $typeflag,
 										'linkname' => $linkname,
-										'magic'	=> "ustar\0",
-										'version'  => '00',
-										'uname'	=> 'unknown',
-										'gname'	=> 'unknown',
-										'devmajor' => "",
-										'devminor' => "",
-										'prefix'   => "",
+										'magic'	=> '', // prior: ustar\0
+										'version'  => '', // prior: 00
+										'uname'	=> '', // prior: unknown
+										'gname'	=> '', // prior: unknown
+										'devmajor' => '',
+										'devminor' => '',
+										'prefix'   => '',
 										'data'	 => $data
 									);
 			// Clear the stat cache
@@ -220,6 +246,16 @@ class tar {
 
 	}
 
+	function addSubDirs($dirname, $remove_path) {
+		if (!isset($this->dirs[$remove_path.$dirname])) {
+			$this->dirs[$remove_path.$dirname] = $remove_path;
+		}
+		if (substr_count($dirname, '/') > 1) {
+			$dirname = dirname($dirname).'/';
+			$this->addSubDirs($dirname, $remove_path);
+		}
+	}
+
 	function get_dir_contents($dir) {
 
 		$dir = rtrim($dir, '/\\');
@@ -229,6 +265,8 @@ class tar {
 				while (($filename = readdir($handle)) !== false) {
 					if ($filename != '.' && $filename != '..') {
 						if (is_dir($dir.'/'.$filename)) {
+							// Mod: Add directories
+							$this->workfiles[] = $dir.'/'.$filename.'/';
 							$this->get_dir_contents($dir.'/'.$filename);
 						}
 						else {
@@ -282,6 +320,11 @@ class tar {
 		$error_files = array();
 		foreach ($in_files as $k => $file) {
 
+			//-----------------------------------------
+			// Stop any potential file traversal issues
+			//-----------------------------------------
+
+			$file['name'] = str_replace( '..', '', $file['name'] );
 			$error_files[$k] = $file['name'];
 
 			//---------------------------------------------
@@ -313,7 +356,7 @@ class tar {
 					if (empty($dir_component)) {
 						continue;
 					}
-					$cur_dir .= $dir_component.DIRECTORY_SEPARATOR;
+					$cur_dir .= $dir_component.'/';
 					if ((file_exists($cur_dir)) && (!is_dir($cur_dir))) {
 						$this->warnings[] = "{$cur_dir} exists, but is not a directory";
 						continue;
@@ -411,6 +454,13 @@ class tar {
 			return false;
 		}
 
+		// Mod: Add missing directories
+		foreach ($this->dirs as $dirname => $remove_path) {
+			if ($remove_path !== null) {
+				$this->add_files($dirname, $remove_path);
+			}
+		}
+
 		$tardata = "";
 		foreach ($this->tar_in_mem as $file) {
 			$prefix = "";
@@ -443,7 +493,7 @@ class tar {
 
 			$last  = pack("a1"   , $file['typeflag']);
 			$last .= pack("a100" , $file['linkname']);
-			$last .= pack("a6", "ustar"); // magic
+			$last .= pack("a6", ""); // prior: pack("a6", "ustar") // magic
 			$last .= pack("a2", "" ); // version
 			$last .= pack("a32", $file['uname']);
 			$last .= pack("a32", $file['gname']);

@@ -48,7 +48,7 @@ if ($_GET['action'] == 'show') {
 	$result = $db->query("
 	SELECT
 		   p.dir, p.status, p.id, p.topic, p.comment, p.date, p.pm_from as mid,
-		   u.id as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, u.posts,
+		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, u.posts,
 		   f.* {$sql_select}
 	FROM {$db->pre}pm AS p
 		LEFT JOIN {$db->pre}user AS u ON p.pm_from = u.id
@@ -81,6 +81,7 @@ if ($_GET['action'] == 'show') {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}
 		$row['location'] = '-';
+		$row['groups'] = GROUP_GUEST;
 	}
 	else {
 		$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));

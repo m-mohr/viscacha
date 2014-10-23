@@ -9,7 +9,7 @@ if ($config['updatepostcounter'] == 0) {
 
 	$cat_bid_obj = $scache->load('cat_bid');
 	$boards = $cat_bid_obj->get();
-	$id = array()
+	$id = array();
 	foreach ($boards as $board) {
 		if ($board['count_posts'] == 0) {
 			$id[] = $board['id'];

@@ -15,7 +15,6 @@ class CronParser {
  	var $now = Array();	//Array of cron-style entries for time()
  	var $lastRan; 		//Timestamp of last ran time.
  	var $taken;
- 	var $debug;
 	var $year;
 	var $month;
 	var $day;
@@ -31,23 +30,6 @@ class CronParser {
 
 	function getLastRanUnix() {
 		return $this->lastRan;
-	}
-
-	function getDebug() {
- 		return $this->debug;
-	}
-
-	function debug($str) {
-		if (is_array($str)) {
-			$this->debug .= "\nArray: ";
-			foreach($str as $k=>$v) {
-				$this->debug .= "$k=>$v, ";
-			}
-
-		}
-		else {
-			$this->debug .= "\n$str";
-		}
 	}
 
 	/**
@@ -93,7 +75,6 @@ class CronParser {
 	function calcLastRan($string) {
 
  		$tstart = microtime();
-		$this->debug = "";
 		$this->lastRan = 0;
 		$this->year = NULL;
 		$this->month = NULL;
@@ -107,15 +88,12 @@ class CronParser {
 		$string = preg_replace('/[\s]{2,}/', ' ', $string);
 
 		if (preg_match('/[^-,* \\d]/', $string) !== 0) {
-			$this->debug("Cron String contains invalid character");
 			return false;
 		}
 
-		$this->debug("<b>Working on cron schedule: $string</b>");
  		$this->bits = @explode(" ", $string);
 
 		if (count($this->bits) != 5) {
-			$this->debug("Cron string is invalid. Too many or too little sections after explode");
 			return false;
 		}
 
@@ -134,12 +112,10 @@ class CronParser {
 
 		if ($this->month === NULL) {
 			$this->year = $this->year - 1;
-			$this->debug("Not due within this year. So checking the previous year " . $this->year);
 			$arMonths = $this->_getMonthsArray();
 			$this->_prevMonth($arMonths);
 		}
 		elseif ($this->month == $this->now[3]) {
-			$this->debug("Cron is due this month, getting days array.");
 			$arDays = $this->_getDaysArray($this->month, $this->year);
 
 			do {
@@ -148,11 +124,9 @@ class CronParser {
 			while ($this->day > $this->now[2]);
 
 			if ($this->day === NULL) {
-				$this->debug("Smallest day is even greater than today");
 				$this->_prevMonth($arMonths);
 			}
 			elseif ($this->day == $this->now[2]) {
-				$this->debug("Due to run today");
 				$arHours = $this->_getHoursArray();
 
 				do {
@@ -161,14 +135,12 @@ class CronParser {
 				while ($this->hour > $this->now[1]);
 
 				if ($this->hour === NULL) {
-					$this->debug("Not due this hour and some earlier hours, so go for previous day");
 					$this->_prevDay($arDays, $arMonths);
 				}
 				elseif ($this->hour < $this->now[1]) {
 					$this->minute = $this->_getLastMinute();
 				}
 				else {
-					$this->debug("Due this hour");
 					$arMinutes = $this->_getMinutesArray();
 					do {
 						$this->minute = array_pop($arMinutes);
@@ -176,22 +148,16 @@ class CronParser {
 					while ($this->minute > $this->now[0]);
 
 					if ($this->minute === NULL) {
-						$this->debug("Not due this minute, so go for previous hour.");
 						$this->_prevHour($arHours, $arDays, $arMonths);
-					}
-					else {
-						$this->debug("Due this very minute or some earlier minutes before this moment within this hour.");
 					}
 				}
 			}
 			else {
-				$this->debug("Cron was due on " . $this->day . " of this month");
 				$this->hour = $this->_getLastHour();
 				$this->minute = $this->_getLastMinute();
 			}
 		}
 		else {
-			$this->debug("Cron was due before this month. Previous month is: " . $this->year . '-' . $this->month);
 			$this->day = $this->_getLastDay($this->month, $this->year);
 			if ($this->day === NULL) {
 				//No scheduled date within this month. So we will try the previous month in the month array
@@ -205,15 +171,12 @@ class CronParser {
 
 		$tend = microtime();
 		$this->taken = $tend - $tstart;
-		$this->debug("Parsing $string taken " . $this->taken . " seconds");
 
 		//if the last due is beyond 1970
 		if ($this->minute === NULL) {
-			$this->debug("Error calculating last due time");
 			return false;
 		}
 		else {
-			$this->debug("LAST DUE: " . $this->hour . ":" . $this->minute . " on " . $this->day . "/" . $this->month . "/" . $this->year);
 			$this->lastRan = mktime($this->hour, $this->minute, 0, $this->month, $this->day, $this->year);
 			return true;
 		}
@@ -225,16 +188,13 @@ class CronParser {
 		if ($this->month === NULL) {
 			$this->year = $this->year -1;
 			if ($this->year <= 1970) {
-				$this->debug("Can not calculate last due time. At least not before 1970..");
 			}
 			else {
-				$this->debug("Have to go for previous year " . $this->year);
 				$arMonths = $this->_getMonthsArray();
 				$this->_prevMonth($arMonths);
 			}
 		}
 		else {
-			$this->debug("Getting the last day for previous month: " . $this->year . '-' . $this->month);
 			$this->day = $this->_getLastDay($this->month, $this->year);
 
 			if ($this->day === NULL) {
@@ -251,10 +211,8 @@ class CronParser {
 
 	//get the due time before current day
 	function _prevDay($arDays, $arMonths) {
-		$this->debug("Go for the previous day");
 		$this->day = array_pop($arDays);
 		if ($this->day === NULL) {
-			$this->debug("Have to go for previous month");
 			$this->_prevMonth($arMonths);
 		}
 		else {
@@ -265,10 +223,8 @@ class CronParser {
 
 	//get the due time before current hour
 	function _prevHour($arHours, $arDays, $arMonths) {
-		$this->debug("Going for previous hour");
 		$this->hour = array_pop($arHours);
 		if ($this->hour === NULL) {
-			$this->debug("Have to go for previous day");
 			$this->_prevDay($arDays, $arMonths);
 		}
 		else {
@@ -311,7 +267,6 @@ class CronParser {
 		$count = count($arr);
 		for ($i = 0; $i <= ($count - 1); $i++) {
 			if ($arr[$i] < $low) {
-				$this->debug("Remove out of range element. {$arr[$i]} is outside $low - $high");
 				unset($arr[$i]);
 			}
 			else {
@@ -321,7 +276,6 @@ class CronParser {
 
 		for ($i = ($count - 1); $i >= 0; $i--) {
 			if ($arr[$i] > $high) {
-				$this->debug("Remove out of range element. {$arr[$i]} is outside $low - $high");
 				unset ($arr[$i]);
 			}
 			else {
@@ -369,8 +323,6 @@ class CronParser {
 					}
 				}
 			}
-			$this->debug("Array for the weekdays");
-			$this->debug($arWeekdays);
 
 			if ($this->bits[2] == '*') {
 				$daysmonth = $this->getDays($month, $year);
@@ -390,15 +342,12 @@ class CronParser {
 				}
 			}
 		}
-		$this->debug("Days array matching weekdays for $year-$month");
-		$this->debug($days);
 		return $days;
 	}
 
 	//given a month/year, return an array containing all the days in that month
 	function getDays($month, $year) {
 		$daysinmonth = $this->daysinmonth($month, $year);
-		$this->debug("Number of days in $year-$month : $daysinmonth");
 		$days = array();
 		for ($i = 1; $i <= $daysinmonth; $i++) {
 			$days[] = $i;
@@ -420,8 +369,6 @@ class CronParser {
 				$hours = $this->_sanitize($hours, 0, 23);
 			}
 
-			$this->debug("Hour array");
-			$this->debug($hours);
 			$this->hours_arr = $hours;
 		}
 		return $this->hours_arr;
@@ -440,8 +387,6 @@ class CronParser {
 				$minutes = $this->expand_ranges($this->bits[0]);
 				$minutes = $this->_sanitize($minutes, 0, 59);
 			}
-			$this->debug("Minutes array");
-			$this->debug($minutes);
 			$this->minutes_arr = $minutes;
 		}
 		return $this->minutes_arr;
@@ -459,8 +404,6 @@ class CronParser {
 				$months = $this->expand_ranges($this->bits[3]);
 				$months = $this->_sanitize($months, 1, 12);
 			}
-			$this->debug("Months array");
-			$this->debug($months);
 			$this->months_arr = $months;
 		}
 		return $this->months_arr;

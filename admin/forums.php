@@ -138,7 +138,7 @@ elseif ($job == 'mods') {
 	<?php
 	while ($row = $db->fetch_assoc($result)) {
 	if ($row['time'] > -1) {
-		$row['time'] = 'until '.gmdate('M d, Y',times($row['time']));
+		$row['time'] = $lang->phrase('admin_forum_until').gmdate('M d, Y',times($row['time']));
 	}
 	else {
 		$row['time'] = '<em>'.$lang->phrase('admin_forum_no_restriction').'</em>';
@@ -225,7 +225,11 @@ elseif ($job == 'mods_add') {
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_period'); ?><br />
    <span class="stext"><?php echo $lang->phrase('admin_forum_valid_until'); ?></span></td>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_day'); ?> <input type="text" name="day" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;$lang->phrase('admin_forum_month')<input type="text" name="month" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;$lang->phrase('admin_forum_year')<input type="text" name="weekday" size="6" /></td>
+   <td class="mbox" width="50%">
+   	<?php echo $lang->phrase('admin_forum_day'); ?> <input type="text" name="day" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;
+   	<?php echo $lang->phrase('admin_forum_month'); ?> <input type="text" name="month" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;
+   	<?php echo $lang->phrase('admin_forum_year'); ?> <input type="text" name="weekday" size="6" />
+   </td>
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_status_allowed_to'); ?></td>

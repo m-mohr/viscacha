@@ -16,4 +16,5 @@ INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `o
 ('teaserlength', 'Cut news after', 'Determine after how many chars the news are shortened (only if no code to cut the text is specified).', 'text', '', '300', 2),
 ('cutat', 'Code to cut after', 'You can cut the preview (teaser) manually by placing the specified code in the text. All text after this code will be removed from the preview.', 'select', 'teaser=[teaser]', 'teaser', 2),
 ('repliesnum', 'Number of replies', 'Maximum number of (newest) replies that will be shown after the form for new replies to topics (Addreply).', 'text', '', '5', 3),
-('topicnum', 'Topics to show', 'Number of new topics which are supposed to be listed maximally.', 'text', '', '10', 4);
+('topicnum', 'Topics to show', 'Number of new topics which are supposed to be listed maximally.', 'text', '', '10', 4),
+('doc_id', 'ID of the Document', 'Type in the ID of the document you want to show on the portal. 0 = No document\r\nThe ID is shown in the address of the document. Example: http://www.domain.de/viscacha/docs.php?id=&lt;ID&gt;', 'text', '', '0', 5);

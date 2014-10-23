@@ -50,7 +50,7 @@ else {
 	$p_upload = 0;
 }
 
-get_headboards($fc, $last);
+$topforums = get_headboards($fc, $last, true);
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
 $breadcrumb->Add($lang->phrase('newtopic_title'));
 
@@ -124,10 +124,10 @@ elseif ($_GET['action'] == "savevote") {
 		errorLogin($lang->phrase('not_allowed'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
 
-	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1');
+	$result = $db->query("SELECT id, vquestion, board FROM {$db->pre}topics WHERE id = '{$topic_id}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
 
-	$error = $sqlwhere = array();
+	$error = array();
 	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('query_string_error');
 	}
@@ -137,23 +137,26 @@ elseif ($_GET['action'] == "savevote") {
 	if (strxlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
+	$i = 1;
+	foreach ($_POST['notice'] as $id => $uval) {
+		$uval = trim($uval);
+		if (strlen($uval) >= 255) {
+			$error[] = $lang->phrase('vote_reply_too_long');
+		}
+		if (strlen($uval) == 0) {
+			unset($_POST['notice'][$id]);
+		}
+		else {
+			$_POST['notice'][$id] = $uval;
+		}
+		$i++;
+	}
 	if (count_filled($_POST['notice']) < 2) {
 		$error[] = $lang->phrase('min_replies_vote');
-	}
-	else {
-		foreach ($_POST['notice'] as $uval) {
-			if (strlen($uval) > 0 && strlen($uval) < 255) {
-				array_push($sqlwhere, "({$topic_id}, '{$uval}')");
-			}
-		}
-		if (count_filled($sqlwhere) < 2) {
-			$error[] = $lang->phrase('min_replies_vote');
-		}
 	}
 	if (count_filled($_POST['notice']) > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
-
 
 	($code = $plugins->load('newtopic_savevote_errorhandling')) ? eval($code) : null;
 
@@ -164,6 +167,10 @@ elseif ($_GET['action'] == "savevote") {
 		error($error,"newtopic.php?action=startvote&amp;id={$info['board']}&topic_id={$topic_id}&amp;temp={$temp}&amp;fid=".$fid.SID2URL_x);
 	}
 	else {
+		$sqlwhere = array();
+		foreach ($_POST['notice'] as $uval) {
+			$sqlwhere[] = "({$topic_id}, '{$uval}')";
+		}
 		$sqlwhere = implode(", ",$sqlwhere);
 
 		($code = $plugins->load('newtopic_savevote_queries')) ? eval($code) : null;
@@ -324,7 +331,7 @@ elseif ($_GET['action'] == "save") {
 		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'");
 
 		// Insert notifications
-		if ($my->vlogin && $type != 0) {
+		if ($my->vlogin && $digest != 0) {
 			switch ($digest) {
 				case 2:  $type = 'd'; break;
 				case 3:  $type = 'w'; break;
@@ -381,6 +388,8 @@ elseif ($_GET['action'] == "save") {
 			xmail($to, $from, $data['title'], $data['comment']);
 		}
 
+		// Set topic read
+		$slog->setTopicRead($tredirect, $topforums);
 
 		($code = $plugins->load('newtopic_save_end')) ? eval($code) : null;
 

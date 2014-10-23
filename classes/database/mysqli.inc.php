@@ -132,11 +132,21 @@ class DB extends DB_Driver { // MySQLi
 	}
 
 	function errno() {
-		return mysqli_errno($this->conn);
+		if ($this->hasConnection()) {
+			return mysqli_errno($this->conn);
+		}
+		else {
+			return mysqli_connect_errno();
+		}
 	}
 
 	function errstr() {
-		return mysqli_error($this->conn);
+		if ($this->hasConnection()) {
+			return mysqli_error($this->conn);
+		}
+		else {
+			return mysqli_connect_error();
+		}
 	}
 
 	function query($sql, $die = true) {
@@ -212,6 +222,7 @@ class DB extends DB_Driver { // MySQLi
 
 	function escape_string($value) {
 		$this->open();
+		$value = preg_replace("~\\\\(\r|\n)~", "\\ \\1", $value); // NL Hack
 		return mysqli_real_escape_string($this->conn, $value);
 	}
 

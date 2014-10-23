@@ -69,7 +69,7 @@ $breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$info['topic_id'].S
 $breadcrumb->Add($lang->phrase('edit'));
 echo $tpl->parse("header");
 
-if ($info['status'] != 0) {
+if ($info['status'] != 0 && $my->mp[0] != 1) {
 	error($lang->phrase('topic_closed'), 'showtopic.php?action=jumpto&id='.$info['topic_id'].'&topic_id='.$info['id'].SID2URL_x);
 }
 
@@ -86,7 +86,7 @@ $del_mod = ($my->mp[4] == 1 && ($info['topic_id'] > 0 || $info['posts'] == 0));
 $del_user = ($delete_seconds >= $diff && ($info['topic_id'] > 0 || $info['posts'] == 0));
 $p_upload = ($config['tpcallow'] == 1 && $my->p['attachments'] == 1);
 
-$allowed = ((($info['name'] == $my->id && $info['guest'] == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && $info['status'] == 0);
+$allowed = ((($info['name'] == $my->id && $info['guest'] == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
 
 ($code = $plugins->load('edit_start')) ? eval($code) : null;
 

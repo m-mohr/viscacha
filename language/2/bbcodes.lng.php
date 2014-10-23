@@ -1,6 +1,13 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
+$lang['bb_edit_author'] = 'Additional note by the author:';
+$lang['bb_edit_mod'] = 'Additional note by';
+$lang['bb_hidden_content'] = 'Hidden Content:';
+$lang['bb_offtopic'] = 'Off Topic:';
+$lang['bb_quote'] = 'Quote:';
+$lang['bb_quote_by'] = 'Quote by';
+$lang['bb_sourcecode'] = 'Source Code:';
 $lang['bbcodes_align'] = 'Alignment';
 $lang['bbcodes_align_center'] = 'Center';
 $lang['bbcodes_align_desc'] = 'The [align] tag allows the alignment of  text /paragraphs. The following alignment parameters may be applied: left (left aligned, standard), center (centered), right (right aligned), justify (justification).';
@@ -81,6 +88,8 @@ $lang['bbcode_help_smileys'] = 'Smilies';
 $lang['bbcode_help_smileys_desc'] = 'The following smilies can be used on this site:';
 $lang['bbhelp_title'] = 'BB-code help';
 $lang['geshi_bbcode_nohighlighting'] = 'No Syntax Highlighting';
+$lang['geshi_hlcode_title'] = 'Source code ({$lang_name}):';
+$lang['geshi_hlcode_txtdownload'] = 'Download';
 $lang['more_smileys'] = 'more Smilies';
 $lang['textarea_check_length'] = 'Check length';
 $lang['textarea_decrease_size'] = 'Decrease Size';

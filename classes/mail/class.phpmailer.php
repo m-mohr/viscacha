@@ -467,7 +467,7 @@ class PHPMailer {
       $to .= $this->AddrFormat($this->to[$i]);
     }
 
-    $toArr = split(',', $to);
+    $toArr = explode(',', $to);
 
     $params = sprintf("-oi -f %s", $this->Sender);
     if ($this->Sender != '' && strlen(ini_get('safe_mode')) < 1) {
@@ -589,7 +589,7 @@ class PHPMailer {
     /* Retry while there is no connection */
     while($index < count($hosts) && $connection == false) {
       $hostinfo = array();
-      if(eregi('^(.+):([0-9]+)$', $hosts[$index], $hostinfo)) {
+      if(preg_match('~^(.+):([0-9]+)$~i', $hosts[$index], $hostinfo)) {
         $host = $hostinfo[1];
         $port = $hostinfo[2];
       } else {
@@ -1585,12 +1585,17 @@ class PHPMailer {
    * @modified for Viscacha
    */
     function RFCDate() {
-        $tz = (time()-times())*-1;
+    	global $config;
+    	// Global forum timezone to integer
+        $tz = intval($config['timezone']);
+        // Get the prefix for the timezone
         $tzs = ($tz < 0) ? "-" : "+";
+        // Get the absolute value of the timezone (withour prefix)
         $tz = abs($tz);
-        $tz = ($tz/3600)*100 + ($tz%3600)/60;
-        $result = sprintf("%s %s%04d", gmdate("D, j M Y H:i:s", times()), $tzs, $tz);
-
+        // Get the timestamp according to rfc 822
+        $tz = floor($tz)*100 + ($tz-floor($tz))*60;
+        // Put everything together
+        $result = sprintf("%s %s%04d", gmdate("D, j M Y H:i:s", times(false, $config['timezone'])), $tzs, $tz);
         return $result;
     }
 
@@ -1698,7 +1703,7 @@ class PHPMailer {
           $directory = dirname($url);
           ($directory == '.')?$directory='':'';
           $cid = 'cid:' . md5($filename);
-          $fileParts = split("\.", $filename);
+          $fileParts = explode(".", $filename);
           $ext = $fileParts[1];
           $mimeType = $this->_mime_types($ext);
           if ( strlen($basedir) > 1 && substr($basedir,-1) != '/') { $basedir .= '/'; }

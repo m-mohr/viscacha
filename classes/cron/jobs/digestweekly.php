@@ -34,6 +34,7 @@ while ($row = $db->fetch_assoc($result)) {
 		$row['last_name'] = $memberdata[$row['last_name']];
 	}
 	$lang->setdir($row['language']);
+	$lang->assign('row', $row);
 	$data = $lang->get_mail('digest_w');
 	$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 	$from = array();

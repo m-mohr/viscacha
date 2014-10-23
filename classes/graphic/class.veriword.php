@@ -163,7 +163,7 @@ class VeriWord {
 				continue;
 			}
 			$data = explode("\t", $row);
-			if ($data[1] > $limit){
+			if (isset($data[1]) && $data[1] > $limit){
 				$save[] = $row;
 			}
 		}

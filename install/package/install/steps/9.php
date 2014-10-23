@@ -26,14 +26,26 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			if (!isset($_REQUEST['name'])) {
 				$_REQUEST['name'] = '';
 			}
+			else {
+				$_REQUEST['name'] = GPC_escape($_REQUEST['name']);
+			}
 			if (!isset($_REQUEST['pw'])) {
 				$_REQUEST['pw'] = '';
+			}
+			else {
+				$_REQUEST['pw'] = GPC_escape($_REQUEST['pw']);
 			}
 			if (!isset($_REQUEST['email'])) {
 				$_REQUEST['email'] = '';
 			}
+			else {
+				$_REQUEST['email'] = GPC_escape($_REQUEST['email'], GPC_DB);
+			}
 			if (!isset($_REQUEST['pwx'])) {
 				$_REQUEST['pwx'] = '';
+			}
+			else {
+				$_REQUEST['pwx'] = GPC_escape($_REQUEST['pwx']);
 			}
 
 			if (strlen($_REQUEST['name']) > 50) {

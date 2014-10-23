@@ -150,7 +150,6 @@ $lang['admin_member_jabber'] = 'Jabber';
 $lang['admin_member_jabber_address'] = 'Jabber-Adresse:';
 $lang['admin_member_keep_design'] = 'Design beibehalten';
 $lang['admin_member_keep_lang'] = 'Sprache beibehalten';
-$lang['admin_member_keep_time_zone'] = 'Zeitzone beibehalten (GMT {@user->timezone})';
 $lang['admin_member_lang'] = 'Sprache';
 $lang['admin_member_lang_not_valid'] = 'Ungültige Sprache ausgewählt';
 $lang['admin_member_last_visit'] = 'Letzer Besuch';

@@ -92,7 +92,7 @@ elseif ($job == 'ajax_changeperm') {
 	$result = $db->query("SELECT g.{$key}, g.core FROM {$db->pre}groups AS g WHERE id = '{$id}' LIMIT 1");
 	$perm = $db->fetch_assoc($result);
 	if (($key == 'admin' || $key == 'guest') && $perm['core'] == 1) {
-		die('This is not allowed!');
+		die($lang->phrase('not_allowed'));
 	}
 	$perm = invert($perm[$key]);
 	$db->query("UPDATE {$db->pre}groups AS g SET g.{$key} = '{$perm}' WHERE id = '{$id}' LIMIT 1");

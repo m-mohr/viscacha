@@ -28,6 +28,9 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 @set_magic_quotes_runtime(0);
 @ini_set('magic_quotes_gpc',0);
 
+// Small hack for the new php 5.3 timezone warnings
+date_default_timezone_set(@date_default_timezone_get());
+
 /* Fixed php functions */
 
 define('ENCODING_LIST', 'ISO-8859-1, ISO-8859-15, UTF-8, ASCII, cp1252, cp1251, GB2312, SJIS, KOI8-R');
@@ -177,7 +180,7 @@ function isWindows() {
 		return true;
 	}
 	elseif (viscacha_function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
-
+		return true;
 	}
 	else {
 		return false;
@@ -251,9 +254,6 @@ function extract_dir($source, $realpath = true) {
 }
 
 /* Error constants from PHP-Compat */
-if (!defined('E_STRICT')) {
-	define('E_STRICT', 2048);
-}
 if (!defined('E_RECOVERABLE_ERROR')) {
 	define('E_RECOVERABLE_ERROR', 4096);
 }
@@ -276,25 +276,6 @@ if (!defined('PHP_EOL')) {
 	}
 }
 /* File constants from PHP-Compat */
-if (!defined('FILE_USE_INCLUDE_PATH')) {
-	define('FILE_USE_INCLUDE_PATH', 1);
-}
-if (!defined('FILE_IGNORE_NEW_LINES')) {
-	define('FILE_IGNORE_NEW_LINES', 2);
-}
-if (!defined('LOCK_EX')) {
-	define('LOCK_EX', 2);
-}
-if (!defined('FILE_SKIP_EMPTY_LINES')) {
-	define('FILE_SKIP_EMPTY_LINES', 4);
-}
-if (!defined('FILE_APPEND')) {
-	define('FILE_APPEND', 8);
-}
-if (!defined('FILE_NO_DEFAULT_CONTEXT')) {
-	define('FILE_NO_DEFAULT_CONTEXT', 16);
-}
-
 $imagetype_extension = array('gif', 'jpg', 'png', 'swf', 'psd', 'bmp', 'tiff', 'jpc', 'jp2', 'jpf', 'jb2', 'swc', 'aiff', 'wbmp', 'xbm');
 
 if (!defined('IMAGETYPE_GIF')) {
@@ -424,241 +405,6 @@ if (!viscacha_function_exists('htmlspecialchars_decode')) {
 }
 
 /**
- * Replace file_put_contents()
- *
- * @category	PHP
- * @package		PHP_Compat
- * @link		http://php.net/function.file_put_contents
- * @author		Aidan Lister <aidan@php.net>
- * @version		$Revision: 1.25 $
- * @internal	resource_context is not supported
- * @since		PHP 5
- * @require		PHP 4.0.0 ()
- */
-if (!viscacha_function_exists('file_put_contents')) {
-	function file_put_contents($filename, $content, $flags = null, $resource_context = null) {
-		// If $content is an array, convert it to a string
-		if (is_array($content)) {
-			$content = implode('', $content);
-		}
-
-		// If we don't have a string, throw an error
-		if (!is_scalar($content)) {
-			trigger_error('file_put_contents() The 2nd parameter should be either a string or an array',
-				E_USER_WARNING);
-			return false;
-		}
-
-		// Get the length of data to write
-		$length = strlen($content);
-
-		// Check what mode we are using
-		$mode = ($flags & FILE_APPEND) ?
-					'a' :
-					'wb';
-
-		// Check if we're using the include path
-		$use_inc_path = ($flags & FILE_USE_INCLUDE_PATH) ?
-					true :
-					false;
-
-		// Open the file for writing
-		if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
-			// trigger_error('file_put_contents() failed to open stream: Permission denied', E_USER_WARNING);
-			return false;
-		}
-
-		// Attempt to get an exclusive lock
-		$use_lock = ($flags & LOCK_EX) ? true : false ;
-		if ($use_lock === true) {
-			if (!flock($fh, LOCK_EX)) {
-				return false;
-			}
-		}
-
-		// Write to the file
-		$bytes = 0;
-		if (($bytes = @fwrite($fh, $content)) === false) {
-			$errormsg = sprintf('file_put_contents() Failed to write %d bytes to %s',
-							$length,
-							$filename);
-			trigger_error($errormsg, E_USER_WARNING);
-			return false;
-		}
-
-		// Close the handle
-		@fclose($fh);
-
-		// Check all the data was written
-		if ($bytes != $length) {
-			$errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
-							$bytes,
-							$length);
-			trigger_error($errormsg, E_USER_WARNING);
-			return false;
-		}
-
-		// Return length
-		return $bytes;
-	}
-}
-
-/**
- * Replace stripos()
- *
- * @category	PHP
- * @package		PHP_Compat
- * @link		http://php.net/function.stripos
- * @author		Aidan Lister <aidan@php.net>
- * @version		$Revision: 1.13 $
- * @since		PHP 5
- * @require		PHP 4.0.0 ()
- */
-if (!viscacha_function_exists('stripos')) {
-	function stripos($haystack, $needle, $offset = null) {
-		if (!is_scalar($haystack)) {
-			trigger_error('stripos() expects parameter 1 to be string, ' .
-				gettype($haystack) . ' given', E_USER_WARNING);
-			return false;
-		}
-
-		if (!is_scalar($needle)) {
-			trigger_error('stripos() needle is not a string or an integer.', E_USER_WARNING);
-			return false;
-		}
-
-		if (!is_int($offset) && !is_bool($offset) && !is_null($offset)) {
-			trigger_error('stripos() expects parameter 3 to be long, ' .
-				gettype($offset) . ' given', E_USER_WARNING);
-			return false;
-		}
-
-		// Manipulate the string if there is an offset
-		$fix = 0;
-		if (!is_null($offset)) {
-			if ($offset > 0) {
-				$haystack = substr($haystack, $offset, strlen($haystack) - $offset);
-				$fix = $offset;
-			}
-		}
-
-		$segments = explode(strtolower($needle), strtolower($haystack), 2);
-
-		// Check there was a match
-		if (count($segments) === 1) {
-			return false;
-		}
-
-		$position = strlen($segments[0]) + $fix;
-		return $position;
-	}
-}
-
-/**
- * Replace str_ireplace()
- *
- * This function does not support the $count argument because
- * it cannot be optional in PHP 4 and the performance cost is
- * too great when a count is not necessary.
- *
- * @category	PHP
- * @package		PHP_Compat
- * @license		LGPL - http://www.gnu.org/licenses/lgpl.html
- * @copyright	2004-2007 Aidan Lister <aidan@php.net>, Arpad Ray <arpad@php.net>
- * @link		http://php.net/function.str_ireplace
- * @author		Aidan Lister <aidan@php.net>
- * @author		Arpad Ray <arpad@php.net>
- * @version		$Revision: 1.24 $
- * @since		PHP 5
- * @require		PHP 4.0.0 (trigger_error)
- */
-if (!viscacha_function_exists('str_ireplace')) {
-	function str_ireplace($search, $replace, $subject) {
-		// Sanity check
-		if (is_string($search) && is_array($replace)) {
-			trigger_error('Array to string conversion', E_USER_NOTICE);
-			$replace = (string) $replace;
-		}
-
-		// If search isn't an array, make it one
-		$search = (array) $search;
-		$length_search = count($search);
-
-		// build the replace array
-		$replace = is_array($replace)
-		? array_pad($replace, $length_search, '')
-		: array_pad(array(), $length_search, $replace);
-
-		// If subject is not an array, make it one
-		$was_string = false;
-		if (is_string($subject)) {
-			$was_string = true;
-			$subject = array ($subject);
-		}
-
-		// Prepare the search array
-		foreach ($search as $search_key => $search_value) {
-			$search[$search_key] = '/' . preg_quote($search_value, '/') . '/i';
-		}
-
-		// Prepare the replace array (escape backreferences)
-		$replace = str_replace(array('\\', '$'), array('\\\\', '\$'), $replace);
-
-		$result = preg_replace($search, $replace, $subject);
-		return $was_string ? $result[0] : $result;
-	}
-}
-
-/**
- * Replace str_split()
- *
- * @category	PHP
- * @package		PHP_Compat
- * @link		http://php.net/function.str_split
- * @author		Aidan Lister <aidan@php.net>
- * @version		$Revision: 1.15 $
- * @since		PHP 5
- * @require		PHP 4.0.0 ()
- */
-if (!viscacha_function_exists('str_split')) {
-	function str_split($string, $split_length = 1) {
-		if (!is_scalar($split_length)) {
-			trigger_error('str_split() expects parameter 2 to be long, ' .
-				gettype($split_length) . ' given', E_USER_WARNING);
-			return false;
-		}
-
-		$split_length = (int) $split_length;
-		if ($split_length < 1) {
-			trigger_error('str_split() The length of each segment must be greater than zero', E_USER_WARNING);
-			return false;
-		}
-
-		// Select split method
-		if ($split_length < 65536) {
-			// Faster, but only works for less than 2^16
-			preg_match_all('/.{1,' . $split_length . '}/s', $string, $matches);
-			return $matches[0];
-		} else {
-			// Required due to preg limitations
-			$arr = array();
-			$idx = 0;
-			$pos = 0;
-			$len = strlen($string);
-
-			while ($len > 0) {
-				$blk = ($len < $split_length) ? $len : $split_length;
-				$arr[$idx++] = substr($string, $pos, $blk);
-				$pos += $blk;
-				$len -= $blk;
-			}
-
-			return $arr;
-		}
-	}
-}
-
-/**
  * Replace array_intersect_key()
  *
  * @category	PHP
@@ -699,147 +445,6 @@ if (!viscacha_function_exists('array_intersect_key')) {
 			$result[$key] = $args[0][$key];
 		}
 		return $result;
-	}
-}
-
-/**
- * Replace array_combine()
- *
- * @category	PHP
- * @package		PHP_Compat
- * @link		http://php.net/function.array_combine
- * @author		Aidan Lister <aidan@php.net>
- * @version		$Revision: 1.21 $
- * @since		PHP 5
- * @require		PHP 4.0.0 ()
- */
-if (!viscacha_function_exists('array_combine')) {
-	function array_combine($keys, $values) {
-		if (!is_array($keys)) {
-			trigger_error('array_combine() expects parameter 1 to be array, ' .
-				gettype($keys) . ' given', E_USER_WARNING);
-			return;
-		}
-
-		if (!is_array($values)) {
-			trigger_error('array_combine() expects parameter 2 to be array, ' .
-				gettype($values) . ' given', E_USER_WARNING);
-			return;
-		}
-
-		$key_count = count($keys);
-		$value_count = count($values);
-		if ($key_count !== $value_count) {
-			trigger_error('array_combine() Both parameters should have equal number of elements', E_USER_WARNING);
-			return false;
-		}
-
-		if ($key_count === 0 || $value_count === 0) {
-			trigger_error('array_combine() Both parameters should have number of elements at least 0', E_USER_WARNING);
-			return false;
-		}
-
-		$keys	= array_values($keys);
-		$values	= array_values($values);
-
-		$combined = array();
-		for ($i = 0; $i < $key_count; $i++) {
-			$combined[$keys[$i]] = $values[$i];
-		}
-
-		return $combined;
-	}
-}
-
-/**
- * Replace function http_build_query()
- *
- * @category	PHP
- * @package		PHP_Compat
- * @license		LGPL - http://www.gnu.org/licenses/lgpl.html
- * @copyright	2004-2007 Aidan Lister <aidan@php.net>, Arpad Ray <arpad@php.net>
- * @link		http://php.net/function.http-build-query
- * @author		Stephan Schmidt <schst@php.net>
- * @author		Aidan Lister <aidan@php.net>
- * @version		$Revision: 1.22 $
- * @since		PHP 5
- * @require		PHP 4.0.0 (trigger_error)
- */
-if (!viscacha_function_exists('http_build_query')) {
-	function http_build_query($formdata, $numeric_prefix = null) {
-		// If $formdata is an object, convert it to an array
-		if (is_object($formdata)) {
-			$formdata = get_object_vars($formdata);
-		}
-
-		// Check we have an array to work with
-		if (!is_array($formdata)) {
-			trigger_error('http_build_query() Parameter 1 expected to be Array or Object. Incorrect value given.',
-				E_USER_WARNING);
-			return false;
-		}
-
-		// If the array is empty, return null
-		if (empty($formdata)) {
-			return;
-		}
-
-		// Argument seperator
-		$separator = ini_get('arg_separator.output');
-		if (strlen($separator) == 0) {
-			$separator = '&';
-		}
-
-		// Start building the query
-		$tmp = array ();
-		foreach ($formdata as $key => $val) {
-			if (is_null($val)) {
-				continue;
-			}
-
-			if (is_integer($key) && $numeric_prefix != null) {
-				$key = $numeric_prefix . $key;
-			}
-
-			if (is_scalar($val)) {
-				array_push($tmp, urlencode($key) . '=' . urlencode($val));
-				continue;
-			}
-
-			// If the value is an array, recursively parse it
-			if (is_array($val) || is_object($val)) {
-				array_push($tmp, http_build_query_helper($val, urlencode($key)));
-				continue;
-			}
-
-			// The value is a resource
-			return null;
-		}
-
-		return implode($separator, $tmp);
-	}
-
-
-	// Helper function
-	function http_build_query_helper($array, $name) {
-		$tmp = array ();
-		foreach ($array as $key => $value) {
-			if (is_array($value)) {
-				array_push($tmp, http_build_query_helper($value, sprintf('%s[%s]', $name, $key)));
-			} elseif (is_scalar($value)) {
-				array_push($tmp, sprintf('%s[%s]=%s', $name, urlencode($key), urlencode($value)));
-			} elseif (is_object($value)) {
-				array_push($tmp, http_build_query_helper(get_object_vars($value), sprintf('%s[%s]', $name, $key)));
-			}
-		}
-
-		// Argument seperator
-		$separator = ini_get('arg_separator.output');
-		if (strlen($separator) == 0) {
-			$separator = '&';
-		}
-
-		return implode($separator, $tmp);
 	}
 }
 ?>

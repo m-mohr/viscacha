@@ -39,7 +39,7 @@ $result = $db->query("
 	SELECT d.id, d.author, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
 	FROM {$db->pre}documents AS d
 		LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
-	WHERE d.id = '{$id}' ".iif($my->p['admin'] == 1, 'AND c.active = "1"')
+	WHERE d.id = '{$id}' ".iif($my->p['admin'] != 1, ' AND c.active = "1"')
 );
 if ($db->num_rows($result) == 0) {
 	error($lang->phrase('docs_not_found'));
@@ -96,7 +96,7 @@ if (GroupCheck($info['groups'])) {
 		$info['update'] = str_date($lang->phrase('dformat1'), times($info['update']));
 	}
 	else {
-		$info['date'] = $lang->phrase('docs_date_na');
+		$info['update'] = $lang->phrase('docs_date_na');
 	}
 	($code = $plugins->load('docs_prepare')) ? eval($code) : null;
 

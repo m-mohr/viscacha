@@ -28,7 +28,9 @@ if (!class_exists('ftp')) {
 	$classpath = dirname(__FILE__);
 	require_once("{$classpath}/ftp/class.ftp.php");
 	$pemftp_class = pemftp_class_module();
-	require_once("{$classpath}/ftp/class.ftp_{$pemftp_class}.php");
+	if ($pemftp_class !== null) {
+		require_once("{$classpath}/ftp/class.ftp_{$pemftp_class}.php");
+	}
 }
 
 class filesystem {
@@ -43,17 +45,19 @@ class filesystem {
 	var $root_path;
 
 	function filesystem($server, $user, $pw, $port = 21) {
-		$this->server = $server;
-		$this->port = $port;
-		$this->user = $user;
-		$this->pw = $pw;
+		if (class_exists('ftp', false) == true) {
+			$this->server = $server;
+			$this->port = $port;
+			$this->user = $user;
+			$this->pw = $pw;
+		}
 		$this->installed_path = DIRECTORY_SEPARATOR;
 		$this->connected = false;
 		$this->root_path = DIRECTORY_SEPARATOR;
 	}
 
 	function _ftpize_path($path) {
-		$path = preg_replace('~^'.preg_quote($this->root_path).'~i', '', $path);
+		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~i', '', $path);
 		return $path;
 	}
 

@@ -82,49 +82,40 @@ if ($_GET['action'] == 'team') {
 	}
 
 	$result = $db->query('
-	SELECT m.time, m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname
+	SELECT m.time, m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname, f.invisible
 	FROM '.$db->pre.'moderators AS m
 		LEFT JOIN '.$db->pre.'user AS u ON u.id = m.mid
 		LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
+	WHERE invisible != "2"
 	ORDER BY u.name ASC
 	');
 
 	$inner['moderator_bit'] = '';
-	if ($db->num_rows($result) > 0) {
-		$mod_cache = array();
-		$mid_cache = array();
-		while($row = $gpc->prepare($db->fetch_object($result))) {
-			$mod_cache[$row->mid][] = $row;
-			$mid_cache[] = $row->mid;
-		}
+	$board_cache = array();
+	$member_cache = array();
+	$my->pb = $slog->GlobalPermissions();
 
-		if(isset($mid_cache)) {
-			$mid_cache = array_unique($mid_cache);
-			$lastmod = '';
-			$echoline = '';
-			foreach ($mid_cache as $mid) {
-				$inner['moderator_bit_forum'] = array();
-				if(isset($mod_cache[$mid])) {
-					$mod  = $mod_cache[$mid];
-					$anz2 = count($mod);
-					$forschleife = $anz2-1;
-					for($i = 0; $i < $anz2; $i++) {
-						if ($config['team_mod_dateuntil'] == 1 && !empty($mod[$i]->time)) {
-							$mod[$i]->time = gmdate($lang->phrase('dformat2'),times($mod[$i]->time));
-						}
-						else {
-							$mod[$i]->time = 0;
-						}
-						$inner['moderator_bit_forum'][] = $mod[$i];
-						if ($i != $forschleife) {
-							continue;
-						}
-						($code = $plugins->load('team_moderator_prepared')) ? eval($code) : null;
-						$inner['moderator_bit'] .= $tpl->parse("team/moderator_bit");
-					}
-				}
+	while($row = $gpc->prepare($db->fetch_object($result))) {
+		$board_cache[$row->mid][$row->bid] = $row;
+		$member_cache[$row->mid] = $row;
+	}
+
+	foreach ($member_cache as $mid => $mdata) {
+		$inner['moderator_bit_forum'] = array();
+		foreach ($board_cache[$mid] as $bid => $bdata) {
+			if ($bdata->invisible == 1 && isset($my->pb[$bid]) && $my->pb[$bid]['forum'] == 0) {
+				continue;
 			}
+			if ($config['team_mod_dateuntil'] == 1 && !empty($bdata->time)) {
+				$bdata->time = gmdate($lang->phrase('dformat2'), times($bdata->time));
+			}
+			else {
+				$bdata->time = 0;
+			}
+			$inner['moderator_bit_forum'][] = $bdata;
 		}
+		($code = $plugins->load('team_moderator_prepared')) ? eval($code) : null;
+		$inner['moderator_bit'] .= $tpl->parse("team/moderator_bit");
 	}
 
 	echo $tpl->parse("header");

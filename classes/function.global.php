@@ -24,6 +24,24 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
+define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
+
+define('REMOTE_INVALID_URL', 100);
+define('REMOTE_CLIENT_ERROR', 200);
+define('REMOTE_FILESIZE_ERROR', 300);
+define('REMOTE_IMAGE_HEIGHT_ERROR', 400);
+define('REMOTE_IMAGE_WIDTH_ERROR', 500);
+define('REMOTE_EXTENSION_ERROR', 600);
+define('REMOTE_IMAGE_ERROR', 700);
+
+define('CAPTCHA_FAILURE', 0);
+define('CAPTCHA_OK', 1);
+define('CAPTCHA_MISTAKE', 2);
+define('CAPTCHA_TYPE_2', 'ReCaptcha');
+define('CAPTCHA_TYPE_1', 'VeriWord');
+
 // Caching-Class
 require_once('classes/class.cache.php');
 // INI-File-Class
@@ -40,23 +58,6 @@ $plugins = new PluginSystem();
 
 // Construct base bb-code object
 $bbcode = new BBCode();
-
-define('URL_REGEXP', 'https?://[a-z\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:[a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*[a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~])?');
-define('EMAIL_REGEXP', "[a-z0-9!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[a-z0-9!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
-
-define('REMOTE_INVALID_URL', 100);
-define('REMOTE_CLIENT_ERROR', 200);
-define('REMOTE_FILESIZE_ERROR', 300);
-define('REMOTE_IMAGE_HEIGHT_ERROR', 400);
-define('REMOTE_IMAGE_WIDTH_ERROR', 500);
-define('REMOTE_EXTENSION_ERROR', 600);
-define('REMOTE_IMAGE_ERROR', 700);
-
-define('CAPTCHA_FAILURE', 0);
-define('CAPTCHA_OK', 1);
-define('CAPTCHA_MISTAKE', 2);
-define('CAPTCHA_TYPE_2', 'ReCaptcha');
-define('CAPTCHA_TYPE_1', 'VeriWord');
 
 function is_hash($string) {
 	return (bool) preg_match("/^[a-f\d]{32}$/i", $string);
@@ -96,7 +97,7 @@ function checkmx_idna($host) {
 	   @exec("nslookup -querytype=MX {$host_idna}", $output);
 	   while(list($k, $line) = each($output)) {
 		   # Valid records begin with host name
-		   if(preg_match("~^(".preg_quote($host)."|".preg_quote($host_idna).")~i", $line)) {
+		   if(preg_match("~^(".preg_quote($host, '~')."|".preg_quote($host_idna, '~').")~i", $line)) {
 			   return true;
 		   }
 	   }
@@ -113,11 +114,11 @@ function get_remote($file) {
 		return REMOTE_INVALID_URL;
 	}
 
-	$url_ary = parse_url($file);
-
-	if (isset($url_ary['host']) && preg_match('~^www\.~i', $url_ary['host'])) {
+	if (preg_match('~^www\.~i', $file)) {
 		$file = 'http://'.$file;
 	}
+
+	$url_ary = parse_url($file);
 
 	$snoopy = new Snoopy;
 	if (isset($url_ary['port']) && is_id($url_ary['port'])) {
@@ -392,9 +393,9 @@ function serverload($int = false) {
 	}
 	if (empty($serverload[0]) && viscacha_function_exists('exec') == true) {
 		$load = @exec("uptime");
-		$load = split("load averages?: ", $load);
+		$load = preg_split("~load averages?: ~i", $load);
 		if (isset($load[1])) {
-			$serverload = @explode(",", $load[1]);
+			$serverload = explode(",", $load[1]);
 		}
 	}
 	if (isset($serverload[0])) {
@@ -490,7 +491,7 @@ function check_mail($email, $simple = false) {
 	 	$domain = strtolower($domain);
 		// Check MX record.
 	 	// The idea for this is from UseBB/phpBB
-	 	if ($config['email_check_mx'] && !$simple) {
+	 	if ($config['local_mode'] == 0 && $config['email_check_mx'] == 1 && !$simple) {
 	 		if (checkmx_idna($domain) === false) {
 	 			return false;
 	 		}
@@ -587,22 +588,25 @@ function leading_zero($int,$length=2) {
 	return sprintf("%0{$length}d", $int);
 }
 
-function times ($time=FALSE) {
-	global $my;
-
-	if ($time == FALSE) {
-		$stime = time();
+function times ($time = false, $timezone = false) {
+	global $my, $config;
+	$stime = $time == false ? time() : $time;
+	if ($timezone == false) {
+		if (isset($my->timezone)) {
+			global $my;
+			$timezone = $my->timezone;
+		}
+		else {
+			global $config;
+			$timezone = $config['timezone'];
+		}
 	}
-	else {
-		$stime = $time;
-	}
+	$timezone = intval($timezone);
 
-	//$retime = $stime + 3600*($my->timezone + gmdate("I"));
-	// gmdate('I') has a crazy bug. it shows something else (wrong) than date('I')
-	$retime = $stime + 3600*($my->timezone + date("I"));
+	// gmdate('I') can't detect DST so use date('I') instead
+	$retime = $stime + 3600*($timezone + date("I"));
 
 	return $retime;
-
 }
 
 function str_date($format, $time=FALSE) {
@@ -929,6 +933,20 @@ function check_forumperm($forum) {
 	}
 }
 
+function selectTZ($user, $compare) {
+	global $config;
+	if ($user === null) {
+		$user = $config['timezone'];
+	}
+	$user = (int) str_replace('+', '', $user);
+	if ($user == $compare) {
+		echo ' selected="selected"';
+	}
+	else {
+		echo '';
+	}
+}
+
 /*
 Sends a plain text e-mail in UTF-8.
 
@@ -1002,8 +1020,10 @@ function xmail ($to, $from = array(), $topic, $comment) {
 			$mail->AddAddress($gpc->plain_str($email['mail']));
 		}
 
-		if ($mail->Send()) {
-			$i++;
+		if ($config['local_mode'] == 0) {
+			if ($mail->Send()) {
+				$i++;
+			}
 		}
 
 		$mail->ClearAddresses();

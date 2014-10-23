@@ -130,7 +130,7 @@ function create_thumbnail($attachment) {
 					}
 					break;
 			}
-			if ($image) {
+			if (isset($image)) {
 				$xratio = $width / $config['tpcthumbwidth'];
 				$yratio = $height /$config['tpcthumbheight'];
 				if ($xratio > $yratio) {

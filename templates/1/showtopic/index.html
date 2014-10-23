@@ -4,20 +4,25 @@
 	<a id="menu_threadtools" href="#threadtools" onmouseover="RegisterMenu('threadtools');"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('showtopic_options'); ?></a>
 	<div class="popup" id="popup_threadtools">
 <?php if($my->vlogin) { ?>
+	<?php if (empty($abox['id']) || $abox['type'] == 'f') { ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_manage'); ?></strong>
 	 <ul>
+	<?php if ($abox['id'] > 0 && $abox['type'] == 'f') { ?>
+     <li><a href="editprofile.php?action=removeabo&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_fav_remove'); ?></a></li>
+	<?php } else { ?>
 	 <li><a href="editprofile.php?action=addabo&amp;type=9&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_favs'); ?></a></li>
+	<?php } ?>
 	 </ul>
-	 <?php if ($info['status'] == 0) { ?>
+	<?php } if (($info['status'] == 0 || $abox['id'] > 0) && $abox['type'] != 'f') { ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_abo'); ?></strong>
 	 <ul>
-	 <?php if ($abox['id'] > 0) { ?>
+	<?php if ($abox['id'] > 0 && $abox['type'] != 'f') { ?>
      <li><a href="editprofile.php?action=removeabo&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo_remove'); ?></a></li>
-	 <?php } else { ?>
+	<?php } else { ?>
      <li><a href="editprofile.php?action=addabo&amp;type=0&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo0'); ?></a></li>
      <li><a href="editprofile.php?action=addabo&amp;type=1&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo1'); ?></a></li>
      <li><a href="editprofile.php?action=addabo&amp;type=7&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo7'); ?></a></li>
-     <?php } ?>
+    <?php } ?>
      </ul>
 <?php }} ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>

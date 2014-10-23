@@ -1,7 +1,7 @@
 	<?php echo iif ($tpl->tplsent('menu'), $tpl->parse('menu_noscript')); ?><br />
     <?php echo iif ($config['benchmarkresult'] == 1, $tpl->parse('admin/benchmark')); ?>
     <div class="center"><?php ($code = $plugins->navigation('bottom')) ? eval($code) : null; ?></div>
-    <div class="center stext"><?php echo $lang->phrase('timestamps_gmt_diff'); ?></div>
+    <div class="center stext"><?php echo $lang->phrase('timestamps_gmt_diff'); ?> <?php echo $lang->phrase('timezone_desc'); ?></div>
 </div><br class="invclear" />
 </div>
 <div id="copyright">

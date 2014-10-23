@@ -29,7 +29,7 @@ class cache_custombb extends CacheItem {
 					return '.+?';
 				}
 				else {
-					return '[^\]\'\"]*?';
+					return '[^\]\'\"\r\n\t]*?';
 				}
 		}
 	}
@@ -43,19 +43,19 @@ class cache_custombb extends CacheItem {
 			$this->data = array();
 			$result = $db->query("SELECT * FROM {$db->pre}bbcode ORDER BY id");
 			while ($bb = $db->fetch_assoc($result)) {
-				preg_match('~\{param(:(\\\}|[^\}])+)?\}~i', $bb['bbcodereplacement'], $type);
-				if (empty($type[2])) {
-					$type[2] = null;
+				preg_match('~\{param(?::((?:\\\}|[^\}])+))?\}~i', $bb['bbcodereplacement'], $type); // Old: \{param(:(\\\}|[^\}]+))?\}
+				if (empty($type[1])) {
+					$type[1] = null;
 				}
-				$param = '('.$this->getRegexp($type[2]).')';
+				$param = '('.$this->getRegexp($type[1]).')';
 
 				if ($bb['twoparams']) {
-					preg_match('~\{option(:(\\\}|[^\}])+)?\}~i', $bb['bbcodereplacement'], $type);
+					preg_match('~\{option(?::((?:\\\}|[^\}])+))?\}~i', $bb['bbcodereplacement'], $type); // Old: \{option(:(\\\}|[^\}]+))?\}
 					// Paramter for Opening Tag
-					if (empty($type[2])) {
-						$type[2] = null;
+					if (empty($type[1])) {
+						$type[1] = null;
 					}
-					$option = '=('.$this->getRegexp($type[2], false).')';
+					$option = '=('.$this->getRegexp($type[1], false).')';
 				}
 				else {
 					$option = '';

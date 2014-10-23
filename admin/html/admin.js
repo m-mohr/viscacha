@@ -62,10 +62,6 @@ function openHookPosition(hook) {
 	window.open(url+hook+'#key', "sourcecode", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes");
 	return false;
 }
-function deleteit(rid){
-	var res = confirm("Do you really want to delete the data?");
-	if(res) locate('admin.php?action=query&job=delete&id='+rid);
-}
 function docs() {
     window.open("admin.php?action=cms&job=nav_docslist","","width=480,height=480,resizable=yes,scrollbars=yes");
 }

@@ -3033,7 +3033,7 @@ elseif ($job == 'plugins_language_save2') {
 	$id = $gpc->get('id', int);
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
-	$langt = $gpc->get('langt', none);
+	$langt = $gpc->get('langt', arr_none);
 
 	if (empty($text)) {
 		error('javascript: history.back(-1);', $lang->phrase('admin_packages_err_no_default_text_specified'));
@@ -3289,6 +3289,7 @@ elseif ($job == 'browser') {
 	else {
 		$random = array();
 	}
+	$entries = 0;
 	echo head();
 	?>
  <table class="border" border="0" cellspacing="0" cellpediting="4" align="center">
@@ -3298,11 +3299,12 @@ elseif ($job == 'browser') {
   <tr>
    <td class="ubox" width="50%"><strong><?php echo $lang->phrase('admin_packages_browser_categories'); ?></strong></td>
    <td class="ubox" width="50%"><strong><?php echo $lang->phrase('admin_packages_browser_useful_links'); ?></strong></td>
+  </tr>
   <tr>
    <td class="mbox" valign="top" rowspan="3">
    	<?php if (count($cats) > 0) { ?>
 	<ul>
-		<?php foreach ($cats as $id => $row) { ?>
+		<?php foreach ($cats as $id => $row) { $entries += $row['entries']; ?>
 		<li><a href="admin.php?action=packages&amp;job=browser_list&amp;type=<?php echo $type; ?>&amp;id=<?php echo $id; ?>"><?php echo $row['name']; ?></a> (<?php echo $row['entries']; ?>)</li>
 		<?php } ?>
 	</ul>
@@ -3310,7 +3312,7 @@ elseif ($job == 'browser') {
    </td>
    <td class="mbox" valign="top">
 	<ul>
-		<?php if (count($cats) > 0) { ?>
+		<?php if ($entries > 0) { ?>
 		<li><a href="admin.php?action=packages&amp;job=browser_list&amp;type=<?php echo $type; ?>&amp;id=last"><?php echo $lang->phrase('admin_packages_browser_recently_updated'); ?> <?php echo $types[$type]['name']; ?></a></li>
 		<?php } ?>
 		<li><a href="admin.php?action=settings&amp;job=admin"><?php $foo = $types[$type]; echo $lang->phrase('admin_packages_browser_change_servers_that_offer_foo'); ?></a></li>
@@ -3322,7 +3324,7 @@ elseif ($job == 'browser') {
   </tr>
   <tr>
    <td class="mbox" valign="top">
-   <?php if (count($random) > 0) { ?>
+   <?php if ($entries > 0) { ?>
 	<a href="admin.php?action=packages&amp;job=browser_detail&amp;id=<?php echo $random['internal']; ?>&amp;type=<?php echo $type; ?>"><strong><?php echo $random['title']; ?></strong> <?php echo $random['version']; ?></a><br />
 	<?php echo $random['summary'];
    }
@@ -3554,7 +3556,7 @@ elseif ($job == 'browser_detail') {
 	   	<?php } ?>
 	   </td>
 	  </tr>
-	  <?php } if (isset($row['license'])) { ?>
+	  <?php } if (isset($row['multiple'])) { ?>
 	  <tr>
 	   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_packages_browser_multiple_installations_allowed'); ?></td>
 	   <td class="mbox" width="70%"><?php echo noki($row['multiple']); ?></td>

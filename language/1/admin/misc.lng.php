@@ -43,7 +43,8 @@ $lang['admin_misc_from_where_data_for_online_status'] = 'Wo kommen die Daten für
 $lang['admin_misc_from_where_data_for_online_status_info'] = 'Die Daten der Messenger ICQ, Yahoo, AOL und Skype werden direkt von den Servern der jeweiligen Diensteanbieter ausgelesen. Jabber und MSN bieten derzeit keinen solchen Service an, daher wird eine inoffizielle Quelle, der Service <a href="http://www.onlinestatus.org" target="_blank">Onlinestatus.org</a>, benutzt. Dieser Service bietet ein Programm an, mit dem man auf die Online-Status-Daten der jeweiligen Dienste zugreifen kann. Da das Programm frei angeboten wird und auf diversen, häufig wechselnden Servern betrieben wird, ist es nötig, eine (aktuelle) Serverliste anzugeben, von denen Viscacha die Daten auslesen kann.<br />Weitere Informationen und eine Übersicht mit verfügbaren Servern wird auf folgender Seite angeboten: <a href="http://osi.viscacha.org/" target="_blank">osi.viscacha.org</a>';
 $lang['admin_misc_front_preview'] = 'Vorschau der Schriftart';
 $lang['admin_misc_license'] = 'Lizenz:';
-$lang['admin_misc_license_not_forun'] = 'Lizenztext wurde leider nicht gefunden.';
+$lang['admin_misc_license_not_found'] = 'Lizenztext wurde leider nicht gefunden.';
+$lang['admin_misc_mysql_version'] = 'Datenbank-Version:';
 $lang['admin_misc_my_php_extensions'] = 'Meine PHP-Erweiterungen';
 $lang['admin_misc_my_server'] = 'Mein Server';
 $lang['admin_misc_name'] = 'Name';

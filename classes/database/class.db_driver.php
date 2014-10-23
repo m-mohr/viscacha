@@ -43,7 +43,6 @@ class DB_Driver { // abstract class
 	var $std_limit;
 	var $persistence;
 	var $all_results;
-	var $escape;
 
 	function DB_Driver($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
 	    $this->host = $host;
@@ -61,11 +60,6 @@ class DB_Driver { // abstract class
         $this->std_limit = 5000;
         $this->persistence = false;
         $this->all_results = array();
-        // mysql(i)_real_escape_string() prepends backslashes to: \x00, \n, \r, \, ', " and \x1a.
-        $this->escape = array(
-        	'original' => array("\n", '\\', "'", '"', "\r", "\Z", "\0"),
-        	'secured' => array('\\n', '\\\\', "\\'", '\\"', '\\r', '\\Z', '\\0')
-        );
 	}
 
 	function quitOnError($die = true) {
@@ -237,7 +231,7 @@ class DB_Driver { // abstract class
 			else {
 				$lines = array();
 			}
-		
+
 			$cols = array(
 				$this->errno(),
 				makeOneLine($this->errstr()),
@@ -248,7 +242,7 @@ class DB_Driver { // abstract class
 				makeOneLine($errcomment)
 			);
 			$lines[] = implode("\t", $cols);
-		
+
 			@file_put_contents($this->errlogfile, implode("\n", $lines));
 		}
 		$errcomment = nl2br($errcomment);
@@ -281,8 +275,39 @@ class DB_Driver { // abstract class
 		return $columns;
 	}
 
-	function unescape_string($value) {
-		return str_replace($this->escape['secured'], $this->escape['original'], $value);
+	function cb_unescape_string($m) { // NL Hack
+		if ($m[1] == '\\\\') {
+			return '\\'.$m[2];
+		}
+		else {
+			switch($m[2]) {
+				case 'n':
+					return "\n";
+				case 'r':
+					return "\r";
+				case '0':
+					return "\0";
+				default:
+					return "\Z";
+			}
+		}
+	}
+
+	// mysql(i)_real_escape_string() prepends backslashes to: \x00, \n, \r, \, ', " and \x1a.
+	function unescape_string($value) { // NL Hack
+		$value = preg_replace_callback(
+			'~(\\\\\\\\|\\\\)(n|r|0|Z)~',
+			array(&$this, 'cb_unescape_string'),
+			$value
+		);
+
+		$value = str_replace(
+			array("\\'", '\\"', '\\\\'),
+			array("'",   '"',   '\\'),
+			$value
+		);
+
+		return $value;
 	}
 
 }

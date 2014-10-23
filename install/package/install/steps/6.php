@@ -7,15 +7,15 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	include('install/classes/class.phpconfig.php');
 	$c = new manageconfig();
 	$c->getdata('data/config.inc.php');
-	if (!isset($_REQUEST['fname'])) {
-		$_REQUEST['fname'] = '';
+	$c->updateconfig('fname', html_enc);
+	$c->updateconfig('fdesc', html_enc);
+	$_REQUEST['furl'] = empty($_REQUEST['furl']) ? getFUrl() : $_REQUEST['furl'];
+	if (strtolower(substr($_REQUEST['furl'], 0, 4)) == 'www.') {
+		$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
+		$_REQUEST['furl'] = $https.$_REQUEST['furl'];
 	}
-	if (!isset($_REQUEST['fdesc'])) {
-		$_REQUEST['fdesc'] = '';
-	}
-	$c->updateconfig('fname', str, htmlentities($_REQUEST['fname'], ENT_QUOTES));
-	$c->updateconfig('fdesc', str, htmlentities($_REQUEST['fdesc'], ENT_QUOTES));
 	$c->updateconfig('furl', str);
+	$_REQUEST['fpath'] = !empty($_REQUEST['fpath']) ? $_REQUEST['fpath'] : str_replace('\\', '/', realpath('./'));
 	$c->updateconfig('fpath', str);
 	$c->updateconfig('forenmail', str);
 	$c->updateconfig('cookie_prefix', str);
@@ -97,7 +97,7 @@ if (!empty($config['dbsystem'])) {
 	  <td class="mbox" width="50%"><input type="text" name="dbprefix" value="<?php echo $config['dbprefix']; ?>" size="10" /></td>
 	 </tr>
 	 <tr>
-	  <td class="mbox" width="50%">Use a persistent connection:<br /><span class="stext">Only for "MySQL Standard". For more information visit: <a href="http://www.php.net/manual/features.persistent-connections.php" target="_blank">php.net - Persistent Database Connections</a></span></td>
+	  <td class="mbox" width="50%">Use a persistent connection:<br /><span class="stext">Only available for "MySQL Standard". For more information visit: <a href="http://www.php.net/manual/features.persistent-connections.php" target="_blank">php.net - Persistent Database Connections</a></span></td>
 	  <td class="mbox" width="50%"><input type="checkbox" name="pconnect" value="1"<?php echo iif($config['pconnect'] == 1, ' checked="checked"'); ?> /></td>
 	 </tr>
 	</table>

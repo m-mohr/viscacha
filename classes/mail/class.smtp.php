@@ -1036,7 +1036,7 @@ class SMTP
    */
   function get_lines() {
     $data = "";
-    while($str == @fgets($this->smtp_conn,515)) {
+    while($str = @fgets($this->smtp_conn, 515)) {
       if($this->do_debug >= 4) {
         echo "SMTP -> get_lines(): \$data was \"$data\"" .
                  $this->CRLF;

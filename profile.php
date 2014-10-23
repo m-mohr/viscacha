@@ -52,19 +52,12 @@ if ($my->p['profile'] != 1) {
 
 if ($guest > 0) {
 	$result = $db->query("SELECT email, name, guest FROM {$db->pre}replies WHERE id = '{$guest}' AND guest = '1' LIMIT 1");
-	$guest_data = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 1) {
+		$guest_data = $db->fetch_assoc($result);
 		$is_guest = true;
 		$username = $guest_data['name'];
-		$email = $guest_data['email'];
 		$url_ext = '&amp;guest='.$guest;
 	}
-	else {
-		$is_guest = false;
-	}
-}
-else {
-	$is_guest = false;
 }
 if (isset($memberdata[$_GET['id']])) {
 	$is_member = true;
@@ -76,7 +69,7 @@ $breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
 $breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
 
 if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
-	$result=$db->query('SELECT id, name, opt_hidemail, mail FROM '.$db->pre.'user WHERE id = '.$_GET['id']);
+	$result=$db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
 	$row = $slog->cleanUserData($db->fetch_object($result));
 	$breadcrumb->Add($lang->phrase('profile_mail_2'));
 
@@ -119,12 +112,6 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 
 		}
 		else {
-			if ($row->opt_hidemail == 0) {
-				$chars = array('@','.');
-				$entities = array('&#64;','&#46;');
-				$row->mail = str_replace($chars, $entities, $row->mail);
-			}
-
 			$fid = $gpc->get('fid', str);
 			if (is_hash($fid)) {
 				$data = $gpc->unescape(import_error_data($fid));
@@ -193,17 +180,6 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 		echo $tpl->parse("profile/ims");
 		($code = $plugins->load('profile_ims_start')) ? eval($code) : null;
 	}
-}
-elseif ($_GET['action'] == 'emailimage' && $is_guest) {
-	if (headers_sent()) {
-		exit;
-	}
-	include('classes/graphic/class.text2image.php');
-	$img = new text2image();
-	$img->prepare($email, 0, 10);
-	$img->build();
-	$img->output();
-	exit;
 }
 elseif ($is_guest) {
 	$breadcrumb->resetUrl();

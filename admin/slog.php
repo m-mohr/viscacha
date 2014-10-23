@@ -95,7 +95,7 @@ elseif ($job == 'l_mysqlerror') {
 				}
 				$row['class'] = (!isset($row['class'])) ? '' : $row['class'];
 				$row['type'] = (!isset($row['type'])) ? '' : $row['type'];
-				
+
 				$data[6] .= "<b>#{$i}:</b> ".htmlspecialchars($row['file']).":{$row['line']}&nbsp;".htmlspecialchars($row['class'].$row['type'].$row['function'])."(...)<br />";
 			}
 		}
@@ -188,14 +188,17 @@ elseif ($job == 's_general_image') {
 		case 1:
 			$sqlformat = "%e %m %Y";
 			$phpformat = "~w, d.m.Y";
+			$axis_x = $lang->phrase('admin_slog_day');
 		break;
 		case 2:
 			$sqlformat = "%U %Y";
 			$phpformat = "# (n~ Y)";
+			$axis_x = $lang->phrase('admin_slog_week');
 		break;
 		default:
 			$sqlformat = "%m %Y";
 			$phpformat = "n~ Y";
+			$axis_x = $lang->phrase('admin_slog_month');
 	}
 
 	$sort = $gpc->get('sortorder', str);
@@ -236,12 +239,12 @@ elseif ($job == 's_general_image') {
 	}
 
 	$PG->title     = $stats_name;
-	$PG->axis_x    = '';
+	$PG->axis_x    = $axis_x;
 	$PG->axis_y    = $stats_name;
 	$PG->type      = $modus;
 	$PG->skin      = $skin;
-	$PG->dp 	   = '.';
-	$PG->ds 	   = '';
+	$PG->dp 	   = $lang->phrase('decpoint');
+	$PG->ds 	   = $lang->phrase('thousandssep');
 
 	if (count($cache)) {
 		while (list($key, $row) = each($cache)) {

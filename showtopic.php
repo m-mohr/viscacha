@@ -65,7 +65,7 @@ else {
 }
 
 if ($_GET['action'] == 'firstnew') {
-	if ($info['last'] > $my->clv) {
+	if ($info['last'] >= $my->clv) {
 		$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date <= '{$my->clv}'");
 		$old = $db->fetch_assoc($result);
 		$tp = $old['count'] + 1; // Number of old post (with topic start post) + 1, to get the first new post, not the last old post
@@ -291,7 +291,7 @@ ORDER BY date ASC
 
 $firstnew = 0;
 $firstnew_url = null;
-if ($info['last'] > $my->clv) {
+if ($info['last'] >= $my->clv) {
 	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].$qUrl2.SID2URL_x;
 }
 
@@ -325,7 +325,7 @@ while ($row = $db->fetch_object($result)) {
 	if ($firstnew > 0) {
 		$firstnew++;
 	}
-	if ($row->date > $my->clv && $firstnew == 0) {
+	if ($row->date >= $my->clv && $firstnew == 0) {
 		$firstnew = 1;
 		$firstnew_url = "#firstnew";
 	}
@@ -337,9 +337,9 @@ while ($row = $db->fetch_object($result)) {
 	else {
 	    $edit_seconds = $config['edit_edit_time']*60;
 	}
-	$can_edit = ((($row->mid == $my->id && $row->guest == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && $info['status'] == 0);
+	$can_edit = ((($row->mid == $my->id && $row->guest == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
 
-	$new = iif($row->date > $my->clv, 'new', 'old');
+	$new = iif($row->date >= $my->clv, 'new', 'old');
 
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);
@@ -453,11 +453,11 @@ while ($row = $db->fetch_object($result)) {
 }
 
 if ($my->vlogin && is_id($info['id'])) {
-	$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'");
+	$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'");
 	$abox = $db->fetch_assoc($result);
 }
 else {
-	$abox = array('id' => null);
+	$abox = array('id' => null, 'type' => null);
 }
 
 $inner['index_bit'] = implode('', $inner['index_bit']);

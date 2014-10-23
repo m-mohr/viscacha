@@ -1,4 +1,20 @@
 <?php
+function getFUrl() {
+	// HTTP_HOST is having the correct browser url in most cases...
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
+
+	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
+	if (!$source) {
+		$source = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
+	}
+	// Replace backslashes and doubled slashes (could happen on some proxy setups)
+	$source = str_replace(array('\\', '//', '/install'), '/', $source);
+	$source = trim(trim(dirname($source)), '/');
+
+	$furl = rtrim($https.$server_name.'/'.$source, '/');
+	return $furl;
+}
 function makeOneLine($str) {
 	return str_replace(array("\r\n","\n","\r","\t","\0"), ' ', $str);
 }
@@ -214,8 +230,12 @@ function insertHookAfter(&$array, $value, $after) {
     }
 }
 
-function GPC_escape($var){
-	global $config, $lang;
+define('GPC_HTML', 1);
+define('GPC_DB', 2);
+define('GPC_ALNUM', 3); // A-Z, a-z, 0-9, -, _
+
+function GPC_escape($var, $type = GPC_HTML){
+	global $config, $lang, $db;
 	if (is_numeric($var) || empty($var)) {
 		// Do nothing to save time
 	}
@@ -225,16 +245,27 @@ function GPC_escape($var){
 		}
 	}
 	elseif (is_string($var)){
-		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 		$var = str_replace("\0", '', $var);
-		if (version_compare(PHP_VERSION, '5.2.3', '>=')) {
-			$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
+		if ($type == GPC_HTML) {
+			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
+			$var = str_replace("\0", '', $var);
+			if (version_compare(PHP_VERSION, '5.2.3', '>=')) {
+				$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
+			}
+			else {
+				$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1');
+				$var = str_replace('&amp;#', '&#', $var);
+			}
 		}
-		else {
-			$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1');
-			$var = str_replace('&amp;#', '&#', $var);
+		if ($type == GPC_DB && isset($db) && is_object($db)) {
+			$var = $db->escape_string($var);
 		}
-		$var = addslashes($var);
+		elseif($type != GPC_ALNUM) {
+			$var = addslashes($var);
+		}
+		if ($type == GPC_ALNUM) {
+			$var = preg_replace("~[^a-z0-9_\-]+~i", '', $var);
+		}
 	}
 	return $var;
 }
@@ -249,7 +280,7 @@ function GPC_unescape($var){
 		}
 	}
 	elseif (is_string($var)){
-		$var = stripslashes($var);
+		$var = stripslashes(trim($var));
 	}
 	return $var;
 }
@@ -295,6 +326,4 @@ if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals
 if (get_magic_quotes_gpc() == 1) {
 	$_REQUEST = GPC_unescape($_REQUEST);
 }
-
-$_REQUEST = GPC_escape($_REQUEST);
 ?>

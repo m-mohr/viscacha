@@ -144,7 +144,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<?php } ?>
 		<img src="templates/editor/images/seperator.gif" alt="" />
 			<?php if (count($smileys[0]) > 0) { ?>
-			<a id="menu_bbsmileys_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsmileys_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('more_smileys'); ?></a>
+			<a id="menu_bbsmileys_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsmileys_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /> <?php echo $lang->phrase('more_smileys'); ?></a>
 			<div class="popup" id="popup_bbsmileys_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('more_smileys'); ?></strong>
 			<ul class="bbsmileys">
@@ -377,23 +377,6 @@ elseif ($job == 'nav_edit') {
 	$pos = parseNavPosSetting();
 
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
-
-	if ($data['sub'] > 0) {
-		$result = $db->query("SELECT id, name, sub, position FROM {$db->pre}menu WHERE module = '0' ORDER BY position, ordering, id");
-		$cache = array(0 => array());
-		while ($row = $db->fetch_assoc($result)) {
-			if (!isset($cache[$row['sub']]) || !is_array($cache[$row['sub']])) {
-				$cache[$row['sub']] = array();
-			}
-			$cache[$row['sub']][] = $row;
-		}
-	}
-
-	if ($data['module'] > 0) {
-		$plugs = $db->query("SELECT * FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering");
-	}
-
-	$last = null;
 	?>
 <form name="form" method="post" action="admin.php?action=cms&job=nav_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -404,7 +387,17 @@ elseif ($job == 'nav_edit') {
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_cms_nav_title'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_cms_nav_title_text'); ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="title" size="40" value="<?php echo $data['name']; ?>" /></td>
   </tr>
-<?php if ($data['sub'] > 0) { ?>
+<?php
+if ($data['sub'] > 0) {
+	$result = $db->query("SELECT id, name, sub, position FROM {$db->pre}menu WHERE module = '0' ORDER BY position, ordering, id");
+	$cache = array(0 => array());
+	while ($row = $db->fetch_assoc($result)) {
+		if (!isset($cache[$row['sub']]) || !is_array($cache[$row['sub']])) {
+			$cache[$row['sub']] = array();
+		}
+		$cache[$row['sub']][] = $row;
+	}
+?>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_cms_nav_file_url'); ?><br />
    <span class="stext">
@@ -422,6 +415,7 @@ elseif ($job == 'nav_edit') {
    <td class="mbox" width="50%">
    <select name="sub">
    	<?php
+   	$last = null;
 	foreach ($cache[0] as $row) {
 	   	if ($last != $row['position']) {
 	   		if ($last != null) {
@@ -444,7 +438,11 @@ elseif ($job == 'nav_edit') {
    </select>
    </td>
   </tr>
-<?php } if ($data['module'] > 0) { ?>
+<?php
+}
+if ($data['module'] > 0) {
+	$plugs = $db->query("SELECT * FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering");
+?>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_cms_nav_plugin'); ?></td>
    <td class="mbox" width="50%">
@@ -452,6 +450,33 @@ elseif ($job == 'nav_edit') {
    <?php while ($row = $db->fetch_assoc($plugs)) { ?>
    <option value="<?php echo $row['id']; ?>"<?php echo iif($row['id'] == $data['module'], ' selected="selected"'); ?>><?php echo $row['name']; ?></option>
    <?php } ?>
+   </select>
+   </td>
+  </tr>
+<?php
+}
+if ($data['sub'] == 0) {
+	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY position, ordering, id");
+?>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_cms_nav_sort_in_after'); ?></td>
+   <td class="mbox" width="50%">
+   <select name="sort">
+   	<?php
+   	$last = null;
+	while ($row = $db->fetch_assoc($sort)) {
+	   	if ($last != $row['position']) {
+	   		if ($last != null) {
+				echo '</optgroup>';
+	   		}
+	   		$last = $row['position'];
+	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+	   		unset($pos[$last]);
+	   	}
+   		echo '<option value="'.$row['id'].'"'.iif($row['id'] == $data['id'], ' selected="selected"').'>'.$plugins->navLang($row['name'], true).'</option>';
+	}
+	?>
+	</optgroup>
    </select>
    </td>
   </tr>
@@ -507,6 +532,13 @@ elseif ($job == 'nav_edit2') {
 		$db->query("UPDATE {$db->pre}menu SET name = '{$title}', link = '{$url}', param = '{$target}', groups = '{$groups}', sub = '{$sub}', active = '{$active}', position = '{$pos['position']}' WHERE id = '{$id}' LIMIT 1");
 	}
 	else {
+		$sort = $gpc->get('sort', int);
+		$result = $db->query("SELECT id, ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
+		$sort = $db->fetch_assoc($result);
+		if ($sort['id'] > $id) {
+			$sort['ordering']++;
+		}
+		$module_sql = '';
 		if ($data['module'] > 0) {
 			$plug = $gpc->get('plugin', int);
 			$result = $db->query("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
@@ -517,11 +549,8 @@ elseif ($job == 'nav_edit2') {
 				// Do not do that anymore, because it may be required
 				// $db->query("UPDATE {$db->pre}plugins SET active = '{$active}' WHERE id = '{$plug}' LIMIT 1");
 			}
-			$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}'{$module_sql} WHERE id = '{$id}' LIMIT 1");
 		}
-		else {
-			$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}' WHERE id = '{$id}' LIMIT 1");
-		}
+		$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}', ordering = '{$sort['ordering']}', position = '{$sort['position']}' {$module_sql} WHERE id = '{$id}'");
 	}
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
@@ -883,13 +912,6 @@ elseif ($job == 'nav_addbox') {
 	   	}
    		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
 	}
-	foreach ($pos as $key => $name) {
-		?>
-		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
-		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_nav_sort_in_here'); ?>&gt;</option>
-		<?php
-	}
 	?>
 	</optgroup>
    </select>
@@ -917,18 +939,10 @@ elseif ($job == 'nav_addbox2') {
 	if (empty($title)) {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
-	$sort = $gpc->get('sort', str);
-	if (substr($sort, 0, 4) == 'pos_') {
-		$sort = array(
-			'ordering' => 0,
-			'position' => substr($sort, 4)
-		);
-	}
-	else {
-		$sort = $gpc->save_int($sort);
-		$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
-		$sort = $db->fetch_assoc($result);
-	}
+	$sort = $gpc->get('sort', int);
+	$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
+	$sort = $db->fetch_assoc($result); // Keine Erhöhung des Prioritätswerts nötig, da ID der neuen Box > ID gewählten Box
+
 	$groups = $gpc->get('groups', arr_int);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
 	$count = $db->fetch_num($result);
@@ -1020,7 +1034,7 @@ elseif ($job == 'doc_create_table') {
 			<td><?php echo $lang->phrase('admin_wysiwyg_bgcolor'); ?></td>
 			<td>
 				<input type="text" name="backgroundcolor" id="backgroundcolor" value="none">
-				<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('backgroundcolor');" />
+				<input type="button" value="<?php echo $lang->phrase('admin_wysiwyg_choose'); ?>" onClick="WYSIWYG_ColorInst.choose('backgroundcolor');" />
 			</td>
 		</tr><tr class="mbox">
 			<td><?php echo $lang->phrase('admin_wysiwyg_border_width'); ?></td>
@@ -1028,7 +1042,7 @@ elseif ($job == 'doc_create_table') {
 			<td><?php echo $lang->phrase('admin_wysiwyg_border_color'); ?></td>
 			<td>
 				<input type="text" name="bordercolor" id="bordercolor" value="none">
-				<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('bordercolor');" />
+				<input type="button" value="<?php echo $lang->phrase('admin_wysiwyg_choose'); ?>" onClick="WYSIWYG_ColorInst.choose('bordercolor');" />
 			</td>
 		</tr><tr class="mbox">
 			<td><?php echo $lang->phrase('admin_wysiwyg_border_style'); ?></td>

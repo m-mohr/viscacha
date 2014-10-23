@@ -5,6 +5,6 @@
 	<h5><?php echo $lang->phrase('profile_group'); ?></h5>
 	<em><?php echo $lang->phrase($group); ?></em>
 	<br />
-	<?php echo iif (!empty($email), '<h5>'.$lang->phrase('email').'</h5><em><img src="profile.php?guest='.$guest.'&amp;action=emailimage" border="0" alt=""></em>'); ?>
+	<?php echo iif (!empty($guest_data['email']), '<h5>'.$lang->phrase('email').'</h5><em><img src="images.php?id='.$guest.'&amp;action=g_email" alt=""></em>'); ?>
 </div>
 </div>

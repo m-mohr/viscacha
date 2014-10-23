@@ -146,7 +146,6 @@ function getViscachaCHMODs() {
 	while ($file = readdir($dh)) {
 		$fullpath = $path.'/'.$file;
 		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
-			$chmod[] = array('path' => $fullpath.'/modules', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
 			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false);
 		}
 	}

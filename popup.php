@@ -123,7 +123,7 @@ elseif ($_GET['action'] == "showpost") {
 		$row->mid = 0;
 		$row->groups = GROUP_GUEST;
 	}
-	$new = iif($row->date > $my->clv, 'new', 'old');
+	$new = iif($row->date >= $my->clv, 'new', 'old');
 
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);

@@ -43,7 +43,8 @@ $lang['admin_misc_from_where_data_for_online_status'] = 'Where comes the data fo
 $lang['admin_misc_from_where_data_for_online_status_info'] = 'The data for the messengers ICQ, Yahoo, AOL and Skype are taken directly from the servers of the respective messenger-provider. Jabber and MSN does not provide such a service. Therefore an inofficel source, the service of <a href="http://www.onlinestatus.org" target="_blank">Onlinestatus.org</a>, is used.'."\r\n".'   This service provides a programm which can read and return the datas of the messengers. Due to the fact that this program is distributed to several servers which can change freqently, there must be mentioned a list of servers in the field above where the status could be read from.<br />'."\r\n".'   An overview of available servers and further information you can find here: <a href="http://osi.viscacha.org/" target="_blank">Online-Status-Server-overview</a>';
 $lang['admin_misc_front_preview'] = 'Preview of the font';
 $lang['admin_misc_license'] = 'License:';
-$lang['admin_misc_license_not_forun'] = 'License nor found.';
+$lang['admin_misc_license_not_found'] = 'License not found.';
+$lang['admin_misc_mysql_version'] = 'Database version:';
 $lang['admin_misc_my_php_extensions'] = 'My PHP-Extensions';
 $lang['admin_misc_my_server'] = 'My Server';
 $lang['admin_misc_name'] = 'Name';

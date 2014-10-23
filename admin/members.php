@@ -892,23 +892,70 @@ elseif ($job == 'merge2') {
 	$old = $db->fetch_assoc($result2);
 
 	// Step 2: Update abos
-	$db->query("UPDATE {$db->pre}abos SET mid = '".$base['id']."' WHERE mid = '".$old['id']."'");
-	// Step 4: Update mods
-	$db->query("UPDATE {$db->pre}moderators SET mid = '".$base['id']."' WHERE mid = '".$old['id']."'");
+	$db->query("UPDATE {$db->pre}abos SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'"); // Multiple entries with different type are possible!
+	// Step 3: Delete exactly the same abos
+	$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '1' GROUP BY tid, type HAVING COUNT(*) > 1");
+	if ($db->num_rows($result) > 0) {
+		$ids = array();
+		while ($row = $db->fetch_assoc($result)) {
+			$ids[] = $row['id'];
+		}
+		$ids = implode(',', $ids);
+		$db->query("DELETE FROM {$db->pre}abos WHERE id IN ({$ids})");
+	}
+	// Step 4: Update mods (keep the settings from base member)
+	$result = $db->query("SELECT bid FROM {$db->pre}moderators WHERE mid = '{$base['id']}'");
+	while ($row = $db->fetch_assoc($result)) {
+		// Delete settings from old member when there is data for the base member
+		$db->query("DELETE FROM {$db->pre}moderators WHERE mid = '{$old['id']}' AND bid = '{$row['bid']}'");
+	}
+	// All the other mod data move to new account
+	$db->query("UPDATE {$db->pre}moderators SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
 	// Step 5: Update pms
-	$db->query("UPDATE {$db->pre}pm SET pm_to = '".$base['id']."' WHERE pm_to = '".$old['id']."'");
-	$db->query("UPDATE {$db->pre}pm SET pm_from = '".$base['id']."' WHERE pm_from = '".$old['id']."'");
+	$db->query("UPDATE {$db->pre}pm SET pm_to = '{$base['id']}' WHERE pm_to = '{$old['id']}'");
+	$db->query("UPDATE {$db->pre}pm SET pm_from = '{$base['id']}' WHERE pm_from = '{$old['id']}'");
 	// Step 6: Update posts
-	$db->query("UPDATE {$db->pre}replies SET name = '".$base['id']."' WHERE name = '".$old['id']."' AND email = ''");
-	// Step 7:Update topics
-	$db->query("UPDATE {$db->pre}topics SET name = '".$base['id']."' WHERE name = '".$old['id']."'");
-	$db->query("UPDATE {$db->pre}topics SET last_name = '".$base['id']."' WHERE last_name = '".$old['id']."'");
+	$db->query("UPDATE {$db->pre}replies SET name = '{$base['id']}' WHERE name = '{$old['id']}' AND guest = '0'");
+	// Step 7: Update topics
+	$db->query("UPDATE {$db->pre}topics SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
+	$db->query("UPDATE {$db->pre}topics SET last_name = '{$base['id']}' WHERE last_name = '{$old['id']}'");
 	// Step 8: Update uploads
-	$db->query("UPDATE {$db->pre}uploads SET mid = '".$base['id']."' WHERE mid = '".$old['id']."'");
+	$db->query("UPDATE {$db->pre}uploads SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
 	// Step 9: Delete pic
 	removeOldImages('uploads/pics/', $old['id']);
-	// Step 10: Update votes
-	$db->query("UPDATE {$db->pre}votes SET mid = '".$base['id']."' WHERE mid = '".$old['id']."'");
+	// Step 10: Update votes (@TODO Optimze this)
+	// Get topics the base member has voted for
+	$result = $db->query("
+		SELECT p.tid, v.id
+		FROM {$db->pre}votes AS v
+			LEFT JOIN {$db->pre}vote AS p ON p.id = v.aid
+		WHERE v.mid = '{$base['id']}'
+	");
+	$ids_base = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$ids_base[] = $row['tid'];
+	}
+	// Get topics the old member has voted for
+	$result = $db->query("
+		SELECT p.tid, v.id
+		FROM {$db->pre}votes AS v
+			LEFT JOIN {$db->pre}vote AS p ON p.id = v.aid
+		WHERE v.mid = '{$old['id']}'
+	");
+	$ids_old = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$ids_old[$row['id']] = $row['tid'];
+	}
+	// Get the topics where both users have voted, keep the vote id from the old user
+	$delete = array_intersect($ids_old, $ids_base);
+	// Delete multiple votes if existant
+	if (count($delete) > 0) {
+		$delete = implode(',', array_keys($delete));
+		$db->query("DELETE FROM {$db->pre}votes WHERE id IN ({$delete})");
+	}
+	// Update all votes that hasn't been double
+	$db->query("UPDATE {$db->pre}votes SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
+
 	// Setp 11: Update User data
 	$newdata = array();
 	$base = $gpc->save_str($base);
@@ -964,7 +1011,7 @@ elseif ($job == 'merge2') {
 	if (($base['birthday'] == '0000-00-00' || $base['birthday'] == '1000-00-00') && $old['birthday'] != '0000-00-00' && $old['birthday'] != '1000-00-00') {
 		$newdata[] ="birthday = '{$old['birthday']}'";
 	}
-	if (empty($base['timezone']) && !empty($old['timezone'])) {
+	if ((!isset($base['timezone']) || $base['timezone'] === null) && !empty($old['timezone'])) {
 		$newdata[] ="timezone = '{$old['timezone']}'";
 	}
 	$g1 = explode(',', $base['groups']);
@@ -1515,39 +1562,38 @@ elseif ($job == 'edit') {
 <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_edit_options'); ?></td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_time_zone'); ?></td><td class="mbox">
 <select id="temp" name="temp">
-	<option selected="selected" value="<?php echo $user['timezone']; ?>"><?php echo $lang->phrase('admin_member_keep_time_zone'); ?></option>
-	<option value="-12"><?php echo $lang->phrase('timezone_n12'); ?></option>
-	<option value="-11"><?php echo $lang->phrase('timezone_n11'); ?></option>
-	<option value="-10"><?php echo $lang->phrase('timezone_n10'); ?></option>
-	<option value="-9"><?php echo $lang->phrase('timezone_n9'); ?></option>
-	<option value="-8"><?php echo $lang->phrase('timezone_n8'); ?></option>
-	<option value="-7"><?php echo $lang->phrase('timezone_n7'); ?></option>
-	<option value="-6"><?php echo $lang->phrase('timezone_n6'); ?></option>
-	<option value="-5"><?php echo $lang->phrase('timezone_n5'); ?></option>
-	<option value="-4"><?php echo $lang->phrase('timezone_n4'); ?></option>
-	<option value="-3.5"><?php echo $lang->phrase('timezone_n35'); ?></option>
-	<option value="-3"><?php echo $lang->phrase('timezone_n3'); ?></option>
-	<option value="-2"><?php echo $lang->phrase('timezone_n2'); ?></option>
-	<option value="-1"><?php echo $lang->phrase('timezone_n1'); ?></option>
-	<option value="0"><?php echo $lang->phrase('timezone_0'); ?></option>
-	<option value="+1"><?php echo $lang->phrase('timezone_p1'); ?></option>
-	<option value="+2"><?php echo $lang->phrase('timezone_p2'); ?></option>
-	<option value="+3"><?php echo $lang->phrase('timezone_p3'); ?></option>
-	<option value="+3.5"><?php echo $lang->phrase('timezone_p35'); ?></option>
-	<option value="+4"><?php echo $lang->phrase('timezone_p4'); ?></option>
-	<option value="+4.5"><?php echo $lang->phrase('timezone_p45'); ?></option>
-	<option value="+5"><?php echo $lang->phrase('timezone_p5'); ?></option>
-	<option value="+5.5"><?php echo $lang->phrase('timezone_p55'); ?></option>
-	<option value="+5.75"><?php echo $lang->phrase('timezone_p575'); ?></option>
-	<option value="+6"><?php echo $lang->phrase('timezone_p6'); ?></option>
-	<option value="+6.5"><?php echo $lang->phrase('timezone_p65'); ?></option>
-	<option value="+7"><?php echo $lang->phrase('timezone_p7'); ?></option>
-	<option value="+8"><?php echo $lang->phrase('timezone_p8'); ?></option>
-	<option value="+9"><?php echo $lang->phrase('timezone_p9'); ?></option>
-	<option value="+9.5"><?php echo $lang->phrase('timezone_p95'); ?></option>
-	<option value="+10"><?php echo $lang->phrase('timezone_p10'); ?></option>
-	<option value="+11"><?php echo $lang->phrase('timezone_p11'); ?></option>
-	<option value="+12"><?php echo $lang->phrase('timezone_p12'); ?></option>
+	<option value="-12"<?php selectTZ($user['timezone'], -12); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
+	<option value="-11"<?php selectTZ($user['timezone'], -11); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
+	<option value="-10"<?php selectTZ($user['timezone'], -10); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
+	<option value="-9"<?php selectTZ($user['timezone'], -9); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
+	<option value="-8"<?php selectTZ($user['timezone'], -8); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
+	<option value="-7"<?php selectTZ($user['timezone'], -7); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
+	<option value="-6"<?php selectTZ($user['timezone'], -6); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
+	<option value="-5"<?php selectTZ($user['timezone'], -5); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
+	<option value="-4"<?php selectTZ($user['timezone'], -4); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
+	<option value="-3.5"<?php selectTZ($user['timezone'], -3.5); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
+	<option value="-3"<?php selectTZ($user['timezone'], -3); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
+	<option value="-2"<?php selectTZ($user['timezone'], -2); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
+	<option value="-1"<?php selectTZ($user['timezone'], -1); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
+	<option value="0"<?php selectTZ($user['timezone'], 0); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
+	<option value="+1"<?php selectTZ($user['timezone'], 1); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
+	<option value="+2"<?php selectTZ($user['timezone'], 2); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
+	<option value="+3"<?php selectTZ($user['timezone'], 3); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
+	<option value="+3.5"<?php selectTZ($user['timezone'], 3.5); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
+	<option value="+4"<?php selectTZ($user['timezone'], 4); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
+	<option value="+4.5"<?php selectTZ($user['timezone'], 4.5); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
+	<option value="+5"<?php selectTZ($user['timezone'], 5); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
+	<option value="+5.5"<?php selectTZ($user['timezone'], 5.5); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
+	<option value="+5.75"<?php selectTZ($user['timezone'], 5.75); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
+	<option value="+6"<?php selectTZ($user['timezone'], 6); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
+	<option value="+6.5"<?php selectTZ($user['timezone'], 6.5); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
+	<option value="+7"<?php selectTZ($user['timezone'], 7); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
+	<option value="+8"<?php selectTZ($user['timezone'], 8); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
+	<option value="+9"<?php selectTZ($user['timezone'], 9); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
+	<option value="+9.5"<?php selectTZ($user['timezone'], 9.5); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
+	<option value="+10"<?php selectTZ($user['timezone'], 10); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
+	<option value="+11"<?php selectTZ($user['timezone'], 11); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
+	<option value="+12"<?php selectTZ($user['timezone'], 12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
 </select>
 </td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_contribution_editor'); ?></td><td class="mbox">
@@ -1771,7 +1817,11 @@ elseif ($job == 'edit2') {
 
 		admin_customsave($query['id']);
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '".$query['temp']."', opt_textarea = '".$query['opt_0']."', opt_pmnotify = '".$query['opt_1']."', opt_hidebad = '".$query['opt_2']."', opt_hidemail = '".$query['opt_3']."', template = '".$query['opt_4']."', language = '".$query['opt_5']."', pic = '".$query['pic']."', about = '".$query['comment']."', icq = '".$query['icq']."', yahoo = '".$query['yahoo']."', aol = '".$query['aol']."', msn = '".$query['msn']."', jabber = '".$query['jabber']."', birthday = '".$bday."', gender = '".$query['gender']."', hp = '".$query['hp']."', signature = '".$query['signature']."', location = '".$query['location']."', fullname = '".$query['fullname']."', skype = '".$query['skype']."', mail = '".$query['email']."', name = '".$query['name']."'".$update_sql." WHERE id = '".$user['id']."' LIMIT 1");
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_textarea = '{$query['opt_0']}', opt_pmnotify = '{$query['opt_1']}', opt_hidebad = '{$query['opt_2']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', icq = '{$query['icq']}', yahoo = '{$query['yahoo']}', aol = '{$query['aol']}', msn = '{$query['msn']}', jabber = '{$query['jabber']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', skype = '{$query['skype']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+
+		$cache = $scache->load('memberdata');
+		$cache = $cache->delete();
+
 		ok("admin.php?action=members&job=manage", $lang->phrase('admin_member_data_saved'));
 	}
 }
@@ -1788,15 +1838,15 @@ elseif ($job == 'delete') {
 		$olduserdata = file_get_contents('data/deleteduser.php');
 		while ($user = $gpc->prepare($db->fetch_assoc($result))) {
 			// Step 1: Write Data to File with old Usernames
-			$olduserdata .= "\n".$user['id']."\t".$user['name'];
+			$olduserdata .= "\n{$user['id']}\t{$user['name']}";
 			$olduserdata = trim($olduserdata);
 			// Step 2: Delete all pms
 			$db->query("DELETE FROM {$db->pre}pm WHERE pm_to IN ({$did})");
 			// Step 3: Search all old posts by an user, and update to guests post
-			$db->query("UPDATE {$db->pre}replies SET name = '".$user['name']."', email = '".$user['mail']."' WHERE name = '".$user['id']."' AND email = ''");
+			$db->query("UPDATE {$db->pre}replies SET name = '{$user['name']}', email = '{$user['mail']}', guest = '1' WHERE name = '{$user['id']}' AND guest = '0'");
 			// Step 4: Search all old topics by an user, and update to guests post
-			$db->query("UPDATE {$db->pre}topics SET name = '".$user['name']."' WHERE name = '".$user['id']."'");
-			$db->query("UPDATE {$db->pre}topics SET last_name = '".$user['name']."' WHERE last_name = '".$user['id']."'");
+			$db->query("UPDATE {$db->pre}topics SET name = '{$user['name']}' WHERE name = '{$user['id']}'");
+			$db->query("UPDATE {$db->pre}topics SET last_name = '{$user['name']}' WHERE last_name = '{$user['id']}'");
 			// Step 5: Delete pic
 			removeOldImages('uploads/pics/', $user['id']);
 		}
@@ -2098,8 +2148,8 @@ elseif ($job == 'inactive') {
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_posts'); ?></td>
-   <td class="mbox" align="center">&lt;</td>
-   <td class="mbox"><input type="text" name="posts" size="3" value="10" />. </td>
+   <td class="mbox" align="center">&lt;=</td>
+   <td class="mbox"><input type="text" name="posts" size="3" value="0" /></td>
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_date_of_registry'); ?></td>
@@ -2125,9 +2175,9 @@ elseif ($job == 'inactive') {
    <td class="mbox"><select size="1" name="confirm">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
 	  <option value="11"><?php echo $lang->phrase('admin_member_activated'); ?></option>
-	  <option value="10"><?php echo $lang->phrase('admin_member_activate_via_mail'); ?></option>
-	  <option value="01"><?php echo $lang->phrase('admin_member_activate_by_admin'); ?></option>
-	  <option value="00"><?php echo $lang->phrase('admin_member_not_activated'); ?></option>
+	  <option value="10"><?php echo $lang->phrase('admin_member_must_activate_via_mail'); ?></option>
+	  <option value="01"><?php echo $lang->phrase('admin_member_must_be_activated_by_admin'); ?></option>
+	  <option value="00"><?php echo $lang->phrase('admin_member_has_not_been_activated'); ?></option>
 	</select></td>
   </tr>
   <tr>
@@ -2146,7 +2196,7 @@ elseif ($job == 'inactive2') {
 	$fields = 	array(
 		'name' => array($lang->phrase('admin_member_user_name'), str, null),
 		'mail' => array($lang->phrase('admin_member_email'), str, null),
-		'posts' => array($lang->phrase('admin_member_posts'), int, '<'),
+		'posts' => array($lang->phrase('admin_member_posts'), int, '<='),
 		'regdate' => array($lang->phrase('admin_member_registration'), arr_int, '<'),
 		'lastvisit' => array($lang->phrase('admin_member_last_visit'), arr_int, '<'),
 		'confirm' => array($lang->phrase('admin_member_status'), none, '=')
@@ -2578,7 +2628,7 @@ elseif ($job == 'search2') {
 		'msn' => array($lang->phrase('admin_member_msn'), str),
 		'skype' => array($lang->phrase('admin_member_skype'), str),
 		'jabber' => array($lang->phrase('admin_member_jabber'), str),
-		'timezone' => array($lang->phrase('admin_member_time_zone'), int),
+		'timezone' => array($lang->phrase('admin_member_time_zone'), db_esc),
 		'groups' => array($lang->phrase('admin_member_groups'), arr_int),
 		'template' => array($lang->phrase('admin_member_design'), int),
 		'language' => array($lang->phrase('admin_member_lang'), int),
@@ -2757,9 +2807,10 @@ elseif ($job == 'search2') {
 				if (empty($row['icq'])) {
 					$row['icq'] = '-';
 				}
-				if (empty($row['timezone'])) {
+				if (!isset($row['timezone']) || $row['timezone'] === '') {
 					$row['timezone'] = $config['timezone'];
 				}
+				$row['timezone'] = (int) str_replace('+', '', $row['timezone']);
 				if (isset($row['gender'])) {
 					$row['gender'] = $change[$row['gender']];
 				}

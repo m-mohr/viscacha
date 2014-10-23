@@ -113,17 +113,17 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	}
 
 	$topforums = get_headboards($fc, $last, TRUE);
-	$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$last['id']}".SID2URL_x);
+	$breadcrumb->Add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
+	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
 	if ($info['tstart'] == '0') {
-		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&id={$last['id']}&topic_id={$info['id']}".SID2URL_x);
+		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
 	}
 	$breadcrumb->Add($lang->phrase('report_post'));
 
 	forum_opt($last);
 
 	if (empty($info['report']) == false) {
-		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&id={$last['id']}&topic_id={$info['id']}".SID2URL_x);
+		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
 	}
 
 	if ($_GET['action'] == "report_post2") {
@@ -135,7 +135,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			$error[] = $lang->phrase('comment_too_short');
 		}
 		if (count($error) > 0) {
-			error($error,"misc.php?action=report_post&id={$info['id']}".SID2URL_x);
+			error($error, "misc.php?action=report_post&id={$info['id']}".SID2URL_x);
 		}
 		else {
 			set_flood();
@@ -148,7 +148,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			$cache = array();
 			$t = array_merge($team['admin'], $team['gmod']);
 			foreach ($t as $row) {
-				$cache[] = "FIND_IN_SET($row,groups)";
+				$cache[] = "FIND_IN_SET({$row}, groups)";
 			}
 			$cache = implode(' OR ',$cache);
 			$result = $db->query("SELECT id, name, mail, language FROM {$db->pre}user WHERE {$cache}");
@@ -172,7 +172,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			}
 			$lang->setdir($lang_dir);
 
-			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&id={$last['id']}&topic_id={$info['id']}".SID2URL_x);
+			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
 		}
 	}
 	else {
@@ -779,7 +779,7 @@ elseif ($_GET['action'] == "board_rules") {
 elseif ($_GET['action'] == "error") {
 	$my->p = $slog->Permissions();
 	$errid = $gpc->get('id', int);
-	if ($errid != 400 && $errid != 404 && $errid != 401 && $errid != 403) {
+	if ($errid != 400 && $errid != 404 && $errid != 403) {
 		$errid = 500; // internal server error
 	}
 	sendStatusCode($errid);

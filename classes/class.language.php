@@ -76,7 +76,7 @@ class lang {
 
 		global $slog;
 		if (isset($slog) && is_object($slog) && method_exists($slog, 'setlang')) {
-			$slog->setlang($this->phrase('fallback_no_username'), $this->phrase('timezone_summer'));
+			$slog->setlang();
 		}
 		global $config, $breadcrumb;
 		if (isset($breadcrumb)) {
@@ -110,7 +110,7 @@ class lang {
 	}
 
 	function javascript($file = 'javascript') {
-		@require($this->get_path($file));
+		require($this->get_path($file));
 		if (isset($lang) && is_array($lang)) {
 			$str = 'var lng = new Array();'."\n";
 			foreach ($lang as $k => $l) {
@@ -126,7 +126,7 @@ class lang {
 
 	function return_array($group = '') {
 		if (!empty($group)) {
-			@require($this->get_path($group));
+			require($this->get_path($group));
 			if (isset($lang) && is_array($lang)) {
 				return $lang;
 			}
