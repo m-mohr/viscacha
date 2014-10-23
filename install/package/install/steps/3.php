@@ -1,5 +1,5 @@
 <?php
-include('../data/config.inc.php');
+include('data/config.inc.php');
 if (empty($config['ftp_path']) == false) {
 	$path = $config['ftp_path'];
 
@@ -7,7 +7,7 @@ if (empty($config['ftp_path']) == false) {
 else {
 	$path = '/';
 	if (isset($_SERVER['DOCUMENT_ROOT'])) {
-		$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']).DIRECTORY_SEPARATOR, '', realpath('../'));
+		$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']).DIRECTORY_SEPARATOR, '', realpath('./'));
 	}
 }
 

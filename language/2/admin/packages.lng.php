@@ -118,6 +118,7 @@ $lang['admin_packages_file_for_code_text'] = 'In this file the code will be save
 $lang['admin_packages_file_for_code_text_ext'] = ' If the file exists, the code above will be ignored.';
 $lang['admin_packages_form_submit'] = 'Submit';
 $lang['admin_packages_head_delete_package'] = 'Delete Package';
+$lang['admin_packages_head_delete_plugin'] = 'Delete plugin';
 $lang['admin_packages_head_description'] = 'Description';
 $lang['admin_packages_head_edit_the_package_foo'] = 'Edit the Package "{@row->title}"';
 $lang['admin_packages_head_import_a_new_component'] = 'Import a new Component';

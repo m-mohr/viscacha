@@ -749,7 +749,7 @@ elseif ($job == 'package_update2') {
 		}
 		else { // Delete files
 			if (is_dir($tpldir)) {
-				rmdirr($tpldir);
+				$filesystem->rmdirr($tpldir);
 			}
 		}
 
@@ -771,7 +771,7 @@ elseif ($job == 'package_update2') {
 		$confirm = true;
 		($code = $plugins->update_finish($packageid)) ? eval($code) : null;
 
-		rmdirr($tdir);
+		$filesystem->rmdirr($tdir);
 
 		unset($archive);
 		if ($del > 0) {
@@ -922,7 +922,7 @@ elseif ($job == 'package_import2') {
 		$packageid = $db->insert_id();
 
 		$filesystem->mkdir("./modules/{$packageid}", 0777);
-		mover("{$tdir}modules", "./modules/{$packageid}");
+		$filesystem->mover("{$tdir}modules", "./modules/{$packageid}");
 		$moddir = "./modules/{$packageid}/";
 
 		if (!empty($package['config']['title'])) {
@@ -1113,14 +1113,14 @@ elseif ($job == 'package_import2') {
 				$filesystem->mkdir($tpldir, 0777);
 			}
 			$temptpldir = "{$tdir}templates/";
-			mover($temptpldir, $tpldir);
+			$filesystem->mover($temptpldir, $tpldir);
 		}
 
 		// Custom Installer
 		$confirm = true;
 		($code = $plugins->install($packageid)) ? eval($code) : null;
 
-		rmdirr($tdir);
+		$filesystem->rmdirr($tdir);
 
 		unset($archive);
 		if ($del > 0) {
@@ -1421,7 +1421,7 @@ elseif ($job == 'package_delete2') {
 		foreach ($cache as $row) {
 			$tpldir = "templates/{$row['template']}/modules/{$package['id']}/";
 			if (file_exists($tpldir)) {
-				rmdirr($tpldir);
+				$filesystem->rmdirr($tpldir);
 			}
 		}
 		// Delete phrases
@@ -1444,7 +1444,7 @@ elseif ($job == 'package_delete2') {
 		}
 		// Delete language files
 		foreach ($cache2 as $lid) {
-			rmdirr("./language/{$lid}/modules/{$package['id']}");
+			$filesystem->rmdirr("./language/{$lid}/modules/{$package['id']}");
 		}
 		// Delete images
 		if (isset($com['images']) && count($com['images']) > 0) {
@@ -1463,7 +1463,7 @@ elseif ($job == 'package_delete2') {
 		}
 		// Delete modules
 		if (file_exists($dir)) {
-			rmdirr($dir);
+			$filesystem->rmdirr($dir);
 		}
 
 		if ($confirm == true) {
@@ -2123,9 +2123,9 @@ elseif ($job == 'com_delete') {
 	else {
 		?>
 		<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-		<tr><td class="obox"><?php echo $lang->phrase('admin_packages_delete_head_delete_component'); ?></td></tr>
+		<tr><td class="obox"><?php echo $lang->phrase('admin_packages_com_delete_head_delete_component'); ?></td></tr>
 		<tr><td class="mbox">
-		<p align="center"><?php echo $lang->phrase('admin_packages_delete_do_you_really_want_to_delete_this_component'); ?></p>
+		<p align="center"><?php echo $lang->phrase('admin_packages_com_delete_do_you_really_want_to_delete_this_component'); ?></p>
 		<p align="center">
 		<a href="admin.php?action=packages&amp;job=com_delete2&amp;id=<?php echo $id; ?>"><img border="0" alt="Yes" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_packages_yes'); ?></a>
 		&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;
@@ -2163,11 +2163,11 @@ elseif ($job == 'com_delete2') {
 		$languages = $db->fetch_assoc($result);
 
 		while ($lng = $db->fetch_assoc($languages)) {
-			rmdirr("./language/{$lng['id']}/modules/{$row['package']}");
+			$filesystem->rmdirr("./language/{$lng['id']}/modules/{$row['package']}");
 		}
 
 		foreach ($cache as $design) {
-			rmdirr("./templates/{$design['template']}/modules/{$row['package']}");
+			$filesystem->rmdirr("./templates/{$design['template']}/modules/{$row['package']}");
 		}
 		if (isset($cfg['images']) && count($cfg['images']) > 0) {
 			foreach ($cache as $design) {
@@ -2486,9 +2486,9 @@ elseif ($job == 'plugins_delete') {
 	else {
 		?>
 		<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-		<tr><td class="obox"><?php echo $lang->phrase('admin_packages_delete_head_delete_package'); ?></td></tr>
+		<tr><td class="obox"><?php echo $lang->phrase('admin_packages_head_delete_plugin'); ?></td></tr>
 		<tr><td class="mbox">
-		<p align="center"><?php echo $lang->phrase('admin_packages_delete_do_you_really_want_to_delete_this_plugin'); ?></p>
+		<p align="center"><?php echo $lang->phrase('admin_packages_plugins_delete_do_you_really_want_to_delete_this_plugin'); ?></p>
 		<p align="center">
 		<a href="admin.php?action=packages&job=plugins_delete2&id=<?php echo $id; ?>"><img border="0" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_packages_yes'); ?></a>
 		&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;
@@ -3222,7 +3222,7 @@ elseif ($job == 'plugins_template_edit') {
 		 <tr class="mbox" valign="top">
 		  <td rowspan="<?php echo count($tpldirs); ?>">
 			<?php echo $lang->phrase('admin_packages_template_edit_code'); ?><br /><br />
-			<ul><li><a href="admin.php?action=packages&amp;job=plugins_language&amp;id=<?php echo $data['id']; ?>" target="_blank"><?php echo $lang->phrase('admin_packages_template_edit_add_edit_phrase'); ?></a></li></ul>
+			<ul><li><a href="admin.php?action=packages&amp;job=plugins_language&amp;id=<?php echo $data['id']; ?>" target="_blank"><?php echo $lang->phrase('admin_packages_plugins_add_add_edit_phrase'); ?></a></li></ul>
 		  </td>
 		  <?php
 		  $first = true;
@@ -3240,8 +3240,8 @@ elseif ($job == 'plugins_template_edit') {
 		  		$first = false;
 		  	}
 		  	echo '<td>';
-		  	echo $lang->phrase('admin_packages_template_edit_template_groups').'<b>'.$tplid.'</b><br />';
-		  	echo $lang->phrase('admin_packages_template_edit_designs affected_by_changes').$affected.'<br />';
+		  	echo $lang->phrase('admin_packages_template_edit_template_groups').' <b>'.$tplid.'</b><br />';
+		  	echo $lang->phrase('admin_packages_template_edit_designs_affected_by_changes').$affected.'<br />';
 		  	echo '<textarea name="code['.$tplid.']" rows="8" cols="80" class="texteditor">'.$content.'</textarea>';
 		  	echo '</td></tr>';
 		  }
@@ -3638,7 +3638,7 @@ elseif ($job == 'package_updates') {
 		  	<td class="mbox center"><?php echo $row['version']; ?></td>
 		  	<td class="mbox center"><?php echo $data['version']; ?></td>
 		  	<td class="mbox">
-		  		<?php if (!empty($data['update'])) { ?>
+		  		<?php if (!empty($data['update']) && version_compare($row['version'], $data['version'], '>')) { ?>
 		  		<a class="button" href="admin.php?action=packages&amp;job=browser_update&amp;id=<?php echo $row['internal']; ?>"><?php echo $lang->phrase('admin_packages_install_update'); ?></a>
 		  		<?php } ?>
 		  		<a class="button" href="admin.php?action=packages&amp;job=package_info&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_current_details'); ?></a>
@@ -3812,7 +3812,7 @@ elseif ($job == 'browser_list') {
    	<span class="stext"><?php echo $row['summary']; ?></span>
    </td>
    <?php if (is_array($installed)) { ?>
-   <td align="center"><?php echo iif($install, 'Yes'.iif($update, '<br /><span class="stext" style="font-color: darkred;">'.$lang->phrase('admin_packages_browser_update_available').'</span>'), $lang->phrase('admin_packages_no')); ?></td>
+   <td align="center"><?php echo iif($install, $lang->phrase('admin_packages_yes').iif($update, '<br /><span class="stext" style="color: darkred;">'.$lang->phrase('admin_packages_browser_update_available').'</span>'), $lang->phrase('admin_packages_no')); ?></td>
    <?php } ?>
    <td align="center"><?php echo noki($compatible); ?></td>
    <td valign="top">

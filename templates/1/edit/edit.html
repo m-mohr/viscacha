@@ -25,21 +25,11 @@
 <label for="about"><?php echo $lang->phrase('edit_reason'); ?></label>
 <input class="label" type="text" id="about" name="about" size="40" tabindex="3" value="<?php echo $data['about']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label><?php echo $inner['smileys']; ?></label>
-<?php echo $inner['bbhtml']; ?>
-<br class="newinput" /><hr class="formsep" />
 <label for="comment"><?php echo $lang->phrase('post'); ?></label>
-<div class="label">
-	<textarea class="label_inner" name="comment" id="comment" tabindex="4" cols="50" rows="9"><?php echo $data['comment']; ?></textarea>
-	<div class="stext">
-		<span class="textright right">
-			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
-			[<a href="#" onclick="return resize_textarea(-1)"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>]
-		</span>
-		[<a href="#" onclick="return textarea_length(<?php echo $config['maxpostlength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
-	</div>
-</div>
-<br class="newinput" /><hr class="formsep" />
+<div class="label textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></div>
+<br class="newinput" /><br class="minibr" />
+<?php echo $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="4"'); ?>
+<hr class="formsep" />
 <label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
   <input type="checkbox" tabindex="5" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1,' checked="checked"'); ?>> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
@@ -61,6 +51,6 @@
 <br class="newinput" />
 <?php } ?>
 </div>
-<div class="bfoot center"><input onclick="submit_flood(this)" accesskey="s" tabindex="9" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" /> <input type="submit" accesskey="p" tabindex="10" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
+<div class="bfoot center"><input accesskey="s" tabindex="9" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" /> <input type="submit" accesskey="p" tabindex="10" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
 </div>
 </form>

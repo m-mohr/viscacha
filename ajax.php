@@ -24,17 +24,13 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'ajax');
+define('SCRIPTNAME', 'ajax');
 define('VISCACHA_CORE', '1');
+define('TEMPSHOWLOG', 1);
 
 include ("data/config.inc.php");
-DEFINE('TEMPSHOWLOG', 1);
 include ("classes/function.viscacha_frontend.php");
 
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 $action = $gpc->get('action', str);

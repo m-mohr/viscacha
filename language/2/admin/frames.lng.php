@@ -62,7 +62,6 @@ $lang['admin_search_members'] = 'Search Members';
 $lang['admin_settings'] = 'Settings';
 $lang['admin_signoff'] = 'Sign off';
 $lang['admin_smiley_manager'] = 'Smiley Manager';
-$lang['admin_spellcheck_manager'] = 'Spell Check Manager';
 $lang['admin_sqlerror_log'] = 'SQL Error Log';
 $lang['admin_statistics'] = 'Statistics';
 $lang['admin_stats_logs'] = 'Statistics & Logs';

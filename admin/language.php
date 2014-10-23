@@ -190,7 +190,7 @@ elseif ($job == 'import2') {
 		if ($del == 1) {
 			$filesystem->unlink($file);
 		}
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 		error('admin.php?action=language&job=import', $lang->phrase('admin_lang_zip_not_readable_or_empty'));
 	}
 
@@ -202,9 +202,9 @@ elseif ($job == 'import2') {
 	}
 	$newdir = "language/{$overwrite}/";
 
-	mover($tempdir, $newdir);
+	$filesystem->mover($tempdir, $newdir);
 	if (is_dir($tempdir)) {
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 	}
 
 	$info = return_array('settings', $overwrite);
@@ -291,7 +291,7 @@ elseif ($job == 'lang_copy2') {
 	$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES ('{$name}', '{$desc}')");
 	$newid = $db->insert_id();
 	$filesystem->mkdir("language/{$newid}/", 0777);
-	copyr("language/{$id}/", "language/{$newid}/");
+	$filesystem->copyr("language/{$id}/", "language/{$newid}/");
 	$delobj = $scache->load('loadlanguage');
 	$delobj->delete();
 	ok('admin.php?action=language&job=manage', $lang->phrase('admin_lang_langpack_copied'));
@@ -333,7 +333,7 @@ elseif ($job == 'lang_delete2') {
 	$db->query("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
 
 	if ($db->affected_rows() == 1) {
-		rmdirr("language/{$id}/");
+		$filesystem->rmdirr("language/{$id}/");
 		$delobj = $scache->load('loadlanguage');
 		$delobj->delete();
 		ok('admin.php?action=language&job=manage', $lang->phrase('admin_lang_langpack_deleted'));
@@ -582,14 +582,7 @@ elseif ($job == 'lang_ignore') {
    <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_edit_lang_file_ignored_search_keys'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%" valign="top">
-   <mla=ignored_search_keys>Here are the words listed which should be ignored during the search run to prevent the search for frequently occured words leading to 1st unmanageable many matches and 2nd an significant affect of the searching speed.<br /><br />
-   Only one word in each line. Please type the words completly in lower case letters. Special symbols should be occured in two forms. Examples: <br />
-   &Auml; = ae and &auml;,<br />
-   &szlig; = ss and &szlig;,<br />
-   &eacute; = e and &eacute;,<br />
-   &Ccedil; = c and &ccedil;</mla>
-   </td>
+   <td class="mbox" width="40%" valign="top"><?php echo $lang->phrase('admin_lang_ignored_search_keys_desc'); ?></td>
    <td class="mbox" width="60%" align="center">
    <textarea name="ignore" rows="25" cols="50"><?php echo $ignore; ?></textarea>
    </td>
@@ -809,7 +802,7 @@ elseif ($job == 'lang_emailtpl2') {
 	ok('admin.php?action=language&job=lang_edit&id='.$id);
 }
 elseif ($job == 'lang_array') {
-	echo head(' onload="init()"');
+	echo head(' onload="initTranslateDetails()"');
 	$id = $gpc->get('id', int);
 	$page = $gpc->get('page', int, 1);
 	$file = $gpc->get('file', str);
@@ -893,7 +886,7 @@ elseif ($job == 'lang_array2') {
 	ok('admin.php?action=language&job=lang_array&id='.$id.'&file='.$file.'&page='.$page);
 }
 elseif ($job == 'lang_com') {
-	echo head(' onload="init()"');
+	echo head(' onload="initTranslateDetails()"');
 	$id = $gpc->get('id', int);
 	$cid = $gpc->get('cid', int);
 	$file = $gpc->get('file', str);
@@ -1497,8 +1490,8 @@ elseif ($job == 'phrase_file_copy') {
    <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager'); ?> &raquo; <?php echo $encfile; ?> &raquo; <?php echo $lang->phrase('admin_lang_copy_phrase'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><mla=lang_which_should_be_used_as_original>Language which should be used as original:<br />
-   <span class="stext">Specify the directory/language wherefrom the phrase should be copied.</span></mla></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_used_as_original'); ?><br />
+   <span class="stext"><?php echo $lang->phrase('admin_lang_used_as_original_info'); ?></span></td>
    <td class="mbox" width="50%"><select name="dir">
 	<?php
 	$basefile = substr($encfile, 0, strlen($encfile)-8);

@@ -19,21 +19,11 @@
 <?php }} ?>
 </div>
 <br class="newinput" /><hr class="formsep" />
-<label><?php echo $inner['smileys']; ?></label>
-<?php echo $inner['bbhtml']; ?>
-<br class="newinput" /><hr class="formsep" />
 <label for="comment"><?php echo $lang->phrase('post'); ?></label>
-<div class="label">
-	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="12"><?php echo implode("\r\n\r\n", $comment); ?></textarea>
-	<div class="stext">
-		<span class="textright right">
-			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
-			[<a href="#" onclick="return resize_textarea(-1)"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>]
-		</span>
-		[<a href="#" onclick="return textarea_length(<?php echo $config['maxpostlength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
-	</div>
-</div>
-<br class="newinput" /><hr class="formsep" />
+<div class="label textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></div>
+<br class="newinput" /><br class="minibr" />
+<?php echo $bbcode->getEditorArea('comment', implode("\r\n\r\n", $comment), 'cols="75" rows="12"'); ?>
+<hr class="formsep" />
 <label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
 	<input type="checkbox" name="dosmileys" value="1" checked="checked" /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />

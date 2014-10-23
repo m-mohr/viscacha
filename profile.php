@@ -23,18 +23,12 @@
 */
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'profile');
+define('SCRIPTNAME', 'profile');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 $is_guest = false;
@@ -81,68 +75,9 @@ if (isset($memberdata[$_GET['id']])) {
 $breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
 $breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
 
-if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$my->vlogin && $config['vcard_dl_guests'] == 1) || $my->vlogin)) {
-	require ("classes/class.vCard.inc.php");
-
-	($code = $plugins->load('profile_vcard_start')) ? eval($code) : null;
-
-	$result = $db->query("
-	SELECT id, name, mail, hp, birthday, location, fullname, groups
-	FROM {$db->pre}user
-	WHERE id = '{$_GET['id']}'
-	",__LINE__,__FILE__);
-	$row = $gpc->prepare($db->fetch_object($result));
-	$row->level = $slog->getStatus($row->groups, ', ');
-
-	$vCard = new vCard('','');
-	$vCard->setNickname($row->name);
-	$vCard->setEMail($row->mail);
-	$vCard->setNote($lang->phrase('vcard_note'));
-	if (!empty($row->fullname)) {
-		$names = explode(' ', $row->fullname);
-		$anz = count($names);
-		$middle = '';
-		foreach ($names as $middlename) {
-			if ($middlename != $names[0] && $middlename != $names[$anz-1]) {
-				$middle .= $middlename;
-			}
-		}
-
-		$vCard->setFirstName($names[0]);
-		$vCard->setMiddleName($middle);
-		$vCard->setLastName($names[$anz-1]);
-	}
-	if (!empty($row->location)) {
-		$vCard->setHomeCity($row->location);
-		$vCard->setPostalCity($row->location);
-	}
-	if (!empty($row->hp)) {
-		$vCard->setURLWork($row->hp);
-	}
-	if ($row->birthday != '0000-00-00' && $row->birthday != '1000-00-00') {
-		$y = substr($row->birthday, 0, 4);
-		if ($y == '1000' || $y == '0000') {
-			$row->birthday = date("Y").substr($row->birthday, 4);
-		}
-		$bday = str_replace('-', '', $row->birthday);
-		$vCard->setBirthday($bday,1);
-	}
-
-	$filename = $row->id . '.vcf';
-
-	($code = $plugins->load('profile_vcard_prepared')) ? eval($code) : null;
-	$text = $vCard->getCardOutput();
-	viscacha_header("Content-Type: text/x-vcard");
-	viscacha_header("Content-Disposition: attachment; filename=\"{$filename}\"");
-	viscacha_header('Content-Length: '. strlen($text));
-	echo $text;
-	$slog->updatelogged();
-	$db->close();
-	exit();
-}
-elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
+if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
 	$result=$db->query('SELECT id, name, opt_hidemail, mail FROM '.$db->pre.'user WHERE id = '.$_GET['id'],__LINE__,__FILE__);
-	$row = $gpc->prepare($db->fetch_object($result));
+	$row = $slog->cleanUserData($db->fetch_object($result));
 	$breadcrumb->Add($lang->phrase('profile_mail_2'));
 
 	if ($my->vlogin && $row->opt_hidemail != 1) {
@@ -210,39 +145,6 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 		errorLogin();
 	}
 }
-elseif ($_GET['action'] == "sendjabber" && $is_member) {
-
-	$error = array();
-	if (flood_protect() == FALSE) {
-		$error[] = $lang->phrase('flood_control');
-	}
-	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
-		$error[] = $lang->phrase('comment_too_long');
-	}
-	if (strxlen($_POST['comment']) < $config['minpostlength']) {
-		$error[] = $lang->phrase('comment_too_short');
-	}
-	if (count($error) > 0) {
-		error($error,"profile.php?action=ims&amp;type=jabber&amp;id=".$_GET['id'].SID2URL_x);
-	}
-	else {
-		set_flood();
-		$result = $db->query('SELECT jabber FROM '.$db->pre.'user WHERE id = "'.$_GET['id'].'"',__LINE__,__FILE__);
-		$row = $gpc->prepare($db->fetch_assoc($result));
-		include('classes/function.jabber.php');
-		$jabber = new Viscacha_Jabber();
-		$connid = $jabber->connect();
-		if ($connid != TRUE) {
-			error($connid,"profile.php?action=ims&amp;type=jabber&amp;id=".$_GET['id'].SID2URL_x);
-		}
-		$msgid = $jabber->send_message($row['jabber'], $gpc->unescape($_POST['comment']));
-		if ($msgid != TRUE) {
-			error($msgid,"profile.php?action=ims&amp;type=jabber&amp;id=".$_GET['id'].SID2URL_x);
-		}
-		$jabber->disconnect();
-		ok($lang->phrase('post_sent'), "profile.php?action=ims&amp;type=jabber&amp;id=".$_GET['id'].SID2URL_x);
-	}
-}
 elseif ($_GET['action'] == "ims" && $is_member) {
 	$error = array();
 	if ($my->p['profile'] == 0) {
@@ -262,7 +164,7 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 
 	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
 
-	$row = $gpc->prepare($db->fetch_assoc($result));
+	$row = $slog->cleanUserData($db->fetch_assoc($result));
 	if (empty($row[$_GET['type']])) {
 		$error[] = $lang->phrase('im_no_data');
 	}
@@ -313,13 +215,7 @@ elseif ($is_guest) {
 elseif ($is_member) {
 	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
 
-	$result = $db->query("
-	SELECT u.*, f.*
-	FROM {$db->pre}user AS u
-		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
-	WHERE id = {$_GET['id']}
-	LIMIT 1
-	",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.id = {$_GET['id']}",__LINE__,__FILE__);
 
 	$breadcrumb->resetUrl();
 	echo $tpl->parse("header");
@@ -330,7 +226,7 @@ elseif ($is_member) {
 
 		$days2 = null;
 		if ($config['showpostcounter'] == 1) {
-			$days2 = $row->posts / ((times() - $row->regdate) / 86400);
+			$days2 = $row->posts / ((time() - $row->regdate) / 86400);
 			$days2 = sprintf("%01.2f", $days2);
 			if ($row->posts < $days2) {
 				$days2 = $row->posts;
@@ -349,8 +245,6 @@ elseif ($is_member) {
 		else {
 			$row->lastvisit = $lang->phrase('profile_never');
 		}
-
-		$vcard = ($config['vcard_dl'] == 1 && ((!$my->vlogin && $config['vcard_dl_guests'] == 1) || $my->vlogin));
 
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
@@ -393,7 +287,6 @@ elseif ($is_member) {
 		}
 
 		$osi = '';
-		$vcarddl = '';
 		if ($config['osi_profile'] == 1) {
 			$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id'],__LINE__,__FILE__);
 			$wwo = $db->fetch_num($result);
@@ -407,90 +300,10 @@ elseif ($is_member) {
 		}
 
 		// Custom Profile Fields
-		$customfields = array('1' => array(), '2' => array(), '3' => array());
-		$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE viewable != '0' ORDER BY disporder");
-		while($profilefield = $db->fetch_assoc($query)) {
-			$select = array();
-			$thing = explode("\n", $profilefield['type'], 2);
-			$type = $thing[0];
-			if (!isset($thing[1])) {
-				$options = '';
-			}
-			else {
-				$options = $thing[1];
-			}
-			$field = "fid{$profilefield['fid']}";
-			if($type == "multiselect") {
-				$useropts = @explode("\n", $row->$field);
-				while(list($key, $val) = each($useropts)) {
-					$seloptions[$val] = $val;
-				}
-				$expoptions = explode("\n", $options);
-				if(is_array($expoptions)) {
-					while(list($key, $val) = each($expoptions)) {
-						list($key, $val) = explode('=', $val, 2);
-						if(isset($seloptions[$key]) && $key == $seloptions[$key]) {
-							$select[] = trim($val);
-						}
-					}
-					$code = implode(', ', $select);
-				}
-			}
-			elseif($type == "select") {
-				$expoptions = explode("\n", $options);
-				if(is_array($expoptions)) {
-					while(list($key, $val) = each($expoptions)) {
-						list($key, $val) = explode('=', $val, 2);
-						if ($key == $row->$field) {
-							$code = trim($val);
-						}
-					}
-				}
-			}
-			elseif($type == "radio") {
-				$expoptions = explode("\n", $options);
-				if(is_array($expoptions)) {
-					while(list($key, $val) = each($expoptions)) {
-						list($key, $val) = explode('=', $val, 2);
-						if ($key == $row->$field) {
-							$code = trim($val);
-						}
-					}
-				}
-			}
-			elseif($type == "checkbox") {
-				$useropts = @explode("\n", $row->$field);
-				while(list($key, $val) = each($useropts)) {
-					$seloptions[$val] = $val;
-				}
-				$expoptions = explode("\n", $options);
-				if(is_array($expoptions)) {
-					while(list($key, $val) = each($expoptions)) {
-						list($key, $val) = explode('=', $val, 2);
-						if (isset($seloptions[$key]) && $key == $seloptions[$key]) {
-							$select[] = trim($val);
-						}
-					}
-					$code = implode(', ', $select);
-				}
-			}
-			elseif($type == "textarea") {
-				$code = nl2br($row->$field);
-			}
-			else {
-				$code = $row->$field;
-			}
-			if (empty($code)) {
-				$code = $lang->phrase('profile_na');
-			}
-			$customfields[$profilefield['viewable']][] = array(
-				'value' => $code,
-				'name' => $profilefield['name'],
-				'description' => $profilefield['description'],
-				'maxlength' => $profilefield['maxlength']
-			);
-			unset($code, $select, $val, $options, $expoptions, $useropts, $seloptions);
-		}
+		include_once('classes/class.profilefields.php');
+		$pfields = new ProfileFieldViewer($row->id);
+		$pfields->setUserData($row);
+		$customfields = $pfields->getAll();
 
 		if ($config['memberrating'] == 1) {
 			$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE aid = '{$row->id}'");

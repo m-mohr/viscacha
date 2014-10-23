@@ -6,7 +6,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 Snoopy - the PHP net client
 Author: Monte Ohrt <monte@ispi.net>
 Copyright (c): 1999-2005 ispi, all rights reserved
-Version: 1.2.3
+Version: 1.2.3 (CVS Rev. 1.24)
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,7 +49,7 @@ class Snoopy
 	var $proxy_user		=	"";					// proxy user to use
 	var $proxy_pass		=	"";					// proxy password to use
 
-	var $agent			=	"Snoopy v1.2.3";	// agent we masquerade as
+	var $agent			=	"Mozilla/4.0 (compatible; Snoopy 1.2.3; Viscacha)";	// agent we masquerade as
 	var	$referer		=	"";					// referer info to pass
 	var $cookies		=	array();			// array of cookies to pass
 												// $cookies["username"]="joe";
@@ -798,7 +798,7 @@ class Snoopy
 		if(!empty($this->agent))
 			$headers .= "User-Agent: ".$this->agent."\r\n";
 		if(!empty($this->host) && !isset($this->rawheaders['Host'])) {
-			$headers .= "Host: ".$this->host;
+			$headers .= "Host: ".convert_host_to_idna($this->host);
 			if(!empty($this->port))
 				$headers .= ":".$this->port;
 			$headers .= "\r\n";
@@ -994,9 +994,9 @@ class Snoopy
 			$headers[] = "User-Agent: ".$this->agent;
 		if(!empty($this->host))
 			if(!empty($this->port))
-				$headers[] = "Host: ".$this->host.":".$this->port;
+				$headers[] = "Host: ".convert_host_to_idna($this->host).":".$this->port;
 			else
-				$headers[] = "Host: ".$this->host;
+				$headers[] = "Host: ".convert_host_to_idna($this->host);
 		if(!empty($this->accept))
 			$headers[] = "Accept: ".$this->accept;
 		if(!empty($this->referer))
@@ -1180,13 +1180,13 @@ class Snoopy
 
 		$this->status = 0;
 
-		if($fp = fsockopen(
-					$host,
-					$port,
-					$errno,
-					$errstr,
-					$this->_fp_timeout
-					))
+		// Mod: Added IDNA support
+		list($fp,$errno,$errstr,$host) = fsockopen_idna($host, $port, $this->_fp_timeout);
+		if ($this->_isproxy) {
+			$this->proxy_host = $host;
+		}
+
+		if($fp)
 		{
 			// socket connection succeeded
 

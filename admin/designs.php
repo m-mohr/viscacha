@@ -361,7 +361,7 @@ elseif ($job == 'design_add2') {
 		$result = $db->query("SELECT stylesheet FROM {$db->pre}designs WHERE id = '{$config['templatedir']}' LIMIT 1");
 		$info = $db->fetch_assoc($result);
 		$filesystem->mkdir("designs/{$stylesheet}/", 0777);
-		copyr("designs/{$info['stylesheet']}/", "designs/{$stylesheet}/");
+		$filesystem->copyr("designs/{$info['stylesheet']}/", "designs/{$stylesheet}/");
 	}
 	if ($images == 0) {
 		$images = 1;
@@ -452,7 +452,7 @@ elseif ($job == 'design_import2') {
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 		unset($archive);
 		if ($del > 0) {
 			$filesystem->unlink($file);
@@ -510,13 +510,13 @@ elseif ($job == 'design_import2') {
 		}
 
 		if (!empty($ini['template'])) {
-			mover($tempdir.'templates', $tpldir);
+			$filesystem->mover($tempdir.'templates', $tpldir);
 		}
 		if (!empty($ini['stylesheet'])) {
-			mover($tempdir.'designs', $cssdir);
+			$filesystem->mover($tempdir.'designs', $cssdir);
 		}
 		if (!empty($ini['images'])) {
-			mover($tempdir.'images', $imgdir);
+			$filesystem->mover($tempdir.'images', $imgdir);
 		}
 
 		$db->query("INSERT INTO `{$db->pre}designs` (`template` , `stylesheet` , `images` , `name`) VALUES ('{$tplid}', '{$cssid}', '{$imgid}', '{$ini['name']}')");
@@ -525,7 +525,7 @@ elseif ($job == 'design_import2') {
 		if ($del > 0) {
 			$filesystem->unlink($file);
 		}
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 	}
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
@@ -622,10 +622,11 @@ elseif ($job == 'design_export2') {
 	}
 	if ($error) {
 		echo head();
+		$error = $archive->errorInfo(true);
 		unset($archive);
 		$filesystem->unlink($tempdir.$file);
 		$filesystem->unlink($settings);
-		error('admin.php?action=designs&job=export&id='.$id, $archive->errorInfo(true));
+		error('admin.php?action=designs&job=export&id='.$id, $error);
 	}
 	else {
 		viscacha_header('Content-Type: application/zip');
@@ -770,7 +771,7 @@ elseif ($job == 'templates_add2') {
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 		unset($archive);
 		if ($del > 0) {
 			$filesystem->unlink($file);
@@ -816,7 +817,7 @@ elseif ($job == 'templates_delete') {
 	$id = $gpc->get('id', int);
 	echo head();
 	$dir = 'templates/'.$id;
-	rmdirr($dir);
+	$filesystem->rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
 		error('admin.php?action=designs&job=templates', $lang->phrase('admin_design_directory_couldnt_be_deleted'));
@@ -1228,7 +1229,7 @@ elseif ($job == 'css_delete') {
 	$id = $gpc->get('id', int);
 	echo head();
 	$dir = 'designs/'.$id;
-	rmdirr($dir);
+	$filesystem->rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
 		error('admin.php?action=designs&job=css', $lang->phrase('admin_design_directory_couldnt_be_deleted'));
@@ -1325,7 +1326,7 @@ elseif ($job == 'css_add2') {
 		if ($del > 0) {
 			$filesystem->unlink($file);
 		}
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 		error('admin.php?action=designs&job=css_add', $lang->phrase('admin_design_zip_archive_error'));
 	}
 
@@ -1418,7 +1419,7 @@ elseif ($job == 'images_delete') {
 	$id = $gpc->get('id', int);
 	echo head();
 	$dir = 'images/'.$id;
-	rmdirr($dir);
+	$filesystem->rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
 		error('admin.php?action=designs&job=images', $lang->phrase('admin_design_directory_couldnt_be_deleted'));
@@ -1511,7 +1512,7 @@ elseif ($job == 'images_add2') {
 		if ($del > 0) {
 			$filesystem->unlink($file);
 		}
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 		error('admin.php?action=designs&job=images_add', $lang->phrase('admin_design_zip_archive_error'));
 	}
 

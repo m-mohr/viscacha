@@ -1,8 +1,8 @@
 <?php
-include('../data/config.inc.php');
-require_once('../classes/class.filesystem.php');
+include('data/config.inc.php');
+require_once('install/classes/class.filesystem.php');
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-$filesystem->set_wd($config['ftp_path']);
+$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	if (isset($_REQUEST['action']) && is_array($_REQUEST['action'])) {
 		$action = $_REQUEST['action'];
@@ -10,10 +10,9 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	else {
 		$action = array();
 	}
-	require_once('../classes/database/'.$config['dbsystem'].'.inc.php');
-	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix'], false);
+	require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
+	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
 	$db->setPersistence($config['pconnect']);
-	$db->errlogfile = '../'.$db->errlogfile;
 	$db->connect(false);
 	if (!$db->hasConnection()) {
 		?>
@@ -50,7 +49,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			$done = array_fill(0, 4, 0);
 			foreach ($action as $table => $value) {
 				$t = $db->pre.$table;
-				$file = 'package/'.$package.'/db/'.$table.'.sql';
+				$file = 'install/package/'.$package.'/db/'.$table.'.sql';
 				if ($value == 0) {
 					$sql = implode('', file($file));
 					$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
@@ -72,13 +71,13 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$done[$value]++;
 			}
 			if (isset($_REQUEST['sample_d1']) && $_REQUEST['sample_d1'] == 1) {
-				$sql = implode('', file('package/install/db/sample1.dat'));
+				$sql = implode('', file('install/package/install/db/sample1.dat'));
 				$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
 				$db->multi_query($sql);
 				$done[] = 'Sample Data (Forum) have been installed.';
 			}
 			if (isset($_REQUEST['sample_d2']) && $_REQUEST['sample_d2'] == 1) {
-				$sql = implode('', file('package/install/db/sample2.dat'));
+				$sql = implode('', file('install/package/install/db/sample2.dat'));
 				$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
 				$db->multi_query($sql);
 				$done[] = 'Sample Data (CMS) have been installed.';

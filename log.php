@@ -24,18 +24,12 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'log');
+define('SCRIPTNAME', 'log');
 define('VISCACHA_CORE', '1');
 
 include("data/config.inc.php");
 include("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 ($code = $plugins->load('log_start')) ? eval($code) : null;
@@ -60,10 +54,23 @@ if ($_GET['action'] == "login2") {
 	($code = $plugins->load('log_login2')) ? eval($code) : null;
 
 	$log_status = $slog->sid_login($remember);
-	if (!$log_status) {
-		error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;redirect=".rawurlencode($loc).SID2URL_x);
+	if ($log_status == false) {
+		$attempts = $config['login_attempts_max'] - set_failed_login();
+		if ($attempts == 0) {
+			error($lang->phrase('log_wrong_data_block'), "index.php".SID2URL_1);
+		}
+		else {
+			if ($attempts > 0) {
+				$can_try = $lang->phrase('log_x_attempts');
+			}
+			else {
+				$can_try = '';
+			}
+			error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;redirect=".rawurlencode($loc).SID2URL_x);
+		}
 	}
 	else {
+		clear_login_attempts();
 		ok($lang->phrase('log_msglogin'), $loc);
 	}
 }
@@ -97,10 +104,10 @@ elseif ($_GET['action'] == "pwremind") {
 	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind2") {
-	if (flood_protect() == false) {
+	if (flood_protect(FLOOD_TYPE_PWMAIL) == false) {
 		error($lang->phrase('flood_control'),'log.php?action=login'.SID2URL_x);
 	}
-	set_flood();
+	set_flood(FLOOD_TYPE_PWMAIL);
 
 	($code = $plugins->load('log_pwremind2_start')) ? eval($code) : null;
 
@@ -129,10 +136,10 @@ elseif ($_GET['action'] == "pwremind2") {
 	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind3") {
-	if (flood_protect() == false) {
+	if (flood_protect(FLOOD_TYPE_PWRENEW) == false) {
 		error($lang->phrase('flood_control'),'log.php?action=login'.SID2URL_x);
 	}
-	set_flood();
+	set_flood(FLOOD_TYPE_PWRENEW);
 
 	($code = $plugins->load('log_pwremind3_start')) ? eval($code) : null;
 

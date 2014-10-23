@@ -24,116 +24,103 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-function flood_protect() {
-	global $config, $my;
+define('FLOOD_TYPE_POSTING', 'pos');
+define('FLOOD_TYPE_EDIT', 'edi');
+define('FLOOD_TYPE_STANDARD', 'sta');
+define('FLOOD_TYPE_PWRENEW', 'pwr');
+define('FLOOD_TYPE_PWMAIL', 'pwm');
+define('FLOOD_TYPE_SEARCH', 'sea');
+define('FLOOD_TYPE_LOGIN', 'log');
 
-	//Konfigurieren
+function flood_protect($type = FLOOD_TYPE_STANDARD) {
+	global $config, $my, $slog, $db;
+
 	if ($config['enableflood'] == 0 || $my->p['flood'] == 0) {
-		return TRUE;
+		return true;
 	}
 	if ($my->p['guest'] == 1) {
-		$filet = 'g';
+		$value = $slog->getIP();
+		$field = 'ip';
 	}
 	else {
-		$filet = 'm';
+		$value = $my->id;
+		$field = 'mid';
 	}
-	$file = 'data/'.$filet.'_flood.php';
-
-    // Daten Laden
-    if (file_exists($file) == true) {
-		$load = file_get_contents($file);
-		$floods = explode("\n",$load);
-	}
-	else {
-		return TRUE;
-	}
-
-	// Daten prüfen
-	foreach ($floods as $row) {
-		if (strlen($row) < 3) {
-			continue;
-		}
-		$data = explode("\t",$row);
-		if ($filet == 'm') {
-			if ($data[0] == $my->id && $data[1] > (time()-$my->p['flood'])){
-				return FALSE;
-			}
-			else  {
-				return TRUE;
-			}
-		}
-		else {
-			if ($data[0] == getip() && $data[1] > (time()-$my->p['flood'])){
-				return FALSE;
-			}
-			else  {
-				return TRUE;
-			}
+	$result = $db->query("SELECT time FROM {$db->pre}flood WHERE type = '{$type}' AND {$field} = '{$value}' LIMIT 1", __LINE__, __FILE__);
+	if ($db->num_rows($result) == 1) {
+		$data = $db->fetch_assoc($result);
+		if ($data['time'] > (time()-$my->p['flood'])) {
+			return false;
 		}
 	}
-	return TRUE;
+	return true;
 }
-function set_flood() {
-	global $config, $my, $filesystem;
+
+function set_flood($type = FLOOD_TYPE_STANDARD) {
+	global $config, $my, $slog, $db;
 
 	if ($config['enableflood'] == 0 || $my->p['flood'] == 0) {
-		return FALSE;
+		return false;
 	}
-
 	if ($my->p['guest'] == 1) {
-		$filet = 'g';
+		$value = $slog->getIP();
+		$field = 'ip';
 	}
 	else {
-		$filet = 'm';
+		$value = $my->id;
+		$field = 'mid';
 	}
-	$file = 'data/'.$filet.'_flood.php';
+	$time = time();
+	$limit = $time - $my->p['flood'];
+	// Alte Daten löschen (zu alte oder eigene)
+	$db->query("DELETE FROM {$db->pre}flood WHERE (time <= '{$limit}' AND type != '".FLOOD_TYPE_LOGIN."') OR (type = '{$type}' AND {$field} = '{$value}')", __LINE__, __FILE__);
+	// Daten einfügen
+	$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', {$field} = '{$value}', type = '{$type}'", __LINE__, __FILE__);
+	return true;
+}
 
-    // Daten Laden
-    if (file_exists($file) == true) {
-		$load = file_get_contents($file);
-		$floods = explode("\n",$load);
+// Returns false if all free attempts failed
+function set_failed_login() {
+	global $slog, $db, $config, $lang, $filesystem;
+	if ($config['login_attempts_max'] == 0) {
+		return -1;
 	}
-	if (file_exists($file) == false || count($floods) == 0) {
-		$floods = array();
-	}
-	// Daten prüfen
-	$save = array();
-	foreach ($floods as $row) {
-		if (strlen($row) < 3) {
-			continue;
-		}
-		$data = explode("\t",$row);
 
-		if ($filet == 'm') {
-			if ($data[0] == $my->id && $data[1] > (time()-$my->p['flood'])){
-				$save[] = $my->id."\t".time();
-				$set = 1;
-			}
-			if ($data[0] != $my->id && $data[1] > (time()-$my->p['flood'])){
-				$save[] = $row;
-			}
-		}
-		else {
-			if ($data[0] == getip() && $data[1] > (time()-$my->p['flood'])){
-				$save[] = getip()."\t".time();
-				$set = 1;
-			}
-			if ($data[0] != getip() && $data[1] > (time()-$my->p['flood'])){
-				$save[] = $row;
-			}
-		}
+	$ip = $slog->getIP();
+	$time = time();
+	$limit = $time - $config['login_attempts_time']*60;
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}flood WHERE ip = '{$ip}' AND time > '{$limit}' AND type = '".FLOOD_TYPE_LOGIN."'", __LINE__, __FILE__);
+	$data = $db->fetch_num($result);
+	$data[0]++;
+
+	if ($data[0] >= $config['login_attempts_max']) {
+		// Bann setzen
+		$until = $time + $config['login_attempts_time']*60;
+		$lang->assign('ip', $ip);
+		$line = "ip\t{$ip}\t{$until}\t0\t{$time}\t".str_replace(array("\r", "\n", "\t"), ' ', $lang->phrase('login_attempts_banned'));
+
+		$banned = file_get_contents('data/bannedip.php');
+		$banned = trim($banned, "\r\n");
+		// No check for double data at the moment, because don't know what to do with the old data.
+		// ToDo: Add a check
+		$filesystem->file_put_contents('data/bannedip.php', trim($banned."\n".$line, "\r\n"));
+
+		// Clear login attempts after banning
+		clear_login_attempts();
+		return $config['login_attempts_max'];
 	}
-	if (isset($set) == FALSE) {
-		if ($filet == 'm') {
-			$save[] = $my->id."\t".time();
-		}
-		else {
-			$save[] = getip()."\t".time();
-		}
+	else {
+		// Add one login attempt
+		$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', ip = '{$ip}', type = '".FLOOD_TYPE_LOGIN."'", __LINE__, __FILE__);
+		return $data[0];
 	}
-    // Daten Speichern
-	$filesystem->file_put_contents($file,implode("\n",$save));
-	return TRUE;
+}
+
+function clear_login_attempts() {
+	global $slog, $db, $config;
+	if ($config['login_attempts_max'] > 0) {
+		$db->query("DELETE FROM {$db->pre}flood WHERE type = '".FLOOD_TYPE_LOGIN."' AND ip = '".$slog->getIP()."'", __LINE__, __FILE__);
+	}
 }
 
 ?>

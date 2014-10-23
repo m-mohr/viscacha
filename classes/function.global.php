@@ -38,13 +38,10 @@ include_once ("classes/class.bbcode.php");
 $scache = new CacheServer();
 $plugins = new PluginSystem();
 
-// Database functions
-require_once('classes/database/'.$config['dbsystem'].'.inc.php');
-$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
-
 // Construct base bb-code object
 $bbcode = new BBCode();
+
+define('URL_REGEXP', '/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/?(.*)$/i');
 
 define('REMOTE_INVALID_URL', 100);
 define('REMOTE_CLIENT_ERROR', 200);
@@ -54,13 +51,43 @@ define('REMOTE_IMAGE_WIDTH_ERROR', 500);
 define('REMOTE_EXTENSION_ERROR', 600);
 define('REMOTE_IMAGE_ERROR', 700);
 
+function checkmx_idna($host) {
+	if (empty($host)) {
+		return false;
+	}
+	$idna = new idna_convert();
+	$host_idna = $idna->encode($host);
+	if (viscacha_function_exists('checkdnsrr')) {
+		if (checkdnsrr($host_idna, 'MX') === false) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+	else {
+       @exec("nslookup -querytype=MX {$host_idna}", $output);
+       while(list($k, $line) = each($output)) {
+           # Valid records begin with host name
+           if(preg_match("~^(".preg_quote($host)."|".preg_quote($host_idna).")~i", $line)) {
+               return true;
+           }
+       }
+       return false;
+   }
+}
+
 function get_remote($file) {
 	if (!class_exists('Snoopy')) {
 		include('classes/class.snoopy.php');
 	}
 
-	if (!preg_match('/^(http:\/\/)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $file, $url_ary)) {
+	if (!preg_match(URL_REGEXP, $file, $url_ary)) {
 		return REMOTE_INVALID_URL;
+	}
+
+	if (strtolower($url_ary[1]) == 'www.') {
+		$file = 'http://'.$file;
 	}
 
 	$snoopy = new Snoopy;
@@ -178,6 +205,9 @@ function array_columnsort(&$arr, $l , $f='strnatcasecmp') {
 }
 
 function array_empty($array) {
+	if (!is_array($array)) {
+		return null;
+	}
 	$array = array_unique($array);
 	if (count($array) == 0) {
 		return true;
@@ -240,6 +270,23 @@ function double_udata ($opt,$val) {
 	}
 }
 
+function getDocLangID($data) {
+	global $my, $config;
+	if (isset($my->language) && is_id($my->language) && isset($data[$my->language])) {
+		return $my->language; // Best case: Language specified by the user
+	}
+	elseif (is_id($config['doclang']) && isset($data[$config['doclang']])) {
+		return $config['doclang']; // Normal Case: Standard language specified for documents
+	}
+	elseif (is_id($config['langdir']) && isset($data[$config['langdir']])) {
+		return $config['langdir']; // Worse Case: Standard language of the page
+	}
+	else {
+		reset($data);
+		return key($data); // Worst Case: Take another language... let's say just the first in the list?!
+	}
+}
+
 function send_nocache_header() {
 	if (!empty($_SERVER['SERVER_SOFTWARE']) && strstr($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
 		header ('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0');
@@ -297,92 +344,6 @@ function invert ($int) {
 	return $int;
 }
 
-/*	Delete a file, or a folder and its contents
-*	@author      Aidan Lister <aidan@php.net>
-*	@version     1.0.0
-*	@param       string   $dirname    The directory to delete
-*	@return      bool     Returns true on success, false on failure
-*/
-function rmdirr($dirname) {
-	global $filesystem;
-	if (!file_exists($dirname)) {
-		return false;
-	}
-	if (is_file($dirname)) {
-		return $filesystem->unlink($dirname);
-	}
-	$dir = dir($dirname);
-	while (false !== $entry = $dir->read()) {
-		if ($entry == '.' || $entry == '..') {
-			continue;
-		}
-		if (is_dir("$dirname/$entry")) {
-			rmdirr("$dirname/$entry");
-		}
-		else {
-			$filesystem->unlink("$dirname/$entry");
-		}
-	}
-	$dir->close();
-	return $filesystem->rmdir($dirname);
-}
-/**
- * Copy a file, or recursively copy a folder and its contents
- *
- * @author      Aidan Lister <aidan@php.net>
- * @version     1.0.1
- * @link        http://aidanlister.com/repos/v/function.copyr.php
- * @param       string   $source    Source path
- * @param       string   $dest      Destination path
- * @return      bool     Returns TRUE on success, FALSE on failure
- */
-function copyr($source, $dest) {
-	global $filesystem;
-    if (is_file($source)) {
-        return $filesystem->copy($source, $dest);
-    }
-    if (!is_dir($dest)) {
-        if (!$filesystem->mkdir($dest, 0777)) {
-        	return false;
-        }
-    }
-    $dir = dir($source);
-    if (!is_object($dir)) {
-    	return false;
-    }
-    $ret = true;
-    while (false !== $entry = $dir->read()) {
-        if ($entry == '.' || $entry == '..') {
-            continue;
-        }
-        if ($dest !== "{$source}/{$entry}") {
-            $ret2 = copyr("{$source}/{$entry}", "{$dest}/{$entry}");
-            if ($ret2 == false) {
-            	$ret = false;
-            }
-        }
-    }
-    $dir->close();
-    return $ret;
-}
-
-function mover($source, $dest) {
-	global $filesystem;
-    if (!is_dir($dest)) {
-        $filesystem->mkdir($dest, 0777);
-    }
-	if ($filesystem->rename($source, $dest)) {
-		return true;
-	}
-	else {
-		if (copyr($source, $dest)) {
-			rmdirr($source);
-			return true;
-		}
-		return false;
-	}
-}
-
 function serverload($int = false) {
 	if ($int == false) {
 		$unknown = 'Unknown';
@@ -397,6 +358,9 @@ function serverload($int = false) {
 		$load = @file_get_contents("/proc/loadavg");
 		$serverload = explode(" ", $load);
 		$serverload[0] = round($serverload[0], 4);
+	}
+	if (viscacha_function_exists('sys_getloadavg')) {
+		$serverload = @sys_getloadavg();
 	}
 	if (empty($serverload[0]) && viscacha_function_exists('exec') == true) {
 		$load = @exec("uptime");
@@ -504,10 +468,6 @@ function convert2adress($url) {
    return $url;
 }
 
-function is_id ($x) {
-   return (is_numeric($x) && $x >= 1 ? intval($x) == $x : false);
-}
-
 function removeOldImages ($dir, $name) {
 	global $filesystem;
     $dir = realpath($dir);
@@ -557,6 +517,7 @@ function check_hp($hp) {
 		return false;
 	}
 }
+
 function check_mail($email, $simple = false) {
 	global $config;
 	if(preg_match("/^([_a-zA-Zäöü0-9-]+(\.[_a-zA-Z0-9äöu-]+)*@[a-zA-Zäöu0-9-]+(\.[a-zA-Z0-9äöü-]+)*(\.[a-zA-Z]{2,}))/si", $email)) {
@@ -565,7 +526,7 @@ function check_mail($email, $simple = false) {
 		// Check MX record.
 	 	// The idea for this is from UseBB/phpBB
 	 	if ($config['email_check_mx'] && !$simple) {
-	 		if (checkdnsrr($domain, 'MX') === false) {
+	 		if (checkmx_idna($domain) === false) {
 	 			return false;
 	 		}
 	 	}
@@ -746,7 +707,7 @@ function dateSpec($format, $timestamp = null) {
 
 	switch($format) {
 		case SPEC_ISO8601:
-		   	return (string) gmdate('Y-m-d\TH:i:s ', $timestamp).$tz[0].$tz[1].':'.$tz[2];
+		   	return (string) gmdate('Y-m-d\TH:i:s', $timestamp).$tz[0].$tz[1].':'.$tz[2];
 		case SPEC_RFC822:
 			return (string) gmdate("D, d M Y H:i:s ", $timestamp).implode('', $tz);
 		default:
@@ -1013,7 +974,6 @@ function xmail ($to, $from = array(), $topic, $comment) {
 	global $config, $my, $lang, $bbcode;
 
 	require_once("classes/mail/class.phpmailer.php");
-	require_once('classes/mail/extended.phpmailer.php');
 
 	$mail = new PHPMailer();
 	$mail->CharSet = 'UTF-8';

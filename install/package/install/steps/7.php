@@ -1,10 +1,10 @@
 <?php
-require('../data/config.inc.php');
-require_once('../classes/class.filesystem.php');
+require('data/config.inc.php');
+require_once('install/classes/class.filesystem.php');
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-$filesystem->set_wd($config['ftp_path']);
+$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
-	include('../classes/class.phpconfig.php');
+	include('install/classes/class.phpconfig.php');
 	if (isset($_REQUEST['host'])) {
 		$config['host'] = trim($_REQUEST['host']);
 	}
@@ -39,7 +39,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 		$config['dbsystem'] = 'mysql';
 	}
 	$c = new manageconfig();
-	$c->getdata('../data/config.inc.php');
+	$c->getdata('data/config.inc.php');
 	$c->updateconfig('host',str);
 	$c->updateconfig('dbuser',str);
 	$c->updateconfig('dbpw',str);
@@ -49,16 +49,16 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbsystem',str);
 	$c->savedata();
 
-	$errlog = '../data/errlog_'.$config['dbsystem'].'.inc.php';
+	$errlog = 'data/errlog_'.$config['dbsystem'].'.inc.php';
 	if (!file_exists($errlog)) {
-		$filesystem->file_put_contents($errlog, '');
+		$filesystem->file_put_contents($errlog, '', true);
 		$filesystem->chmod($errlog, 0666);
 	}
 ?>
 <div class="bfoot center">Database Settings saved!</div>
 <?php
 }
-require('../data/config.inc.php');
+require('data/config.inc.php');
 $prefix = preg_replace("/\W+/i", '', $config['dbprefix']);
 if ($prefix != $config['dbprefix']) {
 	?>
@@ -67,8 +67,8 @@ if ($prefix != $config['dbprefix']) {
 	<?php
 }
 else {
-require_once('../classes/database/'.$config['dbsystem'].'.inc.php');
-$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix'], false);
+require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
+$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
 $db->setPersistence($config['pconnect']);
 $db->connect(false);
 if (!$db->hasConnection()) {
@@ -99,7 +99,7 @@ else {
 		<td width="40%"><strong>Action</strong></td>
 	</tr>
 	<?php
-	$path = 'package/'.$package.'/db/';
+	$path = 'install/package/'.$package.'/db/';
 	$tables = $db->list_tables();
 	$dh = opendir($path);
 	while (($file = readdir($dh)) !== false) {
@@ -123,7 +123,7 @@ else {
 			else {
 				$exists = '<span class="hl_true">No</span>';
 				$entries = '-';
-				$select[] = '<option value="0" selected="selected">Recreate table</option>';
+				$select[] = '<option value="0" selected="selected">Create table</option>';
 			}
 		?>
 	<tr>

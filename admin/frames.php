@@ -18,7 +18,8 @@ if ($job == 'menu') {
 	<meta http-equiv="pragma" content="no-cache">
 	<link rel="stylesheet" type="text/css" href="admin/html/menu.css">
 	<link rel="copyright" href="http://www.viscacha.org">
-	<script src="admin/html/menu.js" language="Javascript" type="text/javascript"></script>
+	<script src="templates/global.js" language="Javascript" type="text/javascript"></script>
+	<script src="admin/html/admin.js" language="Javascript" type="text/javascript"></script>
 	</head>
 	<body onload="init()">
 	<p class="center"><a href="admin.php?action=index" target="Main"><img src="admin/html/images/logo.png" alt="Viscacha" /></a></p>
@@ -137,7 +138,6 @@ if ($job == 'menu') {
 	   <li>&raquo; <a href="admin.php?action=filetypes&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_filetype_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=misc&amp;job=onlinestatus" target="Main"><?php echo $lang->phrase("admin_onlinestatus_indication");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=cron&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_scheduler");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=misc&amp;job=spellcheck" target="Main"><?php echo $lang->phrase("admin_spellcheck_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=misc&amp;job=sessionmails" target="Main"><?php echo $lang->phrase("admin_trashmail");?></a></li>
       </ul>
      </div>
@@ -214,6 +214,7 @@ if ($job == 'menu') {
 	   <li>&raquo; <a href="admin.php?action=spider&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_crawler_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=filetypes&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_filetype_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=slog&amp;job=s_general" target="Main"><?php echo $lang->phrase("admin_statistics");?></a></li>
+	   <li>&raquo; <a href="admin.php?action=misc&amp;job=cache" target="Main"><?php echo $lang->phrase("admin_cache_manager");?></a></li>
       </ul>
      </div>
 	 <?php ($code = $plugins->load('admin_navigation_simple')) ? eval($code) : null; ?>

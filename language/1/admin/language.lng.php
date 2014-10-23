@@ -104,6 +104,7 @@ $lang['admin_lang_global_phrases'] = 'In Viscacha global benutzte Phrasen';
 $lang['admin_lang_help'] = 'Hilfe:';
 $lang['admin_lang_if_translation_box_left_blank'] = 'Wenn Sie eine Übersetzungs-Box leer lassen, wird der Text der Box \'Text\' übernommen.';
 $lang['admin_lang_ignored_search_keys'] = 'Ignorierte Suchbegriffe';
+$lang['admin_lang_ignored_search_keys_desc'] = 'Hier sind die Wörter aufgelistet, die während einer Suchanfrage ignoriert werden sollen, um einerseits die Suchergebnisse gering zu halten und andererseits die Suchgeschwindigkeit zu verbessern.<br /><br />Nur ein Wort pro Zeile. Bitte tippen Sie die Wörter komplett in Kleinbuchstaben. Sonderzeichen sollten in zwei Formen auftauchen. Beispiele:<br />&Auml; = ae und &auml;,<br />&szlig; = ss und &szlig;,<br />&eacute; = e und &eacute;,<br />&Ccedil; = c und &ccedil;';
 $lang['admin_lang_import_lang'] = 'Sprache importieren';
 $lang['admin_lang_import_langpack'] = 'Sprachpaket importieren';
 $lang['admin_lang_js_phrases'] = 'Alle Phrasen die in JavaScript Anwendungen und Funktionen benutzt werden.';
@@ -195,6 +196,8 @@ $lang['admin_lang_today_yesterday_format_info'] = 'Nur wenn die Option oberhalb 
 $lang['admin_lang_topic_moved'] = 'Thema wurde verschoben';
 $lang['admin_lang_translation'] = 'Übersetzung in <em>{@row->language}</em>:';
 $lang['admin_lang_translations'] = 'Übersetzungen';
+$lang['admin_lang_used_as_original'] = 'Sprache die als Original verwendet werden soll:';
+$lang['admin_lang_used_as_original_info'] = 'Ggeben Sie das Verzeichnis/die Sprache an, aus der die Phrase/der Ausdruck kopiert werden soll.';
 $lang['admin_lang_values'] = 'Werte';
 $lang['admin_lang_variable'] = 'Variable:';
 $lang['admin_lang_varname'] = 'Variablenname:';

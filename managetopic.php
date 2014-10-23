@@ -24,18 +24,11 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'managetopic');
+define('SCRIPTNAME', 'managetopic');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
-
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 
 $action = $gpc->get('action', none);
 
@@ -148,7 +141,12 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
 
-		$result = $db->query("SELECT r.date, r.topic, r.name, r.email, r.guest, u.name AS uname, u.mail AS uemail FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON u.id = r.name WHERE topic_id = '{$info['id']}' AND tstart = '1'",__LINE__,__FILE__);
+		$result = $db->query("
+			SELECT r.date, r.topic, r.name, r.email, r.guest, u.name AS uname, u.mail AS uemail
+			FROM {$db->pre}replies AS r
+				LEFT JOIN {$db->pre}user AS u ON u.id = r.name AND r.guest = '0'
+			WHERE topic_id = '{$info['id']}' AND tstart = '1'
+		",__LINE__,__FILE__);
 		$old = $db->fetch_assoc($result);
 
 		$board = $gpc->get('board', int);
@@ -159,9 +157,9 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$anz += $db->affected_rows();
 
 		if ($_POST['temp'] == 1) {
-			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}'",__LINE__,__FILE__);
+			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}', vquestion = ''",__LINE__,__FILE__);
 			$tid = $db->insert_id();
-			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);
+			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''",__LINE__,__FILE__);
 		}
 		if ($_POST['temp2'] == 1) {
 			$old = $gpc->plain_str($old);
@@ -490,8 +488,6 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$comment = array_unique($comment);
 
 		BBProfile($bbcode);
-		$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
-		$inner['bbhtml'] = $bbcode->getbbhtml();
 
 		($code = $plugins->load('managetopic_pmerge_prepared')) ? eval($code) : null;
 

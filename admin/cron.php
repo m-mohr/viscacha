@@ -36,7 +36,7 @@ if ($job == 'add') {
    <td class="mbox" width="50%"><input type="text" name="title" size="50" /></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enter_a_filename'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_enter_a_filename2'); ?></span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enter_a_filename'); ?></td>
    <td class="mbox" width="50%">
 	<select name="filename">
 	 <option value=""><?php echo $lang->phrase('admin_option_choose_a_file'); ?></option>

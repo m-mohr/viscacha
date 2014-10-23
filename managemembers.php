@@ -24,18 +24,12 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'managemembers');
+define('SCRIPTNAME', 'managemembers');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 include_once ("classes/function.profilefields.php");
@@ -113,8 +107,6 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 
 		$chars = numbers($config['maxaboutlength']);
 		BBProfile($bbcode);
-		$inner['bbhtml'] = $bbcode->getbbhtml();
-		$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
 
 		($code = $plugins->load('managemembers_edit_start')) ? eval($code) : null;
 
@@ -241,7 +233,7 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		if (!isset($cache2[$_POST['opt_5']])) {
 			$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 		}
-		if (!empty($_POST['pic']) && preg_match('/^(http:\/\/|www.)([\w‰ˆ¸ƒ÷‹@\-_\.]+)\:?([0-9]*)\/(.*)$/', $_POST['pic'])) {
+		if (!empty($_POST['pic']) && preg_match(URL_REGEXP, $_POST['pic'])) {
 			$_POST['pic'] = checkRemotePic($_POST['pic'], $_GET['id'], "managemembers.php?action=edit&id=".$_GET['id']);
 			switch ($_POST['pic']) {
 				case REMOTE_INVALID_URL:

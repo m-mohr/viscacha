@@ -25,10 +25,10 @@ function createFeed() {
 	$ci = count($this->items);
 	for ($i=0;$i<$ci;$i++) {
 		$feed.= "  <url>\n";
-		$feed.= "	 <loc>".FeedCreator::FeedCreator::htmlspecialchars($this->items[$i]->link)."</loc>\n";
+		$feed.= "	 <loc>".$this->htmlspecialchars($this->items[$i]->link)."</loc>\n";
 		if (!empty($this->items[$i]->date)) {
 	  		$itemDate = new FeedDate($this->items[$i]->date);
-	  		$feed.= "	 <lastmod>".htmlentities($itemDate->iso8601())."</lastmod>\n";
+	  		$feed.= "	 <lastmod>".$this->htmlspecialchars($itemDate->iso8601())."</lastmod>\n";
    		}
 		if (!empty($this->items[$i]->priority)) {
 		  $feed.= "	   <priority>".$this->items[$i]->priority."</priority>\n";

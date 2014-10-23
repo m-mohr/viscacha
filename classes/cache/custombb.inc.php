@@ -1,7 +1,7 @@
 <?php
 class cache_custombb extends CacheItem {
 	function load () {
-		global $db;
+		global $db, $config;
 		if ($this->exists() == true) {
 			$this->import();
 		}
@@ -17,6 +17,14 @@ class cache_custombb extends CacheItem {
 					$bb['bbcodereplacement'] = str_replace('{param}', '\1', $bb['bbcodereplacement']);
 				}
 				$bb['bbcodereplacement'] = str_replace(array("\r\n", "\n"), "\r", $bb['bbcodereplacement']);
+				if (!preg_match(URL_REGEXP, $bb['buttonimage'])) {
+					if (!empty($bb['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$bb['buttonimage'])) {
+						$bb['buttonimage'] = $config['furl'].'/'.CBBC_BUTTONDIR.$bb['buttonimage'];
+					}
+					else {
+						$bb['buttonimage'] = '';
+					}
+				}
 				$this->data[] = $bb;
 			}
 			$this->export();

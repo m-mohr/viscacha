@@ -147,14 +147,24 @@ else {
 		error('index.php'.SID2URL_1, $lang->phrase('admin_not_allowed_to_view_this_page'));
 	}
 
+	include("classes/function.flood.php");
+
 	$addr = rawurldecode($gpc->get('addr', none));
 	if ($action == "login2") {
 		$log_status = $slog->sid_login(true);
-		echo head();
 		if ($log_status == false) {
-			error('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), $lang->phrase('admin_incorrect_username_or_password_entered'));
+			$attempts = set_failed_login();
+			if ($attempts == $config['login_attempts_max']) {
+				header('Location: index.php'.SID2URL_1);
+			}
+			else {
+				echo head();
+				error('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), $lang->phrase('admin_incorrect_username_or_password_entered'));
+			}
 		}
 		else {
+			clear_login_attempts();
+			echo head();
 			ok('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), $lang->phrase('admin_successfully_logged_in'));
 		}
 	}

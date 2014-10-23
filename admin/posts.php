@@ -191,7 +191,7 @@ elseif ($_GET['job'] == 'reports') {
   	<td class="ubox" colspan="5"><?php echo $pages; ?></td>
   </tr>
   <tr class="obox">
-  	<th width="2%"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /></th>
+  	<th width="2%"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /></th>
 	<th width="40%"><?php echo $lang->phrase('admin_post_topic_forum'); ?></th>
 	<th width="20%"><?php echo $lang->phrase('admin_date_author'); ?></th>
 	<th width="38%"><?php echo $lang->phrase('admin_message'); ?></th>

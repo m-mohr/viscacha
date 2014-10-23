@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
@@ -33,12 +33,18 @@ error_reporting(E_ALL);
 
 define('SCRIPTNAME', 'cron');
 define('VISCACHA_CORE', '1');
+define('TEMPSHOWLOG', 1);
+define('TEMPNOFUNCINIT', 1);
 
 require_once("data/config.inc.php");
 include("classes/function.viscacha_frontend.php");
 
 require_once("classes/cron/class.parser.php");
 require_once("classes/cron/function.cron.php");
+
+if ($config['foffline']) {
+	PixelImage();
+}
 
 $cronTab = "data/cron/crontab.inc.php";
 $writeDir = "data/cron/";

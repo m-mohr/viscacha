@@ -25,8 +25,9 @@
 	<tr class="tbody">
 		<td width="3%" class="center"><img src="<?php echo $tpl->img('cat_redirect'); ?>" alt="<?php echo $forum['name']; ?>" /></td>
 		<td width="97%" colspan="3">
-		<span class="right" class="stext"><?php echo $forum['optvalue']; ?></span>
-		<strong><a href="<?php echo $forum['optvalue']; ?>"><?php echo $forum['name']; ?></a></strong><?php echo iif (!empty($forum['description']), "<br />{$forum['description']}"); ?></span>
+		<span class="right stext"><?php echo $forum['optvalue']; ?></span>
+		<strong><a href="<?php echo $forum['optvalue']; ?>"><?php echo $forum['name']; ?></a></strong>
+		<?php echo iif (!empty($forum['description']), "<br />{$forum['description']}"); ?>
 		</td>
 	</tr>
 	<?php } else { ?>

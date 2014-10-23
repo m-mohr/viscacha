@@ -246,7 +246,7 @@ elseif ($job == 'add2' || $job == 'edit2') {
 	}
 	else {
 		if ($job == 'add2') {
-			$db->query("INSERT INTO {$db->pre}spider (name, user_agent, bot_ip, type) VALUES ('{$bot_name}', '{$bot_agent}', '{$bot_ip}', '{$type}')", __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}spider (name, user_agent, bot_ip, type, last_visit, pending_agent, pending_ip) VALUES ('{$bot_name}', '{$bot_agent}', '{$bot_ip}', '{$type}', '', '', '')", __LINE__, __FILE__);
 		}
 		else {
 			$bot_visits = $gpc->get('visits', int);
@@ -295,7 +295,7 @@ elseif ($job == 'add' || $job == 'edit') {
 	<form action="admin.php?action=spider&amp;job=<?php echo $job; ?>2<?php echo iif($id > 0, '&amp;id='.$id); ?>" method="post">
 	<table border="0" align="center" class="border">
 		<tr>
-			<td class="obox" colspan="2"><?php echo iif($action == $lang->phrase('admin_spider_add_lowercase'), $lang->phrase('admin_spider_add'), '<mla=edit>Edit</edit>'); ?> Bots</th>
+			<td class="obox" colspan="2"><?php echo iif($action == $lang->phrase('admin_spider_add_lowercase'), $lang->phrase('admin_spider_add'), $lang->phrase('admin_spider_edit')); ?> <?php echo $lang->phrase('admin_spider_bots'); ?></th>
 		</tr>
 		<tr>
 			<td class="ubox" colspan="2"><?php echo $lang->phrase('admin_spider_add_edit_description'); ?></th>
@@ -482,7 +482,7 @@ elseif (empty($job) || $job == 'manage') {
 					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_visits_title'); ?></td>
 					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_last_visit_title'); ?></td>
 					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_actions_title'); ?></td>
-					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_mark_title'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('mark[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_spider_all_title'); ?></span></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_mark_title'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="mark[]" /> <?php echo $lang->phrase('admin_spider_all_title'); ?></span></td>
 				</tr>
 				<?php
 			}

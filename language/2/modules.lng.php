@@ -1,7 +1,7 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
-$lang['last_posts_info_reply'] = 'This topic contains more than {$num} replies. Click <a href="showtopic.php?id={$tid}" target="_blank">here</a>, to view the topic in whole.';
+$lang['last_posts_info_reply'] = 'This topic contains more than {$num} posts. Click <a href="showtopic.php?id={@info->id}" target="_blank">here</a>, to view the complete topic.';
 $lang['last_posts_reply'] = 'The last {$num} posts in this topic';
 $lang['last_private_message'] = 'Last private message';
 $lang['last_x_forumposts'] = 'Last {$topicnum} active topics';

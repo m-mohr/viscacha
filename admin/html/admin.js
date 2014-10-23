@@ -1,37 +1,8 @@
-function ieRand() {
-	var IE = document.all? 1:0;
-	if (IE) {
-		return '&rndcache='+Math.floor(Math.random()*1000000);
-	}
-	else {
-		return '';
-	}
-}
+///////////////////////// Variables /////////////////////////
+var box_img_plus = 'admin/html/images/plus.gif';
+var box_img_minus = 'admin/html/images/minus.gif';
 
-function FetchElement(id) {
-	if (document.getElementById) {
-		return document.getElementById(id);
-	}
-	else if (document.all) {
-		return document.all[id];
-	}
-	else if (document.layers) {
-		return document.layers[id];
-	}
-}
-
-function check_all(elem) {
-    var all = document.getElementsByName(elem);
-    for(var i=0; i < all.length; i++) {
-        if (all[i].checked == true) {
-            all[i].checked = false;
-        }
-        else {
-            all[i].checked = true;
-        }
-    }
-}
-
+///////////////////////// General / Misc. /////////////////////////
 function disable (txt) {
 	if (txt.id == 'dis1') {
 		input = FetchElement("dis2");
@@ -52,26 +23,19 @@ function disable (txt) {
 }
 function locate(url) {
 	if (url != '') {
-		location.href=url;
+		location.href = url;
 	}
 }
-
-function showpost(Link) {
-	window.open(Link.href, "showpost", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes");
-}
-
-function openHookPosition(hook) {
-	var url = 'admin.php?action=packages&job=plugins_hook_pos&hook=';
-	if (hook == null) {
-		var hook = FetchElement('hook').value;
+function hideLanguageBoxes() {
+	for(var i=1;i<256;i++) {
+		box = FetchElement('language_'+i);
+		check = FetchElement('use_'+i);
+		if (box && check) {
+			if (check.checked != true && check.checked != 'checked') {
+				box.style.display = 'none';
+			}
+		}
 	}
-	window.open(url+hook+'#key', "sourcecode", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes");
-	return false;
-}
-
-function deleteit(rid){
-	var res = confirm("Do you really want to delete the data?");
-	if(res) locate('admin.php?action=query&job=delete&id='+rid);
 }
 function useit(rq){
 	var revisedMessage;
@@ -81,14 +45,6 @@ function useit(rq){
 	document.getElementsByName("temp2")[0].focus();
 	return;
 }
-
-function docs() {
-    window.open("admin.php?action=cms&job=nav_docslist","","width=480,height=480,resizable=yes,scrollbars=yes");
-}
-function coms() {
-    window.open("admin.php?action=cms&job=nav_comslist","","width=480,height=480,resizable=yes,scrollbars=yes");
-}
-
 function insert_doc(url,title) {
 	opener.document.getElementsByName("url")[0].value = url;
 	if (opener.document.getElementsByName("title")[0].value.length < 2) {
@@ -97,43 +53,66 @@ function insert_doc(url,title) {
     top.close();
 }
 
-function ResizeImg(img,maxwidth) {
-	if(img.width >= maxwidth && maxwidth != 0) {
-		var owidth = img.width;
-		var oheight = img.height;
-		img.width = maxwidth;
-		img.height = Math.round(oheight/(owidth/maxwidth));
-		img.title = lng['imgtitle'];
-
-		try {
-			img.style.cursor = "pointer";
+///////////////////////// PopUps / Confirm /////////////////////////
+function openHookPosition(hook) {
+	var url = 'admin.php?action=packages&job=plugins_hook_pos&hook=';
+	if (hook == null) {
+		var hook = FetchElement('hook').value;
+	}
+	window.open(url+hook+'#key', "sourcecode", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes");
+	return false;
+}
+function deleteit(rid){
+	var res = confirm("Do you really want to delete the data?");
+	if(res) locate('admin.php?action=query&job=delete&id='+rid);
+}
+function docs() {
+    window.open("admin.php?action=cms&job=nav_docslist","","width=480,height=480,resizable=yes,scrollbars=yes");
+}
+function coms() {
+    window.open("admin.php?action=cms&job=nav_comslist","","width=480,height=480,resizable=yes,scrollbars=yes");
+}
+function changeLanguageUsage(lid) {
+	box = FetchElement('language_'+lid);
+	if (box.style.display == 'none') {
+		box.style.display = '';
+		return true;
+	}
+	else {
+		var test = confirm(lng['confirmNotUsed']);
+		if (test) {
+			box.style.display = 'none';
+			return true;
 		}
-		catch(e) {
-			img.style.cursor = "hand";
-		}
-
-		img.onclick = function() {
-			var width = screen.width-30;
-			if (width > owidth) {
-				width = owidth+30;
-			}
-			var height = screen.height-50;
-			if (height > oheight) {
-				height = oheight+30;
-			}
-			window.open(img.src,"","scrollbars=yes,status=no,toolbar=no,location=yes,directories=no,resizable=no,menubar=no,width="+width+",height="+height)
+		else {
+			return false;
 		}
 	}
 }
-
-//
-// Klappmenüs
-//
-
-var box_img_plus = 'admin/html/images/plus.gif';
-var box_img_minus = 'admin/html/images/minus.gif';
-var boxes = new Array();
-function init(size) {
+function init() {
+	for(var i=0; i < document.images.length; i++) {
+	    name = document.images[i].alt;
+		if (name == 'collapse') {
+			switchimg = document.images[i];
+			id = switchimg.id.replace("img_","");
+			boxes[i] = id;
+			part = FetchElement("part_"+id);
+			if(document.cookie && part.style.display != 'none') {
+				hide = GetCookie(id);
+				if(hide != '') {
+					switchimg.src = box_img_plus;
+					part.style.display = 'none';
+				}
+				else {
+					switchimg.src = box_img_minus;
+				}
+			}
+			HandCursor(switchimg);
+			Switch(switchimg);
+		}
+	}
+}
+function initTranslateDetails() {
 	for(var i=0; i < document.images.length; i++) {
 	    name = document.images[i].name;
 		if (name == 'c') {
@@ -143,30 +122,15 @@ function init(size) {
 			part = FetchElement("part_"+id);
 			part.style.display = 'none';
 			HandCursor(switchimg);
-			switcher(switchimg);
+			Switch(switchimg, true);
 		}
 	}
 }
 
-function switcher(switchimg) {
-	switchimg.onclick = function() {
-		id = this.id.replace("img_","");
-		part = FetchElement("part_"+id);
-		disp = part.style.display;
-		if(disp == 'none') {
-			switchimg.src = box_img_minus;
-			part.style.display = '';
-		}
-		else {
-			switchimg.src = box_img_plus;
-			part.style.display = 'none';
-		}
-	}
-}
-
+///////////////////////// AdminCP /////////////////////////
 function All(job) {
 	for(var i =0; i < document.images.length; i++) {
-	    name = document.images[i].name;
+	    name = document.images[i].alt;
 		if (name == 'collapse') {
 			switchimg = document.images[i];
 			id = switchimg.id.replace("img_","");
@@ -174,70 +138,19 @@ function All(job) {
 			if(job == 1) {
 				switchimg.src = box_img_plus;
 				part.style.display = 'none';
+				SetCookie(id);
 			}
 			else {
 				switchimg.src = box_img_minus;
 				part.style.display = 'block';
+				KillCookie(id);
 			}
-			switcher(switchimg);
+			Switch(switchimg);
 		}
 	}
 }
 
-function HandCursor(element) {
-	try {
-		element.style.cursor = "pointer";
-	}
-	catch(e) {
-		element.style.cursor = "hand";
-	}
-}
-
-/*
-XHConn - Simple XMLHTTP interface - bfults@gmail.com - 2005-04-08
-Code licensed under Creative Commons Attribution-ShareAlike License
-http://creativecommons.org/licenses/by-sa/2.0/
-*/
-function ajax() {
-  var xmlhttp, bComplete = false;
-  try { xmlhttp = new ActiveXObject("Msxml2.XMLHTTP"); }
-  catch (e) { try { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); }
-  catch (e) { try { xmlhttp = new XMLHttpRequest(); }
-  catch (e) { xmlhttp = false; }}}
-  if (!xmlhttp) return null;
-  this.connect = function(sURL, sMethod, sVars, fnDone)
-  {
-    if (!xmlhttp) return false;
-    bComplete = false;
-    sMethod = sMethod.toUpperCase();
-
-    try {
-      if (sMethod == "GET")
-      {
-        xmlhttp.open(sMethod, sURL+"?"+sVars, true);
-        sVars = "";
-      }
-      else
-      {
-        xmlhttp.open(sMethod, sURL, true);
-        xmlhttp.setRequestHeader("Method", "POST "+sURL+" HTTP/1.1");
-        xmlhttp.setRequestHeader("Content-Type",
-          "application/x-www-form-urlencoded");
-      }
-      xmlhttp.onreadystatechange = function(){
-        if (xmlhttp.readyState == 4 && !bComplete)
-        {
-          bComplete = true;
-          fnDone(xmlhttp);
-        }};
-      xmlhttp.send(sVars);
-    }
-    catch(z) { return false; }
-    return true;
-  };
-  return this;
-}
-
+///////////////////////// AJAX /////////////////////////
 function ajax_backupinfo(file, id) {
 	inline = FetchElement(id);
 	inline.innerHTML = lng['ajax4'];
@@ -279,7 +192,6 @@ function ajax_smIns(name, form, sugg) {
 	inline2 = FetchElement(sugg);
 	inline2.innerHTML = lng['ajax1'];
 }
-
 function ajax_noki(img, params) {
 	var myConn = new ajax();
 	if (!myConn) {alert(lng['ajax0']);}
@@ -293,7 +205,6 @@ function ajax_noki(img, params) {
 	};
 	myConn.connect("admin.php", "GET", params+ieRand(), fnWhenDone);
 }
-
 function noki(int) {
 	if (int == '1') {
 		return 'admin/html/images/yes.gif';
@@ -303,10 +214,9 @@ function noki(int) {
 	}
 }
 
-/*
-Bases on Jeroen's Chmod Calculator
-By Jeroen Vermeulen of Alphamega Hosting <jeroen@alphamegahosting.com>
-*/
+///////////////////////// CHMOD /////////////////////////
+// Bases on Jeroen's Chmod Calculator
+// By Jeroen Vermeulen of Alphamega Hosting <jeroen@alphamegahosting.com>
 function octalchange() {
 	var val = FetchElement('chmod').value;
 	var ownerbin = parseInt(val.charAt(0)).toString(2);
@@ -326,7 +236,6 @@ function octalchange() {
 	FetchElement('other1').checked = parseInt(otherbin.charAt(2));
 	calc_chmod(1);
 };
-
 function calc_chmod(nototals) {
   var users = new Array("owner", "group", "other");
   var totals = new Array("","","");
@@ -348,61 +257,4 @@ function calc_chmod(nototals) {
 	if (!nototals) {
 	    FetchElement('chmod').value = totals[0] + totals[1] + totals[2];
 	}
-}
-
-// Editor
-
-function refreshElement(textarea, parentWindow) {
-	if (parentWindow == 1) {
-		return OpenerFetchElement(textarea);
-	}
-	else {
-		return FetchElement(textarea);
-	}
-}
-function InsertTags(field, aTag, eTag, parentWindow, param2) {
-	var input = refreshElement(field, parentWindow);
-	input.focus();
-
-	if (parentWindow == 1) {
-		var docsel = window.opener.document;
-	}
-	else {
-		var docsel = document;
-	}
-	if(typeof docsel.selection != 'undefined') {
-        var range = docsel.selection.createRange();
-        var insText = range.text;
-        if (param2 == 1) {
-        	insText = '';
-        }
-        range.text = aTag + insText + eTag;
-        range = docsel.selection.createRange();
-        if (insText.length == 0) {
-          range.move('character', -eTag.length);
-        } else {
-          range.moveStart('character', aTag.length + insText.length + eTag.length);
-        }
-        range.select();
-    }
-    else if(typeof input.selectionStart != 'undefined') {
-        var start = input.selectionStart;
-        var end = input.selectionEnd;
-        var insText = input.value.substring(start, end);
-        if (param2 == 1) {
-        	insText = '';
-        }
-        input.value = input.value.substr(0, start) + aTag + insText + eTag + input.value.substr(end);
-        var pos;
-        if (insText.length == 0) {
-          pos = start + aTag.length;
-        } else {
-          pos = start + aTag.length + insText.length + eTag.length;
-        }
-        input.selectionStart = pos;
-        input.selectionEnd = pos;
-    }
-    else {
-        input.value = input.value + aTag + '' + eTag;
-    }
 }

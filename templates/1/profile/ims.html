@@ -31,8 +31,7 @@
 </div>
 <?php } elseif ($_GET['type'] == 'yahoo') { ?>
 <div class="bbody">
-	<a href="http://members.yahoo.com/interests?.oc=t&amp;.kw=<?php echo $row['yahoo']; ?>&amp;.sb=1"><?php echo $lang->phrase('im_yahoo_1'); ?></a><br />
-	<a href="http://edit.yahoo.com/config/send_webmesg?.target=<?php echo $row['yahoo']; ?>&amp;src=pg"><?php echo $lang->phrase('im_yahoo_2'); ?></a>
+	<a href="http://members.yahoo.com/interests?.oc=t&amp;.kw=<?php echo $row['yahoo']; ?>&amp;.sb=1"><?php echo $lang->phrase('im_yahoo_1'); ?></a>
 </div>
 <?php } elseif ($_GET['type'] == 'msn') { ?>
 <div class="bbody">
@@ -50,19 +49,5 @@
 	<a href="skype:<?php echo $row['skype']; ?>?voicemail"><?php echo $lang->phrase('im_skype_5'); ?></a><br /><br />
 	<span class='stext'><?php echo $lang->phrase('im_requirements'); ?></span>
 </div>
-<?php } else { ?>
-<form action="profile.php?action=sendjabber&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" method="post">
-<div class="bbody">
-<label for="ta">
-	<?php echo $lang->phrase('im_msgtext'); ?><br /><br />
-	<span class="stext"><?php echo $lang->phrase('im_msgtext_info'); ?></span>
-</label>
-<textarea id="ta" class="label" tabindex="1" name="comment" cols="60" rows="6"></textarea>
-<br class="newinput" /><br class="iefix_br" />
-</div>
-<div class="bfoot center">
-	<input type="submit" tabindex="2" accesskey="s" name="Send" value="<?php echo $lang->phrase('submit_form'); ?>" />
-</div>
-</form>
 <?php } ?>
 </div>

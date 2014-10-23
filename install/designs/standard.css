@@ -1,6 +1,6 @@
 /* Allgemeine Einstellungen */
 body {
-	background-color: #555555; 
+	background-color: #555555;
 	font-family: Helvetica, Arial, sans-serif;
 	font-size: 9pt;
 	margin: 0px;
@@ -27,7 +27,7 @@ form {
 input, select, .submit {
 	font-size: 9pt;
 	font-family: Helvetica, Arial, sans-serif;
-	background-color: #FBFEEE; 
+	background-color: #FBFEEE;
 	border: 1px solid #C8D69A;
 	color: #000000;
 }
@@ -39,13 +39,13 @@ input, select, .submit {
 textarea {
 	font-size: 9pt;
 	font-family: Helvetica, Arial, sans-serif;
-	background-color: #FBFEEE; 
+	background-color: #FBFEEE;
 	border: 1px solid #C8D69A;
 
 }
 hr {
     height: 1px;
-    border: 0; 
+    border: 0;
     border-bottom: 1px #C8D69A solid;
 }
 
@@ -206,7 +206,7 @@ label, .labeldiv {
 .formsep {
     height: 1px;
     line-height: 1px;
-    border: 0; 
+    border: 0;
     border-bottom: 1px #C8D69A dotted;
 }
 
@@ -254,6 +254,22 @@ label, .labeldiv {
 }
 .hl_false {
 	color: #ff0000;
+}
+
+code {
+	display: block;
+	font-size: 0.9em;
+	border-style: solid;
+	border-color: #E7EECD;
+	border-width: 1px 0px 1px 0px;
+	max-height: 9em;
+	max-width: 500px;
+	overflow: auto;
+}
+
+.upd_instr li {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 /* IE Fix */

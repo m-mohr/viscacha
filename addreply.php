@@ -30,36 +30,19 @@ define('VISCACHA_CORE', '1');
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
-
-if (!empty($_POST['id'])) {
-	$_GET['id'] = $_POST['id'];
-}
-if (!empty($_GET['id'])) {
-	$_POST['id'] = $_GET['id'];
-}
-
 ($code = $plugins->load('addreply_topic_query')) ? eval($code) : null;
 
-$result = $db->query('
-SELECT id, prefix, topic, board, posts, status
-FROM '.$db->pre.'topics
-WHERE id = "'.$_GET['id'].'"
-LIMIT 1
-',__LINE__,__FILE__);
+$id = $gpc->get('id', int);
+
+$result = $db->query("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'",__LINE__,__FILE__);
 
 $info = $db->fetch_assoc($result);
-if ($info['id'] < 1 || $db->num_rows($result) != 1) {
+if ($db->num_rows($result) == 0) {
 	error($lang->phrase('query_string_error'));
 }
-$info['topic'] = $gpc->prepare($info['topic']);
-
 $my->p = $slog->Permissions($info['board']);
+
+$info['topic'] = $gpc->prepare($info['topic']);
 
 $cat_bid_obj = $scache->load('cat_bid');
 $fc = $cat_bid_obj->get();
@@ -78,7 +61,7 @@ if ($info['prefix'] > 0) {
 
 get_headboards($fc, $last);
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$_GET['id'].SID2URL_x);
+$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$id.SID2URL_x);
 $breadcrumb->Add($lang->phrase('addreply_title'));
 
 if ($info['status'] != 0) {
@@ -142,7 +125,7 @@ if ($_GET['action'] == "save") {
 		$pnameid = $my->id;
 		$pid = $my->id;
 	}
-	if (flood_protect() == FALSE) {
+	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
 	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
@@ -170,7 +153,7 @@ if ($_GET['action'] == "save") {
 			'comment' => $_POST['comment'],
 			'dosmileys' => $_POST['dosmileys'],
 			'dowords' => $_POST['dowords'],
-			'id' => $_POST['id'],
+			'id' => $id,
 			'digest' => $digest,
 			'guest' => 0,
 			'human' => $human
@@ -190,15 +173,15 @@ if ($_GET['action'] == "save") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
-			viscacha_header("Location: addreply.php?action=preview&id={$_POST['id']}&fid=".$fid.SID2URL_JS_x);
+			viscacha_header("Location: addreply.php?action=preview&id={$id}&fid=".$fid.SID2URL_JS_x);
 			exit;
 		}
 		else {
-			error($error,"addreply.php?id={$_POST['id']}&amp;fid=".$fid.SID2URL_x);
+			error($error,"addreply.php?id={$id}&amp;fid=".$fid.SID2URL_x);
 		}
 	}
 	else {
-		set_flood();
+		set_flood(FLOOD_TYPE_POSTING);
 
 		if ($my->vlogin) {
 			$guest = 0;
@@ -213,39 +196,42 @@ if ($_GET['action'] == "save") {
 
 		$db->query("
 		UPDATE {$db->pre}topics
-		SET last_name = '".$pnameid."', last = '".$date."', posts = posts+1
-		WHERE id = '{$_POST['id']}'
+		SET last_name = '{$pnameid}', last = '{$date}', posts = posts+1
+		WHERE id = '{$id}'
 		",__LINE__,__FILE__);
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest)
-		VALUES ('{$info['board']}','{$_POST['topic']}','{$_POST['id']}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}')
+		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest,edit,report)
+		VALUES ('{$info['board']}','{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
 		",__LINE__,__FILE__);
 		$redirect = $db->insert_id();
 
 		// Set uploads to correct reply
-		$db->query("
-		UPDATE {$db->pre}uploads
-		SET tid = '{$redirect}'
-		WHERE mid = '{$pid}' AND topic_id = '{$_POST['id']}' AND tid = '0'
-		",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'",__LINE__,__FILE__);
 
-		if ($digest > 0 && $my->vlogin) {
-			$type = -1;
-			if ($digest == 1) {
-				$type = '';
+		// Update, insert, delete notifications
+		if ($my->vlogin) {
+			$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'", __LINE__, __FILE__);
+			switch ($digest) {
+				case 1:  $type = '';  break;
+				case 2:  $type = 'd'; break;
+				case 3:  $type = 'w'; break;
+				default: $type = null; break;
 			}
-			elseif ($digest == 2) {
-				$type = 'd';
+
+			if ($db->num_rows($result) > 0) {
+				$row = $db->fetch_assoc($result);
+				if ($type === null) { // Lösche Abo
+					$db->query("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'", __LINE__, __FILE__);
+				}
+				elseif ($row['type'] != $type) { // Aktualisiere Abo, wenn veränderter Typ
+					$db->query("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'", __LINE__, __FILE__);
+				}
 			}
-			elseif ($digest == 3) {
-				$type='w';
-			}
-			if ($type != -1) {
-				$db->query("
-				INSERT INTO {$db->pre}abos (mid,tid,type)
-				VALUES ('{$my->id}','{$_POST['id']}','{$type}')
-				",__LINE__,__FILE__);
+			else {
+				if ($type !== null) { // Füge Abo hinzu
+					$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')",__LINE__,__FILE__);
+				}
 			}
 		}
 
@@ -253,16 +239,17 @@ if ($_GET['action'] == "save") {
 			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'",__LINE__,__FILE__);
 		}
 
-		$db->query ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$_POST['id']}' WHERE id = '{$info['board']}'",__LINE__,__FILE__);
+		$db->query ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$id}' WHERE id = '{$info['board']}'",__LINE__,__FILE__);
 
 		$lang_dir = $lang->getdir(true);
-		$result = $db->query('
+		// ToDo: Send only one notification on more than one answer
+		$result = $db->query("
 		SELECT t.id, t.topic, u.name, u.mail, u.language
-		FROM '.$db->pre.'abos AS a
-			LEFT JOIN '.$db->pre.'user AS u ON u.id = a.mid
-			LEFT JOIN '.$db->pre.'topics AS t ON t.id = a.tid
-		WHERE a.type = "" AND a.tid = "'.$_POST['id'].'" AND a.mid != "'.$my->id.'"
-		',__LINE__,__FILE__);
+		FROM {$db->pre}abos AS a
+			LEFT JOIN {$db->pre}user AS u ON u.id = a.mid
+			LEFT JOIN {$db->pre}topics AS t ON t.id = a.tid
+		WHERE a.type = '' AND a.tid = '{$id}' AND a.mid != '{$my->id}'
+		",__LINE__,__FILE__);
 		while ($row = $db->fetch_assoc($result)) {
 			$lang->setdir($row['language']);
 			$row = $gpc->plain_str($row);
@@ -293,7 +280,7 @@ if ($_GET['action'] == "save") {
 
 		($code = $plugins->load('addreply_save_end')) ? eval($code) : null;
 
-		ok($lang->phrase('data_success'),"showtopic.php?id={$_POST['id']}&amp;action=last".SID2URL_x);
+		ok($lang->phrase('data_success'),"showtopic.php?id={$id}&amp;action=last".SID2URL_x);
 	}
 }
 else {
@@ -306,7 +293,9 @@ else {
 
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
-		$_GET['id'] = $data['id'];
+		if ($id != $data['id']) {
+			error($lang->phrase('query_string_error'), 'showforum.php?id='.$info['board'].SID2URL_x);
+		}
 		$info['topic'] = $data['topic'];
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
@@ -327,7 +316,7 @@ else {
 			'comment' => '',
 			'dosmileys' => 1,
 			'dowords' => 1,
-			'digest' => 0,
+			'digest' => -1,
 			'topic' => $lang->phrase('reply_prefix').$info['topic'],
 			'human' => null
 		);
@@ -381,16 +370,21 @@ else {
 		}
 	}
 
-	if ($my->vlogin && is_id($_GET['id'])) {
-		$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$_GET['id']}'",__LINE__,__FILE__);
-		$abox = $db->fetch_assoc($result);
+	if ($my->vlogin && $data['digest'] == -1) {
+		$result = $db->query("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'",__LINE__,__FILE__);
+		if ($db->num_rows($result) > 0) {
+			$temp = $db->fetch_assoc($result);
+			switch ($temp['type']) {
+				case '':	$data['digest'] = 1; break;
+				case 'd':	$data['digest'] = 2; break;
+				case 'w':	$data['digest'] = 3; break;
+				default:	$data['digest'] = 0; // Favoriten = Keine Benachrichtigung
+			}
+		}
+		else {
+			$data['digest'] = 0;
+		}
 	}
-	else {
-		$abox = array('id' => null);
-	}
-
-	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
-	$inner['bbhtml'] = $bbcode->getbbhtml();
 
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");

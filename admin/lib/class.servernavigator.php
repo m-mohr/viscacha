@@ -184,7 +184,7 @@ class ServerNavigator
 		$total_size   = $this->formatSize($total_dir_size);
 		$print_spacer = (count($file_list) > 0  &&  count($dir_list) > 0)  ?  true  :  false;
 
-		$page_link			= $this->realPath(viscacha_dirname($this->script_file) . '/' . $this->path);
+		$page_link			= $this->realPath(dirname($this->script_file) . '/' . $this->path);
 		$rp = realpath($this->path);
 		$root = extract_dir($this->root);
 		$rp = str_replace($root, '', $rp);
@@ -204,7 +204,7 @@ class ServerNavigator
 
 		$html = '	   <table cellpadding="4" cellspacing="0" class="border">';
 		$html .= "\n".'		 <tr>';
-		$html .= "\n".'		   <td class="obox">'.iif(count($dir_list) == 0, $newdir_html).$lang->phrase('admin_explorer_filemanager').'</td>';
+		$html .= "\n".'		   <td class="obox"><span style="float: right;"><a class="button" href="admin.php?action=explorer&amp;job=all_chmod">'.$lang->phrase('admin_explorer_check_chmod').'</a></span>'.iif(count($dir_list) == 0, $newdir_html).$lang->phrase('admin_explorer_filemanager').'</td>';
 		$html .= "\n".'		 </tr>';
 		$html .= "\n".'		 <tr>';
 		$html .= "\n".'		   <td class="ubox">'. $lang->phrase('admin_explorer_directory_x') . extract_dir($this->root) . $heading_path . '</td>';
@@ -413,7 +413,7 @@ class ServerNavigator
 	function show()
 	{
 		$body  = $this->showContent(false);
-		$title = $this->realPath($_SERVER['HTTP_HOST'] . '/' . viscacha_dirname($this->script_file) . '/' . $this->path);
+		$title = $this->realPath($_SERVER['HTTP_HOST'] . '/' . dirname($this->script_file) . '/' . $this->path);
 		$title = preg_replace("/^.*?\\/?([^\\/]+)\\/?$/", "\\1", $title);
 
 		echo $body;

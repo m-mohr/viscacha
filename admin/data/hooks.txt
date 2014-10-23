@@ -124,8 +124,6 @@ editprofile.php
 -editprofile_mylast_end
 -editprofile_addabo_types
 -editprofile_addabo_prepared
--editprofile_copy_start
--editprofile_copy_savedata
 -editprofile_index_start
 -editprofile_index_end
 -editprofile_end
@@ -279,14 +277,9 @@ pm.php
 
 popup.php
 -popup_start
--popup_hlcode_start
--popup_hlcode_initialized
--popup_hlcode_end
 -popup_filetypes_query
 -popup_filetypes_prepared
 -popup_filetypes_end
--popup_code_start
--popup_code_end
 -popup_showpost_query
 -popup_showpost_start
 -popup_showpost_attachments_prepared
@@ -387,6 +380,7 @@ showtopic.php
 -showtopic_vote_result_prepared
 -showtopic_query
 -showtopic_attachments_prepared
+-showtopic_entry_added
 -showtopic_entry_prepared
 -showtopic_prepared
 -showtopic_end

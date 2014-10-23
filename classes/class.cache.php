@@ -113,6 +113,10 @@ class CacheItem {
 		return true;
 	}
 
+	function administrable() {
+		return true;
+	}
+
 	function get($max_age = null) {
 		if ($max_age == null) {
 			$max_age = $this->max_age;
@@ -139,14 +143,21 @@ class CacheServer {
 		$this->data = array();
 	}
 
+	function loadClass($name, $sourcedir = 'classes/cache/') {
+		$file = $sourcedir.$name.'.inc.php';
+		if (!class_exists("cache_{$name}") && file_exists($file)) {
+			include_once($file);
+		}
+	}
+
 	function load($name, $sourcedir = 'classes/cache/') {
 		$class = "cache_{$name}";
-		$file = $sourcedir.$name.'.inc.php';
-		if (!class_exists($class) && file_exists($file)) {
-			include($file);
-		}
+		$this->loadClass($name, $sourcedir);
 		if (class_exists($class)) {
 			$object = new $class($name, $this->cachedir);
+		}
+		elseif (class_exists($name)) {
+			$object = new $name($name, $this->cachedir);
 		}
 		else {
 			trigger_error('Cache Class of type '.$name.' could not be loaded.', E_USER_NOTICE);

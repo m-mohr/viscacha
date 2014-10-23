@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<title>Create or Modify Table</title>
+	<link rel="stylesheet" type="text/css" href="../../../admin/html/standard.css" />
+	<script type="text/javascript" src="../wysiwyg-popup.js"></script>
+	<script type="text/javascript" src="../wysiwyg-color.js"></script>
+</head>
+<body onload="WYSIWYG_ColorInst.init();">
+	<table class="border" style="width: 490px;" border="0" cellpadding="4" cellspacing="0" align="center">
+		<tr><td class="obox" colspan="4">Table Properties</td></tr>
+		<tr class="mbox">
+			<td>Rows:</td>
+			<td><input type="text" size="4" id="rows" name="rows" value="2" /></td>
+			<td>Columns:</td>
+			<td><input type="text" size="4" id="cols" name="cols" value="2" /></td>
+		</tr><tr class="mbox">
+			<td>Width:</td>
+			<td>
+				<input type="text" name="width" id="width" value="100" size="10" />
+				<select name="widthType" id="widthType">
+					<option value="%">%</option>
+					<option value="px">px</option>
+				</select>
+			</td>
+			<td>Alignment:</td>
+			<td>
+				<select name="alignment" id="alignment">
+					<option value="">Not Set</option>
+					<option value="left">Left</option>
+					<option value="right">Right</option>
+					<option value="center">Center</option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td>Padding:</td>
+			<td><input type="text" id="padding" name="padding" value="2" size="4" />px</td>
+			<td>Background-Color:</td>
+			<td>
+				<input type="text" name="backgroundcolor" id="backgroundcolor" value="none">
+				<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('backgroundcolor');" />
+			</td>
+		</tr><tr class="mbox">
+			<td>Border-Width:</td>
+			<td><input type="text" size="4" id="borderwidth" name="borderwidth" value="0" />px</td>
+			<td>Border-Color:</td>
+			<td>
+				<input type="text" name="bordercolor" id="bordercolor" value="none">
+				<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('bordercolor');" />
+			</td>
+		</tr><tr class="mbox">
+			<td>Border-Style:</td>
+			<td>
+				<select id="borderstyle" name="borderstyle">
+					<option value="none">none</option>
+					<option value="solid">solid</option>
+					<option value="double">double</option>
+					<option value="dotted">dotted</option>
+					<option value="dashed">dashed</option>
+					<option value="groove">groove</option>
+					<option value="ridge">ridge</option>
+					<option value="inset">inset</option>
+					<option value="outset">outset</option>
+				</select>
+			</td>
+			<td>Border-Collapse:</td>
+			<td><input type="checkbox" name="bordercollapse" id="bordercollapse" checked="checked" /></td>
+		</tr><tr>
+			<td class="ubox" colspan="4" align="center">
+				<input type="submit" value="Submit" onClick="buildTable(WYSIWYG_Popup.getParam('wysiwyg'));" />
+				<input type="submit" value="Cancel" onClick="window.close();" />
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

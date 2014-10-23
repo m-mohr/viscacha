@@ -23,18 +23,12 @@
 */
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'members');
+define('SCRIPTNAME', 'members');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 if ($_GET['action'] == 'team' && $my->p['team'] == 0) {
@@ -52,9 +46,6 @@ else {
 	$breadcrumb->Add($lang->phrase('members'));
 }
 
-echo $tpl->parse("header");
-echo $tpl->parse("menu");
-
 if ($_GET['action'] == 'team') {
 
 	($code = $plugins->load('team_top')) ? eval($code) : null;
@@ -65,7 +56,7 @@ if ($_GET['action'] == 'team') {
 	$cache = array();
 	$t = array_merge($team['admin'], $team['gmod']);
 	foreach ($t as $row) {
-		$cache[] = "FIND_IN_SET($row,groups)";
+		$cache[] = "FIND_IN_SET({$row},groups)";
 	}
 
 	$result = $db->query('
@@ -135,14 +126,17 @@ if ($_GET['action'] == 'team') {
 			}
 		}
 	}
+
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
 	($code = $plugins->load('team_prepared')) ? eval($code) : null;
-
 	echo $tpl->parse("team/index");
-
 	($code = $plugins->load('team_end')) ? eval($code) : null;
 
 }
 else {
+
+	$available = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9');
 
 	($code = $plugins->load('members_start')) ? eval($code) : null;
 
@@ -172,8 +166,14 @@ else {
 	}
 
 	$sqlwhere = array();
-	if (strlen($_GET['letter']) == 1) {
-		$sqlwhere[] = "LEFT(name, 1) = '{$_GET['letter']}'";
+	if (strxlen($_GET['letter']) == 1) {
+		if ($_GET['letter'] == '#') {
+			$sqlwhere[] = "LEFT(name, 1) REGEXP '^[^".implode('', $available)."]'";
+		}
+		else {
+			$_GET['letter'] = $gpc->html_entity_decode($_GET['letter'], ENT_QUOTES);
+			$sqlwhere[] = "LEFT(name, 1) = '{$_GET['letter']}'";
+		}
 	}
 	if ($config['mlist_showinactive'] == 0) {
 		$sqlwhere[] = "confirm = '11'";
@@ -211,7 +211,7 @@ else {
 
 	$query_page = 	http_build_query(
 						array(
-							'letter' => $_GET['letter'],
+							'letter' => rawurlencode($_GET['letter']),
 							'id' => $_GET['id'],
 							'sort' => $_GET['sort'],
 							'order' => $_GET['order']
@@ -227,7 +227,7 @@ else {
 					);
 	$query_th =		http_build_query(
 						array(
-							'letter' => $_GET['letter'],
+							'letter' => rawurlencode($_GET['letter']),
 							'id' => $_GET['id'],
 							'page' => $_GET['page']
 						)
@@ -327,19 +327,25 @@ else {
 		$inner['index_bit'] .= $tpl->parse("members/index_bit");
 	}
 
-	($code = $plugins->load('members_prepared')) ? eval($code) : null;
-
-	$letter = $lang->phrase('members_all');
-	$row = array('letter' => '');
-	$inner['index_letter'] = $tpl->parse("members/index_letter");
+	$letter = array(
+		'' => array('url' => '', 'html' => $lang->phrase('members_all'))
+	);
+	$specials = false;
 	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter",__LINE__,__FILE__);
 	while ($row = $db->fetch_assoc($result)) {
-		$letter = &$row['letter'];
-		$inner['index_letter'] .= $tpl->parse("members/index_letter");
+		if (in_array($row['letter'], $available)) {
+			$letter[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);
+		}
+		elseif ($specials == false) {
+			$letter['#'] = array('url' => rawurlencode('#'), 'html' => '#');
+		}
 	}
+	ksort($letter);
 
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
+	($code = $plugins->load('members_prepared')) ? eval($code) : null;
 	echo $tpl->parse("members/index");
-
 	($code = $plugins->load('members_end')) ? eval($code) : null;
 
 }

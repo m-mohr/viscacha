@@ -22,5 +22,6 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `message_active` enum('0','1','2') NOT NULL default '0',
   `message_title` text NOT NULL,
   `message_text` text NOT NULL,
+  `lid` smallint(4) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`)
 ) TYPE=MyISAM AUTO_INCREMENT=1 ;

@@ -7,22 +7,12 @@
 <?php } ?>
 <form name="form2" method="post" action="editprofile.php?action=signature<?php echo SID2URL_x; ?>">
 <div class="border">
-  <h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_signature'); ?></h3>
+  <h3>
+  	<span class="right textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></span>
+  	<img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_signature'); ?>
+  </h3>
   <div class="bbody">
-	<label><?php echo $inner['smileys']; ?></label>
-	<?php echo $inner['bbhtml']; ?>
-	<script type="text/javascript">
-	<!--
-	setTextfield('signature');
-	-->
-	</script>
-	<br class="newinput" /><hr class="formsep" />
-	<label for="signature" class="stext">
-		<?php echo $lang->phrase('editprofile_signature_longdesc'); ?><br /><br />
-		[<a href="#" onclick="return textarea_length(<?php echo $config['maxsiglength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
-	</label>
-  	<textarea class="label" name="signature" id="signature" rows="7" tabindex="1" cols="80"><?php echo $signature; ?></textarea>
-  	<br class="newinput" /><br class="iefix_br" />
+	<?php echo $bbcode->getEditorArea('signature', $signature, 'cols="80" rows="7" tabindex="1"', $config['maxsiglength']); ?>
   </div>
   <div class="bfoot center">
    <input type="submit" name="Submit" tabindex="2" value="<?php echo $lang->phrase('submit_form'); ?>" />

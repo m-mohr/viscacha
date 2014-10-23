@@ -1,5 +1,5 @@
 body {
-	background-color: #ffffff; 
+	background-color: #ffffff;
 	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 	font-size: 0.8em;
 }
@@ -52,21 +52,14 @@ body {
 .bb_inlinecode {
 	color: #880000;
 }
-.bb_blockcode_header {
-	display: block;
+.bb_blockcode_options {
+	display: none;
 }
 .bb_blockcode {
 	border-top: 1px solid #000000;
 	border-bottom: 1px solid #000000;
 	padding: 2px;
 	margin: 0px;
-}
-.bb_blockcode td {
-	font-family: Courier New, monospace;
-	font-size: 11px;
-	line-Height: 13px;
-	white-space: nowrap;
-	vertical-align: top;
 }
 .bb_header {
 	margin: 0px;

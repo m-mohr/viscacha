@@ -1,13 +1,3 @@
-http://osi.lishmirror.com:81/
-http://osi.hshh.org:8088/
-http://ph15.net:8000/
-http://onlinestatus.chrissearle.org:54345/
-http://imstatus.msitgroup.co.uk:81/
 http://www.funnyweb.dk:8080/
-http://osi.kanadian.net:8080/
-http://snind.gotdns.com:8080/
-http://public.hmstudios.net:8000/
-http://www.the-server.net:8001/
-http://www.the-server.net:8003/
-http://www.the-server.net:8000/
-http://www.the-server.net:8002/
+http://osi.techno-st.net:8000/
+http://technoserv.no-ip.org:8080/

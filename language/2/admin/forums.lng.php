@@ -17,6 +17,7 @@ $lang['admin_forum_all_groups'] = 'All Groups';
 $lang['admin_forum_article'] = 'Article';
 $lang['admin_forum_articles'] = 'Articles';
 $lang['admin_forum_automatic_status'] = 'Automatically set topic status to:';
+$lang['admin_forum_bbcode_html'] = 'BB-Code is allowed; HTML is not allowed!';
 $lang['admin_forum_before'] = 'Before';
 $lang['admin_forum_cat_created'] = 'Category successfully created!';
 $lang['admin_forum_cat_deleted'] = 'Category successfully deleted!';

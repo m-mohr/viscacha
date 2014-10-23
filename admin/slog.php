@@ -152,8 +152,8 @@ elseif ($job == 's_general_image') {
 	$timeorder = $gpc->get('timeorder', int);
 	switch ($timeorder) {
 		case 1:
-			$sqlformat = "%U %m %Y";
-			$phpformat = "d.m.Y";
+			$sqlformat = "%e %m %Y";
+			$phpformat = "~w, d.m.Y";
 		break;
 		case 2:
 			$sqlformat = "%U %Y";
@@ -182,7 +182,7 @@ elseif ($job == 's_general_image') {
 		$statdate = date($phpformat, $row['statdate']);
 
 		if ($timeorder == 1) {
-			$statdate = preg_replace("/(\d+)~/e", "getday('\\1')", $statdate);
+			$statdate = preg_replace("/~(\d+)/e", "getday('\\1')", $statdate);
 		}
 		if ($timeorder > 1) {
 			$statdate = preg_replace("/(\d+)~/e", "getmonth('\\1')", $statdate);

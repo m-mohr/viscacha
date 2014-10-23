@@ -24,18 +24,12 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'pm');
+define('SCRIPTNAME', 'pm');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 if ($my->p['pm'] == 0 || !$my->vlogin) {
@@ -67,7 +61,7 @@ if ($_GET['action'] == 'show') {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
 
-	$row = $gpc->prepare($db->fetch_assoc($result));
+	$row = $slog->cleanUserData($db->fetch_assoc($result));
 
 	if ($row['status'] == '0') {
 		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'",__LINE__,__FILE__);
@@ -284,7 +278,7 @@ elseif ($_GET['action'] == "save") {
 
 		$lang_dir = $lang->getdir(true);
 		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE id = '{$_POST['name']}'",__LINE__,__FILE__);
-		$row = $gpc->prepare($db->fetch_assoc($result));
+		$row = $slog->cleanUserData($db->fetch_assoc($result));
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
 			$row = $gpc->plain_str($row);
@@ -367,8 +361,6 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 	}
 
 	echo $tpl->parse("menu");
-	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
-	$inner['bbhtml'] = $bbcode->getbbhtml();
 	echo $tpl->parse("pm/menu");
 	($code = $plugins->load('pm_compose_prepared')) ? eval($code) : null;
 	echo $tpl->parse("pm/new");
@@ -381,8 +373,6 @@ elseif ($_GET['action'] == "browse") {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
 	$breadcrumb->Add($dir_name);
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
@@ -409,9 +399,11 @@ elseif ($_GET['action'] == "browse") {
 	FROM {$db->pre}pm
 	WHERE pm_to = '{$my->id}' AND dir = '{$_GET['id']}'
 	ORDER BY date DESC
-	LIMIT $start, {$config['pmzahl']}
+	LIMIT {$start}, {$config['pmzahl']}
 	",__LINE__,__FILE__);
 
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 
 	while ($row = $db->fetch_assoc($result)) {

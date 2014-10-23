@@ -104,6 +104,7 @@ $lang['admin_lang_global_phrases'] = 'Global phrases used in Viscacha';
 $lang['admin_lang_help'] = 'Help:';
 $lang['admin_lang_if_translation_box_left_blank'] = 'If you do leave a translation box blank, it will inherit the text from the \'Text\' box.';
 $lang['admin_lang_ignored_search_keys'] = 'Ignored search keys';
+$lang['admin_lang_ignored_search_keys_desc'] = '<br /><br />Only one word in each line. Please type the words completly in lower case letters. Special symbols should occur in two forms. Examples: <br />&Auml; = ae and &auml;,<br />&szlig; = ss and &szlig;,<br />&eacute; = e and &eacute;,<br />&Ccedil; = c and &ccedil;';
 $lang['admin_lang_import_lang'] = 'Import Language';
 $lang['admin_lang_import_langpack'] = 'Import Languagepack';
 $lang['admin_lang_js_phrases'] = 'All phrases that are used in JavaScript applications and functions';
@@ -195,6 +196,8 @@ $lang['admin_lang_today_yesterday_format_info'] = 'Only if it is activated above
 $lang['admin_lang_topic_moved'] = 'Topic has been moved';
 $lang['admin_lang_translation'] = '<em>{@row->language}</em> Translation:';
 $lang['admin_lang_translations'] = 'Translations';
+$lang['admin_lang_used_as_original'] = 'Language which should be used as original:';
+$lang['admin_lang_used_as_original_info'] = 'Specify the directory/language wherefrom the phrase should be copied.';
 $lang['admin_lang_values'] = 'Values';
 $lang['admin_lang_variable'] = 'Variable:';
 $lang['admin_lang_varname'] = 'Varname:';

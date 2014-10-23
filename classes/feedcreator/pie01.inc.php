@@ -14,25 +14,25 @@ class PIE01 extends FeedCreator {
 	}
 
 	function createFeed() {
-		$feed = "<?xml version=\"1.0\" encoding=\"".$this->encoding."\"?>\n";
+		$feed = "<?xml version=\"1.0\" encoding=\"{$this->encoding}\"?>\n";
 		$feed.= $this->_createStylesheetReferences();
 		$feed.= "<feed version=\"0.1\" xmlns=\"http://www.tbray.org/ongoing/pie/0.1/pie.rnc\">\n";
-		$feed.= "    <title>".FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->title),100)."</title>\n";
+		$feed.= "    <title>".$this->htmlspecialchars(FeedCreator::iTrunc($this->title,100))."</title>\n";
 		$this->truncSize = 500;
 		$feed.= "    <subtitle>".$this->getDescription()."</subtitle>\n";
 		$feed.= "    <link>".$this->link."</link>\n";
 		for ($i=0;$i<count($this->items);$i++) {
 			$feed.= "    <entry>\n";
-			$feed.= "        <title>".FeedCreator::iTrunc(FeedCreator::htmlspecialchars(strip_tags($this->items[$i]->title)),100)."</title>\n";
-			$feed.= "        <link>".FeedCreator::htmlspecialchars($this->items[$i]->link)."</link>\n";
+			$feed.= "        <title>".$this->htmlspecialchars(FeedCreator::iTrunc($this->items[$i]->title,100))."</title>\n";
+			$feed.= "        <link>".$this->htmlspecialchars($this->items[$i]->link)."</link>\n";
 			$itemDate = new FeedDate($this->items[$i]->date);
-			$feed.= "        <created>".FeedCreator::htmlspecialchars($itemDate->iso8601())."</created>\n";
-			$feed.= "        <issued>".FeedCreator::htmlspecialchars($itemDate->iso8601())."</issued>\n";
-			$feed.= "        <modified>".FeedCreator::htmlspecialchars($itemDate->iso8601())."</modified>\n";
-			$feed.= "        <id>".FeedCreator::htmlspecialchars($this->items[$i]->guid)."</id>\n";
+			$feed.= "        <created>".$this->htmlspecialchars($itemDate->iso8601())."</created>\n";
+			$feed.= "        <issued>".$this->htmlspecialchars($itemDate->iso8601())."</issued>\n";
+			$feed.= "        <modified>".$this->htmlspecialchars($itemDate->iso8601())."</modified>\n";
+			$feed.= "        <id>".$this->htmlspecialchars($this->items[$i]->guid)."</id>\n";
 			if ($this->items[$i]->author!="") {
 				$feed.= "        <author>\n";
-				$feed.= "            <name>".FeedCreator::htmlspecialchars($this->items[$i]->author)."</name>\n";
+				$feed.= "            <name>".$this->htmlspecialchars($this->items[$i]->author)."</name>\n";
 				if ($this->items[$i]->authorEmail!="") {
 					$feed.= "            <email>".$this->items[$i]->authorEmail."</email>\n";
 				}

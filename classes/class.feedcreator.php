@@ -103,6 +103,8 @@ class FeedImage extends HtmlDescribable {
 /**
  * An HtmlDescribable is an item within a feed that can have a description that may
  * include HTML markup.
+ *
+ * @abstract
  */
 class HtmlDescribable {
 	/**
@@ -121,7 +123,13 @@ class HtmlDescribable {
 	 * @return    string    the formatted description
 	 */
 	function getDescription() {
-		$descriptionField = new FeedHtmlField($this->description);
+		if (isset($this->encoding)) {
+			$enc = $this->encoding;
+		}
+		else {
+			$enc = 'ISO-8859-1';
+		}
+		$descriptionField = new FeedHtmlField($this->description, $enc);
 		$descriptionField->syndicateHtml = $this->descriptionHtmlSyndicated;
 		$descriptionField->truncSize = $this->descriptionTruncSize;
 		return $descriptionField->output();
@@ -141,7 +149,7 @@ class FeedHtmlField {
 	/**
 	 * Mandatory attributes of a FeedHtmlField.
 	 */
-	var $rawFieldContent;
+	var $rawFieldContent, $encoding;
 
 	/**
 	 * Optional attributes of a FeedHtmlField.
@@ -153,10 +161,11 @@ class FeedHtmlField {
 	 * Creates a new instance of FeedHtmlField.
 	 * @param  $string: if given, sets the rawFieldContent property
 	 */
-	function FeedHtmlField($parFieldContent) {
+	function FeedHtmlField($parFieldContent, $encoding) {
 		if ($parFieldContent) {
 			$this->rawFieldContent = $parFieldContent;
 		}
+		$this->encoding = $encoding;
 	}
 
 
@@ -174,9 +183,9 @@ class FeedHtmlField {
 			$result = "<![CDATA[".$this->rawFieldContent."]]>";
 		} else {
 			if ($this->truncSize and is_int($this->truncSize)) {
-				$result = FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->rawFieldContent),$this->truncSize);
+				$result = FeedCreator::static_htmlspecialchars(FeedCreator::iTrunc($this->rawFieldContent, $this->truncSize), $this->encoding);
 			} else {
-				$result = FeedCreator::htmlspecialchars($this->rawFieldContent);
+				$result = FeedCreator::static_htmlspecialchars($this->rawFieldContent, $this->encoding);
 			}
 		}
 		return $result;
@@ -361,7 +370,6 @@ class FeedCreator extends HtmlDescribable {
 		$this->items[] = $item;
 	}
 
-
 	/**
 	 * Truncates a string to a certain length at the most sensible point.
 	 * First, if there's a '.' character near the end of the string, the string is truncated after this character.
@@ -401,7 +409,16 @@ class FeedCreator extends HtmlDescribable {
 	}
 
 	function htmlspecialchars($content) {
-		$content = str_replace(array('<', '>', '"'), array('&lt;', '&gt;', '&quot;'), $content);
+		return FeedCreator::_htmlspecialchars($content, $this->encoding);
+	}
+
+	function static_htmlspecialchars($content, $enc) {
+		return FeedCreator::_htmlspecialchars($content, $enc);
+	}
+
+	function _htmlspecialchars($content, $enc) {
+		global $gpc;
+		$content = $gpc->save_str($content);
 		return $content;
 	}
 
@@ -542,7 +559,7 @@ class FeedDate {
 	 */
 	function FeedDate($dateString="") {
 		if ($dateString=="") {
-			$dateString = dateSpec(SPEC_RFC822);
+			$dateString = time();
 		}
 
 		if (intval($dateString) == $dateString) {

@@ -16,6 +16,7 @@ function highlight_sql_query($sql) {
 	}
 	$geshi = new GeSHi($sql, $language, $path);
 	$geshi->enable_classes(false);
+	$geshi->set_header_type(GESHI_HEADER_DIV);
 	$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
 	return $geshi->parse_code();
 }
@@ -24,6 +25,7 @@ function exec_query_form ($query = '') {
 	global $db, $lang;
 	$tables = $db->list_tables();
 ?>
+<script type="text/javascript" src="templates/editor/bbcode.js"></script>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -103,8 +105,8 @@ if ($job == 'optimize') {
    <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_overhead'); ?></td>
   </tr>
   <tr>
-   <td class="mbox"><input type="checkbox" onclick="check_all('repair[]')" name="repair_all"></td>
-   <td class="mbox"><input type="checkbox" onclick="check_all('optimize[]')" name="optimize_all"></td>
+   <td class="mbox"><input type="checkbox" onclick="check_all(this)" name="repair_all" value="repair[]" /></td>
+   <td class="mbox"><input type="checkbox" onclick="check_all(this)" name="optimize_all" value="optimize[]" /></td>
    <td class="mbox"><strong><?php echo $lang->phrase('admin_db_all'); ?></strong></td><?php
    	$data_length = formatFilesize($data_length);
    ?>
@@ -393,52 +395,73 @@ elseif ($job == 'restore_info') {
 		$mem_limit = @get_cfg_var('memory_limit');
 	}
 	$mem_limit = intval($mem_limit)*1024*1024;
-	$maxlimit = 2*1024*1024;
-	if ($mem_limit > $maxlimit) {
-		$maxlimit = $mem_limit;
-	}
+	$ziplimit = $mem_limit / 3;
+	$sqllimit = $mem_limit / 1.5;
 
 	$dir = "./admin/backup/";
 	$file = $gpc->get('file', none);
 
-	if (filesize($dir.$file) < $maxlimit) {
-		$nfo = pathinfo($dir.$file);
-        if ($nfo['extension'] == 'zip') {
-			require_once('classes/class.zip.php');
-			$archive = new PclZip($dir.$file);
-			if (($list = $archive->listContent()) > 0) {
+	$nfo = pathinfo($dir.$file);
+    if (strtolower($nfo['extension']) == 'zip') {
+		require_once('classes/class.zip.php');
+		$archive = new PclZip($dir.$file);
+		if (($list = $archive->listContent()) != 0) {
+			if ($list[0]['size'] < $ziplimit) {
 				$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
-				$headers = preg_split("/\r\n|\r|\n/", $data[0]['content']);
-				unset($data);
+				$data[0]['content'] = preg_split("/\r\n|\r|\n/", $data[0]['content']);
+				if (count($data[0]['content']) > 0) {
+					$header = array();
+		            foreach ($data[0]['content'] as $h) {
+		            	$comment = substr($h, 0, 2);
+		            	if ($comment == '--' || $comment == '//') {
+		            		$header[] = substr($h, 2);
+		            	}
+		            	elseif (count($header) > 0) {
+		            		break;
+		            	}
+		            }
+				}
+				else {
+		        	$header = $lang->phrase('admin_db_file_damaged');
+		        }
 			}
-        }
-        elseif ($nfo['extension'] == 'sql') {
+			else {
+				$header = $lang->phrase('admin_db_file_too_large');
+			}
+    	}
+    	else {
+    		$header = $lang->phrase('admin_db_file_damaged');
+    	}
+    }
+    elseif (strtolower($nfo['extension']) == 'sql') {
+    	if (filesize($dir.$file) < $sqllimit) {
 			$fd = fopen($dir.$file, "r");
+			$header = array();
 			while (!feof($fd)) {
-				$headers[] = fgets($fd, 2048);
+				$str = fgets($fd);
+				$comment = substr($str, 0, 2);
+				if ($comment == '--' || $comment == '//') {
+					$header[] = substr($str, 2);
+				}
+				elseif (count($header) > 0) {
+					break;
+				}
 			}
 			fclose ($fd);
-        }
-        if (isset($headers) && is_array($headers)) {
-            $header = array();
-            foreach ($headers as $h) {
-            	$comment = substr($h, 0, 2);
-            	if ($comment == '--' || $comment == '//') {
-            		$header[] = substr($h, 2);
-            	}
-            	else {
-            		break;
-            	}
-            }
-            $header = array_map('trim', $header);
-            $header = implode("<br />\n", $header);
-        }
-        else {
-        	$header = $lang->phrase('admin_db_file_damaged');
-        }
+    	}
+    	else {
+    		$header = $lang->phrase('admin_db_file_too_large');
+    	}
     }
-    else {
-    	$header = $lang->phrase('admin_db_file_too_large');
+	else {
+		$header = $lang->phrase('admin_db_unknown_file_format');
+	}
+    if (is_array($header) && count($header) > 0) {
+		$header = array_map('trim', $header);
+		$header = implode("<br />\n", $header);
+    }
+    if (empty($header) || array_empty($header) == true) {
+    	$header = $lang->phrase('admin_db_file_no_comments');
     }
     echo $header;
 }
@@ -477,7 +500,7 @@ elseif ($job == 'restore') {
   </tr>
   <tr>
    <td class="ubox" width="5%"><?php echo $lang->phrase('admin_db_restore'); ?></td>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_db_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_db_all'); ?></span></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_db_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_db_all'); ?></span></td>
    <td class="ubox" width="80%"><?php echo $lang->phrase('admin_db_information'); ?></td>
    <td class="ubox" width="10%"><?php echo $lang->phrase('admin_db_file_size'); ?></td>
   </tr>

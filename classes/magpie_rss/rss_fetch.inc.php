@@ -85,9 +85,11 @@ define('MAGPIE_VERSION', '0.72');
 
 $MAGPIE_ERROR = "";
 
-function get_mtime ($url) {
-
-	$cache = new RSSCache( MAGPIE_CACHE_DIR, 3600 );
+function get_mtime ($url, $age = null) {
+	if ($age == null) {
+		$age = 3600;
+	}
+	$cache = new RSSCache( MAGPIE_CACHE_DIR, $age );
 	return $cache->get_mtime($url);
 
 }
@@ -278,8 +280,7 @@ function _fetch_remote_file ($url, $headers = "" ) {
     if (is_array($headers) ) {
         $client->rawheaders = $headers;
     }
-
-    @$client->fetch($url);
+    $client->fetch($url);
     return $client;
 
 }

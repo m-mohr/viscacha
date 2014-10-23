@@ -24,19 +24,13 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'editprofile');
+define('SCRIPTNAME', 'editprofile');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
-if ($_GET['action'] != "addabo" && $_GET['action'] != "copy") {
+if ($_GET['action'] != "addabo") {
 	$my->p = $slog->Permissions();
 }
 if (!$my->vlogin) {
@@ -71,6 +65,7 @@ if ($_GET['action'] == "pw2") {
 	else {
 		($code = $plugins->load('editprofile_pw2_query')) ? eval($code) : null;
 		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+		$slog->sid_logout();
 		ok($lang->phrase('editprofile_pw_success'), "log.php".SID2URL_1);
 	}
 
@@ -126,10 +121,6 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	($code = $plugins->load('editprofile_attachments_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "abos") {
-	$breadcrumb->Add($lang->phrase('editprofile_abos'));
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
-
 	$p = $_GET['page']-1;
 
 	$sqlwhere = '';
@@ -197,7 +188,7 @@ elseif ($_GET['action'] == "abos") {
 
 
 		if ($row['posts'] > $info['topiczahl']) {
-			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small');
+			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
 		}
 		else {
 			$row['topic_pages'] = '';
@@ -213,6 +204,10 @@ elseif ($_GET['action'] == "abos") {
 	if (!isset($cache[$p])) {
 		$count = 0;
 	}
+
+	$breadcrumb->Add($lang->phrase('editprofile_abos'));
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_abos_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/abos");
@@ -331,8 +326,6 @@ elseif ($_GET['action'] == "signature") {
 		echo $tpl->parse("header");
 		echo $tpl->parse("menu");
 		BBProfile($bbcode);
-		$inner['bbhtml'] = $bbcode->getbbhtml();
-		$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
 		$chars = numbers($config['maxsiglength']);
 		if (empty($_POST['signature'])) {
 			$signature = $my->signature;
@@ -387,8 +380,6 @@ elseif ($_GET['action'] == "about") {
 	($code = $plugins->load('editprofile_abos_Start')) ? eval($code) : null;
 
 	BBProfile($bbcode);
-	$inner['bbhtml'] = $bbcode->getbbhtml();
-	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
 
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
@@ -451,7 +442,7 @@ elseif ($_GET['action'] == "pic2") {
 			$error[] = $my_uploader->get_error();
 		}
 	}
-	elseif (!empty($pic) && preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $pic)) {
+	elseif (!empty($pic) && preg_match(URL_REGEXP, $pic)) {
 		$my->pic = checkRemotePic($pic, $my->id);
 		switch ($my->pic) {
 			case REMOTE_INVALID_URL:
@@ -560,11 +551,14 @@ elseif ($_GET['action'] == "profile2") {
 	if ($my->mail != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
 		 $error[] = $lang->phrase('email_already_used');
 	}
-	if (strxlen($_POST['name']) > $config['maxnamelength'] && $config['changename_allowed'] == 1) {
+	if ($config['changename_allowed'] == 1 && strxlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (strxlen($_POST['name']) < $config['minnamelength'] && $config['changename_allowed'] == 1) {
+	if ($config['changename_allowed'] == 1 && strxlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
+	}
+	if ($config['changename_allowed'] == 1 && strtolower($my->name) != strtolower($_POST['name']) && double_udata('name',$_POST['name']) == false) {
+		$error[] = $lang->phrase('username_registered');
 	}
 	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
@@ -824,7 +818,7 @@ elseif ($_GET['action'] == "mylast") {
 			$row['pre'] = '';
 		}
 		if ($row['posts'] > $info['topiczahl']) {
-			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small');
+			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
 		}
 		else {
 			$row['topic_pages'] = '';
@@ -892,74 +886,6 @@ elseif ($_GET['action'] == "removeabo") {
 	($code = $plugins->load('editprofile_removeabo_prepared')) ? eval($code) : null;
 	$db->query("DELETE FROM {$db->pre}abos WHERE tid = '{$_GET['id']}' AND mid = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
 	ok($lang->phrase('unsubscribed_successfully'));
-}
-elseif ($_GET['action'] == "copy") {
-
-	($code = $plugins->load('editprofile_copy_start')) ? eval($code) : null;
-	$result = $db->query("
-	SELECT board, id, topic_id, topic, comment, date, name, email, dosmileys, guest
-	FROM {$db->pre}replies
-	WHERE id = '{$_GET['id']}'
-	LIMIT 1
-	",__LINE__,__FILE__);
-	$row = $gpc->prepare($db->fetch_assoc($result));
-
-	$error = array();
-	if ($db->num_rows($result) < 1) {
-		$error[] = $lang->phrase('query_string_error');
-	}
-	$my->p = $slog->Permissions($row['board']);
-	if ($my->p['forum'] == 0) {
-		$error[] = $lang->phrase('not_allowed');
-	}
-	if (count($error) > 0) {
-		errorLogin($error,'forum.php'.SID2URL_1);
-	}
-
-	$result = $db->query("SELECT status, prefix FROM {$db->pre}topics WHERE id = '{$row['topic_id']}' LIMIT 1");
-	$topic = $db->fetch_assoc($result);
-
-	$catbid = $scache->load('cat_bid');
-	$fc = $catbid->get();
-	$last = $fc[$row['board']];
-	forum_opt($last);
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
-	if ($row['guest'] == 0 && isset($memberdata[$row['name']])) {
-		$row['name'] = $memberdata[$row['name']];
-	}
-	$row['date'] = gmdate($lang->phrase('dformat1'), times($row['date']));
-
-	BBProfile($bbcode);
-	$bbcode->setSmileys($row['dosmileys']);
-	$bbcode->setReplace($config['wordstatus']);
-	if ($topic['status'] == 2) {
-		$row['comment'] = $bbcode->ReplaceTextOnce($row['comment'], 'moved');
-	}
-	$text = $bbcode->parse($row['comment'], 'plain');
-
-	if (!empty($my->notice)) {
-		$notes = explode('[VSEP]', $my->notice);
-		if (!is_array($notes)) {
-			$notes = array($notes);
-		}
-	}
-	else {
-		$notes = array();
-	}
-
-	$setnotice = $lang->get_text('notice');
-	$notes[] = str_replace('[VSEP]','&#91;VSEP&#93;',$setnotice);
-	if (strxlen(implode('',$notes)) > $config['maxnoticelength']) {
-		error($lang->phrase('notices_too_long'));
-	}
-
-	($code = $plugins->load('editprofile_copy_savedata')) ? eval($code) : null;
-	$db->query("UPDATE {$db->pre}user SET notice = '".implode('[VSEP]',$notes)."' WHERE id = '".$my->id."'",__LINE__,__FILE__);
-	ok($lang->phrase('text_to_notice_success'));
-
 }
 else {
 	$breadcrumb->ResetUrl();

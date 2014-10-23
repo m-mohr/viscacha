@@ -1,7 +1,7 @@
 <?php
-include('../data/config.inc.php');
+include('data/config.inc.php');
 $ignore = isset($_REQUEST['ignore']) ? $_REQUEST['ignore'] : null;
-if ($config['version'] != VISCACHA_VERSION_OLD && empty($ignore)) { ?>
+if ($config['version'] != $old_versions[$package] && empty($ignore)) { ?>
 <div class="bbody">
 <p><strong>Welcome to the Viscacha update wizard.</strong></p>
 <p>The currently installed version of Viscacha (<?php echo $config['version']; ?>) is not compatible with this update or is already installed! You can skip this error, but we do not recommend to proceed with this update. </p>
@@ -11,8 +11,8 @@ if ($config['version'] != VISCACHA_VERSION_OLD && empty($ignore)) { ?>
 <div class="bbody">
 <p><strong>Welcome to the Viscacha update wizard.</strong></p>
 <p>
-This wizard guides you step by step through this update and modifies your Viscacha to version <?php echo VISCACHA_VERSION; ?>. 
-<em>Please make a complete backup before continuing with the update!</em> 
+This wizard guides you step by step through this update and modifies your Viscacha to version <?php echo VISCACHA_VERSION; ?>.
+<em>Please make a complete backup before continuing with the update!</em>
 For support or a detailed documentation vist the <a href="http://docs.viscacha.org">Viscacha project page</a>.
 </p>
 <p>To continue click the &quot;Continue&quot; button below.</p>

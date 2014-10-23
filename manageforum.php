@@ -24,20 +24,13 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'manageforum');
+define('SCRIPTNAME', 'manageforum');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
 $board = $gpc->get('id', int);
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 
 $catbid = $scache->load('cat_bid');
 $fc = $catbid->get();
@@ -56,8 +49,6 @@ $my->mp = $slog->ModPermissions($info['id']);
 forum_opt($info);
 
 $breadcrumb->Add($lang->phrase('teamcp'));
-
-echo $tpl->parse("header");
 
 if ($my->vlogin && $my->mp[0] == 1) {
 
@@ -161,6 +152,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			$inner['index_bit'] .= $tpl->parse("admin/forum/index_bit_empty");
 		}
 
+		echo $tpl->parse("header");
 		echo $tpl->parse("menu");
 		($code = $plugins->load('manageforum_index_prepared')) ? eval($code) : null;
 		echo $tpl->parse("admin/forum/index");
@@ -223,6 +215,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			errorLogin($lang->phrase('not_allowed'), 'showforum.php?id='.$board.SID2URL_x);
 		}
 		$forums = BoardSubs();
+		echo $tpl->parse("header");
 		echo $tpl->parse("menu");
 		echo $tpl->parse("admin/forum/move");
 	}
@@ -235,7 +228,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			$result = $db->query("
 			SELECT r.date, r.topic, r.name, r.guest, r.email, u.name AS uname, u.mail AS uemail
 			FROM {$db->pre}replies AS r
-				LEFT JOIN {$db->pre}user AS u ON u.id = r.name
+				LEFT JOIN {$db->pre}user AS u ON u.id = r.name AND r.guest = '0'
 			WHERE topic_id = '{$id}' AND tstart = '1'
 			",__LINE__,__FILE__);
 			$old = $db->fetch_assoc($result);
@@ -246,9 +239,9 @@ if ($my->vlogin && $my->mp[0] == 1) {
 
 			if ($_POST['temp'] == 1) {
 				// Prefix wird nicht übernommen!
-				$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}'",__LINE__,__FILE__);
+				$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''",__LINE__,__FILE__);
 				$tid = $db->insert_id();
-				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);
+				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''",__LINE__,__FILE__);
 			}
 			if ($_POST['temp2'] == 1) {
 				$old = $gpc->plain_str($old);

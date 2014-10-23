@@ -1,8 +1,7 @@
 <form name="form2" method="post" action="search.php?action=search<?php echo SID2URL_x; ?>">
 <div class="border">
 <div class="h3">
-  <a class="right" tabindex="4000" id="menu_activetopics" href="#activetopics"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('search_presets'); ?></a>
-  <script type="text/javascript">RegisterMenu('activetopics');</script>
+  <a class="right" tabindex="4000" id="menu_activetopics" href="#activetopics" onmouseover="RegisterMenu('activetopics');"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('search_presets'); ?></a>
   <div class="popup" id="popup_activetopics">
 	<strong><?php echo $lang->phrase('search_active_topics'); ?></strong>
 	<ul>
@@ -95,7 +94,7 @@
 </div>
 <br class="newinput" /><br class="iefix_br" />
 </div>
-<div class="bfoot center"><input type="submit" tabindex="2008" name="Submit3" onclick="submit_flood(this)" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input type="submit" tabindex="2008" name="Submit3" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>
 <noscript>

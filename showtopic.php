@@ -24,27 +24,14 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'showtopic');
+define('SCRIPTNAME', 'showtopic');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
-
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-$result = $db->query('
-SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix
-FROM '.$db->pre.'topics
-WHERE id = '.$_GET['id'].'
-LIMIT 1
-',__LINE__,__FILE__);
-
+$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
 $info = $gpc->prepare($db->fetch_assoc($result));
 
 $my->p = $slog->Permissions($info['board']);
@@ -78,9 +65,9 @@ else {
 
 if ($_GET['action'] == 'firstnew') {
 	if ($info['last'] > $my->clv) {
-		$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' AND date > '.$my->clv,__LINE__,__FILE__);
-		$new = $db->fetch_assoc($result);
-		$tp = ($info['posts']+1) - $new['count'];
+		$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date <= '{$my->clv}'",__LINE__,__FILE__);
+		$old = $db->fetch_assoc($result);
+		$tp = $old['count'] + 1; // Number of old post (with topic start post) + 1, to get the first new post, not the last old post
 		$pgs = ceil($tp/$last['topiczahl']);
 		if ($pgs < 1) {
 			$pgs = 1;
@@ -146,24 +133,25 @@ $breadcrumb->Add($prefix.$info['topic']);
 
 forum_opt($last);
 
-echo $tpl->parse("header");
-echo $tpl->parse("menu");
-
-($code = $plugins->load('showtopic_start')) ? eval($code) : null;
-
 // Some speed optimisation
 $speeder = $info['posts']+1;
 $start = $_GET['page']*$last['topiczahl'];
 $start = $start-$last['topiczahl'];
-
 $temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id']."&amp;", $_GET['page']);
+
+define('LINK_PRINT_PAGE', "print.php?id={$info['id']}&amp;page={$_GET['page']}".SID2URL_x);
+
+echo $tpl->parse("header");
+echo $tpl->parse("menu");
+
+($code = $plugins->load('showtopic_start')) ? eval($code) : null;
 
 $q = explode(' ', trim($q));
 
 $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
 
-$inner['index_bit'] = '';
+$inner['index_bit'] = array();
 $inner['vote_result'] = '';
 $inner['related'] = '';
 
@@ -245,7 +233,7 @@ if (!empty($info['vquestion'])) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = ".$info['id'],__LINE__,__FILE__);
+	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
 	$uploads = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
@@ -279,12 +267,12 @@ $sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS 
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
-	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report,
+	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
 	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
 	f.* {$sql_select}
 FROM {$db->pre}replies AS r
-	LEFT JOIN {$db->pre}user AS u ON r.name=u.id
-	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
+	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
+	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid AND r.guest = '0'
 	{$sql_join}
 WHERE r.topic_id = '{$info['id']}'
 ORDER BY date ASC
@@ -297,9 +285,15 @@ if ($info['last'] > $my->clv) {
 	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].SID2URL_x;
 }
 
-while ($row = $gpc->prepare($db->fetch_object($result))) {
+// Custom Profile Fields
+include_once('classes/class.profilefields.php');
+$pfields = new ProfileFieldViewer();
+
+while ($row = $db->fetch_object($result)) {
 	$inner['upload_box'] = '';
 	$inner['image_box'] = '';
+
+	$row = $slog->cleanUserData($row);
 
 	if ($row->guest == 0) {
 		$row->mail = '';
@@ -312,12 +306,24 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$row->mid = 0;
 	}
 
+	// Custom Profile Fields
+	$pfields->setUserId($row->mid);
+	$pfields->setUserData($row);
+
 	if ($firstnew > 0) {
 		$firstnew++;
 	}
 	if ($row->date > $my->clv && $firstnew == 0) {
 		$firstnew = 1;
 		$firstnew_url = "#firstnew";
+	}
+
+	$diff = time()-$row->date;
+	if ($config['edit_edit_time'] == 0) {
+	    $edit_seconds = $diff;
+	}
+	else {
+	    $edit_seconds = $config['edit_edit_time']*60;
 	}
 
 	$new = iif($row->date > $my->clv, 'new', 'old');
@@ -353,10 +359,10 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	}
 
 	if ((!empty($row->fullname) && $config['fullname_posts'] == 1) || (!empty($row->signature) && $my->opt_showsig == 1)) {
-		$bottom = TRUE;
+		$bottom = true;
 	}
 	else {
-		$bottom = FALSE;
+		$bottom = false;
 	}
 
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
@@ -365,7 +371,7 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 			$imginfo = get_extension($uppath);
 
 			if (!isset($fileicons[$imginfo])) {
-				$icon = 'unknown.gif';
+				$icon = 'unknown';
 			}
 			else {
 				$icon = $fileicons[$imginfo];
@@ -418,7 +424,8 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	}
 
 	($code = $plugins->load('showtopic_entry_prepared')) ? eval($code) : null;
-	$inner['index_bit'] .= $tpl->parse("showtopic/index_bit");
+	$inner['index_bit'][] = $tpl->parse("showtopic/index_bit");
+	($code = $plugins->load('showtopic_entry_added')) ? eval($code) : null;
 }
 
 if ($my->vlogin && is_id($info['id'])) {
@@ -428,6 +435,8 @@ if ($my->vlogin && is_id($info['id'])) {
 else {
 	$abox = array('id' => null);
 }
+
+$inner['index_bit'] = implode('', $inner['index_bit']);
 
 ($code = $plugins->load('showtopic_prepared')) ? eval($code) : null;
 echo $tpl->parse("showtopic/index");

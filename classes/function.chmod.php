@@ -3,160 +3,160 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define('CHMOD_FILE', 'is_file');
 define('CHMOD_DIR', 'is_dir');
+define('CHMOD_EX', 777);
+define('CHMOD_WR', 666);
 
-function check_writable($filename, $chmod = 0666, $notcreate = false, $func = CHMOD_FILE) {
+function set_chmod($dir, $chmod, $type = CHMOD_FILE, $stop = false) {
 	global $filesystem;
-	if (file_exists($filename) || $notcreate == true) {
-		if (!is_writable($filename)) {
-			if (!$filesystem->chmod($filename, $chmod)) {
-				trigger_error("Cannot change the chmod of file ($filename) to ".octdec($chmod), E_USER_WARNING);
-			}
+	if (file_exists($dir) && $type($dir)) {
+		if (!check_chmod(decoct($chmod), get_chmod($dir))) {
+			$filesystem->chmod($dir, $chmod);
 		}
 	}
 	else {
-		$filesystem->file_put_contents($filename, '');
-		check_writable($filename, $chmod, true);
-	}
-}
-function check_executable($dir, $chmod = 0777, $notcreate = false, $func = CHMOD_DIR) {
-	global $filesystem;
-	if (file_exists($dir) || $notcreate == true) {
-		if (!is_executable($dir)) {
-			if (!$filesystem->chmod($dir, $chmod)) {
-				trigger_error("Cannot change the chmod of directory ($dir) to ".octdec($chmod), E_USER_WARNING);
-			}
+		if ($type == CHMOD_DIR && !$stop) {
+			$filesystem->mkdir($dir, $chmod);
+			set_chmod($dir, $chmod, CHMOD_DIR, true);
+		}
+		elseif (!$stop) {
+			$filesystem->file_put_contents($dir, '');
+			set_chmod($dir, $chmod, CHMOD_FILE, true);
 		}
 	}
-	else {
-		$filesystem->mkdir($dir, $chmod);
-		check_executable($dir, $chmod, true);
-	}
 }
-function check_executable_r($dir, $chmod = 0777, $func = CHMOD_DIR, $first = false) {
+function set_chmod_r($dir, $chmod, $type = CHMOD_DIR, $files = array()) {
 	$dh = opendir($dir);
-	if (!$first) {
-		check_executable($dir, $chmod, false, $func);
+	if (count($files) == 0 && $type == CHMOD_DIR) {
+		set_chmod($dir, $chmod, $type);
+		$files[] = $dir;
 	}
 	while ($file = readdir($dh)) {
 		if($file != '.' && $file != '..') {
-			$fullpath = $dir.DIRECTORY_SEPARATOR.$file;
-			if(is_dir($fullpath)) {
-				check_executable($fullpath, $chmod, false, $func);
-				check_executable_r($fullpath, $chmod, $func, true);
+			$fullpath = $dir.'/'.$file;
+			if($type($fullpath)) {
+				set_chmod($fullpath, $chmod, $type);
+				$files[] = $fullpath;
+			}
+			if (is_dir($fullpath)) {
+				$files = set_chmod_r($fullpath, $chmod, $type, $files);
 			}
 		}
 	}
 	closedir($dh);
-}
-function check_writable_r($dir, $chmod = 0666, $func = CHMOD_FILE, $first = false) {
-	$dh = opendir($dir);
-	if (!$first) {
-		check_writable($dir, $chmod, false, $func);
-	}
-	while ($file = readdir($dh)) {
-		if($file != '.' && $file != '..') {
-			$fullpath = $dir.DIRECTORY_SEPARATOR.$file;
-			if(is_file($fullpath)) {
-				check_writable($fullpath, $chmod, false, $func);
-			}
-			elseif (is_dir($fullpath)) {
-				check_writable_r($fullpath, $chmod, $func, true);
-			}
-		}
-	}
-	closedir($dh);
-}
-
-function chmod_str2num($mode) {
-   $realmode = "";
-   $legal =  array("","w","r","x","-");
-   $attarray = preg_split("//",$mode);
-   for($i=0;$i<count($attarray);$i++){
-       if($key = array_search($attarray[$i],$legal)){
-           $realmode .= $legal[$key];
-       }
-   }
-   $mode = str_pad($realmode,9,'-');
-   $trans = array('-'=>'0','r'=>'4','w'=>'2','x'=>'1');
-   $mode = strtr($mode,$trans);
-   $newmode = '';
-   $newmode .= $mode[0]+$mode[1]+$mode[2];
-   $newmode .= $mode[3]+$mode[4]+$mode[5];
-   $newmode .= $mode[6]+$mode[7]+$mode[8];
-   return $newmode;
+	return $files;
 }
 
 function chmod_str2oct($mode) {
-	$mode = '0'.$mode;
-	return octdec($mode);
+	return octdec("0{$mode}");
 }
 
-function get_chmod($file, $numeric = true) {
-	$perms = @fileperms($file);
+function check_chmod($min, $given) {
+	$min = explode("\r\n", chunk_split($min, 1));
+	$given = explode("\r\n", chunk_split($given, 1));
 
-	if (($perms & 0xC000) == 0xC000) {
-	   // Socket
-	   $info = 's';
-	} elseif (($perms & 0xA000) == 0xA000) {
-	   // Symbolic Link
-	   $info = 'l';
-	} elseif (($perms & 0x8000) == 0x8000) {
-	   // Regular
-	   $info = '-';
-	} elseif (($perms & 0x6000) == 0x6000) {
-	   // Block special
-	   $info = 'b';
-	} elseif (($perms & 0x4000) == 0x4000) {
-	   // Directory
-	   $info = 'd';
-	} elseif (($perms & 0x2000) == 0x2000) {
-	   // Character special
-	   $info = 'c';
-	} elseif (($perms & 0x1000) == 0x1000) {
-	   // FIFO pipe
-	   $info = 'p';
-	} else {
-	   // Unknown
-	   $info = 'u';
+	if (count($given) < 3 || count($min) < 3) {
+		return false;
 	}
 
-	// Owner
-	$info .= (($perms & 0x0100) ? 'r' : '-');
-	$info .= (($perms & 0x0080) ? 'w' : '-');
-	$info .= (($perms & 0x0040) ?
-	           (($perms & 0x0800) ? 's' : 'x' ) :
-	           (($perms & 0x0800) ? 'S' : '-'));
-
-	// Group
-	$info .= (($perms & 0x0020) ? 'r' : '-');
-	$info .= (($perms & 0x0010) ? 'w' : '-');
-	$info .= (($perms & 0x0008) ?
-	           (($perms & 0x0400) ? 's' : 'x' ) :
-	           (($perms & 0x0400) ? 'S' : '-'));
-
-	// World
-	$info .= (($perms & 0x0004) ? 'r' : '-');
-	$info .= (($perms & 0x0002) ? 'w' : '-');
-	$info .= (($perms & 0x0001) ?
-	           (($perms & 0x0200) ? 't' : 'x' ) :
-	           (($perms & 0x0200) ? 'T' : '-'));
-
-	if ($numeric) {
-		$info = chmod_str2num($info);
+	if ($given[0] >= $min[0] && $given[1] >= $min[1] && $given[2] >= $min[2]) {
+		return true;
+	}
+	else {
+		return false;
 	}
 
-	return $info;
 }
 
+function get_chmod($file, $octal = false) {
+	if (!file_exists($file)) {
+		$chmod = '000';
+	}
+	else {
+		$perms = fileperms($file);
+		$chmod = substr(sprintf('%o', $perms), -3);
+	}
+	if ($octal == true) {
+		$chmod = chmod_str2oct($chmod);
+	}
+	return $chmod;
+}
 
-if ($config['check_filesystem'] == 1) {
-	check_writable_r('data');
-	check_writable_r('feeds');
-	check_writable('.htaccess');
-	check_executable_r('cache');
-	check_executable_r('temp');
-	check_executable_r('uploads');
-	check_executable_r('data');
-	check_executable('feeds');
+function getViscachaCHMODs() {
+	$chmod = array(
+		array('path' => '.htaccess', 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false),
+
+		array('path' => 'admin/backup', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
+		array('path' => 'admin/data/bbcode_test.php', 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false),
+		array('path' => 'admin/data/config.inc.php', 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false),
+		array('path' => 'admin/data/hooks.txt', 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false),
+
+		array('path' => 'data', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
+		array('path' => 'data/cron', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
+		array('path' => 'data', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => true),
+
+		array('path' => 'cache', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
+//		array('path' => 'cache', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false),
+
+		array('path' => 'classes/cron/jobs', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
+		array('path' => 'classes/feedcreator', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
+		array('path' => 'classes/fonts', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
+		array('path' => 'classes/geshi', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
+		array('path' => 'classes/graphic/noises', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
+
+		array('path' => 'feeds', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
+//		array('path' => 'feeds', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => true),
+
+		array('path' => 'images', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
+
+		array('path' => 'modules', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
+		array('path' => 'modules', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false),
+
+		array('path' => 'temp', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
+		array('path' => 'uploads', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true)
+
+	);
+
+	$path = 'language';
+	$dh = opendir($path);
+	while ($file = readdir($dh)) {
+		$fullpath = $path.'/'.$file;
+		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
+			$chmod[] = array('path' => $fullpath.'/modules', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
+			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false);
+		}
+	}
+	closedir($dh);
+
+	$path = 'templates';
+	$dh = opendir($path);
+	while ($file = readdir($dh)) {
+		$fullpath = $path.'/'.$file;
+		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
+			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
+			$chmod[] = array('path' => $fullpath.'/modules', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
+			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false);
+		}
+	}
+	closedir($dh);
+
+	$path = 'designs';
+	$dh = opendir($path);
+	while ($file = readdir($dh)) {
+		$fullpath = $path.'/'.$file;
+		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
+			$dh2 = opendir($fullpath);
+			while ($file = readdir($dh2)) {
+				$stylesheet = $fullpath.'/'.$file;
+				if(strtolower(get_extension($file)) == 'css') {
+					$chmod[] = array('path' => $stylesheet, 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false);
+				}
+			}
+			closedir($dh2);
+			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false);
+		}
+	}
+	closedir($dh);
+
+	return $chmod;
 }
 ?>

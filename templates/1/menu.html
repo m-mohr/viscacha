@@ -19,8 +19,7 @@
 		<li><a href="register.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_title'); ?></a></li>
 	<?php } ?>
 		<li>
-		<a id="menu_generallinks" href="#generallinks"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('menu_links'); ?></a>
-		<script type="text/javascript">RegisterMenu('generallinks');</script>
+		<a id="menu_generallinks" href="#generallinks" onmouseover="RegisterMenu('generallinks');"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('menu_links'); ?></a>
 		<div class="popup" id="popup_generallinks">
 		<strong><?php echo $lang->phrase('menu_links_misc'); ?></strong>
 		<ul>

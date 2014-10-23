@@ -33,13 +33,13 @@
 <label for="fullname"><?php echo $lang->phrase('editprofile_fullname'); ?></label>
 <input type="text" name="fullname" id="fullname" class="label" size="40" value="<?php echo $user['fullname']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="email"><?php echo $lang->phrase('editprofile_email'); ?></label> 
+<label for="email"><?php echo $lang->phrase('editprofile_email'); ?></label>
 <input type="text" name="email" id="email" class="label" size="40" value="<?php echo $user['mail']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="location"><?php echo $lang->phrase('editprofile_location'); ?></label> 
+<label for="location"><?php echo $lang->phrase('editprofile_location'); ?></label>
 <input type="text" name="location" id="location" class="label" size="40" value="<?php echo $user['location']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="gender"><?php echo $lang->phrase('editprofile_gender'); ?></label> 
+<label for="gender"><?php echo $lang->phrase('editprofile_gender'); ?></label>
 <select size="1" name="gender" class="label">
 	<option value=""><?php echo $lang->phrase('no_choice'); ?></option>
 	<option<?php echo iif($user['gender'] == 'm',' selected="selected"'); ?> value="m"><?php echo $lang->phrase('gender_m'); ?></option>
@@ -55,7 +55,7 @@
 		echo "<option value='".leading_zero($i)."'".iif($bday[2] == $i, ' selected="selected"').">".$i."</option>\n";
 	}
 	?>
-  </select>. 
+  </select>.
   <select size="1" name="birthmonth">
   <option value="00">--</option>
 	<?php
@@ -63,7 +63,7 @@
 		echo "<option value='".leading_zero($i)."'".iif($bday[1] == $i, ' selected="selected"').">".$lang->phrase('months_'.$i)."</option>\n";
 	}
 	?>
-  </select> 
+  </select>
   <select size="1" name="birthyear">
   <option value="0000">----</option>
 	<?php
@@ -74,29 +74,29 @@
   </select>
 </div>
 <br class="newinput" /><hr class="formsep" />
-<label for="hp"><?php echo $lang->phrase('editprofile_hp'); ?></label> 
+<label for="hp"><?php echo $lang->phrase('editprofile_hp'); ?></label>
 <input type="text" name="hp" id="hp" class="label" size="40" value="<?php echo $user['hp']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="icq"><?php echo $lang->phrase('editprofile_icq'); ?></label> 
+<label for="icq"><?php echo $lang->phrase('editprofile_icq'); ?></label>
 <input type="text" name="icq" id="icq" class="label" size="40" value="<?php echo $user['icq']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="aol"><?php echo $lang->phrase('editprofile_aol'); ?></label> 
+<label for="aol"><?php echo $lang->phrase('editprofile_aol'); ?></label>
 <input type="text" name="aol" id="aol" class="label" size="40" value="<?php echo $user['aol']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="yahoo"><?php echo $lang->phrase('editprofile_yahoo'); ?></label> 
+<label for="yahoo"><?php echo $lang->phrase('editprofile_yahoo'); ?></label>
 <input type="text" name="yahoo" id="yahoo" class="label" size="40" value="<?php echo $user['yahoo']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="msn"><?php echo $lang->phrase('editprofile_msn'); ?></label> 
+<label for="msn"><?php echo $lang->phrase('editprofile_msn'); ?></label>
 <input type="text" name="msn" id="msn" class="label" size="40" value="<?php echo $user['msn']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="jabber"><?php echo $lang->phrase('editprofile_jabber'); ?></label> 
+<label for="jabber"><?php echo $lang->phrase('editprofile_jabber'); ?></label>
 <input type="text" name="jabber" id="jabber" class="label" size="40" value="<?php echo $user['jabber']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="skype"><?php echo $lang->phrase('editprofile_skype'); ?></label> 
+<label for="skype"><?php echo $lang->phrase('editprofile_skype'); ?></label>
 <input type="text" name="skype" id="skype" class="label" size="40" value="<?php echo $user['skype']; ?>" />
 <?php foreach ($customfields['1'] as $row1) { ?>
 <br class="newinput" /><hr class="formsep" />
-  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label> 
+  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
   <?php echo $row1['input']; } ?>
 <br class="newinput" /><br class="iefix_br" />
 </div>
@@ -106,9 +106,12 @@
 <br class="minibr" />
 
 <div class="border">
-<h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?></h3>
-<div class="bbody center">
-<textarea name="signature" rows="4" cols="70"><?php echo $user['signature']; ?></textarea>
+<h3>
+	<span class="right textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></span>
+	<img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?>
+</h3>
+<div class="bbody">
+	<?php echo $bbcode->getEditorArea('signature', $user['signature'], 'cols="80" rows="6"', $config['maxsiglength']); ?>
 </div>
 <div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
@@ -129,7 +132,7 @@
 <h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_settings'); ?></h3>
 <div class="bbody">
 <label for="temp"><?php echo $lang->phrase('timezone'); ?></label>
-<select id="temp" class="label" name="temp"> 
+<select id="temp" class="label" name="temp">
 	<option selected="selected" value="<?php echo $user['timezone']; ?>"><?php echo $lang->phrase('timezone_current'); ?></option>
 	<option value="-12"><?php echo $lang->phrase('timezone_n12'); ?></option>
 	<option value="-11"><?php echo $lang->phrase('timezone_n11'); ?></option>
@@ -163,7 +166,7 @@
 	<option value="+10"><?php echo $lang->phrase('timezone_p10'); ?></option>
 	<option value="+11"><?php echo $lang->phrase('timezone_p11'); ?></option>
 	<option value="+12"><?php echo $lang->phrase('timezone_p12'); ?></option>
-</select>		
+</select>
 <br class="newinput" /><hr class="formsep" />
 <label for="opt_0"><?php echo $lang->phrase('editprofile_editor'); ?></label>
 <select id="opt_0" class="label" name="opt_0">
@@ -201,11 +204,11 @@
 </select>
 <?php foreach ($customfields['2'] as $row1) { ?>
 <br class="newinput" /><hr class="formsep" />
-  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label> 
+  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
 <?php echo $row1['input']; } ?>
 <?php foreach ($customfields['0'] as $row1) { ?>
 <br class="newinput" /><hr class="formsep" />
-  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label> 
+  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
   <?php echo $row1['input']; } ?>
 <br class="newinput" /><br class="iefix_br" />
 </div>
@@ -214,15 +217,13 @@
 <br class="minibr" />
 
 <div class="border">
-<h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_about'); ?></h3>
+<h3>
+  	<span class="right textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></span>
+	<img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_about'); ?>
+</h3>
 <div class="bbody">
-	<label><?php echo $inner['smileys']; ?></label>
-	<?php echo $inner['bbhtml']; ?>
-	<br class="newinput" /><hr class="formsep" />
-	<label for="comment"></label> 
-	<textarea class="label" name="comment" id="comment" rows="20" cols="80"><?php echo $user['about']; ?></textarea>
-	<br class="newinput" /><br class="iefix_br" />
-</div>	 
+	<?php echo $bbcode->getEditorArea('comment', $user['about'], 'cols="80" rows="18"', $config['maxaboutlength']); ?>
+</div>
 <div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>

@@ -23,54 +23,37 @@ define ("IM_SKYPE", "skype");
 define ("IM_ERRNO", 1);
 define ("IM_ERRSTR", 2);
 
+require_once('classes/class.snoopy.php');
+
 class IMStatus {
+
 	var $timeout = 3;
 	var $server = array();
-	var $errno = false;
-	var $errstr = false;
+	var $errstr = null;
+	var $snoopy = null;
 
 	function IMStatus () {
-		// For Servers see: http://www.onlinestatus.org/usage.html
+		// For Servers see: http://osi.viscacha.org
 		$server = file('data/imservers.php');
 		$this->server = array_map('trim', $server);
+		$this->snoopy = new Snoopy();
+		$this->snoopy->read_timeout = $this->timeout;
+		$this->snoopy->maxredirs = 0;
 	}
 
 	function error($type) {
-		if ($type == IM_ERRNO) {
-			return $this->errno;
-		}
-		elseif ($type == IM_ERRSTR) {
-			return $this->errstr;
-		}
-		else {
-			return $this->errno.": ".$this->errstr."\n";
-		}
+		return $this->errstr;
 	}
 
 	function icq ($account) {
-		$host = "status.icq.com";
-		$path = "/online.gif?icq=".$account;
-
-		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout);
-		if (!$fp) {
+		$url = 'http://status.icq.com/online.gif?icq='.$account;
+		$data = $this->snoopy->fetch($url);
+		if ($data === false) {
 			return $this->fallback($account, IM_ICQ);
 		}
-		else {
-			fputs ($fp,"GET ".$path." HTTP/1.1\r\n");
-			fputs ($fp,"HOST: ".$host."\r\n");
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
-			fputs ($fp,"Connection: close\r\n\r\n");
+		$location = $this->parse_header($this->snoopy->headers, 'Location');
 
-			$raw_headers = '';
-			while (!feof ($fp)) {
-				$raw_headers .= fgets ($fp, 128);
-			}
-		}
-		fclose ($fp);
-
-		$location = $this->parse_header($raw_headers, 'Location');
-
-		$filename = basename ($location);
+		$filename = basename($location);
 		switch ($filename) {
 			case "online0.gif":
 				return IM_OFFLINE;
@@ -85,30 +68,13 @@ class IMStatus {
 	}
 
 	function skype ($account) {
-		$host = "mystatus.skype.com";
-		$path = "/{$account}.xml";
-
-		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout);
-		if (!$fp) {
-			$this->errno = 1;
-			$this->errstr = "Unable to connect to http://mystatus.skype.com/{$account}.xml";
-			return IM_ABORT;
+		$url = "http://mystatus.skype.com/{$account}.xml";
+		$data = $this->snoopy->fetch($url);
+		if ($data === false) {
+			return $this->fallback($account, IM_SKYPE);
 		}
-		else {
-			fputs ($fp,"GET ".$path." HTTP/1.1\r\n");
-			fputs ($fp,"HOST: ".$host."\r\n");
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
-			fputs ($fp,"Connection: close\r\n\r\n");
+		preg_match("~xml:lang=\"NUM\">(\d)</~i", $this->snoopy->results, $match);
 
-			$raw_headers = '';
-			while (!feof ($fp)) {
-				$raw_headers .= fgets ($fp, 128);
-			}
-		}
-		fclose ($fp);
-
-		$pattern = "~xml:lang=\"NUM\">(\d)</~";
-		preg_match($pattern, $raw_headers, $match);
 		/*
 		 * get the status number:
 		 * 0	UNKNOWN			Not opted in or no data available.
@@ -141,30 +107,14 @@ class IMStatus {
 	}
 
 	function aol ($account) {
-
-		$host = "big.oscar.aol.com";
-		$path = "/{$account}?on_url=true&off_url=false";
-
-		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout);
-		if (!$fp) {
+		$url = "http://big.oscar.aol.com/{$account}?on_url=true&off_url=false";
+		$data = $this->snoopy->fetch($url);
+		if ($data === false) {
 			return $this->fallback($account, IM_AIM);
 		}
-		else {
-			fputs ($fp,"GET ".$path." HTTP/1.1\r\n");
-			fputs ($fp,"HOST: ".$host."\r\n");
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
-			fputs ($fp,"Connection: close\r\n\r\n");
+		$location = $this->parse_header($this->snoopy->headers, 'Location');
 
-			$raw_headers = '';
-			while (!feof ($fp)) {
-				$raw_headers .= fgets ($fp, 128);
-			}
-		}
-		fclose ($fp);
-
-		$location = $this->parse_header($raw_headers, 'Location');
-
-		$filename = basename ($location);
+		$filename = basename($location);
 		switch ($filename) {
 			case "false":
 				return IM_OFFLINE;
@@ -188,40 +138,22 @@ class IMStatus {
 	}
 
 	function yahoo ($account) {
-		// Use fsockopen to set a timeout
-		// if you don't want a timeout use this code:
-		// $lines = @file("http://opi.yahoo.com/online?m=t&u=".$this->account);
-		$fp = @fsockopen("opi.yahoo.com", 80, $this->errno, $this->errstr, $this->timeout);
-		if (!$fp) {
+		$url = "http://opi.yahoo.com/online?m=t&u={$account}";
+		$data = $this->snoopy->fetch($url);
+		if ($data === false) {
 			return $this->fallback($account, IM_YAHOO);
 		}
 		else {
-			$out = "GET /online?m=t&u=".$account." HTTP/1.1\r\n";
-			$out .= "Host: opi.yahoo.com\r\n";
-			$out .= "Connection: Close\r\n\r\n";
-			fwrite($fp, $out);
-			while (!feof($fp)) {
-			   $lines[] = fgets($fp, 128);
-			}
-			fclose($fp);
-		}
-
-		if ($lines !== false) {
-			$response = implode ("", $lines);
-			if (strpos ($response, "NOT ONLINE") !== false) {
+			$response = $this->snoopy->results;
+			if (stripos($response, "NOT ONLINE") !== false) {
 				return IM_OFFLINE;
 			}
-			elseif (strpos ($response, "ONLINE") !== false) {
+			elseif (stripos($response, "ONLINE") !== false) {
 				return IM_ONLINE;
 			}
 			else {
 				return IM_UNKNOWN;
 			}
-		}
-		else {
-			$this->errno = 1;
-			$this->errstr = "Unable to connect to http://opi.yahoo.com";
-			return IM_ABORT;
 		}
 	}
 
@@ -231,55 +163,26 @@ class IMStatus {
 		$random = rand(0,count($this->server)-1);
 		$server = $this->server[$random];
 
-	    $url = parse_url($server);
-		$url["host"] = !isset($url["host"]) ? "localhost" : $url["host"];
-		$url["port"] = !isset($url["port"]) ? "80" : $url["port"];
-		$url["path"] = !isset($url["path"]) ? "/" : trim($url["path"]);
-
-		if (substr ($url["path"], -1) != "/") {
-			$url["path"] .= "/";
-		}
-		$url["path"] .= $medium . "/" . $account . "/onurl=online/offurl=offline";
-
-		$fp = @fsockopen ($url["host"], $url["port"], $this->errno, $this->errstr, $this->timeout);
-		if (!$fp) {
+		$url = "{$server}/{$medium}/{$account}/onurl=online/offurl=offline";
+		$data = $this->snoopy->fetch($url);
+		if ($data === false) {
+			$this->errstr = $this->snoopy->error;
 			return IM_ABORT;
 		}
-		else {
-			$url["port"] = ':'.$url["port"];
-
-			fputs ($fp,"GET " . $url["path"] . " HTTP/1.1\r\n");
-			fputs ($fp,"HOST: " . $url["host"] . $url["port"] . "\r\n");
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
-			fputs ($fp,"Connection: close\r\n\r\n");
-
-			$raw_headers = '';
-			while (!feof ($fp)) {
-				$raw_headers .= fgets ($fp, 128);
-			}
+		$location = $this->parse_header($this->snoopy->headers, 'Location');
+		if (stripos($location, "offline") !== false) {
+			return IM_OFFLINE;
 		}
-		fclose ($fp);
-
-		$location = $this->parse_header($raw_headers, 'Location');
-		$parse_location = parse_url ($location);
-		$parse_location["host"] = !isset($parse_location["host"]) ? "unknown" : $parse_location["host"];
-		switch ($parse_location["host"]) {
-			case "online":
-				return IM_ONLINE;
-				break;
-			case "offline":
-				return IM_OFFLINE;
-				break;
-			default:
-				return IM_UNKNOWN;
-				break;
+		elseif (stripos($location, "online") !== false) {
+			return IM_ONLINE;
+		}
+		else {
+			return IM_UNKNOWN;
 		}
 	}
 
-	function parse_header($raw_headers, $index = NULL) {
+	function parse_header($tmp_headers, $index = NULL) {
 		$headers = array ();
-		$tmp_headers = explode ("\n", $raw_headers);
-
 		foreach ($tmp_headers as $header) {
 			$tokens = explode (":", $header, 2);
 			if (isset ($tokens[0]) && (trim($tokens[0]) != "")) {

@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<title>Create or Modify Link</title>
+	<link rel="stylesheet" type="text/css" href="../../../admin/html/standard.css" />
+	<script type="text/javascript" src="../wysiwyg-popup.js"></script>
+</head>
+<body onLoad="loadLink();">
+	<table class="border" width="360" border="0" cellpadding="4" cellspacing="0" align="center">
+		<tr><td class="obox" colspan="3">Insert Hyperlink</td></tr>
+		<tr class="mbox">
+			<td>URL:</td>
+			<td colspan="2"><input type="text" name="linkUrl" id="linkUrl" value="http://" size="50" /></td>
+		</tr><tr class="mbox">
+			<td>Target:</td>
+			<td><input type="text" name="linkTarget" id="linkTarget" value="" /></td>
+			<td>
+				<select name="linkTargetChooser" id="linkTargetChooser" onchange="updateTarget(this.value);">
+					<option value="" selected="selected">No target / Custom</option>
+					<option value="_blank">_blank</option>
+					<option value="_self">_self</option>
+					<option value="_parent">_parent</option>
+					<option value="_top">_top</option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td>Name:</td>
+			<td colspan="2"><input type="text" name="linkName" id="linkName" value="" /></td>
+		</tr><tr>
+			<td class="ubox" colspan="3" align="center">
+				<input type="submit" value="Submit" onClick="insertHyperLink(WYSIWYG_Popup.getParam('wysiwyg'));" />
+				<input type="submit" value="Cancel" onClick="window.close();" />
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

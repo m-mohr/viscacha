@@ -4,7 +4,7 @@ class cache_spiders extends CacheItem {
 	function load() {
 		global $db;
 		if ($this->exists() == true) {
-		    $bot = $this->import();
+		    $this->import();
 		}
 		else {
 		    $result = $db->query("SELECT id, user_agent, bot_ip, name, type FROM {$db->pre}spider",__LINE__,__FILE__);

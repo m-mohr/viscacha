@@ -1,146 +1,50 @@
 <?php
-include('../data/config.inc.php');
+include('data/config.inc.php');
 if (!class_exists('filesystem')) {
-	require_once('../classes/class.filesystem.php');
+	require_once('install/classes/class.filesystem.php');
 	$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-	$filesystem->set_wd($config['ftp_path']);
+	$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 }
-?>
-<div class="bbody">
-<?php
-define('CHEX', 777);
-define('CHWR', 666);
-require('lib/function.chmod.php');
-$chmod = array(
-array('path' => 'data', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'data/cron', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'feeds', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'docs', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/cron/jobs', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/feedcreator', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/fonts', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/geshi', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/graphic/noises', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'admin/backup', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'admin/data', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'designs', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'images', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'language', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'cache', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'temp', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'uploads', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'admin/data', 'chmod' => CHWR, 'recursive' => true, 'req' => false),
-array('path' => '.htaccess', 'chmod' => CHWR, 'recursive' => false, 'req' => false),
-array('path' => 'data', 'chmod' => CHWR, 'recursive' => true, 'req' => true),
-array('path' => 'feeds', 'chmod' => CHWR, 'recursive' => true, 'req' => false),
-array('path' => 'language', 'chmod' => CHWR, 'recursive' => true, 'req' => false)
-);
-$path = 'docs';
-$dh = opendir('../'.$path);
-while ($file = readdir($dh)) {
-	if($file != '.' && $file != '..') {
-		$fullpath = $path.'/'.$file;
-		if(is_file('../'.$fullpath)) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHWR, 'recursive' => false, 'req' => false);
-		}
-	}
-}
-closedir($dh);
-$path = 'templates';
-$dh = opendir('../'.$path);
-while ($file = readdir($dh)) {
-	if($file != '.' && $file != '..') {
-		$fullpath = $path.'/'.$file;
-		if(is_dir('../'.$fullpath) && intval($file) == $file) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHEX, 'recursive' => false, 'req' => false);
-		}
-	}
-}
-closedir($dh);
 
+$tar_packs = array(
+	1 => 'update.admin.tar',
+	2 => 'update.classes.tar',
+	3 => 'update.misc.tar'
+);
+if (empty($_REQUEST['sub']) || !isset($tar_packs[$_REQUEST['sub']])) {
+	$sub = 1;
+}
+else {
+	$sub = $_REQUEST['sub'];
+}
+require('install/classes/function.chmod.php');
+require('install/classes/class.tar.php');
+$tar = new tar(realpath('install/files/'), $tar_packs[$sub]);
+$tar->ignore_chmod();
+$error = $tar->extract_files('./');
 ?>
-<p>Some directories and files needs special permissions (CHMOD) to be writable und executable.
-This permissions will be checked and the result will be shown below.</p>
-<p>The following states can appear:<br />
-<strong class="hl_true">OK</strong>: The permissions are set correctly.<br />
-<strong class="hl_null">Failure*</strong>: The permissions are not correct, but these files are only required for changing a couple of things at the Admin Control Panel. You need not to change them until you edit these files.<br />
-<strong class="hl_false">Failure</strong>: The permissions are not correct and you have to set them manually (per FTP). You can not continue this setup until this permissions are set correctly.<br />
+<div class="bfoot">Source file updater - Step <?php echo $sub; ?> of <?php echo count($tar_packs); ?> - Currently extracting: <?php echo $tar_packs[$sub]; ?></div>
+<?php if ($error === false) { ?>
+<div class="bbody">
+	<strong>A critical error occured. Please contact the <a href="http://www.viscacha.org" target="_blank">Viscacha Support Team</a> for assistance!</strong><br />
+	Error message: <?php echo $tar->error; ?>
+</div>
+<?php } else { ?>
+<div class="bbody">
+<p>
+The updater tried to update the Viscacha source files.<br />
+<?php if (count($error) > 0) { ?>
+<b>The following files could not be updated and must be updated manually before clicking the link below:</b>
+<textarea class="codearea"><?php echo implode("\r\n", $error); ?></textarea>
+<?php } else { ?>
+All files updated succesfully!
+<?php } ?>
 </p>
-<table class="tables">
-<tr>
-	<td width="70%"><strong>File / Directory (<?php echo realpath('../'); ?>)</strong></td>
-	<td width="10%"><strong>Required</strong></td>
-	<td width="10%"><strong>Given</strong></td>
-	<td width="10%"><strong>State</strong></td>
-</tr>
-<?php
-$files = array();
-foreach ($chmod as $dat) {
-	$path = '../'.$dat['path'];
-	if ($dat['recursive']) {
-		$filenames = array();
-		if ($dat['chmod'] == CHEX) {
-			$filenames = set_chmod_r($path, 0777, CHMOD_DIR);
-		}
-		elseif ($dat['chmod'] == CHWR) {
-			$filenames = set_chmod_r($path, 0666, CHMOD_FILE);
-		}
-		foreach ($filenames as $f) {
-			$f = str_replace('../', '', $f);
-			$files[] = array('path' => $f, 'chmod' => $dat['chmod'], 'recursive' => false, 'req' => $dat['req']);
-		}
-	}
-	else {
-		if ($dat['chmod'] == CHEX) {
-			set_chmod($path, 0777, CHMOD_DIR);
-		}
-		elseif ($dat['chmod'] == CHWR) {
-			set_chmod($path, 0666, CHMOD_FILE);
-		}
-		$files[] = $dat;
-	}
-}
-@clearstatcache();
-sort($files);
-$failure = false;
-foreach ($files as $arr) {
-	$filesys_path = '../'.$arr['path'];
-	$path = realpath($filesys_path);
-	if (empty($path)) {
-		$path = $arr['path'];
-	}
-	$chmod = get_chmod($filesys_path);
-	if (check_chmod($arr['chmod'], $chmod)) {
-		$status = '<strong class="hl_true">OK</strong>';
-		$int_status = true;
-	}
-	elseif ($arr['req'] == false) {
-		$status = '<strong class="hl_null">Failure*</strong>';
-		$int_status = null;
-	}
-	else {
-		$status = '<strong class="hl_false">Failure</strong>';
-		$int_status = false;
-		$failure = true;
-	}
-	if ($arr['req'] == true || $int_status != true) {
-?>
-<tr>
-	<td><?php echo $arr['path']; ?></td>
-	<td><?php echo $arr['chmod']; ?></td>
-	<td><?php echo substr($chmod, 1, 3); ?></td>
-	<td><?php echo $status; ?></td>
-</tr>
-<?php
-	}
-}
-?>
-</table>
 </div>
 <div class="bfoot center">
-<?php if (!$failure) { ?>
+<?php if ($sub < count($tar_packs)) { ?>
+<a class="submit" href="index.php?package=<?php echo $package;?>&amp;step=<?php echo $step; ?>&amp;sub=<?php echo $sub+1; ?>">Click here to extract the next file...</a>
+<?php } elseif ($sub == count($tar_packs)) { ?>
 <input type="submit" value="Continue" />
-<?php } else { ?>
-<a class="submit" href="index.php?step=<?php echo $step; ?>">Reload page</a>
-<?php } ?>
+<?php } } ?>
 </div>

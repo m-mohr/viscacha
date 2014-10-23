@@ -1,8 +1,7 @@
 <div class="border">
 <div class="bfoot topfooter">
   <div class="right textright">
-	<a id="menu_threadtools" href="#threadtools"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('showtopic_options'); ?></a>
-	<script type="text/javascript">RegisterMenu('threadtools');</script>
+	<a id="menu_threadtools" href="#threadtools" onmouseover="RegisterMenu('threadtools');"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('showtopic_options'); ?></a>
 	<div class="popup" id="popup_threadtools">
 <?php if($my->vlogin) { ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_manage'); ?></strong>
@@ -83,23 +82,23 @@
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
 <?php  if ($info['status'] != 2) { if ($info['status'] == 1) { ?>
-<a href="managetopic.php?action=open&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_open'); ?></a> | 
+<a href="managetopic.php?action=open&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_open'); ?></a> |
 <?php } else { ?>
-<a href="managetopic.php?action=close&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_close'); ?></a> | 
+<a href="managetopic.php?action=close&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_close'); ?></a> |
 <?php } if ($info['sticky'] == '1') { ?>
-<a href="managetopic.php?action=unpin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_unpin'); ?></a> | 
+<a href="managetopic.php?action=unpin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_unpin'); ?></a> |
 <?php } else { ?>
-<a href="managetopic.php?action=pin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_pin'); ?></a> | 
+<a href="managetopic.php?action=pin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_pin'); ?></a> |
 <?php }} ?>
-<a href="managetopic.php?action=delete&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_delete'); ?></a> | 
-<a href="managetopic.php?action=move&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_move'); ?></a> | 
-<a href="managetopic.php?action=status&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_status'); ?></a> | 
-<a href="managetopic.php?action=stat&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_stats'); ?></a> | 
+<a href="managetopic.php?action=delete&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_delete'); ?></a> |
+<a href="managetopic.php?action=move&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_move'); ?></a> |
+<a href="managetopic.php?action=status&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_status'); ?></a> |
+<a href="managetopic.php?action=stat&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_stats'); ?></a> |
 <?php if (empty($info['vquestion'])) { ?>
 <a href="newtopic.php?action=startvote&amp;id=<?php echo $info['board']; ?>&amp;topic_id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote'); ?></a>
 <?php } else { ?>
-<a href="managetopic.php?action=vote_export&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_export'); ?></a> | 
-<a href="managetopic.php?action=vote_edit&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_edit'); ?></a> | 
+<a href="managetopic.php?action=vote_export&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_export'); ?></a> |
+<a href="managetopic.php?action=vote_edit&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_edit'); ?></a> |
 <a href="managetopic.php?action=vote_delete&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_delete'); ?></a>
 <?php } if ($info['posts'] > 0) { ?>
 <hr />

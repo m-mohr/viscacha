@@ -24,18 +24,12 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'search');
+define('SCRIPTNAME', 'search');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();
 
@@ -50,9 +44,10 @@ $breadcrumb->Add($lang->phrase('search'));
 if ($_GET['action'] == "search") {
 
 	if ($config['floodsearch'] == 1) {
-		if (flood_protect() == FALSE) {
+		if (flood_protect(FLOOD_TYPE_SEARCH) == false) {
 			error($lang->phrase('flood_control'));
 		}
+		set_flood(FLOOD_TYPE_SEARCH);
 	}
 	$boards = array();
 	if (isset($_POST['boards']) && is_array($_POST['boards'])) {
@@ -212,9 +207,6 @@ if ($_GET['action'] == "search") {
 }
 elseif ($_GET['action'] == "result") {
 
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
-
 	$file = 'cache/search/'.$_GET['fid'].'.inc.php';
 	if (!file_exists($file)) {
 		error($lang->phrase('search_doesntexist'), 'search.php'.SID2URL_1);
@@ -369,7 +361,7 @@ elseif ($_GET['action'] == "result") {
 		}
 
 		if ($row->posts > $info['topiczahl']) {
-			$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small');
+			$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 		}
 		else {
 			$topic_pages = '';
@@ -379,6 +371,8 @@ elseif ($_GET['action'] == "result") {
 		$inner['index_bit'] .= $tpl->parse("search/result_bit");
 	}
 
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
 	($code = $plugins->load('search_result_prepared')) ? eval($code) : null;
 	echo $tpl->parse("search/result");
 	($code = $plugins->load('search_result_end')) ? eval($code) : null;
@@ -388,9 +382,6 @@ elseif ($_GET['action'] == "active") {
 
 	$breadcrumb->AddUrl('search.php'.SID2URL_1);
 	$breadcrumb->Add($lang->phrase('active_topics_title'));
-
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
     unset($count);
 
@@ -547,7 +538,7 @@ elseif ($_GET['action'] == "active") {
 				}
 
 				if ($row->posts > $info['topiczahl']) {
-					$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small');
+					$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 				}
 				else {
 					$topic_pages = '';
@@ -558,6 +549,8 @@ elseif ($_GET['action'] == "active") {
     		}
     	}
 
+		echo $tpl->parse("header");
+		echo $tpl->parse("menu");
     	($code = $plugins->load('search_active_prepared')) ? eval($code) : null;
     	echo $tpl->parse("search/active");
     	($code = $plugins->load('search_active_end')) ? eval($code) : null;

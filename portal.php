@@ -24,27 +24,20 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'portal');
+define('SCRIPTNAME', 'portal');
 if (!defined('VISCACHA_CORE')) {
 	define('VISCACHA_CORE', '1');
 }
 
 require_once("data/config.inc.php");
-require_once("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
 if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
-	$slog->updatelogged();
-	$db->close();
 	header("HTTP/1.0 301 Moved Permanently");
     header('Location: index.php');
     exit;
 }
-$lang->init($my->language);
-$tpl = new tpl();
+
+require_once("classes/function.viscacha_frontend.php");
 
 if ($plugins->countPlugins('portal') == 0) {
 	if ($config['indexpage'] == SCRIPTNAME) {

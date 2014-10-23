@@ -56,7 +56,7 @@ elseif ($job == 'add2') {
 
 	$extension = $gpc->get('extension', str);
 	$program = $gpc->get('program', str);
-	$desctxt = $db->escape_string($gpc->get('desctxt', none));
+	$desctxt = $gpc->get('desctxt', db_esc);
 	$icon = $gpc->get('icon', str);
 	$mimetype = $gpc->get('mimetype', str);
 	$stream = $gpc->get('stream', str);
@@ -142,7 +142,7 @@ elseif ($job == 'edit2') {
 
 	$extension = $gpc->get('extension', str);
 	$program = $gpc->get('program', str);
-	$desctxt = $db->escape_string($gpc->get('desctxt', none));
+	$desctxt = $gpc->get('desctxt', db_esc);
 	$icon = $gpc->get('icon', str);
 	$mimetype = $gpc->get('mimetype', str);
 	$stream = $gpc->get('stream', str);
@@ -173,7 +173,6 @@ elseif ($job == 'edit2') {
 }
 elseif ($job == 'manage') {
 	echo head();
-	$tpl = new tpl();
 	$result = $db->query('SELECT * FROM '.$db->pre.'filetypes ORDER BY extension');
 	?>
 	<form name="form" method="post" action="admin.php?action=filetypes&job=delete">
@@ -185,7 +184,7 @@ elseif ($job == 'manage') {
 	   </td>
 	  </tr>
 	  <tr>
-	   <td class="ubox" width="2%"><?php echo $lang->phrase('admin_th_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_th_delete_all'); ?></span></td>
+	   <td class="ubox" width="2%"><?php echo $lang->phrase('admin_th_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_th_delete_all'); ?></span></td>
 	   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_th_icon'); ?></td>
 	   <td class="ubox" width="22%"><?php echo $lang->phrase('admin_th_filetype'); ?></td>
 	   <td class="ubox" width="3%" title="<?php echo $lang->phrase('admin_th_attach_title'); ?>"><?php echo $lang->phrase('admin_th_attach'); ?></td>

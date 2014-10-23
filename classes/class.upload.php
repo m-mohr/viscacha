@@ -372,7 +372,7 @@ class uploader {
 				$message = $lang->phrase('upload_error_maximagesize');
 			break;
 			case UPLOAD_ERR_FILE_TYPE:
-				$lang->assign('aft', implode($lang->phrase('listspacer'), $this->file_types));
+				$lang->assign('aft', implode(', ', $this->file_types));
 				$message = $lang->phrase('upload_error_wrongfiletype');
 			break;
 			case UPLOAD_ERR_COPY:

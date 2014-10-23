@@ -24,38 +24,52 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'docs');
+define('SCRIPTNAME', 'docs');
 define('VISCACHA_CORE', '1');
 
-//DEFINE('TEMPSHOWLOG', 1);
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 $id = $gpc->get('id', int);
-$nonadmin = '';
-if ($my->p['admin'] != 1) {
-	$nonadmin = "AND active = '1'";
-}
+
 ($code = $plugins->load('docs_query')) ? eval($code) : null;
-$result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}' {$nonadmin} LIMIT 1");
-if ($db->num_rows($result) != 1) {
+$result = $db->query("
+	SELECT d.id, d.author, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
+	FROM {$db->pre}documents AS d
+		LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
+	WHERE d.id = '{$id}' ".iif($my->p['admin'] == 1, 'AND c.active = "1"')
+, __LINE__, __FILE__);
+if ($db->num_rows($result) == 0) {
 	error($lang->phrase('docs_not_found'));
 }
-else {
-	$info = $db->fetch_assoc($result);
+$info = null;
+$data = array();
+while ($row = $db->fetch_assoc($result)) {
+	if (!is_array($info)) {
+		$info = array(
+			'id' => $row['id'],
+			'author' => $row['author'],
+			'date' => $row['date'],
+			'date2' => $row['date'],
+			'update' => $row['update'],
+			'update2' => $row['update'],
+			'type' => $row['type'],
+			'groups' => $row['groups'],
+			'name' => null
+		);
+	}
+	$data[$row['lid']] = array(
+		'content' => $row['content'],
+		'active' => $row['active'],
+		'title' => $row['title']
+	);
 }
 
 /*
 Parser:
- 0 = Keiner, 1 = HTML, 2 = PHP(+HTML), 3 = BB-Code
+ 0 = None, 1 = HTML, 2 = PHP+HTML, 3 = BB-Code
 Template:
  Leer = Ausgabe, Vorhanden = Einfügen
 Inline:
@@ -65,13 +79,13 @@ Inline:
 if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
+
 	if(is_id($info['author']) && isset($memberdata[$info['author']])) {
 		$info['name'] = $memberdata[$info['author']];
 	}
 	else {
 		$info['name'] = $lang->phrase('fallback_no_username');
 	}
-	($code = $plugins->load('docs_prepare')) ? eval($code) : null;
 	if ($info['date'] > 0 ) {
 		$info['date'] = str_date($lang->phrase('dformat1'), times($info['date']));
 	}
@@ -84,6 +98,8 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 	else {
 		$info['date'] = $lang->phrase('docs_date_na');
 	}
+	($code = $plugins->load('docs_prepare')) ? eval($code) : null;
+
 	$type = doctypes();
 	if (isset($type[$info['type']])) {
 		$typedata = $type[$info['type']];
@@ -98,14 +114,22 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 		);
 	}
 
+	// Get the correct lid and merge data to one info array (compatibility)
+	$lid = getDocLangID($data);
+	$info = array_merge($info, $data[$lid]);
+
+	$notice_box = '';
+	if ($lid != $my->language) { // We don't use the correct language... Let's print a notice
+		$notice = $lang->phrase('doc_wrong_language_shown');
+		$notice_box = $tpl->parse("main/notice_box");
+	}
+
 	if ($typedata['inline'] == 0) {
-		if ((empty($info['content']) || $typedata['remote'] == 1) && $typedata['template'] != 'frame') {
-			$info['content'] = @file_get_contents($info['file']);
-		}
 		$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
 		$breadcrumb->Add($info['title']);
 		echo $tpl->parse("header");
 		($code = $plugins->load('docs_body_start')) ? eval($code) : null;
+		echo $notice_box;
 		if (empty($typedata['template'])) {
 			echo $info['content'];
 		}
@@ -114,9 +138,6 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 		}
 	}
 	else {
-		if (empty($info['content'])) {
-			$info['content'] = @file_get_contents($info['file']);
-		}
 		($code = $plugins->load('docs_html_start')) ? eval($code) : null;
 		if (empty($typedata['template'])) {
 			preg_match("~<body([^>]+?)>~is", $info['content'], $match_body_attr);
@@ -140,6 +161,7 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 			}
 			echo $tpl->parse("header");
 			($code = $plugins->load('docs_html_parser_prepared')) ? eval($code) : null;
+			echo $notice_box;
 			echo DocCodeParser($info['content'], $typedata['parser']);
 		}
 		else {
@@ -147,6 +169,7 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 			$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
 			echo $tpl->parse("header");
 			($code = $plugins->load('docs_html_template_prepared')) ? eval($code) : null;
+			echo $notice_box;
 			echo $tpl->parse("docs/{$typedata['template']}");
 		}
 

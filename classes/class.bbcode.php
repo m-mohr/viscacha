@@ -28,6 +28,8 @@ define('SP_CHANGE', 1);
 define('SP_COPY', 2);
 define('SP_NEW', 4);
 
+define('CBBC_BUTTONDIR', 'templates/editor/images/');
+
 class BBCode {
 
 	var $smileys;
@@ -59,7 +61,7 @@ class BBCode {
 		$this->index = 0;
 
 		if (!class_exists('ConvertRoman')) {
-			include('classes/class.convertroman.php');
+			include_once('classes/class.convertroman.php');
 		}
 
 		$this->setProfile($profile, SP_NEW);
@@ -82,7 +84,7 @@ class BBCode {
 	}
 	function cb_list ($matches) {
 		list(, $type, $pattern) = $matches;
-	    $liarray = preg_split('/(\n\s?-\s|\[\*\])/',$pattern);
+	    $liarray = preg_split('/(\n\s?-\s|\[\*\])/', "\n".$pattern); // Add line break for the first "-", it will be trimmed in the next line.
 	    $liarray = array_map('trim', $liarray);
 	    $list = '';
 	    foreach ($liarray as $li) {
@@ -115,77 +117,40 @@ class BBCode {
 		$code = str_replace("[", "&#91;", $code);
 		$code = str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;", $code);
 		if ($inline == true) {
-			$code = str_replace("  ", "&nbsp;&nbsp;", $code);
+			$code = str_replace("  ", "&nbsp;&nbsp;", trim($code));
 		}
 		else {
 			$code = str_replace(" ", "&nbsp;", $code);
 		}
 		return $code;
 	}
-	function cb_code ($matches) {
-		global $lang;
-		$pid = $this->noparse_id();
-		list(,$code,$nl) = $matches;
-
-	    $rows = explode("\n",$code);
-	    $code = $this->code_prepare($code, (count($rows) <= 1));
-
-	    if (count($rows) > 1) {
-	    	$a = 0;
-	    	$aa = array();
-		    foreach ($rows as $row) {
-		        $a++;
-		        $aa[] = "$a:&nbsp;";
-		    }
-
-			$aa = implode("<br />",$aa);
-
-		    $this->noparse[$pid] = '<strong class="bb_blockcode_header">'.$lang->phrase('bb_sourcecode').'</strong><div class="bb_blockcode"><table><tr><td width="1%">'.$aa.'</td><td width="99%">'.$this->nl2br($code).'</td></tr></table></div>';
-		}
-		else {
-			$this->noparse[$pid] = '<code class="bb_inlinecode">'.$code.'</code>';
-			if (!empty($nl)) {
-				$this->noparse[$pid] .= '<br />';
-			}
-		}
-	    return '<!PID:'.$pid.'>';
-	}
 	function cb_hlcode ($matches) {
-		global $lang;
+		global $lang, $scache;
 		$pid = $this->noparse_id();
-		list(, $sclang, $code, $nl) = $matches;
+		list(,, $sclang, $code, $nl) = $matches;
 
-
-	    $rows = explode("\n",$code);
-
+		$code = trim($code);
+	    $rows = explode("\n", $code);
 	    if (count($rows) > 1) {
-	    	$code = $code2 = $this->code_prepare($code);
-		    $a = 0;
-		    $aa = array();
-			$unique = md5($code);
-
-			$cache = new CacheItem($unique, 'cache/geshicode/');
-			if ($cache->exists() == false) {
-				$export = array(
-				'language' => $sclang,
-				'source' => $code
-				);
-			    $cache->set($export);
-			    $cache->export();
+	    	$scache->loadClass('UniversalCodeCache');
+			$cache = new UniversalCodeCache();
+			$cache->setData($code, $sclang);
+			$data = $cache->get();
+			if ($cache->hasLanguage()) {
+				$lang->assign('lang_name', $data['language']);
+				$title = $lang->phrase('geshi_hlcode_title');
 			}
-
-		    foreach ($rows as $row) {
-		        $a++;
-		        $aa[] = "$a:&nbsp;";
-		    }
-
-			$aa = implode("<br />",$aa);
-
-		    $this->noparse[$pid] = '<strong class="bb_blockcode_header"><a target="_blank" href="popup.php?action=hlcode&amp;fid='.$unique.SID2URL_x.'">'.$lang->phrase('bb_ext_sourcecode').'</a></strong><div class="bb_blockcode"><table><tr><td width="1%">'.$aa.'</td><td width="99%">'.$this->nl2br($code2).'</td></tr></table></div>';
-		}
+			else {
+				$title = $lang->phrase('bb_sourcecode');
+			}
+		    $html = '<div class="highlightcode"><a class="bb_blockcode_options" href="misc.php?action=download_code&amp;fid='.$cache->getHash().'">'.$lang->phrase('geshi_hlcode_txtdownload').'</a>';
+		    $html .= '<strong>'.$title.'</strong>';
+		    $html .= '<div class="bb_blockcode">'.$data['parsed'].'</div></div>';
+			$this->noparse[$pid] = $html;
+	    }
 		else {
-			$code2 = $this->code_prepare($code, (count($rows) <= 1));
-			$this->noparse[$pid] = '<code class="bb_inlinecode">'.$code2.'</code>';
+			$code = $this->code_prepare($code, (count($rows) <= 1));
+			$this->noparse[$pid] = '<code class="bb_inlinecode">'.$code.'</code>';
 			if (!empty($nl)) {
 				$this->noparse[$pid] .= '<br />';
 			}
@@ -194,8 +159,9 @@ class BBCode {
 	}
 	function cb_mail ($email) {
 		global $lang;
-		list(,$email) = $email;
-		$html = '<img alt="'.$lang->phrase('bbcodes_email').'" src="images.php?action=textimage&amp;text='.base64_encode($email).'&amp;enc=1" border="0" />';
+		$pid = $this->noparse_id();
+		$this->noparse[$pid] = 'images.php?action=textimage&amp;text='.base64_encode($email[1]).'&amp;enc=1';
+		$html = '<img alt="'.$lang->phrase('bbcodes_email').'" src="<!PID:'.$pid.'>" border="0" />';
 	   	return $html;
 	}
 	function cb_header ($matches) {
@@ -527,7 +493,7 @@ class BBCode {
 			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/is',$text)) {
 				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/is', "\n".$lang->phrase('bb_offtopic')."\n-------------------\n\\1\n-------------------\n", $text);
 			}
-			$text = preg_replace_callback('/\[table(=[^\]]+)?\](.+?)\[\/table\]\n?/is', array(&$this, 'cb_plain_table'), $text);
+			$text = preg_replace('/\[table(=[^\]]+)?\](.+?)\[\/table\]\n?/is', "\n", $text); // ToDo: Plain Table
 
 			$text = preg_replace('/(\[hr\]){1,}/is', "\n-------------------\n", $text);
 			$text = str_ireplace('[tab]', "    ", $text);
@@ -581,8 +547,7 @@ class BBCode {
 			$text = $this->parseSmileys($text);
 		}
 		else {
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_code'), $text) : $text;
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code=(\w+?)\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_hlcode'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=(\w+?))?\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_hlcode'), $text) : $text;
 
 			$text = $this->ListWorkAround($text);
 
@@ -731,8 +696,8 @@ class BBCode {
 		}
 
 		do {
-			$code = preg_replace("#(\n\n)#", "\n\n", $code);
-		} while (preg_match("#\n\n#", $code));
+			$code = preg_replace("~\n\n~", "\n", $code);
+		} while (preg_match("~\n\n~", $code));
 
 		$table_content = explode("\n",$code);
 		$bbcode_table['table']['rows'] = count($table_content);
@@ -755,11 +720,11 @@ class BBCode {
 
 		if($bbcode_table['head']['enabled'] == true){
 			for($i=0;$i<($bbcode_table['table']['cols']);$i++){
-				if(empty($table_content[0][$i])){
-					$table_head[$i] = '&nbsp;';
-				}
-				else{
+				if(!empty($table_content[0][$i]) || (isset($table_content[0][$i]) && $table_content[0][$i] == 0)){
 					$table_head[$i] = $table_content[0][$i];
+				}
+				else {
+					$table_head[$i] = '&nbsp;';
 				}
 			}
 			for($i=1;$i<$bbcode_table['table']['rows'];$i++){
@@ -986,6 +951,7 @@ class BBCode {
 			$this->cache_bbcode();
 			foreach ($this->bbcodes['word'] as $word) {
 				$this->index++;
+				$word['search'] = trim($word['search']);
 			    if ($type == 'pdf' || $type == 'plain') {
 			    	$text = str_replace(
 			    		'\"',
@@ -998,7 +964,8 @@ class BBCode {
 			    					'\\\\1 ({$word['replace']})',
 			    					'\\0'
 			    				)",
-			    				'>' . $text . '<'
+			    				'>' . $text . '<',
+			    				1 // Only the first occurance
 			    			)
 			    			, 1,
 			    			-1
@@ -1018,7 +985,8 @@ class BBCode {
 	            					'<acronym title=\"{$word['replace']}\" id=\"menu_tooltip_{$this->index}\" onmouseover=\"RegisterTooltip({$this->index})\">\\\\1</acronym><div class=\"tooltip\" id=\"popup_tooltip_{$this->index}\"><span id=\"header_tooltip_{$this->index}\"></span><div class=\"tooltip_body\">{$word['desc']}</div></div>',
 	            					'\\0'
 	            				)",
-	            				'>' . $text . '<'
+	            				'>' . $text . '<',
+	            				1 // Only the first occurance
 	            			),
 	            			1,
 	            			-1
@@ -1107,8 +1075,38 @@ class BBCode {
 			$this->smileys = $cache->get();
 		}
 	}
-	function getsmileyhtml ($perrow = 5) {
-	    global $tpl, $config;
+
+	function getEditorArea ($id, $content = '', $taAttr = '', $maxlength = null, $disable = array()) {
+		global $tpl, $lang, $scache, $config;
+		if ($maxlength == null) {
+			$maxlength = $config['maxpostlength'];
+		}
+		if (!is_array($disable)) {
+			$disable = array($disable);
+		}
+
+		$lang->group("bbcodes");
+
+		$taAttr = ' '.trim($taAttr);
+
+		$cbb = $this->getCustomBB();
+		foreach ($cbb as $key => $bb) {
+			if (empty($bb['buttonimage'])) {
+				unset($cbb[$key]);
+				continue;
+			}
+			$cbb[$key]['title'] = htmlspecialchars($bb['title']);
+			if ($bb['twoparams']) {
+				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}=]','[/{$bb['bbcodetag']}]');";
+			}
+			else {
+				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}]','[/{$bb['bbcodetag']}]');";
+			}
+		}
+
+		$codelang = $scache->load('syntaxhighlight');
+		$clang = $codelang->get();
+
 	    $this->cache_smileys();
 		$smileys = array(0 => array(), 1 => array());
 		foreach ($this->smileys as $bb) {
@@ -1119,37 +1117,11 @@ class BBCode {
 				$smileys[0][] = $bb;
 			}
 		}
-		$smileys[1] = array_chunk($smileys[1], $perrow);
 
-		end($smileys[1]);
-		$last = current($smileys[1]);
-		$lastKey = key($smileys[1]);
-		reset($smileys[1]);
-		$colspan = $perrow - count($last);
+		$tpl->globalvars(compact("id", "content", "taAttr", "cbb", "clang", "smileys", "maxlength", "disable"));
+		return $tpl->parse("main/bbhtml");
+	}
 
-		$tpl->globalvars(compact("smileys", "colspan", "lastKey"));
-		return $tpl->parse("main/smileys");
-	}
-	function getbbhtml ($file = "main/bbhtml") {
-	    global $tpl, $lang;
-	    $lang->group("bbcodes");
-	    $cbb = $this->getCustomBB();
-	    foreach ($cbb as $key => $bb) {
-	    	if (empty($bb['buttonimage'])) {
-	    		unset($cbb[$key]);
-	    		continue;
-	    	}
-	    	$cbb[$key]['title'] = htmlspecialchars($bb['title']);
-	    	if ($bb['twoparams']) {
-	    		$cbb[$key]['href'] = "InsertTagsParams('[{$bb['bbcodetag']}={param1}]{param2}','[/{$bb['bbcodetag']}]');";
-	    	}
-	    	else {
-	    		$cbb[$key]['href'] = "InsertTags('[{$bb['bbcodetag']}]','[/{$bb['bbcodetag']}]');";
-	    	}
-	    }
-	    $tpl->globalvars(compact("cbb"));
-	    return $tpl->parse($file);
-	}
 	function replaceTextOnce($original, $newindex) {
 		global $lang;
 		$lang->assign('originalid', $original);
@@ -1213,5 +1185,9 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 		$bbcode->setProfile($profile, SP_CHANGE);
 	}
 }
+
+define('TOOLBAR_STATUS', 1);
+define('TOOLBAR_FORMATTING', 2);
+define('TOOLBAR_SMILEYS', 3);
 
 ?>

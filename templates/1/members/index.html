@@ -11,7 +11,14 @@
   <td class="tfoot" colspan="<?php echo $colspan; ?>"><span class="right"><?php echo $temp; ?></span><?php echo $lang->phrase('member_count'); ?></td>
  </tr>
  <tr>
-  <td class="tbody center" colspan="<?php echo $colspan; ?>"><?php echo $inner['index_letter']; ?></td>
+  <td class="tbody center" colspan="<?php echo $colspan; ?>">
+   <?php foreach ($letter as $compare => $row) {
+   	if ($_GET['letter'] == $compare) { ?>
+	[<strong><?php echo $row['html']; ?></strong>]
+	<?php } else { ?>
+	[<a href="members.php?letter=<?php echo $row['url']; ?>&amp;<?php echo $query_letter; ?>"><?php echo $row['html']; ?></a>]
+	<?php } } ?>
+  </td>
  </tr>
  <?php if ($count[0] > 0) { ?>
  <tr class="tfoot">

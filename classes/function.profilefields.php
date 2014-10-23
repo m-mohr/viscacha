@@ -29,12 +29,11 @@ function admin_customsave($uid) {
 	$upquery = array();
 	$query = $db->query("SELECT * FROM {$db->pre}profilefields");
 	while($profilefield = $db->fetch_assoc($query)) {
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
-		$value = $gpc->get($field, none);
+		$value = $gpc->get($field, str);
 
 		if(($type == "multiselect" || $type == "checkbox") && is_array($value)) {
 			$options = implode("\n", $value);
@@ -42,16 +41,19 @@ function admin_customsave($uid) {
 		else {
 			$options = $value;
 		}
-		$options = $gpc->save_str($options);
-		$upquery[] = "`{$field}` = '{$options}'";
+		$upquery[$field] = "{$field} = '($options)'";
 	}
 
 	if (count($upquery) > 0) {
-		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
+		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
+		$upquery['ufid'] = "ufid = '($uid)'";
+		$sqldata = implode(', ', $upquery);
 		if($db->num_rows($query) == 0) {
-			$db->query("INSERT INTO {$db->pre}userfields (ufid) VALUES ('{$uid}')");
+			$db->query("INSERT INTO {$db->pre}userfields SET {$sqldata}");
 		}
-		$db->query("UPDATE {$db->pre}userfields SET ".implode(', ', $upquery)." WHERE ufid = '{$uid}' LIMIT 1");
+		else {
+			$db->query("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1");
+		}
 	}
 }
 
@@ -237,14 +239,13 @@ function editprofile_customsave($editable, $uid) {
 	$upquery = array();
 	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable = '{$editable}' ORDER BY disporder");
 	while($profilefield = $db->fetch_assoc($query)) {
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
 		$value = $gpc->get($field, none);
 
-		if($profilefield['required'] == 1 && ((is_string($value) && strlen($value) == 0) || (is_array($value) && count($value) == 0))) {
+		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('error_missingrequiredfield');
 		}
 		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
@@ -262,16 +263,35 @@ function editprofile_customsave($editable, $uid) {
 		else {
 			$options = $value;
 		}
-		$options = $gpc->save_str($options);
-		$upquery[] = "`{$field}` = '{$options}'";
+		$upquery[$field] = $gpc->save_str($options);
 	}
 
 	if (count($error) == 0 && count($upquery) > 0) {
 		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
 		if($db->num_rows($query) == 0) {
-			$db->query("INSERT INTO {$db->pre}userfields (ufid) VALUES ('{$uid}')");
+			$fields = $db->list_fields("{$db->pre}userfields");
+			$sqldata = array();
+			foreach ($fields as $field) {
+				if (isset($upquery[$field])) {
+					$sqldata[$field] = "'{$upquery[$field]}'";
+				}
+				else {
+					$sqldata[$field] = "''";
+				}
+			}
+			$sqldata['ufid'] = "'{$uid}'";
+			$fields = implode(', ', $fields);
+			$sqldata = implode(', ', $sqldata);
+			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})", __LINE__, __FILE__);
 		}
-		$db->query("UPDATE {$db->pre}userfields SET ".implode(', ', $upquery)." WHERE ufid = '{$uid}' LIMIT 1");
+		else {
+			$sqldata = array();
+			foreach ($upquery as $field => $value) {
+				$sqldata[] = "{$field} = '{$value}'";
+			}
+			$sqldata = implode(', ', $sqldata);
+			$db->query("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1", __LINE__, __FILE__);
+		}
 	}
 
 	return $error;

@@ -7,14 +7,37 @@ $lang->group("admin/cms");
 require('classes/class.phpconfig.php');
 $myini = new INI();
 
-function BBCodeToolBox() {
-	global $db, $scache, $config, $lang;
+function BBCodeToolBox($id, $content = '', $taAttr = '') {
+	global $tpl, $lang, $scache, $config;
+
+	$lang->group("bbcodes");
+
+	$taAttr = ' '.trim($taAttr);
+
+	$cache = $scache->load('custombb');
+	$cbb = $cache->get();
+	foreach ($cbb as $key => $bb) {
+		if (empty($bb['buttonimage'])) {
+			unset($cbb[$key]);
+			continue;
+		}
+		$cbb[$key]['title'] = htmlspecialchars($bb['title']);
+		if ($bb['twoparams']) {
+			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}=]','[/{$bb['bbcodetag']}]');";
+		}
+		else {
+			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}]','[/{$bb['bbcodetag']}]');";
+		}
+	}
+
+	$codelang = $scache->load('syntaxhighlight');
+	$clang = $codelang->get();
 
 	$cache = $scache->load('smileys');
 	$cache->seturl($config['smileyurl']);
-	$csmileys = $cache->get();
+	$smileydata = $cache->get();
 	$smileys = array(0 => array(), 1 => array());
-	foreach ($csmileys as $bb) {
+	foreach ($smileydata as $bb) {
 	   	if ($bb['show'] == 1) {
 			$smileys[1][] = $bb;
 		}
@@ -22,123 +45,120 @@ function BBCodeToolBox() {
 			$smileys[0][] = $bb;
 		}
 	}
-	$smileys[1] = array_chunk($smileys[1], 5);
-
-	$cache = $scache->load('custombb');
-	$cbb = $cache->get();
-	foreach ($cbb as $key => $bb) {
-   		if (empty($bb['buttonimage'])) {
-			unset($cbb[$key]);
-			continue;
-		}
-		$cbb[$key]['title'] = htmlspecialchars($bb['title']);
-		if ($bb['twoparams']) {
-			$cbb[$key]['href'] = "InsertTagsParams('[{$bb['bbcodetag']}={param1}]{param2}','[/{$bb['bbcodetag']}]');";
-		}
-		else {
-			$cbb[$key]['href'] = "InsertTags('[{$bb['bbcodetag']}]','[/{$bb['bbcodetag']}]');";
-		}
-	}
 	?>
-<script type="text/javascript" src="admin/html/editor.js"></script>
-<table class="invisibletable">
- <tr>
-  <td width="30%">
-	<table style="margin-bottom: 5px;width: 140px">
-	<?php foreach ($smileys[1] as $row) { ?>
-		<tr>
-		<?php foreach ($row as $bb) { ?>
-			<td class="center"><a href="javascript:InsertTagsMenu(' <?php echo $bb['jssearch'] ?> ', '', 'bbsmileys')"><img border="0" src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /></a></td>
-		<?php } ?>
-		</tr>
-	<?php } ?>
+	<script src="templates/editor/bbcode.js" type="text/javascript"></script>
+	<table class="editor_textarea_outer">
+		<tr><td class="editor_toolbar">
+			<a id="menu_bbcolor_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbcolor_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
+			<div class="popup" id="popup_bbcolor_<?php echo $id; ?>">
+			<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
+			<div class="bbcolor"><script type="text/javascript">document.write(writeRow('<?php echo $id; ?>'));</script></div>
+			</div>
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
+		    <div class="popup" id="popup_bbsize">
+		    <strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
+		   	<ul>
+		    	<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=large]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
+		    	<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=small]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
+		    	<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=extended]','[/size]','bbsize_<?php echo $id; ?>')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
+		    </ul>
+		    </div>
+		    <img src="templates/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbhx_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbhx_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_header'); ?></a>
+			<div class="popup" id="popup_bbhx_<?php echo $id; ?>">
+			<strong><?php echo $lang->phrase('bbcodes_header_title'); ?></strong>
+			<ul>
+				<li><h4 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=large]','[/h]','bbhx_<?php echo $id; ?>')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
+				<li><h5 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=middle]','[/h]','bbhx_<?php echo $id; ?>')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
+				<li><h6 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=small]','[/h]','bbhx_<?php echo $id; ?>')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
+			</ul>
+			</div>
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbtable_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbtable_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_table'); ?></a>
+			<div class="popup" id="popup_bbtable_<?php echo $id; ?>">
+			<strong><?php echo $lang->phrase('bbcodes_create_table'); ?></strong>
+			<div class="bbtable">
+				<input type="checkbox" style="height: 2em;" id="table_head_<?php echo $id; ?>" value="1" /> <?php echo $lang->phrase('bbcodes_table_show_head'); ?>
+				<br class="newinput" /><hr class="formsep" />
+				<input type="text" size="4" id="table_rows_<?php echo $id; ?>" value="2" /> <?php echo $lang->phrase('bbcodes_table_rows'); ?>
+				<br class="newinput" /><hr class="formsep" />
+				<input type="text" size="4" id="table_cols_<?php echo $id; ?>" value="2" /> <?php echo $lang->phrase('bbcodes_table_cols'); ?>
+				<br class="newinput" /><hr class="formsep" />
+				<div class="center">[ <b><a href="javascript:InsertTable('<?php echo $id; ?>')"><?php echo $lang->phrase('bbcodes_table_insert_table'); ?></a></b> ]</div>
+				<br class="iefix_br" />
+			</div>
+			</div>
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbsourcecode_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsourcecode_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_code_short'); ?></a>
+			<div class="popup" id="popup_bbsourcecode_<?php echo $id; ?>">
+			<strong><?php echo $lang->phrase('bbcodes_code'); ?></strong>
+			<ul>
+				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[code]','[/code]', 'bbsourcecode_<?php echo $id; ?>')"><?php echo $lang->phrase('geshi_bbcode_nohighlighting'); ?></span></li>
+				<?php foreach ($clang as $row) { ?>
+				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[code=<?php echo $row['short']; ?>]','[/code]', 'bbsourcecode_<?php echo $id; ?>')"><?php echo $row['name']; ?></span></li>
+				<?php } ?>
+			</ul>
+			</div>
+			<?php
+			echo iif(count($cbb), '<img src="templates/editor/images/seperator.gif" alt="" />');
+			foreach ($cbb as $bb) { ?>
+			<img src="<?php echo $bb['buttonimage']; ?>" onclick="<?php echo $bb['href']; ?>" title="<?php echo $bb['title']; ?>" alt="<?php echo $bb['title']; ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<?php } ?>
+		</td></tr>
+		<tr><td class="editor_toolbar">
+			<img src="templates/editor/images/bold.gif" onclick="InsertTags('<?php echo $id; ?>', '[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/italic.gif" onclick="InsertTags('<?php echo $id; ?>', '[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/underline.gif" onclick="InsertTags('<?php echo $id; ?>', '[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<img src="templates/editor/images/left.gif" onclick="InsertTags('<?php echo $id; ?>','[align=left]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_left'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_left'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/center.gif" onclick="InsertTags('<?php echo $id; ?>','[align=center]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_center'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_center'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/right.gif" onclick="InsertTags('<?php echo $id; ?>','[align=right]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_right'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_right'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/justify.gif" onclick="InsertTags('<?php echo $id; ?>','[align=justify]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<img src="templates/editor/images/img.gif" onclick="InsertTags('<?php echo $id; ?>', '[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/url.gif" onclick="InsertTagsURL('<?php echo $id; ?>', '[url={param1}]{param2}','[/url]');" title="<?php echo $lang->phrase('bbcodes_url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/email.gif" onclick="InsertTags('<?php echo $id; ?>', '[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<img src="templates/editor/images/quote.gif" onclick="InsertTags('<?php echo $id; ?>', '[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/ot.gif" onclick="InsertTags('<?php echo $id; ?>', '[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/edit.gif" onclick="InsertTags('<?php echo $id; ?>', '[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<img src="templates/editor/images/list_unordered.gif" onclick="InsertTagsList('<?php echo $id; ?>');" title="<?php echo $lang->phrase('bbcodes_list'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/list_ordered.gif" onclick="InsertTagsList('<?php echo $id; ?>', 'ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<img src="templates/editor/images/hr.gif" onclick="InsertTags('<?php echo $id; ?>', '[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/note.gif" onclick="InsertTagsNote('<?php echo $id; ?>', '[note={param1}]{param2}','[/note]');" title="<?php echo $lang->phrase('bbcodes_note'); ?>" alt="<?php echo $lang->phrase('bbcodes_note'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/tt.gif" onclick="InsertTags('<?php echo $id; ?>', '[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/seperator.gif" alt="" />
+			<img src="templates/editor/images/subscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/superscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+		</td></tr>
+		<tr><td class="editor_toolbar" style="height: auto; overflow: auto;">
+			<?php foreach ($smileys[1] as $bb) { ?>
+			<img src="<?php echo $bb['replace']; ?>" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '');" title="<?php echo $bb['desc']; ?>" alt="<?php echo $bb['desc']; ?>" class="editor_toolbar_smiley" onmouseover="buttonOverSmiley(this)" onmouseout="buttonOutSmiley(this)" /></a>
+			<?php } ?>
+		<img src="templates/editor/images/seperator.gif" alt="" />
+			<?php if (count($smileys[0]) > 0) { ?>
+			<a id="menu_bbsmileys_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsmileys_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('more_smileys'); ?></a>
+			<div class="popup" id="popup_bbsmileys_<?php echo $id; ?>">
+			<strong><?php echo $lang->phrase('more_smileys'); ?></strong>
+			<ul class="bbsmileys">
+			<?php foreach ($smileys[0] as $bb) { ?>
+			  <li><span class="popup_line stext" onclick="InsertTagsMenu('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '', 'bbsmileys_<?php echo $id; ?>')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
+			<?php }?>
+			</ul>
+			</div>
+			<?php } ?>
+		</td></tr>
+		<tr><td class="editor_textarea_td">
+			<textarea name="<?php echo $id; ?>" id="<?php echo $id; ?>" class="editor_textarea_inner"<?php echo $taAttr; ?>><?php echo $content; ?></textarea>
+		</td></tr>
+		<tr><td class="editor_statusbar" style="text-align: right;">
+			<a href="javascript:resize_textarea('<?php echo $id; ?>', 1);"><?php echo $lang->phrase('textarea_increase_size'); ?></a> &middot;
+			<a href="javascript:resize_textarea('<?php echo $id; ?>', -1);"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>
+		</td></tr>
 	</table>
-	<a id="menu_bbsmileys" style="display: block;text-align: center;width: 140px;" href="javascript:Link()"><img border="0" src="admin/html/images/desc.gif" alt="" /> <?php echo $lang->phrase('admin_cms_more_smileys'); ?></a>
-	<script type="text/javascript">RegisterMenu('bbsmileys');</script>
-	<div class="popup" id="popup_bbsmileys" style="height: 200px;width: 255px;overflow: auto;">
-	<strong><?php echo $lang->phrase('admin_cms_head_smileys'); ?></strong>
-	<table style="width: 250px;border-collapse: collapse;margin-bottom: 5px;">
-	<?php foreach ($smileys[0] as $bb) { ?>
-	  <tr class="mbox">
-		<td width="20%" class="center"><a href="javascript:InsertTagsMenu(' <?php echo $bb['jssearch'] ?>', ' ', 'bbsmileys')"><img border="0" src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /></a></td>
-		<td width="20%" class="center"><?php echo $bb['search']; ?></td>
-		<td width="60%"><span class="stext"><?php echo $bb['desc']; ?></span></td>
-	  </tr>
-	<?php } ?>
-	</table>
-	</div>
-  </td>
-  <td width="70%">
-	<div class="label" id="codebuttons">
-	<a id="menu_bbcolor" href="javascript:Link()"><img src="admin/html/images/desc.gif" alt="" /> <?php echo $lang->phrase('admin_cms_head_color'); ?></a>
-		<script type="text/javascript">RegisterMenu('bbcolor');</script>
-		<DIV class="popup" id="popup_bbcolor">
-		<strong><?php echo $lang->phrase('admin_cms_head_choose_color'); ?></strong>
-		<div class="bbody">
-		<script type="text/javascript">document.write(writeRow());</script>
-		</div>
-		</DIV>
-	<a id="menu_bbsize" href="javascript:Link()"><img src="admin/html/images/desc.gif" alt="" /> <?php echo $lang->phrase('admin_cms_head_size'); ?></a>
-		<script type="text/javascript">RegisterMenu('bbsize');</script>
-		<div class="popup" id="popup_bbsize">
-		<strong><?php echo $lang->phrase('admin_cms_head_choose_size'); ?></strong>
-	   	<ul>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[size=large]','[/size]','bbsize')" style="font-size: 1.3em;"><?php echo $lang->phrase('admin_cms_big_font'); ?></span></li>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[size=small]','[/size]','bbsize')" style="font-size: 0.8em;"><?php echo $lang->phrase('admin_cms_small_font'); ?></span></li>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[size=extended]','[/size]','bbsize')" style="letter-spacing: 3px;"><?php echo $lang->phrase('admin_cms_extended_font'); ?></span></li>
-		</ul>
-		</div>
-	<a id="menu_bbalign" href="javascript:Link()"><img src="admin/html/images/desc.gif" alt="" /> <?php echo $lang->phrase('admin_cms_head_alignment'); ?></a>
-		<script type="text/javascript">RegisterMenu('bbalign');</script>
-		<DIV class="popup" id="popup_bbalign">
-	   <strong><?php echo $lang->phrase('admin_cms_head_choose_alignment'); ?></strong>
-		<ul>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[align=left]','[/align]','bbalign')" style="text-align: left;"><?php echo $lang->phrase('admin_cms_left'); ?></span></li>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[align=center]','[/align]','bbalign')" style="text-align: center;"><?php echo $lang->phrase('admin_cms_center'); ?></span></li>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[align=right]','[/align]','bbalign')" style="text-align: right;"><?php echo $lang->phrase('admin_cms_right'); ?></span></li>
-			<li><span class="popup_line" onclick="InsertTagsMenu('[align=justify]','[/align]','bbalign')" style="text-align: justify;"><?php echo $lang->phrase('admin_cms_justify'); ?></span></li>
-		</ul>
-		</DIV>
-	<a id="menu_bbhx" href="javascript:Link()"><img src="admin/html/images/desc.gif" alt="" /> <?php echo $lang->phrase('admin_cms_head_heading'); ?></a>
-		<script type="text/javascript">RegisterMenu('bbhx');</script>
-		<div class="popup" id="popup_bbhx">
-		<strong><?php echo $lang->phrase('admin_cms_head_choose_heading'); ?></strong>
-		<ul>
-			<li><h4 class="popup_line" onclick="InsertTagsMenu('[h=large]','[/h]','bbhx')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('admin_cms_heading_1'); ?></h4></li>
-			<li><h5 class="popup_line" onclick="InsertTagsMenu('[h=middle]','[/h]','bbhx')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('admin_cms_heading_2'); ?></h5></li>
-			<li><h6 class="popup_line" onclick="InsertTagsMenu('[h=small]','[/h]','bbhx')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('admin_cms_heading_3'); ?></h6></li>
-		</ul>
-		</div>
-	<a id="menu_help" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" style="cursor: help;" target="_blank"><img src="./images/1/bbcodes/help.gif" alt="" /> <strong><?php echo $lang->phrase('admin_cms_head_help'); ?></strong></a>
-	<?php if ($config['spellcheck'] == 1) { ?>
-	<script type="text/javascript" src="templates/spellChecker.js"></script>
-	<a href="javascript:openSpellChecker(textfield);"><img src="./images/1/bbcodes/spellcheck.gif" alt="Spell Check" /></a>
-	<?php } ?>
-	<br />
-	<a href="javascript:InsertTags('[b]','[/b]');" title="<?php echo $lang->phrase('admin_cms_tag_boldface'); ?>"><img src="./images/1/bbcodes/b.gif" alt="<?php echo $lang->phrase('admin_cms_tag_boldface'); ?>" /></a>
-	<a href="javascript:InsertTags('[i]','[/i]');" title="<?php echo $lang->phrase('admin_cms_tag_italic'); ?>"><img src="./images/1/bbcodes/i.gif" alt="<?php echo $lang->phrase('admin_cms_tag_italic'); ?>" /></a>
-	<a href="javascript:InsertTags('[u]','[/u]');" title="<?php echo $lang->phrase('admin_cms_tag_underline'); ?>"><img src="./images/1/bbcodes/u.gif" alt="<?php echo $lang->phrase('admin_cms_tag_underline'); ?>" /></a>
-	<a href="javascript:InsertTags('[hr]','');" title="<?php echo $lang->phrase('admin_cms_tag_horizontal_ruler'); ?>"><img src="./images/1/bbcodes/hr.gif" alt="<?php echo $lang->phrase('admin_cms_tag_horizontal_ruler'); ?>" /></a>
-	<a href="javascript:InsertTags('[img]','[/img]');" title="<?php echo $lang->phrase('admin_cms_tag_image'); ?>"><img src="./images/1/bbcodes/img.gif" alt="<?php echo $lang->phrase('admin_cms_tag_image'); ?>" /></a>
-	<a href="javascript:InsertTagsParams('[url={param1}]{param2}','[/url]',$lang->phrase('admin_cms_tag_url_please_provide_url'),$lang->phrase('admin_cms_tag_url_please_provide_text'));" title="<?php echo $lang->phrase('admin_cms_tag_url'); ?>"><img src="./images/1/bbcodes/url.gif" alt="<?php echo $lang->phrase('admin_cms_tag_url'); ?>" /></a>
-	<a href="javascript:InsertTags('[email]','[/email]');" title="<?php echo $lang->phrase('admin_cms_tag_email'); ?>"><img src="./images/1/bbcodes/email.gif" alt="<?php echo $lang->phrase('admin_cms_tag_email'); ?>" /></a>
-	<a href="javascript:InsertTags('[quote]','[/quote]');" title="<?php echo $lang->phrase('admin_cms_tag_quote'); ?>"><img src="./images/1/bbcodes/quote.gif" alt="<mla_tag_quote>Quote" /></a>
-	<a href="javascript:InsertTags('[ot]','[/ot]');" title="<?php echo $lang->phrase('admin_cms_tag_off_topic'); ?>"><img src="./images/1/bbcodes/ot.gif" alt="<?php echo $lang->phrase('admin_cms_tag_off_topic'); ?>" /></a>
-	<a href="javascript:popup_code();" title="<?php echo $lang->phrase('admin_cms_tag_source_code'); ?>"><img src="./images/1/bbcodes/code.gif" alt="<?php echo $lang->phrase('admin_cms_tag_source_code'); ?>" /></a>
-	<a href="javascript:InsertTags('[edit]','[/edit]');" title="<?php echo $lang->phrase('admin_cms_tag_edited_passage'); ?>"><img src="./images/1/bbcodes/edit.gif" alt="<?php echo $lang->phrase('admin_cms_tag_edited_passage'); ?>" /></a>
-	<a href="javascript:list();" title="<?php echo $lang->phrase('admin_cms_tag_unordered_list'); ?>"><img src="./images/1/bbcodes/ul.gif" alt="<?php echo $lang->phrase('admin_cms_tag_unordered_list'); ?>" /></a>
-	<a href="javascript:list('ol');" title="<?php echo $lang->phrase('admin_cms_tag_ordered_list'); ?>"><img src="./images/1/bbcodes/ol.gif" alt="<?php echo $lang->phrase('admin_cms_tag_ordered_list'); ?>" /></a>
-	<a href="javascript:InsertTagsParams('[note={param1}]{param2}','[/note]',$lang->phrase('admin_cms_tag_definition_please_enter_definition'),$lang->phrase('admin_cms_tag_definition_please_enter_word'));" title="<?php echo $lang->phrase('admin_cms_tag_definition'); ?>"><img src="./images/1/bbcodes/note.gif" alt="<?php echo $lang->phrase('admin_cms_tag_definition'); ?>" /></a>
-	<a href="javascript:InsertTags('[tt]','[/tt]');" title="<?php echo $lang->phrase('admin_cms_tag_typewriter'); ?>"><img src="./images/1/bbcodes/tt.gif" alt="<?php echo $lang->phrase('admin_cms_tag_typewriter'); ?>" /></a>
-	<a href="javascript:InsertTags('[sub]','[/sub]');" title="<?php echo $lang->phrase('admin_cms_tag_subscript'); ?>"><img src="./images/1/bbcodes/sub.gif" alt="<?php echo $lang->phrase('admin_cms_tag_subscript'); ?>" /></a>
-	<a href="javascript:InsertTags('[sup]','[/sup]');" title="<?php echo $lang->phrase('admin_cms_tag_superscript'); ?>"><img src="./images/1/bbcodes/sup.gif" alt="<?php echo $lang->phrase('admin_cms_tag_superscript'); ?>" /></a>
-	<?php foreach ($cbb as $bb) { ?>
-	<a href="javascript:<?php echo $bb['href']; ?>" title="<?php echo $bb['title']; ?>"><img src="<?php echo $bb['buttonimage']; ?>" alt="<?php echo $bb['title']; ?>" /></a>
-	<?php } ?>
-	</div>
-  </td>
- </tr>
-</table>
 	<?php
 }
 function parseNavPosSetting() {
@@ -151,6 +171,34 @@ function parseNavPosSetting() {
 	}
 	return $arr;
 }
+function attachWYSIWYG() {
+	$r = '<link rel="stylesheet" type="text/css" href="admin/html/wysiwyg.css" />';
+	$r .= '<script type="text/javascript" src="templates/editor/wysiwyg.js"></script>';
+	$r .= '<script type="text/javascript"> WYSIWYG.attach("all", full); </script>';
+	return $r;
+}
+function getNavTitle() {
+	global $gpc, $db;
+	$title = $gpc->get('title', none);
+	$title = trim($title);
+	$parts = explode('->', $title);
+	if (!empty($parts[0])) {
+		$parts[0] = strtolower($parts[0]);
+		if ($parts[0] == 'doc' || $parts[0] == 'lang') {
+			$title = $db->escape_string($title);
+		}
+		else {
+			$title = $gpc->save_str($title);
+		}
+		return $title;
+	}
+	else {
+		return '';
+	}
+}
+
+define('EDITOR_IMAGEDIR', './uploads/images/');
+$supportedextentions = array('gif','png','jpeg','jpg');
 
 ($code = $plugins->load('admin_cms_jobs')) ? eval($code) : null;
 
@@ -211,15 +259,15 @@ if ($job == 'nav') {
 		}
 		$type = array();
 		if ($head['module'] > 0) {
-			$type[] = '<em>'.$lang->phrase('admin_cms_plugin').'</em>';
+			$type[] = $lang->phrase('admin_cms_plugin');
 		}
 		if ($head['active'] == 0) {
-			$type[] = '<em>'.$lang->phrase('admin_cms_inactive').'</em>';
+			$type[] = $lang->phrase('admin_cms_inactive');
 		}
 	?>
 	<tr class="mmbox">
 	<td width="50%">
-	<?php echo navLang($head['name']); ?><?php echo iif(count($type) > 0, ' ('.implode('; ', $type).')' ); ?>
+	<?php echo $plugins->navLang($head['name'], true); ?><?php echo iif(count($type) > 0, ' ['.implode('; ', $type).']' ); ?>
 	</td>
 	<td width="10%">
 	<?php
@@ -248,12 +296,12 @@ if ($job == 'nav') {
 			<td width="50%">&nbsp;&middot;&nbsp;
 			<?php
 			if (empty($link['link'])) {
-				echo navLang($link['name']);
+				echo $plugins->navLang($link['name'], true);
 			}
 			else {
 				?>
-				<a href="<?php echo $link['link']; ?>" target="<?php echo $link['param']; ?>"><?php echo navLang($link['name']); ?></a>
-				<?php } echo iif ($link['active'] == '0', ' (<em>'.$lang->phrase('admin_cms_inactive').'</em>)'); ?><br />
+				<a href="<?php echo $link['link']; ?>" target="<?php echo $link['param']; ?>"><?php echo $plugins->navLang($link['name'], true); ?></a>
+				<?php } echo iif ($link['active'] == '0', ' ['.$lang->phrase('admin_cms_inactive').']'); ?><br />
 				</td>
 				<td class="mbox" width="10%">
 				<?php
@@ -282,12 +330,12 @@ if ($job == 'nav') {
 						<td width="50%">&nbsp;&nbsp;&nbsp;<img src='admin/html/images/list.gif' border="0" alt="">&nbsp;
 						<?php
 						if (empty($sublink['link'])) {
-							echo navLang($sublink['name']);
+							echo $plugins->navLang($sublink['name'], true);
 						}
 						else {
 							?>
-							<a href='<?php echo $sublink['link']; ?>' target='<?php echo $sublink['param']; ?>'><?php echo navLang($sublink['name']); ?></a>
-							<?php } echo iif ($sublink['active'] == '0', ' (<i>'.$lang->phrase('admin_cms_inactive').'</i>)'); ?></font><br>
+							<a href='<?php echo $sublink['link']; ?>' target='<?php echo $sublink['param']; ?>'><?php echo $plugins->navLang($sublink['name'], true); ?></a>
+							<?php } echo iif ($sublink['active'] == '0', ' ['.$lang->phrase('admin_cms_inactive').']'); ?></font><br>
 							</td>
 							<td class="mbox" width="10%">
 							<?php
@@ -380,11 +428,11 @@ elseif ($job == 'nav_edit') {
 	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
 	   	}
    		$select = iif($row['id'] == $data['sub'], ' selected="selected"');
-   		echo '<option style="font-weight: bold;" value="'.$row['id'].'"'.$select.'>'.navLang($row['name']).'</option>';
+   		echo '<option style="font-weight: bold;" value="'.$row['id'].'"'.$select.'>'.$plugins->navLang($row['name'], true).'</option>';
    		if (isset($cache[$row['id']])) {
    			foreach ($cache[$row['id']] as $row) {
    				$select = iif($row['id'] == $data['sub'], ' selected="selected"');
-   				echo '<option value="'.$row['id'].'"'.$select.'>+&nbsp;'.navLang($row['name']).'</option>';
+   				echo '<option value="'.$row['id'].'"'.$select.'>+&nbsp;'.$plugins->navLang($row['name'], true).'</option>';
    			}
    		}
 	}
@@ -432,11 +480,11 @@ elseif ($job == 'nav_edit2') {
 	$result = $db->query("SELECT * FROM {$db->pre}menu WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 	$data = $db->fetch_assoc($result);
 
-	$title = $gpc->get('title', str);
-	$title = trim($title);
+	$title = getNavTitle();
 	if (empty($title)) {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
+
 	$active = $gpc->get('active', int);
 	$groups = $gpc->get('groups', arr_int);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
@@ -608,7 +656,7 @@ elseif ($job == 'nav_addplugin') {
 		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
 		   	unset($pos[$last]);
 	   	}
-   		echo '<option value="'.$row['id'].'">'.navLang($row['name']).'</option>';
+   		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
 	}
 	foreach ($pos as $key => $name) {
 		?>
@@ -644,8 +692,7 @@ elseif ($job == 'nav_addplugin2') {
 	$plug = $gpc->get('plugin', int);
 	$result = $db->query("SELECT id, name, active FROM {$db->pre}plugins WHERE id = '{$plug}' AND position = 'navigation'", __LINE__, __FILE__);
 	$data = $db->fetch_assoc();
-	$title = $gpc->get('title', str);
-	$title = trim($title);
+	$title = getNavTitle();
 	if (empty($title)) {
 		$title = $data['name'];
 	}
@@ -722,10 +769,10 @@ elseif ($job == 'nav_add') {
 	   		$last = $row['position'];
 	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
 	   	}
-   		echo '<option style="font-weight: bold;" value="'.$row['id'].'">'.navLang($row['name']).'</option>';
+   		echo '<option style="font-weight: bold;" value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
    		if (isset($cache[$row['id']])) {
    			foreach ($cache[$row['id']] as $row) {
-   				echo '<option value="'.$row['id'].'">+&nbsp;'.navLang($row['name']).'</option>';
+   				echo '<option value="'.$row['id'].'">+&nbsp;'.$plugins->navLang($row['name'], true).'</option>';
    			}
    		}
 	}
@@ -761,7 +808,7 @@ elseif ($job == 'nav_add') {
 }
 elseif ($job == 'nav_add2') {
 	echo head();
-	$title = $gpc->get('title', str);
+	$title = getNavTitle();
 	$target = $gpc->get('target', str);
 	$url = $gpc->get('url', str);
 	$sub = $gpc->get('sub', int);
@@ -831,7 +878,7 @@ elseif ($job == 'nav_addbox') {
 	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
 	   		unset($pos[$last]);
 	   	}
-   		echo '<option value="'.$row['id'].'">'.navLang($row['name']).'</option>';
+   		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
 	}
 	foreach ($pos as $key => $name) {
 		?>
@@ -863,7 +910,7 @@ elseif ($job == 'nav_addbox') {
 }
 elseif ($job == 'nav_addbox2') {
 	echo head();
-	$title = $gpc->get('title', str);
+	$title = getNavTitle();
 	if (empty($title)) {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
@@ -895,7 +942,8 @@ elseif ($job == 'nav_addbox2') {
 }
 elseif ($job == 'nav_docslist') {
 	echo head();
-	$result = $db->query('SELECT id, title FROM '.$db->pre.'documents');
+	$wrap_obj = $scache->load('wraps');
+	$wraps = $wrap_obj->get();
 	?>
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	  <tr>
@@ -903,8 +951,8 @@ elseif ($job == 'nav_docslist') {
 	  </tr>
 	  <tr>
 	   <td class="mbox">
-	   <?php while ($row = $db->fetch_assoc($result)) { ?>
-	   <input type="radio" name="data" onclick="insert_doc('docs.php?id=<?php echo $row['id']; ?>','<?php echo htmlentities($row['title']); ?>')"> <?php echo $row['title']; ?><br>
+	   <?php foreach ($wraps as $id => $data) { ksort($data['titles']); ?>
+	   <input type="radio" name="data" onclick="insert_doc('docs.php?id=<?php echo $id; ?>','doc-><?php echo $id; ?>')"> <?php echo implode(' / ', $data['titles']); ?><br>
 	   <?php } ?>
 	   </td>
 	 </table>
@@ -938,31 +986,292 @@ elseif ($job == 'nav_comslist') {
 	<?php
 	echo foot();
 }
+elseif ($job == 'doc_select_image') {
+	/********************************************************************
+	 * openImageLibrary addon Copyright (c) 2006 openWebWare.com
+	 * Contact us at devs@openwebware.com
+	 * This copyright notice MUST stay intact for use.
+	 ********************************************************************/
+	$leadon = realpath(EDITOR_IMAGEDIR).DIRECTORY_SEPARATOR;
+	$leadon = str_replace('\\', '/', $leadon);
+	$dir = $gpc->get('dir', none);
+	$dotdotdir = false;
+	$dirok = false;
+	if(!empty($dir)) {
+		if ($dir == '..') {
+			$leadon = extract_dir($leadon, true).DIRECTORY_SEPARATOR;
+			$leadon = str_replace('\\', '/', $leadon);
+			$dir = '';
+		}
+		else {
+			$leadon .= $dir.DIRECTORY_SEPARATOR;
+			$dotdotdir = true;
+		}
+	}
+
+	if(!file_exists($leadon)) {
+		$leadon = realpath(EDITOR_IMAGEDIR).DIRECTORY_SEPARATOR;
+		$leadon = str_replace('\\', '/', $leadon);
+	}
+
+	$sort = $gpc->get('sort', none);
+
+	clearstatcache();
+	$n = 0;
+	if ($handle = opendir($leadon)) {
+		while (false !== ($file = readdir($handle))) {
+			//first see if this file is required in the listing
+			if ($file == "." || $file == "..")  continue;
+			if (@filetype($leadon.$file) == "dir") {
+
+				$n++;
+				if($sort=="date") {
+					$key = @filemtime($leadon.$file) . ".$n";
+				}
+				else {
+					$key = $n;
+				}
+				$dirs[$key] = $file . "/";
+			}
+			else {
+				$n++;
+				if($sort=="date") {
+					$key = @filemtime($leadon.$file) . ".$n";
+				}
+				elseif($sort=="size") {
+					$key = @filesize($leadon.$file) . ".$n";
+				}
+				else {
+					$key = $n;
+				}
+				$files[$key] = $file;
+			}
+		}
+		closedir($handle);
+	}
+
+	if($sort=="date") {
+		@ksort($dirs, SORT_NUMERIC);
+		@ksort($files, SORT_NUMERIC);
+	}
+	elseif($sort=="size") {
+		@natcasesort($dirs);
+		@ksort($files, SORT_NUMERIC);
+	}
+	else {
+		@natcasesort($dirs);
+		@natcasesort($files);
+	}
+
+	$order = $gpc->get('order', none);
+
+	if($order=="desc" && $sort!="size") {$dirs = @array_reverse($dirs);}
+	if($order=="desc") {$files = @array_reverse($files);}
+	$dirs = @array_values($dirs); $files = @array_values($files);
+
+	$fileicons_obj = $scache->load('fileicons');
+	$fileicons = $fileicons_obj->get();
+
+	echo head('style="background-color: #ffffff;"');
+	?>
+	<script type="text/javascript">
+		function selectImage(url) {
+			if(parent) {
+				parent.document.getElementById("src").value = url;
+			}
+		}
+
+		if(parent) {
+			parent.document.getElementById("dir").value = '<?php echo iif($dotdotdir, $dir); ?>';
+		}
+
+	</script>
+	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center" style="width: 230px;">
+		<tr>
+			<td>
+			  <?php
+				if($dotdotdir) {
+					?>
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<em>Previous Directory</em></a><br>
+					<?php
+				}
+				$arsize = count($dirs);
+				for($i=0;$i<$arsize;$i++) {
+					$dir = substr($dirs[$i], 0, strlen($dirs[$i]) - 1);
+					?>
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirs[$i]); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<?php echo $dir; ?></a><br>
+					<?php
+				}
+				if ($arsize > 0 || $dotdotdir) {
+					echo "</td></tr><tr><td>";
+				}
+				$arsize = count($files);
+				for($i=0;$i<$arsize;$i++) {
+					$ext = strtolower(substr($files[$i], strrpos($files[$i], '.')+1));
+					if(in_array($ext, $supportedextentions)) {
+						$filename = $files[$i];
+						if (!isset($fileicons[$ext])) {
+							$icon = 'unknown';
+						}
+						else {
+							$icon = $fileicons[$ext];
+						}
+					?>
+					<a href="javascript:void(0)" onclick="selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');">
+					<img src="<?php echo $tpl->img('filetypes/'.$icon); ?>" alt="" border="0" />&nbsp;<?php echo $filename; ?>
+					</a><br>
+					<?php
+					}
+				}
+				?>
+			</td>
+		</tr>
+	</table>
+	<?php
+	echo foot(true);
+}
+elseif ($job == 'doc_insert_image') {
+	$wysiwyg = $gpc->get('wysiwyg', str);
+	$leadon = realpath(EDITOR_IMAGEDIR).DIRECTORY_SEPARATOR;
+	$leadon = str_replace('\\', '/', $leadon);
+	$dir = $gpc->get('dir', none);
+	if(!empty($dir)) {
+		if(substr($dir, -1, 1)!='/') {
+			$dir = $dir . '/';
+		}
+		$dirok = true;
+		$dirnames = split('/', $dir);
+		$count = count($dirnames);
+		for($di=0; $di < $count; $di++) {
+			if($di<(sizeof($dirnames)-2)) {
+				$dotdotdir = $dotdotdir . $dirnames[$di] . '/';
+			}
+		}
+		if(substr($dir, 0, 1)=='/') {
+			$dirok = false;
+		}
+		if($dir == $leadon) {
+			$dirok = false;
+		}
+		if($dirok) {
+			$leadon .= $dir;
+		}
+		else {
+			$dir = '';
+		}
+	}
+
+	// upload file
+	$error = null;
+    if (!empty($_FILES['file']['name'])) {
+    	require("classes/class.upload.php");
+		$my_uploader = new uploader();
+		$my_uploader->max_filesize(ini_maxupload());
+		$my_uploader->file_types($supportedextentions);
+		$my_uploader->set_path($leadon);
+		if ($my_uploader->upload('file')) {
+			$my_uploader->save_file();
+		}
+		if ($my_uploader->upload_failed()) {
+			$error = $my_uploader->get_error();
+		}
+		$file = $leadon.$my_uploader->fileinfo('filename');
+		if (!file_exists($file)) {
+		    $error = $lang->phrase('admin_cms_file_does_not_exist');
+		}
+    }
+    $htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+    $htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-color.js"></script>';
+    $htmlhead .= '<script type="text/javascript"> function onloader() { WYSIWYG_ColorInst.init(); loadImage(); } </script>';
+    echo head(' onLoad="onloader();"');
+	?>
+<form method="post" action="admin.php?action=cms&amp;job=doc_insert_image&amp;wysiwyg=<?php echo $wysiwyg; ?>" enctype="multipart/form-data">
+<input type="hidden" id="dir" name="dir" value="">
+<table class="border" border="0" cellspacing="0" cellpadding="4" align="center" style="width: 700px;">
+	<tr>
+		<td class="obox" colspan="4">Insert Image</td>
+		<td class="obox">Select Image</td>
+	</tr>
+	<tr class="mbox">
+		<td width="120">Upload:<br /><span class="stext">Max Filesize: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+		<td colspan="3" width="330">
+			<input type="file" name="file" size="30" />
+			<?php
+			if ($error !== null) {
+				echo '<br /><span class="stext">'.$error.'</span>';
+			}
+			?>
+		</td>
+		<td rowspan="8" width="250">
+			<iframe id="chooser" height="260" width="250" frameborder="0" src="admin.php?action=cms&amp;job=doc_select_image&amp;dir=<?php echo urlencode($dir); ?>"></iframe>
+		</td>
+	</tr><tr class="mbox">
+		<td>Image URL:</td>
+		<td colspan="3"><input type="text" name="src" id="src" value="" size="50" /></td>
+	</tr><tr class="mbox">
+		<td>Alternate Text:</td>
+		<td colspan="3"><input type="text" name="alt" id="alt" value="" size="50" /></td>
+	</tr>
+	<tr><td class="obox" colspan="4">Layout</td></tr>
+	<tr class="mbox">
+	  <td width="120">Width:</td>
+	  <td width="105"><input type="text" name="width" id="width" value="" size="10" />px</td>
+	  <td width="120">Height:</td>
+	  <td width="105"><input type="text" name="height" id="height" value="" size="10" />px</td>
+	</tr>
+	<tr class="mbox">
+	  <td>Horizontal Space:</td>
+	  <td><input type="text" name="hspace" id="hspace" value="" size="10" /></td>
+	  <td>Vertical Space:</td>
+	  <td><input type="text" name="vspace" id="vspace" value="" size="10" /></td>
+	</tr>
+	<tr class="mbox">
+	  <td>Border-Width:</td>
+	  <td><input type="text" name="border" id="border" value="0" size="10" />px</td>
+	  <td>Alignment:</td>
+	  <td>
+		<select name="align" id="align">
+		 <option value="">Not Set</option>
+		 <option value="left">Left</option>
+		 <option value="right">Right</option>
+		 <option value="bottom">Bottom</option>
+		 <option value="middle">Middle</option>
+		 <option value="top">Top</option>
+		</select>
+	  </td>
+	</tr>
+	<tr class="mbox">
+	  <td>Border-Color:</td>
+	  <td colspan="3">
+	  	<input type="text" name="bordercolor" id="bordercolor" value="none" size="10" />
+	  	<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('bordercolor');" />
+	  </td>
+	</tr>
+	<tr class="mbox">
+	  <td colspan="5" class="ubox" align="center">
+		<input type="submit" value="Submit" onclick="insertImage();return false;">
+		<input type="submit" value="Upload">
+		<input type="button" value="Cancel" onclick="window.close();">
+	  </td>
+	</tr>
+	</table>
+	</form>
+	<?php
+	echo foot();
+}
 elseif ($job == 'doc') {
-	$result = $db->query('SELECT * FROM '.$db->pre.'documents', __LINE__, __FILE__);
-	echo head();
-?>
-<form name="form" method="post" action="admin.php?action=cms&job=doc_delete">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="7">
-   <span style="float: right;"><a class="button" href="admin.php?action=cms&job=doc_add"><?php echo $lang->phrase('admin_cms_create_new_document'); ?></a></span>
-	<?php echo $lang->phrase('admin_cms_manage_documents_and_pages'); ?>
-   </td>
-  </tr>
-  <tr>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_doc_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_cms_doc_delete_all'); ?></span></td>
-   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_cms_doc_title'); ?></td>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_doc_id'); ?></td>
-   <td class="ubox" width="20%"><?php echo $lang->phrase('admin_cms_doc_author'); ?></td>
-   <td class="ubox" width="15%"><?php echo $lang->phrase('admin_cms_doc_last_change'); ?></td>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_doc_published'); ?></td>
-   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_cms_doc_action'); ?></td>
-  </tr>
-<?php
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
+	$language_obj = $scache->load('loadlanguage');
+	$language = $language_obj->get();
 
+	$result = $db->query("
+		SELECT d.id, d.author, d.update, d.icomment, c.lid, c.title, c.active
+		FROM {$db->pre}documents AS d
+			LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
+		ORDER BY c.title
+	", __LINE__, __FILE__);
+	$data = array();
 	while ($row = $db->fetch_assoc($result)) {
 		if(is_id($row['author']) && isset($memberdata[$row['author']])) {
 			$row['author'] = $memberdata[$row['author']];
@@ -971,27 +1280,87 @@ elseif ($job == 'doc') {
 			$row['author'] = $lang->phrase('admin_cms_unknown');
 		}
 		if ($row['update'] > 0) {
-			$row['update'] = gmdate('d.m.Y H:i', times($row['update']));
+			$row['update'] = gmdate('d.m.Y', times($row['update'])).'<br />'.gmdate('H:i', times($row['update']));
 		}
 		else {
 			$row['update'] = $lang->phrase('admin_cms_unknown');
 		}
+		if (strlen($row['icomment']) > 100) {
+			$row['icomment'] = substr($row['icomment'], 0, 100).'...';
+		}
+		$newRow = array(
+			'title' => $row['title'],
+			'active' => $row['active']
+		);
+		if (!isset($data[$row['id']])) {
+			$row['languages'] = array($row['lid'] => $newRow);
+			$data[$row['id']] = $row;
+		}
+		else if (!in_array($row['lid'], $data[$row['id']]['languages'])) {
+			$data[$row['id']]['languages'][$row['lid']] = $newRow;
+		}
+	}
+
+
+	echo head();
 ?>
+<form name="form" method="post" action="admin.php?action=cms&job=doc_delete">
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="mbox" width="5%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td>
-   <td class="mbox" width="40%"><a href="admin.php?action=cms&job=doc_edit&id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a></td>
-   <td class="mbox" width="5%"><?php echo $row['id']; ?></td>
-   <td class="mbox" width="20%"><?php echo $row['author']; ?></td>
-   <td class="mbox" width="15%"><?php echo $row['update']; ?></td>
-   <td class="mbox center" width="5%"><?php echo noki($row['active'], ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=cms&job=doc_ajax_active&id='.$row['id'].'\')"'); ?></td>
-   <td class="mbox" width="10%">
-   <a class="button" href="docs.php?id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('admin_cms_view'); ?></a>
-   <a class="button" href="admin.php?action=cms&job=doc_edit&id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_cms_edit'); ?></a>
+   <td class="obox" colspan="8">
+   <span style="float: right;"><a class="button" href="admin.php?action=cms&job=doc_add"><?php echo $lang->phrase('admin_cms_create_new_document'); ?></a></span>
+	<?php echo $lang->phrase('admin_cms_manage_documents_and_pages'); ?>
    </td>
   </tr>
-<?php } ?>
   <tr>
-   <td class="ubox" width="100%" colspan="7" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_delete'); ?>"></td>
+   <td class="ubox" width="2%"><?php echo $lang->phrase('admin_cms_doc_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_cms_doc_delete_all'); ?></span></td>
+   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_cms_doc_title'); ?></td>
+   <td class="ubox" width="14%"><?php echo $lang->phrase('admin_cms_doc_av_languages'); ?></td>
+   <td class="ubox" width="3%"><?php echo $lang->phrase('admin_cms_doc_published'); ?></td>
+   <td class="ubox" width="12%"><?php echo $lang->phrase('admin_cms_doc_author'); ?></td>
+   <td class="ubox" width="8%"><?php echo $lang->phrase('admin_cms_doc_last_change'); ?></td>
+   <td class="ubox" width="14%"><?php echo $lang->phrase('admin_cms_doc_id'); ?></td>
+   <td class="ubox" width="14%"><?php echo $lang->phrase('admin_cms_doc_action'); ?></td>
+  </tr>
+<?php
+	foreach ($data as $id => $row) {
+		$rowspan = count($data[$id]['languages']);
+		$i = 0;
+		foreach ($data[$id]['languages'] as $lid => $row2) {
+			$i++;
+			?>
+  			<tr>
+  			<?php if ($i == 1) { ?>
+  			 <td class="mbox center" rowspan="<?php echo $rowspan; ?>"><input type="checkbox" name="delete[]" value="<?php echo $id; ?>"></td>
+   			<?php } ?>
+   			 <td class="mbox"><a href="admin.php?action=cms&job=doc_edit&id=<?php echo $id; ?>"><?php echo $row2['title']; ?></a></td>
+   			 <td class="mbox stext">
+   			<?php
+   			 if (isset($row['languages'][$lid]) && isset($language[$lid])) {
+	   			echo $language[$lid]['language'];
+	   		 }
+	   		 else if (isset($row['languages'][$lid]) && !isset($language[$lid])) {
+	   			echo "<em>".$lang->phrase('admin_cms_unknown')."</em> ({$lid})";
+	   		 }
+	   		?>
+   			 </td>
+  			 <td class="mbox center"><?php echo noki($row2['active'], ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=cms&job=doc_ajax_active&id='.$id.'&lid='.$lid.'\')"'); ?></td>
+			<?php if ($i == 1) { ?>
+  			 <td class="mbox" rowspan="<?php echo $rowspan; ?>"><?php echo $row['author']; ?></td>
+			 <td class="mbox center" rowspan="<?php echo $rowspan; ?>"><?php echo $row['update']; ?></td>
+			 <td class="mbox stext" rowspan="<?php echo $rowspan; ?>"><?php echo nl2br($row['icomment']); ?></td>
+			 <td class="mbox" rowspan="<?php echo $rowspan; ?>">
+			  <a class="button" href="docs.php?id=<?php echo $id.SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('admin_cms_view'); ?></a>
+			  <a class="button" href="admin.php?action=cms&job=doc_edit&id=<?php echo $id; ?>"><?php echo $lang->phrase('admin_cms_edit'); ?></a>
+			 </td>
+			<?php } ?>
+			</tr>
+<?php
+		}
+	}
+?>
+  <tr>
+   <td class="ubox" width="100%" colspan="8" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_delete'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -1000,10 +1369,11 @@ elseif ($job == 'doc') {
 }
 elseif ($job == 'doc_ajax_active') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT active FROM {$db->pre}documents WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$lid = $gpc->get('lid', int);
+	$result = $db->query("SELECT active FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1", __LINE__, __FILE__);
 	$use = $db->fetch_assoc($result);
 	$use = invert($use['active']);
-	$db->query("UPDATE {$db->pre}documents SET active = '{$use}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}documents_content SET active = '{$use}' WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1", __LINE__, __FILE__);
 	$delobj = $scache->load('wraps');
 	$delobj->delete();
 	die(strval($use));
@@ -1045,76 +1415,31 @@ foreach ($type as $id => $row) {
 	echo foot();
 }
 elseif ($job == 'doc_add2') {
-	$tpl = new tpl();
 	$type = $gpc->get('type', int);
 	$types = doctypes();
+	if (!isset($types[$type])) {
+		$type = 3;
+	}
 	$format = $types[$type];
-	echo head();
+	$language_obj = $scache->load('loadlanguage');
+	$language = $language_obj->get();
+	if ($format['parser'] == 1) {
+		$tas = array();
+		foreach ($language as $lid => $data) {
+			$tas[] = "template[{$lid}]";
+		}
+		$htmlhead .= attachWYSIWYG();
+	}
+	echo head(' onload="hideLanguageBoxes()"');
   	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
 ?>
 <form id="form" method="post" action="admin.php?action=cms&job=doc_add3&type=<?php echo $type; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_cms_create_doc_step_2'); ?></td>
+   <td class="obox"><?php echo $lang->phrase('admin_cms_create_doc_step_2'); ?></td>
   </tr>
-  <tr>
-   <td class="mbox">
-	<?php if ($format['inline'] == 1 && empty($format['template'])) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_no_title_can_be_parsed'); ?></span><?php } ?>
-	<?php echo $lang->phrase('admin_cms_news_title'); ?><br />
-	<input type="text" name="title" size="60" />
-   </td>
-  </tr>
-  <?php if($format['remote'] != 1) { ?>
-  <tr>
-   <td class="mbox">
-	<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?><br />
-	<?php
-	$editorpath = 'templates/editor/';
-	$path = $tpl->altdir.'docs/'.$format['template'].'.html';
-	if ($format['inline'] == 1 && file_exists($path)) {
-		$preload = file_get_contents($path);
-	}
-	else {
-		$preload = '';
-	}
-	if($format['parser'] == 3) {
-		BBCodeToolBox();
-	}
-	?>
-	<textarea id="template" name="template" rows="20" cols="110" class="texteditor"><?php echo $preload; ?></textarea>
-	<?php if ($format['parser'] == 1) { ?>
-	<link rel="stylesheet" type="text/css" href="<?php echo $editorpath; ?>rte.css" />
-	<script language="JavaScript" type="text/javascript" src="<?php echo $editorpath; ?>lang/en.js"></script>
-	<script language="JavaScript" type="text/javascript" src="<?php echo $editorpath; ?>richtext.js"></script>
-	<script language="JavaScript" type="text/javascript" src="<?php echo $editorpath; ?>html2xhtml.js"></script>
-	<script language="JavaScript" type="text/javascript">
-	<!--
-	window.onload = function() {
-		forms = FetchElement('form');
-		ta = FetchElement('template');
-		forms.onsubmit = function() {
-	   		updateRTE('rte');
-	  		ta.value = forms.rte.value;
-	  		forms.submit();
-		};
-		ta.style.display = 'none';
-	};
-	var lang = "en";
-	var encoding = "iso-8859-1";
-	initRTE("templates/editor/images/", "<?php echo $editorpath; ?>", '', true);
-	writeRichText('rte', FetchElement('template').value, '', 750, 350, true, false, false);
-	//-->
-	</script>
-	<?php } ?>
-   </td>
-  </tr>
-  <?php } ?>
-  <tr>
-   <td class="mbox">
-   <?php if($format['remote'] != 1) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_path_is_given'); ?></span><?php } ?>
-   <?php echo $lang->phrase('admin_cms_doc_file'); ?><br />
-	<input type="text" name="file" size="60" />
-   </td>
+ <tr>
+  <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_global_settings'); ?></td>
   </tr>
   <tr>
    <td class="mbox"><span class="stext right"><?php echo $lang->phrase('admin_cms_doc_groups_text'); ?></span><?php echo $lang->phrase('admin_cms_doc_groups'); ?><br />
@@ -1124,11 +1449,60 @@ elseif ($job == 'doc_add2') {
    </td>
   </tr>
   <tr>
-   <td class="mbox">
-	<?php echo $lang->phrase('admin_cms_doc_active'); ?><br />
-	<input type="checkbox" value="1" name="active" />
+   <td class="mbox"><?php echo $lang->phrase('admin_cms_doc_internal_note'); ?><br />
+   <textarea name="icomment" class="texteditor" cols="80" rows="3"></textarea>
    </td>
   </tr>
+<?php foreach ($language as $lid => $data) { ?>
+  <tr>
+   <td class="ubox">
+   	<input type="checkbox" id="use_<?php echo $lid; ?>" name="use[<?php echo $lid; ?>]" value="1" title="<?php echo $lang->phrase('admin_cms_doc_click_for_adding_lang'); ?>" onclick="return changeLanguageUsage(<?php echo $lid; ?>)" />
+   	<strong><?php echo $data['language']; ?></strong>
+   </td>
+  </tr>
+  <tbody id="language_<?php echo $lid; ?>">
+  <tr>
+   <td class="mbox">
+	<?php if ($format['inline'] == 1 && empty($format['template'])) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_no_title_can_be_parsed'); ?></span><?php } ?>
+	<?php echo $lang->phrase('admin_cms_news_title'); ?><br />
+	<input type="text" name="title[<?php echo $lid; ?>]" size="60" />
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox">
+   <?php
+	if($format['remote'] != 1) {
+		if($format['parser'] == 3) {
+			?>
+			<a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a>
+			<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
+			<br />
+			<?php
+			BBCodeToolBox("template[{$lid}]", '', 'rows="18" cols="110" class="texteditor editor_textarea_inner"');
+		}
+		else {
+			echo $lang->phrase('admin_cms_doc_sourcecode');
+			?>
+			<br /><textarea id="template[<?php echo $lid; ?>]" name="template[<?php echo $lid; ?>]" rows="20" cols="110" class="texteditor"></textarea>
+			<?php
+		}
+	}
+	else {
+	   	echo $lang->phrase('admin_cms_nav_file_url');
+		?>
+		<br />
+		<input type="text" name="template[<?php echo $lid; ?>]" size="60" />
+	<?php } ?>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox">
+	<?php echo $lang->phrase('admin_cms_doc_active'); ?><br />
+	<input type="checkbox" value="1" name="active[<?php echo $lid; ?>]" />
+   </td>
+  </tr>
+  </tbody>
+<?php } ?>
   <tr><td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_add'); ?>" /></td></tr>
  </table>
 </form>
@@ -1139,36 +1513,27 @@ elseif ($job == 'doc_add3') {
 	echo head();
 
 	$type = $gpc->get('type', int);
-	$title = $gpc->get('title', str);
-	$active = $gpc->get('active', int);
+	$icomment = $gpc->get('icomment', str);
+	$title = $gpc->get('title', arr_str);
+	$active = $gpc->get('active', arr_int);
+	$use = $gpc->get('use', arr_int);
   	$groups = $gpc->get('groups', arr_int);
-  	$file = $gpc->get('file', none);
-  	$file = trim($file);
+  	$content = $gpc->get('template', arr_none);
 
 	$types = doctypes();
 	$format = $types[$type];
 
-	if ($format['remote'] != 1) {
-	  	if (empty($file)) {
-	  		$content = $gpc->get('template', str);
-	  	}
-	  	else {
-	  		$content = $gpc->get('template', none);
-	  		if ($filesystem->file_put_contents($file, $content) > 0) {
-	  			$content = '';
-	  		}
-	  		else {
-	  			$content = $gpc->save_str($content);
-	  			$file = '';
-	  		}
+	$i = 0;
+	foreach ($use as $lid => $usage) {
+		if ($format['remote'] == 1) {
+			$content[$lid] = '';
+		}
+		if ($usage == 1) {
+			$i++;
 		}
 	}
-	else {
-		$content = '';
-	}
-
-	if (empty($title)) {
-		error('admin.php?action=cms&job=doc_add', 'Title is empty!');
+	if ($i == 0) {
+		error('javascript:history.back(-1);', $lang->phrase('admin_cms_havent_checked_box'));
 	}
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
@@ -1182,7 +1547,34 @@ elseif ($job == 'doc_add3') {
 
 	$time = time();
 
-	$db->query("INSERT INTO {$db->pre}documents ( `title` , `content` , `author` , `date` , `update` , `type` , `groups` , `active` , `file` ) VALUES ('{$title}', '{$content}', '{$my->id}', '{$time}' , '{$time}' , '{$type}', '{$groups}', '{$active}', '{$file}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}documents (`author`, `date`, `update`, `type`, `groups`, `icomment`) VALUES ('{$my->id}', '{$time}' , '{$time}' , '{$type}', '{$groups}', '{$icomment}')", __LINE__, __FILE__);
+	$did = $db->insert_id();
+
+	foreach ($use as $lid => $usage) {
+		if ($usage == 1) {
+			if (strlen($content[$lid]) < 20) {
+				$content[$lid] = trim(strip_tags($content[$lid]));
+			}
+			if (empty($content[$lid])) {
+				continue;
+			}
+			if (empty($title[$lid])) {
+				$title[$lid] = substr(strip_tags($content[$lid]), 0, 50).'...';
+			}
+			if (empty($active[$lid])) {
+				$active[$lid] = 0;
+			}
+			if ($format['parser'] == 3) {
+				// Handle bb-code like in the forums (entites etc.)
+				$content[$lid] = $gpc->save_str($content[$lid]);
+			}
+			else {
+				$content[$lid] = $db->escape_string($content[$lid]);
+			}
+			$lid = $gpc->save_int($lid);
+			$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$did}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')", __LINE__, __FILE__);
+		}
+	}
 
 	$delobj = $scache->load('wraps');
 	$delobj->delete();
@@ -1193,20 +1585,10 @@ elseif ($job == 'doc_delete') {
 	echo head();
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
-		$deleteids = array();
-		foreach ($delete as $did) {
-			$deleteids[] = 'id = '.$did;
-		}
-		$result = $db->query('SELECT file FROM '.$db->pre.'documents WHERE '.implode(' OR ',$deleteids), __LINE__, __FILE__);
-		while ($row = $db->fetch_assoc($result)) {
-			$rest = @substr(strtolower($row['file']), 0, 7);
-			if (!empty($row['file']) && $rest != 'http://') {
-				$filesystem->unlink($row['file']);
-			}
-		}
-
-		$db->query('DELETE FROM '.$db->pre.'documents WHERE '.implode(' OR ',$deleteids), __LINE__, __FILE__);
+		$deleteids = implode(',', $delete);
+		$db->query("DELETE FROM {$db->pre}documents WHERE id IN ({$deleteids})", __LINE__, __FILE__);
 		$anz = $db->affected_rows();
+		$db->query("DELETE FROM {$db->pre}documents_content WHERE did IN ({$deleteids})", __LINE__, __FILE__);
 
 		$delobj = $scache->load('wraps');
 		$delobj->delete();
@@ -1218,81 +1600,43 @@ elseif ($job == 'doc_delete') {
 	}
 }
 elseif ($job == 'doc_edit') {
-	echo head();
-	$tpl = new tpl();
 	$id = $gpc->get('id', int);
 	$types = doctypes();
+
 	$result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}'", __LINE__, __FILE__);
-	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
-		error('admin.php?action=cms&job=doc', 'Keine gültige ID übergeben');
+		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_invalid_id_given'));
 	}
+	$row = $db->fetch_assoc($result);
+
+	$result = $db->query("SELECT content, active, title, lid FROM {$db->pre}documents_content WHERE did = '{$id}'", __LINE__, __FILE__);
+	$content = array();
+	while ($row2 = $db->fetch_assoc($result)) {
+		$content[$row2['lid']] = $row2;
+	}
+
 	$format = $types[$row['type']];
-	if (!empty($row['file']) && $format['remote'] != 1 && !check_hp($row['file'])) {
-		$row['content'] = file_get_contents($row['file']);
-	}
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
 	$garr = explode(',', $row['groups']);
 
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
 
+	$language_obj = $scache->load('loadlanguage');
+	$language = $language_obj->get();
+
+	if ($format['parser'] == 1) {
+		$htmlhead .= attachWYSIWYG();
+	}
+	echo head(' onload="hideLanguageBoxes()"');
 ?>
 <form id="form" method="post" action="admin.php?action=cms&job=doc_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_cms_create_doc_step_2'); ?></td>
+   <td class="obox"><?php echo $lang->phrase('admin_cms_edit_doc'); ?></td>
   </tr>
-  <tr>
-   <td class="mbox">
-	<?php if ($format['inline'] == 1 && empty($format['template'])) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_no_title_can_be_parsed'); ?></span><?php } ?>
-	<?php echo $lang->phrase('admin_cms_news_title'); ?><br />
-	<input type="text" name="title" size="60" value="<?php echo $gpc->prepare($row['title']); ?>" />
-   </td>
-  </tr>
-  <?php if($format['remote'] != 1) { ?>
-  <tr>
-   <td class="mbox">
-	<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?><br />
-	<?php
-	if($format['parser'] == 3) {
-		BBCodeToolBox();
-	}
-	?>
-	<textarea id="template" name="template" rows="20" cols="110" class="texteditor"><?php echo $row['content']; ?></textarea>
-	<?php if ($format['parser'] == 1) { ?>
-	<link rel="stylesheet" type="text/css" href="templates/editor/rte.css" />
-	<script language="JavaScript" type="text/javascript" src="templates/editor/lang/en.js"></script>
-	<script language="JavaScript" type="text/javascript" src="templates/editor/richtext.js"></script>
-	<script language="JavaScript" type="text/javascript" src="templates/editor/html2xhtml.js"></script>
-	<script language="JavaScript" type="text/javascript">
-	<!--
-	window.onload = function() {
-		forms = FetchElement('form');
-		ta = FetchElement('template');
-		forms.onsubmit = function() {
-	   		updateRTE('rte');
-	  		ta.value = forms.rte.value;
-	  		forms.submit();
-		};
-		ta.style.display = 'none';
-	};
-	var lang = "en";
-	var encoding = "iso-8859-1";
-	initRTE("templates/editor/images/", "templates/editor/", '', true);
-	writeRichText('rte', FetchElement('template').value, '', 750, 350, true, false, false);
-	//-->
-	</script>
-	<?php } ?>
-   </td>
-  </tr>
-  <?php } ?>
-  <tr>
-   <td class="mbox">
-   <?php if($format['remote'] != 1) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_path_is_given'); ?></span><?php } ?>
-   <?php echo $lang->phrase('admin_cms_doc_file'); ?><br />
-	<input type="text" name="file" value="<?php echo $row['file']; ?>" size="60" />
-   </td>
+ <tr>
+  <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_global_settings'); ?></td>
   </tr>
   <tr>
    <td class="mbox"><span class="stext right"><?php echo $lang->phrase('admin_cms_doc_groups_text'); ?></span><?php echo $lang->phrase('admin_cms_doc_groups'); ?><br />
@@ -1302,18 +1646,81 @@ elseif ($job == 'doc_edit') {
    </td>
   </tr>
   <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_cms_doc_internal_note'); ?><br />
+   <textarea name="icomment" class="texteditor" cols="80" rows="3"><?php echo $gpc->prepare($row['icomment']); ?></textarea>
+   </td>
+  </tr>
+  <tr>
    <td class="mbox">
 	<?php echo $lang->phrase('admin_cms_doc_author_change'); ?><br />
-	<input type="radio" value="<?php echo $row['author']; ?>" name="author" checked="checked" /><?php echo $lang->phrase('admin_cms_keep_current_author'); ?><strong><?php echo isset($memberdata[$row['author']]) ? $memberdata[$row['author']] : 'Unknown'; ?></strong><br />
-	<input type="radio" value="<?php echo $my->id; ?>" name="author" /><?php echo $lang->phrase('admin_cms_change_author_to'); ?><strong><?php echo $my->name; ?></strong>
+	<input type="radio" value="<?php echo $row['author']; ?>" name="author" checked="checked" /> <?php echo $lang->phrase('admin_cms_keep_current_author'); ?> <strong><?php echo isset($memberdata[$row['author']]) ? $memberdata[$row['author']] : $lang->phrase('admin_cms_unknown'); ?></strong><br />
+	<input type="radio" value="<?php echo $my->id; ?>" name="author" /> <?php echo $lang->phrase('admin_cms_change_author_to'); ?> <strong><?php echo $my->name; ?></strong>
+   </td>
+  </tr>
+<?php
+	foreach ($language as $lid => $data) {
+		if (isset($content[$lid])) {
+			$row2 = $content[$lid];
+		}
+		else {
+			$row2 = array(
+				'content' => '',
+				'active' => 0,
+				'title' => '',
+				'lid' => $lid
+			);
+		}
+?>
+  <tr>
+   <td class="ubox">
+   	<input type="checkbox"<?php echo iif(isset($content[$lid]), ' checked="checked"'); ?> id="use_<?php echo $lid; ?>" name="use[<?php echo $lid; ?>]" value="1" title="<?php echo $lang->phrase('admin_cms_doc_click_for_adding_lang'); ?>" onclick="return changeLanguageUsage(<?php echo $lid; ?>)" />
+   	<strong><?php echo $data['language']; ?></strong>
+   </td>
+  </tr>
+  <tbody id="language_<?php echo $lid; ?>">
+  <tr>
+   <td class="mbox">
+	<?php if ($format['inline'] == 1 && empty($format['template'])) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_no_title_can_be_parsed'); ?></span><?php } ?>
+	<?php echo $lang->phrase('admin_cms_news_title'); ?><br />
+	<input type="text" name="title[<?php echo $lid; ?>]" size="60" value="<?php echo $gpc->prepare($row2['title']); ?>" />
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox">
+   <?php
+	if($format['remote'] != 1) {
+		if($format['parser'] == 3) {
+			?>
+			<a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a>
+			<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
+			<br />
+			<?php
+			BBCodeToolBox("template[{$lid}]", $row2['content'], 'rows="18" cols="110" class="texteditor editor_textarea_inner"');
+		}
+		else {
+			echo $lang->phrase('admin_cms_doc_sourcecode');
+			?>
+			<br /><textarea id="template[<?php echo $lid; ?>]" name="template[<?php echo $lid; ?>]" rows="20" cols="110" class="texteditor"><?php echo $row2['content']; ?></textarea>
+			<?php
+		}
+	}
+	else {
+	   	echo $lang->phrase('admin_cms_nav_file_url');
+		?>
+		<br />
+		<input type="text" name="template[<?php echo $lid; ?>]" size="60" value="<?php echo $gpc->prepare($row2['content']); ?>" />
+	<?php } ?>
    </td>
   </tr>
   <tr>
    <td class="mbox">
 	<?php echo $lang->phrase('admin_cms_doc_active'); ?><br />
-	<input type="checkbox" value="1" name="active"<?php echo iif($row['active'] == 1, ' checked="checked"'); ?> />
+	<input type="checkbox" value="1" name="active[<?php echo $lid; ?>]"<?php echo iif($row2['active'] == 1, ' checked="checked"'); ?> />
    </td>
   </tr>
+  </tbody>
+<?php } ?>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_cms_doc_checkboxes_help'); ?></td></tr>
   <tr><td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_edit'); ?>" /></td></tr>
  </table>
 </form>
@@ -1321,15 +1728,17 @@ elseif ($job == 'doc_edit') {
 echo foot();
 }
 elseif ($job == 'doc_edit2') {
+
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$title = $gpc->get('title', str);
-	$active = $gpc->get('active', int);
+	$icomment = $gpc->get('icomment', str);
+	$title = $gpc->get('title', arr_str);
+	$active = $gpc->get('active', arr_int);
 	$author = $gpc->get('author', int);
+	$use = $gpc->get('use', arr_int);
   	$groups = $gpc->get('groups', arr_int);
-  	$file = $gpc->get('file', none);
-  	$file = trim($file);
+  	$content = $gpc->get('template', arr_none);
 
 	$result = $db->query("SELECT type FROM {$db->pre}documents WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 	if ($db->num_rows($result) == 0) {
@@ -1339,23 +1748,17 @@ elseif ($job == 'doc_edit2') {
 	$types = doctypes();
 	$format = $types[$doc['type']];
 
-	if ($format['remote'] != 1) {
-	  	if (empty($file)) {
-	  		$content = $gpc->get('template', str);
-	  	}
-	  	else {
-	  		$content = $gpc->get('template', none);
-	  		if ($filesystem->file_put_contents($file, $content) > 0) {
-	  			$content = '';
-	  		}
-	  		else {
-	  			$content = $gpc->save_str($content);
-	  			$file = '';
-	  		}
+	$i = 0;
+	foreach ($use as $lid => $usage) {
+		if ($format['remote'] == 1) {
+			$content[$lid] = '';
+		}
+		if ($usage == 1) {
+			$i++;
 		}
 	}
-	else {
-		$content = '';
+	if ($i == 0) {
+		error('javascript:history.back(-1);', $lang->phrase('admin_cms_havent_checked_box'));
 	}
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
@@ -1369,7 +1772,48 @@ elseif ($job == 'doc_edit2') {
 
 	$time = time();
 
-	$db->query("UPDATE {$db->pre}documents SET `title` = '{$title}', `content` = '{$content}', `update` = '{$time}', `groups` = '{$groups}', `active` = '{$active}', `file` = '{$file}', `author` = '{$author}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}documents SET `update` = '{$time}', `groups` = '{$groups}', `author` = '{$author}', `icomment` = '{$icomment}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
+
+	$language_obj = $scache->load('loadlanguage');
+	$language = $language_obj->get();
+
+	foreach ($language as $lid => $x) {
+		if (empty($use[$lid])) {
+			$usage = 0;
+		}
+		else {
+			$usage = 1;
+		}
+		$lid = $gpc->save_int($lid);
+		if (strlen($content[$lid]) < 20) {
+			$content[$lid] = trim(strip_tags($content[$lid]));
+		}
+		if (empty($content[$lid]) || $usage != 1) {
+			$db->query("DELETE FROM v_documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
+		}
+		elseif ($usage == 1) {
+			if (empty($title[$lid])) {
+				$title[$lid] = substr(strip_tags($content[$lid]), 0, 50).'...';
+			}
+			if (empty($active[$lid])) {
+				$active[$lid] = 0;
+			}
+			$result = $db->query("SELECT lid FROM v_documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
+			if ($format['parser'] == 3) {
+				// Handle bb-code like in the forums (entites etc.)
+				$content[$lid] = $gpc->save_str($content[$lid]);
+			}
+			else {
+				$content[$lid] = $db->escape_string($content[$lid]);
+			}
+			if ($db->num_rows($result) == 1) {
+				$db->query("UPDATE {$db->pre}documents_content SET `title` = '{$title[$lid]}', `content` = '{$content[$lid]}', `active` = '{$active[$lid]}' WHERE did = '{$id}' AND lid = '{$lid}'", __LINE__, __FILE__);
+			}
+			else {
+				$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$id}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')", __LINE__, __FILE__);
+			}
+		}
+	}
 
 	$delobj = $scache->load('wraps');
 	$delobj->delete();
@@ -1381,7 +1825,7 @@ elseif ($job == 'doc_code') {
 	$codelang = $scache->load('syntaxhighlight');
 	$clang = $codelang->get();
 	?>
-	<script src="admin/html/editor.js" type="text/javascript"></script>
+	<script src="templates/editor/bbcode.js" type="text/javascript"></script>
 	<table class="border">
 	<tr><td class="obox"><?php echo $lang->phrase('admin_cms_bb_tag_code'); ?></td></tr>
 	<tr><td class="mbox">
@@ -1408,7 +1852,7 @@ elseif ($job == 'feed') {
    <td class="obox" colspan="5"><span style="float: right;"><a class="button" href="admin.php?action=cms&job=feed_add"><?php echo $lang->phrase('admin_cms_add_newsfeed'); ?></a></span><?php echo $lang->phrase('admin_cms_impor_of_newsfeeds'); ?> (<?php echo $num; ?>)</td>
   </tr>
   <tr>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_news_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_cms_news_delete_all'); ?></span></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_news_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_cms_news_delete_all'); ?></span></td>
    <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_news_id'); ?></td>
    <td class="ubox" width="35%"><?php echo $lang->phrase('admin_cms_news_title_head'); ?></td>
    <td class="ubox" width="45%"><?php echo $lang->phrase('admin_cms_news_file'); ?></td>
@@ -1417,7 +1861,7 @@ elseif ($job == 'feed') {
 <?php
 	while ($row = $db->fetch_assoc($result)) {
 	if ($row['entries'] == 0) {
-		$row['entries'] = 'All';
+		$row['entries'] = $lang->phrase('admin_cms_news_delete_all');
 	}
 ?>
   <tr>
@@ -1457,6 +1901,10 @@ echo head();
    <td class="mbox"><input type="text" name="value" size="3"></td>
   </tr>
   <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_max_age'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_max_age_info'); ?></td>
+   <td class="mbox"><input type="text" name="max_age" size="8" value="720"></td>
+  </tr>
+  <tr>
    <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_add'); ?>"></td>
   </tr>
  </table>
@@ -1468,8 +1916,9 @@ elseif ($job == 'feed_add2') {
 	echo head();
 
 	$title = $gpc->get('temp1', str);
-	$file = $gpc->get('temp2', str);
+	$file = $gpc->get('temp2', db_esc);
 	$entries = $gpc->get('value', int);
+	$max_age = $gpc->get('max_age', int);
 
 	if (empty($title)) {
 		error('admin.php?action=cms&job=feed_add', $lang->phrase('admin_cms_no_title_specified'));
@@ -1480,8 +1929,11 @@ elseif ($job == 'feed_add2') {
 	if (empty($entries)) {
 		$entries = 0;
 	}
+	if (empty($max_age)) {
+		$max_age = 60*12;
+	}
 
-	$db->query('INSERT INTO '.$db->pre.'grab (title, file, entries) VALUES ("'.$title.'","'.$file.'","'.$entries.'")', __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}grab (title, file, entries, max_age) VALUES ('{$title}','{$file}','{$entries}','{$max_age}')", __LINE__, __FILE__);
 
 	$delobj = $scache->load('grabrss');
 	$delobj->delete();
@@ -1510,14 +1962,13 @@ elseif ($job == 'feed_delete') {
 	}
 }
 elseif ($job == 'feed_edit') {
-echo head();
-$id = $gpc->get('id', int);
-if (empty($id)) {
-	error('admin.php?action=cms&job=feed', 'Invalid ID given');
-}
-$result = $db->query('SELECT * FROM '.$db->pre.'grab WHERE id = '.$id, __LINE__, __FILE__);
-$row = $db->fetch_assoc($result);
-
+	echo head();
+	$id = $gpc->get('id', int);
+	if (empty($id)) {
+		error('admin.php?action=cms&job=feed', 'Invalid ID given');
+	}
+	$result = $db->query('SELECT * FROM '.$db->pre.'grab WHERE id = '.$id, __LINE__, __FILE__);
+	$row = $db->fetch_assoc($result);
 ?>
 <form name="form" method="post" action="admin.php?action=cms&job=feed_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1537,6 +1988,10 @@ $row = $db->fetch_assoc($result);
    <td class="mbox"><input type="text" name="value" size="3" value="<?php echo $row['entries']; ?>"></td>
   </tr>
   <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_max_age'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_max_age_info'); ?></td>
+   <td class="mbox"><input type="text" name="max_age" size="8" value="<?php echo $row['max_age']; ?>"></td>
+  </tr>
+  <tr>
    <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_edit'); ?>"></td>
   </tr>
  </table>
@@ -1548,23 +2003,28 @@ elseif ($job == 'feed_edit2') {
 	echo head();
 
 	$title = $gpc->get('temp1', str);
-	$file = $gpc->get('temp2', str);
+	$file = $gpc->get('temp2', db_esc);
 	$entries = $gpc->get('value', int);
 	$id = $gpc->get('id', int);
+	$max_age = $gpc->get('max_age', int);
+
 	if (!is_id($id)) {
-		error('admin.php?action=cms&job=feed', 'Invalid ID given');
+		error('admin.php?action=cms&job=feed', $lang->phrase('admin_cms_invalid_id_given'));
 	}
 	if (empty($title)) {
-		error('admin.php?action=cms&job=feed_edit&id='.$id, 'No title specified');
+		error('admin.php?action=cms&job=feed_edit&id='.$id, $lang->phrase('admin_cms_no_title_specified'));
 	}
 	if (empty($file)) {
-		error('admin.php?action=cms&job=feed_edit&id='.$id, 'No URL specified');
+		error('admin.php?action=cms&job=feed_edit&id='.$id, $lang->phrase('admin_cms_no_url_specified'));
 	}
 	if (empty($entries)) {
 		$entries = 0;
 	}
+	if (empty($max_age)) {
+		$max_age = 60*12;
+	}
 
-	$db->query('UPDATE '.$db->pre.'grab SET file = "'.$file.'", title = "'.$title.'", entries = "'.$entries.'" WHERE id = "'.$id.'"', __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}grab SET file = '{$file}', title = '{$title}', entries = '{$entries}', max_age = '{$max_age}' WHERE id = '{$id}'", __LINE__, __FILE__);
 
 	$delobj = $scache->load('grabrss');
 	$delobj->delete();

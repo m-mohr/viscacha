@@ -24,20 +24,14 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'newtopic');
+define('SCRIPTNAME', 'newtopic');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
 $board = $gpc->get('id', int);
 
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions($board);
 
 $catbid = $scache->load('cat_bid');
@@ -129,7 +123,7 @@ elseif ($_GET['action'] == "savevote") {
 		errorLogin($lang->phrase('not_allowed'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
 
-	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1');
+	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1', __LINE__, __FILE__);
 	$info = $db->fetch_assoc($result);
 
 	$error = $sqlwhere = array();
@@ -189,6 +183,7 @@ elseif ($_GET['action'] == "save") {
 
 	$error = array();
 	$human = null;
+	$digest = $gpc->get('digest', int);
 
 	if (!$my->vlogin) {
 		if ($config['botgfxtest_posts'] == 1) {
@@ -236,7 +231,7 @@ elseif ($_GET['action'] == "save") {
 		$pid = $my->id;
 		$pnameid = $my->id;
 	}
-	if (flood_protect() == FALSE) {
+	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
 	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
@@ -274,7 +269,8 @@ elseif ($_GET['action'] == "save") {
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
 			'guest' => 1,
-			'human' => $human
+			'human' => $human,
+			'digest' => $digest
 		);
 		if (!$my->vlogin) {
 			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
@@ -299,7 +295,7 @@ elseif ($_GET['action'] == "save") {
 		}
 	}
 	else {
-		set_flood();
+		set_flood(FLOOD_TYPE_POSTING);
 
 		$date = time();
 
@@ -313,35 +309,30 @@ elseif ($_GET['action'] == "save") {
 		($code = $plugins->load('newtopic_save_savedata')) ? eval($code) : null;
 
 		$db->query("
-		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix)
-		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}')
+		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix,vquestion)
+		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}','')
 		",__LINE__,__FILE__);
 		$tredirect = $db->insert_id();
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest)
-		VALUES ('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}')
+		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest,edit,report)
+		VALUES ('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
 		",__LINE__,__FILE__);
 		$rredirect = $db->insert_id();
 
 		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'",__LINE__,__FILE__);
 
-		if ($_POST['page'] && $my->vlogin) {
-			$type = NULL;
-			if ($_POST['page'] == '1') {
-				$type='';
+		// Insert notifications
+		if ($my->vlogin && $type != 0) {
+			switch ($digest) {
+				case 2:  $type = 'd'; break;
+				case 3:  $type = 'w'; break;
+				default: $type = '';  break;
 			}
-			elseif ($_POST['page'] == '2') {
-				$type='d';
-			}
-			elseif ($_POST['page'] == '3') {
-				$type='w';
-			}
-			if ($type != NULL) {
-				$db->query("INSERT INTO {$db->pre}abos (mid,tid,type) VALUES ('{$my->id}','{$tredirect}','{$type}')",__LINE__,__FILE__);
-			}
+			$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$type}')",__LINE__,__FILE__);
 		}
-		
+
+
 		$my->mp = $slog->ModPermissions($board);
 
 		$close = $gpc->get('close', int);
@@ -408,8 +399,6 @@ else {
 	echo $tpl->parse("menu");
 
 	BBProfile($bbcode);
-	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
-	$inner['bbhtml'] = $bbcode->getbbhtml();
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($board);
@@ -444,7 +433,8 @@ else {
 			'dosmileys' => 1,
 			'dowords' => 1,
 			'topic' => '',
-			'human' => null
+			'human' => null,
+			'digest' => 0
 		);
 		$_GET['action'] = '';
 	}

@@ -7,7 +7,110 @@ $lang->group("timezones");
 
 ($code = $plugins->load('admin_members_jobs')) ? eval($code) : null;
 
-if ($job == 'emailsearch') {
+if ($job == 'reserve') {
+	$olduserdata = file('data/deleteduser.php');
+	echo head();
+	?>
+<form name="form" method="post" action="admin.php?action=members&job=reserve_delete">
+<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_reserve_names_title'); ?></td>
+  </tr>
+  <tr class="ubox">
+   <td width="10%" class="center"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
+   <td width="50%"><?php echo $lang->phrase('admin_member_user_name'); ?></td>
+   <td width="40%"><?php echo $lang->phrase('admin_member_name_connected_to_id'); ?></td>
+  </tr>
+	<?php
+	foreach ($olduserdata as $name) {
+		$name = trim($name);
+		if (empty($name)) {
+			continue;
+		}
+		list($id, $username) = explode("\t", $name);
+		?>
+  <tr class="mbox">
+   <td class="center"><input type="checkbox" name="delete[]" value="<?php echo $username; ?>" /></td>
+   <td><?php echo $username; ?></td>
+   <td><?php echo iif(is_id($id), $id, '<em>'.$lang->phrase('admin_member_name_not_connected').'</em>'); ?></td>
+  </tr>
+	<?php } ?>
+  <tr>
+   <td class="ubox center" colspan="3"><input type="submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>" /></td>
+  </tr>
+</table>
+</form>
+<br />
+<form name="form" method="post" action="admin.php?action=members&job=reserve_add">
+<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_reserve_names_add'); ?></td>
+  </tr>
+  <tr class="mbox">
+   <td><?php echo $lang->phrase('admin_member_user_name'); ?>:</td>
+   <td><input type="text" name="name" size="60" /></td>
+  </tr>
+  <tr>
+   <td class="ubox center" colspan="2"><input type="submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>" /></td>
+  </tr>
+</table>
+</form>
+	<?php
+	echo foot();
+}
+elseif ($job == 'reserve_add') {
+	$name = $gpc->get('name', str);
+
+	$error = array();
+	if (double_udata('name', $name) == false) {
+		$error[] = $lang->phrase('admin_member_username_already_in_use');
+	}
+	if (strxlen($name) > $config['maxnamelength']) {
+		$error[] = $lang->phrase('admin_member_name_too_long');
+	}
+	if (strxlen($name) < $config['minnamelength']) {
+		$error[] = $lang->phrase('admin_member_name_too_short');
+	}
+	if (count($error) > 0) {
+		echo head();
+		error('admin.php?action=members&job=reserve', $error);
+	}
+	else {
+		$olduserdata = file_get_contents('data/deleteduser.php');
+		$olduserdata = trim($olduserdata);
+		$olduserdata .= "\n0\t".$name;
+		$filesystem->file_put_contents('data/deleteduser.php', $olduserdata);
+
+		echo head();
+		ok('admin.php?action=members&job=reserve', $lang->phrase('admin_member_username_successfully_reserved'));
+	}
+}
+elseif ($job == 'reserve_delete') {
+	$del = $gpc->get('delete', arr_none);
+	$olduserdata = file('data/deleteduser.php');
+	$rows = array();
+	foreach ($olduserdata as $name) {
+		$name = trim($name);
+		if (empty($name)) {
+			continue;
+		}
+		list($id, $username) = explode("\t", $name);
+		$save = true;
+		foreach ($del as $username2) {
+			if (strtolower($username2) == strtolower($username)) {
+				$save = false;
+			}
+		}
+		if ($save == true) {
+			$rows[] = $name;
+		}
+	}
+	$filesystem->file_put_contents('data/deleteduser.php', implode("\n", $rows));
+
+	echo head();
+	ok('admin.php?action=members&job=reserve', $lang->phrase('admin_member_selected_reserved_names_deleted'));
+}
+elseif ($job == 'emailsearch') {
 	echo head();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
@@ -15,13 +118,22 @@ if ($job == 'emailsearch') {
 
 	$result = $db->query("SELECT id, title, name FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC, guest ASC, core ASC");
 	?>
-<form name="form" method="post" action="admin.php?action=members&job=emailsearch2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
    <td class="obox" colspan="3">
    	<span style="float: right;"><a class="button" href="admin.php?action=members&job=newsletter_archive"><?php echo $lang->phrase('admin_member_nl_archive'); ?></a></span>
     <?php echo $lang->phrase('admin_member_nl_mail_manager'); ?>
    </td>
+  </tr>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_member_mail_manager_instructions'); ?></td>
+  </tr>
+</table>
+<br class="minibr" />
+<form name="form" method="post" action="admin.php?action=members&job=emailsearch2">
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_search_for_members'); ?></td>
   </tr>
   <tr>
 	<td class="mbox" width="50%" colspan="3">
@@ -535,7 +647,6 @@ elseif ($job == 'newsletter3') {
 	$data = $cache->get();
 
 	require_once("classes/mail/class.phpmailer.php");
-	require_once('classes/mail/extended.phpmailer.php');
 	$mail = new PHPMailer();
 	$mail->From = $data['from_mail'];
 	$mail->FromName = $data['from_name'];
@@ -638,7 +749,7 @@ elseif ($job == 'newsletter_archive') {
    <td class="obox" colspan="4"><?php echo $lang->phrase('admin_member_nl_archive'); ?></td>
   </tr>
   <tr>
-   <td class="ubox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
+   <td class="ubox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
    <td class="ubox"><?php echo $lang->phrase('admin_member_nl_subject'); ?></td>
    <td class="ubox"><?php echo $lang->phrase('admin_member_date_time'); ?></td>
    <td class="ubox"><?php echo $lang->phrase('admin_member_nl_recipients'); ?></td>
@@ -751,7 +862,7 @@ elseif ($job == 'merge') {
 </td>
 </tr>
 <tr>
-<td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_member_delete'); ?>"></td>
+<td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>"></td>
 </tr>
 </table>
 </form>
@@ -866,6 +977,9 @@ elseif ($job == 'merge2') {
 	// Step 12: Delete old user
 	$db->query("DELETE FROM {$db->pre}user WHERE id = '".$old['id']."'");
 
+	// Step 13: Recount User Post Count
+	UpdateMemberStats($base['id']);
+
 	$cache = $scache->load('memberdata');
 	$cache = $cache->delete();
 
@@ -896,25 +1010,32 @@ elseif ($job == 'manage') {
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
 	?>
+	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	 <tr>
+	  <td class="obox button_multiline">
+	   <a class="button" href="admin.php?action=members&amp;job=register"><?php echo $lang->phrase('admin_member_add_new_member'); ?></a>
+	   <?php if ($my->settings['admin_interface'] == 0) { ?>
+	   <a class="button" href="admin.php?action=members&amp;job=search"><?php echo $lang->phrase('admin_member_search_members'); ?></a>
+	   <a class="button" href="admin.php?action=members&amp;job=inactive"><?php echo $lang->phrase('admin_member_inactive_members'); ?></a>
+	   <?php } ?>
+	   <a class="button" href="admin.php?action=members&amp;job=reserve"><?php echo $lang->phrase('admin_member_reserve_names_title'); ?></a>
+	   <a class="button" href="admin.php?action=members&amp;job=memberrating"><?php echo $lang->phrase('admin_member_memberratings'); ?></a>
+	   <a class="button" href="admin.php?action=members&amp;job=merge"><?php echo $lang->phrase('admin_member_merge_users'); ?></a>
+	   <a class="button" href="admin.php?action=members&amp;job=recount"><?php echo $lang->phrase('admin_member_recount_post_counts'); ?></a>
+	  </td>
+	 </tr>
+	</table>
+	<br class="minibr" />
 	<form name="form" action="admin.php?action=members&job=delete" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 		<tr>
-		  <td class="obox" colspan="8">
-		  <?php if ($my->settings['admin_interface'] == 1) { ?>
-		  <span style="float: right;">
-		  <a class="button" href="admin.php?action=members&amp;job=register"><?php echo $lang->phrase('admin_member_add_new_member'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=memberrating"><?php echo $lang->phrase('admin_member_memberratings'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=merge"><?php echo $lang->phrase('admin_member_merge_users'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=recount"><?php echo $lang->phrase('admin_member_recount_post_counts'); ?></a>
-		  </span>
-		  <?php } ?>
-		  <?php echo $lang->phrase('admin_member_member_list'); ?></td>
+		  <td class="obox" colspan="8"><?php echo $lang->phrase('admin_member_member_list'); ?></td>
 		</tr>
 		<tr>
 		  <td class="ubox" colspan="8"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> <?php echo $lang->phrase('admin_member_members'); ?></td>
 		</tr>
 		<tr>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
+		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
 		  <td class="obox"><?php echo $lang->phrase('admin_member_username'); ?>
 		  <a href="admin.php?action=members&amp;job=manage&amp;letter=<?php echo $letter; ?>&amp;page=<?php echo $page; ?>"><img src="admin/html/images/asc.gif" border="0" alt="<?php echo $lang->phrase('admin_member_asc'); ?>"></a>
 		  <a href="admin.php?action=members&amp;job=manage&amp;order=1&amp;page=<?php echo $page; ?>&amp;letter=<?php echo $letter; ?>"><img src="admin/html/images/desc.gif" border="0" alt="<?php echo $lang->phrase('admin_member_desc'); ?>"></a></td>
@@ -959,21 +1080,6 @@ elseif ($job == 'manage') {
 		</tr>
 	</table>
 	</form>
-	 <?php if ($my->settings['admin_interface'] == 0) { ?>
-	 <br class="minibr" />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	  <tr>
-	   <td class="obox center">
-		  <a class="button" href="admin.php?action=members&amp;job=register"><?php echo $lang->phrase('admin_member_add_new_member'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=search"><?php echo $lang->phrase('admin_member_search_members'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=inactive"><?php echo $lang->phrase('admin_member_inactive_members'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=memberrating"><?php echo $lang->phrase('admin_member_memberratings'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=merge"><?php echo $lang->phrase('admin_member_merge_users'); ?></a>
-		  <a class="button" href="admin.php?action=members&amp;job=recount"><?php echo $lang->phrase('admin_member_recount_post_counts'); ?></a>
-	   </td>
-	  </tr>
-	 </table>
-	 <?php } ?>
 	<?php
 	echo foot();
 }
@@ -1008,7 +1114,7 @@ elseif ($job == 'memberrating') {
 		  <td class="ubox" colspan="6"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> <?php echo $lang->phrase('admin_member_rated_members'); ?></td>
 		</tr>
 		<tr>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
+		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
 		  <td class="obox"><?php echo $lang->phrase('admin_member_username'); ?></td>
 		  <td class="obox"><?php echo $lang->phrase('admin_member_rating_amount'); ?></td>
 		  <td class="obox"><?php echo $lang->phrase('admin_member_mail'); ?></td>
@@ -1184,32 +1290,37 @@ elseif ($job == 'register') {
 elseif ($job == 'register2') {
 	include_once ("classes/function.profilefields.php");
 
+	$name = $gpc->get('name', str);
+	$email = $gpc->get('email', db_esc);
+	$pw = $gpc->get('pw', str);
+	$pwx = $gpc->get('pwx', str);
+
 	$error = array();
-	if (double_udata('name',$_POST['name']) == false) {
+	if (double_udata('name', $name) == false) {
 		$error[] = $lang->phrase('admin_member_username_already_in_use');
 	}
-	if (double_udata('mail',$_POST['email']) == false) {
+	if (double_udata('mail', $email) == false) {
 		$error[] = $lang->phrase('admin_member_mail_already_in_use');
 	}
-	if (strxlen($_POST['name']) > $config['maxnamelength']) {
+	if (strxlen($name) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_long');
 	}
-	if (strxlen($_POST['name']) < $config['minnamelength']) {
+	if (strxlen($name) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_short');
 	}
-	if (strxlen($_POST['pw']) > $config['maxpwlength']) {
+	if (strxlen($pw) > $config['maxpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_long');
 	}
-	if (strxlen($_POST['pw']) < $config['minpwlength']) {
+	if (strxlen($pw) < $config['minpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_short');
 	}
-	if (strlen($_POST['email']) > 200) {
+	if (strlen($email) > 200) {
 		$error[] = $lang->phrase('admin_member_mail_too_long');
 	}
-	if (check_mail($_POST['email']) == false) {
+	if (check_mail($email) == false) {
 		$error[] = $lang->phrase('admin_member_mail_not_valid');
 	}
-	if ($_POST['pw'] != $_POST['pwx']) {
+	if ($pw != $pwx) {
 		$error[] = $lang->phrase('admin_member_passwords_different');
 	}
 
@@ -1222,9 +1333,9 @@ elseif ($job == 'register2') {
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
-		$value = $gpc->get($field, none);
+		$value = $gpc->get($field, str);
 
-		if((is_string($value) && strlen($value) == 0) || (is_array($value) && count($value) == 0)) {
+		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('admin_member_no_value_for_required_field');
 		}
 		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
@@ -1233,17 +1344,15 @@ elseif ($job == 'register2') {
 
 		if($type == "multiselect" || $type == "checkbox") {
 			if (is_array($value)) {
-				$options = implode("\n", $value);
+				$upquery[$field] = implode("\n", $value);
 			}
 			else {
-				$options = '';
+				$upquery[$field] = '';
 			}
 		}
 		else {
-			$options = $value;
+			$upquery[$field] = $value;
 		}
-		$options = $gpc->save_str($options);
-		$upquery[] = "`{$field}` = '{$options}'";
 	}
 
 	if (count($error) > 0) {
@@ -1252,14 +1361,26 @@ elseif ($job == 'register2') {
 	}
 	else {
 	    $reg = time();
-	    $pw_md5 = md5($_POST['pwx']);
+	    $pw_md5 = md5($pwx);
 
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '11')",__LINE__,__FILE__);
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$name}', '{$pw_md5}', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '', '')",__LINE__,__FILE__);
         $redirect = $db->insert_id();
 
 		if (count($upquery) > 0) {
-			$upquery[] = "`ufid` = '{$redirect}'";
-			$db->query("INSERT INTO {$db->pre}userfields SET ".implode(', ', $upquery));
+			$fields = $db->list_fields("{$db->pre}userfields");
+			$sqldata = array();
+			foreach ($fields as $field) {
+				if (isset($upquery[$field])) {
+					$sqldata[$field] = "'{$upquery[$field]}'";
+				}
+				else {
+					$sqldata[$field] = "''";
+				}
+			}
+			$sqldata['ufid'] = "'{$redirect}'";
+			$fields = implode(', ', array_keys($fields));
+			$sqldata = implode(', ', $sqldata);
+			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
 		}
 
 		$com = $scache->load('memberdata');
@@ -1616,7 +1737,7 @@ elseif ($job == 'edit2') {
 	if (!isset($cache2[$query['opt_5']])) {
 		$error[] = $lang->phrase('admin_member_lang_not_valid');
 	}
-	if (!empty($query['pic']) && preg_match('/^(http:\/\/|www.)([\w‰ˆ¸ƒ÷‹@\-_\.]+)\:?([0-9]*)\/(.*)$/', $query['pic'])) {
+	if (!empty($query['pic']) && preg_match(URL_REGEXP, $query['pic'])) {
 		$query['pic'] = checkRemotePic($query['pic'], $query['id']);
 		switch ($query['pic']) {
 			case REMOTE_INVALID_URL:
@@ -1802,11 +1923,10 @@ elseif ($job == 'banned') {
 	  	$hours = floor($sec/(60*60));
 	  	$sec = $sec - $hours*60*60;
 	  	$mins = floor($sec/60);
-	  	$sec = $sec - $mins*60;
-	  	$diff = "{$days}d {$hours}h {$sec}m";
+	  	$diff = "{$days}d {$hours}h {$mins}m";
   	}
   	else {
-  		$diff = "<em><?php echo $lang->phrase('admin_member_expired'); ?></em>";
+  		$diff = "<em>".$lang->phrase('admin_member_expired')."</em>";
   	}
 
   	$row[2] = intval($row[2]);
@@ -1817,13 +1937,13 @@ elseif ($job == 'banned') {
   		$row[2] = $lang->phrase('admin_member_never');
   	}
 
-  	$row[4] = gmdate('d.m.Y H:i', times($row[4]));
+  	$crea = gmdate('d.m.Y H:i', times($row[4]));
   	?>
   <tr>
-   <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row[0]; ?>#<?php echo $row[1]; ?>" /></td>
+   <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row[0]; ?>#<?php echo $row[1]; ?>#<?php echo $row[4]; ?>" /></td>
    <td class="mbox"><?php echo $data; ?></td>
    <td class="mbox"><?php echo $row[3]; ?></td>
-   <td class="mbox"><?php echo $row[4]; ?></td>
+   <td class="mbox"><?php echo $crea; ?></td>
    <td class="mbox"><?php echo $row[2]; ?></td>
    <td class="mbox"><?php echo $diff; ?></td>
    <td class="mbox"><?php echo htmlspecialchars($row[5]); ?></td>
@@ -1910,6 +2030,7 @@ elseif ($job == 'ban_add2') {
 		}
 	}
 	elseif ($type == 'user') {
+		$data = $gpc->save_str($data);
 		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$data}' LIMIT 1", __LINE__, __FILE__);
 		if ($db->num_rows($result) == 0) {
 			$error[] = $lang->phrase('admin_member_no_user_found');
@@ -1917,11 +2038,11 @@ elseif ($job == 'ban_add2') {
 		else {
 			$user = $db->fetch_assoc($result);
 			if ($user['id'] == $my->id) {
-			//	$error[] = $lang->phrase('admin_member_cannot_ban_yourself');
+				$error[] = $lang->phrase('admin_member_cannot_ban_yourself');
 			}
 			else {
 				$data = $user['id'];
-			}$data = $user['id'];
+			}
 		}
 	}
 	else {
@@ -1941,7 +2062,9 @@ elseif ($job == 'ban_add2') {
 		$row = rtrim($line, "\r\n");
 		$file[] = $row;
 		$row = explode("\t", $row, 6);
-		if ($row[0] == $type && strcasecmp($row[1], $data) == 0) {
+		// Check if there is a ban that is currently(!) active
+		// If there are expired bans, don't print an error
+		if ($row[0] == $type && strcasecmp($row[1], $data) == 0 && $row[2] > time()) {
 			$error[] = $lang->phrase('admin_member_user_or_ip_already_banned');
 		}
 	}
@@ -1983,8 +2106,8 @@ elseif ($job == 'ban_delete') {
 		$add = true;
 		$row = explode("\t", rtrim($line, "\r\n"), 6);
 		foreach ($delete as $del) {
-			$del = explode("#", $del, 2);
-			if ($del[0] == $row[0] && $del[1] == $row[1]) {
+			$del = explode("#", $del, 3);
+			if ($del[0] == $row[0] && $del[1] == $row[1] && $del[2] == $row[4]) {
 				$add = false;
 			}
 		}
@@ -2127,7 +2250,7 @@ elseif ($job == 'inactive2') {
 			  <td class="ubox" colspan="9"><?php echo $count; ?> <?php echo $lang->phrase('admin_member_inactive_found'); ?></td>
 			</tr>
 			<tr>
-			  <td class="obox center"><?php echo $lang->phrase('admin_member_select'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
+			  <td class="obox center"><?php echo $lang->phrase('admin_member_select'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
 			  <td class="obox center"><?php echo $lang->phrase('admin_member_edit'); ?></td>
 			  <?php foreach ($keys as $key) { ?>
 			  <td class="obox"><?php echo $fields[$key][0]; ?></td>
@@ -2645,7 +2768,7 @@ elseif ($job == 'search2') {
 			  <td class="ubox" colspan="<?php echo $colspan; ?>"><?php echo $count; ?> <?php echo $lang->phrase('admin_member_members_found'); ?></td>
 			</tr>
 			<tr>
-			  <td class="obox"><?php echo $lang->phrase('admin_member_select'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
+			  <td class="obox"><?php echo $lang->phrase('admin_member_select'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
 			  <?php foreach ($show as $key) { ?>
 			  <td class="obox"><?php echo $fields[$key][0]; ?></td>
 			  <?php } ?>
@@ -2748,7 +2871,7 @@ elseif ($job == 'activate') {
 		  <td class="ubox" width="30%"><?php echo $lang->phrase('admin_member_username'); ?></td>
 		  <td class="ubox" width="10%"><?php echo $lang->phrase('admin_member_mail'); ?></td>
 		  <td class="ubox" width="15%"><?php echo $lang->phrase('admin_member_registered'); ?></td>
-		  <td class="ubox" width="45%"><?php echo $lang->phrase('admin_member_status'); ?> (<input type="checkbox" onchange="check_all('delete[]')" /> <?php echo $lang->phrase('admin_member_all'); ?>`)</td>
+		  <td class="ubox" width="45%"><?php echo $lang->phrase('admin_member_status'); ?> (<input type="checkbox" onchange="check_all(this)" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?>`)</td>
 		</tr>
 	<?php
 	while ($row = $gpc->prepare($db->fetch_object($result))) {

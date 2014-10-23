@@ -24,20 +24,20 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 class PluginSystem {
 
 	var $cache;
 	var $pos;
 	var $sqlcache;
 	var $menu;
+	var $docs;
 
 	function PluginSystem() {
 		$this->cache = array();
 		$this->pos = array();
 		$this->sqlcache = null;
 		$this->menu = null;
+		$this->docs = null;
 		$this->plugdir = 'modules/';
 	}
 
@@ -90,7 +90,7 @@ class PluginSystem {
 				else {
 					if ($this->_check_permissions($row['groups'])) {
 						$navigation = $this->_prepare_navigation($position, $row['id']);
-						$row['name'] = navLang($row['name']);
+						$row['name'] = $this->navLang($row['name']);
 						$tpl->globalvars(compact("row","navigation"));
 						if ($tpl->exists("modules/navigation_".$position)) {
 							$html = $tpl->parse("modules/navigation_".$position);
@@ -116,6 +116,27 @@ class PluginSystem {
     	", __LINE__, __FILE__);
 		$info = $db->fetch_assoc($result);
 		return $info['num'];
+	}
+
+	function navLang($key, $show_key = false) {
+		global $lang, $gpc, $scache;
+		if ($this->docs == null) {
+			$cache = $scache->load('wraps');
+			$this->docs = $cache->get();
+		}
+		@list($prefix, $suffix) = explode('->', $gpc->plain_str($key, false), 2);
+		$prefix = strtolower($prefix);
+		if ($prefix == 'lang' && $suffix != null) {
+			return $lang->phrase($suffix).iif($show_key, " [{$key}]");
+		}
+		elseif ($prefix == 'doc' && is_id($suffix) && isset($this->docs[$suffix]['titles'])) {
+			$data = $this->docs[$suffix]['titles'];
+			$lid = getDocLangID($data);
+			return $data[$lid].iif($show_key, " [{$key}]");
+		}
+		else {
+			return $key;
+		}
 	}
 
 	function _setup($hook, $id) {
@@ -155,7 +176,7 @@ class PluginSystem {
 			foreach ($this->menu[$position][$id] as $row) {
 				if ($this->_check_permissions($row['groups'])) {
 					$row['navigation'] = $this->_prepare_navigation($position, $row['id']);
-					$row['name'] = navLang($row['name']);
+					$row['name'] = $this->navLang($row['name']);
 					$navigation[] = $row;
 				}
 			}

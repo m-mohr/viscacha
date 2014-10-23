@@ -23,18 +23,13 @@
 */
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'images');
+define('SCRIPTNAME', 'images');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
 $my->p = $slog->Permissions();
-$lang->init($my->language);
 
 function ImageHexColorAllocate(&$image, $string) {
 	sscanf($string, "%2x%2x%2x", $red, $green, $blue);

@@ -26,25 +26,25 @@ class RSS10 extends FeedCreator {
 		$feed.= "    xmlns:slash=\"http://purl.org/rss/1.0/modules/slash/\"\n";
 		$feed.= "    xmlns:dc=\"http://purl.org/dc/elements/1.1/\">\n";
 		$feed.= "    <channel rdf:about=\"".$this->syndicationURL."\">\n";
-		$feed.= "        <title>".FeedCreator::htmlspecialchars($this->title)."</title>\n";
-		$feed.= "        <description>".FeedCreator::htmlspecialchars($this->description)."</description>\n";
+		$feed.= "        <title>".$this->htmlspecialchars($this->title)."</title>\n";
+		$feed.= "        <description>".$this->htmlspecialchars($this->description)."</description>\n";
 		$feed.= "        <link>".$this->link."</link>\n";
 		if ($this->image!=null) {
 			$feed.= "        <image rdf:resource=\"".$this->image->url."\" />\n";
 		}
 		$now = new FeedDate();
-		$feed.= "       <dc:date>".FeedCreator::htmlspecialchars($now->iso8601())."</dc:date>\n";
+		$feed.= "       <dc:date>".$this->htmlspecialchars($now->iso8601())."</dc:date>\n";
 		$feed.= "        <items>\n";
 		$feed.= "            <rdf:Seq>\n";
 		for ($i=0;$i<count($this->items);$i++) {
-			$feed.= "                <rdf:li rdf:resource=\"".FeedCreator::htmlspecialchars($this->items[$i]->link)."\"/>\n";
+			$feed.= "                <rdf:li rdf:resource=\"".$this->htmlspecialchars($this->items[$i]->link)."\"/>\n";
 		}
 		$feed.= "            </rdf:Seq>\n";
 		$feed.= "        </items>\n";
 		$feed.= "    </channel>\n";
 		if ($this->image!=null) {
 			$feed.= "    <image rdf:about=\"".$this->image->url."\">\n";
-			$feed.= "        <title>".$this->image->title."</title>\n";
+			$feed.= "        <title>".$this->htmlspecialchars($this->image->title)."</title>\n";
 			$feed.= "        <link>".$this->image->link."</link>\n";
 			$feed.= "        <url>".$this->image->url."</url>\n";
 			$feed.= "    </image>\n";
@@ -52,22 +52,22 @@ class RSS10 extends FeedCreator {
 		$feed.= $this->_createAdditionalElements($this->additionalElements, "    ");
 
 		for ($i=0;$i<count($this->items);$i++) {
-			$feed.= "    <item rdf:about=\"".FeedCreator::htmlspecialchars($this->items[$i]->link)."\">\n";
+			$feed.= "    <item rdf:about=\"".$this->htmlspecialchars($this->items[$i]->link)."\">\n";
 			//$feed.= "        <dc:type>Posting</dc:type>\n";
 			$feed.= "        <dc:format>text/html</dc:format>\n";
 			if ($this->items[$i]->date!=null) {
 				$itemDate = new FeedDate($this->items[$i]->date);
-				$feed.= "        <dc:date>".FeedCreator::htmlspecialchars($itemDate->iso8601())."</dc:date>\n";
+				$feed.= "        <dc:date>".$this->htmlspecialchars($itemDate->iso8601())."</dc:date>\n";
 			}
 			if ($this->items[$i]->source!="") {
-				$feed.= "        <dc:source>".FeedCreator::htmlspecialchars($this->items[$i]->source)."</dc:source>\n";
+				$feed.= "        <dc:source>".$this->htmlspecialchars($this->items[$i]->source)."</dc:source>\n";
 			}
 			if ($this->items[$i]->author!="") {
-				$feed.= "        <dc:creator>".FeedCreator::htmlspecialchars($this->items[$i]->author)."</dc:creator>\n";
+				$feed.= "        <dc:creator>".$this->htmlspecialchars($this->items[$i]->author)."</dc:creator>\n";
 			}
-			$feed.= "        <title>".FeedCreator::htmlspecialchars(strip_tags(strtr($this->items[$i]->title,"\n\r","  ")))."</title>\n";
-			$feed.= "        <link>".FeedCreator::htmlspecialchars($this->items[$i]->link)."</link>\n";
-			$feed.= "        <description>".FeedCreator::htmlspecialchars($this->items[$i]->description)."</description>\n";
+			$feed.= "        <title>".$this->htmlspecialchars(strip_tags(strtr($this->items[$i]->title,"\n\r","  ")))."</title>\n";
+			$feed.= "        <link>".$this->htmlspecialchars($this->items[$i]->link)."</link>\n";
+			$feed.= "        <description>".$this->htmlspecialchars($this->items[$i]->description)."</description>\n";
 			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "        ");
 
 			// added by Joseph LeBlanc, contact@jlleblanc.com

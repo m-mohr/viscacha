@@ -58,21 +58,11 @@
 <label for="topic"><?php echo $lang->phrase('title'); ?></label>
 <input class="label" type="text" name="topic" id="topic" size="40" tabindex="5" value="<?php echo $data['topic']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label><?php echo $inner['smileys']; ?></label>
-<?php echo $inner['bbhtml']; ?>
-<br class="newinput" /><hr class="formsep" />
-<label for="comment"><?php echo $lang->phrase('post'); ?>&nbsp;</label>
-<div class="label">
-	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="9" tabindex="6"><?php echo $data['comment']; ?></textarea>
-	<div class="stext">
-		<span class="textright right">
-			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
-			[<a href="#" onclick="return resize_textarea(-1)"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>]
-		</span>
-		[<a href="#" onclick="return textarea_length(<?php echo $config['maxpostlength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
-	</div>
-</div>
-<br class="newinput" /><hr class="formsep" />
+<label for="comment"><?php echo $lang->phrase('post'); ?></label>
+<div class="label textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></div>
+<br class="newinput" /><br class="minibr" />
+<?php echo $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="6"'); ?>
+<hr class="formsep" />
 <label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
 	<input type="checkbox" name="dosmileys" tabindex="7" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
@@ -88,10 +78,10 @@ if ($p_upload == 1) { ?>
 	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
 </div>
 <br class="newinput" />
-<?php } if ($my->vlogin && $abox['id'] > 0) { ?>
+<?php } if ($my->vlogin) { ?>
 <hr class="formsep" />
-<label for="page"><?php echo $lang->phrase('topic_abo'); ?></label>
-<select class="label" name="digest" id="page" tabindex="10">
+<label for="digest"><?php echo $lang->phrase('topic_abo'); ?></label>
+<select class="label" name="digest" id="digest" tabindex="10">
 	<option value="0"<?php echo iif($data['digest'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_none'); ?></option>
 	<option value="1"<?php echo iif($data['digest'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_s'); ?></option>
 	<option value="2"<?php echo iif($data['digest'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_d'); ?></option>

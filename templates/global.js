@@ -1,10 +1,10 @@
-// Spellchecker öffnen
-function openSpellChecker(val) {
-	valdata = FetchElement(val);
-	var speller = new spellChecker(valdata);
-	speller.openChecker();
-}
+///////////////////////// Variables /////////////////////////
+var boxes = new Array();
+var MenuTimeout = 500;
+var active = 0;
+var MenuCountHide = 0;
 
+///////////////////////// Global /////////////////////////
 function FetchElement(id) {
 	if (document.getElementById) {
 		return document.getElementById(id);
@@ -28,20 +28,21 @@ function OpenerFetchElement(id) {
 	}
 }
 
+///////////////////////// General / Misc. /////////////////////////
+function GetLeft(l) {
+	if (l.offsetParent) return (l.offsetLeft + GetLeft(l.offsetParent));
+	else return (l.offsetLeft);
+}
+function GetTop(l) {
+	if (l.offsetParent) return (l.offsetTop + GetTop(l.offsetParent));
+	else return (l.offsetTop);
+}
 function check_all(elem) {
 	var all = document.getElementsByName(elem.value);
 	for(var i=0; i < all.length; i++) {
-		if (all[i].checked == true) {
-			all[i].checked = false;
-			elem.checked = false;
-		}
-		else {
-			all[i].checked = true;
-			elem.checked = true;
-		}
+		all[i].checked = elem.checked;
 	}
 }
-
 function HandCursor(element) {
 	try {
 		element.style.cursor = "pointer"
@@ -51,65 +52,76 @@ function HandCursor(element) {
 	}
 }
 
-function submit_flood(Button) {
-	Button.value=lng['js_submitted'];
-}
-
-function showpost(Link) {
-	window.open(Link.href, "showpost", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes");
-}
-function edithistory(Link) {
-	window.open(Link.href, "edithistory", "width=640,height=380,resizable=yes,scrollbars=yes,location=no");
-}
-function adduploads(Link) {
-	window.open(Link.href, "adduploads", "width=480,height=480,resizable=yes,scrollbars=yes,status=yes");
-}
-function filetypeinfo(ftype) {
-	window.open(Link.href, "filetypeinfo", "width=400,height=250,resizable=no,scrollbars=yes");
-}
-function postrating(Link) {
-	window.open(Link.href, "postrating", "width=400,height=120,resizable=yes,scrollbars=yes,location=no");
-}
-
-function ReloadCountdown(iv) {
-	if (iv == -1) {
-		window.location.reload();
-	}
-	else {
-		countdown = FetchElement('countdown');
-		countdown.firstChild.nodeValue = iv;
-		iv = iv - 1;
-		setTimeout("ReloadCountdown("+iv+")", 1000);
-	}
-}
-
-function deletenotice(id) {
-	input = confirm(lng['js_confirm_ndelete']);
-	if (input == true) {
-		notices = document.getElementsByName("notice[]");
-		notices[id].value = '';
-		noticeArea = FetchElement("notice_"+id);
-		noticeArea.style.display = 'none';
-		Form = FetchElement('notice');
-		Form.submit();
-		return;
-	}
-}
-
-function confirmdelete(box) {
-	if (box.checked == true) {
-		input = confirm(lng['js_confirm_pdelete']);
-		if (input == true) {
-			box.checked = true;
+///////////////////////// Collapse/Expand Boxes /////////////////////////
+function Switch(switchimg, nocookie) {
+	switchimg.onclick = function() {
+		id = this.id.replace("img_","");
+		part = FetchElement("part_"+id);
+		if(part.style.display == 'none') {
+			switchimg.src = box_img_minus;
+			part.style.display = '';
+			if (nocookie != true) {
+				KillCookie(id);
+			}
 		}
 		else {
-			box.checked = false;
+			switchimg.src = box_img_plus;
+			part.style.display = 'none';
+			if (nocookie != true) {
+				SetCookie(id);
+			}
 		}
 	}
 }
 
-// Bilder an Forum anpassen
-function ResizeImg(img,maxwidth) {
+///////////////////////// Cookies /////////////////////////
+function SetCookie(n) {
+	var a = new Date();
+	a = new Date(a.getTime() +1000*60*60*24*365);
+	document.cookie = n+'=hidden; expires='+a.toGMTString()+';';
+}
+function GetCookie(n) {
+	a = document.cookie;
+	res = '';
+	while(a != '') {
+		cookiename = a.substring(0,a.search('='));
+		altcookiename = a.substring(1,a.search('='));
+		cookievalue = a.substring(a.search('=')+1,a.search(';'));
+		if(cookievalue == '') {
+			cookievalue = a.substring(a.search('=')+1,a.length);
+		}
+	 	if(n == cookiename || n == altcookiename) {
+			res = cookievalue;
+		}
+		i = a.search(';')+1;
+		if(i == 0) {
+			i = a.length;
+		}
+		a = a.substring(i,a.length);
+	}
+	return(res)
+}
+function KillCookie(n) {
+	document.cookie = n+'=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
+}
+
+///////////////////////// PopUps /////////////////////////
+function showpost(Link) {
+	window.open(Link.href, "showpost", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes,status=yes");
+}
+function edithistory(Link) {
+	window.open(Link.href, "edithistory", "width=640,height=380,resizable=yes,scrollbars=yes,location=no,status=no");
+}
+function adduploads(Link) {
+	window.open(Link.href, "adduploads", "width=480,height=480,resizable=yes,scrollbars=yes,location=no,status=yes");
+}
+function filetypeinfo(ftype) {
+	window.open(Link.href, "filetypeinfo", "width=400,height=250,resizable=no,scrollbars=yes,location=no,status=no");
+}
+function postrating(Link) {
+	window.open(Link.href, "postrating", "width=400,height=120,resizable=yes,scrollbars=yes,location=no,status=no");
+}
+function ResizeImg(img, maxwidth) {
 	if(img.width >= maxwidth && maxwidth != 0) {
 		var owidth = img.width;
 		var oheight = img.height;
@@ -117,86 +129,34 @@ function ResizeImg(img,maxwidth) {
 		img.height = Math.round(oheight/(owidth/maxwidth));
 		img.title = lng['imgtitle'];
 
-		try {
-			img.style.cursor = "pointer";
-		}
-		catch(e) {
-			img.style.cursor = "hand";
-		}
-
+		HandCursor(img);
 		img.onclick = function() {
 			var width = screen.width-30;
 			if (width > owidth) {
-				width = owidth+30;
+				width = owidth+40;
 			}
-			var height = screen.height-50;
+			var height = screen.height-80;
 			if (height > oheight) {
-				height = oheight+30;
+				height = oheight+70;
 			}
-			window.open(img.src,"","scrollbars=yes,status=no,toolbar=no,location=yes,directories=no,resizable=no,menubar=no,width="+width+",height="+height)
+			window.open(img.src,"","scrollbars=yes,status=yes,toolbar=no,location=yes,directories=no,resizable=yes,menubar=no,width="+width+",height="+height)
 		}
 	}
 }
-
 function openImageWindow(img, imgwidth, imgheight) {
     var width = screen.width-30;
     if (width > imgwidth) {
-        width = imgwidth+30;
+        width = imgwidth+40;
     }
-    var height = screen.height-50;
+    var height = screen.height-80;
     if (height > imgheight) {
-        height = imgheight+30;
+        height = imgheight+70;
     }
-    window.open(img.href,"","scrollbars=yes,status=no,toolbar=no,location=yes,directories=no,resizable=no,menubar=no,width="+width+",height="+height);
+    window.open(img.href,"","scrollbars=yes,status=yes,toolbar=no,location=yes,directories=no,resizable=yes,menubar=no,width="+width+",height="+height);
     return false;
 }
 
-/*
-XHConn - Simple XMLHTTP interface - bfults@gmail.com - 2005-04-08
-Code licensed under Creative Commons Attribution-ShareAlike License
-http://creativecommons.org/licenses/by-sa/2.0/
-*/
-
-function ajax() {
-  var xmlhttp, bComplete = false;
-  try { xmlhttp = new ActiveXObject("Msxml2.XMLHTTP"); }
-  catch (e) { try { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); }
-  catch (e) { try { xmlhttp = new XMLHttpRequest(); }
-  catch (e) { xmlhttp = false; }}}
-  if (!xmlhttp) return null;
-  this.connect = function(sURL, sMethod, sVars, fnDone)
-  {
-	if (!xmlhttp) return false;
-	bComplete = false;
-	sMethod = sMethod.toUpperCase();
-
-	try {
-	  if (sMethod == "GET")
-	  {
-		xmlhttp.open(sMethod, sURL+"?"+sVars, true);
-		sVars = "";
-	  }
-	  else
-	  {
-		xmlhttp.open(sMethod, sURL, true);
-		xmlhttp.setRequestHeader("Method", "POST "+sURL+" HTTP/1.1");
-		xmlhttp.setRequestHeader("Content-Type",
-		  "application/x-www-form-urlencoded");
-	  }
-	  xmlhttp.onreadystatechange = function(){
-		if (xmlhttp.readyState == 4 && !bComplete)
-		{
-		  bComplete = true;
-		  fnDone(xmlhttp);
-		}};
-	  xmlhttp.send(sVars);
-	}
-	catch(z) { return false; }
-	return true;
-  };
-  return this;
-}
-
+///////////////////////// AJAX /////////////////////////
 function ieRand() {
 	if (document.all && !window.opera) {
 		return '&rndcache='+Math.floor(Math.random()*1000000);
@@ -206,212 +166,202 @@ function ieRand() {
 	}
 }
 
-//
-// AJAX
-//
+/*
+XHConn - Simple XMLHTTP interface - bfults@gmail.com - 2005-04-08
+Code licensed under Creative Commons Attribution-ShareAlike License
+http://creativecommons.org/licenses/by-sa/2.0/
+*/
+function ajax() {
+	var xmlhttp, bComplete = false;
+	try {
+		xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+	}
+	catch (e) {
+		try {
+			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		catch (e) {
+			try {
+				xmlhttp = new XMLHttpRequest();
+			}
+			catch (e) {
+				xmlhttp = false;
+			}
+		}
+	}
+	if (!xmlhttp) {
+		return null;
+	}
 
-// Schliesst oder oeffnet einen Beitrag
-function ajax_openclosethread(id, img, isnew) {
-	var myConn = new ajax();
-	if (!myConn) {alert(lng['ajax0']);}
-	var fnWhenDone = function (oXML) {
-		if (oXML.responseText == '1' || oXML.responseText == '2') {
-			lngval = 'ajax'+oXML.responseText;
-			alert(lng[lngval]);
+  	this.connect = function(sURL, sMethod, sVars, fnDone) {
+		if (!xmlhttp) {
+			return false;
 		}
-		else if (oXML.responseText == '3' || oXML.responseText == '4') {
-			lngval = 'ajax'+oXML.responseText+'_'+isnew;
-			img.src = lng[lngval];
+		bComplete = false;
+		sMethod = sMethod.toUpperCase();
+
+		try {
+	  		if (sMethod == "GET") {
+				xmlhttp.open(sMethod, sURL+"?"+sVars, true);
+				sVars = "";
+		  	}
+			else {
+				xmlhttp.open(sMethod, sURL, true);
+				xmlhttp.setRequestHeader("Method", "POST "+sURL+" HTTP/1.1");
+				xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+		  	}
+		  	xmlhttp.onreadystatechange = function(){
+				if (xmlhttp.readyState == 4 && !bComplete) {
+			  		bComplete = true;
+			  		fnDone(xmlhttp);
+				}
+		  	};
+		  	xmlhttp.send(sVars);
 		}
+		catch(z) {
+			return false;
+		}
+		return true;
 	};
-	myConn.connect("ajax.php", "GET", "action=openclosethread&id="+id+sidx+ieRand(), fnWhenDone);
+
+	return this;
 }
 
-// Setzt forum als gelesen
-function ajax_markforumread(id, img, small) {
-	var myConn = new ajax();
-	if (!myConn) {alert(lng['ajax0']);}
-	var fnWhenDone = function (oXML) {
-		if (oXML.responseText == '1') {
-			if (small == 1) {
-				img.src = lng['ajax_markforumread_small'];
-			}
-			else {
-				img.src = lng['ajax_markforumread'];
-			}
+///////////////////////// Functions for Tooltips/PopUp-Menus /////////////////////////
+function TryHideMenu(menu,CountHide) {
+	if (CountHide != MenuCountHide) {
+		return;
+	}
+	Hide(menu);
+}
+function MenuEvent() {
+	var elementevent = FetchElement("popup_"+active);
+	elementevent.onmouseover = elemMouseOver;
+	elementevent.onmouseout = elemMouseOut;
+}
+function elemMouseOver() {
+	MenuCountHide++;
+}
+function elemMouseOut() {
+	setTimeout("TryHideMenu('" + active + "', " + MenuCountHide + ")", MenuTimeout);
+}
+function ShowMenu(id) {
+	if(active != 0) {
+		if (id == active) {
+			HideMenu(active);
+    	}
+		else {
+			Hide(active);
+			ShowMenu(id);
+		}
+	}
+	else {
+		var elementbutton = FetchElement("menu_"+id);
+		var buttonleft = GetLeft(elementbutton);
+		var buttontop = GetTop(elementbutton);
+		var buttonwidth = elementbutton.offsetWidth;
+		var buttonheight = elementbutton.offsetHeight;
+		var elementmenu = FetchElement("popup_"+id);
+		var menuwidth = elementmenu.offsetWidth;
+		if((buttonleft+menuwidth) >= document.body.clientWidth) {
+			var posx = buttonleft + buttonwidth - menuwidth;
 		}
 		else {
-			// ToDo: Error (0=No Permission)
+			var posx = buttonleft;
 		}
-	};
-	myConn.connect("ajax.php", "GET", "action=markforumread&id="+id+sidx+ieRand(), fnWhenDone);
+		var posy = buttontop + buttonheight;
+
+		elementmenu.style.zIndex = 10;
+		elementmenu.style.left = posx+'px';
+		elementmenu.style.top = posy+'px';
+		elementmenu.style.visibility = 'visible';
+		if (!document.all || window.opera) {
+			elementmenu.style.overflow = 'auto';
+		}
+		active = id;
+		MenuEvent();
+	}
 }
-
-
-// Checkt ob der Nutzername schon existiert
-function ajax_doubleudata(name) {
-	inline = FetchElement('udata_name');
-	if (name.length > 3) {
-		var myConn = new ajax();
-		if (!myConn) {alert(lng['ajax0']);}
-		var fnWhenDone = function (oXML) {
-			if (oXML.responseText == '1') {
-				lngval = 'ajax'+oXML.responseText;
-				alert(lng[lngval]);
-			}
-			else {
-				lngval = 'ajax'+oXML.responseText;
-				inline.innerHTML = lng[lngval];
-			}
-		};
-		myConn.connect("ajax.php", "GET", "action=doubleudata&name="+name+sidx+ieRand(), fnWhenDone);
+function HideMenu(menu) {
+	var elementhide = FetchElement("popup_"+menu);
+	elementhide.style.zIndex = -1;
+	elementhide.style.left = '-1000px';
+	elementhide.style.top = '-1000px';
+	elementhide.style.visibility = 'hidden';
+	if (!document.all || window.opera) {
+		elementhide.style.overflow = 'hidden';
+	}
+	active = 0;
+}
+function Click() {
+	id = this.id.replace("menu_","");
+	ShowMenu(id);
+	return false;
+}
+function Swap() {
+	id = this.id.replace("menu_","");
+	elemMouseOver();
+	if (active != 0 && active != id) {
+		HideMenu(active);
+		ShowMenu(id);
 	}
 	else {
-		inline.innerHTML = '';
+		this.onmouseout = elemMouseOut;
+	}
+}
+function Hide() {
+    if (active != 0) {
+		HideMenu(active);
 	}
 }
 
-// Sucht nach Nutzernamen (PN)
-function ajax_searchmember(name) {
-	inline = FetchElement('membersuggest');
-	if (name.length > 2) {
-		var myConn = new ajax();
-		if (!myConn) {alert(lng['ajax0']);}
-		var fnWhenDone = function (oXML) {
-			suggest = oXML.responseText;
-			if (suggest.length > 3) {
-				names = oXML.responseText.split(",");
-				for (var i=0;i<names.length;i++) {
-					names[i] = '<a tabindex="1'+i+'" href="javascript:ajax_smIns(\''+names[i]+'\');">'+names[i]+'</a>';
-				}
-				inline.innerHTML = lng['ajax7']+names.join(', ');
+///////////////////////// Tooltips /////////////////////////
+function RegisterTooltip(id) {
+	id = "tooltip_"+id
+	var buttonregister = FetchElement("menu_"+id);
+	if(buttonregister) {
+		buttonregister.onmouseover = ShowTooltip;
+		window.onresize = Hide;
+
+		if (typeof buttonregister.title != 'undefined' && buttonregister.title.length > 0) {
+			element = FetchElement("header_"+id);
+			if (typeof element != 'undefined' && element != null) {
+				element.innerHTML = buttonregister.title;
+				element.className = 'tooltip_header';
 			}
-			else {
-				inline.innerHTML = '';
-			}
-		};
-		myConn.connect("ajax.php", "GET", "action=searchmember&name="+name+sidx+ieRand(), fnWhenDone);
+			buttonregister.title = '';
+		}
+
+		if (active != 0 && active != id) {
+			HideMenu(active);
+		}
+		else {
+			this.onmouseout = elemMouseOut;
+		}
+		ShowMenu(id);
+	}
+}
+function ShowTooltip() {
+	id = this.id.replace("menu_","");
+	elemMouseOver();
+	if (active != 0 && active != id) {
+		HideMenu(active);
 	}
 	else {
-		inline.innerHTML = '';
+		this.onmouseout = elemMouseOut;
 	}
-}
-// Sucht nach Nutzernamen (PN) - Einfügen d. Nutzernamens
-function ajax_smIns(name) {
-	inline = FetchElement('membersuggest_val');
-	inline.value = name;
-	inline2 = FetchElement('membersuggest');
-	inline2.innerHTML = '';
+	ShowMenu(id);
 }
 
-// Sucht nach ignorierten Wörtern
-function ajax_search(words) {
-	inline = FetchElement('searchsuggest');
-	inline.innerHTML = '';
-	if (words.length > 2) {
-		var myConn = new ajax();
-		if (!myConn) {alert(lng['ajax0']);}
-		var fnWhenDone = function (oXML) {
-			x = oXML.responseText;
-			if (x == '1') {
-				inline.innerHTML = '';
-			}
-			else {
-				ignore = x.split(",");
-				if (ignore.length > 0) {
-					inline.innerHTML = lng['ajax9']+ignore.join(', ');
-				}
-				else {
-					inline.innerHTML = '';
-				}
-			}
-		};
-		myConn.connect("ajax.php", "GET", "action=search&search="+escape(words)+sidx+ieRand(), fnWhenDone);
+///////////////////////// PopUp-Menus /////////////////////////
+function RegisterMenu(id) {
+	var buttonregister = FetchElement("menu_"+id);
+	if(buttonregister) {
+		HandCursor(buttonregister);
+		buttonregister.unselectable = true;
+		buttonregister.onclick = Click;
+		buttonregister.onmouseover = Swap;
+		window.onresize = Hide;
 	}
-}
-
-//
-// Multiquote
-//
-var mq_cookiename = cookieprefix+'_vquote';
-function mq_init() {
-	var cookie = mqgetCookie();
-	if(cookie) {
-		var values = cookie.split(',');
-		for(var i = 0; i < values.length; i++) {
-			var itm = FetchElement('mq_'+values[i]);
-			var itml = FetchElement('mq_'+values[i]+'_link');
-			if(itm) {
-				itm.src = mq_img_on;
-			}
-			if(itml) {
-				itml.innerHTML = lng['js_quote_multi_2'];
-			}
-		}
-	}
-}
-function mqmakeCookie(value) {
-	var cookie = mq_cookiename + '=' + escape(value) + '; ';
-	document.cookie = cookie;
-}
-function mqgetCookie() {
-	if(document.cookie == '') {
-		return false;
-	}
-
-	var name = mq_cookiename;
-	var firstPos;
-	var lastPos;
-	var cookie = document.cookie;
-	firstPos = cookie.indexOf(name);
-	if(firstPos != -1) {
-		firstPos += name.length + 1;
-		lastPos = cookie.indexOf(';', firstPos);
-		if(lastPos == -1) {
-			lastPos = cookie.length;
-		}
-		return unescape(cookie.substring(firstPos, lastPos));
-	}
-	else {
-		return false;
-	}
-}
-function multiquote(id) {
-	img = FetchElement('mq_'+id);
-	link = FetchElement('mq_'+id+'_link');
-	cookie = mqgetCookie();
-	values = new Array();
-	newval = new Array();
-	add	   = 1;
-
-	if(cookie) {
-		values = cookie.split(',');
-		for(var i = 0; i < values.length; i++) {
-			if(values[i] == id) {
-				 add = 0;
-			}
-			else {
-				newval[newval.length] = values[i];
-			}
-		}
-	}
-	if(add) {
-		newval[newval.length] = id;
-		img.src = mq_img_on;
-		link.innerHTML = lng['js_quote_multi_2'];
-	}
-	else {
-		img.src = mq_img_off;
-		link.innerHTML = lng['js_quote_multi'];
-	}
-
-	mqmakeCookie(newval.join(','));
-}
-
-// Namen richtig setzen beim PM schreiben
-function edit_pmto() {
-	FetchElement('membersuggest_val').name = 'name';
-	FetchElement('membersuggest_val2').name = 'name2';
-	FetchElement('membersuggest_val').disabled = '';
-	FetchElement('edit_pmto').style.display = 'none';
+	return false;
 }

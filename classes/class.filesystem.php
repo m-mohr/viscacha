@@ -2,15 +2,10 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 if (!class_exists('ftp')) {
-	if (is_dir("classes/ftp/")) {
-		$path = 'classes';
-	}
-	else {
-		$path = realpath(dirname(__FILE__));
-	}
-	require_once("{$path}/ftp/class.ftp.php");
+	$classpath = dirname(__FILE__);
+	require_once("{$classpath}/ftp/class.ftp.php");
 	$pemftp_class = pemftp_class_module();
-	require_once("{$path}/ftp/class.ftp_{$pemftp_class}.php");
+	require_once("{$classpath}/ftp/class.ftp_{$pemftp_class}.php");
 }
 
 class filesystem {
@@ -22,6 +17,7 @@ class filesystem {
 	var $ftp;
 	var $connected;
 	var $installed_path;
+	var $root_path;
 
 	function filesystem($server, $user, $pw, $port = 21) {
 		$this->server = $server;
@@ -30,10 +26,17 @@ class filesystem {
 		$this->pw = $pw;
 		$this->installed_path = DIRECTORY_SEPARATOR;
 		$this->connected = false;
+		$this->root_path = DIRECTORY_SEPARATOR;
 	}
 
-	function set_wd($path) {
-		$this->installed_path = $path;
+	function _ftpize_path($path) {
+		$path = preg_replace('~^'.preg_quote($this->root_path).'~i', '', $path);
+		return $path;
+	}
+
+	function set_wd($ftp_root, $web_root) {
+		$this->installed_path = $ftp_root;
+		$this->root_path = $web_root.DIRECTORY_SEPARATOR;
 	}
 
 	function init() {
@@ -75,6 +78,7 @@ class filesystem {
 		}
 		if (@unlink($file) == false) {
 			if ($this->init()) {
+				$file = $this->_ftpize_path($file);
 				return $this->ftp->delete($file);
 			}
 			else {
@@ -99,6 +103,7 @@ class filesystem {
 				if ($this->init()) {
 					fwrite($fp, $data);
 					fseek($fp, 0);
+					$file = $this->_ftpize_path($file);
 					$this->chmod(dirname($file), 0777);
 					$ret = $this->ftp->put($fp, $file);
 				}
@@ -130,6 +135,7 @@ class filesystem {
             $fp = @fopen($file, "r");
             if (is_resource($fp)) {
             	if ($this->init()) {
+            		$file = $this->_ftpize_path($file);
 					$this->chmod(dirname($file), 0777);
             		$ret = $this->ftp->put($fp, str_replace(' ', '_', $dest));
             	}
@@ -156,6 +162,7 @@ class filesystem {
 		}
 		if (!@mkdir($file, $chmod)) {
 			if ($this->init()) {
+				$file = $this->_ftpize_path($file);
 				$success = $this->ftp->mkdir($file);
 				$this->ftp->chmod($file, $chmod);
 				return $success;
@@ -177,12 +184,14 @@ class filesystem {
 		if (!@rename($old, $new)) {
 			$ret = false;
 			if ($this->init()) {
+				$old = $this->_ftpize_path($old);
+				$new = $this->_ftpize_path($new);
 				$ret = $this->ftp->rename($old, $new);
 			}
 			if ($ret == false) {
-				$ret = copyr($old, $new);
+				$ret = $this->copyr($old, $new);
 				if ($ret == true) {
-					rmdirr($old);
+					$this->rmdirr($old);
 				}
 				return $ret;
 			}
@@ -198,6 +207,7 @@ class filesystem {
 		}
 		if (!@chmod($file, $chmod)) {
 			if ($this->init()) {
+				$file = $this->_ftpize_path($file);
 				return $this->ftp->chmod($file, $chmod);
 			}
 			else {
@@ -215,6 +225,7 @@ class filesystem {
 		}
 		if (!@rmdir($file)) {
 			if ($this->init()) {
+				$file = $this->_ftpize_path($file);
 				return $this->ftp->rmdir($file);
 			}
 			else {
@@ -223,6 +234,92 @@ class filesystem {
 		}
 		else {
 			return true;
+		}
+	}
+
+	/*	Delete a file, or a folder and its contents
+	*	@author      Aidan Lister <aidan@php.net>
+	*	@version     1.0.0
+	*	@param       string   $dirname    The directory to delete
+	*	@return      bool     Returns true on success, false on failure
+	*/
+	function rmdirr($dirname) {
+		if (!file_exists($dirname)) {
+			return false;
+		}
+		if (is_file($dirname)) {
+			return $this->unlink($dirname);
+		}
+		$dir = dir($dirname);
+		while (false !== $entry = $dir->read()) {
+			if ($entry == '.' || $entry == '..') {
+				continue;
+			}
+			if (is_dir("$dirname/$entry")) {
+				$this->rmdirr("$dirname/$entry");
+			}
+			else {
+				$this->unlink("$dirname/$entry");
+			}
+		}
+		$dir->close();
+		return $this->rmdir($dirname);
+	}
+	/**
+	 * Copy a file, or recursively copy a folder and its contents
+	 *
+	 * @author      Aidan Lister <aidan@php.net>
+	 * @version     1.0.1
+	 * @link        http://aidanlister.com/repos/v/function.copyr.php
+	 * @param       string   $source    Source path
+	 * @param       string   $dest      Destination path
+	 * @return      bool     Returns TRUE on success, FALSE on failure
+	 */
+	function copyr($source, $dest) {
+	    if (is_file($source)) {
+	        return $this->copy($source, $dest);
+	    }
+	    if (!is_dir($dest)) {
+	        if (!$this->mkdir($dest, 0777)) {
+	        	return false;
+	        }
+	    }
+	    if (!is_dir($source)) {
+	    	return false;
+	    }
+	    $dir = @dir($source);
+	    if (!is_object($dir)) {
+	    	return false;
+	    }
+	    $ret = true;
+	    while (false !== $entry = $dir->read()) {
+	        if ($entry == '.' || $entry == '..') {
+	            continue;
+	        }
+	        if ($dest !== "{$source}/{$entry}") {
+	            $ret2 = $this->copyr("{$source}/{$entry}", "{$dest}/{$entry}");
+	            if ($ret2 == false) {
+	            	$ret = false;
+	            }
+	        }
+	    }
+	    $dir->close();
+	    return $ret;
+	}
+
+	function mover($source, $dest) {
+	    if (!is_dir($dest)) {
+	        $this->mkdir($dest, 0777);
+	    }
+		if ($this->rename($source, $dest)) {
+			return true;
+		}
+		else {
+			if ($this->copyr($source, $dest)) {
+				$this->rmdirr($source);
+				return true;
+			}
+			return false;
 		}
 	}
 

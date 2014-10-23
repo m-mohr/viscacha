@@ -8,6 +8,7 @@ $lang['admin_spider_add_edit_description'] = 'Here you can either add or modify 
 $lang['admin_spider_add_lowercase'] = 'add';
 $lang['admin_spider_add_new_robot'] = 'Add new Robot';
 $lang['admin_spider_all_title'] = 'All';
+$lang['admin_spider_bots'] = 'Bots';
 $lang['admin_spider_bots_description'] = 'Bots (also known as crawlers or spiders) are automated agents most commonly used to index information on the internet. Very few of these bots support sessions and can therefore fail to index your site correctly. Here you can define the assigning of session ids to these bots to solve this problem.';
 $lang['admin_spider_bots_note'] = 'The logging of visits and last visits is currently disabled, but old data may be shown. You can turn it on in your <a href="admin.php?action=settings&amp;job=spiders">Viscacha Settings</a>!';
 $lang['admin_spider_bot_data_successfully_deleted'] = 'Bot data successfully deleted.';

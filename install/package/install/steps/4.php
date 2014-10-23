@@ -1,6 +1,6 @@
 <?php
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_server'])) {
-	@include('../data/config.inc.php');
+	include('data/config.inc.php');
 	if (isset($_REQUEST['ftp_server'])) {
 		$config['ftp_server'] = trim($_REQUEST['ftp_server']);
 	}
@@ -17,8 +17,8 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 		$config['ftp_path'] = trim($_REQUEST['ftp_path']);
 	}
 
-	require_once("../classes/ftp/class.ftp.php");
-	require_once("../classes/ftp/class.ftp_".pemftp_class_module().".php");
+	require_once("install/classes/ftp/class.ftp.php");
+	require_once("install/classes/ftp/class.ftp_".pemftp_class_module().".php");
 
 	echo '<div class="bbody" style="display: none;"><strong>FTP-Command-Log:</strong>:<br /><pre>';
 
@@ -57,15 +57,14 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 					<?php
 				}
 				else {
-					$ftp->chmod('../data/config.inc.php', 0666);
-					$ftp->cdup();
 					$ftp->quit();
-					require_once('../classes/class.filesystem.php');
+					require_once('install/classes/class.filesystem.php');
 					$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-					$filesystem->set_wd($config['ftp_path']);
-					include('../classes/class.phpconfig.php');
+					$filesystem->set_wd($config['ftp_path'], $config['fpath']);
+					$filesystem->chmod('data/config.inc.php', 0666);
+					include('install/classes/class.phpconfig.php');
 					$c = new manageconfig();
-					$c->getdata('../data/config.inc.php');
+					$c->getdata('data/config.inc.php');
 					$c->updateconfig('ftp_server',str);
 					$c->updateconfig('ftp_user',str);
 					$c->updateconfig('ftp_pw',str);
@@ -81,67 +80,16 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 	}
 }
 if (!isset($filesystem)) {
-	include('../data/config.inc.php');
-	require_once('../classes/class.filesystem.php');
+	include('data/config.inc.php');
+	require_once('install/classes/class.filesystem.php');
 	$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+	$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 }
-$config['ftp_path'] = $config['ftp_path'].'/install';
-$filesystem->set_wd($config['ftp_path']);
+
+require('install/classes/function.chmod.php');
+$chmod = getViscachaCHMODs();
 ?>
 <div class="bbody">
-<?php
-define('CHEX', 777);
-define('CHWR', 666);
-require('lib/function.chmod.php');
-$chmod = array(
-//array('path' => 'install', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'data', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'data/cron', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'feeds', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'docs', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/cron/jobs', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/feedcreator', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/fonts', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/geshi', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/graphic/noises', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'admin/backup', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'admin/data', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'designs', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'images', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'modules', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'language', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'cache', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'temp', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'uploads', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'admin/data', 'chmod' => CHWR, 'recursive' => true, 'req' => false),
-array('path' => '.htaccess', 'chmod' => CHWR, 'recursive' => false, 'req' => false),
-array('path' => 'data', 'chmod' => CHWR, 'recursive' => true, 'req' => true),
-array('path' => 'language', 'chmod' => CHWR, 'recursive' => true, 'req' => false)
-);
-$path = 'docs';
-$dh = opendir('../'.$path);
-while ($file = readdir($dh)) {
-	if($file != '.' && $file != '..') {
-		$fullpath = $path.'/'.$file;
-		if(is_file('../'.$fullpath)) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHWR, 'recursive' => false, 'req' => false);
-		}
-	}
-}
-closedir($dh);
-$path = 'templates';
-$dh = opendir('../'.$path);
-while ($file = readdir($dh)) {
-	if($file != '.' && $file != '..') {
-		$fullpath = $path.'/'.$file;
-		if(is_dir('../'.$fullpath) && intval($file) == $file) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHEX, 'recursive' => false, 'req' => false);
-		}
-	}
-}
-closedir($dh);
-
-?>
 <p>Some directories and files needs special permissions (CHMOD) to be writable und executable.
 This permissions will be checked and the result will be shown below.</p>
 <p>The following states can appear:<br />
@@ -151,7 +99,7 @@ This permissions will be checked and the result will be shown below.</p>
 </p>
 <table class="tables">
 <tr>
-	<td width="70%"><strong>File / Directory (<?php echo realpath('../'); ?>)</strong></td>
+	<td width="70%"><strong>File / Directory (<?php echo realpath('./'); ?>)</strong></td>
 	<td width="10%"><strong>Required</strong></td>
 	<td width="10%"><strong>Given</strong></td>
 	<td width="10%"><strong>State</strong></td>
@@ -159,26 +107,24 @@ This permissions will be checked and the result will be shown below.</p>
 <?php
 $files = array();
 foreach ($chmod as $dat) {
-	$path = '../'.$dat['path'];
 	if ($dat['recursive']) {
 		$filenames = array();
-		if ($dat['chmod'] == CHEX) {
-			$filenames = set_chmod_r($path, 0777, CHMOD_DIR);
+		if ($dat['chmod'] == CHMOD_EX) {
+			$filenames = set_chmod_r($dat['path'], 0777, CHMOD_DIR);
 		}
-		elseif ($dat['chmod'] == CHWR) {
-			$filenames = set_chmod_r($path, 0666, CHMOD_FILE);
+		elseif ($dat['chmod'] == CHMOD_WR) {
+			$filenames = set_chmod_r($dat['path'], 0666, CHMOD_FILE);
 		}
 		foreach ($filenames as $f) {
-			$f = str_replace('../', '', $f);
 			$files[] = array('path' => $f, 'chmod' => $dat['chmod'], 'recursive' => false, 'req' => $dat['req']);
 		}
 	}
 	else {
-		if ($dat['chmod'] == CHEX) {
-			set_chmod($path, 0777, CHMOD_DIR);
+		if ($dat['chmod'] == CHMOD_EX) {
+			set_chmod($dat['path'], 0777, CHMOD_DIR);
 		}
-		elseif ($dat['chmod'] == CHWR) {
-			set_chmod($path, 0666, CHMOD_FILE);
+		elseif ($dat['chmod'] == CHMOD_WR) {
+			set_chmod($dat['path'], 0666, CHMOD_FILE);
 		}
 		$files[] = $dat;
 	}
@@ -187,12 +133,11 @@ foreach ($chmod as $dat) {
 sort($files);
 $failure = false;
 foreach ($files as $arr) {
-	$filesys_path = '../'.$arr['path'];
-	$path = realpath($filesys_path);
+	$path = realpath($arr['path']);
 	if (empty($path)) {
 		$path = $arr['path'];
 	}
-	$chmod = get_chmod($filesys_path);
+	$chmod = get_chmod($path);
 	if (check_chmod($arr['chmod'], $chmod)) {
 		$status = '<strong class="hl_true">OK</strong>';
 		$int_status = true;
@@ -211,7 +156,7 @@ foreach ($files as $arr) {
 <tr>
 	<td><?php echo $arr['path']; ?></td>
 	<td><?php echo $arr['chmod']; ?></td>
-	<td><?php echo substr($chmod, 1, 3); ?></td>
+	<td><?php echo $chmod; ?></td>
 	<td><?php echo $status; ?></td>
 </tr>
 <?php

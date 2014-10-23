@@ -1,40 +1,39 @@
-ALTER TABLE `{:=DBPREFIX=:}bbcode` MODIFY COLUMN `bbcodeexample` text NOT NULL;
-ALTER TABLE `{:=DBPREFIX=:}bbcode` MODIFY COLUMN `title` varchar(255) NOT NULL default '';
+ALTER TABLE `{:=DBPREFIX=:}component` MODIFY COLUMN `package` mediumint(7) UNSIGNED NOT NULL default '0';
 
-ALTER TABLE `{:=DBPREFIX=:}categories` MODIFY COLUMN `name` text NOT NULL;
+CREATE TABLE IF NOT EXISTS `{:=DBPREFIX=:}flood` (
+  `ip` varchar(16) NOT NULL default '',
+  `mid` mediumint(7) unsigned NOT NULL default '0',
+  `time` int(10) unsigned NOT NULL,
+  `type` varchar(3) NOT NULL default 'sta'
+) TYPE=MyISAM;
 
-ALTER TABLE `{:=DBPREFIX=:}filetypes` MODIFY COLUMN `program` text NOT NULL;
+CREATE TABLE IF NOT EXISTS `{:=DBPREFIX=:}documents_content` (
+  `did` int(10) unsigned NOT NULL default '0',
+  `lid` smallint(4) unsigned NOT NULL default '0',
+  `title` varchar(255) NOT NULL default '',
+  `content` mediumtext NOT NULL,
+  `active` enum('0','1') NOT NULL default '0',
+  UNIQUE KEY `id` (`did`,`lid`)
+) TYPE=MyISAM;
 
-ALTER TABLE `{:=DBPREFIX=:}forums` MODIFY COLUMN `name` text NOT NULL;
-ALTER TABLE `{:=DBPREFIX=:}forums` MODIFY COLUMN `message_title` text NOT NULL;
+DROP TABLE `{:=DBPREFIX=:}documents`;
+CREATE TABLE `{:=DBPREFIX=:}documents` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `author` mediumint(7) unsigned NOT NULL default '0',
+  `date` int(10) unsigned NOT NULL default '0',
+  `update` int(10) unsigned NOT NULL default '0',
+  `type` tinyint(2) NOT NULL default '0',
+  `groups` varchar(150) NOT NULL default '',
+  `icomment` text NOT NULL,
+  PRIMARY KEY  (`id`)
+) TYPE=MyISAM  AUTO_INCREMENT=1 ;
 
-ALTER TABLE `{:=DBPREFIX=:}pm` MODIFY COLUMN `topic` text NOT NULL;
 
-ALTER TABLE `{:=DBPREFIX=:}profilefields` MODIFY COLUMN `name` varchar(200) NOT NULL default '';
+ALTER TABLE `{:=DBPREFIX=:}forums` ADD COLUMN `lid` smallint(4) unsigned NOT NULL default '0' AFTER `message_text`;
 
-ALTER TABLE `{:=DBPREFIX=:}replies` MODIFY COLUMN `topic` text NOT NULL;
-ALTER TABLE `{:=DBPREFIX=:}replies` MODIFY COLUMN `report` text NOT NULL;
+ALTER TABLE `{:=DBPREFIX=:}grab` MODIFY COLUMN `entries` smallint(2) unsigned NOT NULL default '0';
+ALTER TABLE `{:=DBPREFIX=:}grab` MODIFY COLUMN `max_age` mediumint(6) unsigned NOT NULL default '720';
 
-ALTER TABLE `{:=DBPREFIX=:}session` MODIFY COLUMN `pwfaccess` text NOT NULL;
-ALTER TABLE `{:=DBPREFIX=:}session` MODIFY COLUMN `settings` text NOT NULL;
+ALTER TABLE `{:=DBPREFIX=:}language` MODIFY COLUMN `id` smallint(4) unsigned NOT NULL auto_increment;
 
-ALTER TABLE `{:=DBPREFIX=:}settings` MODIFY COLUMN `title` varchar(255) NOT NULL default '';
-
-ALTER TABLE `{:=DBPREFIX=:}settings_groups` MODIFY COLUMN `title` varchar(255) NOT NULL default '';
-
-ALTER TABLE `{:=DBPREFIX=:}textparser` MODIFY COLUMN `id` mediumint(6) unsigned NOT NULL auto_increment;
-ALTER TABLE `{:=DBPREFIX=:}textparser` MODIFY COLUMN `search` varchar(255) NOT NULL default '';
-ALTER TABLE `{:=DBPREFIX=:}textparser` MODIFY COLUMN `replace` varchar(255) NOT NULL default '';
-ALTER TABLE `{:=DBPREFIX=:}textparser` MODIFY COLUMN `desc` text NOT NULL;
-
-ALTER TABLE `{:=DBPREFIX=:}topics` MODIFY COLUMN `topic` text NOT NULL;
-ALTER TABLE `{:=DBPREFIX=:}topics` MODIFY COLUMN `name` varchar(255) NOT NULL default '';
-ALTER TABLE `{:=DBPREFIX=:}topics` MODIFY COLUMN `last_name` varchar(255) NOT NULL default '';
-ALTER TABLE `{:=DBPREFIX=:}topics` MODIFY COLUMN `vquestion` text NOT NULL;
-ALTER TABLE `{:=DBPREFIX=:}topics` MODIFY COLUMN `mark` enum('','b','g','a','n') NULL default NULL;
-
-ALTER TABLE `{:=DBPREFIX=:}user` MODIFY COLUMN `name` varchar(255) NOT NULL default '';
-ALTER TABLE `{:=DBPREFIX=:}user` MODIFY COLUMN `fullname` varchar(255) NOT NULL default '';
-ALTER TABLE `{:=DBPREFIX=:}user` MODIFY COLUMN `location` varchar(200) NOT NULL default '';
-
-ALTER TABLE `{:=DBPREFIX=:}vote` MODIFY COLUMN `answer` text NOT NULL;
+DROP TABLE IF EXISTS `{:=DBPREFIX=:}spellcheck`;

@@ -80,8 +80,8 @@ elseif ($job == 'smileys_edit2') {
 	$id = $gpc->get('id', arr_int);
 	foreach ($id as $i) {
 		$search = $gpc->get('search_'.$i, str);
-		$replace = $gpc->get('replace_'.$i, str);
-		$desc = $gpc->get('desc_'.$i, str);
+		$replace = $gpc->get('replace_'.$i, db_esc);
+		$desc = $gpc->get('desc_'.$i, db_esc);
 		$show = $gpc->get('show_'.$i, int);
 		$db->query("UPDATE {$db->pre}smileys AS s SET s.search = '{$search}', s.replace = '{$replace}', s.desc = '{$desc}', s.show = '{$show}' WHERE s.id = '{$i}' LIMIT 1",__LINE__,__FILE__);
 	}
@@ -177,7 +177,7 @@ elseif ($job == 'smileys_import2') {
 		if ($del > 0) {
 			$filesystem->unlink($file);
 		}
-		rmdirr($tempdir);
+		$filesystem->rmdirr($tempdir);
 		error('admin.php?action=bbcodes&job=smileys_import', $lang->phrase('admin_bbc_zip_invalid'));
 	}
 
@@ -269,7 +269,7 @@ elseif ($job == 'smileys_import2') {
 			$codes[] = $ini['search'];
 			$filesystem->copy($ini['replace_temp'], $ini['replace_new']);
 		}
-		$sqlinsert[] = '("'.$gpc->save_str($ini['search']).'", "'.$gpc->save_str($ini['replace']).'", "'.$gpc->save_str($ini['desc']).'")';
+		$sqlinsert[] = '("'.$gpc->save_str($ini['search']).'", "'.$db->escape_string($ini['replace']).'", "'.$db->escape_string($ini['desc']).'")';
 	}
 	$db->query('INSERT INTO '.$db->pre.'smileys (`search`, `replace`, `desc`) VALUES '.implode(', ', $sqlinsert));
 	$anz = $db->affected_rows();
@@ -278,7 +278,7 @@ elseif ($job == 'smileys_import2') {
 	if ($del > 0) {
 		$filesystem->unlink($file);
 	}
-	rmdirr($tempdir);
+	$filesystem->rmdirr($tempdir);
 
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
@@ -356,7 +356,7 @@ elseif ($job == 'smileys') {
    </td>
   </tr>
   <tr class="ubox">
-   <td width="5%"><?php echo $lang->phrase('admin_bbc_choose_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('id[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_bbc_choose_all2'); ?></span></td>
+   <td width="5%"><?php echo $lang->phrase('admin_bbc_choose_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="id[]" /> <?php echo $lang->phrase('admin_bbc_choose_all2'); ?></span></td>
    <td width="10%"><?php echo $lang->phrase('admin_bbc_code'); ?></td>
    <td width="30%"><?php echo $lang->phrase('admin_bbc_url'); ?></td>
    <td width="15%"><?php echo $lang->phrase('admin_bbc_images'); ?></td>
@@ -502,7 +502,7 @@ elseif ($job == 'word') {
    <td class="obox" colspan="4"><?php echo $lang->phrase('admin_bbc_manage_glossary'); ?></b></td>
   </tr>
   <tr>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_bbc_delete_all2'); ?></span></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_bbc_delete_all2'); ?></span></td>
    <td class="ubox" width="15%"><?php echo $lang->phrase('admin_bbc_abbr'); ?></td>
    <td class="ubox" width="30%"><?php echo $lang->phrase('admin_bbc_phrase'); ?></td>
    <td class="ubox" width="50%"><?php echo $lang->phrase('admin_bbc_description'); ?></td>
@@ -664,7 +664,7 @@ elseif ($job == 'add') {
 		error('admin.php?action=bbcodes&job='.$type, $error);
 	}
 
-	$db->query("INSERT INTO {$db->pre}textparser (`search`,`replace`,`type`,`desc`) VALUES ('".$gpc->get('temp1', str)."','".$gpc->get('temp2', str)."','{$type}','".$gpc->get('temp3', str)."')",__LINE__,__FILE__);
+	$db->query("INSERT INTO {$db->pre}textparser (`search`,`replace`,`type`,`desc`) VALUES ('".$gpc->get('temp1', str)."','".$gpc->get('temp2', db_esc)."','{$type}','".$gpc->get('temp3', db_esc)."')",__LINE__,__FILE__);
 
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
@@ -735,20 +735,20 @@ elseif ($job == 'edit2') {
 	if (strxlen($gpc->get('temp1', str)) > 200) {
 		$error[] = $lang->phrase('admin_bbc_word_too_long');
 	}
-	if (strxlen($gpc->get('temp2', str)) > 255) {
+	if (strlen($gpc->get('temp2', none)) > 255) {
 		$error[] = $lang->phrase('admin_bbc_something_else_too_long');
 	}
-	if (strxlen($gpc->get('temp2', str)) < 2) {
+	if (strlen($gpc->get('temp2', none)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_something_else_too_short');
 	}
-	if (strxlen($gpc->get('temp3', str)) < 2 && $type == 'word') {
+	if (strlen($gpc->get('temp3', none)) < 2 && $type == 'word') {
 		$error[] = $lang->phrase('admin_bbc_desc_too_short');
 	}
 	if (count($error) > 0) {
 		error('admin.php?action=bbcodes&job=edit&tp='.$type.'&id='.$id, $error);
 	}
 
-	$db->query("UPDATE {$db->pre}textparser SET `search` = '".$gpc->get('temp1', str)."', `replace` = '".$gpc->get('temp2', str)."', `desc` = '".$gpc->get('temp3', str)."' WHERE id = '{$id}' AND type = '{$type}'",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}textparser SET `search` = '".$gpc->get('temp1', str)."', `replace` = '".$gpc->get('temp2', db_esc)."', `desc` = '".$gpc->get('temp3', db_esc)."' WHERE id = '{$id}' AND type = '{$type}'",__LINE__,__FILE__);
 
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
@@ -776,9 +776,11 @@ elseif ($job == 'codefiles') {
 	while (false !== ($entry = $d->read())) {
 		if (get_extension($entry) == 'php' && !is_dir("classes/geshi/".$entry)) {
 			include_once("classes/geshi/".$entry);
-			$short = str_replace('.php','',$entry);
-			$clang[$short]['file'] = $entry;
-			$clang[$short]['name'] = $language_data['LANG_NAME'];
+			if (!isset($language_data['NO_INDEX'])) {
+				$short = str_replace('.php','',$entry);
+				$clang[$short]['file'] = $entry;
+				$clang[$short]['name'] = $language_data['LANG_NAME'];
+			}
 		}
 	}
 	$d->close();
@@ -791,7 +793,7 @@ elseif ($job == 'codefiles') {
    <td class="obox" colspan="3"><?php echo $lang->phrase('admin_bbc_syntax_highlighting_manager'); ?></b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_bbc_delete_all2'); ?></span></td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_bbc_delete_all2'); ?></span></td>
    <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_language'); ?></td>
    <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_file'); ?></td>
   </tr>
@@ -849,12 +851,12 @@ elseif ($job == 'custombb_export') {
 	$data = $db->fetch_assoc($result);
 	$data['button'] = null;
 
-	if (!empty($data['buttonimage']) && (file_exists($data['buttonimage']) || preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $data['buttonimage'])) ) {
-		if (preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $data['buttonimage'])) {
+	if (!empty($data['buttonimage']) && (preg_match(URL_REGEXP, $data['buttonimage']) || file_exists(CBBC_BUTTONDIR.$data['buttonimage'])) ) {
+		if (preg_match(URL_REGEXP, $data['buttonimage'])) {
 			$button = get_remote($data['buttonimage']);
 		}
 		else {
-			$button = file_get_contents($data['buttonimage']);
+			$button = file_get_contents(CBBC_BUTTONDIR.$data['buttonimage']);
 		}
 		if ($button == REMOTE_CLIENT_ERROR || $button == REMOTE_INVALID_URL) {
 			$data['buttonimage'] = '';
@@ -966,10 +968,9 @@ elseif ($job == 'custombb_import2') {
 		$bb['buttonimage'] = '';
 	}
 	else {
-		$name = basename($bb['buttonimage']);
-		$bb['buttonimage'] = "images/{$name}";
-		if (!file_exists($bb['buttonimage'])) {
-			$filesystem->file_put_contents($bb['buttonimage'], base64_decode($bb['button']));
+		$bb['buttonimage'] = basename($bb['buttonimage']);
+		if (!file_exists(CBBC_BUTTONDIR.$bb['buttonimage'])) {
+			$filesystem->file_put_contents(CBBC_BUTTONDIR.$bb['buttonimage'], base64_decode($bb['button']));
 		}
 	}
 
@@ -1023,7 +1024,7 @@ elseif ($job == 'custombb_add') {
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_use_option'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_use_option_desc'); ?></span></td>
 		<td class="mbox">
-			<input type="radio" name="twoparams" value="1" /><?php echo $lang->phrase('admin_bbc_yes'); ?><br />
+			<input type="radio" name="twoparams" value="1" /> <?php echo $lang->phrase('admin_bbc_yes'); ?><br />
 			<input type="radio" name="twoparams" value="0" checked="checked" /> <?php echo $lang->phrase('admin_bbc_no'); ?>
 		</td>
 	</tr>
@@ -1043,11 +1044,11 @@ elseif ($job == 'custombb_add2') {
 	$vars = array(
 		'title'				=> str,
 		'bbcodetag'			=> str,
-		'bbcodereplacement' => str,
+		'bbcodereplacement' => db_esc,
 		'bbcodeexample'		=> str,
-		'bbcodeexplanation' => str,
+		'bbcodeexplanation' => db_esc,
 		'twoparams'			=> int,
-		'buttonimage'		=> str
+		'buttonimage'		=> db_esc
 	);
 	$query = array();
 	foreach ($vars as $key => $type) {
@@ -1120,8 +1121,8 @@ elseif ($job == 'custombb_edit') {
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_use_option'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_use_option_desc'); ?></span></td>
 		<td class="mbox">
-			<input type="radio" name="twoparams" value="1"<?php echo iif($bbcode['twoparams'], ' checked="checked"'); ?> />Yes<br />
-			<input type="radio" name="twoparams" value="0"<?php echo iif(!$bbcode['twoparams'], ' checked="checked"'); ?> />No
+			<input type="radio" name="twoparams" value="1"<?php echo iif($bbcode['twoparams'], ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_bbc_yes'); ?><br />
+			<input type="radio" name="twoparams" value="0"<?php echo iif(!$bbcode['twoparams'], ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_bbc_no'); ?>
 		</td>
 	</tr>
 	<tr>
@@ -1142,11 +1143,11 @@ elseif ($job == 'custombb_edit2') {
 		'title'				=> str,
 		'bbcodetag'			=> str,
 		'bbcodetag_old'		=> str,
-		'bbcodereplacement' => str,
+		'bbcodereplacement' => db_esc,
 		'bbcodeexample'		=> str,
-		'bbcodeexplanation' => str,
+		'bbcodeexplanation' => db_esc,
 		'twoparams'			=> int,
-		'buttonimage'		=> str
+		'buttonimage'		=> db_esc
 	);
 	$query = array();
 	foreach ($vars as $key => $type) {
@@ -1185,7 +1186,7 @@ elseif ($job == 'custombb_delete') {
 	<tr><td class="mbox">
 	<p align="center"><?php echo $lang->phrase('admin_bbc_delete_bbc_question'); ?></p>
 	<p align="center">
-	<?php if (@file_exists($image['buttonimage']) && !preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $image['buttonimage'])) { ?>
+	<?php if (!preg_match(URL_REGEXP, $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) { ?>
 	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>&amp;img=1"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_including_image'); ?></a><br />
 	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_without_image'); ?></a><br />
 	<?php } else { ?>
@@ -1205,8 +1206,8 @@ elseif ($job == 'custombb_delete2'){
 	if ($img == 1) {
 		$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 		$image = $db->fetch_assoc($result);
-		if (@file_exists($image['buttonimage']) && !preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $image['buttonimage'])) {
-			$filesystem->unlink($image['buttonimage']);
+		if (!preg_match(URL_REGEXP, $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) {
+			$filesystem->unlink(CBBC_BUTTONDIR.$image['buttonimage']);
 		}
 	}
 	$db->query("DELETE FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
@@ -1277,6 +1278,9 @@ elseif ($job == 'custombb') {
 	<?php
 	while ($bbcode = $db->fetch_assoc($result)) {
 		if (!empty($bbcode['buttonimage'])) {
+			if (!preg_match(URL_REGEXP, $bbcode['buttonimage'])) {
+				$bbcode['buttonimage'] = CBBC_BUTTONDIR.$bbcode['buttonimage'];
+			}
 			$src = "<img style=\"background-color: buttonface; border:solid 1px highlight;\" src=\"{$bbcode['buttonimage']}\" alt=\"\" />";
 		}
 		else {
@@ -1293,9 +1297,7 @@ elseif ($job == 'custombb') {
 			<a class="button" href="admin.php?action=bbcodes&job=custombb_delete&id=<?php echo $bbcode['id']; ?>"><?php echo $lang->phrase('admin_bbc_delete'); ?></a>
 			</td>
 		</tr>
-		<?
-	}
-	?>
+	<?php } ?>
 	</table>
 	<?php
 }

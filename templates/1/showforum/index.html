@@ -10,8 +10,7 @@
   <tr>
 	<td class="tfoot textright" colspan="5">
 		<span class="left"><?php echo $pages; ?></span>
-		<a id="menu_forumtools" href="#forumtools"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /> <?php echo $lang->phrase('forum_options'); ?></a>
-		<script type="text/javascript">RegisterMenu('forumtools');</script>
+		<a id="menu_forumtools" href="#forumtools" onmouseover="RegisterMenu('forumtools');"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /> <?php echo $lang->phrase('forum_options'); ?></a>
 		<div class="popup" id="popup_forumtools">
 		<strong><?php echo $lang->phrase('forum_options_search'); ?></strong>
 		<ul>
@@ -37,14 +36,14 @@
   <tr>
     <td class="tbody" colspan="1"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /></td>
     <td class="tbody" colspan="4">
-      <?php echo $lang->phrase('board_rules'); ?>: 
+      <?php echo $lang->phrase('board_rules'); ?>:
       <a href="misc.php?action=board_rules&amp;id=<?php echo $board.SID2URL_x; ?>">
         <?php echo $info['message_title']; ?>
       </a>
     </td>
   </tr>
   <?php } ?>
-  <tr> 
+  <tr>
 	<th width="2%">&nbsp;</th>
 	<th width="48%"><?php echo $lang->phrase('forum_topic'); ?></th>
 	<th width="20%"><?php echo $lang->phrase('forum_start'); ?></th>
@@ -52,7 +51,7 @@
 	<th width="20%"><?php echo $lang->phrase('forum_last'); ?></th>
   </tr>
 	<?php echo $inner['index_bit']; ?>
-  <tr> 
+  <tr>
 	<td class="tfoot" colspan="5">
 	  <?php if ($my->p['posttopics'] == 1 && $info['readonly'] == '0') { ?>
 	  <span class="right"><a href="newtopic.php?id=<?php echo $board.SID2URL_x; ?>"><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('forum_newtopic'); ?></a></span>
@@ -101,10 +100,10 @@
 <div class="border">
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
-<a href="manageforum.php?action=index&amp;type=open&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_open'); ?></a> | 
-<a href="manageforum.php?action=index&amp;type=close&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_close'); ?></a> | 
-<a href="manageforum.php?action=index&amp;type=delete&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_delete'); ?></a> | 
-<a href="manageforum.php?action=index&amp;type=move&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_move'); ?></a> | 
+<a href="manageforum.php?action=index&amp;type=open&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_open'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=close&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_close'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=delete&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_delete'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=move&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_move'); ?></a> |
 <a href="manageforum.php?action=stat&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_forum_stats'); ?></a>
 </div>
 </div>

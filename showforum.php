@@ -24,20 +24,14 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'showforum');
+define('SCRIPTNAME', 'showforum');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
 $board = $gpc->get('id', int);
 
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions($board);
 $my->pb = $slog->GlobalPermissions();
 $my->mp = $slog->ModPermissions($board);
@@ -60,15 +54,6 @@ $topforums = get_headboards($fc, $info);
 $breadcrumb->Add($info['name']);
 
 forum_opt($info);
-
-echo $tpl->parse("header");
-echo $tpl->parse("menu");
-
-($code = $plugins->load('showforum_forums_start')) ? eval($code) : null;
-
-$subforums = BoardSelect($board);
-
-($code = $plugins->load('showforum_forums_end')) ? eval($code) : null;
 
 $filter = $gpc->get('sort', int);
 if ($filter == 2) {
@@ -117,7 +102,19 @@ if (!empty($marksql)) {
 if ($info['forumzahl'] < 1) {
 	$info['forumzahl'] = $config['forumzahl'];
 }
-$pages = pages($info['topics'], $info['forumzahl'], 'showforum.php?id='.$board.'sort='.$_GET['sort'].'&amp;', $_GET['page']);
+if (ceil($info['topics']/$info['forumzahl']) < $_GET['page']) {
+	$_GET['page'] = 1;
+}
+$pages = pages($info['topics'], $info['forumzahl'], 'showforum.php?id='.$board.'&amp;sort='.$_GET['sort'].'&amp;', $_GET['page']);
+
+echo $tpl->parse("header");
+echo $tpl->parse("menu");
+
+($code = $plugins->load('showforum_forums_start')) ? eval($code) : null;
+
+$subforums = BoardSelect($board);
+
+($code = $plugins->load('showforum_forums_end')) ? eval($code) : null;
 
 $inner['index_bit'] = '';
 if ($info['topics'] > 0) {
@@ -219,7 +216,7 @@ if ($info['topics'] > 0) {
 		}
 
 		if ($row->posts > $last['topiczahl']) {
-			$topic_pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small');
+			$topic_pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 		}
 		else {
 			$topic_pages = '';

@@ -6,3 +6,4 @@
 00	3	*	*	0	deletesearch.php	#Weekly: Delete old search results
 30	*	*	*	*	deletetemp.php	#Hourly: Delete temporary directory
 0	*/6	*	*	*	recountpostcounts.php	#Recount User Post Counter
+0	5	*	*	*	exportBoardStats.php	#Daily: Export forum statistics to an ini-file (optional)

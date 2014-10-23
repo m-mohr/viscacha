@@ -5,27 +5,27 @@ CREATE TABLE `{:=DBPREFIX=:}smileys` (
   `desc` text NOT NULL,
   `show` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=32 ;
+) TYPE=MyISAM  AUTO_INCREMENT=32 ;
 
-INSERT INTO `{:=DBPREFIX=:}smileys` (`id`, `search`, `replace`, `desc`, `show`) VALUES 
+INSERT INTO `{:=DBPREFIX=:}smileys` (`id`, `search`, `replace`, `desc`, `show`) VALUES
 (1, ':D', '{folder}/biggrin.gif', 'Grinning', '1'),
 (2, ':}', '{folder}/cheesy.gif', 'Happy', '1'),
-(3, '8-)', '{folder}/cool.gif', 'Cool', '0'),
+(3, '8-)', '{folder}/cool.gif', 'Cool', '1'),
 (4, ':eek:', '{folder}/eek.gif', 'Surprised', '1'),
 (5, ':(', '{folder}/frown.gif', 'Disappointed', '1'),
 (6, ':lol:', '{folder}/lol.gif', 'Laughing', '1'),
-(7, ':love:', '{folder}/love.gif', 'In love', '0'),
-(8, ':{', '{folder}/mad.gif', 'Angry', '0'),
-(9, ':x', '{folder}/nocomment.gif', 'No comment', '0'),
-(10, ':o', '{folder}/redface.gif', 'Embarrassing', '0'),
-(11, ':shy:', '{folder}/rotwerd.gif', 'Shy', '0'),
+(7, ':love:', '{folder}/love.gif', 'In love', '1'),
+(8, ':{', '{folder}/mad.gif', 'Angry', '1'),
+(9, ':x', '{folder}/nocomment.gif', 'No comment', '1'),
+(10, ':o', '{folder}/redface.gif', 'Embarrassing', '1'),
+(11, ':shy:', '{folder}/rotwerd.gif', 'Shy', '1'),
 (12, ':)', '{folder}/smile.gif', 'Smiling', '1'),
 (13, ':p', '{folder}/tongue.gif', 'Tongue', '1'),
-(14, ':\\', '{folder}/undecided.gif', 'Undecided', '0'),
-(15, '8)', '{folder}/warsnet.gif', 'Innocent', '0'),
+(14, ':\\', '{folder}/undecided.gif', 'Undecided', '1'),
+(15, '8)', '{folder}/warsnet.gif', 'Innocent', '1'),
 (16, ';)', '{folder}/wink.gif', 'Wink', '1'),
 (17, ':crazy:', '{folder}/crazy.gif', 'Crazy', '0'),
-(18, ':''(', '{folder}/sad.gif', 'Sad', '0'),
+(18, ':''(', '{folder}/sad.gif', 'Sad', '1'),
 (19, ':]', '{folder}/ego.gif', 'Egoistic', '0'),
 (20, ':help:', '{folder}/help.gif', 'Helpless', '0'),
 (21, ':angel:', '{folder}/engel.gif', 'Angel', '0'),

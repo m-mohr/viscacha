@@ -12,9 +12,6 @@
 	margin-left: -170px;
 	margin-right: 1px;
 }
-#popup_bbsmileys {
-	overflow: scroll;
-}
 * html .tooltip {
 	width: 300px;
 }
@@ -34,12 +31,16 @@
 * html .iefix_left {
 	float: left;
 }
-* html .tables_bbsmileys td {
-	border: 0px;
-}
 * html .iefix_br {
 	line-height: 2px;
 }
-* html #popup_bbsmileys {
-	height: 200px;
+* html .editor_textarea_outer .popup {
+	border-top-width: 0px;
+}
+* html .editor_textarea_outer .popup strong {
+	border-width: 0px;
+	border-top: 1px solid #888888;
+}
+* html .editor_textarea_outer .popup li {
+	border-top: 1px solid #c4c4c4;
 }

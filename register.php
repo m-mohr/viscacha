@@ -24,18 +24,12 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'register');
+define('SCRIPTNAME', 'register');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 
 include_once ("classes/function.profilefields.php");
@@ -108,7 +102,7 @@ if ($_GET['action'] == "save") {
 
 		$value = $gpc->get($field, none);
 
-		if((is_string($value) && strlen($value) == 0) || (is_array($value) && count($value) == 0)) {
+		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('error_missingrequiredfield');
 		}
 		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
@@ -117,17 +111,15 @@ if ($_GET['action'] == "save") {
 
 		if($type == "multiselect" || $type == "checkbox") {
 			if (is_array($value)) {
-				$options = implode("\n", $value);
+				$upquery[$field] = implode("\n", $value);
 			}
 			else {
-				$options = '';
+				$upquery[$field] = '';
 			}
 		}
 		else {
-			$options = $value;
+			$upquery[$field] = $value;
 		}
-		$options = $gpc->save_str($options);
-		$upquery[] = "`{$field}` = '{$options}'";
 	}
 
 	($code = $plugins->load('register_save_errorhandling')) ? eval($code) : null;
@@ -144,13 +136,25 @@ if ($_GET['action'] == "save") {
 	    $pw_md5 = md5($_POST['pwx']);
 
 	    ($code = $plugins->load('register_save_queries')) ? eval($code) : null;
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}')",__LINE__,__FILE__);
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}', '".GROUP_MEMBER."', '', '', '')",__LINE__,__FILE__);
         $redirect = $db->insert_id();
 
 		// Custom profile fields
 		if (count($upquery) > 0) {
-			$upquery[] = "`ufid` = '{$redirect}'";
-			$db->query("INSERT INTO {$db->pre}userfields SET ".implode(', ', $upquery));
+			$fields = $db->list_fields("{$db->pre}userfields");
+			$sqldata = array();
+			foreach ($fields as $field) {
+				if (isset($upquery[$field])) {
+					$sqldata[$field] = "'{$upquery[$field]}'";
+				}
+				else {
+					$sqldata[$field] = "''";
+				}
+			}
+			$sqldata['ufid'] = "'{$redirect}'";
+			$fields = implode(', ', $fields);
+			$sqldata = implode(', ', $sqldata);
+			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
 		}
 
         if ($config['confirm_registration'] != '11') {
@@ -241,6 +245,7 @@ elseif ($_GET['action'] == 'resend2') {
 
 		($code = $plugins->load('register_resend2_check')) ? eval($code) : null;
 
+		$lang->assign('redirect', $row['id']);
 		$data = $lang->get_mail('register_'.$row['confirm']);
 		$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 		$from = array();
@@ -304,6 +309,8 @@ else {
 
 	$customfields = addprofile_customfields();
 	$rules = $lang->get_words('rules');
+
+	$_GET['email'] = $gpc->prepare($_GET['email']);
 
 	($code = $plugins->load('register_form_prepared')) ? eval($code) : null;
 	echo $tpl->parse("register/register");

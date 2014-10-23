@@ -24,72 +24,15 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'popup');
+define('SCRIPTNAME', 'popup');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
-
 ($code = $plugins->load('popup_start')) ? eval($code) : null;
 
-if ($_GET['action'] == "hlcode") {
-	if (strlen($_GET['fid']) != 32) {
-		echo $tpl->parse("popup/header");
-		error($lang->phrase('query_string_error'), 'javascript:parent.close();');
-	}
-
-	$codeObj = new CacheItem($_GET['fid'], 'cache/geshicode/');
-	if (!$codeObj->import()) {
-		echo $tpl->parse("popup/header");
-		error($lang->phrase('query_string_error'), 'javascript:parent.close();');
-	}
-	$sourcecode = $codeObj->get();
-
-	$sourcecode['source'] = $gpc->plain_str($sourcecode['source'], false);
-
-	($code = $plugins->load('popup_hlcode_start')) ? eval($code) : null;
-
-	if ($_GET['temp'] == 1) {
-		viscacha_header('Content-Type: text/plain');
-		viscacha_header('Content-Length: '.strlen($sourcecode['source']));
-		viscacha_header('Content-Disposition: attachment; filename="'.gmdate('d-m-Y_H-i', times()).'.txt"');
-		echo $sourcecode['source'];
-		$slog->updatelogged();
-		$db->close();
-		exit;
-	}
-	else {
-		require_once('classes/class.geshi.php');
-		$geshi = new GeSHi($sourcecode['source'], strtolower($sourcecode['language']), 'classes/geshi');
-		$geshi->set_encoding($lang->charset());
-		// Use classes for colouring
-		$geshi->enable_classes();
-		// Output in a div instead in a pre-element
-		$geshi->set_header_type(GESHI_HEADER_DIV);
-		// Linenumbers on  - each 5th element is bold
-		$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
-		$lang_name = $geshi->get_language_name();
-
-		// Print Stylesheet
-		$htmlhead .= '<style type="text/css"><!-- '.$geshi->get_stylesheet().' --></style>';
-		echo $tpl->parse("popup/header");
-
-		($code = $plugins->load('popup_hlcode_initialized')) ? eval($code) : null;
-
-		$sourcecode['hl'] = $geshi->parse_code();
-		echo $tpl->parse("popup/hlcode");
-
-		($code = $plugins->load('popup_hlcode_end')) ? eval($code) : null;
-	}
-}
-elseif ($_GET['action'] == "filetypes") {
+if ($_GET['action'] == "filetypes") {
 
 	($code = $plugins->load('popup_filetypes_query')) ? eval($code) : null;
 
@@ -111,14 +54,6 @@ elseif ($_GET['action'] == "filetypes") {
 	echo $tpl->parse("popup/filetypes");
 	($code = $plugins->load('popup_filetypes_end')) ? eval($code) : null;
 }
-elseif ($_GET['action'] == "code") {
-	$codelang = $scache->load('syntaxhighlight');
-	$clang = $codelang->get();
-	($code = $plugins->load('popup_code_start')) ? eval($code) : null;
-	echo $tpl->parse("popup/header");
-	echo $tpl->parse("popup/code");
-	($code = $plugins->load('popup_code_end')) ? eval($code) : null;
-}
 elseif ($_GET['action'] == "showpost") {
 	echo $tpl->parse("popup/header");
 
@@ -132,9 +67,9 @@ elseif ($_GET['action'] == "showpost") {
 		u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
 		f.* {$sql_select}
 	FROM {$db->pre}replies AS r
-		LEFT JOIN {$db->pre}user AS u ON r.name=u.id
+		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
-		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
+		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid AND r.guest = '0'
 		{$sql_join}
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
@@ -142,7 +77,7 @@ elseif ($_GET['action'] == "showpost") {
 
 	$found = $db->num_rows($result);
 	if ($found == 1) {
-		$row = $gpc->prepare($db->fetch_object($result));
+		$row = $slog->cleanUserData($db->fetch_object($result));
 
 		$my->p = $slog->Permissions($row->board);
 
@@ -172,6 +107,11 @@ elseif ($_GET['action'] == "showpost") {
 		$uploads = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE tid = ".$_GET['id'],__LINE__,__FILE__);
 	}
 	$inner['upload_box'] = '';
+
+	// Custom Profile Fields
+	include_once('classes/class.profilefields.php');
+	$pfields = new ProfileFieldViewer($row->mid);
+	$pfields->setUserData($row);
 
 	if ($row->guest == 0) {
 		$row->mail = '';
@@ -250,7 +190,7 @@ elseif ($_GET['action'] == "edithistory") {
 	$result = $db->query("
 	SELECT r.ip, r.topic_id, r.board, r.edit, r.id, r.topic, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
 	FROM {$db->pre}replies AS r
-		LEFT JOIN {$db->pre}user AS u ON r.name=u.id
+		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
 	",__LINE__,__FILE__);

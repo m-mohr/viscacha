@@ -118,6 +118,7 @@ $lang['admin_packages_file_for_code_text'] = 'In diese Datei wird der Quelltext 
 $lang['admin_packages_file_for_code_text_ext'] = ' Wenn die Datei bereits existiert, wird der oben angegebene Quelltext ignoriert.';
 $lang['admin_packages_form_submit'] = 'Senden';
 $lang['admin_packages_head_delete_package'] = 'Paket löschen';
+$lang['admin_packages_head_delete_plugin'] = 'Plugin löschen';
 $lang['admin_packages_head_description'] = 'Beschreibung';
 $lang['admin_packages_head_edit_the_package_foo'] = 'Ändere das Paket "{@row->title}"';
 $lang['admin_packages_head_import_a_new_component'] = 'Neues Paket importieren';

@@ -300,6 +300,7 @@ function getStatus($groups, $implode = '') {
 			if (!isset($this->statusdata[$gid])) {
 				continue;
 			}
+/* This is to show only the Admintitle for admins. Removed in 0.8 RC5 (was an undocumented feature before ;-) )
 			if ($this->statusdata[$gid]['admin'] == 1) {
 				if (empty($implode)) {
 					return array($this->statusdata[$gid]['title']);
@@ -307,8 +308,8 @@ function getStatus($groups, $implode = '') {
 				else {
 					return $this->statusdata[$gid]['title'];
 				}
-			}
-			if ($this->statusdata[$gid]['core'] != 1) {
+			} */
+			if ($this->statusdata[$gid]['core'] != 1 || $this->statusdata[$gid]['admin'] == 1) {
 				$titles[] = $this->statusdata[$gid]['title'];
 			}
 		}
@@ -638,35 +639,33 @@ function logged () {
  * This is not shown in the AdminCP!
  */
 function banish($reason = null, $until = null) {
-	if (SCRIPTNAME != 'admin') {
-		global $config, $db, $phpdoc, $lang, $plugins, $tpl, $my, $breadcrumb;
+	global $config, $db, $phpdoc, $lang, $plugins, $tpl, $my, $breadcrumb;
 
-		if (substr($reason, 0, 6) == 'lang->') {
-			$key = substr($reason, 6);
-			$reason = $lang->phrase($key);
-		}
-		if ($reason == null) {
-			$reason = $lang->phrase('banned_no_reason');
-		}
-		else {
-			$reason = htmlspecialchars($reason);
-		}
-		if ($until > 0) {
-			$until = gmdate($lang->phrase('dformat1'), times($until));
-		}
-		else {
-			$until = $lang->phrase('banned_left_never');
-		}
-
-		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
-
-		$tpl->globalvars(compact('reason', 'until'));
-		echo $tpl->parse("banned");
-
-	    $phpdoc->Out();
-		$db->close();
-		exit();
+	if (substr($reason, 0, 6) == 'lang->') {
+		$key = substr($reason, 6);
+		$reason = $lang->phrase($key);
 	}
+	if ($reason == null) {
+		$reason = $lang->phrase('banned_no_reason');
+	}
+	else {
+		$reason = htmlspecialchars($reason);
+	}
+	if ($until > 0) {
+		$until = gmdate($lang->phrase('dformat1'), times($until));
+	}
+	else {
+		$until = $lang->phrase('banned_left_never');
+	}
+
+	($code = $plugins->load('permissions_banish')) ? eval($code) : null;
+
+	$tpl->globalvars(compact('reason', 'until'));
+	echo $tpl->parse("banned");
+
+    $phpdoc->Out();
+	$db->close();
+	exit();
 }
 
 /**
@@ -674,43 +673,49 @@ function banish($reason = null, $until = null) {
  */
 function checkBan() {
 	global $my;
-	$bannedip = file('data/bannedip.php');
-	$bannedip = array_map('trim', $bannedip);
-	$ban = false;
-	foreach ($bannedip as $row) {
-		$row = explode("\t", $row, 6);
-		if ($row[0] == 'ip') {
-			$row[2] = intval($row[2]);
-			if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
-				$ban = true;
-				break;
-			}
-		}
-		elseif ($row[0] == 'user') {
-			$row[2] = intval($row[2]);
-			if ($my->id == $row[1] && ($row[2] > time() || $row[2] == 0)) {
-				$ban = true;
-				break;
-			}
-		}
-		else {
-			continue;
-		}
+	if (!empty($this->bots[$my->is_bot]['type']) && $this->bots[$my->is_bot]['type'] == 'e') {
+		$this->banish('lang->bot_banned'); // Ban sucking spam bots
 	}
-	if ($ban == true) {
-		if (empty($row[5]) == true) {
-			$reson = null;
+	else {
+		// Try to ban other banned people or do nothing
+		$bannedip = file('data/bannedip.php');
+		$bannedip = array_map('trim', $bannedip);
+		$ban = false;
+		foreach ($bannedip as $row) {
+			$row = explode("\t", $row, 6);
+			if ($row[0] == 'ip') {
+				$row[2] = intval($row[2]);
+				if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
+					$ban = true;
+					break;
+				}
+			}
+			elseif ($row[0] == 'user') {
+				$row[2] = intval($row[2]);
+				if ($my->id == $row[1] && ($row[2] > time() || $row[2] == 0)) {
+					$ban = true;
+					break;
+				}
+			}
+			else {
+				continue;
+			}
 		}
-		else {
-			$reason = $row[5];
+		if ($ban == true) {
+			if (empty($row[5]) == true) {
+				$reson = null;
+			}
+			else {
+				$reason = $row[5];
+			}
+			if ($row[2] == 0) {
+				$until = null;
+			}
+			else {
+				$until = $row[2];
+			}
+			$this->banish($reason, $until);
 		}
-		if ($row[2] == 0) {
-			$until = null;
-		}
-		else {
-			$until = $row[2];
-		}
-		$this->banish($reason, $until);
 	}
 }
 
@@ -795,6 +800,9 @@ function sid_new() {
 		$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1',__LINE__,__FILE__);
 		$my = $this->cleanUserData($db->fetch_object($result));
 		$nodata = ($db->num_rows($result) == 1) ? false : true;
+		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
+			set_failed_login();
+		}
 	}
 	else {
 		$nodata = true;
@@ -845,7 +853,7 @@ function sid_logout() {
 
 	$db->query ("
 	UPDATE {$db->pre}session
-	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0'
+	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0', pwfaccess = ''
 	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$this->sid}'")."
 	LIMIT 1
 	",__LINE__,__FILE__);
@@ -1029,30 +1037,6 @@ function cleanUserData($data) {
 }
 
 /**
- * Sets all posts read (sets lastvisit time to now).
- *
- * Returns 'true' on success and 'false' on failure.
- *
- * @return boolean
- */
-function mark_read() {
-	global $my, $db;
-	if ($my->vlogin) {
-		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'",__LINE__,__FILE__);
-	}
-	else {
-		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'",__LINE__,__FILE__);
-	}
-	$my->mark = array();
-	if ($db->affected_rows() > 0) {
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-/**
  * Creates a Session-ID.
  *
  * The ID has the length specified in $config['sid_length']. Possible lengths are 64, 96, 128 and 32 characters.
@@ -1104,13 +1088,6 @@ function getBoards() {
  */
 function Permissions ($board = 0, $groups = null, $member = null) {
 	global $db, $my, $scache;
-
-	if (!empty($this->bots[$my->is_bot]['type']) && $this->bots[$my->is_bot]['type'] == 'e') {
-		$this->banish('lang->bot_banned'); // Ban sucking spam bots
-	}
-	else {
-		$this->checkBan($my); // Try to ban other banned people or do nothing
-	}
 
 	if ($groups == null && isset($my->groups)) {
 		$groups = $my->groups;
@@ -1497,6 +1474,7 @@ function setTopicRead($tid, $parents) {
 		}
 	}
 }
+
 function setForumRead($fid) {
 	global $db, $my;
 	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last > '{$my->clv}'",__LINE__,__FILE__);
@@ -1505,13 +1483,39 @@ function setForumRead($fid) {
 	}
 	$my->mark['f'][$fid] = time();
 }
+
+/**
+ * Sets all posts read (sets lastvisit time to now).
+ *
+ * Returns 'true' on success and 'false' on failure.
+ *
+ * @return boolean
+ */
 function setAllRead() {
-	$this->mark_read();
+	global $my, $db;
+	if ($my->vlogin) {
+		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'",__LINE__,__FILE__);
+	}
+	else {
+		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'",__LINE__,__FILE__);
+	}
+	// Todo: Save some queries!
+	// This queries can be saved normally, because it will be saved with updatelogged (in ok/error funcs) later!
+	$my->mark = array();
+	$my->clv = time();
+	if ($db->affected_rows() > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
+
 function isForumRead($fid, $last_change) {
 	global $my;
 	return ((isset($my->mark['f'][$fid]) && $my->mark['f'][$fid] > $last_change) || $last_change < $my->clv);
 }
+
 function isTopicRead($tid, $last_change) {
 	global $my;
 	return ((isset($my->mark['t'][$tid]) && $my->mark['t'][$tid] > $last_change) || $last_change < $my->clv);

@@ -116,9 +116,7 @@ a:hover {
 	letter-spacing: 1px;
 	font-weight: bold;
 	vertical-align: middle;
-}
-.obox {
-	line-height: expression('1.4em');;
+	line-height: expression('1.4em');
 }
 .button, .obox a.button {
 	text-Decoration: none;
@@ -136,7 +134,11 @@ a:hover {
 .obox a.button, .obox a.button:hover {
 	margin: 1px 0px 1px 5px;
 	color: #ffffff;
-	line-height: 1.1em;
+	line-height: 1.6em;
+}
+.button_multiline, .button_multiline a.button, .button_multiline a.button:hover {
+	line-height: 175%;
+	text-align: center;
 }
 .ubox {
 	background-color: #94B7DF;
@@ -162,6 +164,9 @@ a:hover {
 	font-size: 8pt;
 	color: #555753;
 }
+.obox .stext {
+	color: #eeeeee;
+}
 #copyright {
 	padding-top: 1em;
 	clear: both;
@@ -186,28 +191,45 @@ a:hover {
 }
 .bb_inlinecode {
 	color: #880000;
+	white-space: normal;
 }
-.bb_blockcode_header {
-	display: block;
-}
+
 .bb_blockcode {
 	border: 1px solid #839FBC;
 	background-color: #F5F8FA;
-	padding: 2px;
-	margin: 0px;
-	margin-left: 10px;
+	padding: 4px;
+	margin-left: 15px;
 	overflow: auto;
 	max-height: 400px;
 	min-height: 50px;
-	width: 550px;
+	width: 560px;
 }
-.bb_blockcode td {
-	font-family: Courier New, monospace;
-	font-size: 11px;
-	line-Height: 13px;
-	white-space: nowrap;
-	vertical-align: top;
+.bb_blockcode li {
+	white-space: pre;
+	font-family: 'Courier New', monospace;
+	font-weight: normal;
+	font-style: normal;
+	margin-left: 4px;
 }
+.bb_blockcode a {
+	border-bottom: 1px dotted #000000;
+}
+.bb_blockcode a:hover {
+	border-bottom: 1px solid #000000;
+}
+.bb_blockcode_options {
+	float: right;
+	margin: 0px 40px -1px 0px;
+	border: 1px solid #839FBC;
+	border-bottom: 0px;
+	background-color: #F5F8FA;
+	padding: 1px 5px 1px 5px;
+	font-size: 8pt;
+}
+.bb_blockcode_options:hover, .bb_blockcode_options:focus {
+	background-color: #E1E8EF;
+}
+
 .bb_header {
 	margin: 0px;
 	margin-top: 10px;
@@ -303,27 +325,209 @@ a:hover {
 	color: #000000;
 	background-color: #F5F8FA;
 }
-#menu_bbcolor, #menu_bbsize, #menu_bbhx, #menu_help, #menu_bbalign {
-	font-size: 9pt;font-weight: bold;font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+
+/* WYSIWYG- and BB-Code-Editor */
+.editor_toolbar {
+	height: 28px;
+	width: 100%;
+	background-color: #F4F4F4;
+	border-bottom: 1px solid #C9C9C9;
 }
-#codebuttons a, #menu_bbcolor, #menu_bbsize, #menu_bbhx, #menu_help, #menu_bbalign {
-	border: 1px solid #336699;background-color: #F5F8FA;
+
+.editor_toolbar_button {
+	width: 20px;
+	height: 20px;
+	border: 0px solid transparent;
+	margin: 2px;
+	padding: 0px;
+	background: transparent;
 }
-#codebuttons br {
-	clear: left;
+.editor_toolbar_button_on {
+	width: 20px;
+	height: 20px;
+	border: 1px solid #999999;
+	margin: 1px;
+	padding: 0px;
 }
-#codebuttons a {
-	height: 18px;float: left;display: block;padding: 2px;margin: 1px;vertical-align: middle;
+
+.editor_statusbar {
+	font-size: 8pt;
+	height: 1em;
+	background-color: #F4F4F4;
+	color: #000000;
 }
-#codebuttons a:hover {
-	background-color: #BCCADA;
+.editor_statusbar a {
+	color: #000000;
+	text-decoration: none;
 }
-#codebuttons img {
-	vertical-align: middle;border-width: 0px;
+.editor_statusbar a:hover {
+	text-decoration: underline;
 }
+
+.editor_textarea_outer {
+	width: 100%;
+	border-collapse: collapse;
+}
+.editor_textarea_outer td {
+	padding: 3px;
+	border: 1px solid #C9C9C9;
+}
+.editor_textarea_outer td td {
+	border-width: 0px;
+}
+
+.editor_textarea_inner {
+	background-color: #FFFFFF;
+	font-size: 9pt;
+	border-width: 0px;
+	width: 100%;
+	overflow: auto;
+}
+.editor_textarea_inner:hover, .editor_textarea_inner:focus {
+	background-color: #FFFFFF;
+	border-width: 0px;
+}
+
+/* BB-Code-Editor-only */
+
+.editor_toolbar_dropdown {
+	border: 1px solid #F4F4F4;
+	padding: 2px;
+	color: #000000;
+	font-size: 9pt;
+}
+.editor_toolbar_dropdown:hover {
+	border: 1px solid #999999;
+}
+.editor_toolbar_smiley {
+	border: 1px solid #F4F4F4;
+	padding: 2px;
+}
+.editor_toolbar_smiley_on {
+	border: 1px solid #999999;
+	border-width: 1px;
+	padding: 2px;
+}
+
+.editor_textarea_outer a img {
+	border-width: 0px;
+}
+.editor_textarea_outer img {
+	vertical-align: middle;
+}
+.editor_textarea_outer .popup {
+	border: 1px solid #888888;
+	max-height: 250px;
+}
+.editor_textarea_outer .popup strong {
+	text-align: center;
+	color: #000000;
+	background-color: #eeeeee;
+	border-width: 0px;
+	border-bottom: 1px solid #888888;
+}
+.editor_textarea_outer .popup li {
+	border-width: 0px;
+	padding: 2px 3px 1px 3px;
+}
+.editor_textarea_outer .popup li a, .editor_textarea_outer .popup_line {
+	color: #000000;
+	text-decoration: none;
+	border: 1px solid #ffffff;
+}
+.editor_textarea_outer .popup li a:hover, .editor_textarea_outer .popup_line:hover {
+	background-color: #eeeeee;
+	border: 1px solid #cccccc;
+}
+
 .bbcolor {
-	line-height: 10px;font-size: 10px;
+	padding: 10px;
+	background-color: #ffffff;
+	line-height: 13px;
+	font-size: 13px;
 }
 .bbcolor span {
-	width: 10px;height: 10px;display: block;float: left;cursor: pointer;
+	width: 10px;
+	height: 13px;
+	display: block;
+	float: left;
+	cursor: pointer;
+}
+.bbcolor img {
+	width: 10px;
+	height: 13px;
+	border-width: 0px;
+}
+.bbcolor img:hover {
+	width: 8px;
+	height: 11px;
+	border: 1px solid #ffffff;
+}
+
+.bbtable {
+	background-color: #ffffff;
+	padding: 4px;
+}
+.bbtable input {
+	width: 35px;
+	float: left;
+	background-color: #ffffff;
+	border: 1px solid 888888;
+	text-align: center;
+	margin-right: 5px;
+}
+
+.bbsmileys img {
+	margin: 2px 8px 2px 4px;
+}
+
+/* WYSIWYG-only */
+.dropdown {
+	background-color: #FFFFFF;
+	border: 1px solid #333333;
+	height: 160px;
+	overflow: auto;
+	padding: 1px;
+}
+button.mouseOver {
+	background-color: #EEEEEE;
+	border: 1px solid #CCCCCC;
+	padding: 2px;
+	cursor: default;
+	text-align: left;
+}
+button.mouseOut {
+	background-color: #FFFFFF;
+	border: 1px solid #FFFFFF;
+	padding: 2px;
+	cursor: default;
+	text-align: left;
+}
+.wysiwyg-color-picker-table {
+	border: 1px solid #7E7E81;
+	background-color: #F7F7F7;
+	padding: 1px;
+}
+.wysiwyg-color-picker-div {
+	font-size: 1px;
+	height:12px;
+	width:12px;
+}
+.selectColorBorder {
+	border: 1px solid #F7F7F7;
+}
+.selectColorOn {
+	border: 1px solid #999999;
+	background-color: #CCCCCC;
+}
+.selectColorOff {
+	border: 1px solid #F7F7F7;
+	background-color: #F7F7F7;
+}
+.select_color {
+	cursor: hand;
+}
+.select_color td {
+	width: 10px;
+	height: 10px;
 }

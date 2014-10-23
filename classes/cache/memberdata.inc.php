@@ -16,7 +16,9 @@ class cache_memberdata extends CacheItem {
 				$row = trim($row);
 				if (!empty($row)) {
 					$row = explode("\t", $row);
-					$this->data[$row[0]] = $row[1];
+					if (is_id($row[0])) {
+						$this->data[$row[0]] = $row[1];
+					}
 				}
 			}
 			$this->export();

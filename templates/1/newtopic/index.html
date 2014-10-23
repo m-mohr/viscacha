@@ -21,10 +21,10 @@
 <div class="bbody">
 <?php if (!$my->vlogin) { ?>
 <label for="name"><?php echo $lang->phrase('name'); ?></label>
-<input type="text" id="name" class="label" name="name" size="40" value="<?php echo $data['name']; ?>" />
+<input tabindex="1" type="text" id="name" class="label" name="name" size="40" value="<?php echo $data['name']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <label for="email"><?php echo $lang->phrase('email'); ?></label>
-<input type="text" id="email" class="label" name="email" size="40" value="<?php echo $data['email']; ?>" />
+<input tabindex="2" type="text" id="email" class="label" name="email" size="40" value="<?php echo $data['email']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <?php if ($config['botgfxtest_posts'] == 1) { if ($data['human'] != null) { ?>
 <input type="hidden" name="captcha" value="<?php echo $data['human']['captcha']; ?>" />
@@ -43,7 +43,7 @@
 	    <?php echo $textcode; ?>
 	  </div>
     <?php } ?>
-    <input id="letter" name="letter" type="text" size="8" />
+    <input tabindex="3" id="letter" name="letter" type="text" size="8" />
 </div>
 <br class="newinput" /><hr class="formsep" />
 <?php } } } else { ?>
@@ -57,39 +57,29 @@
 <?php } ?>
 <label for="topic"><?php echo $lang->phrase('title'); ?></label>
 <?php if (empty($inner['index_prefix'])) { ?>
-<input type="text" class="label" id="topic" name="topic" size="40" value="<?php echo $data['topic']; ?>" />
+<input type="text" tabindex="4" class="label" id="topic" name="topic" size="40" value="<?php echo $data['topic']; ?>" />
 <?php } else { ?>
 <div class="label">
-<?php echo $inner['index_prefix']; ?><input type="text" id="topic" name="topic" size="35" value="<?php echo $data['topic']; ?>" /></td>
+<?php echo $inner['index_prefix']; ?><input tabindex="5" type="text" id="topic" name="topic" size="35" value="<?php echo $data['topic']; ?>" /></td>
 </div>
 <?php } ?>
 <br class="newinput" /><hr class="formsep" />
-<label><?php echo $inner['smileys']; ?></label>
-<?php echo $inner['bbhtml']; ?>
-<br class="newinput" /><hr class="formsep" />
 <label for="comment"><?php echo $lang->phrase('post'); ?></label>
-<div class="label">
-	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="9"><?php echo $data['comment']; ?></textarea>
-	<div class="stext">
-		<span class="textright right">
-			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
-			[<a href="#" onclick="return resize_textarea(-1)"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>]
-		</span>
-		[<a href="#" onclick="return textarea_length(<?php echo $config['maxpostlength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
-	</div>
-</div>
-<br class="newinput" /><hr class="formsep" />
+<div class="label textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></div>
+<br class="newinput" /><br class="minibr" />
+<?php echo $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="6"'); ?>
+<hr class="formsep" />
 <label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
-	<input type="checkbox" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
-	<input type="checkbox" name="dowords" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
+	<input type="checkbox" tabindex="7" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
+	<input type="checkbox" tabindex="8" name="dowords" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
 </div>
 <br class="newinput" />
 <?php if ($p_upload == 1) { ?>
 <hr class="formsep" />
 <label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label>
 <div class="label">
-	<a href="attachments.php?type=newtopic&amp;id=<?php echo $board.SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+	<a tabindex="9" href="attachments.php?type=newtopic&amp;id=<?php echo $board.SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
 	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
 </div>
 <br class="newinput" />
@@ -97,14 +87,25 @@
 <hr class="formsep" />
 <label for="temp"><?php echo $lang->phrase('add_vote'); ?></label>
 <div class="label">
-  <input type="checkbox" name="opt_2" value="1"<?php echo iif($data['vote'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('yes_add_vote'); ?><br />
-  <?php echo $lang->phrase('vote_replies'); ?> <input type="text" id="temp" name="temp" size="4" value="<?php echo $data['replies']; ?>" />
+  <input type="checkbox" tabindex="10" name="opt_2" value="1"<?php echo iif($data['vote'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('yes_add_vote'); ?><br />
+  <?php echo $lang->phrase('vote_replies'); ?> <input tabindex="11" type="text" id="temp" name="temp" size="4" value="<?php echo $data['replies']; ?>" />
 </div>
 <br class="newinput" />
+<?php if ($my->vlogin) { ?>
+<hr class="formsep" />
+<label for="digest"><?php echo $lang->phrase('topic_abo'); ?></label>
+<select class="label" name="digest" id="digest" tabindex="12">
+	<option value="0"<?php echo iif($data['digest'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_none'); ?></option>
+	<option value="1"<?php echo iif($data['digest'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_s'); ?></option>
+	<option value="2"<?php echo iif($data['digest'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_d'); ?></option>
+	<option value="3"<?php echo iif($data['digest'] == 3, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_w'); ?></option>
+</select>
+<br class="newinput" />
+<?php } ?>
 <br class="iefix_br" />
 <?php } ?>
 </div>
-<div class="bfoot center"><input onclick="submit_flood(this)" accesskey="s" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>"> <input type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
+<div class="bfoot center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>"> <input tabindex="14" type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
 </div>
 <?php if ($my->mp[0] == 1) { ?>
 <br class="minibr" />
@@ -112,15 +113,15 @@
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
 <label for="close"><?php echo $lang->phrase('admin_addpost_close'); ?></label>
-<div class="label"><input type="checkbox" id="close" name="close" value="1" /> <?php echo $lang->phrase('admin_addpost_close_desc'); ?></div>
+<div class="label"><input type="checkbox" tabindex="15" id="close" name="close" value="1" /> <?php echo $lang->phrase('admin_addpost_close_desc'); ?></div>
 <br class="newinput" /><hr class="formsep" />
 <label for="pin"><?php echo $lang->phrase('admin_addpost_pin'); ?></label>
-<div class="label"><input type="checkbox" id="pin" name="pin" value="1" /> <?php echo $lang->phrase('admin_addpost_pin_desc'); ?></div>
+<div class="label"><input type="checkbox" tabindex="16" id="pin" name="pin" value="1" /> <?php echo $lang->phrase('admin_addpost_pin_desc'); ?></div>
 <br class="newinput" />
 <?php if ($my->mp[2] == 1 || $my->mp[3] == 1) { ?>
 <hr class="formsep" />
 <label for="close"><?php echo $lang->phrase('admin_addpost_status'); ?></label>
-<select class="label" size="1" name="status" id="status">
+<select tabindex="17" class="label" size="1" name="status" id="status">
 	<option<?php echo iif(empty($last['auto_status']), ' value="0" selected="selected"', ' value="9"'); ?>><?php echo $lang->phrase('ats_choose'); ?></option>
 	<?php if (!empty($last['auto_status'])) { ?>
 	<option value="0" selected="selected"><?php echo $lang->phrase('ats_choose_standard_'.$last['auto_status']); ?></option>

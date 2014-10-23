@@ -21,9 +21,26 @@ $viewable = array(
 
 if($job == "add2") {
 	$type = $gpc->get('type', none);
-	$options = $gpc->get('options', none);
 	if($type != "text" && $type != "textarea") {
-		$thing = "$type\n$options";
+		$options = $gpc->get('options', none);
+		$options2 = preg_split("~(\r\n|\r|\n)+~", $options);
+		$options = array($type);
+		$keys = array();
+		foreach ($options2 as $key => $row) {
+			$row2 = explode("=", $row, 2);
+			if (count($row2) == 2) {
+				$row2[0] = convert2adress(trim($row2[0]));
+				$i = 1;
+				$base = empty($row2[0]) ? 'f' : $row2[0];
+				while(in_array($row2[0], $keys) || empty($row2[0])) {
+					$row2[0] = $base.$i;
+					$i++;
+				}
+				$keys[] = $row2[0];
+				$options[] = implode('=', $row2);
+			}
+		}
+		$thing = implode("\n", $options);
 	}
 	else {
 		$thing = $type;
@@ -41,25 +58,41 @@ if($job == "add2") {
 	);
 	$db->query('INSERT INTO '.$db->pre.'profilefields SET '.array2sqlsetlist($insert));
 	$fid = $db->insert_id();
-	$db->query("ALTER TABLE ".$db->pre."userfields ADD fid{$fid} TEXT NOT NULL");
-	$db->query("OPTIMIZE TABLE ".$db->pre."userfields");
+	$db->query("ALTER TABLE {$db->pre}userfields ADD fid{$fid} TEXT NOT NULL");
 	echo head();
-	ok("admin.php?action=profilefield&job=add", $lang->phrase('admin_profilefield_successfully_added'));
+	ok("admin.php?action=profilefield&job=edit&fid=".$fid, $lang->phrase('admin_profilefield_successfully_added'));
 }
 elseif($job == "delete2") {
 	$fid = $gpc->get('fid', int);
-	$db->query("DELETE FROM ".$db->pre."profilefields WHERE fid = '{$fid}' LIMIt 1");
-	$db->query("ALTER TABLE ".$db->pre."userfields DROP fid{$fid}");
-	$db->query("OPTIMIZE TABLE ".$db->pre."userfields");
+	$db->query("DELETE FROM {$db->pre}profilefields WHERE fid = '{$fid}' LIMIt 1");
+	$db->query("ALTER TABLE {$db->pre}userfields DROP fid{$fid}");
+	$db->query("OPTIMIZE TABLE {$db->pre}userfields");
 	echo head();
 	ok("admin.php?action=profilefield&job=manage", $lang->phrase('admin_profilefield_successfully_deleted'));
 }
 elseif($job == "edit2") {
 	$fid = $gpc->get('fid', int);
 	$type = $gpc->get('type', none);
-	$options = $gpc->get('options', none);
 	if($type != "text" && $type != "textarea") {
-		$thing = "$type\n$options";
+		$options = $gpc->get('options', none);
+		$options2 = preg_split("~(\r\n|\r|\n)+~", $options);
+		$options = array($type);
+		$keys = array();
+		foreach ($options2 as $key => $row) {
+			$row2 = explode("=", $row, 2);
+			if (count($row2) == 2) {
+				$row2[0] = convert2adress(trim($row2[0]));
+				$i = 1;
+				$base = empty($row2[0]) ? 'f' : $row2[0];
+				while(in_array($row2[0], $keys) || empty($row2[0])) {
+					$row2[0] = $base.$i;
+					$i++;
+				}
+				$keys[] = $row2[0];
+				$options[] = implode('=', $row2);
+			}
+		}
+		$thing = implode("\n", $options);
 	}
 	else {
 		$thing = $type;

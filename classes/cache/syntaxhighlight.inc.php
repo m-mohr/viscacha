@@ -13,10 +13,12 @@ class cache_syntaxhighlight extends CacheItem {
 	        while (false !== ($entry = $d->read())) {
 	            if (get_extension($entry) == 'php' && !is_dir($source.$entry)) {
 	                include_once($source.$entry);
-	                $short = str_replace('.php', '', $entry);
-	                $this->data[$short]['file'] = $entry;
-	                $this->data[$short]['name'] = $language_data['LANG_NAME'];
-	                $this->data[$short]['short'] = $short;
+	                if (!isset($language_data['NO_INDEX'])) {
+		                $short = str_replace('.php', '', $entry);
+		                $this->data[$short]['file'] = $entry;
+		                $this->data[$short]['name'] = $language_data['LANG_NAME'];
+		                $this->data[$short]['short'] = $short;
+	                }
 	            }
 	        }
 	        $d->close();
@@ -24,6 +26,6 @@ class cache_syntaxhighlight extends CacheItem {
 		    $this->export();
 		}
 	}
-	
-}	
+
+}
 ?>

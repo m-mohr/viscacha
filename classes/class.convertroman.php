@@ -20,7 +20,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 /*
 *	Matthias Mohr, 02.06.2005:
-*	Added support to convert column numbers in to a letters
+*	Added support to convert column numbers into letters
 */
 
 class ConvertRoman {

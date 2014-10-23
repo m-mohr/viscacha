@@ -1,5 +1,5 @@
 CREATE TABLE `{:=DBPREFIX=:}language` (
-  `id` tinyint(3) unsigned NOT NULL auto_increment,
+  `id` smallint(4) unsigned NOT NULL auto_increment,
   `language` varchar(128) NOT NULL default '',
   `detail` text NOT NULL,
   `publicuse` enum('0','1') NOT NULL default '0',

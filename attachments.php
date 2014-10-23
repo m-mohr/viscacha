@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
@@ -24,18 +24,11 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'attachments');
+define('SCRIPTNAME', 'attachments');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
-
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 
 if ($config['tpcallow'] == 0 && $_GET['action'] == "thumbnail") {
 	include('classes/graphic/class.thumbnail.php');
@@ -59,9 +52,9 @@ if ($_GET['action'] == "thumbnail") {
 	else {
 		($code = $plugins->load('attachments_thumbnail_queries')) ? eval($code) : null;
 		$result = $db->query('
-		SELECT u.id, u.source, t.board 
-		FROM '.$db->pre.'uploads AS u 
-			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid 
+		SELECT u.id, u.source, t.board
+		FROM '.$db->pre.'uploads AS u
+			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid
 		WHERE u.id = '.$_GET['id']
 		,__LINE__,__FILE__);
 		$row = $db->fetch_assoc($result);
@@ -82,7 +75,7 @@ if ($_GET['action'] == "thumbnail") {
 
 		$chachepath = 'uploads/topics/thumbnails/'.$row['id'].get_extension($uppath, true);
 		$thumb->set_cacheuri($chachepath);
-		
+
 		if (file_exists($chachepath) == false) {
 			$thumbnail_source = $thumb->create_thumbnail($uppath);
 			$thumb->create_image($thumbnail_source);
@@ -100,14 +93,14 @@ elseif ($_GET['action'] == "attachment") {
 	else {
 		($code = $plugins->load('attachments_attachment_queries')) ? eval($code) : null;
 		$result = $db->query('
-		SELECT u.tid, u.file, u.source, t.board 
-		FROM '.$db->pre.'uploads AS u 
-			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid 
-		WHERE u.id = '.$_GET['id'].' AND u.tid > 0 
+		SELECT u.tid, u.file, u.source, t.board
+		FROM '.$db->pre.'uploads AS u
+			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid
+		WHERE u.id = '.$_GET['id'].' AND u.tid > 0
 		LIMIT 1
 		',__LINE__,__FILE__);
 		$row = $db->fetch_assoc($result);
-		
+
 		$my->p = $slog->Permissions($row['board']);
 
 		$file = NULL;
@@ -125,18 +118,18 @@ elseif ($_GET['action'] == "attachment") {
 		}
 
 		$db->query('UPDATE '.$db->pre.'uploads SET hits = hits+1 WHERE id = '.$_GET['id'],__LINE__,__FILE__);
-		
+
 		$mime = get_mimetype($uppath);
 
 		($code = $plugins->load('attachments_attachment_prepared')) ? eval($code) : null;
 		if ($config['tpcdownloadspeed'] > 0 && $mime['browser'] == 'attachment') {
 			$rundeslimit = round($config['tpcdownloadspeed']*1024);
-			
+
 			viscacha_header('Cache-control: private');
 			viscacha_header('Content-Type: '.$mime['mime']);
 			viscacha_header('Content-Length: '.filesize($uppath));
 			viscacha_header('Content-Disposition: '.$mime['browser'].'; filename="'.$row['file'].'"');
-			
+
 			flush();
 			$fd = fopen($uppath, "r");
 			while(!feof($fd)) {
@@ -160,7 +153,7 @@ elseif ($_GET['action'] == "attachment") {
 }
 else {
 	$error = false;
-	
+
 	($code = $plugins->load('attachments_upload_start')) ? eval($code) : null;
 	if ($_GET['type'] == 'addreply' && is_id($_GET['id'])) {
 		$result = $db->query("SELECT id, board, name, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
@@ -200,12 +193,12 @@ else {
 	}
 	$my->p = $slog->Permissions($upinfo['board']);
 	$my->mp = $slog->ModPermissions($upinfo['board']);
-	
+
 	if ($my->p['attachments'] != 1) {
 		echo $tpl->parse("popup/header");
 		errorLogin($lang->phrase('not_allowed'), 'javascript:self.close();');
 	}
-	
+
 	if ($_GET['action'] == "save") {
 		($code = $plugins->load('attachments_upload_save_start')) ? eval($code) : null;
 		if (is_array($_POST['delete']) && count($_POST['delete']) > 0) {
@@ -216,24 +209,24 @@ else {
 						$ids[] = $key;
 					}
 				}
-				
+
 				$result = $db->query('
-				SELECT source 
-				FROM '.$db->pre.'uploads 
+				SELECT source
+				FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				',__LINE__,__FILE__);
-				
+
 				while ($row = $db->fetch_num($result)) {
 					if (file_exists('uploads/topics/'.$row[0])) {
 						$filesystem->unlink('uploads/topics/'.$row[0]);
 					}
 				}
-				
+
 				$db->query('
-				DELETE FROM '.$db->pre.'uploads 
+				DELETE FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				',__LINE__,__FILE__);
-				
+
 				$slog->updatelogged();
 				$db->close();
 				viscacha_header('Location: attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
@@ -244,9 +237,9 @@ else {
 			$insertuploads = array();
 			$inserterrors = array();
 			require("classes/class.upload.php");
-			
+
 			($code = $plugins->load('attachments_upload_save_add_start')) ? eval($code) : null;
-				
+
 			for ($i = 0; $i < $config['tpcmaxuploads']; $i++) {
 
 				$field = "upload_{$i}";
@@ -269,7 +262,7 @@ else {
 					array_push($inserterrors, $my_uploader->get_error());
 				}
 			}
-	
+
 			if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
 				$upper = $upinfo['name'];
 				$tid = $upinfo['id'];
@@ -278,17 +271,18 @@ else {
 				$upper = $my->id;
 				$tid = 0;
 			}
-			
+
 			($code = $plugins->load('attachments_upload_save_add_queries')) ? eval($code) : null;
 			if (count($insertuploads) > 0 && count($insertuploads) <= $config['tpcmaxuploads']) {
 				foreach ($insertuploads as $uploaddata) {
-					$uploaddata = $gpc->save_str($uploaddata);
+					$uploaddata['file'] = $db->escape_string($uploaddata['file']);
+					$uploaddata['source'] = $db->escape_string($uploaddata['source']);
 					$db->query("INSERT INTO {$db->pre}uploads (file,source,tid,mid,topic_id) VALUES ('{$uploaddata['file']}','{$uploaddata['source']}','{$tid}','{$upper}','{$upinfo['topic_id']}')",__LINE__,__FILE__);
 				}
 			}
-			
+
 			($code = $plugins->load('attachments_upload_save_add_end')) ? eval($code) : null;
-			
+
 			if (count($inserterrors) > 0) {
 				echo $tpl->parse('popup/header');
 				error($inserterrors, 'attachments.php?type='.$_GET['type'].'&amp;id='.$_GET['id'].SID2URL_x);
@@ -303,7 +297,7 @@ else {
 	}
 	else {
 		echo $tpl->parse("popup/header");
-		
+
 		$filetypes = implode($lang->phrase('listspacer'), explode(',',$config['tpcfiletypes']));
 		$filesize = formatFilesize($config['tpcfilesize']);
 
@@ -314,12 +308,12 @@ else {
 			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"',__LINE__,__FILE__);
 		}
 		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
-		
+
 		$free = $config['tpcmaxuploads'] - $db->num_rows($result);
 		if ($free < 1) {
 			$free = 0;
 		}
-		
+
 		$uploads = array();
 		while ($row = $db->fetch_assoc($result)) {
 			$fsize = filesize('uploads/topics/'.$row['source']);
@@ -331,7 +325,7 @@ else {
 			'id' => $row['id']
 			);
 		}
-		
+
 		($code = $plugins->load('attachments_upload_form_prepared')) ? eval($code) : null;
 		echo $tpl->parse("attachments");
 		($code = $plugins->load('attachments_upload_form_end')) ? eval($code) : null;

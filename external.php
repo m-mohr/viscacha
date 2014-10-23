@@ -24,17 +24,13 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'external');
+define('SCRIPTNAME', 'external');
 define('VISCACHA_CORE', '1');
+define('TEMPSHOWLOG', 1);
 
 include ("data/config.inc.php");
-DEFINE('TEMPSHOWLOG', 1);
 include ("classes/function.viscacha_frontend.php");
 
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
 $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();
 
@@ -125,8 +121,8 @@ $sqljoin = $sqlfields = '';
 $result = $db->query("
 SELECT r.dowords, r.comment, r.guest, f.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status {$sqlfields}
 FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
-	LEFT JOIN {$db->pre}user AS u ON r.name=u.id
-	LEFT JOIN {$db->pre}forums AS f ON t.board=f.id
+	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
+	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
 	{$sqljoin}
 WHERE {$sqlwhere}
 ORDER BY {$sqlorder}
@@ -165,7 +161,7 @@ if ($config['foffline'] == 0) {
 	   	$item->link = $config['furl']."/showtopic.php?id=".$row->id;
 	    $item->source = $config['furl']."/showforum.php?id=".$row->board;
 	    $item->description = $row->comment;
-	    $item->date = dateSpec(SPEC_RFC822, $row->date);
+	    $item->date = $row->date;
 	    $item->author = $row->name;
 	    if ($config['syndication_insert_email'] == 1) {
 			$item->authorEmail = $row->email;
@@ -173,7 +169,7 @@ if ($config['foffline'] == 0) {
 		else {
 			$item->authorEmail = '';
 		}
-	    $item->pubDate = dateSpec(SPEC_RFC822, $row->date);
+	    $item->pubDate = $row->date;
 		$item->category = $row->forum;
 
 		($code = $plugins->load('external_item_prepared')) ? eval($code) : null;
@@ -186,7 +182,7 @@ else {
     $item->title = $lang->phrase('offline_head_ext');
     $item->link = $config['furl'];
     $item->description = $lang->phrase('offline_body_ext');
-    $item->date = dateSpec(SPEC_RFC_2822);
+    $item->date = time();
     $item->author = $config['fname'];
 
 	($code = $plugins->load('external_offline')) ? eval($code) : null;

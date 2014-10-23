@@ -62,7 +62,6 @@ $lang['admin_search_members'] = 'Mitglieder suchen';
 $lang['admin_settings'] = 'Einstellungen';
 $lang['admin_signoff'] = 'Abmelden';
 $lang['admin_smiley_manager'] = 'Smileys';
-$lang['admin_spellcheck_manager'] = 'Rechtschreibprüfung';
 $lang['admin_sqlerror_log'] = 'Protokoll der Datenbankfehler';
 $lang['admin_statistics'] = 'Statistiken';
 $lang['admin_stats_logs'] = 'Protokolle & Statistik';

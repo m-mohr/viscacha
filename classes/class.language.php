@@ -89,12 +89,12 @@ class lang {
 	function javascript($file = 'javascript') {
 		$file = $this->dir.DIRECTORY_SEPARATOR.$file.'.lng.php';
 		require($file);
-		echo 'var lng = new Array();'."\n";
+		$str = 'var lng = new Array();'."\n";
 		foreach ($lang as $k => $l) {
 			$l = str_replace("'", "\\'", $l);
-			echo "lng['{$k}'] = '{$l}';\n";
+			$str .= "lng['{$k}'] = '{$l}';\n";
 		}
-		return $lang;
+		return $str;
 	}
 
 	function return_array($group = '') {
@@ -220,7 +220,7 @@ class lang {
 				return $GLOBALS[$key];
 			}
 		}
-		return '';
+		return "{{$type}{$key}}"; // Not found. Don't change anything!
 	}
 
 	function group($group) {

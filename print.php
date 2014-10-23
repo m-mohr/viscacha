@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
@@ -24,24 +24,17 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'print');
+define('SCRIPTNAME', 'print');
 define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
-$zeitmessung1 = t1();
-
-$slog = new slog();
-$my = $slog->logged();
-$lang->init($my->language);
-$tpl = new tpl();
-
 ($code = $plugins->load('print_topic_query')) ? eval($code) : null;
 $result = $db->query('
-SELECT topic, posts, sticky, status, last, board, vquestion, prefix 
-FROM '.$db->pre.'topics 
-WHERE id = '.$_GET['id'].' 
+SELECT topic, posts, sticky, status, last, board, vquestion, prefix
+FROM '.$db->pre.'topics
+WHERE id = '.$_GET['id'].'
 LIMIT 1
 ',__LINE__,__FILE__);
 $info = $gpc->prepare($db->fetch_assoc($result));
@@ -71,7 +64,7 @@ if ($info['prefix'] > 0) {
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($info['board']);
 	if (isset($prefix_arr[$info['prefix']])) {
-		$prefix = $prefix_arr[$info['prefix']];
+		$prefix = $prefix_arr[$info['prefix']]['value'];
 		$prefix = $lang->phrase('showtopic_prefix_title');
 	}
 }
@@ -95,7 +88,7 @@ if ($speeder > $last['topiczahl']) {
 else {
 	$searchsql = " LIMIT ".$speeder;
 }
-	
+
 BBProfile($bbcode);
 
 $memberdata_obj = $scache->load('memberdata');
@@ -107,15 +100,15 @@ $inner['vote_result'] = '';
 // prepare for vote
 if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 	$votes = 0;
-	
+
 	$cachev = array();
 	$aids = array();
 	$vresult = $db->query("
 	SELECT COUNT(r.id) as votes, v.id, v.answer
-	FROM {$db->pre}vote AS v 
-		LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id 
-	WHERE v.tid = '{$_GET['id']}' 
-	GROUP BY v.id 
+	FROM {$db->pre}vote AS v
+		LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id
+	WHERE v.tid = '{$_GET['id']}'
+	GROUP BY v.id
 	ORDER BY v.id
 	",__LINE__,__FILE__);
 	while ($row = $db->fetch_assoc($vresult)) {
@@ -135,7 +128,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 		}
 		$voter[$row['aid']][$row['mid']] = $memberdata[$row['mid']]; // Array mit den Namen der Leute und deren Antwort
 	}
-	
+
 	foreach ($cachev as $key => $row) {
 		if ($votes > 0) {
 			$row['percent2'] = ceil($row['votes'] / $votes * 200);
@@ -169,14 +162,16 @@ if ($config['tpcallow'] == 1) {
 ($code = $plugins->load('print_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, r.email as gmail, r.guest
-FROM {$db->pre}replies AS r 
-	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
+FROM {$db->pre}replies AS r
+	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 WHERE r.topic_id = '{$_GET['id']}' {$searchsql}
 ",__LINE__,__FILE__);
 
-while ($row = $gpc->prepare($db->fetch_object($result))) {
+while ($row = $db->fetch_object($result)) {
 	$inner['upload_box'] = '';
-	
+
+	$row = $slog->cleanUserData($row);
+
 	if ($row->guest == 0) {
 		$row->mail = '';
 		$row->name = $row->uname;
@@ -198,21 +193,21 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	$row->comment = $bbcode->parse($row->comment);
 
 	$row->date = gmdate($lang->phrase('dformat1'), times($row->date));
-	
+
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
 			$info = get_extension($uppath);
-			
+
 			// Dateigroesse
 			$fsize = filesize($uppath);
 			$fsize = formatFilesize($fsize);
-			
+
 			($code = $plugins->load('print_attachments_prepared')) ? eval($code) : null;
 			$inner['upload_box'] .= $tpl->parse("print/upload_box");
 		}
 	}
-	
+
 	if (!empty($row->edit)) {
 		$edits = explode("\n", $row->edit);
 		$anz = count($edits);
@@ -221,10 +216,10 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$date = gmdate($lang->phrase('dformat1'), times($lastdata[1]));
 		$why = iif(empty($lastdata[2]), $lang->phrase('post_editinfo_na'), $bbcode->wordwrap($lastdata[2]));
 	}
-	
+
 	($code = $plugins->load('print_entry_prepared')) ? eval($code) : null;
 	$inner['index_bit'] .= $tpl->parse("print/index_bit");
-} 
+}
 
 ($code = $plugins->load('print_prepared')) ? eval($code) : null;
 echo $tpl->parse("print/index");

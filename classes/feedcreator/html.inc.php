@@ -72,7 +72,7 @@ class HTML extends FeedCreator {
 		if ($this->image!=null) {
 			$imageStr = "<a href='".$this->image->link."'".$targetInsert.">".
 							"<img src='".$this->image->url."' border='0' alt='".
-							FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->image->title),100).
+							$this->htmlspecialchars(FeedCreator::iTrunc($this->image->title,100)).
 							"' align='".$this->imageAlign."' ";
 			if ($this->image->width) {
 				$imageStr .=" width='".$this->image->width. "' ";
@@ -86,7 +86,7 @@ class HTML extends FeedCreator {
 
 		if ($this->title) {
 			$feedArray[] = "<div class='".$this->stylePrefix."title'><a href='".$this->link."' ".$targetInsert." class='".$this->stylePrefix."title'>".
-				FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->title),100)."</a></div>";
+				$this->htmlspecialchars(FeedCreator::iTrunc($this->title,100))."</a></div>";
 		}
 		if ($this->getDescription()) {
 			$feedArray[] = "<div class='".$this->stylePrefix."description'>".
@@ -107,12 +107,12 @@ class HTML extends FeedCreator {
 				if ($this->items[$i]->link) {
 					$feedArray[] =
 						"<div class='".$this->stylePrefix."item_title'><a href='".$this->items[$i]->link."' class='".$this->stylePrefix.
-						"item_title'".$targetInsert.">".FeedCreator::iTrunc(FeedCreator::htmlspecialchars(strip_tags($this->items[$i]->title)),100).
+						"item_title'".$targetInsert.">".$this->htmlspecialchars(FeedCreator::iTrunc($this->items[$i]->title,100)).
 						"</a></div>";
 				} else {
 					$feedArray[] =
 						"<div class='".$this->stylePrefix."item_title'>".
-						FeedCreator::iTrunc(FeedCreator::htmlspecialchars(strip_tags($this->items[$i]->title)),100).
+						$this->htmlspecialchars(FeedCreator::iTrunc($this->items[$i]->title,100)).
 						"</div>";
 				}
 			}

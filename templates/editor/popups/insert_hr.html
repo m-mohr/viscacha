@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+	<title>Insert Horizontal Ruler</title>
+	<link rel="stylesheet" type="text/css" href="../../../admin/html/standard.css" />
+	<script type="text/javascript" src="../wysiwyg-popup.js"></script>
+	<script type="text/javascript" src="../wysiwyg-color.js"></script>
+</head>
+<body onload="WYSIWYG_ColorInst.init();">
+	<form name="hr_form">
+	<table class="border" width="300" border="0" cellpadding="4" cellspacing="0" align="center">
+		<tr><td class="obox" colspan="3">Insert Horizontal Rule</td></tr>
+		<tr class="mbox">
+			<td>Width:</td>
+			<td><input type="text" name="width" id="width" value="" size="10" /></td>
+			<td>
+				<select name="widthgroup" id="widthgroup" size="1">
+					<option value="1">Full</option>
+					<option value="2">px</option>
+					<option value="3">%</option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td>Height:</td>
+			<td colspan="2"><input type="text" name="height" id="height" value="" size="10" /></td>
+		</tr><tr class="mbox">
+			<td>Align:</td>
+			<td colspan="2">
+				<select name="align" id="align" size="1">
+					<option value="1">Center</option>
+					<option value="2">Left</option>
+					<option value="3">Right</option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td norwap="nowrap">No Shade:</td>
+			<td colspan="2"><input type="checkbox" name="shade" id="shade" value="1" /></td>
+		</tr><tr class="mbox">
+			<td norwap="nowrap">Color:</td>
+			<td><input type="text" name="color" id="color" value="none" size="10" /></td>
+			<td><input type="button" onClick="WYSIWYG_ColorInst.choose('color');" value="Choose" /></td>
+		</tr><tr>
+			<td class="ubox" colspan="3" align="center">
+				<input type="submit" value="Submit" onClick="createHR(WYSIWYG_Popup.getParam('wysiwyg'));" />
+				<input type="submit" value="Cancel" onClick="window.close();" />
+			</td>
+   		</tr>
+   	</table>
+	</form>
+</body>
+</html>

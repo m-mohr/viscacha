@@ -2,13 +2,23 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 $uploadfields = 5;
+require_once("classes/function.chmod.php");
 require_once("admin/lib/class.servernavigator.php");
-include_once('classes/class.template.php');
-$tpl = new tpl();
 $ServerNavigator = new ServerNavigator();
 
 ($code = $plugins->load('admin_explorer_jobs')) ? eval($code) : null;
 
+if ($job == 'delete_install') {
+	echo head();
+	$path = './install/';
+	if (is_dir($path) && $filesystem->rmdirr($path)) {
+		$name = '"./install/"';
+		ok('admin.php?action=index', $lang->phrase('admin_explorer_x_successfully_deleted'));
+	}
+	else {
+		error('admin.php?action=index');
+	}
+}
 if ($job == 'upload') {
 
 	$cfg = $gpc->get('cfg', str);
@@ -327,7 +337,7 @@ elseif ($job == "delete2") {
 	echo head();
 
 	$repath = urlencode(extract_dir($path, false));
-	if (@rmdirr($path)) {
+	if (@$filesystem->rmdirr($path)) {
 		$name = ucfirst($name);
 		ok('admin.php?action=explorer&path='.$repath, $lang->phrase('admin_explorer_x_successfully_deleted'));
 	}
@@ -338,8 +348,11 @@ elseif ($job == "delete2") {
 elseif ($job == "edit") {
 	echo head();
 	$file = urldecode($gpc->get('path', none));
-	check_writable($file);
-	if (!$ServerNavigator->checkEdit($file)) {
+
+	set_chmod($file, 0666, CHMOD_FILE);
+	@clearstatcache();
+	$given = get_chmod($file);
+	if (!$ServerNavigator->checkEdit($file) || !check_chmod(CHMOD_WR, $given)) {
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_is_not_editable'));
 	}
 	$content = file_get_contents($file);
@@ -403,12 +416,12 @@ elseif ($job == "extract2") {
 	echo head();
 	$file = $gpc->get('path', none);
 	$dir = $gpc->get('to', none);
-	check_executable($dir);
+
+	set_chmod($dir, 0777, CHMOD_EX);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
 	if (!preg_match('#\.(tar\.gz|tar|gz|zip)$#is', $file, $ext)) {
 		error($redirect, $lang->phrase('admin_explorer_archive_is_not_supported'));
 	}
-	unset($extension);
 	if (isset($ext[1])) {
 		$extension = $ext[1];
 		if ($extension == 'zip') {
@@ -423,21 +436,21 @@ elseif ($job == "extract2") {
 			$temp = gzTempfile($file);
 			$temp = realpath($temp);
 			include('classes/class.tar.php');
-			$tar = new tar();
-			$tar->new_tar(viscacha_dirname($temp), basename($temp));
+			$tar = new tar(dirname($temp), basename($temp));
 			$tar->extract_files(realpath($dir));
-			$err = $tar->error;
 			$filesystem->unlink($temp);
-			if (!empty($err)) {
-				error($redirect, $err);
+			if (!empty($tar->error)) {
+				error($redirect, $tar->error);
 			}
 		}
 		elseif ($extension == 'tar') {
-			include('classes/class.tar.php');
-			$tar = new tar();
 			$file = realpath($file);
-			$tar->new_tar(viscacha_dirname($file), basename($file));
+			include('classes/class.tar.php');
+			$tar = new tar(dirname($file), basename($file));
 			$tar->extract_files($dir);
+			if (!empty($tar->error)) {
+				error($redirect, $tar->error);
+			}
 		}
 		elseif ($extension == 'gz') {
 			gzAbortNotLoaded();
@@ -445,12 +458,82 @@ elseif ($job == "extract2") {
 			$temp = gzTempfile($file, $new);
 		}
 	}
-	if (!isset($extension)) {
-		error($redirect, $lang->phrase('admin_explorer_file_is_not_supported2'));
+	ok($redirect);
+}
+elseif ($job == 'all_chmod') {
+	echo head();
+	$chmod = getViscachaCHMODs();
+	?>
+	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	<tr>
+		<td class="obox" colspan="4"><?php echo $lang->phrase('admin_explorer_check_chmod'); ?></td>
+	</tr>
+	<tr>
+  		<td class="mbox" colspan="4">
+			<?php echo $lang->phrase('admin_explorer_chmod_info1'); ?><br /><br />
+			<?php echo $lang->phrase('admin_explorer_chmod_info2'); ?><br />
+			<strong style="color: #008000;"><?php echo $lang->phrase('admin_explorer_chmod_status_ok'); ?></strong>: <?php echo $lang->phrase('admin_explorer_chmod_status_ok_info'); ?><br />
+			<strong style="color: #ffaa00;"><?php echo $lang->phrase('admin_explorer_chmod_status_failure_x'); ?></strong>: <?php echo $lang->phrase('admin_explorer_chmod_status_failure_x_info'); ?><br />
+			<strong style="color: #ff0000;"><?php echo $lang->phrase('admin_explorer_chmod_status_failure'); ?></strong>: <?php echo $lang->phrase('admin_explorer_chmod_status_failure_info'); ?>
+  		</td>
+	</tr>
+	<tr class="ubox">
+		<td width="60%"><strong><?php echo $lang->phrase('admin_explorer_chmod_file_dir'); ?></strong></td>
+		<td width="15%"><strong><?php echo $lang->phrase('admin_explorer_required_chmod'); ?></strong></td>
+		<td width="15%"><strong><?php echo $lang->phrase('admin_explorer_current_chmod'); ?></strong></td>
+		<td width="10%"><strong><?php echo $lang->phrase('admin_explorer_chmod_state'); ?></strong></td>
+	</tr>
+	<?php
+	$files = array();
+	foreach ($chmod as $dat) {
+		if ($dat['recursive']) {
+			$filenames = array();
+			if ($dat['chmod'] == CHMOD_EX) {
+				$filenames = set_chmod_r($dat['path'], 0777, CHMOD_DIR);
+			}
+			elseif ($dat['chmod'] == CHMOD_WR) {
+				$filenames = set_chmod_r($dat['path'], 0666, CHMOD_FILE);
+			}
+			foreach ($filenames as $f) {
+				$files[] = array('path' => $f, 'chmod' => $dat['chmod'], 'recursive' => false, 'req' => $dat['req']);
+			}
+		}
+		else {
+			if ($dat['chmod'] == CHMOD_EX) {
+				set_chmod($dat['path'], 0777, CHMOD_DIR);
+			}
+			elseif ($dat['chmod'] == CHMOD_WR) {
+				set_chmod($dat['path'], 0666, CHMOD_FILE);
+			}
+			$files[] = $dat;
+		}
 	}
-	else {
-		ok($redirect);
+	@clearstatcache();
+	sort($files);
+	foreach ($files as $arr) {
+		$chmod = get_chmod($arr['path']);
+		if (check_chmod($arr['chmod'], $chmod)) {
+			$status = '<strong style="color: #008000;">'.$lang->phrase('admin_explorer_chmod_status_ok').'</strong>';
+		}
+		elseif ($arr['req'] == false) {
+			$status = '<strong style="color: #ffaa00;">'.$lang->phrase('admin_explorer_chmod_status_failure_x').'</strong>';
+		}
+		else {
+			$status = '<strong style="color: #ff0000;">'.$lang->phrase('admin_explorer_chmod_status_failure').'</strong>';
+		}
+	?>
+	<tr class="mbox">
+		<td><?php echo $arr['path']; ?></td>
+		<td><?php echo $arr['chmod']; ?></td>
+		<td><?php echo $chmod; ?></td>
+		<td><?php echo $status; ?></td>
+	</tr>
+	<?php
 	}
+	?>
+	</table>
+	<?php
+	echo foot();
 }
 else {
 	$ServerNavigator->useImageIcons(true);

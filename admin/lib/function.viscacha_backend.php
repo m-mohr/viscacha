@@ -3,33 +3,15 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
+// Debugging / Error Handling things
+require_once("classes/function.errorhandler.php");
 // A class for Languages
 require_once("classes/class.language.php");
 $lang = new lang();
 // Filesystem
 require_once("classes/class.filesystem.php");
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-$filesystem->set_wd($config['ftp_path']);
-@include_once("classes/function.chmod.php");
-if ($config['check_filesystem'] == 1) {
-	check_writable_r('admin/data');
-	check_writable_r('docs');
-	check_writable_r('language');
-	check_executable_r('admin/backup');
-	check_executable_r('admin/data');
-	check_executable_r('designs');
-	check_executable_r('docs');
-	check_executable_r('images');
-	check_executable_r('templates');
-	check_executable_r('modules');
-	check_executable_r('language');
-	check_executable('classes/cron/jobs');
-	check_executable('classes/feedcreator');
-	check_executable('classes/fonts');
-	check_executable('classes/geshi');
-	check_executable('classes/graphic/noises');
-	check_writable_r('templates');
-}
+$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 
 @ini_set('default_charset', '');
 header('Content-type: text/html; charset=iso-8859-1');
@@ -46,10 +28,14 @@ define('IMPTYPE_SMILEYPACK', 3);
 define('IMPTYPE_LANGUAGE', 4);
 define('IMPTYPE_BBCODE', 5);
 
+// Database functions
+require_once('classes/database/'.$config['dbsystem'].'.inc.php');
+$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
+$db->setPersistence($config['pconnect']);
 // Variables
 require_once ("classes/function.gpc.php");
 $action = $gpc->get('action', none);
-if (empty($_REQUEST['page'])) {
+if (empty($_GET['page']) || $_REQUEST['page'] < 1) {
 	$_REQUEST['page'] = 1;
 }
 // Permission and Logging Class
@@ -66,6 +52,8 @@ $benchmark = benchmarktime();
 $slog = new slog();
 $my = $slog->logged();
 $lang->initAdmin($my->language);
+$tpl = new tpl();
+$slog->checkBan();
 $my->p = $slog->Permissions();
 
 $job = $gpc->get('job', str);
@@ -140,20 +128,6 @@ $glk_forums = array(
 	'f_voting' => 'voting'
 );
 $guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
-
-
-// functions //
-function navLang($key, $show_key = true) {
-	global $lang;
-	$prefix = substr(strtolower($key), 0, 6);
-	if ($prefix == 'lang->') {
-		$suffix = substr($key, 6);
-		return $lang->phrase($suffix).iif($show_key, " [{$key}]");
-	}
-	else {
-		return $key;
-	}
-}
 
 function getLangCodesByDir($dir) {
 	$d = dir($dir);
@@ -473,33 +447,33 @@ function head($onload = '') {
 	<link rel="up" href="javascript:self.scrollTo(0,0);">
 	<link rel="copyright" href="http://www.viscacha.org">
 	<script src="templates/lang2js.php?id=<?php echo $my->language; ?>&amp;admin=1" type="text/javascript"></script>
-	<script type="text/javascript">
-	<!--
+	<script language="JavaScript" type="text/javascript"><!--
 		var sidx = '<?php echo SID2URL_JS_x; ?>';
 		var sid1 = '<?php echo SID2URL_JS_1; ?>';
-	-->
-	</script>
+	--></script>
+	<script src="templates/global.js" language="Javascript" type="text/javascript"></script>
 	<script src="admin/html/admin.js" language="Javascript" type="text/javascript"></script>
-	<script src="templates/menu.js" language="Javascript" type="text/javascript"></script>
 	<?php echo $htmlhead; ?>
 </head>
 <body<?php echo iif(!empty($onload), ' '.$onload); ?>>
 	<?php
 }
-function foot() {
-	global $config, $benchmark, $db, $lang;
-	$benchmark = round(benchmarktime()-$benchmark, 5);
-	$queries = $db->benchmark('queries');
-	$lang->assign('queries', $queries);
-	$lang->assign('benchmark', $benchmark);
-	?>
-	<br style="line-height: 8px;" />
-	<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
-    <div id="copyright">
-        <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
-        Copyright &copy; 2004-2007, MaMo Net
-        <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
-    </div>
+function foot($nocopy = false) {
+	if ($nocopy == false) {
+		global $config, $benchmark, $db, $lang;
+		$benchmark = round(benchmarktime()-$benchmark, 5);
+		$queries = $db->benchmark('queries');
+		$lang->assign('queries', $queries);
+		$lang->assign('benchmark', $benchmark);
+		?>
+		<br style="line-height: 8px;" />
+		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
+	    <div id="copyright">
+	        <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+	        Copyright &copy; 2004-2007, MaMo Net
+	        <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
+	    </div>
+	<?php } ?>
     </body>
     </html>
 	<?php
@@ -592,7 +566,7 @@ define('ADMIN_SELECT_CATEGORIES', 2);
 define('ADMIN_SELECT_FORUMS', 1);
 define('ADMIN_SELECT_ALL', 0);
 
-function SelectBoardStructure($name = 'id', $group = ADMIN_SELECT_ALL, $standard = null, $no_select = false) {
+function SelectBoardStructure($name = 'id', $group = ADMIN_SELECT_ALL, $standard = null, $no_select = false, $skip = null) {
 	global $scache;
 
 	$forumtree = $scache->load('forumtree');
@@ -605,15 +579,25 @@ function SelectBoardStructure($name = 'id', $group = ADMIN_SELECT_ALL, $standard
 	$boards = $catbid->get();
 
 	$tree2 = array();
-	SelectBoardStructure_html($tree2, $tree, $categories, $boards, $group, $standard);
+	SelectBoardStructure_html($tree2, $tree, $categories, $boards, $group, $standard, $skip);
 	$forums = iif($no_select == false, '<select name="'.$name.'" size="1">');
 	$forums .= implode("\n", $tree2);
 	$forums .= iif($no_select == false, '</select>');
 	return $forums;
 }
 
-function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standard = null, $char = '&nbsp;&nbsp;', $level = 0) {
+function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standard = null, $skip = null, $char = '&nbsp;&nbsp;', $level = 0) {
+	if ($skip != null) {
+		list($skipType, $skipId) = explode('_', $skip);
+	}
+	else {
+		$skipId = $skipType = null;
+	}
+
 	foreach ($tree as $cid => $boards) {
+		if ($skipId == $cid && $skipType == 'c') {
+			continue;
+		}
 		$cdata = $cat[$cid];
 		if ($group == ADMIN_SELECT_FORUMS) {
 			$html[] = '<optgroup label="'.str_repeat($char, $level).$cdata['name'].'"></optgroup>';
@@ -624,6 +608,9 @@ function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standar
 		}
 		$i = 0;
 		foreach ($boards as $bid => $sub) {
+			if ($skipId == $bid && $skipType == 'b') {
+				continue;
+			}
 			$bdata = $board[$bid];
 			if ($bdata['opt'] == 're') {
 				continue;
@@ -633,7 +620,7 @@ function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standar
 				$value = iif($group == ADMIN_SELECT_ALL, 'forums_').$bdata['id'];
 				$html[] = '<option '.iif($standard != null && $standard == $value, ' selected="selected"').' value="'.$value.'">'.str_repeat($char, $level+1).$bdata['name'].'</option>';
 			}
-	    	SelectBoardStructure_html($html, $sub, $cat, $board, $group, $standard, $char, $level+2);
+	    	SelectBoardStructure_html($html, $sub, $cat, $board, $group, $standard, $skip, $char, $level+2);
 	    }
 	    if ($group == ADMIN_SELECT_FORUMS && $i == 0) {
 	    	$x = array_pop($html);

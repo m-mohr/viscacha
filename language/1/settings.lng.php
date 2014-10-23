@@ -2,7 +2,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['charset'] = 'ISO-8859-15';
-$lang['compatible_version'] = '0.8 RC4';
+$lang['compatible_version'] = '0.8 RC5';
 $lang['country_code'] = '';
 $lang['decpoint'] = ',';
 $lang['dformat1'] = 'd.m.Y, H:i';

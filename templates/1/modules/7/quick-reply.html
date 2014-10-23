@@ -4,11 +4,7 @@
 <h3><img id="img_quickreply" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('quickreply_title'); ?></h3>
 <div id="part_quickreply">
 <div class="bbody">
-<label><?php echo $inner['smileys']; ?></label>
-<?php echo $inner['bbhtml']; ?>
-<br class="newinput" /><hr class="formsep" />
-<textarea name="comment" id="comment" cols="50" rows="10" style="width:99%"></textarea>
-<br class="newinput" /><br class="iefix_br" />
+	<?php echo $bbcode->getEditorArea('comment', '', 'cols="80" rows="9"', null, TOOLBAR_SMILEYS); ?>
 </div>
 <div class="bfoot center">
   <input type="submit" accesskey="s" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />

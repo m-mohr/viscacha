@@ -48,6 +48,9 @@ class GPC {
 		if (!defined('arr_none')) {
 			define('arr_none', 3);
 		}
+		if (!defined('db_esc')) {
+			define('db_esc', 6);
+		}
 		$this->prepare_original = array('"', "'", '<', '>');
 		$this->prepare_entity = array('&quot;', '&#039;', '&lt;', '&gt;');
 		$this->php523 = version_compare(PHP_VERSION, '5.2.3', '>=');
@@ -64,13 +67,18 @@ class GPC {
 			elseif ($type == int || $type == arr_int) {
 				$var = $this->save_int($_REQUEST[$index]);
 			}
+			elseif ($type == db_esc) {
+				global $db;
+				$var = $this->secure_null($_REQUEST[$index]);
+				$var = $db->escape_string($var);
+			}
 			else {
 				$var = $this->secure_null($_REQUEST[$index]);
 			}
 		}
 		else {
 			if ($standard === null) {
-				if ($type == str) {
+				if ($type == str || $type == db_esc) {
 					$var = '';
 				}
 				elseif ($type == int) {
@@ -273,6 +281,8 @@ class GPC {
 				$var = $this->html_entity_decode($var, ENT_QUOTES); // Todo: Make PHP5 only: html_entity_decode($var, ENT_QUOTES, 'UTF-8');
 			}
 			else {
+				$var = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $var); // ToDo: Convert to correct charset
+				$var = preg_replace('~&#([0-9]+);~e', 'chr("\\1")', $var);
 				$var = html_entity_decode($var, ENT_QUOTES, $lang->charset());
 			}
 		}

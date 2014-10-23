@@ -2,7 +2,7 @@
 class cache_grabrss extends CacheItem {
 
 	function load() {
-		global $db;
+		global $db, $gpc;
 		if ($this->exists() == true) {
 		    $this->import();
 		}
@@ -10,7 +10,7 @@ class cache_grabrss extends CacheItem {
 		    $result = $db->query("SELECT id, file, title, entries, max_age FROM {$db->pre}grab",__LINE__,__FILE__);
 		    $this->data = array();
 		    while ($row = $db->fetch_assoc($result)) {
-				$row['title'] = htmlentities($row['title'], ENT_QUOTES);
+				$row['max_age'] = $row['max_age'] * 60; // Calculate the seconds
 		        $this->data[$row['id']] = $row;
 		    }
 		    $this->export();
