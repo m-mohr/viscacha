@@ -26,14 +26,65 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.v
 
 require_once("classes/function.frontend_init.php");
 
-function basefilename($file) {
-	$file = basename($file);
-	if (strpos($file, '?') !== false) {
-		$parts = explode('?', $file, 2);
-		return $parts[0];
+function getRedirectURL($standard = true) {
+	global $gpc;
+	$loc = strip_tags($gpc->get('redirect', none));
+	$loc = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $loc);
+	if (check_hp($loc)) {
+		$url = parse_url($loc);
+		$file = !empty($url['path']) ? basename($url['path']) : '';
 	}
 	else {
-		return $file;
+		$file = basename($loc);
+	}
+	if (strpos($file, '?') !== false) {
+		$parts = explode('?', $file, 2);
+		$file = $parts[0];
+	}
+	if (empty($loc) || !file_exists($file) || $file == 'log.php') {
+		if ($standard == true) {
+			$loc = 'index.php';
+ 		}
+ 		else {
+ 			$loc = '';
+ 		}
+	}
+	if (!empty($loc)) {
+		if (strpos($loc, '?') === false) {
+			$loc .= SID2URL_1;
+		}
+		else {
+			$loc .= SID2URL_x;
+		}
+	}
+	return $loc;
+}
+
+function getRefererURL() {
+	global $config;
+	$request_uri = '';
+	if (check_hp($_SERVER['HTTP_REFERER'])) {
+		$url = parse_url($_SERVER['HTTP_REFERER']);
+		if (!empty($url['host']) && strpos($config['furl'], $url['host']) !== FALSE) {
+			$request_uri = $_SERVER['HTTP_REFERER'];
+		}
+		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
+		if (empty($url['path'])) {
+			$url['path'] = '';
+		}
+		$file = basename($url['path']);
+		if (!empty($loc) && file_exists($file) && $file != 'log.php') {
+			if (strpos($loc, '?') === false) {
+				$request_uri .= SID2URL_1;
+			}
+			else {
+				$request_uri .= SID2URL_x;
+			}
+		}
+		return $request_uri;
+	}
+	else {
+		return '';
 	}
 }
 
@@ -430,17 +481,17 @@ function BoardSelect($board = 0) {
 
 			$forum['lname'] = is_id($forum['bname']) ? $forum['uname'] : $forum['bname'];
 
-    		if ($last != $forum['last_topic']) {
+    		if ($last != $forum['last_topic'] && check_forumperm($last)) {
     			$forum['id2'] = $last;
-    			$forum['last_topic'] = $sub_cache_last[$forum['id2']]['last_topic'];
-    			$forum['btopic_id'] = $sub_cache_last[$forum['id2']]['btopic_id'];
-    			$forum['btopic'] = $sub_cache_last[$forum['id2']]['btopic'];
-    			$forum['bdate'] = $sub_cache_last[$forum['id2']]['bdate'];
-    			if (!isset($sub_cache_last[$forum['id2']]['lname'])) {
-    				$forum['lname'] = is_id($sub_cache_last[$forum['id2']]['bname']) ? $sub_cache_last[$forum['id2']]['uname'] : $sub_cache_last[$forum['id2']]['bname'];
+    			$forum['last_topic'] = $sub_cache_last[$last]['last_topic'];
+    			$forum['btopic_id'] = $sub_cache_last[$last]['btopic_id'];
+    			$forum['btopic'] = $sub_cache_last[$last]['btopic'];
+    			$forum['bdate'] = $sub_cache_last[$last]['bdate'];
+    			if (!isset($sub_cache_last[$last]['lname'])) {
+    				$forum['lname'] = is_id($sub_cache_last[$last]['bname']) ? $sub_cache_last[$last]['uname'] : $sub_cache_last[$last]['bname'];
     			}
     			else {
-    				$forum['lname'] = $sub_cache_last[$forum['id2']]['lname'];
+    				$forum['lname'] = $sub_cache_last[$last]['lname'];
     			}
     		}
     		else {
@@ -482,8 +533,8 @@ function BoardSelect($board = 0) {
     				   	$forum['new'] = true;
     				}
 		    		if (!empty($forum['btopic'])) {
-		    			if (strxlen($forum['btopic']) >= 40) {
-		    				$forum['btopic'] = substr($forum['btopic'],0,40);
+		    			if (strxlen($forum['btopic']) > 40) {
+		    				$forum['btopic'] = substr($forum['btopic'], 0, 40);
 		    				$forum['btopic'] .= "...";
 		    			}
 		    			$forum['btopic'] = $gpc->prepare($forum['btopic']);
@@ -562,12 +613,13 @@ function BoardSelect($board = 0) {
 
 
 function GoBoardPW ($bpw, $bid) {
-	global $my, $config, $tpl, $db, $slog, $phpdoc, $zeitmessung, $plugins;
+	extract($GLOBALS, EXTR_SKIP);
 	if(!isset($my->pwfaccess[$bid]) || $my->pwfaccess[$bid] != $bpw) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
         echo $tpl->parse("main/boardpw");
 		$slog->updatelogged();
 		$zeitmessung = t2();
+		$tpl->globalvars(compact("zeitmessung"));
 		echo $tpl->parse("footer");
 		$phpdoc->Out();
 		$db->close();
@@ -576,7 +628,8 @@ function GoBoardPW ($bpw, $bid) {
 }
 
 function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
-	global $config, $my, $tpl, $zeitmessung, $db, $slog, $phpdoc, $lang, $breadcrumb, $plugins;
+	extract($GLOBALS, EXTR_SKIP);
+	
 	if ($errormsg == NULL) {
 		$errormsg = $lang->phrase('not_allowed');
 	}
@@ -600,6 +653,7 @@ function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
+	$tpl->globalvars(compact("zeitmessung"));
 	if ($EOS != NULL) {
 		echo $tpl->parse($EOS);
 	}
@@ -614,8 +668,12 @@ function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 	exit;
 }
 
-function error ($errormsg=NULL,$errorurl='javascript:history.back(-1);', $EOS = NULL) {
-	global $config, $my, $tpl, $zeitmessung, $db, $slog, $phpdoc, $lang, $breadcrumb, $plugins;
+function error ($errormsg = null,$errorurl = 'javascript:history.back(-1);', $EOS = NULL) {
+	extract($GLOBALS, EXTR_SKIP);
+	
+	$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
+	$errorurl = urldecode(str_replace('&', '&amp;', $js_errorurl));
+
 	if ($errormsg == NULL) {
 		$errormsg = $lang->phrase('unknown_error');
 	}
@@ -631,11 +689,12 @@ function error ($errormsg=NULL,$errorurl='javascript:history.back(-1);', $EOS = 
 	}
 	
 	($code = $plugins->load('frontend_error')) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg","errorurl"));
+	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
     echo $tpl->parse("main/error");
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
+	$tpl->globalvars(compact("zeitmessung"));
 	if ($EOS != NULL) {
 		echo $tpl->parse($EOS);
 	}
@@ -651,7 +710,11 @@ function error ($errormsg=NULL,$errorurl='javascript:history.back(-1);', $EOS = 
 }
 
 function ok ($errormsg = NULL, $errorurl = "javascript:history.back(-1)", $EOS = NULL) {
-	global $config, $my, $tpl, $zeitmessung, $db, $slog, $phpdoc, $lang, $breadcrumb, $plugins;
+	extract($GLOBALS, EXTR_SKIP);
+
+	$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
+	$errorurl = urldecode(str_replace('&', '&amp;', $js_errorurl));
+
 	if ($errormsg == NULL) {
 		$errormsg = $lang->phrase('unknown_ok');
 	}
@@ -664,11 +727,12 @@ function ok ($errormsg = NULL, $errorurl = "javascript:history.back(-1)", $EOS =
 	}
 	
 	($code = $plugins->load('frontend_ok')) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg","errorurl"));
+	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
     echo $tpl->parse("main/ok");
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
+	$tpl->globalvars(compact("zeitmessung"));
 	if ($EOS != NULL) {
 		echo $tpl->parse($EOS);
 	}
@@ -758,5 +822,4 @@ function get_pmdir ($dir) {
 	}
 	return $dir_name;
 }
-
 ?>

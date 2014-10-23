@@ -1,6 +1,8 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "bbcodes.php") die('Error: Hacking Attempt');
 
+($code = $plugins->load('admin_bbcodes_jobs')) ? eval($code) : null;
+
 if ($job == 'smileys_delete') {
 	$deleteid = $gpc->get('id', arr_int);
 	if (count($deleteid) > 0) {
@@ -334,7 +336,7 @@ elseif ($job == 'smileys') {
 <form name="form" method="post" action="admin.php?action=bbcodes">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="6"><span style="float: right;">[<a href="admin.php?action=bbcodes&amp;job=smileys_import">Import Smileypack</a>]</span>Manage Smileys (<?php echo $db->num_rows($result); ?> Smileys)</td>
+   <td class="obox" colspan="6"><span style="float: right;"><a class="button" href="admin.php?action=bbcodes&amp;job=smileys_import">Import Smileypack</a></span>Manage Smileys (<?php echo $db->num_rows($result); ?> Smileys)</td>
   </tr>
   <tr class="ubox">
    <td width="5%">Choose<br /><span class="stext"><input type="checkbox" onclick="check_all('id[]');" name="all" value="1" /> All</span></td>
@@ -373,7 +375,7 @@ elseif ($job == 'smileys') {
 <form name="form" method="post" enctype="multipart/form-data" action="admin.php?action=bbcodes&amp;job=smileys_add">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="2"><span style="float: right;">[<a href="admin.php?action=bbcodes&amp;job=smileys_import">Import Smileypack</a>]</span>Add Smiley</td>
+   <td class="obox" colspan="2"><span style="float: right;"><a class="button" href="admin.php?action=bbcodes&amp;job=smileys_import">Import Smileypack</a></span>Add Smiley</td>
   </tr>
   <tr> 
    <td class="mbox" width="50%">Code:</td>
@@ -492,7 +494,7 @@ elseif ($job == 'word') {
    <td class="obox" colspan="4">Manage Glossary</b></td>
   </tr>
   <tr>
-   <td class="ubox" width="5%">Delete</td>
+   <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="15%">Abbreviation</td> 
    <td class="ubox" width="30%">Phrase</td>
    <td class="ubox" width="50%">Description</td> 
@@ -543,10 +545,10 @@ elseif ($job == 'censor') {
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=censor">
  <table class="border">
   <tr> 
-   <td class="obox" colspan=3>Manage Censorship</b></td>
+   <td class="obox" colspan="3">Manage Censorship</b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%">Delete</td>
+   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="45%">Word</td> 
    <td class="ubox" width="45%">Censored Word</td>
   </tr>
@@ -589,13 +591,12 @@ elseif ($job == 'replace') {
 	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'replace'",__LINE__,__FILE__);
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=replace">
-<input name="tp" value="replace" type="hidden">
  <table class="border">
   <tr> 
-   <td class="obox" colspan=3>Manage Vocabulary</b></td>
+   <td class="obox" colspan="3">Manage Vocabulary</b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%">Delete</td>
+   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="45%">Word</td> 
    <td class="ubox" width="45%">Replacement</td>
   </tr>
@@ -697,7 +698,7 @@ elseif ($job == 'codefiles') {
    <td class="obox" colspan="3">Syntax Highlighting Manager (<?php echo count($clang); ?> Languages)</b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%">Delete</td>
+   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="45%">Language</td> 
    <td class="ubox" width="45%">File</td>
   </tr>
@@ -1116,13 +1117,60 @@ elseif ($job == 'custombb_delete2'){
 	$delobj->delete();
 	ok('admin.php?action=bbcodes&job=custombb', 'Custom BB Code successfully deleted');
 }
+elseif ($job == 'custombb_test') {
+	echo head();
+	// reader-Tag not recognized
+	$file = 'admin/data/bbcode_test.php';
+	$test = $gpc->get('test', none);
+	$parsed_test = null;
+	if (!empty($test)) {
+		file_put_contents($file, $test);
+		$lang = new lang();
+		$lang->init();
+		BBProfile($bbcode);
+		$bbcode->setSmileys(1);
+		$bbcode->setReplace(0);
+		$bbcode->setAuthor($my->id);
+		$parsed_test = $bbcode->parse($test);
+		$smileys_time = round($bbcode->getBenchmark('smileys'), 3);
+		$bbcode_time = round($bbcode->getBenchmark(), 3);
+	}
+	else {
+		$test = file_get_contents($file);
+	}
+	if (!empty($parsed_test)) {
+?>
+<table align="center" class="border">
+  	<tr><td class="obox">Parsing Results</td></tr>
+  	<tr><td class="ubox">
+  		<strong>Benchmark:</strong><br />
+  		Smileys: <?php echo $smileys_time; ?> seconds<br />
+  		BB-Codes: <?php echo $bbcode_time; ?> seconds<br />
+  	</td></tr>
+  	<tr><td class="mbox"><?php echo $parsed_test; ?></td></tr>
+</table>
+<br /><?php } ?>
+<form action="admin.php?action=bbcodes&job=custombb_test" name="form2" method="post">
+	<table align="center" class="border">
+  		<tr><td class="obox">Test your custom BB Codes</td></tr>
+		<tr><td class="mbox" align="center"><textarea name="test" rows="10" cols="120"><?php echo $test; ?></textarea></td></tr>
+		<tr><td class="ubox" align="center"><input type="submit" value="Test" /></td></tr>
+	</table>
+</form>
+	<?php
+	echo foot();
+}
 elseif ($job == 'custombb') {
 	$result = $db->query("SELECT * FROM {$db->pre}bbcode", __LINE__, __FILE__);
 	echo head();
 	?>
 	<table align="center" class="border">
 	<tr>
-		<td class="obox" align="center" colspan="4"><span style="float: right;">[<a href="admin.php?action=bbcodes&job=custombb_add">Add new BB Code</a>] [<a href="admin.php?action=bbcodes&job=custombb_import">Import BB Code</a>]</span>Custom BB Code Manager</td>
+		<td class="obox" colspan="4"><span style="float: right;">
+		<a class="button" href="admin.php?action=bbcodes&job=custombb_add">Add new BB Code</a> 
+		<a class="button" href="admin.php?action=bbcodes&job=custombb_import">Import BB Code</a> 
+		<a class="button" href="admin.php?action=bbcodes&job=custombb_test">Test BB Codes</a>
+		</span>Custom BB Code Manager</td>
 	</tr>
 	<tr>
 		<td class="ubox" width="30%">Title</td>
@@ -1144,9 +1192,9 @@ elseif ($job == 'custombb') {
 			<td class="mbox"><code>[<?php echo $bbcode['bbcodetag'].iif($bbcode['twoparams'], '={option}'); ?>]{param}[/<?php echo $bbcode['bbcodetag']; ?>]</code></td>
 			<td class="mbox" align="center"><?php echo $src; ?></td>
 			<td class="mbox">
-			[<a href="admin.php?action=bbcodes&job=custombb_edit&id=<?php echo $bbcode['id']; ?>">Edit</a>] 
-			[<a href="admin.php?action=bbcodes&job=custombb_export&id=<?php echo $bbcode['id']; ?>">Export</a>] 
-			[<a href="admin.php?action=bbcodes&job=custombb_delete&id=<?php echo $bbcode['id']; ?>">Delete</a>]
+			<a class="button" href="admin.php?action=bbcodes&job=custombb_edit&id=<?php echo $bbcode['id']; ?>">Edit</a> 
+			<a class="button" href="admin.php?action=bbcodes&job=custombb_export&id=<?php echo $bbcode['id']; ?>">Export</a> 
+			<a class="button" href="admin.php?action=bbcodes&job=custombb_delete&id=<?php echo $bbcode['id']; ?>">Delete</a>
 			</td>
 		</tr>
 		<?

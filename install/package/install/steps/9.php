@@ -83,6 +83,8 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	}
 }
 if (count($error) == 0) {
+	$lf = './locked.txt';
+	$filesystem->file_put_contents($lf, '');
 ?>
 <div class="bbody">
 <p>The installation is completed. You can access the Admin Control Panel with your username and password.

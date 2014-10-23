@@ -245,6 +245,12 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			viscacha_header('Location: manageforum.php?action=index&id='.$board.'&type='.$_GET['type'].SID2URL_JS_x);
 		}
 		$ids = implode(',', $_POST['delete']);
+		if ($config['updatepostcounter'] == 1 && $info['count_posts'] == 1) {
+			$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id IN({$ids}) GROUP BY name", __LINE__, __FILE__);
+			while ($row = $db->fetch_assoc($result)) {
+				$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'",__LINE__,__FILE__);
+			}
+		}
 		$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
 		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
@@ -257,7 +263,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
 		$anz += $db->affected_rows();
-		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN '{$ids}'",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})",__LINE__,__FILE__);
 		$anz += $db->affected_rows();
 		$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})",__LINE__,__FILE__);
 		$anz += $db->affected_rows();

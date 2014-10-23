@@ -83,9 +83,26 @@ $http_svars = array(
 	'HTTP_ACCEPT_ENCODING',
 	'DOCUMENT_ROOT'
 );
-foreach ($http_svars as $http_var) {
-	$_SERVER[$http_var] = getenv($http_var);
+if (function_exists('getallheaders')) {
+	$ref = @getallheaders();
 }
+else {
+	$ref = array();
+}
+foreach ($http_svars as $http_var) {
+	$func_key = '';
+	if (substr($http_var, 0, 5) == 'HTTP_') {
+		$func_key = strtolower(str_replace('_', ' ', substr($http_var, 5)));
+		$func_key = str_replace(' ', '-', ucwords($func_key));
+	}
+	if (empty($_SERVER[$http_var]) && !empty($ref[$func_key])) {
+		$_SERVER[$http_var] = $ref[$func_key];
+	}
+	else {
+		$_SERVER[$http_var] = getenv($http_var);
+	}
+}
+unset($ref);
 
 if (empty($_SERVER['DOCUMENT_ROOT'])) {
 	$_SERVER['DOCUMENT_ROOT'] = getDocumentRoot();

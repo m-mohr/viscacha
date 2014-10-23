@@ -51,7 +51,7 @@ if ($_GET['action'] == "hlcode") {
 	}
 	$sourcecode = $codeObj->get();
 	
-	$sourcecode['source'] = @html_entity_decode($sourcecode['source'], ENT_QUOTES, $lang->phrase('charset'));
+	$sourcecode['source'] = html_entity_decode($sourcecode['source'], ENT_QUOTES);
 
 	($code = $plugins->load('popup_hlcode_start')) ? eval($code) : null;
 
@@ -91,6 +91,10 @@ elseif ($_GET['action'] == "filetypes") {
 
 	($code = $plugins->load('popup_filetypes_query')) ? eval($code) : null;
 	
+	if (empty($_GET['type'])) {
+		error($lang->phrase('query_string_error'), 'javascript:self.close();');
+	}
+	
 	$result = $db->query("SELECT * FROM {$db->pre}filetypes WHERE extension LIKE '%{$_GET['type']}%'",__LINE__,__FILE__);
 	$nr = $db->num_rows($result);
 
@@ -118,10 +122,15 @@ elseif ($_GET['action'] == "showpost") {
 
 	($code = $plugins->load('popup_showpost_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT t.status, t.prefix, r.topic_id, r.board, r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, u.hp, u.pic, r.email as gmail, r.guest, u.signature, u.regdate, u.location 
+	SELECT 
+		t.status, t.prefix, 
+		r.topic_id, r.board, r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, r.name as gname, r.email as gmail, r.guest, 
+		u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
+		f.* 
 	FROM {$db->pre}replies AS r 
 		LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id 
+		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
 	WHERE r.id = '{$_GET['id']}' 
 	LIMIT 1
 	",__LINE__,__FILE__);

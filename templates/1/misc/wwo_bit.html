@@ -8,8 +8,17 @@
 } else {
     echo $lang->phrase('wiw_guest');
 }
-echo iif($my->p['admin'] == 1,'<br /><span class="stext">'.$lang->phrase('wiw_ip').' <a href="http://www.ripe.net/perl/whois?form_type=simple&amp;do_search=Search&amp;searchtext='.$row->ip.'" target="_blank">'.$row->ip.'</a><br />'.$lang->phrase('wiw_useragent').' '.$row->user_agent.'</span>');
+if($my->p['admin'] == 1) {
 ?>
+<span class="stext">
+<br />
+<?php echo $lang->phrase('wiw_ip'); ?>&nbsp;
+<?php echo iif(check_ip($row->ip), '<a href="admin.php?page='.rawurlencode('admin.php?action=members&job=ips&ipaddress='.$row->ip).'" target="_blank">'.$row->ip.'</a>', $lang->phrase('ip_unknown')); ?>
+<br />
+<?php echo $lang->phrase('wiw_useragent'); ?>&nbsp;
+<?php echo $row->user_agent; ?>
+</span>
+<?php } ?>
 </td>
 <td width="55%"><?php echo $loc; ?></td>
 </tr>

@@ -30,6 +30,18 @@ if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
+
+if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
+	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
+}
+if (empty($config['dbpw']) || empty($config['dbuser'])) {
+	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
+}
+
+// Filesystem
+require_once("classes/class.filesystem.php");
+$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+$filesystem->set_wd($config['ftp_path']);
 // Variables
 require_once ("classes/function.gpc.php");
 /* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
@@ -165,9 +177,6 @@ if ($config['avheight'] == 0) {
 	$config['avheight'] = 2048;
 }
 
-require_once("classes/class.filesystem.php");
-$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-$filesystem->set_wd($config['ftp_path']);
 // Gets a file with php-functions
 @include_once("classes/function.chmod.php");
 // Permission and Logging Class
@@ -221,6 +230,7 @@ else {
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
+// ToDo: Auslagern
 $bannedip = file('data/bannedip.php');
 $bannedip = array_map('trim', $bannedip);
 if (count($bannedip) > 0) {

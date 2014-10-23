@@ -39,7 +39,7 @@ $tpl = new tpl();
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
 $result = $db->query('
-SELECT r.topic, r.board, r.name, r.comment, r.topic_id, r.dosmileys, r.dowords, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status
+SELECT r.topic, r.board, r.name, r.comment, r.topic_id, r.dosmileys, r.dowords, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status, r.guest
 FROM '.$db->pre.'replies AS r 
 	LEFT JOIN '.$db->pre.'topics AS t ON r.topic_id = t.id 
 WHERE r.id = "'.$_GET['id'].'" 
@@ -116,6 +116,19 @@ if ($allowed == true) {
 		
 		if ($_POST['temp'] == '1' && $my->mp[4] == '1') {
 			if ($info['tstart'] == 0 || $info['posts'] == 0) {
+				if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
+					if ($info['tstart'] == 1) {
+						$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name", __LINE__, __FILE__);
+						while ($row = $db->fetch_assoc($result)) {
+							$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'",__LINE__,__FILE__);
+						}
+					}
+					else {
+						if ($info['guest'] == 0 && $last['count_posts'] == 1) {
+							$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}'",__LINE__,__FILE__);
+						}
+					}
+				}
 				$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'",__LINE__,__FILE__);
 				$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
 				while ($urow = $db->fetch_num($uresult)) {
@@ -139,13 +152,8 @@ if ($allowed == true) {
 				($code = $plugins->load('edit_save_delete')) ? eval($code) : null;
 				UpdateBoardStats($info['board']);
 				UpdateTopicStats($info['topic_id']);
-				if ($info['tstart'] == 1) {
-					$url = "showforum.php?id=".$info['board'];
-				}
-				else {
-					$url = "showtopic.php?action=last&id=".$info['topic_id'];
-				}
-				ok($lang->phrase('edit_postdeleted'),$url.SID2URL_x);
+				
+				ok($lang->phrase('edit_postdeleted'),iif($info['tstart'] == 1, "showforum.php?id=".$info['board'], "showtopic.php?action=last&id=".$info['topic_id']).SID2URL_x);
 			}
 			else {
 				error($lang->phrase('threadstarts_no_delete'),"edit.php?id=".$info['id']);

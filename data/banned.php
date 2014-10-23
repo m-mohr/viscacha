@@ -1,2 +1,2 @@
-Ihre derzeitige IP-Adresse (<?php echo getip(); ?>) oder Ihr User-Agent (<?php echo htmlspecialchars($_SERVER['HTTP_USER_AGENT']); ?>) wurde gesperrt.
-Bitte wenden Sie sich für nähere Informationen an den zuständigen Administrator.
+Your current IP address (<?php echo getip(); ?>) or your user agent (<?php echo htmlspecialchars($_SERVER['HTTP_USER_AGENT']); ?>) is blocked.
+Please contact the responsible administrator for detailed information.

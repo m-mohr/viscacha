@@ -1,43 +1,49 @@
 <?php 
-define('VISCACHA_VERSION', '0.8 Beta 3');
 error_reporting(E_ALL);
 
-if (!isset($_REQUEST) || !is_array($_REQUEST)) {
-	$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
-}
+define('VISCACHA_VERSION', '0.8 Beta 4');
+define('VISCACHA_VERSION_OLD', '0.8 Beta 3');
 
-$config = array();
-require_once('../classes/function.phpcore.php');
-require_once('lib/function.variables.php');
+$locked = file_exists('./locked.txt');
 
-$packages = array(
-	'install' => array(
-		'title' => 'Installation',
-		'description' => 'Choose this if you want to install a new copy of this software.'
-	),
-	'update' => array(
-		'title' => 'Update: 0.8 Beta 2 => '.VISCACHA_VERSION,
-		'description' => 'Already running Viscacha? Then choose this option to update to the new Version!'
-	)
-);
-
-$package = null;
-if (isset($_REQUEST['package']) && isset($packages[$_REQUEST['package']])) {
-	$package = trim($_REQUEST['package']);
-	$package_data = $packages[$_REQUEST['package']];
-}
-if (!empty($package)) {
-	require_once('package/'.$package.'/steps.inc.php');
-	if (isset($_REQUEST['step'])) {
-		$step = intval(trim($_REQUEST['step']));
-		if (!isset($steps[$step])) {
+if (!$locked) {
+	if (!isset($_REQUEST) || !is_array($_REQUEST)) {
+		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
+	}
+	
+	$config = array();
+	require_once('../classes/function.phpcore.php');
+	require_once('lib/function.variables.php');
+	
+	$packages = array(
+		'install' => array(
+			'title' => 'Installation',
+			'description' => 'Choose this if you want to install a new copy of this software.'
+		),
+		'update' => array(
+			'title' => 'Update: '.VISCACHA_VERSION_OLD.' => '.VISCACHA_VERSION,
+			'description' => 'Already running Viscacha? Then choose this option to update to the new Version!'
+		)
+	);
+	
+	$package = null;
+	if (isset($_REQUEST['package']) && isset($packages[$_REQUEST['package']])) {
+		$package = trim($_REQUEST['package']);
+		$package_data = $packages[$_REQUEST['package']];
+	}
+	if (!empty($package)) {
+		require_once('package/'.$package.'/steps.inc.php');
+		if (isset($_REQUEST['step'])) {
+			$step = intval(trim($_REQUEST['step']));
+			if (!isset($steps[$step])) {
+				$step = 1;
+			}
+		}
+		else {
 			$step = 1;
 		}
+		$nextstep = $step+1;
 	}
-	else {
-		$step = 1;
-	}
-	$nextstep = $step+1;
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -57,22 +63,24 @@ if (!empty($package)) {
 <div id="container">
     <h1>&nbsp;</h1>
     <div class="breadcrumb">
-    	<a href="index.php">Viscacha Setup</a> 
-    	<?php if (empty($package)) { ?>
-    	&raquo; Choose Package
+    	<a href="index.php">Viscacha Setup</a> &raquo; 
+    	<?php if (empty($package) && !$locked) { ?>
+    	Choose Package
+    	<?php } elseif (!$locked) { ?>
+    	<?php echo $package_data['title']; ?> &raquo; Step <?php echo $step; ?>
     	<?php } else { ?>
-    	&raquo; <?php echo $package_data['title']; ?> &raquo; Step <?php echo $step; ?>
+    	Locked
     	<?php } ?>
     </div>
     <div id="navigation">
-    	<?php if (empty($package)) { ?>
+    	<?php if (empty($package) && !$locked) { ?>
 		<h3>Packages</h3>
 		<ul class="nav">
 		<?php foreach ($packages as $id => $data) { ?>
 			<li><a href="index.php?package=<?php echo $id; ?>"><?php echo $data['title']; ?></a></li>
 		<?php } ?>
 		</ul>
-    	<?php } else { ?>
+    	<?php } elseif (!$locked) { ?>
 		<h3>Steps</h3>
 		<ul class="nav">
 		<?php
@@ -95,14 +103,14 @@ if (!empty($package)) {
 		<?php } ?>
 	</div>
 	<div id="content">
-		<?php if (!empty($package)) { ?>
+		<?php if (!empty($package) && !$locked) { ?>
 		<form method="post" action="index.php?package=<?php echo $package;?>&amp;step=<?php echo $nextstep; ?>">
 		<div class="border">
 			<h3><?php echo $steps[$step]; ?></h3>
 			<?php include('package/'.$package.'/steps/'.$step.'.php'); ?>
 		</div>
 		</form>
-		<?php } else { ?>
+		<?php } elseif (!$locked) { ?>
 		<div class="border">
 		<h3>Viscacha Setup</h3>
 		<div class="bbody">
@@ -116,6 +124,14 @@ if (!empty($package)) {
 			<?php } ?>
 			</ul>
 		</div>
+		</div>
+		<?php } else { ?>
+		<div class="border">
+			<h3>Viscacha is currently locked</h3>
+			<div class="bbody">
+			<p><strong>This part of Viscacha is currently locked.</strong></p>
+			<p>To unlock the installation/update remove the file &quot;locked&quot; in your &quot;install&quot;-folder.</p>
+			</div>
 		</div>
 		<?php } ?>
 	</div>

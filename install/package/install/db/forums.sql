@@ -7,6 +7,7 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `parent` smallint(5) unsigned NOT NULL default '0',
   `position` smallint(4) NOT NULL default '0',
   `last_topic` int(10) unsigned NOT NULL default '0',
+  `count_posts` enum('0','1') NOT NULL default '1',
   `opt` enum('','re','pw') NOT NULL default '',
   `optvalue` varchar(255) NOT NULL default '',
   `forumzahl` tinyint(3) unsigned NOT NULL default '0',

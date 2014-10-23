@@ -4,6 +4,7 @@ digest_s	Immediate notification about new posts
 digest_w	Weekly notification about new posts
 mass_topic_moved	"Topic was moved"-notification (used for moving multiple topics)
 newpm	Notification about a new PM
+new_member	Notification about new members for the administrators
 new_topic	Notification about new topics for the board team
 new_reply	Notification about new replies for the board team
 pwremind	Confirmation of wanting a new password (Step 1)

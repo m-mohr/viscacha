@@ -2,7 +2,10 @@
 <div class="border">
 	<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_settings'); ?></h3>
 	<div class="bbody">
-		<label for=""><?php echo $lang->phrase('timezone'); ?></label>
+		<label for="location">
+			<?php echo $lang->phrase('timezone'); ?><br />
+			<span class="stext"><?php echo $lang->phrase('timezone_desc'); ?></span>
+		</label>
 			<select class="label" id="location" name="location"> 
 				<option selected="selected" value="<?php echo $my->timezone; ?>"><?php echo $lang->phrase('timezone_current'); ?></option>
 				<option value="-12"><?php echo $lang->phrase('timezone_n12'); ?></option>
@@ -39,8 +42,8 @@
 				<option value="+12"><?php echo $lang->phrase('timezone_p12'); ?></option>
 			</select>
 		<br class="newinput" /><hr class="formsep" />
-		<label for=""><?php echo $lang->phrase('editprofile_editor'); ?></label>
-		<select id ="opt_0" class="label" name="opt_0">
+		<label for="opt_0"><?php echo $lang->phrase('editprofile_editor'); ?></label>
+		<select id="opt_0" class="label" name="opt_0">
 		<option<?php echo iif($my->opt_textarea == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_editor_simple'); ?></option>
 		<option<?php echo iif($my->opt_textarea == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_editor_extended'); ?></option>
 		</select>
@@ -54,36 +57,44 @@
 		<label for="opt_7"><?php echo $lang->phrase('editprofile_showsig'); ?></label>
 		<input type="checkbox" name="opt_7" id="opt_7" <?php echo iif($my->opt_showsig == 1,' checked="checked"'); ?> value="1" />
 		<br class="newinput" /><hr class="formsep" />
-		<label for=""><?php echo $lang->phrase('editprofile_showmail'); ?></label>
+		<label for="opt_3"><?php echo $lang->phrase('editprofile_showmail'); ?></label>
 		<select name="opt_3" id="opt_3" class="label">
 		<option<?php echo iif($my->opt_hidemail == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_showmail_0'); ?></option>
 		<option<?php echo iif($my->opt_hidemail == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_showmail_1'); ?></option>
 		<option<?php echo iif($my->opt_hidemail == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_showmail_2'); ?></option>
 		</select>
 		<br class="newinput" /><hr class="formsep" />
-		<label for=""><?php echo $lang->phrase('editprofile_newsletter'); ?></label>
+		<label for="opt_6"><?php echo $lang->phrase('editprofile_newsletter'); ?></label>
 		<select name="opt_6" id="opt_6" class="label">
 		<option<?php echo iif($my->opt_newsletter == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_newsletter_0'); ?></option>
 		<option<?php echo iif($my->opt_newsletter == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_newsletter_1'); ?></option>
 		<option<?php echo iif($my->opt_newsletter == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_newsletter_2'); ?></option>
 		</select>
+		<?php if (count($design) > 0 && $config['hidedesign'] == 0) { ?>
 		<br class="newinput" /><hr class="formsep" />
-		<label for=""><?php echo $lang->phrase('editprofile_design'); ?></label>
+		<label for="opt_4"><?php echo $lang->phrase('editprofile_design'); ?></label>
+		<?php if (count($design) > 1) { ?>
 		<select name="opt_4" id="opt_4" class="label">
-			<option selected="selected" value="<?php echo $update['template']; ?>"><?php echo $lang->phrase('editprofile_design_current'); ?></option>
+			<option selected="selected" value="<?php echo $my->template; ?>"><?php echo $lang->phrase('editprofile_design_current'); ?></option>
 			<?php foreach ($design as $row) { ?>
 			<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 			<?php } ?>
 		</select>
+		<?php } else { ?>
+		<span class="label"><?php echo $mydesign; ?></span>
+		<?php } } if (count($language) > 0 && $config['hidelanguage'] == 0) { ?>
 		<br class="newinput" /><hr class="formsep" />
-		<label for=""><?php echo $lang->phrase('editprofile_language'); ?></label>
+		<label for="opt_5"><?php echo $lang->phrase('editprofile_language'); ?></label>
+		<?php if (count($language) > 1) { ?>
 		<select name="opt_5" id="opt_5" class="label">
-			<option selected="selected" value="<?php echo $update['language']; ?>"><?php echo $lang->phrase('editprofile_language_current'); ?></option>
+			<option selected="selected" value="<?php echo $my->language; ?>"><?php echo $lang->phrase('editprofile_language_current'); ?></option>
 			<?php foreach ($language as $row) { ?>
 			<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?></option>
 			<?php } ?>
 		</select>
-		<?php foreach ($customfields as $row) { ?>
+		<?php } else { ?>
+		<span class="label"><?php echo $mylanguage; ?></span>
+		<?php } } foreach ($customfields as $row) { ?>
 		<br class="newinput" /><hr class="formsep" />
 		  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label> 
 		  <?php echo $row['input']; } ?>

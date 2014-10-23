@@ -1,9 +1,9 @@
 	<tr class="tbody">
-		<td width='2%' class="center"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
-		<td width='2%' class="center"><img src="<?php echo $row['src']; ?>" alt="<?php echo $row['alt']; ?>" /></td>
-		<td width='66%'><a href='pm.php?action=show&amp;id=<?php echo $row['id'].SID2URL_x; ?>'><?php echo $row['topic']; ?></a></td>
-		<td width='30%'><span class='stext'>
+		<td width="2%" class="center"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
+		<td width="2%" class="center"><img src="<?php echo $row['src']; ?>" alt="<?php echo $row['alt']; ?>" /></td>
+		<td width="66%"><a href="pm.php?action=show&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $row['topic']; ?></a></td>
+		<td width="30%" class="stext">
 			<?php echo $row['date']; ?><br />
-			<?php echo iif ($_GET['id'] != 2, $lang->phrase('by'), $lang->phrase('pm_outgoing_by')); ?> <a href='profile.php?id=<?php echo $row['pm_from'].SID2URL_x; ?>'><?php echo $row['name']; ?></a>
-		</span></td>
+			<?php echo iif ($_GET['id'] != 2, $lang->phrase('by'), $lang->phrase('pm_outgoing_by')); ?> <a href="profile.php?id=<?php echo $row['pm_from'].SID2URL_x; ?>"><?php echo $row['name']; ?></a>
+		</td>
 	</tr>

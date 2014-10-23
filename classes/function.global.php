@@ -128,6 +128,16 @@ function checkRemotePic($pic, $id) {
 	return $pic;
 }
 
+function JS_URL($url) {
+	if (preg_match('~javascript:\s?([^;]+);?~i', $url, $command) && isset($command[1])) {
+		$url = $command[1];
+	}
+	else {
+		$url = "'location.href=\"{$url}\"'";
+	}
+	return $url;
+}
+
 function ini_maxupload() {
     $keys = array(
     'post_max_size' => 0,
@@ -225,14 +235,14 @@ function doctypes() {
 	return $arr;
 }
 
-function file2array($file) {
+function file2array($file, $delimiter = ';') {
 
 	$filearray = array();
 	$lines = file($file);
 	
 	foreach ($lines as $row) {
 		$row = rtrim($row);
-		$row = explode("\t",$row, 2);
+		$row = explode($delimiter,$row, 2);
 		$filearray[$row[0]] = $row[1];
 	}
 
@@ -508,7 +518,7 @@ function secure_path($path) {
 }
 
 function check_hp($hp) {
-	if (preg_match("~^https?://[a-zA-Z0-9\-\.@]+\.[a-zA-Z0-9]{1,7}(:[A-Za-z0-9]*)?/?([a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~]*)?$~i", $hp)) {
+	if (preg_match("~^https?://[a-zA-Z0-9\-\.@]+(\.[a-zA-Z0-9]{1,7})?(:[A-Za-z0-9]*)?/?([a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~]*)?$~i", $hp)) {
 		return true;
 	}
 	else {
@@ -661,8 +671,34 @@ function UpdateBoardStats ($board) {
 	}
 }
 
+function UpdateMemberStats($id) {
+	global $db;
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}' AND guest = '0'",__LINE__,__FILE__);
+	$count = $db->fetch_num ($result);
+	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}'",__LINE__,__FILE__);
+	return $count[0];
+}
+
 function iif($if, $true, $false = '') {
 	return ($if ? $true : $false);
+}
+
+function check_ip($ip, $allow_private = false) {
+
+   	$private_ips = array("/^0\..+$/", "/^127\.0\.0\..+$/", "/^192\.168\..+$/", "/^172\.16\..+$/", "/^10..+$/", "/^224..+$/", "/^240..+$/");
+
+	$ok = true;
+	if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/", $ip)) {
+		$ok = false;
+	}
+	if ($allow_private == false) {
+		foreach ($private_ips as $pip) {
+			if (preg_match($pip, $ip)) {
+				$ok = false;
+			}
+		}
+	}
+	return $ok;
 }
 
 function getip($dots = 4) {
@@ -679,19 +715,10 @@ function getip($dots = 4) {
 		}
 	}
 
-   	$private_ips = array("/^0\..+$/", "/^127\.0\.0\..+$/", "/^192\.168\..+$/", "/^172\.16\..+$/", "/^10..+$/", "/^224..+$/", "/^240..+$/", "/[^\d\.]+/");
 	$ips = array_unique($ips);
 
 	foreach ($ips as $ip) {
-		$found = false;
-		if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/", $ip)) {
-			$found = true;
-		}
-		foreach ($private_ips as $pip) {
-			if (preg_match($pip, trim($ip))) {
-				$found = true;
-			}
-		}
+		$found = !(check_ip($ip));
 		if ($found == false) {
 			return ext_iptrim(trim($ip), $dots);
 		}

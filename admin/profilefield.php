@@ -2,17 +2,19 @@
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "profilefield.php") die('Error: Hacking Attempt');
 
 $editable = array(
-'0' => 'Hidden',
-'1' => 'Change User Data',
-'2' => 'Change Settings'
+	'0' => 'Hidden',
+	'1' => 'Change User Data',
+	'2' => 'Change Settings'
 );
 
 $viewable = array(
-'0' => 'Hidden',
-'1' => 'Personal information',
-'2' => 'Forum information',
-'3' => 'Contact information'
+	'0' => 'Hidden',
+	'1' => 'Personal information',
+	'2' => 'Forum information',
+	'3' => 'Contact information'
 );
+
+($code = $plugins->load('admin_profilefield_jobs')) ? eval($code) : null;
 
 if($job == "add2") {
 	$type = $gpc->get('type', none);
@@ -258,7 +260,7 @@ elseif ($job == "manage") {
 	<table class="border">
 	  <tr> 
 	   <td class="obox" colspan="6">
-	    <span style="float: right;">[<a href="admin.php?action=profilefield&amp;job=add">Add new Profile Field</a>]</span>
+	    <span style="float: right;"><a class="button" href="admin.php?action=profilefield&amp;job=add">Add new Profile Field</a></span>
 		Custom Profile Field Manager
 		</td>
 	  </tr>

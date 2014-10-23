@@ -28,6 +28,20 @@ function OpenerFetchElement(id) {
 	}
 }
 
+function check_all(elem) {
+    var all = document.getElementsByName(elem.value);
+    for(var i=0; i < all.length; i++) {
+        if (all[i].checked == true) {
+            all[i].checked = false;
+            elem.checked = false;
+        }
+        else {
+            all[i].checked = true;
+            elem.checked = true;
+        }
+    }
+}
+
 function HandCursor(element) {
 	try {
 		element.style.cursor = "pointer"

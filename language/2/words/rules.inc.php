@@ -1,17 +1,17 @@
-We discuss objective and accept other members opinions.
-We try to keep a friendly tone.
-The postings should be short and concentrated on the main question or discuession subject.
-If we are not able to post something that is worth the time it needs to be read, we abandon the idea of posting.
-We follow the rules of orthography and grammer and we try to correct mistakes.
-A good, short, describing title is obligative.
-Postings have to be formated reader friendly, making use of accentuation, underlining, paragraphs between different ideas as well es clean structure in listings.
-Please ask yourself if you choose the right topic for your posting before you submit it.
-We create a new topic for every question. This way all topics remain clear and the serach function can work efficently.
-Conflicts should allways be solved by the involved via PMs and not in public.
-offensive and improper postings will be ignored.
-We use the search function to check if our question has been answered in another topic.
-Alle answers will be writen into the board to help other visitors with the same Questions. Helping via PM or e-mail should be the exception.
-Topics, whose subject was allready discussed at another location, are preserved, even if the impact on the clarity is negativ .
-We do not crudely refer the search function or google, but instead provide links to topics with similar content.
-We do not zone out to off topic.
-Promoting own websites (homepage or commercial site) is prohibited if it does not fit the topic.
+You are welcome to discuss topics objectively as long as you can accept other opinions expressed on the forum.
+Please attempt to keep a friendly tone in your posts.
+The postings should be concentrated on the topic at hand. Please do not hijack posts.
+If your post does not any value to the topic being discussed, then please don\\\'t reply.
+Please ensure that your post is grammatically correct.
+A short, descriptive title is appreciated.
+Please ensure that your posts are viewer friendly, making use of proper punctuation, paragraphs between different ideas as well as clean structure in listings.
+Ensure you are using the best title for your post before you submit it.
+Please create a new topic for every question. This way all topics remain clear and the serach function can work efficiently.
+Conflicts should allways be solved by those involved via PMs and not in the public forum.
+offensive and otherwise improper postings will be ignored or deleted.
+Please use the search function to check if your question has been answered in another topic.
+All solutions and assistance should be posted to the board to help other visitors with the same questions. Helping via PM or e-mail should be the exception.
+Topics, whose subject has already been discussed in another thread, are preserved, even if the impact on the clarity is negative .
+Please do not simply refer a member to the search function or google, but instead provide links to topics with similar content.
+Please do not drift off topic.
+Promoting your own websites (homepage or commercial site) is prohibited if it does not fit the topic.

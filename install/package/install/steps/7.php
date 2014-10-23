@@ -85,16 +85,16 @@ else {
 				$result = $db->query('SELECT COUNT(*) AS c FROM '.$t);
 				$counter = $db->fetch_assoc($result);
 				$entries = $counter['c'];
-				$select[] = '<option value="3" selected="selected">Tabelle löschen + Neu erstellen</option>';
-				$select[] = '<option value="2">Tabelle nicht ändern</option>';
+				$select[] = '<option value="3" selected="selected">Delete and recreate table</option>';
+				$select[] = '<option value="2">Do not change table</option>';
 				if ($counter['c'] > 0) {
-					$select[] = '<option value="1">Tabelle leeren</option>';
+					$select[] = '<option value="1">Clear table</option>';
 				}
 			}
 			else {
 				$exists = '<span class="hl_true">No</span>';
 				$entries = '-';
-				$select[] = '<option value="0" selected="selected">Tabelle neu erstellen</option>';
+				$select[] = '<option value="0" selected="selected">Recreate table</option>';
 			}
 		?>
 	<tr>

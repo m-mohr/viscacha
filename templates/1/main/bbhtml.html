@@ -8,7 +8,7 @@
 	<script type="text/javascript">document.write(writeRow());</script>
 	</div>
 	</DIV>
-<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<?php if (!empty($my->opt_textarea)) { ?>
 <a id="menu_bbsize" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
 	<script type="text/javascript">RegisterMenu('bbsize');</script>
     <div class="popup" id="popup_bbsize">
@@ -50,7 +50,7 @@
 <a href="javascript:InsertTags('[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>"><img src="<?php echo $tpl->img('bbcodes/b'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" /></a>
 <a href="javascript:InsertTags('[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>"><img src="<?php echo $tpl->img('bbcodes/i'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" /></a>
 <a href="javascript:InsertTags('[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>"><img src="<?php echo $tpl->img('bbcodes/u'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" /></a>
-<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<?php if (!empty($my->opt_textarea)) { ?>
 <a href="javascript:InsertTags('[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>"><img src="<?php echo $tpl->img('bbcodes/hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" /></a>
 <?php } ?>
 <a href="javascript:InsertTags('[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>"><img src="<?php echo $tpl->img('bbcodes/img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" /></a>
@@ -58,14 +58,15 @@
 <a href="javascript:InsertTags('[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>"><img src="<?php echo $tpl->img('bbcodes/email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" /></a>
 <a href="javascript:InsertTags('[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>"><img src="<?php echo $tpl->img('bbcodes/quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" /></a>
 <a href="javascript:InsertTags('[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>"><img src="<?php echo $tpl->img('bbcodes/ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" /></a>
-<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<?php if (!empty($my->opt_textarea)) { ?>
 <a href="javascript:popup_code();" title="<?php echo $lang->phrase('bbcodes_code'); ?>"><img src="<?php echo $tpl->img('bbcodes/code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" /></a>
 <a href="javascript:InsertTags('[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>"><img src="<?php echo $tpl->img('bbcodes/edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" /></a>
 <?php } ?>
 <a href="javascript:list();" title="<?php echo $lang->phrase('bbcodes_list'); ?>"><img src="<?php echo $tpl->img('bbcodes/ul'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" /></a>
-<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<?php if (!empty($my->opt_textarea)) { ?>
 <a href="javascript:list('ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>"><img src="<?php echo $tpl->img('bbcodes/ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" /></a>
 <a title="<?php echo $lang->phrase('bbcodes_note'); ?>" href="javascript:InsertTagsParams('[note={param1}]{param2}','[/note]','<?php echo $lang->phrase('bbcodes_note_prompt1'); ?>','<?php echo $lang->phrase('bbcodes_note_prompt2'); ?>');"><img src="<?php echo $tpl->img('bbcodes/note'); ?>" alt="<?php echo $lang->phrase('bbcodes_note'); ?>" /></a>
+<a href="javascript:InsertTags('[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>"><img src="<?php echo $tpl->img('bbcodes/tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" /></a>
 <a href="javascript:InsertTags('[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>"><img src="<?php echo $tpl->img('bbcodes/sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" /></a>
 <a href="javascript:InsertTags('[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>"><img src="<?php echo $tpl->img('bbcodes/sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" /></a>
 <?php foreach ($cbb as $bb) { ?>

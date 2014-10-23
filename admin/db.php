@@ -69,6 +69,8 @@ function exec_query_form ($query = '') {
 	}
 }
 
+($code = $plugins->load('admin_db_jobs')) ? eval($code) : null;
+
 if ($job == 'optimize') {
 	echo head();
 	$tables = array();
@@ -153,7 +155,12 @@ elseif ($job == 'backup') {
 <form name="form" method="post" action="admin.php?action=db&job=backup2">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="5">Backup Tables</td>
+   <td class="obox" colspan="5">
+	<span style="float: right;">
+	<a class="button" href="admin.php?action=db&amp;job=restore">Restore</a>
+	</span>
+	Backup Tables
+	</td>
   </tr>
   <tr> 
    <td class="ubox" width="30%">Export</td>
@@ -306,11 +313,16 @@ elseif ($job == 'restore') {
 <form name="form" method="post" action="admin.php?action=db&job=restore2">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="4">Restore Database</td>
+   <td class="obox" colspan="4">
+	<span style="float: right;">
+	<a class="button" href="admin.php?action=db&amp;job=restore">Backup</a>
+	</span>
+	Restore Database
+   </td>
   </tr>
   <tr> 
    <td class="ubox" width="5%">Restore</td>
-   <td class="ubox" width="5%">Delete</td>
+   <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="80%">Information</td>
    <td class="ubox" width="10%">File Size</td>
   </tr>
@@ -446,16 +458,16 @@ elseif ($job == 'status') {
       </tr>
 		<tr>
 		   <td class="mbox" colspan="2">
-		   <table bgcolor="#cccccc" border="1" cellpadding="2" cellspacing="1" width="100%">
+		   <table class="inlinetable">
         		<tr>
         		  <?php for ($i = 0; $i < $db->num_fields($result12);$i++) { ?>
-                   <td class="ubox"><?php echo $db->field_name($result12, $i); ?></td>
+                   <th><?php echo $db->field_name($result12, $i); ?></th>
                   <?php } ?>
         		</tr>
         	<?php while ($data = $db->fetch_assoc($result12)) { ?>
         		<tr>
         		  <?php foreach ($data as $key => $val) { ?>
-                   <td class="mbox"><?php echo $val; ?></td>
+                   <td><?php echo $val; ?></td>
                   <?php } ?>
         		</tr>
         	<?php } ?>	   
@@ -508,12 +520,19 @@ elseif ($job == 'status') {
 	   <td class="obox">Table of Contents</td>
 	  </tr>
 	  <tr> 
-	   <td class="mbox"><ul>
-		<?php foreach ($result as $row) { ?>
-		<li><a href="admin.php?action=db&amp;job=status&amp;table=<?php echo $row; ?>">Table Information: <?php echo $row; ?></a></li>
-		<?php } ?>
+	   <td class="mbox">
+	   <strong>Server Information</strong>:<br />
+	   <ul>
 		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#sv">Server Variables</a></li>
 		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#ssi">Server Status Information</a></li>
+	   </ul>
+	   <br />
+	   <strong>Table Information</strong>:<br />
+	   <ul>
+		<?php foreach ($result as $row) { ?>
+		<li><a href="admin.php?action=db&amp;job=status&amp;table=<?php echo $row; ?>"><?php echo $row; ?></a></li>
+		<?php } ?>
+	   </ul>
 	   </td>
 	  </tr>  
 	  </table>

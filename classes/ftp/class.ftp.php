@@ -377,17 +377,26 @@ class ftp_base {
 		return $out;
 	}
 
-	function put($localfile, $remotefile=NULL) {
-		if(is_null($remotefile)) $remotefile=$localfile;
-		if (!@file_exists($localfile)) {
+	function put($localfile, $remotefile = null) {
+		if (is_null($remotefile)) {
+			$remotefile=$localfile;
+		}
+		if (!file_exists($localfile) && !is_resource($localfile)) {
 			$this->PushError("put","can't open local file", "No such file or directory \"".$localfile."\"");
 			return FALSE;
 		}
-		$fp = @fopen($localfile, "r");
-		if (!$fp) {
-			$this->PushError("put","can't open local file", "Cannot read file \"".$localfile."\"");
-			return FALSE;
+		if (is_resource($localfile)) {
+			$fp = $localfile;
+			$localfile = $remotefile;
 		}
+		else {
+			$fp = @fopen($localfile, "r");
+			if (!$fp) {
+				$this->PushError("put","can't open local file", "Cannot read file \"".$localfile."\"");
+				return FALSE;
+			}
+		}
+
 		$pi=pathinfo($localfile);
 		if($this->_type==FTP_ASCII or ($this->_type==FTP_AUTOASCII and in_array(strtoupper($pi["extension"]), $this->AutoAsciiExt))) $mode=FTP_ASCII;
 		else $mode=FTP_BINARY;

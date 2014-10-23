@@ -1,10 +1,11 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "spider.php") die('Error: Hacking Attempt');
 
-// This version bases on a phpBB Mod
+($code = $plugins->load('admin_spider_jobs')) ? eval($code) : null;
 
+// This bases on a phpBB Mod
+// I can not find any information about the author. Please tell me if you are the author!
 $bot_errors = array();
-
 $submit = ((isset($_POST['submit'])) ? true : false);
 $action = $gpc->get('job', str, 'manage');
 $id = $gpc->get('id', int);
@@ -17,7 +18,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 	$pending_number = $gpc->get('pending', int); 
 	$pending_data = $gpc->get('data', str); 
 
-	$result = $db->query("SELECT pending_{$pending_data} FROM {$db->pre}spider WHERE id = ".$id);
+	$result = $db->query("SELECT pending_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
 
 	$row = $db->fetch_assoc($result);
 
@@ -30,11 +31,11 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 	array_splice($pending_array, ($pending_number-1)*2, 2);
 	$pending = implode("|", array_empty_trim($pending_array));
 
-	$result = $db->query("UPDATE {$db->pre}spider SET pending_{$pending_data} = '{$pending}' WHERE id = ".$id);
+	$result = $db->query("UPDATE {$db->pre}spider SET pending_{$pending_data} = '{$pending}' WHERE id = '{$id}'", __LINE__, __FILE__);
 
 	if ($action == "add_pending") {
 	
-		$result = $db->query("SELECT bot_{$pending_data} FROM {$db->pre}spider WHERE id = ".$id);
+		$result = $db->query("SELECT bot_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
 		$row = $db->fetch_assoc($result);
 
 		$pending_array = explode('|', $row['bot_' . $pending_data]);
@@ -78,7 +79,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 
 				for ( $limit = strlen($smaller_string); $limit > 6; $limit-- ) {
 					$count2 = (strlen($smaller_string)-$limit)+1;
-					for ($loop2 = 0; $loop2 < count2; $loop2++) {
+					for ($loop2 = 0; $loop2 < $count2; $loop2++) {
 						if (strstr($larger_string, substr($smaller_string, $loop2, $limit))) {
 							$pending_array[$loop] = $smaller_string;
 							$pending_added = true;
@@ -95,7 +96,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 
 		$pending = implode("|", array_empty_trim($pending_array));
 
-		$db->query("UPDATE {$db->pre}spider SET bot_{$pending_data} = '$pending' WHERE id = " . $id);
+		$db->query("UPDATE {$db->pre}spider SET bot_{$pending_data} = '{$pending}' WHERE id = '{$id}'", __LINE__, __FILE__);
 		
 		$delobj = $scache->load('spiders');
 		$delobj->delete();
@@ -104,11 +105,96 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 	ok("admin.php?action=spider&job=pending", "Bot information successfully ".iif($job == 'add_pending', "added", "ignored").".");
 	echo foot();
 }
+elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
+
+	$result = $db->query("SELECT pending_ip, pending_agent, bot_ip, user_agent FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
+	$row = $db->fetch_assoc($result);
+
+	$pending_ip_array = explode('|', $row['pending_ip']);
+	foreach ($pending_ip_array as $key => $value) {
+		$pending_ip_array[$key] = str_replace("|", "&#124;", $value);
+	}
+	$pending_agent_array = explode('|', $row['pending_agent']);
+	foreach ($pending_agent_array as $key => $value) {
+		$pending_agent_array[$key] = str_replace("|", "&#124;", $value);
+	}
+
+	$result = $db->query("UPDATE {$db->pre}spider SET pending_ip = '', pending_agent = '' WHERE id = '{$id}'", __LINE__, __FILE__);
+
+	if ($action == "add_all_pending") {
+
+		$new_ip_data = array_chunk($pending_ip_array, 2);
+		$new_agent_data = array_chunk($pending_agent_array, 2);
+		
+		$bot_ip_array = explode('|', $row['bot_ip']);
+		$bot_agent_array = explode('|', $row['user_agent']);
+
+		if (count($new_ip_data) > 0) {
+			foreach ($new_ip_data as $new_key => $new_value) {
+				$added = false;
+				foreach ($bot_ip_array as $key => $value) {
+					$ip_found = false;
+					for ( $limit = 9; $limit <= 15; $limit++ ) {
+						if (strcmp( substr($value,0,$limit) , substr($new_value[0],0,$limit) ) != 0) {
+							if ($ip_found == true) {
+								$bot_ip_array[$key] = substr($new_value[0],0,($limit-1));
+								$added = true;
+							}
+						}
+						else {
+							$ip_found = true;
+						}
+					}
+				}
+				if ($added == false) {
+					$bot_ip_array[] = $new_value[0];
+				}
+			}
+		}
+		if (count($new_agent_data) > 0) {
+			foreach ($new_agent_data as $new_key => $new_value) {
+				$added = false;
+				foreach ($bot_agent_array as $key => $value) {
+					
+					$smaller_string = ( ( strlen($value) > strlen($new_value[0]) ) ? $new_value[0] : $value);
+					$larger_string = ( ( strlen($value) < strlen($new_value[0]) ) ? $new_value[0] : $value);
+					if (strlen($smaller_string) <= 6) {
+						continue;
+					}
+					
+					for ( $limit = strlen($smaller_string); $limit > 6; $limit-- ) {
+						$count = (strlen($smaller_string)-$limit)+1;
+						for ($loop2 = 0; $loop2 < $count; $loop2++) {
+							if (strstr($larger_string, substr($smaller_string, $loop2, $limit))) {
+								$bot_agent_array[$key] = $smaller_string;
+								$added = true;
+							}
+						}
+					}
+				}
+				if ($added == false) {
+					$bot_agent_array[] = $new_value[0];
+				}
+			}
+		}
+
+		$bot_ip = implode("|", array_empty_trim($bot_ip_array));
+		$bot_agent = implode("|", array_empty_trim($bot_agent_array));
+
+		$db->query("UPDATE {$db->pre}spider SET user_agent = '{$bot_agent}', bot_ip = '{$bot_ip}' WHERE id = '{$id}'", __LINE__, __FILE__);
+		
+		$delobj = $scache->load('spiders');
+		$delobj->delete();
+	}
+	
+	ok("admin.php?action=spider&job=pending", "Bot information successfully ".iif($job == 'add_all_pending', "added", "ignored").".");
+	echo foot();
+}
 elseif ($job == 'delete') {
 	$mark = array_empty_trim($mark);
 	if ($id > 0 || count($mark) > 0) {
 		$id = ($id > 0) ? " = {$id}" : ' IN (' . implode(', ', $mark) . ')';
-		$db->query("DELETE FROM {$db->pre}spider WHERE id {$id}");
+		$db->query("DELETE FROM {$db->pre}spider WHERE id {$id}", __LINE__, __FILE__);
 		if ($db->affected_rows() == 0) {
 			error("admin.php?action=spider&job=manage", "No entries deleted.");
 		}
@@ -116,6 +202,22 @@ elseif ($job == 'delete') {
 			$delobj = $scache->load('spiders');
 			$delobj->delete();
 			ok("admin.php?action=spider&job=manage", "Bot data successfully deleted.");
+		}
+	}
+	else {
+		error("admin.php?action=spider&job=manage", "No data chosen.");
+	}
+}
+elseif ($job == 'reset') {
+	$mark = array_empty_trim($mark);
+	if ($id > 0 || count($mark) > 0) {
+		$id = ($id > 0) ? " = {$id}" : ' IN (' . implode(', ', $mark) . ')';
+		$db->query("UPDATE {$db->pre}spider SET last_visit = '', bot_visits = '0' WHERE id {$id}", __LINE__, __FILE__);
+		if ($db->affected_rows() == 0) {
+			error("admin.php?action=spider&job=manage", "No entries reset.");
+		}
+		else {
+			ok("admin.php?action=spider&job=manage", "Bot data successfully reset.");
 		}
 	}
 	else {
@@ -140,13 +242,13 @@ elseif ($job == 'add2' || $job == 'edit2') {
 	}
 	else {
 		if ($job == 'add2') {
-			$db->query("INSERT INTO {$db->pre}spider (name, user_agent, bot_ip, type) VALUES ('{$bot_name}', '{$bot_agent}', '{$bot_ip}', '{$type}')");
+			$db->query("INSERT INTO {$db->pre}spider (name, user_agent, bot_ip, type) VALUES ('{$bot_name}', '{$bot_agent}', '{$bot_ip}', '{$type}')", __LINE__, __FILE__);
 		}
 		else {
 			$bot_visits = $gpc->get('visits', int);
 			$reset_lastvisit = $gpc->get('reset_lastvisit', int);
 			if ($reset_lastvisit == 1) {
-				$result = $db->query("SELECT last_visit FROM {$db->pre}spider WHERE id = '{$id}'");
+				$result = $db->query("SELECT last_visit FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
 				$lvdat = $db->fetch_assoc($result);
 				$lastvisits = explode('|', $lvdat['last_visit']);
 				$lastvisits = array_empty_trim($lastvisits);
@@ -160,7 +262,7 @@ elseif ($job == 'add2' || $job == 'edit2') {
 			else {
 				$last = '';
 			}
-			$db->query("UPDATE {$db->pre}spider SET name='{$bot_name}', user_agent='{$bot_agent}', bot_ip='{$bot_ip}', bot_visits='{$bot_visits}'".iif($reset_lastvisit > 0, ", last_visit = '{$last}'")." WHERE id = '{$id}'");
+			$db->query("UPDATE {$db->pre}spider SET name='{$bot_name}', user_agent='{$bot_agent}', bot_ip='{$bot_ip}', bot_visits='{$bot_visits}'".iif($reset_lastvisit > 0, ", last_visit = '{$last}'")." WHERE id = '{$id}'", __LINE__, __FILE__);
 		}
 		if ($db->affected_rows() <> 1) {
 			error("admin.php?action=spider&job=".iif($job == 'edit2', 'edit', 'add').iif($id > 0, '&id='.$id), "No data changed.");
@@ -174,7 +276,7 @@ elseif ($job == 'add2' || $job == 'edit2') {
 }
 elseif ($job == 'add' || $job == 'edit') {
 	if ($job == 'edit') {
-		$result = $db->query("SELECT name, user_agent, bot_ip, type, bot_visits FROM {$db->pre}spider WHERE id = '{$id}'");
+		$result = $db->query("SELECT name, user_agent, bot_ip, type, bot_visits FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
 		if ($db->num_rows($result) == 1) {
 			$row = $db->fetch_assoc($result);
 		}
@@ -237,7 +339,7 @@ elseif ($job == 'add' || $job == 'edit') {
 	echo foot();
 }
 elseif ($job == 'pending') {
-	$result = $db->query("SELECT id, name, pending_agent, pending_ip, type FROM {$db->pre}spider");
+	$result = $db->query("SELECT id, name, pending_agent, pending_ip, type FROM {$db->pre}spider", __LINE__, __FILE__);
 	$pending_bots = 0;
 	?>
 	<table border="0" align="center" class="border">
@@ -270,7 +372,13 @@ elseif ($job == 'pending') {
 		if (count($pending_agent_array) > 0 || count($pending_ip_array) > 0) {
 			?>
 			<table border="0" align="center" class="border">
-			<tr><td class="obox" colspan="3"><?php echo $row['name']; ?></td></tr>
+			<tr><td class="obox" colspan="3">
+				<span style="float: right;">
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=ignore_all_pending">Ignore All</a>
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=add_all_pending">Add All</a>
+				</span>
+				<?php echo $row['name']; ?>
+			</td></tr>
 			<tr class="ubox">
 				<td nowrap="nowrap">IP Adress</td>
 				<td nowrap="nowrap">User Agent</td>
@@ -283,9 +391,12 @@ elseif ($job == 'pending') {
 			for ($loop = 0; $loop < count($pending_agent_array); $loop+=2) {
 			?>
 			<tr>
-				<td class="mbox" width="15%" align="center" nowrap="nowrap"><?php echo $pending_agent_array[$loop]; ?></td>
-				<td class="mbox" width="25%" align="center" nowrap="nowrap"><b><?php echo $pending_agent_array[$loop+1]; ?></b></td>
-				<td class="mbox" width="20%" align="center">[<a href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=agent&job=ignore_pending">Ignore</a>&nbsp;[<a href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=agent&job=add_pending">Add</a>]</td>
+				<td class="mbox" width="15%" align="center" nowrap="nowrap"><?php echo $pending_agent_array[$loop+1]; ?></td>
+				<td class="mbox" width="25%" align="center" nowrap="nowrap"><b><?php echo $pending_agent_array[$loop]; ?></b></td>
+				<td class="mbox" width="20%" align="center">
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;pending=<?php echo ($loop/2)+1; ?>&amp;data=agent&amp;job=ignore_pending">Ignore</a> 
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;pending=<?php echo ($loop/2)+1; ?>&amp;data=agent&amp;job=add_pending">Add</a>
+				</td>
 			</tr>
 			<?php
 			}
@@ -297,7 +408,7 @@ elseif ($job == 'pending') {
 			<tr>
 				<td class="mbox" width="15%" align="center" nowrap="nowrap"><b><?php echo $pending_ip_array[$loop]; ?></b></td>
 				<td class="mbox" width="25%" align="center" nowrap="nowrap"><?php echo $pending_ip_array[$loop+1]; ?></td>
-				<td class="mbox" width="20%" align="center">[<a href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=ignore_pending">Ignore</a>]&nbsp;[<a href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=add_pending">Add</a>]</td>
+				<td class="mbox" width="20%" align="center"><a class="button" href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=ignore_pending">Ignore</a>&nbsp;<a class="button" href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=add_pending">Add</a></td>
 			</tr>
 			<?php
 			}
@@ -318,10 +429,16 @@ elseif ($job == 'pending') {
 	<?php
 	echo foot();
 }
-else {
+elseif (empty($job) || $job == 'manage') {
 	?>
 	<table border="0" align="center" class="border">
-	<tr><td class="obox">Manage Bots</td></tr>
+	<tr><td class="obox">
+	<span style="float: right;">
+	<a class="button" href="admin.php?action=spider&amp;job=add" target="Main">Add new Robot</a>
+	<a class="button" href="admin.php?action=spider&amp;job=pending" target="Main">Pending Robots</a>
+	</span>
+	Manage Bots
+	</td></tr>
 	<tr><td class="mbox">
 	<p>Bots (also known as crawlers or spiders) are automated agents most commonly used to index information on the internet. Very few of these bots support sessions and can therefore fail to index your site correctly. Here you can define the assigning of session ids to these bots to solve this problem.</p>
 	<?php if ($config['spider_logvisits'] == 0) { ?>
@@ -330,7 +447,7 @@ else {
 	<form action="admin.php?action=spider" method="post">
 	<table border="0" align="center" class="border">
 	<?php
-	$result = $db->query("SELECT id, name, last_visit, bot_visits, type, user_agent FROM {$db->pre}spider ORDER BY type, name");
+	$result = $db->query("SELECT id, name, last_visit, bot_visits, type, user_agent FROM {$db->pre}spider ORDER BY type, name", __LINE__, __FILE__);
 	if ($db->num_rows($result) > 0) {
 		$category = '';
 		while ($row = $db->fetch_assoc($result)) {
@@ -361,7 +478,7 @@ else {
 					<td class="ubox" nowrap="nowrap">Visits</td>
 					<td class="ubox" nowrap="nowrap">Last Visit</td>
 					<td class="ubox" nowrap="nowrap">Actions</td>
-					<td class="ubox" nowrap="nowrap">Mark</td>
+					<td class="ubox" nowrap="nowrap">Mark<br /><span class="stext"><input type="checkbox" onclick="check_all('mark[]');" name="all" value="1" /> All</span></td>
 				</tr>
 				<?php
 			}
@@ -394,11 +511,15 @@ else {
 			?>
 			<tr>
 				<td class="mbox" width="25%"><?php echo $row['name']; ?></td>
-				<td class="mbox" width="20%" nowrap="nowrap"><?php echo $useragent; ?></td>
+				<td class="mbox" width="25%" nowrap="nowrap"><?php echo $useragent; ?></td>
 				<td class="mbox" width="10%" align="center" nowrap="nowrap"><?php echo $row['bot_visits']; ?></td>
 				<td class="mbox" width="15%" align="center"><?php echo $last_visit; ?></td>
-				<td class="mbox" width="3%" align="center">[<a href="admin.php?action=spider&id=<?php echo $row['id']; ?>&job=edit">Edit</a>]&nbsp;[<a href="admin.php?action=spider&id=<?php echo $row['id']; ?>&job=delete">Delete</a>]</td>
-				<td class="mbox" width="3%" align="center"><input type="checkbox" name="mark[]" value="<?php echo $row['id']; ?>" /></td>	
+				<td class="mbox" width="20%" align="center">
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=edit">Edit</a>&nbsp;
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=reset">Reset</a>&nbsp;
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=delete">Delete</a>
+				</td>
+				<td class="mbox" width="5%" align="center"><input type="checkbox" name="mark[]" value="<?php echo $row['id']; ?>" /></td>	
 			</tr>
 			<?php
 		}
@@ -409,7 +530,7 @@ else {
 			<tr class="ubox">
 				<td align="right">
 				<select name="job">
-				<!-- <option value="edit">Edit</option> -->
+				<option value="reset">Reset</option>
 				<option value="delete">Delete</option>
 				</select> selected entries! <input type="submit" name="submit" value="Go" /></td>
 			</tr>

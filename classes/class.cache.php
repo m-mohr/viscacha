@@ -64,24 +64,35 @@ class CacheItem {
 	
 	}
 	
-	function exists($max_age = null) {
+	function expired($max_age) {
+		if ($this->age() > $max_age) {
+			$this->delete();
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
 	
+	function age() {
+		if (file_exists($this->file)) {
+			$age = time()-filemtime($this->file);
+			return $age;
+		}
+	}
+	
+	function exists($max_age = null) {
 	    if (file_exists($this->file) && filesize($this->file) > 4) {
 			if ($max_age != null) {
-				$last = filemtime($this->file);
-				$expired = time()-$max_age;
-				if ($last < $expired) {
-					$this->delete();
-					return false;
-				}
+				return !($this->expired($max_age));
 			}
 	        return true;
 	    }
 	    else {
 	        return false;
 	    }
-	
 	}
+	
 	function delete() {
 		global $filesystem;
 	    if (file_exists($this->file)) {
@@ -96,8 +107,8 @@ class CacheItem {
 		// Will be implemented in sub-class
 	}
 	
-	function get() {
-		if ($this->data == null) {
+	function get($max_age = null) {
+		if ($this->data == null || $this->expired($max_age)) {
 			$this->load();
 		}
 		return $this->data;
@@ -129,7 +140,7 @@ class CacheServer {
 			$object = new $class($name, $this->cachedir);
 		}
 		else {
-			// trigger_error('Cache Class of type '.$name.' could not be loaded.', E_USER_WARNING);
+			trigger_error('Cache Class of type '.$name.' could not be loaded.', E_USER_NOTICE);
 			$object = new CacheItem($name, $this->cachedir);
 		}
 		$this->data[$name] = $object;

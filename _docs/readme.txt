@@ -1,9 +1,9 @@
 ########################################
-# Installation Viscacha 0.8 Beta 3     #
+# Installation Viscacha 0.8 Beta 4     #
 ########################################
 
 
-== Preambel ==
+== Preamble ==
 
 This is the third public release of Viscacha (0.8). Some of the Feature
 are missing, but I am working to complete these features for version 0.9.
@@ -13,7 +13,7 @@ will check these entries and fix or implement them in most cases.
 This version is meant only for testing purposes only and in productive use
 there can occur some problems. This is version 0.8 and not 1.0. Until 
 version 1.0 is released there will be some major changes that can affect 
-the compatibility and may result in lost data. Plugins and Components are 
+the compatibility and may result in lost data. plugins and components are 
 currently on the newest state, but there can be some minor changes in the
 API of plugins and components. All available hooks of the plugin system you
 can find in the file hooks.txt. If there is a hook missing, please contact 
@@ -52,7 +52,7 @@ Following directories need CHMOD 777:
 - All subdirectories of "uploads"
 
 Following files need CHMOD 666:
-- admin/data/notes.php
+- All files in the directories "admin/data/"
 - All files in the directories "data" and "data/cron"
 - All files in the directory "docs"
 - All files in the directory "language" and all files in the subdirectories of 
@@ -65,105 +65,120 @@ Following files need CHMOD 666:
 
 First make a backup of your old data!
 
-Replace/Upload:
-- All files in admin/html/ (admin.js, menu.js, standard.css)
-- All files in admin/lib/
-- All files in admin/ (bbcodes.php, cms.php, db.php, designs.php, 
-  explorer.php, filetypes.php, forums.php, frames.php, groups.php, 
-  language.php, members.php, misc.php, posts.php, settings.php, slog.php, 
-  start.php)
-- All files and directories in classes/
-- The file modules/16/login.php
-- The file modules/2/onlinelist.php
-- The file modules/3/latestnews.php
-- The file modules/5/login.php
-- The file modules/9/lastbox.php
-- The file templates/menu.js
-- All files in the root directory (addreply.php, admin.php, attachments.php, 
-  cron.php, edit.php, editprofile.php, external.php, log.php, manageforum.php, 
-  managemembers.php, managetopic.php, misc.php, newtopic.php, pdf.php, 
-  popup.php, print.php, profile.php, search.php, showforum.php, showtopic.php, 
-  team.php)
+Delete all old files in the folder "admin/data/" except the file "notes.php" and 
+then upload all new files in the folder "admin/data/" except the file "notes.php".
 
-Upload to each language directory on the server the files new_reply.php and 
-new_topic.php.
-You can find english files in the directory with the id 2 and german files in
-the directories 1 and 3. The files are in the subfolder mails. If you are 
-using a language other than english or German, use the English files and 
-translate them into your language. If you have questions regarding this step,
-contact me via Instant Messenger or use the support forums.
-If you have the English language pack installed, replace the complete directory 
-with the files in the directory language/2. You have to replace all files and 
-folders on account of many changes in this language pack.
+Upload/Replace the complete folders "admin/html" and "admin/lib".
 
-Open in each design (Folder: designs) the file standard.css.
+Upload all php files in the folder "admin".
+
+Upload/Replace the following files in the "classes/" folder:
+- cache/cat_bid.inc.php
+- cache/parent_forums.inc.php
+- cache/syntaxhighlight.inc.php
+- cache/version_check.inc.php
+- cron/jobs/digestdaily.php
+- cron/jobs/digestweekly.php
+- cron/jobs/recountpostcounts.php
+- cron/function.cron.php
+- database/mysql.inc.php
+- ftp/class.ftp.php
+- graphic/class.text2image.php
+- graphic/text2image.php
+- mail/extended.phpmailer.php
+- class.bbcode.php
+- class.cache.php
+- class.docoutput.php
+- class.filesystem.php
+- class.geshi.php
+- class.gpc.php
+- class.language.php
+- class.upload.php
+- function.frontend_init.php
+- function.global.php
+- function.gpc.php
+- function.phpcore.php
+- function.profilefields.php
+- function.viscacha_frontend.php
+
+Open in each design (Folder: "designs/") the file "standard.css".
 Replace the following line:
-#content h3 img, #window h3 img, .tables th img, .h3 {
+.hiddenl {
 with this line:
-#content h3 img, #window h3 img, .tables th img, .h3 img {
+.hiddenl ul {
 
-Find the following line:
-/* Tabellenlose Formulare */
-After that add this code:
-/* Start .plainlabel */
-.plainlabel {
-	float: none;
-	display: inline;
-	width: auto;
-	padding-right: 0px;
-	font-weight: normal;
-}
-/* End .plainlabel */
+Upload to each image pack (Folder: "images/") the file "tt.gif" in the folder "bbcodes/".
 
-Many changes were made in the template files. 
-(Remember: * = ID of language pack)
+Many changes were made in the language files. You have to update all files. If you 
+translated the files, make a backup and diff the files later manually. You can not
+update them. English files are in the folder "2". German files are in the folder "1".
+Please remember: After updating please check the settings for all languages in your admin
+control panel. Please check that the settings "Country code" and "Language_code" are set 
+correctly. If they are not correct there can occur problems with updating to a newer version
+or with plugins an components.
 
+If you have installed the quick reply plugin copy the file "quick-reply.php" into the 
+folder where the plugin is installed (Standard: 17). 
+
+If you have installed the plugin to display the news on the portal copy the file 
+"latestnews.php" into the folder where the plugin is installed (Standard: 3).
+
+If you have installed the plugin to display the login box under the forum copy the 
+file "login.php" into the folder where the plugin is installed (Standard: 16).
+
+If you have installed the plugin to display the personal box in the navigation copy the 
+file "login.php" into the folder where the plugin is installed (Standard: 5).
+
+Upload the file templates/global.js.
+
+Many changes were made in the template files. (* = ID of language pack)
 Please update all the following files in each template pack:
-- templates/*/admin/forum/index_bit.html
-- templates/*/admin/members/edit.html
-- templates/*/admin/benchmark.html
+- templates/*/admin/forum/index.html
+- templates/*/editprofile/abos.html
 - templates/*/editprofile/attachments.html
-- templates/*/editprofile/notice.html
-- templates/*/editprofile/pic.html
 - templates/*/editprofile/settings.html
+- templates/*/log/login.html
+- templates/*/main/bbhtml.html
+- templates/*/main/error.html
+- templates/*/main/ok.html
+- templates/*/members/index.html
+- templates/*/members/index_bit.html
+- templates/*/members/index_letter.html
 - templates/*/misc/bbhelp.html
 - templates/*/misc/wwo_bit.html
-- templates/*/modules/11/legend.html
-- templates/*/modules/12/legend.html
-- templates/*/modules/13/legend.html
-- templates/*/modules/16/login.html
-- templates/*/modules/2/wwo.html
+- templates/*/modules/17/quick-reply.html
+- templates/*/modules/3/news.html
 - templates/*/modules/5/login_guest.html
-- templates/*/modules/5/login_member.html
-- templates/*/modules/6/newpms.html
-- templates/*/modules/7/message.html
-- templates/*/modules/9/last.html
 - templates/*/newtopic/index.html
-- templates/*/newtopic/index_prefix.html
-- templates/*/pm/delete.html
-- templates/*/popup/showpost.html
-- templates/*/profile/ims.html
+- templates/*/pm/browse.html
+- templates/*/pm/browse_bit.html
 - templates/*/profile/index.html
-- templates/*/profile/mail.html
-- templates/*/search/active_bit.html
-- templates/*/search/index.html
-- templates/*/search/result.html
-- templates/*/search/result_bit.html
-- templates/*/showforum/index.html
-- templates/*/showforum/index_bit.html
-- templates/*/showtopic/index.html
-- templates/*/showtopic/index_bit.html
-- templates/*/showtopic/vote.html
+- templates/*/showtopic/upload_box.html
+- templates/*/team/moderator_bit.html
 - templates/*/addreply.html
-- templates/*/categories.html
+- templates/*/menu.html
+- templates/*/register.html
 
-Please add all the following files to each template pack (* = ID of language pack):
-- templates/*/edit/
-- templates/*/edit/edit.html
-- templates/*/edit/prefix.html
-- templates/*/misc/board_rules.html
+Upload the following files into your Viscacha root folder:
+- addreply.php
+- admin.php
+- docs.php
+- edit.php
+- editprofile.php
+- log.php
+- manageforum.php
+- managemembers.php
+- managetopic.php
+- members.php
+- misc.php
+- newtopic.php
+- pm.php
+- popup.php
+- profile.php
+- register.php
+- showtopic.php
 
-Finally upload the install/ directory and execute the updater.
+Finally upload the install/ directory and execute the update script.
 
 == System requirements ==
 
@@ -184,7 +199,7 @@ Optimal system requirements:
  - MySQL Version: 4.1 and above
 
 If you are testing Viscacha, please give me some feedback how Viscacha worked,
-which errors occured and which server configuration was used.
+which errors occurred and which server configuration was used.
 
 Following information interest me:
 - Operating system (of the server)
@@ -198,8 +213,7 @@ Following information interest me:
   - safe_mode
   - magic_quotes_gpc
   - register_globals
-  - register_long_arrays
-  - sql.safe_mode
+  - open_basedir
 
 
 == Contact ==

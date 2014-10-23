@@ -30,28 +30,40 @@ define('SP_NEW', 4);
 
 class BBCode {
 
-	var $smileys = null;
-	var $bbcodes = array();
-	var $custombb = array();
-	var $profile = '';
-	var $cfg = array();
-	var $reader = '';
-	var $noparse = array();
-	var $pid = 0;
-	var $benchmark = array();
-	var $author = -1;
+	var $smileys;
+	var $bbcodes;
+	var $custombb;
+	var $profile;
+	var $cfg;
+	var $reader;
+	var $noparse;
+	var $pid;
+	var $benchmark;
+	var $author;
 
-	function BBCode () {
+	function BBCode ($profile = 'viscacha') {
 	    $this->benchmark = array(
 	    	'smileys' => 0,
 	    	'bbcode' => 0
 	    );
+		$this->smileys = null;
+		$this->bbcodes = array();
+		$this->custombb = array();
+		$this->profile = '';
+		$this->cfg = array();
+		$this->reader = '';
+		$this->noparse = array();
+		$this->pid = 0;
+		$this->author = -1;
+		
 		$this->cache_bbcode();
 		$this->cache_custombb();
+		
 		if (!class_exists('ConvertRoman')) {
 			include('classes/class.convertroman.php');
 		}
-		$this->setProfile('standard', SP_NEW);
+		
+		$this->setProfile($profile, SP_NEW);
 	}
 	function setName($name) {
 		$this->reader = $name;
@@ -207,7 +219,7 @@ class BBCode {
 				$fontsize = 0.8;
 			}
 			elseif ($size == 'large') {
-				$fontsize = 1.3;
+				$fontsize = 1.5;
 				$content = $this->wordwrap($content, ceil($this->profile['wordwrap_wordlength']*(1/1.5)));
 			}
 			else {
@@ -243,7 +255,7 @@ class BBCode {
 			list(,$url) = $url;
 		}
 
-		if ($img == true && (stristr($chop, '[/img]') !== false || stristr($chop, '[reader]') !== false || preg_match("/(([^?&=\[\]]+?)\.(png|gif|bmp|jpg|jpe|jpeg))/is", $url))) {
+		if ($img == true && (!preg_match("/\[\/\w\d\]+/is", $chop) || preg_match("/(([^?&=\[\]]+?)\.(png|gif|bmp|jpg|jpe|jpeg))/is", $url))) {
 			return $url.$chop;
 		}
 
@@ -535,10 +547,10 @@ class BBCode {
 			);
 			$text = str_ireplace($search, '', $text);
 
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\]/is', array($this, 'cb_plain_code'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\]/is', array(&$this, 'cb_plain_code'), $text) : $text;
 
 			while (empty($this->profile['disallow']['list']) && preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) {
-				$text = preg_replace_callback('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is', array($this, 'cb_plain_list'), $text);
+				$text = preg_replace_callback('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is', array(&$this, 'cb_plain_list'), $text);
 			}
 			
 			$text = preg_replace('/\[note=(.+?)\](.+?)\[\/note\]/is', "\\1 (\\2)", $text);
@@ -567,9 +579,9 @@ class BBCode {
 			$text = str_ireplace('[tab]', "    ", $text);
 		}
 		elseif ($type == 'pdf') {
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\](\n?)/is', array($this, 'cb_pdf_code'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_pdf_code'), $text) : $text;
 			while (empty($this->profile['disallow']['list']) && preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) {
-				$text = preg_replace_callback('/\n?\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]\n?/is', array($this, 'cb_pdf_list'), $text);
+				$text = preg_replace_callback('/\n?\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]\n?/is', array(&$this, 'cb_pdf_list'), $text);
 			}
 			$text = preg_replace('/\[note=(.+?)\](.+?)\[\/note\]/is', "\\1 (<i>\\2</i>)", $text);
 
@@ -582,8 +594,8 @@ class BBCode {
 			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/is', "<p align=\"\\1\">\\2</p>", $text);
 
 			$text = preg_replace("/\[email\]([a-z0-9\-_\.\+]+@[a-z0-9\-]+\.[a-z0-9\-\.]+?)\[\/email\]/is", "<a href=\"mailto:\\1\">\\1</a>", $text);
-			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array($this, 'cb_pdf_header'), $text) : $text;
-			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array($this, 'cb_pdf_size'), $text);
+			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array(&$this, 'cb_pdf_header'), $text) : $text;
+			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array(&$this, 'cb_pdf_size'), $text);
 
 			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text)) {
 				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<br><b>".$lang->phrase('bb_quote_by')." \\1:</b><hr><i>\\2</i><hr>", $text);
@@ -611,29 +623,29 @@ class BBCode {
 			$text = preg_replace('/\[sup\](.+?)\[\/sup\]/is', "<sup>\\1</sup>", $text);
 
 			$text = str_ireplace('[tab]', "\t", $text);
-			$text = preg_replace_callback('/\[table\](.+?)\[\/table\]\n?/is', array($this, 'cb_table'), $text);
+			$text = preg_replace_callback('/\[table\](.+?)\[\/table\]\n?/is', array(&$this, 'cb_table'), $text);
 
 			$text = $this->tab2space($text);
 			$text = $this->parseSmileys($text);
 		}
 		else {
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code\](.+?)\[\/code\](\n?)/is', array($this, 'cb_code'), $text) : $text;
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code=(\w+?)\](.+?)\[\/code\](\n?)/is', array($this, 'cb_hlcode'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_code'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code=(\w+?)\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_hlcode'), $text) : $text;
 
 			if (empty($this->profile['disallow']['list'])) {
 				$char = chr(5);
 				$text = str_ireplace('[/list]', '[/list]'.$char, $text);
 				$text = str_ireplace('[list', $char.'[list', $text);
 				while (preg_match('/'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'/is',$text, $treffer)) {
-					$text = preg_replace_callback('/\n?'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'\n?/is', array($this, 'cb_list'), $text);
+					$text = preg_replace_callback('/\n?'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'\n?/is', array(&$this, 'cb_list'), $text);
 				}
 			}
 			
-			$text = preg_replace_callback('/\[note=(.+?)\](.+?)\[\/note\]/is', array($this, 'cb_note'), $text);
+			$text = preg_replace_callback('/\[note=(.+?)\](.+?)\[\/note\]/is', array(&$this, 'cb_note'), $text);
 
-			$text = preg_replace_callback("~\[url\]((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})+:\/\/[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\[\/url\]~is", array($this, 'cb_url'), $text);
-			$text = preg_replace_callback("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", array($this, 'cb_title_url'), $text);
-			$text = preg_replace_callback("~((et://|svn://|telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|ed2k://|www.)[a-zA-Z0-9\-\.@]+\.[a-zA-Z0-9]{1,7}(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~]*)?([a-zA-Z0-9/\\\+\=\?]{1}))([^\'\"\<\>\s\r\n\t]{0,8})~is", array($this, 'cb_auto_url'), $text);
+			$text = preg_replace_callback("~\[url\]((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})+:\/\/[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\[\/url\]~is", array(&$this, 'cb_url'), $text);
+			$text = preg_replace_callback("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", array(&$this, 'cb_title_url'), $text);
+			$text = preg_replace_callback("~((et://|svn://|telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|ed2k://|www.)[a-zA-Z0-9\-\.@]+\.[a-zA-Z0-9]{1,7}(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~]*)?([a-zA-Z0-9/\\\+\=\?]{1}))([^\'\"\<\>\s\r\n\t]{0,8})~is", array(&$this, 'cb_auto_url'), $text);
 
 			$text = empty($this->profile['disallow']['img']) ? preg_replace("/\[img\](([^?&=\[\]]+?)\.(png|gif|bmp|jpg|jpe|jpeg))\[\/img\]/is", '<img src="\1" alt=""'.iif($this->profile['resizeImg'] > 0, ' name="resize"').' />', $text) : $text;
 			$text = preg_replace("/\[img\](.+?)\[\/img\]/is", '<a href="\1" target="_blank">\1</a>', $text); // Correct incorrect urls
@@ -641,12 +653,18 @@ class BBCode {
 			$text = preg_replace('/\[color=\#?([0-9A-F]{3,6})\](.+?)\[\/color\]/is', '<span style="color: #\1">\2</span>', $text);
 			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/is', "<p style='text-align: \\1'>\\2</p>", $text);
 
-			$text = preg_replace_callback("/\[email\]([a-z0-9\-_\.\+]+@[a-z0-9\-]+\.[a-z0-9\-\.]+?)\[\/email\]/is", array($this, 'cb_mail'), $text);
-			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array($this, 'cb_header'), $text) : $text;
-			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array($this, 'cb_size'), $text);
+			$text = preg_replace_callback("/\[email\]([a-z0-9\-_\.\+]+@[a-z0-9\-]+\.[a-z0-9\-\.]+?)\[\/email\]/is", array(&$this, 'cb_mail'), $text);
+			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array(&$this, 'cb_header'), $text) : $text;
+			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array(&$this, 'cb_size'), $text);
 
-			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text)) {
-				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<blockquote class='bb_quote'><strong>".$lang->phrase('bb_quote_by')." \\1:</strong><br /><cite>\\2</cite></blockquote>", $text);
+			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text, $values)) {
+				if (isset($values[1]) && check_hp($values[1])) {
+					$quote_html = '<a href="\1" target="_blank">\1</a>';
+				}
+				else {
+					$quote_html = "\\1";
+				}
+				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<blockquote class='bb_quote'><strong>".$lang->phrase('bb_quote_by')." {$quote_html}:</strong><br /><cite>\\2</cite></blockquote>", $text);
 			}
 			while (preg_match('/\[quote](.+?)\[\/quote\]/is',$text)) {
 				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/is', "<blockquote class='bb_quote'><strong>".$lang->phrase('bb_quote')."</strong><br /><cite>\\1</cite></blockquote>", $text);
@@ -670,7 +688,7 @@ class BBCode {
 
 			$text = preg_replace('/\[tt\](.+?)\[\/tt\]/is', "<tt>\\1</tt>", $text);
 			$text = str_ireplace('[tab]', "\t", $text);
-			$text = preg_replace_callback('/\[table\](.+?)\[\/table\]\n?/is', array($this, 'cb_table'), $text);
+			$text = preg_replace_callback('/\[table\](.+?)\[\/table\]\n?/is', array(&$this, 'cb_table'), $text);
 
 			$text = $this->tab2space($text);
 			$text = $this->parseSmileys($text);
@@ -862,12 +880,12 @@ class BBCode {
 				'highlight_class' => 0,
 				'highlight' => array(),
 				'disallow' => array(
-					'img' => FALSE,
-					'code' => FALSE,
-					'list' => FALSE,
-					'edit' => FALSE,
-					'ot' => FALSE,
-					'h' => FALSE
+					'img' => false,
+					'code' => false,
+					'list' => false,
+					'edit' => false,
+					'ot' => false,
+					'h' => false
 				)
 			);
 		}
@@ -875,7 +893,7 @@ class BBCode {
 		$this->profile = &$this->cfg[$name];
 	}
 	function setFunc($func) {
-		$this->profile['disallow'][$func] = TRUE;
+		$this->profile['disallow'][$func] = true;
 	}
 	function setSmileys ($use = 1) {
 		$this->profile['useSmileys'] = $use;
@@ -1113,6 +1131,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			$bbcode->setSmileyDir($config['smileyurl']);
 			$bbcode->setSmileys(1);
 			$bbcode->setReplace($config['wordstatus']);
+			// Disallow some bb-codes
 			if ($config['sig_bbimg'] == 1) {
 				$bbcode->setFunc('img');
 			}
@@ -1140,12 +1159,6 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);
 			$bbcode->setName($my->name);
 			$bbcode->setSmileyDir($config['smileyurl']);
-			$bbcode->setFunc('img');
-			$bbcode->setFunc('code');
-			$bbcode->setFunc('list');
-			$bbcode->setFunc('edit');
-			$bbcode->setFunc('ot');
-			$bbcode->setFunc('h');
 		}
 	}
 	else {

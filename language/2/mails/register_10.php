@@ -2,9 +2,9 @@
 	<title>{@config->fname}: Activation e-mail</title>
 	<comment>Dear {@_POST->name},
 
-You just have registered at the board "{@config->fname}".
+You have (or someone using your email address has) just registered at "{@config->fname}".
 
-To confirm you registration, please follow this link:
+If you wish to confirm you registration, please follow this link:
 {@config->furl}/register.php?action=confirm&id={$redirect}&fid={$confirmcode}
 After that you will be able to login with your username and password.
 

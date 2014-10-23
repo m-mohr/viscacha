@@ -630,21 +630,35 @@ elseif ($_GET['action'] == "settings") {
 
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
-	if (isset($design[$update['template']])) {
+	if (!empty($my->settings['q_tpl']) && isset($design[$my->settings['q_tpl']])) {
+		$mydesign = $design[$my->settings['q_tpl']]['name'];
+		$my->template = $my->settings['q_tpl'];
+	}
+	elseif (isset($design[$update['template']])) {
 		$mydesign = $design[$update['template']]['name'];
+		$my->template = $update['template'];
 	}
 	else {
 		$mydesign = $design[$config['templatedir']]['name'];
+		$my->template = $config['templatedir'];
 	}
 	
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
-	if (isset($language[$update['language']])) {
+	if (!empty($my->settings['q_lng']) && isset($language[$my->settings['q_lng']])) {
+		$mylanguage = $language[$my->settings['q_lng']]['language'];
+		$my->language = $my->settings['q_lng'];
+	}
+	elseif (isset($language[$update['language']])) {
 		$mylanguage = $language[$update['language']]['language'];
+		$my->language = $update['language'];
 	}
 	else {
 		$mylanguage = $language[$config['langdir']]['language'];
+		$my->language = $config['langdir'];
 	}
+	
+	$time = gmdate($lang->phrase('dformat3'), times());
 	
 	$customfields = editprofile_customfields(2, $my->id);
 	
@@ -675,10 +689,10 @@ elseif ($_GET['action'] == "settings2") {
 	if ($_POST['opt_3'] < 0 && $_POST['opt_3'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_showmail');
 	}
-	if (!isset($cache[$_POST['opt_4']])) {
+	if ($config['hidedesign'] == 0 && $_POST['opt_4'] != 0 && !isset($cache[$_POST['opt_4']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_design');
 	}
-	if (!isset($cache2[$_POST['opt_5']])) {
+	if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && !isset($cache2[$_POST['opt_5']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 	}
 	if ($_POST['opt_7'] != 0 && $_POST['opt_7'] != 1) {
@@ -699,14 +713,30 @@ elseif ($_GET['action'] == "settings2") {
 	else {
 		($code = $plugins->load('editprofile_settings2_query')) ? eval($code) : null;
 		
-		if (isset($my->settings['q_tpl']) && $_POST['opt_4'] != $my->template) {
+		if ($config['hidedesign'] == 0 && $_POST['opt_4'] != 0 && isset($my->settings['q_tpl']) && $_POST['opt_4'] != $my->template) {
 			unset($my->settings['q_tpl']);
 		}
-		if (isset($my->settings['q_lng']) && $_POST['opt_5'] != $my->language) {
+		if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && isset($my->settings['q_lng']) && $_POST['opt_5'] != $my->language) {
 			unset($my->settings['q_lng']);
 		}
 		
-		$db->query("UPDATE {$db->pre}user SET timezone = '".$_POST['location']."', opt_textarea = '".$_POST['opt_0']."', opt_pmnotify = '".$_POST['opt_1']."', opt_hidebad = '".$_POST['opt_2']."', opt_hidemail = '".$_POST['opt_3']."', template = '".$_POST['opt_4']."', language = '".$_POST['opt_5']."', opt_newsletter = '".$_POST['opt_6']."', opt_showsig = '".$_POST['opt_7']."' WHERE id = $my->id LIMIT 1",__LINE__,__FILE__);
+		$db->query("
+		UPDATE {$db->pre}user 
+		SET 
+			".
+			iif(($config['hidedesign'] == 0 &&  $_POST['opt_4'] > 0), "template = '{$_POST['opt_4']}',").
+			iif(($config['hidelanguage'] == 0 && $_POST['opt_5'] > 0), "language = '{$_POST['opt_5']}',")
+			."
+			timezone = '{$_POST['location']}', 
+			opt_textarea = '{$_POST['opt_0']}', 
+			opt_pmnotify = '{$_POST['opt_1']}', 
+			opt_hidebad = '{$_POST['opt_2']}', 
+			opt_hidemail = '{$_POST['opt_3']}', 
+			opt_newsletter = '{$_POST['opt_6']}', 
+			opt_showsig = '{$_POST['opt_7']}' 
+		WHERE id = '{$my->id}'
+		LIMIT 1
+		",__LINE__,__FILE__);
 		ok($lang->phrase('data_success'), "editprofile.php?action=settings".SID2URL_x);
 	}
 

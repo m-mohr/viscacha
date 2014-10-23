@@ -1,11 +1,11 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "modules.lng.php") die('Error: Hacking Attempt');
 $lang = array();
-$lang['birthdaybox_module'] = 'We congratulate...';
-$lang['last_posts_info_reply'] = 'This topic contains more than {$num} replies. Click <a href="showtopic.php?id={$tid}" target="_blank">here</a>, to read the whole topic.';
+$lang['birthdaybox_module'] = 'Happy birthday to...';
+$lang['last_posts_info_reply'] = 'This topic contains more than {$num} replies. Click <a href="showtopic.php?id={$tid}" target="_blank">here</a>, to view the topic in whole.';
 $lang['last_posts_reply'] = 'The last {$num} posts in this topic:';
 $lang['last_x_forumposts'] = 'Last {$topicnum} active topics';
-$lang['legend_cat_hidden'] = 'Board is closed.';
+$lang['legend_cat_hidden'] = 'The forum is currently closed.';
 $lang['legend_cat_new_post'] = 'Board has new posts.';
 $lang['legend_cat_old_post'] = 'Board has no new posts.';
 $lang['legend_cat_re'] = 'Redirect to a URL.';
@@ -18,7 +18,7 @@ $lang['legend_topic_old_closed'] = 'Topic closed - No new posts';
 $lang['legend_topic_old_post'] = 'No new posts';
 $lang['mymenu'] = 'Personal Menu';
 $lang['mymenu_newpm_1'] = 'You have';
-$lang['mymenu_newpm_2'] = 'new PM!';
+$lang['mymenu_newpm_2'] = 'new PM(s)!';
 $lang['mymenu_send'] = 'Log in';
 $lang['new_pms'] = 'New Private Message(s)';
 $lang['new_pms_since_last_visit'] = 'You have {%my->cnpms} new private message(s) since your last visit:';

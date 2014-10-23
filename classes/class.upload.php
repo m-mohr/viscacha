@@ -214,7 +214,7 @@ class uploader {
 	 */
 	function save_file($path = null, $overwrite_mode = 0){
 		if ($this->error != null) {
-			//return false;
+			return false;
 		}
 		
 		if ($path != null && strlen($path) > 0) {

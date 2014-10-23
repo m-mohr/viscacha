@@ -12,7 +12,9 @@
 </p>
 	<ul class="nav">
 	<li><a href="log.php?action=pwremind<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('login_lost_password'); ?></a></li>
+	<?php if ($config['disableregistration'] == 0) { ?>
 	<li><a href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('register_title'); ?></a></li>
+	<?php } ?>
 	</ul>
 </div>
 </form>

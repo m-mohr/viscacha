@@ -1,7 +1,7 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "groups.php") die('Error: Hacking Attempt');
 
-// moved arrays with group-language-data to function.viscacha_backend.php to use the arrays as well in the forums.php
+($code = $plugins->load('admin_groups_jobs')) ? eval($code) : null;
 
 if ($job == 'manage') {
 	echo head();
@@ -19,7 +19,10 @@ if ($job == 'manage') {
 <form name="form" method="post" action="admin.php?action=groups&job=delete">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="<?php echo $colspan+4; ?>">Usergroup Manager</td>
+   <td class="obox" colspan="<?php echo $colspan+4; ?>">
+	<span style="float: right;"><a class="button" href="admin.php?action=groups&job=add">Add new Usergroup</a></span>
+	Usergroup Manager
+  </td>
   </tr>
   <tr class="ubox">
   	<?php if ($delete == 1) { ?><td valign="bottom"><b>Delete</b></td><?php } ?>

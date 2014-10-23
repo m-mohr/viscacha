@@ -272,9 +272,13 @@ if ($config['postrating'] == 1) {
 
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
-SELECT r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, u.hp, u.pic, r.email as gmail, r.guest, u.signature, u.regdate, u.location 
+SELECT 
+	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, 
+	u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
+	f.* 
 FROM {$db->pre}replies AS r 
 	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
+	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
 WHERE r.topic_id = '{$info['id']}' 
 ORDER BY date ASC {$searchsql}
 ",__LINE__,__FILE__);

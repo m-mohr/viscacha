@@ -1,13 +1,21 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "members.php") die('Error: Hacking Attempt');
 
+($code = $plugins->load('admin_members_jobs')) ? eval($code) : null;
+
 if ($job == 'newsletter') {
 	echo head();
 ?>
 <form name="form" method="post" action="admin.php?action=members&job=newsletter2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="2"><b><span style="float: right;">[<a href="admin.php?action=members&job=newsletter_archive">Newsletter-Archiv</a>]</span>Send newsletter</b></td>
+   <td class="obox" colspan="2">
+	<span style="float: right;">
+	<a class="button" href="admin.php?action=members&amp;job=emaillist">Export E-mail Addresses</a> 
+	<a class="button" href="admin.php?action=members&job=newsletter_archive">Newsletter Archive</a>
+	</span>
+	Send newsletter
+	</td>
   </tr>
   <tr> 
 	<td class="mbox" width="50%">Addressee:</td>
@@ -75,8 +83,8 @@ elseif ($job == 'newsletter2') {
 	$lid = $db->affected_rows();
 
 	$cache = new CacheItem('newsletter_session');
-    $cache->set($emails);
-    $cache->export();
+	$cache->set($emails);
+	$cache->export();
 
 	$htmlhead .= '<meta http-equiv="refresh" content="2; url=admin.php?action=members&job=newsletter3&id='.$lid.'&int2='.$int2.'&page=1">';
 	echo head();
@@ -94,7 +102,7 @@ elseif ($job == 'newsletter2') {
 }
 elseif ($job == 'newsletter3') {
 	$cache = new CacheItem('newsletter_session');
-    $emails = $cache->get();
+	$emails = $cache->get();
 	
 	$int2 = $gpc->get('int2', int, 100);
 	$page = $gpc->get('page', int, 1);
@@ -132,10 +140,10 @@ elseif ($job == 'newsletter3') {
 ?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox"><b>Echelon <?php echo $page+1; ?> von <?php echo $steps+1; ?>...</b></td>
+   <td class="obox"><b>Step <?php echo $page+1; ?> of <?php echo $steps+1; ?>...</b></td>
   </tr>
   <tr> 
-   <td class="mbox">E-mail echelon <?php echo $page; ?> sent.<br>Alltogether <?php echo $ready; ?> e-mails sent!<br><br>All e-mails have been send successful! <a href="admin.php?action=members&job=newsletter">Redirect to the administration.</a></td>
+   <td class="mbox">Part <?php echo $page; ?> sent.<br>Alltogether <?php echo $ready; ?> e-mails sent!<br><br>All e-mails have been send successful! <a href="admin.php?action=members&job=newsletter">Redirect to the administration.</a></td>
   </tr>
  </table>	
 <?php
@@ -146,10 +154,10 @@ elseif ($job == 'newsletter3') {
 ?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox"><b>Staffel <?php echo $page+1; ?> von <?php echo $steps+1; ?>...</b></td>
+   <td class="obox"><b>Step <?php echo $page+1; ?> of <?php echo $steps+1; ?>...</b></td>
   </tr>
   <tr> 
-   <td class="mbox">E-mail-echelon <?php echo $page; ?> sent.<br>Alltogether <?php echo $ready; ?> e-mails-sent!</td>
+   <td class="mbox">Part <?php echo $page; ?> sent.<br>Alltogether <?php echo $ready; ?> e-mails-sent!</td>
   </tr>
  </table>	
 <?php
@@ -164,10 +172,10 @@ elseif ($job == 'newsletter_archive') {
 <form name="form" method="post" action="admin.php?action=members&job=newsletter_delete">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan=4><b>Newsletter-Archive</b></td>
+   <td class="obox" colspan="4"><b>Newsletter Archive</b></td>
   </tr>
   <tr> 
-   <td class="ubox">Del</td>
+   <td class="ubox">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox">Subject</td>
    <td class="ubox">Sent</td> 
    <td class="ubox">To</td> 
@@ -181,7 +189,7 @@ elseif ($job == 'newsletter_archive') {
   </tr>
 <?php } ?>
   <tr> 
-   <td class="ubox" colspan=4 align="center"><input type="submit" name="Submit" value="Delete"></td> 
+   <td class="ubox" colspan="4" align="center"><input type="submit" name="Submit" value="Delete"></td> 
   </tr>
  </table>
 </form> 
@@ -197,7 +205,7 @@ elseif ($job == 'newsletter_view') {
 <form name="form" method="post" action="admin.php?action=members&job=newsletter_delete">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan=2><b>Newsletter-Archive: detail-view</b></td>
+   <td class="obox" colspan="2"><b>Newsletter-Archive: detail-view</b></td>
   </tr>
   <tr>
    <td class="mbox">Title:</td> 
@@ -212,13 +220,13 @@ elseif ($job == 'newsletter_view') {
    <td class="mbox"><?php echo $receiver[$row['receiver']]; ?></td>
   </tr>
   <tr> 
-   <td class="ubox" colspan=2>Newsletter-text</td>
+   <td class="ubox" colspan="2">Newsletter Text:</td>
   </tr>
   <tr>
-   <td class="mbox" colspan=2><pre><?php echo $row['content']; ?></pre></td>
+   <td class="mbox" colspan="2"><pre><?php echo $row['content']; ?></pre></td>
   </tr>
   <tr> 
-   <td class="ubox" colspan=2 align="center"><input type="hidden" name="delete[]" value="<?php echo $row['id']; ?>"><input type="submit" name="Submit" value="Delete"></td> 
+   <td class="ubox" colspan="2" align="center"><input type="hidden" name="delete[]" value="<?php echo $row['id']; ?>"><input type="submit" name="Submit" value="Delete"></td> 
   </tr>
  </table> 
 </form>
@@ -386,6 +394,7 @@ elseif ($job == 'merge2') {
 	ok('admin.php?action=members&job=manage', "{$old['name']}'s data is converted to {$base['name']}'s Account.");
 }
 elseif ($job == 'manage') {
+	send_nocache_header();
 	echo head();
 	$sort = $gpc->get('sort', str);
 	$order = $gpc->get('order', int);
@@ -395,19 +404,17 @@ elseif ($job == 'manage') {
 	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'user'));
 	$temp = pages($count[0], "admin.php?action=members&job=manage&sort=".$sort."&amp;letter=".$letter."&amp;order=".$order."&amp;", 25);
 
-    if ($order == '1') $order = 'desc';
+	if ($order == '1') $order = 'desc';
 	else $order = 'asc';
 			
 	if ($sort == 'regdate') $sort = 'regdate';
 	elseif ($sort == 'location') $sort = 'location';
-	elseif ($sort == 'gender') $sort = 'gender';
+	elseif ($sort == 'posts') $sort = 'posts';
 	elseif ($sort == 'lastvisit') $sort = 'lastvisit';
 	else $sort = 'name';
 
 	$start = $page*25;
 	$start = $start-25;
-	
-	$change = array('m' => 'male', 'w' => 'female', '' => '-');
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
 	?>
@@ -415,24 +422,27 @@ elseif ($job == 'manage') {
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 		<tr> 
 		  <td class="obox" colspan="8">
+		  <?php if ($my->settings['admin_interface'] == 1) { ?>
 		  <span style="float: right;">
-		  [<a href="admin.php?action=members&job=search">Search for Members</a>]&nbsp;
-		  [<a href="admin.php?action=members&job=merge">Merge Users</a>]
+		  <a class="button" href="admin.php?action=members&amp;job=memberrating">Memberratings</a> 
+		  <a class="button" href="admin.php?action=members&amp;job=merge">Merge Users</a>
+		  <a class="button" href="admin.php?action=members&amp;job=recount">Recount Post Counts</a>
 		  </span>
-		  List of Members &amp; User Manager</td>
+		  <?php } ?>
+		  Member List</td>
 		</tr>
 		<tr> 
 		  <td class="ubox" colspan="8"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> Members</td>
 		</tr>
 		<tr>
-		  <td class="obox">Del</td>
+		  <td class="obox">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
 		  <td class="obox">Name
 		  <a href="admin.php?action=members&job=manage&letter=<?php echo $letter; ?>&amp;page=<?php echo $page; ?>"><img src="admin/html/images/asc.gif" border=0 alt="Ascending"></a>
 		  <a href="admin.php?action=members&job=manage&order=1&amp;page=<?php echo $page; ?>&amp;letter=<?php echo $letter; ?>"><img src="admin/html/images/desc.gif" border=0 alt="Descending"></a></td>
 		  <td class="obox">Email</td>
-		  <td class="obox">Gender
-		  <a href="admin.php?action=members&job=manage&sort=gender&amp;letter=<?php echo $letter; ?>&amp;page=<?php echo $page; ?>"><img src="admin/html/images/asc.gif" border=0 alt="Ascending"></a>
-		  <a href="admin.php?action=members&job=manage&sort=gender&amp;letter=<?php echo $letter; ?>&amp;order=1&amp;page=<?php echo $page; ?>"><img src="admin/html/images/desc.gif" border=0 alt="Descending"></a></td>
+		  <td class="obox">Posts
+		  <a href="admin.php?action=members&job=manage&sort=posts&amp;letter=<?php echo $letter; ?>&amp;page=<?php echo $page; ?>"><img src="admin/html/images/asc.gif" border=0 alt="Ascending"></a>
+		  <a href="admin.php?action=members&job=manage&sort=posts&amp;letter=<?php echo $letter; ?>&amp;order=1&amp;page=<?php echo $page; ?>"><img src="admin/html/images/desc.gif" border=0 alt="Descending"></a></td>
 		  <td class="obox">Residence
 		  <a href="admin.php?action=members&job=manage&sort=location&amp;letter=<?php echo $letter; ?>&amp;page=<?php echo $page; ?>"><img src="admin/html/images/asc.gif" border=0 alt="Ascending"></a>
 		  <a href="admin.php?action=members&job=manage&sort=location&amp;letter=<?php echo $letter; ?>&amp;order=1&amp;page=<?php echo $page; ?>"><img src="admin/html/images/desc.gif" border=0 alt="Descending"></a></td>
@@ -448,15 +458,16 @@ elseif ($job == 'manage') {
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = 'Never';
-		} else {
+		}
+		else {
 			$row->lastvisit = gmdate('d.m.Y H:i', times($row->lastvisit));
 		}
 		?>
-	    <tr>
-	      <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row->id; ?>"></td> 
+		<tr>
+		  <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row->id; ?>"></td> 
 		  <td class="mbox"><a title="Edit" href="admin.php?action=members&job=edit&id=<?php echo $row->id; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br><i>".$row->fullname."</i>"); ?></td> 
 		  <td class="mbox" align="center"><a href="mailto:<?php echo $row->mail; ?>">Email</a></td> 
-		  <td class="mbox"><?php echo $change[$row->gender]; ?></td>
+		  <td class="mbox"><a title="Recount" href="admin.php?action=members&amp;job=recount&amp;id=<?php echo $row->id; ?>"><?php echo $row->posts; ?></a></td>
 		  <td class="mbox"><?php echo iif($row->location,$row->location,'-'); ?></td>
 		  <td class="mbox"><?php echo $row->lastvisit; ?></td>
 		  <td class="mbox"><?php echo $row->regdate; ?></td>
@@ -469,8 +480,22 @@ elseif ($job == 'manage') {
 		</tr>
 	</table>
 	</form>
+	 <?php if ($my->settings['admin_interface'] == 0) { ?>
+	 <br class="minibr" />
+	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	  <tr> 
+	   <td class="obox center">
+		  <a class="button" href="admin.php?action=members&amp;job=search">Search for Members</a> 
+		  <a class="button" href="admin.php?action=members&amp;job=inactive">Inactive Members</a> 
+		  <a class="button" href="admin.php?action=members&amp;job=memberrating">Memberratings</a> 
+		  <a class="button" href="admin.php?action=members&amp;job=merge">Merge Users</a> 
+		  <a class="button" href="admin.php?action=members&amp;job=recount">Recount Post Counts</a>
+	   </td>
+	  </tr>
+	 </table>
+	 <?php } ?>
 	<?php
-    echo foot();
+	echo foot();
 }
 elseif ($job == 'memberrating') {
 	echo head();
@@ -503,7 +528,7 @@ elseif ($job == 'memberrating') {
 		  <td class="ubox" colspan="6"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> rated members</td>
 		</tr>
 		<tr>
-		  <td class="obox">Del</td>
+		  <td class="obox">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
 		  <td class="obox">Name</td>
 		  <td class="obox">Rating (amount of ratings)</td>
 		  <td class="obox">Email</td>
@@ -513,11 +538,16 @@ elseif ($job == 'memberrating') {
 	<?php
 	while ($row = $gpc->prepare($db->fetch_object($result))) { 
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
-		$row->lastvisit = gmdate('d.m.Y H:i', times($row->lastvisit));
+		if ($row->lastvisit == 0) {
+			$row->lastvisit = 'Never';
+		}
+		else {
+			$row->lastvisit = gmdate('d.m.Y H:i', times($row->lastvisit));
+		}
 		$percent = round((($row->ravg*50)+50));
 		?>
-	    <tr>
-	      <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row->id; ?>"></td> 
+		<tr>
+		  <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row->id; ?>"></td> 
 		  <td class="mbox"><a title="Edit" href="admin.php?action=members&job=edit&id=<?php echo $row->id; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br><i>".$row->fullname."</i>"); ?></td> 
 		  <td class="mbox"><img src="images.php?action=memberrating&id=<?php echo $row->id; ?>" alt="<?php echo $percent; ?>%" title="<?php echo $percent; ?>%"  /> <?php echo $percent; ?>% (<?php echo $row->rcount; ?>)</td>
 		  <td class="mbox" align="center"><a href="mailto:<?php echo $row->mail; ?>">Email</a></td> 
@@ -533,7 +563,77 @@ elseif ($job == 'memberrating') {
 	</table>
 	</form>
 	<?php
-    echo foot();
+	echo foot();
+}
+elseif ($job == 'recount') {
+	echo head();
+	$id = $gpc->get('id', int);
+	if (is_id($id)) {
+		$result = $db->query("SELECT id, posts FROM {$db->pre}user WHERE id = '{$id}'");
+		if ($db->num_rows($result) != 1) {
+			error('admin.php?action=members&job=manage', 'User not found!');
+		}
+		else {
+			$user = $db->fetch_assoc($result);
+			$posts = UpdateMemberStats($id);
+			$diff = $posts - $user['posts'];
+			ok('admin.php?action=members&job=manage', "Number of posts successfully recounted. The change is {$diff} posts.");
+		}
+	}
+	else {
+		$confirm = $gpc->get('confirm', int);
+		if ($confirm > 0) {
+		
+			$cat_bid_obj = $scache->load('cat_bid');
+			$boards = $cat_bid_obj->get();
+			$id = array();
+			foreach ($boards as $board) {
+				if ($board['count_posts'] == 0) {
+					$id[] = $board['id'];
+				}
+			}
+			
+			$result = $db->query("
+				SELECT COUNT(*) AS new, u.posts, u.id 
+				FROM {$db->pre}replies AS r 
+					LEFT JOIN {$db->pre}user AS u ON u.id = r.name 
+				WHERE r.guest = '0'". iif(count($id) > 0, " AND r.board NOT IN (".implode(',', $id).")") ." 
+				GROUP BY u.id
+			", __LINE__, __FILE__);
+			
+			
+			$i = 0;
+			while ($row = $db->fetch_assoc($result)) {
+				if ($row['new'] != $row['posts']) {
+					$i++;
+					$db->query("UPDATE {$db->pre}user SET posts = '{$row['new']}' WHERE id = '{$row['id']}'",__LINE__,__FILE__);
+				}
+			}
+			
+			ok("admin.php?action=members&job=manage", "Number of posts for {$i} members successfully recounted.");
+		}
+		else {
+			echo head();
+			?>
+			<table class="border">
+			<tr><td class="obox">Recount post counts</td></tr>
+			<tr><td class="mbox">
+				<p align="center">Recounting the post count for each user can be a very time consuming task. Do you really want to proceed?</p>
+				<p align="center">
+					<a href="admin.php?action=members&amp;job=recount&amp;confirm=1"><img alt="Yes" border="0" src="admin/html/images/yes.gif" /> Yes</a>
+					&nbsp;&nbsp;&nbsp;&nbsp;
+					<a href="javascript: history.back(-1);"><img border="0" alt="No" src="admin/html/images/no.gif" /> No</a>
+				</p>
+			</td></tr>
+			</table>
+			<?php
+			echo foot();
+			?>
+			
+			
+			<?php
+		}
+	}
 }
 elseif ($job == 'edit') {
 	include_once ("classes/function.profilefields.php");
@@ -550,10 +650,10 @@ elseif ($job == 'edit') {
 	$chars = $config['maxaboutlength'];
 	
 	if (empty($user['template'])) {
-	    $user['template'] = $config['templatedir'];
+		$user['template'] = $config['templatedir'];
 	}
 	if (empty($user['language'])) {
-	    $user['language'] = $config['langdir'];
+		$user['language'] = $config['langdir'];
 	}		
 	
 	// Settings
@@ -566,14 +666,14 @@ elseif ($job == 'edit') {
 	$mylanguage = $language[$user['language']]['language'];
 	
 	// Profile
-    $bday = explode('-',$user['birthday']);
-    $year = gmdate('Y');
-    $maxy = $year-6;
-    $miny = $year-100;
-    $result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
-    $random = md5(microtime());
-    
-    $customfields = admin_customfields($user['id']);
+	$bday = explode('-',$user['birthday']);
+	$year = gmdate('Y');
+	$maxy = $year-6;
+	$miny = $year-100;
+	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	$random = md5(microtime());
+	
+	$customfields = admin_customfields($user['id']);
 
 	echo head();
 ?>
@@ -586,33 +686,33 @@ elseif ($job == 'edit') {
 <tr><td class="mbox">New password:</td><td class="mbox">
 <input type="password" name="pw_<?php echo $random; ?>" size="40" value="" />
 </td></tr>
-<tr><td class="mbox" valign="top">Group affiliation:<br />
-<span class="stext">Several groups possible. Entry of the IDs with commas!</span>
+<tr><td class="mbox" valign="top">Group(s):<br />
+<span class="stext">Multiple groups possible. Separate multiple ids with commas!</span>
 </td><td class="mbox">
 <input type="text" name="groups" id="groups" size="40" value="<?php echo $user['groups']; ?>" />
 <br />
-<table class="border">
+<table class="inlinetable">
 <tr>
-<td class="ubox">ID</td>
-<td class="ubox">Internal group name</td>
-<td class="ubox">Public group title</td>
+<th>ID</th>
+<th>Internal group name</th>
+<th>Public group title</th>
 </tr>
 <?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
 <tr>
-<td class="mbox"><?php echo $row['id']; ?></td>
-<td class="mbox"><?php echo $row['name']; ?></td>
-<td class="mbox"><?php echo $row['title']; ?></td>
+<td><?php echo $row['id']; ?></td>
+<td><?php echo $row['name']; ?></td>
+<td><?php echo $row['title']; ?></td>
 </tr>
 <?php } ?>
 </table>
 </td></tr>
-<tr><td class="mbox">Civil-name:</td><td class="mbox">
+<tr><td class="mbox">Real name:</td><td class="mbox">
 <input type="text" name="fullname" id="fullname" size="40" value="<?php echo $user['fullname']; ?>" />
 </td></tr>
-<tr><td class="mbox">Emailaddress:</td><td class="mbox"> 
+<tr><td class="mbox">Email address:</td><td class="mbox"> 
 <input type="text" name="email" id="email" size="40" value="<?php echo $user['mail']; ?>" />
 </td></tr>
-<tr><td class="mbox">Residence:</td><td class="mbox"> 
+<tr><td class="mbox">Location:</td><td class="mbox"> 
 <input type="text" name="location" id="location" size="40" value="<?php echo $user['location']; ?>" />
 </td></tr>
 <tr><td class="mbox">Gender:</td><td class="mbox"> 
@@ -654,13 +754,13 @@ elseif ($job == 'edit') {
 <tr><td class="mbox">ICQ:</td><td class="mbox"> 
 <input type="text" name="icq" id="icq" size="40" value="<?php echo iif(!empty($user['icq']), $user['icq']); ?>" />
 </td></tr>
-<tr><td class="mbox">AOL- & Netscape-Messenger:</td><td class="mbox"> 
+<tr><td class="mbox">AOL- &amp; Netscape-Messenger:</td><td class="mbox"> 
 <input type="text" name="aol" id="aol" size="40" value="<?php echo $user['aol']; ?>" />
 </td></tr>
 <tr><td class="mbox">Yahoo-Messenger:</td><td class="mbox"> 
 <input type="text" name="yahoo" id="yahoo" size="40" value="<?php echo $user['yahoo']; ?>" />
 </td></tr>
-<tr><td class="mbox">MSN- & Windows-Messenger</td><td class="mbox"> 
+<tr><td class="mbox">MSN- &amp; Windows-Messenger</td><td class="mbox"> 
 <input type="text" name="msn" id="msn" size="40" value="<?php echo $user['msn']; ?>" />
 </td></tr>
 <tr><td class="mbox">Jabber:</td><td class="mbox"> 
@@ -678,7 +778,7 @@ elseif ($job == 'edit') {
 
 <br class="minibr" />
 <table class="border">
-<tr><td class="obox">Signatur</td></tr>
+<tr><td class="obox">Signature</td></tr>
 <tr><td class="mbox" align="center"><textarea name="signature" rows="4" cols="110"><?php echo $user['signature']; ?></textarea></td></tr>
 <tr><td class="ubox" align="center"><input accesskey="s" type="submit" name="Submit1" value="Submit" /></td></tr>
 </table>
@@ -776,7 +876,7 @@ elseif ($job == 'edit') {
 <tr><td class="mbox"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></td>
 <td class="mbox"> <?php echo $row1['input']; ?></td></tr>
 <?php } ?>
-<tr><td class="ubox" colspan="2"><input accesskey="s" type="submit" name="Submit1" value="Submit" /></td></tr>
+<tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" name="Submit1" value="Submit" /></td></tr>
 </table>
 <br class="minibr" />
 
@@ -925,20 +1025,20 @@ elseif ($job == 'edit2') {
 		error('admin.php?action=members&job=edit&id='.$query['id'], $error);
 	}
 	else {
-	    // Now we create the birthday... 
-	    if (!$query['birthmonth'] && !$query['birthday'] && !$query['birthyear']) {
-	    	$bday = '0000-00-00';
-	    }
-	    else {
-	        $query['birthmonth'] = leading_zero($query['birthmonth']);
-	        $query['birthday'] = leading_zero($query['birthday']);
-	        $query['birthyear'] = leading_zero($query['birthyear'],4);
-	        $bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
-	    }
-	    $query['icq'] = str_replace('-', '', $query['icq']);
-    	if (!is_id($query['icq'])) {
-    		$query['icq'] = 0;
-	    }
+		// Now we create the birthday... 
+		if (!$query['birthmonth'] && !$query['birthday'] && !$query['birthyear']) {
+			$bday = '0000-00-00';
+		}
+		else {
+			$query['birthmonth'] = leading_zero($query['birthmonth']);
+			$query['birthday'] = leading_zero($query['birthday']);
+			$query['birthyear'] = leading_zero($query['birthyear'],4);
+			$bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
+		}
+		$query['icq'] = str_replace('-', '', $query['icq']);
+		if (!is_id($query['icq'])) {
+			$query['icq'] = 0;
+		}
 
 		if (!empty($query['pw']) && strlen($query['pw']) >= $config['minpwlength']) {
 			$md5 = md5($query['pw']);
@@ -1125,6 +1225,179 @@ elseif ($job == 'banned3') {
 	$filesystem->file_put_contents('data/bannedip.php',$file);
 	ok('admin.php?action=members&job=banned', 'IP-addresses have been saved successful.');
 }
+elseif ($job == 'inactive') {
+	echo head();
+	$year =  time()-60*60*24*365;
+	$two_month =  time()-60*60*24*30*2;
+	?>
+<form name="form" method="post" action="admin.php?action=members&amp;job=inactive2">
+ <table class="border">
+  <tr> 
+   <td class="obox" colspan="3">
+	<span style="float: right;">
+	  <a class="button" href="admin.php?action=members&amp;job=search">Search Members</a> 
+	</span>
+   Inactive Members</td>
+  </tr>
+  <tr> 
+   <td class="mbox">Posts:</td>
+   <td class="mbox" align="center">&lt;</td>
+   <td class="mbox"><input type="text" name="posts" size="3" value="10" />. </td> 
+  </tr>
+  <tr> 
+   <td class="mbox">Date of registry:</td>
+   <td class="mbox" align="center">&lt;</td>
+   <td class="mbox">
+   <input type="text" name="regdate[1]" size="3" value="" />. 
+   <input type="text" name="regdate[2]" size="3" value="" />. 
+   <input type="text" name="regdate[3]" size="5" value="" /> (DD. MM. YYYY)
+   </td> 
+  </tr>
+  <tr> 
+   <td class="mbox">Last visit:</td>
+   <td class="mbox" align="center">&lt;</td>
+   <td class="mbox">
+   <input type="text" name="lastvisit[1]" size="3" value="<?php echo date('d', $two_month); ?>" />. 
+   <input type="text" name="lastvisit[2]" size="3" value="<?php echo date('m', $two_month); ?>" />. 
+   <input type="text" name="lastvisit[3]" size="5" value="<?php echo date('Y', $two_month); ?>" /> (DD. MM. YYYY)
+   </td> 
+  </tr>
+  <tr> 
+   <td class="mbox">Status:</td>
+   <td class="mbox" align="center">=</td>
+   <td class="mbox"><select size="1" name="confirm">
+	  <option selected="selected" value="">Whatever</option>
+	  <option value="11">Activated</option>
+	  <option value="10">User has to activate the account per e-mail</option>
+	  <option value="01">User account has to be activated by the admin</option>
+	  <option value="00">User has neither from the admin nor per e-mail been activated</option>
+	</select></td> 
+  </tr>
+  <tr> 
+   <td class="ubox" align="center" colspan="4"><input type="submit" value="Submit"></td> 
+  </tr>
+ </table>
+</form>
+	<?php
+	echo foot();
+}
+elseif ($job == 'inactive2') {
+	echo head();
+
+	define('DONT_CARE', md5(microtime()));
+	
+	$fields = 	array(
+		'name' => array('User Name', str, null),
+		'mail' => array('E-mail', str, null),
+		'posts' => array('Posts', int, '<'),
+		'regdate' => array('Registration', arr_int, '<'),
+		'lastvisit' => array('Last Visit', arr_int, '<'),
+		'confirm' => array('Status', none, '=')
+	);
+	$keys = array_keys($fields);
+
+
+	$sqlwhere = array();
+	$input = array();
+	foreach ($fields as $key => $data) {
+		$value = $gpc->get($key, $data[1], DONT_CARE);
+		if ($key == 'regdate' || $key == 'lastvisit') {
+			if (is_array($value) && array_sum($value) != 0) { // for php version >= 5.1.0
+				$input[$key] =  @mktime(0, 0, 0, intval($value[2]), intval($value[1]), intval($value[3]));
+				if ($input[$key] == -1 || $input[$key] == false) { // -1 for php version < 5.1.0, false for php version >= 5.1.0
+					$input[$key] = DONT_CARE;
+				}
+			}
+			else {
+				$input[$key] = DONT_CARE;
+			}
+		}
+		else {
+			if (!isset($_REQUEST[$key])) {
+				$_REQUEST[$key] = null;
+			}
+			if (empty($_REQUEST[$key]) && $_REQUEST[$key] != '0') {
+				$input[$key] = DONT_CARE;
+			}
+			else {
+				$input[$key] = $value;
+			}
+		}
+
+		if ($input[$key] != DONT_CARE) {
+			$sqlwhere[] = " `{$key}` {$fields[$key][2]} '{$input[$key]}' ";
+		}
+	}
+
+	if (count($sqlwhere) > 0) {
+		$query = 'SELECT id, '.implode(',', $keys).' FROM '.$db->pre.'user WHERE '.implode(' AND ', $sqlwhere).' ORDER BY name';
+		$result = $db->query($query, __LINE__, __FILE__);
+		$count = $db->num_rows($result);
+	}
+	else {
+		$count = 0;
+	}
+	?>
+	<form name="form" action="admin.php?action=members&job=delete" method="post">
+	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+		<tr> 
+		  <td class="obox" colspan="9">
+		<span style="float: right;">
+		  <a class="button" href="admin.php?action=members&amp;job=search">Search Members</a> 
+		</span>
+		  Search inactive members
+		  </td>
+		</tr>
+		<?php if ($count == 0) { ?>
+		<tr> 
+		  <td class="mbox" colspan="9">No inactive members found.</td>
+		</tr>
+		<?php } else { ?>
+			<tr> 
+			  <td class="ubox" colspan="9"><?php echo $count; ?> inactive members found.</td>
+			</tr>
+			<tr>
+			  <td class="obox center">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
+			  <td class="obox center">Edit</td>
+			  <?php foreach ($keys as $key) { ?>
+			  <td class="obox"><?php echo $fields[$key][0]; ?></td>
+			  <?php } ?>
+			</tr>
+			<?php
+			while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+				if (empty($row['lastvisit'])) {
+					$row['lastvisit'] = 'Never';
+				}
+				else {
+					$row['lastvisit'] = gmdate('d.m.Y H:i', times($row['lastvisit']));
+				}
+				if (isset($row['regdate'])) {
+					$row['regdate'] = date('d.m.Y', $row['regdate']);
+				}
+				if (isset($row['confirm'])) {
+				  	if ($row['confirm'] == "11") { $row['confirm'] = 'Activated'; }
+				  	elseif ($row['confirm'] == "10") { $row['confirm'] = 'User has to activate the account per e-mail'; }
+				  	elseif ($row['confirm'] == "01") { $row['confirm'] = 'User account has to be activated by the admin'; }
+				  	elseif ($row['confirm'] == "00") { $row['confirm'] = 'User has neither from the admin nor per e-mail been activated'; }
+				}
+			?>
+			<tr>
+			  <td class="mbox center"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td>
+			  <td class="mbox center"><a class="button" href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $row['id']; ?>">Edit</a></td> 
+			  <?php foreach ($keys as $key) { ?>
+			  <td class="mbox"><?php echo $row[$key]; ?></td>
+			  <?php } ?>
+			</tr>
+			<?php } ?>
+			<tr> 
+			  <td class="ubox" colspan="9"><input type="submit" name="submit" value="Delete"></td>
+			</tr>
+		<?php } ?>
+	</table>
+	</form>
+	<?php
+	echo foot();
+}
 elseif ($job == 'search') {
 	echo head();
 	
@@ -1139,14 +1412,22 @@ elseif ($job == 'search') {
 <form name="form" method="post" action="admin.php?action=members&job=search2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="4">Search for members</td>
+   <td class="obox" colspan="4">
+	<span style="float: right;">
+	  <a class="button" href="admin.php?action=members&amp;job=inactive">Inactive Members</a> 
+	</span>
+   Search for members</td>
   </tr>
   <tr>
 	<td class="mbox" width="50%" colspan="4">
-	<b>Hilfe:</b>
+	<b>Help:</b>
 	<ul>
-	<li>You can type "%" and "_" as wildcards into the keyword. An "_" replaces one single character, a "%" replaces many characters. The wildcards could only use with the relational operators <b>!=</b> and <b>=</b>.</li>
-	<li>=<b></b> means <i>equal</i>, <b>&lt;</b> means <i>less than</i>, <b>&gt;</b> means <i>greater than</i>, <b>!=</b> means <i>not equal</i>.</li>
+	<li>You can type "%" and "_" as wildcards into the keyword. An "_" replaces one single character, a "%" replaces any characters. The wildcards can only be used with the relational operators <b>!=</b> and <b>=</b>.</li>
+	<li>
+	<b>=</b> means <i>equal</i>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<b>&lt;</b> means <i>less than</i>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<b>&gt;</b> means <i>greater than</i>,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<b>!=</b> means <i>not equal</i>.</li>
 	</ul>
 	</td>
   </tr>
@@ -1166,10 +1447,10 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">ID:</td>
    <td class="mbox" align="center"><select size="1" name="compare[id]">
-      <option value="-1">&lt;</option>
-      <option value="0" selected="selected">=</option>
-      <option value="1">&gt;</option>
-    </select></td>
+	  <option value="-1">&lt;</option>
+	  <option value="0" selected="selected">=</option>
+	  <option value="1">&gt;</option>
+	</select></td>
    <td class="mbox"><input type="text" name="id" size="12"></td> 
    <td class="mbox"><input type="checkbox" name="show[id]" value="1" checked>Yes</td> 
   </tr>
@@ -1188,12 +1469,22 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">Date of registry:</td>
    <td class="mbox" align="center"><select size="1" name="compare[regdate]">
-      <option value="-1">&lt;</option>
-      <option value="0" selected="selected">=</option>
-      <option value="1">&gt;</option>
-    </select></td>
+	  <option value="-1">&lt;</option>
+	  <option value="0" selected="selected">=</option>
+	  <option value="1">&gt;</option>
+	</select></td>
    <td class="mbox"><input type="text" name="regdate[1]" size="3">. <input type="text" name="regdate[2]" size="3">. <input type="text" name="regdate[3]" size="5"> (DD. MM. YYYY)</td> 
    <td class="mbox"><input type="checkbox" name="show[regdate]" value="1" checked></td> 
+  </tr>
+  <tr> 
+   <td class="mbox">Posts:</td>
+   <td class="mbox" align="center"><select size="1" name="compare[posts]">
+	  <option value="-1">&lt;</option>
+	  <option value="0" selected="selected">=</option>
+	  <option value="1">&gt;</option>
+	</select></td>
+   <td class="mbox"><input type="text" name="posts" size="10"></td> 
+   <td class="mbox"><input type="checkbox" name="show[posts]" value="1"></td> 
   </tr>
   <tr> 
    <td class="mbox">Civil name:</td>
@@ -1210,18 +1501,18 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">Residence:</td>
    <td class="mbox" align="center"><select size="1" name="compare[location]">
-      <option value="0" selected="selected">=</option>
-      <option value="2">!=</option>
-    </select></td>
+	  <option value="0" selected="selected">=</option>
+	  <option value="2">!=</option>
+	</select></td>
    <td class="mbox"><input type="text" name="location" size="50"></td> 
    <td class="mbox"><input type="checkbox" name="show[location]" value="1"></td> 
   </tr>
   <tr> 
    <td class="mbox">Gender:</td>
    <td class="mbox" align="center"><select size="1" name="compare[gender]">
-      <option value="0" selected="selected">=</option>
-      <option value="2">!=</option>
-    </select></td>
+	  <option value="0" selected="selected">=</option>
+	  <option value="2">!=</option>
+	</select></td>
    <td class="mbox"><select name="gender" size="1">
    <option selected="selected" value="">Egal</option>
    <option value="x">Not specified</option>
@@ -1233,30 +1524,30 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">Birthday:</td>
    <td class="mbox" align="center"><select size="1" name="compare[birthday]">
-      <option value="-1">&lt;</option>
-      <option value="0" selected="selected">=</option>
-      <option value="1">&gt;</option>
-    </select></td>
+	  <option value="-1">&lt;</option>
+	  <option value="0" selected="selected">=</option>
+	  <option value="1">&gt;</option>
+	</select></td>
    <td class="mbox"><input type="text" name="birthday[1]" size="3">. <input type="text" name="birthday[2]" size="3">. <input type="text" name="birthday[3]" size="5"> (DD. MM. YYYY)</td> 
    <td class="mbox"><input type="checkbox" name="show[birthday]" value="1"></td> 
   </tr>
   <tr> 
    <td class="mbox">Last visit:</td>
    <td class="mbox" align="center"><select size="1" name="compare[lastvisit]">
-      <option value="-1">&lt;</option>
-      <option value="0" selected="selected">=</option>
-      <option value="1">&gt;</option>
-    </select></td>
+	  <option value="-1">&lt;</option>
+	  <option value="0" selected="selected">=</option>
+	  <option value="1">&gt;</option>
+	</select></td>
    <td class="mbox"><input type="text" name="lastvisit[1]" size="3">. <input type="text" name="lastvisit[2]" size="3">. <input type="text" name="lastvisit[3]" size="5"> (DD. MM. YYYY)</td> 
    <td class="mbox"><input type="checkbox" name="show[lastvisit]" value="1" checked></td> 
   </tr>
   <tr> 
    <td class="mbox">ICQ-number:</td>
    <td class="mbox" align="center"><select size="1" name="compare[icq]">
-      <option value="-1">&lt;</option>
-      <option value="0" selected="selected">=</option>
-      <option value="1">&gt;</option>
-    </select></td>
+	  <option value="-1">&lt;</option>
+	  <option value="0" selected="selected">=</option>
+	  <option value="1">&gt;</option>
+	</select></td>
    <td class="mbox"><input type="text" name="icq" size="12"></td> 
    <td class="mbox"><input type="checkbox" name="show[icq]" value="1"></td> 
   </tr>
@@ -1293,9 +1584,9 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">Time zone:</td>
    <td class="mbox" align="center"><select size="1" name="compare[timezone]">
-      <option value="0" selected="selected">=</option>
-      <option value="2">!=</option>
-    </select></td>
+	  <option value="0" selected="selected">=</option>
+	  <option value="2">!=</option>
+	</select></td>
    <td class="mbox"><select name="timezone"> 
 	<option selected="selected" value="">whatever</option>
 	<option value="-12">(GMT -12:00) Eniwetok, Kwajalein</option>
@@ -1337,19 +1628,19 @@ elseif ($job == 'search') {
    <td class="mbox">Group-ID:</td>
    <td class="mbox" align="center">=</td>
    <td class="mbox"><select size="3" name="groups" multiple="multiple">
-      <option selected="selected" value="">whatever</option>
+	  <option selected="selected" value="">whatever</option>
 	  <?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
 		<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 	  <?php } ?>
-    </select></td> 
+	</select></td> 
    <td class="mbox"><input type="checkbox" name="show[groups]" value="1"></td> 
   </tr>
   <tr> 
    <td class="mbox">Design:</td>
    <td class="mbox" align="center"><select size="1" name="compare[template]">
-      <option value="0" selected="selected">=</option>
-      <option value="2">!=</option>
-    </select></td>
+	  <option value="0" selected="selected">=</option>
+	  <option value="2">!=</option>
+	</select></td>
    <td class="mbox"><select name="template">
 	<option selected="selected" value="">whatever</option>
 	<?php foreach ($design as $row) { ?>
@@ -1361,9 +1652,9 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">Language:</td>
    <td class="mbox" align="center"><select size="1" name="compare[language]">
-      <option value="0" selected="selected">=</option>
-      <option value="2">!=</option>
-    </select></td>
+	  <option value="0" selected="selected">=</option>
+	  <option value="2">!=</option>
+	</select></td>
    <td class="mbox"><select name="language">
 	<option selected="selected" value="">whatever</option>
 	<?php foreach ($language as $row) { ?>
@@ -1375,16 +1666,16 @@ elseif ($job == 'search') {
   <tr> 
    <td class="mbox">Status:</td>
    <td class="mbox" align="center"><select size="1" name="compare[confirm]">
-      <option value="0" selected="selected">=</option>
-      <option value="2">!=</option>
-    </select></td>
+	  <option value="0" selected="selected">=</option>
+	  <option value="2">!=</option>
+	</select></td>
    <td class="mbox"><select size="1" name="confirm">
-      <option selected="selected" value="">whatever</option>
-      <option value="11">Activated</option>
-      <option value="10">User has to activate the account per e-mail</option>
-      <option value="01">User account has to be activated by the admin</option>
-      <option value="00">User has neither from the admin nor per e-mail been activated</option>
-    </select></td> 
+	  <option selected="selected" value="">whatever</option>
+	  <option value="11">Activated</option>
+	  <option value="10">User has to activate the account per e-mail</option>
+	  <option value="01">User account has to be activated by the admin</option>
+	  <option value="00">User has neither from the admin nor per e-mail been activated</option>
+	</select></td> 
    <td class="mbox"><input type="checkbox" name="show[confirm]" value="1"></td> 
   </tr>
   <tr> 
@@ -1393,34 +1684,35 @@ elseif ($job == 'search') {
  </table>
 </form>
 	<?php
-    echo foot();
+	echo foot();
 }
 elseif ($job == 'search2') {
 	echo head();
 
 	define('DONT_CARE', md5(microtime()));
 	$fields = 	array(
-	'id' => array('ID', int),
-	'name' => array('Nickname', str),
-	'mail' => array('Email', str),
-	'regdate' => array('Registration', arr_int),
-	'fullname' => array('Vollständiger Name', str),
-	'hp' => array('Homepage', str),
-	'location' => array('Wohnort', str),
-	'gender' => array('Geschlecht', str),
-	'birthday' => array('Geburtstag', arr_none),
-	'lastvisit' => array('Letzter Besuch', arr_int),
-	'icq' => array('ICQ', int),
-	'yahoo' => array('Yahoo', str),
-	'aol' => array('AOL', str),
-	'msn' => array('MSN', str),
-	'skype' => array('Skype', str),
-	'jabber' => array('Jabber', str),
-	'timezone' => array('Zeitzone', int),
-	'groups' => array('Gruppen', arr_int),
-	'template' => array('Design', int),
-	'language' => array('Sprache', int),
-	'confirm' => array('Status', none)
+		'id' => array('ID', int),
+		'name' => array('User Name', str),
+		'mail' => array('E-mail', str),
+		'regdate' => array('Registration', arr_int),
+		'posts' => array('Posts', int),
+		'fullname' => array('Civil Name', str),
+		'hp' => array('Homepage', str),
+		'location' => array('Residence', str),
+		'gender' => array('Gender', str),
+		'birthday' => array('Birthday', arr_none),
+		'lastvisit' => array('Last Visit', arr_int),
+		'icq' => array('ICQ', int),
+		'yahoo' => array('Yahoo', str),
+		'aol' => array('AOL', str),
+		'msn' => array('MSN', str),
+		'skype' => array('Skype', str),
+		'jabber' => array('Jabber', str),
+		'timezone' => array('Timezone', int),
+		'groups' => array('Groups', arr_int),
+		'template' => array('Design', int),
+		'language' => array('Language', int),
+		'confirm' => array('Status', none)
 	);
 	$change = array('m' => 'male', 'w' => 'female', '' => '-');
 
@@ -1472,7 +1764,7 @@ elseif ($job == 'search2') {
 			$value = $gpc->get($key, $data[1], DONT_CARE);
 		}
 		if ($key == 'regdate' || $key == 'lastvisit') {
-			if (array_sum($value) != 0) { // for php version >= 5.1.0
+			if (is_array($value) && array_sum($value) != 0) { // for php version >= 5.1.0
 				$input[$key] =  @mktime(0, 0, 0, intval($value[2]), intval($value[1]), intval($value[3]));
 				if ($input[$key] == -1 || $input[$key] == false) { // -1 for php version < 5.1.0, false for php version >= 5.1.0
 					$input[$key] = DONT_CARE;
@@ -1519,7 +1811,10 @@ elseif ($job == 'search2') {
 			}
 		}
 		else {
-			if (isset($_REQUEST[$key]) && $_REQUEST[$key] == '') {
+			if (!isset($_REQUEST[$key])) {
+				$_REQUEST[$key] = null;
+			}
+			if (empty($_REQUEST[$key]) && $_REQUEST[$key] != '0') {
 				$input[$key] = DONT_CARE;
 			}
 			else {
@@ -1568,7 +1863,7 @@ elseif ($job == 'search2') {
 			  <td class="ubox" colspan="<?php echo $colspan; ?>"><?php echo $count; ?> members found.</td>
 			</tr>
 			<tr>
-			  <td class="obox">DEL</td>
+			  <td class="obox">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
 			  <?php foreach ($show as $key) { ?>
 			  <td class="obox"><?php echo $fields[$key][0]; ?></td>
 			  <?php } ?>
@@ -1576,10 +1871,10 @@ elseif ($job == 'search2') {
 			<?php
 			while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 				if (isset($row['lastvisit'])) {
-					$row['lastvisit'] = date('d.m.Y H:i', $row['lastvisit']);
+					$row['lastvisit'] = gmdate('d.m.Y H:i', times($row['lastvisit']));
 				}
 				if (isset($row['regdate'])) {
-					$row['regdate'] = date('d.m.Y', $row['regdate']);
+					$row['regdate'] = gmdate('d.m.Y', times($row['regdate']));
 				}
 				if (empty($row['icq'])) {
 					$row['icq'] = '-';
@@ -1605,14 +1900,14 @@ elseif ($job == 'search2') {
 					$row['language'] = $language[$row['language']]['language'];
 				}
 				if (isset($row['confirm'])) {
-			      	if ($row['confirm'] == "11") { $row['confirm'] = 'Activated'; }
-			      	elseif ($row['confirm'] == "10") { $row['confirm'] = 'User has to activate the account per e-mail'; }
-			      	elseif ($row['confirm'] == "01") { $row['confirm'] = 'User account has to be activated by the admin'; }
-			      	elseif ($row['confirm'] == "00") { $row['confirm'] = 'User has neither from the admin nor per e-mail been activated'; }
-			    }
+				  	if ($row['confirm'] == "11") { $row['confirm'] = 'Activated'; }
+				  	elseif ($row['confirm'] == "10") { $row['confirm'] = 'User has to activate the account per e-mail'; }
+				  	elseif ($row['confirm'] == "01") { $row['confirm'] = 'User account has to be activated by the admin'; }
+				  	elseif ($row['confirm'] == "00") { $row['confirm'] = 'User has neither from the admin nor per e-mail been activated'; }
+				}
 			?>
-		    <tr>
-		      <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td> 
+			<tr>
+			  <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td> 
 			  <?php foreach ($show as $key) { ?>
 			  <td class="mbox"><a href="admin.php?action=members&job=edit&id=<?php echo $row['id']; ?>"><?php echo $row[$key]; ?></a></td>
 			  <?php } ?>
@@ -1625,7 +1920,7 @@ elseif ($job == 'search2') {
 	</table>
 	</form>
 	<?php
-    echo foot();
+	echo foot();
 }
 elseif ($job == 'disallow') {
 	echo head();
@@ -1666,7 +1961,7 @@ elseif ($job == 'activate') {
 			$row->lastvisit = gmdate('d.m.Y', times($row->lastvisit));
 		}
 		?>
-	    <tr>
+		<tr>
 		  <td class="mbox"><a title="Edit" href="admin.php?action=members&job=edit&id=<?php echo $row->id; ?>"><?php echo $row->name; ?></a></td> 
 		  <td class="mbox" align="center"><a href="mailto:<?php echo $row->mail; ?>">Email</a></td> 
 		  <td class="mbox"><?php echo $row->regdate; ?></td>
@@ -1688,7 +1983,7 @@ elseif ($job == 'activate') {
 	</table>
 	</form>
 	<?php
-    echo foot();
+	echo foot();
 }
 elseif ($job == 'confirm') {
 	echo head();
@@ -1729,8 +2024,10 @@ elseif ($job == 'ips') {
 	echo head();
 	if (!empty($ipaddress) || $userid > 0) {
 		if (!empty($ipaddress)) {
-			$hostname = @gethostbyaddr($ipaddress);
-			if (!$hostname OR $hostname == $ipaddress) {
+			if (check_ip($ipaddress)) {
+				$hostname = @gethostbyaddr($ipaddress);
+			}
+			if (empty($hostname) || $hostname == $ipaddress) {
 				$hostname = 'Could not resolve Hostname';
 			}
 			$users = $db->query("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u  WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name", __LINE__, __FILE__);
@@ -1748,10 +2045,10 @@ elseif ($job == 'ips') {
 				<td class="mbox">
 				<ul>
 				<?php while ($user = $db->fetch_assoc($users)) { ?>
-					<li>
+					<li style="padding: 3px;">
 					<a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $user['id']; ?>"><b><?php echo $user['name']; ?></b></a> &nbsp;&nbsp;&nbsp;
 					<a href="admin.php?action=members&amp;job=iphost&amp;ip=<?php echo $user['ip']; ?>" title="Resolve Address"><?php echo $user['ip']; ?></a> &nbsp;&nbsp;&nbsp; 
-					[<a href="admin.php?action=members&amp;job=ips&amp;id=<?php echo $user['id']; ?>&amp;username=<?php echo urlencode($user['name']); ?>">View other IP Addresses for this User</a>]
+					<a class="button" href="admin.php?action=members&amp;job=ips&amp;id=<?php echo $user['id']; ?>&amp;username=<?php echo urlencode($user['name']); ?>">View other IP Addresses for this User</a>
 					</li>
 					<?php
 				}
@@ -1778,9 +2075,9 @@ elseif ($job == 'ips') {
 				$ips = $db->query("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip", __LINE__, __FILE__);
 				while ($ip = $db->fetch_assoc($ips)) {
 					?>
-					<li>
+					<li style="padding: 3px;">
 					<a href="admin.php?action=members&job=iphost&amp;ip=<?php echo $ip['ip']; ?>" title="Resolve Address"><?php echo $ip['ip']; ?></a> &nbsp;&nbsp;&nbsp;
-					[<a href="admin.php?action=members&amp;job=ips&amp;ipaddress=<?php echo $ip['ip']; ?>">Find more Users with this IP Address</a>]
+					<a class="button" href="admin.php?action=members&amp;job=ips&amp;ipaddress=<?php echo $ip['ip']; ?>">Find more Users with this IP Address</a>
 					</li>
 					<?php
 				}
@@ -1822,8 +2119,10 @@ elseif ($job == 'ips') {
 }
 elseif ($job == 'iphost') {
 	$ip = $gpc->get('ip', str);
-	$resolvedip = @gethostbyaddr($ip);
-	if ($resolvedip == $ip) {
+	if (check_ip($ip)) {
+		$resolvedip = @gethostbyaddr($ip);
+	}
+	if (empty($resolvedip) || $resolvedip == $ip) {
 		$host = '<i>Not Available</i>';
 	}
 	else {

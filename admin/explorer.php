@@ -7,6 +7,8 @@ include_once('classes/class.template.php');
 $tpl = new tpl();
 $ServerNavigator = new ServerNavigator();
 
+($code = $plugins->load('admin_explorer_jobs')) ? eval($code) : null;
+
 if ($job == 'upload') {
 
 	$cfg = $gpc->get('cfg', str);
@@ -189,27 +191,27 @@ elseif ($job == "chmod") {
    <noscript><br /><span class="stext">You can not use this Helper, until JavaScript is enabled.</span></noscript>
    </td>
    <td class="mbox">
-	<table cellpadding="3" cellspacing="0" border="1">
-	<tr class="mmbox">
-	<td>&nbsp;</td>
-	<td><b>Owner</b></td>
-	<td><b>Group</b></td>
-	<td><b>Other<b></td>
+	<table class="inlinetable">
+	<tr>
+	<th>&nbsp;</th>
+	<th>Owner</th>
+	<th>Group</th>
+	<th>Other</th>
 	</tr>
 	<tr>
-	<td class="mmbox">Read</td>
+	<th>Read</th>
 	<td align="center"><input type="checkbox" id="owner4" value="4" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="group4" value="4" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="other4" value="4" onclick="calc_chmod()"></td>
 	</tr>
-	<tr>		
-	<td class="mmbox">Write</td>
+	<tr>
+	<th>Write</th>
 	<td align="center"><input type="checkbox" id="owner2" value="2" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="group2" value="2" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="other2" value="2" onclick="calc_chmod()"></td>
 	</tr>
-	<tr>		
-	<td class="mmbox">Execute</td>
+	<tr>
+	<th>Execute</th>
 	<td align="center"><input type="checkbox" id="owner1" value="1" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="group1" value="1" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="other1" value="1" onclick="calc_chmod()"></td>

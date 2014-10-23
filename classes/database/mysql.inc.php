@@ -263,7 +263,8 @@ class DB {
 			$new[] = $errno."\t".$errmsg."\t".$errfile."\t".$errline."\t".$errcomment."\t".$sru."\t".time()."\t".PHP_VERSION." (".PHP_OS.")";
 			file_put_contents($this->errlogfile, implode("\n", $new));
 		}
-	    return "$errno: $errmsg - File: $errfile on line $errline";
+		$errcomment = nl2br($errcomment);
+	    return "Database error {$errno}: {$errmsg}<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";
 	}
 	function benchmarktime() {
 	   list($usec, $sec) = explode(" ", microtime());
@@ -288,7 +289,7 @@ class DB {
 			$errfunc = E_USER_NOTICE;
 		}
 
-		$this->result = $func($sql, $this->conn) or trigger_error('Database error: '.$this->error($line, $file, $sql), $errfunc);
+		$this->result = $func($sql, $this->conn) or trigger_error($this->error($line, $file, $sql), $errfunc);
 	    
 		$zm2 = $this->benchmarktime();
 		

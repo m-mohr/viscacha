@@ -4,18 +4,18 @@ CREATE TABLE `{:=DBPREFIX=:}packages` (
   PRIMARY KEY  (`id`)
 ) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=17 ;
 
-INSERT INTO `{:=DBPREFIX=:}packages` (`id`, `title`) VALUES (1, 'Verwandte Themen'),
-(2, 'Wer-ist-Online-Box'),
-(3, 'News-Boxen'),
+INSERT INTO `{:=DBPREFIX=:}packages` (`id`, `title`) VALUES (1, 'Related Topics'),
+(2, 'Who-is-Online Box'),
+(3, 'News Boxes'),
 (4, 'Newsfeed-Ticker'),
-(5, 'Persönliche Box'),
-(6, 'Neue-PN-Box'),
-(7, 'Nachrichten-Box'),
-(8, 'MS Word Druckansicht'),
-(9, 'Letzte-Themen-Box'),
-(10, 'Letzte-Antworten-Box'),
-(11, 'Legende (Themen)'),
-(12, 'Legende (PM)'),
-(13, 'Legende (Foren)'),
+(5, 'Personal Box'),
+(6, 'New PM Box'),
+(7, 'Message Box'),
+(8, 'Export to MS Word'),
+(9, 'Last topic Box'),
+(10, 'Last reply Box'),
+(11, 'Legend (Topics)'),
+(12, 'Legend (PM)'),
+(13, 'Legend (Forums)'),
 (14, 'Birthday-Reminder'),
-(16, 'Login-Box');
+(16, 'Login Box');

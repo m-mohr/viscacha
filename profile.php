@@ -318,15 +318,16 @@ elseif ($is_member) {
 	if ($db->num_rows($result) == 1) {
 		$row = $gpc->prepare($db->fetch_object($result));
 	
-		if ($config['showpostcounter']) {
-			$anz= $db->fetch_num($db->query('SELECT COUNT(name) FROM '.$db->pre.'replies WHERE name = "'.$_GET['id'].'"',__LINE__,__FILE__)); // etwas ungenau, aber noch recht schnell
-			
-			$days2 = $anz[0] / ((times() - $row->regdate) / 86400);
+		$days2 = null;
+		if ($config['showpostcounter'] == 1) {
+			$days2 = $row->posts / ((times() - $row->regdate) / 86400);
 			$days2 = sprintf("%01.2f", $days2);
+			if ($row->posts < $days2) {
+				$days2 = $row->posts;
+			}
 		}
-		if ($anz[0] < $days2) {
-			$days2 = $anz[0];
-		}
+
+		$row->posts = numbers($row->posts);
 
 		$breadcrumb->resetUrl();
 		echo $tpl->parse("header");

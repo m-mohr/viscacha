@@ -10,7 +10,7 @@ class cache_cat_bid extends CacheItem {
 			$categories_obj = $scache->load('categories');
 			$cat_cache = $categories_obj->get();
 		    $result = $db->query("
-			SELECT id, name, parent, position, description, topics, replies, opt, optvalue, forumzahl, topiczahl, prefix, invisible, readonly, auto_status, active_topic, reply_notification, topic_notification, message_active, message_title, message_text
+			SELECT id, name, parent, position, description, topics, replies, opt, optvalue, forumzahl, topiczahl, prefix, invisible, readonly, auto_status, active_topic, count_posts, reply_notification, topic_notification, message_active, message_title, message_text
 			FROM {$db->pre}forums
 			",__LINE__,__FILE__);
 		    $this->data = array();

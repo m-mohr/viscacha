@@ -151,8 +151,21 @@ function getLastActualRunTime($job) {
 	return 0;
 }
 
-function markLastRun($job, $lastRun) {
+function getJobTempData($job) {
 	$jobfile = getJobFileName($job);
+	if (file_exists($jobfile)) {
+		$data = file_get_contents($jobfile);
+	}
+	else {
+		$data = '';
+	}
+	return $data;
+}
+
+function markLastRun($job, $lastRun, $data = '') {
+	global $filesystem;
+	$jobfile = getJobFileName($job);
+	$filesystem->file_put_contents($jobfile, $data);
 	touch($jobfile);
 }
 
@@ -169,6 +182,7 @@ function runJob($job) {
 		logMessage("  Last scheduled:\t".date("r",$lastScheduled));
 		$argv = $job[PC_ARGS];
 	
+		$jobData = getJobTempData($job);
 		$benchmark = job_benchmark_start();
 	    if ($debug) {
 	     	include(CRON_PATH.$job[PC_CMD]);
@@ -181,7 +195,7 @@ function runJob($job) {
 		$seconds = job_benchmark_end($benchmark);
 		logMessage("  Execution time:\t$seconds seconds");
 
-	    markLastRun($job, $lastScheduled);
+	    markLastRun($job, $lastScheduled, $jobData);
 	    
 		logMessage("Completed\t".$job[PC_CRONLINE]);
 		if ($sendLogToEmail!="") {

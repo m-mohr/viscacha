@@ -1,36 +1,38 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "filetypes.php") die('Error: Hacking Attempt');
 
+($code = $plugins->load('admin_filetypes_jobs')) ? eval($code) : null;
+
 if ($job == 'add') {
 	echo head();
 	?>
 <form name="form" method="post" action="admin.php?action=filetypes&job=add2">
  <table class="border">
   <tr> 
-   <td class="obox" colspan=2>Add filetype:</td>
+   <td class="obox" colspan="2">Add filetype</td>
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Extension(s) (separated by comma):</font></td>
+   <td class="mbox" width="50%">Extension(s) (separated by comma):</td>
    <td class="mbox" width="50%"><input type="text" name="extension" size="50" /></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Relevant programs:</font><br><font class="stext">Optional: A selection of relevant programs which work with this filetype.</font></td>
+   <td class="mbox" width="50%">Relevant programs:<br><font class="stext">Optional: A selection of relevant programs which work with this filetype.</font></td>
    <td class="mbox" width="50%"><input type="text" name="program" size="50" /></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Description:</font><br><font class="stext">HTML is allowed!</font></td>
+   <td class="mbox" width="50%">Description:<br><font class="stext">HTML is allowed!</font></td>
    <td class="mbox" width="50%"><textarea name="desctxt" rows="5" cols="50"></textarea></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Icon-filename:</font><br><font class="stext">Optional. Indicate without extension.</font></td>
+   <td class="mbox" width="50%">Icon-filename:<br><font class="stext">Optional. Indicate without extension.</font></td>
    <td class="mbox" width="50%"><input type="text" name="icon" size="50" /></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Mimetype:</font></td>
+   <td class="mbox" width="50%">Mimetype:</td>
    <td class="mbox" width="50%"><input type="text" name="mimetype" size="50" /></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Delivery type:</font></td>
+   <td class="mbox" width="50%">Delivery type:</td>
    <td class="mbox" width="50%">
    <select name="stream">
    <option value="attachment">Attachment (offer for download)</option>
@@ -39,7 +41,7 @@ if ($job == 'add') {
    </td> 
   </tr>
   <tr> 
-   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="Send"></td> 
+   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="Send"></td> 
   </tr>
  </table>
 </form> 
@@ -174,10 +176,13 @@ elseif ($job == 'manage') {
 	<form name="form" method="post" action="admin.php?action=filetypes&job=delete">
 	 <table class="border">
 	  <tr> 
-	   <td class="obox" colspan="7">Manage Filetypes</td>
+	   <td class="obox" colspan="7">
+		<span style="float: right;"><a class="button" href="admin.php?action=filetypes&amp;job=add">Add new File Type</a></span>
+		Manage Filetypes
+	   </td>
 	  </tr>
 	  <tr> 
-	   <td class="ubox" width="2%">Delete</td>
+	   <td class="ubox" width="2%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
 	   <td class="ubox" width="5%">Icon</td>
 	   <td class="ubox" width="22%">Filetype</td>
 	   <td class="ubox" width="3%" title="Filetype is allowed for Attachments">Attachm.</td>

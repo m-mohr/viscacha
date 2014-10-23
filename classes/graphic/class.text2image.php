@@ -48,7 +48,27 @@ class text2image {
 	    return $bbox;
 	}
 	
-	function build ($margin = 2) {
+	function imagecolorallocate($hex) {
+		$color = str_replace('#', '', $hex);
+		if (strlen($color) == 3) {
+			$ret = array(
+				'r' => str_repeat(hexdec(substr($color, 0, 1)), 2),
+				'g' => str_repeat(hexdec(substr($color, 1, 1)), 2),
+				'b' => str_repeat(hexdec(substr($color, 2, 1)), 2)
+			);
+		}
+		else {
+			$ret = array(
+				'r' => hexdec(substr($color, 0, 2)),
+				'g' => hexdec(substr($color, 2, 2)),
+				'b' => hexdec(substr($color, 4, 2))
+			);
+		}
+		$gd = imagecolorallocate($this->img, $ret['r'], $ret['g'], $ret['b']);
+		return $gd;
+	}
+	
+	function build ($margin = 2, $bg = 'ffffff', $fg = '000000') {
 		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
 		
 		$TxtBx_Lwr_L_x = $TextBoxSize[0];
@@ -74,13 +94,13 @@ class text2image {
 		$this->img = imagecreate($width+$margin,$height+$margin);
 		// Only PHP-Version 4.3.2 or higher
 		if (function_exists('imageantialias')) {
-			imageantialias($this->img, TRUE);
+			imageantialias($this->img, true);
 		}
-		$white = imagecolorallocate ($this->img, 255, 255, 255);
-		$black = imagecolorallocate ($this->img, 0, 0, 0);
-		imagecolortransparent($this->img, $white);
-		
-		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $black, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
+		$bgc = $this->imagecolorallocate($bg);
+		$fgc = $this->imagecolorallocate($fg);
+		imagefill($this->img, 0, 0, $bgc);
+		imagecolortransparent($this->img, $bgc);
+		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $fgc, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
 	}
 
 	function output($format = 'png') {

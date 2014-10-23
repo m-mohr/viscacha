@@ -19,7 +19,7 @@ function AddSid($content) {
 	if (!empty($this->sid)) {
 	    $own_url = (isset($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == '443') ? 'https://' : 'http://';
 	    $own_url = preg_quote($own_url.$_SERVER['HTTP_HOST'], '~');
-		$content = preg_replace_callback('~<a([^>]+?)href=("|\')('.$own_url.'(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~i', array($this, 'ConstructLink'), $content);
+		$content = preg_replace_callback('~<a([^>]+?)href=("|\')('.$own_url.'(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~i', array(&$this, 'ConstructLink'), $content);
 	}
     return $content;
 }

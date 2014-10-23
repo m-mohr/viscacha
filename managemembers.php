@@ -62,6 +62,11 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		echo $tpl->parse("menu");
 		echo $tpl->parse("admin/members/delete");
 	}
+	elseif ($_GET['action'] == 'recount') {
+		$posts = UpdateMemberStats($user['id']);
+		$diff = $posts - $user['posts'];
+		ok($lang->phrase('member_recount_ok'), 'profile.php?id='.$user['id'].SID2URL_x);
+	}
 	elseif ($_GET['action'] == 'delete2') {
 		if ($my->id == $user['id']) {
 			error($lang->phrase('member_delete_yourself_error'));

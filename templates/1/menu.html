@@ -15,7 +15,7 @@
 		<li><a href="pm.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /> <?php echo $lang->phrase('pm_short'); ?></a></li>
 	<?php } if ($my->vlogin) { ?>
 		<li><a href="editprofile.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('profile'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_short'); ?></a></li>
-	<?php } else { ?>
+	<?php } elseif ($config['disableregistration'] == 0) { ?>
 		<li><a href="register.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_title'); ?></a></li>
 	<?php } ?>
 		<li>

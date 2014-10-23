@@ -198,7 +198,7 @@ class ServerNavigator
 		}
 
 		$newdir = $this->script_file . '&amp;path=' . urlencode(str_replace('/\\', '/', $this->path));
-		$newdir_html = '<span style="float: right;">[<a href="'.$newdir.'&job=newdir">Create new directory</a>]</span>';
+		$newdir_html = '<span style="float: right;"><a class="button" href="'.$newdir.'&job=newdir">Create new directory</a></span>';
 
 		$html = '	   <table cellpadding="4" cellspacing="0" class="border">';
 		$html .= "\n".'		 <tr>';
@@ -248,7 +248,7 @@ class ServerNavigator
 			$html .= "\n".'			 ' . $chmod;
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			[<a href="'.$link.'&job=chmod&type=dir">CHMOD</a>] [<a href="'.$link.'&job=rename&type=dir">Rename</a>] [<a href="'.$link.'&job=delete&type=dir">Delete</a>]';
+			$html .= "\n".'			<a class="button" href="'.$link.'&job=chmod&type=dir">CHMOD</a> <a class="button" href="'.$link.'&job=rename&type=dir">Rename</a> <a class="button" href="'.$link.'&job=delete&type=dir">Delete</a>';
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		 </tr>';
 		}
@@ -301,8 +301,8 @@ class ServerNavigator
 			$html .= "\n".'			 ' . get_chmod($this->path . $file);
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 [<a href="'.$link.'&job=chmod">CHMOD</a>] [<a href="'.$link.'&job=rename">Rename</a>] [<a href="'.$link.'&job=delete">Delete</a>]';
-			$html .= iif(in_array($extension, $this->extract), ' [<a href="'.$link.'&job=extract">Extract</a>]').iif(in_array($extension, $this->plain), ' [<a href="'.$link.'&job=edit">Edit</a>]');
+			$html .= "\n".'			 <a class="button" href="'.$link.'&job=chmod">CHMOD</a> <a class="button" href="'.$link.'&job=rename">Rename</a> <a class="button" href="'.$link.'&job=delete">Delete</a>';
+			$html .= iif(in_array($extension, $this->extract), ' <a class="button" href="'.$link.'&job=extract">Extract</a>').iif(in_array($extension, $this->plain), ' <a class="button" href="'.$link.'&job=edit">Edit</a>');
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		 </tr>';
 

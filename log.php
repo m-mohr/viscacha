@@ -42,12 +42,7 @@ $my->p = $slog->Permissions();
 
 if ($_GET['action'] == "login2") {
 	$remember = $gpc->get('remember', int, 1);
-	$loc = strip_tags($gpc->get('redirect', none, 'index.php'.SID2URL_1));
-	$file = basefilename($loc);
-	if ($file == 'log.php') {
-		$loc = 'index.php'.SID2URL_1;
-	}
-
+	$loc = getRedirectURL();
 	if ($my->vlogin) {
 		viscacha_header($loc);
 	}
@@ -63,7 +58,7 @@ if ($_GET['action'] == "login2") {
 	
 	$log_status = $slog->sid_login($remember);
 	if (!$log_status) {
-		error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;redirect=".urlencode($loc).SID2URL_x);
+		error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;redirect=".rawurlencode($loc).SID2URL_x);
 	}
 	else {
 		ok($lang->phrase('log_msglogin'), $loc);
@@ -75,11 +70,7 @@ elseif ($_GET['action'] == "logout") {
 		viscacha_header('Location: log.php');
 	}
 	else {
-		$loc = strip_tags($gpc->get('redirect', none, 'index.php'.SID2URL_1));
-		$file = basefilename($loc);
-		if ($file == 'log.php') {
-			$loc = 'index.php'.SID2URL_1;
-		}
+		$loc = getRedirectURL();
 		($code = $plugins->load('log_logout')) ? eval($code) : null;
 		$slog->sid_logout();
 
@@ -162,16 +153,11 @@ elseif ($_GET['action'] == "pwremind3") {
 	}
 }
 else {
-	$loc = htmlspecialchars($gpc->get('redirect', none));
+	$loc = getRedirectURL(false);
 	if (empty($loc)) {
-		if (check_hp($_SERVER['HTTP_REFERER'])) {
-			$url = parse_url($_SERVER['HTTP_REFERER']);
-			if (strpos($config['furl'], $url['host']) !== FALSE) {
-				$loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
-			}
-		}
+		$loc = getRefererURL();
 	}
-
+	$loc = htmlspecialchars($loc);
 	if ($my->vlogin) {
 		error($lang->phrase('log_already_logged'), $loc);
 	}

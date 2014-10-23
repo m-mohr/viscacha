@@ -27,19 +27,28 @@ error_reporting(E_ALL);
 DEFINE('SCRIPTNAME', 'admin');
 
 include ("data/config.inc.php");
+include ("admin/data/config.inc.php");
+
+if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
+	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
+}
+if (empty($config['dbpw']) || empty($config['dbuser'])) {
+	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
+}
+
 include ("admin/lib/function.viscacha_backend.php");
 
 $benchmark = benchmarktime();
-
-if (is_dir('install/')) {
-	die('For your security please completely remove the installation directory ('.realpath('install/').') including all files and sub-folders - then refresh this page');
-}
 
 $job = $gpc->get('job', str);
 
 $slog = new slog();
 $my = $slog->logged();
 $my->p = $slog->Permissions();
+
+if (!isset($my->settings['admin_interface'])) {
+	$my->settings['admin_interface'] = $admconfig['nav_interface'];
+}
 
 ($code = $plugins->load('admin_start')) ? eval($code) : null;
 
@@ -114,7 +123,13 @@ if ($my->p['admin'] == 1) {
 		}
 		else {
 			echo head();
-			error(htmlspecialchars($_SERVER['HTTP_REFERER']), 'Please choose a valid option!');
+			if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'action=locate') === false) {
+				$url = htmlspecialchars($_SERVER['HTTP_REFERER']);
+			}
+			else {
+				$url = 'javascript:history.back(-1);';
+			}
+			error($url, 'Please choose a valid option!');
 		}
 	}
 	else {
@@ -138,14 +153,15 @@ else {
 		error('index.php'.SID2URL_1, 'You are not allowed to view this page!');
 	}
 	
+	$addr = $gpc->get('addr', none);
 	if ($action == "login2") {
 		$log_status = $slog->sid_login(true);
 		echo head();
 		if ($log_status == false) {
-			error('admin.php', 'You have entered an incorrect user name or password!');
+			error('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), 'You have entered an incorrect user name or password!');
 		}
 		else {
-			ok('admin.php', 'You have successfully logged in!');
+			ok('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), 'You have successfully logged in!');
 		}
 	}
 	else {

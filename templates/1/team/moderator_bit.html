@@ -3,7 +3,7 @@
   <td class="center"><a href="pm.php?action=new&amp;id=<?php echo $mod[$i]->mid.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td> 
   <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $mod[$i]->mid.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td> 
   <td class="center"><?php echo iif($mod[$i]->hp,'<a href="'.$mod[$i]->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
-  <td><ul class="hiddenl">
+  <td class="hiddenl"><ul>
   <?php foreach ($inner['moderator_bit_forum'] as $modb) { ?>
 	<li>&middot;&nbsp;<a href="showforum.php?id=<?php echo $modb->bid.SID2URL_x; ?>"><?php echo $modb->board; ?></a>
 	<?php echo iif($modb->time,'<br />

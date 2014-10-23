@@ -33,13 +33,15 @@ function export_template_list ($path, $d = 0) {
    	return ($dirlist);
 }
 
+($code = $plugins->load('admin_designs_jobs')) ? eval($code) : null;
+
 if ($job == 'design') {
 	echo head();
 	$result = $db->query('SELECT * FROM '.$db->pre.'designs ORDER BY name');
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="6"><span style="float: right;">[<a href="admin.php?action=designs&amp;job=design_import">Import Design</a>] [<a href="admin.php?action=designs&amp;job=design_add">Add new Design</a>]</span>Designs</td>
+   <td class="obox" colspan="6"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=design_import">Import Design</a> <a class="button" href="admin.php?action=designs&amp;job=design_add">Add new Design</a></span>Designs</td>
   </tr>
   <tr>
    <td class="ubox" width="40%">Name</td>
@@ -57,17 +59,29 @@ if ($job == 'design') {
    <td class="mbox" align="right"><?php echo $row['images']; ?></td>
    <td class="mbox" align="center"><?php echo noki($row['publicuse'], ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=designs&job=ajax_publicuse&id='.$row['id'].'\')"'); ?></td>
    <td class="mbox">
-   [<a href="admin.php?action=designs&amp;job=design_edit&amp;id=<?php echo $row['id']; ?>">Edit</a>]
-   [<a href="admin.php?action=designs&amp;job=design_export&amp;id=<?php echo $row['id']; ?>">Export</a>]
-   [<a href="admin.php?action=designs&amp;job=confirm_delete&amp;type=design&amp;id=<?php echo $row['id']; ?>">Delete</a>]
+   <a class="button" href="admin.php?action=designs&amp;job=design_edit&amp;id=<?php echo $row['id']; ?>">Edit</a>
+   <a class="button" href="admin.php?action=designs&amp;job=design_export&amp;id=<?php echo $row['id']; ?>">Export</a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=design&amp;id=<?php echo $row['id']; ?>">Delete</a>
    <?php if ($row['publicuse'] == 1 && $config['templatedir'] != $row['id']) { ?>
-   [<a href="admin.php?action=designs&amp;job=design_default&amp;id=<?php echo $row['id']; ?>">Set as default</a>]
+   <a class="button" href="admin.php?action=designs&amp;job=design_default&amp;id=<?php echo $row['id']; ?>">Set as default</a>
    <?php } ?>
-   [<a href="forum.php?design=<?php echo $row['id']; ?>&amp;admin=<?php echo $config['cryptkey'].SID2URL_x; ?>" target="_blank">View</a>]
+   <a class="button" href="forum.php?design=<?php echo $row['id']; ?>&amp;admin=<?php echo $config['cryptkey'].SID2URL_x; ?>" target="_blank">View</a>
    </td>
   </tr>
   <?php } ?>
  </table>
+ <?php if ($my->settings['admin_interface'] == 0) { ?>
+ <br class="minibr" />
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr> 
+   <td class="obox center">
+   <a class="button" href="admin.php?action=designs&job=templates">Template Manager</a>
+   <a class="button" href="admin.php?action=designs&job=css">Stylesheet Manager</a>
+   <a class="button" href="admin.php?action=designs&job=images">Image Manager</a>
+   </td>
+  </tr>
+ </table>
+ <?php } ?>
 	<?php
 	echo foot();
 }
@@ -595,7 +609,7 @@ elseif ($job == 'templates') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="3"><span style="float: right;">[<a href="admin.php?action=designs&amp;job=templates_add">Add new Templates</a>]</span>Template Manager</td>
+   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=templates_add">Add new Templates</a></span>Template Manager</td>
   </tr>
   <tr>
    <td class="ubox" width="40%">Directory</td>
@@ -611,9 +625,9 @@ elseif ($job == 'templates') {
    <td class="mbox"><?php echo $entry; ?></td>
    <td class="mbox" align="right"><?php echo $files; ?></td>
    <td class="mbox">
-   [<a href="admin.php?action=designs&amp;job=templates_browse&amp;id=<?php echo $entry; ?>">Browse</a>]
-   [<a href="admin.php?action=designs&amp;job=templates_export&amp;id=<?php echo $entry; ?>">Export</a>]
-   [<a href="admin.php?action=designs&amp;job=confirm_delete&amp;type=templates&amp;id=<?php echo $entry; ?>">Delete</a>]
+   <a class="button" href="admin.php?action=designs&amp;job=templates_browse&amp;id=<?php echo $entry; ?>">Browse</a>
+   <a class="button" href="admin.php?action=designs&amp;job=templates_export&amp;id=<?php echo $entry; ?>">Export</a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=templates&amp;id=<?php echo $entry; ?>">Delete</a>
    </td>
   </tr>
   <?php } } ?>
@@ -911,8 +925,8 @@ elseif ($job == 'templates_file_history') {
    <td class="mbox">Current Version (ID: <?php echo $id; ?>)</td>
    <td class="mbox"><?php echo date('d.m.Y H:i', filemtime($path.'/'.$file)); ?></td>
    <td class="mbox">&nbsp;</td>
-   <td class="mbox">[<a href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a>]</td>
-   <td class="mbox">[<a href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Delete</a>]</td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Delete</a></td>
    <td class="mbox"><input type="radio" name="old" value="<?php echo urldecode($path.'/'.$file); ?>" /></td>
    <td class="mbox"><input type="radio" name="new" checked="checked" value="<?php echo urldecode($path.'/'.$file); ?>" /></td>
   </tr>
@@ -926,9 +940,9 @@ elseif ($job == 'templates_file_history') {
   <tr>
    <td class="mbox">Historical <?php echo $i; ?></td>
    <td class="mbox"><?php echo date('d.m.Y H:i', filemtime($path.'/'.$hfile)); ?></td>
-   <td class="mbox">[<a href="admin.php?action=designs&job=templates_file_revert&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Revert</a>]</td>
-   <td class="mbox">[<a href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>&readonly=1">View</a>]</td>
-   <td class="mbox">[<a href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Delete</a>]</td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_revert&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Revert</a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>&readonly=1">View</a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Delete</a></td>
    <td class="mbox"><input type="radio" name="old" value="<?php echo urldecode($path.'/'.$hfile); ?>" /></td>
    <td class="mbox"><input type="radio" name="new" value="<?php echo urldecode($path.'/'.$hfile); ?>" /></td>
   </tr>
@@ -937,8 +951,8 @@ elseif ($job == 'templates_file_history') {
    <td class="mbox">Current Default (ID: <?php echo $design['template']; ?>)</td>
    <td class="mbox"><?php echo date('d.m.Y H:i', filemtime($defpath.'/'.$file)); ?></td>
    <td class="mbox">
-   <?php echo iif($revert, '[<a href="admin.php?action=designs&job=templates_file_revert&id='.$id.'&dir='.rawurlencode( iif(!empty($sub), $sub.'/')).'&file='.rawurldecode($file).'&default=1">Revert</a>]', '&nbsp;'); ?></td>
-   <td class="mbox">[<a href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $design['template']; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a>]</td>
+   <?php echo iif($revert, '<a class="button" href="admin.php?action=designs&job=templates_file_revert&id='.$id.'&dir='.rawurlencode( iif(!empty($sub), $sub.'/')).'&file='.rawurldecode($file).'&default=1">Revert</a>', '&nbsp;'); ?></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $design['template']; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a></td>
    <td class="mbox">&nbsp;</td>
    <td class="mbox"><input type="radio" name="old" checked="checked" value="<?php echo urldecode($defpath.'/'.$file); ?>" /></td>
    <td class="mbox"><input type="radio" name="new" value="<?php echo urldecode($defpath.'/'.$file); ?>" /></td>
@@ -1073,8 +1087,8 @@ elseif ($job == 'templates_browse') {
 	  <tr>
 	   <td class="mbox" width="50%" style="color: <?php echo $color; ?>"><?php echo $dir['name']; ?></td>
 	   <td class="mbox" width="50%">
-	   [<a href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>">Edit</a>]
-	   [<a href="admin.php?action=designs&job=templates_file_history&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>">View History</a>]
+	   <a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>">Edit</a>
+	   <a class="button" href="admin.php?action=designs&job=templates_file_history&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>">View History</a>
 	   </td>
 	  </tr>
 	  <?php
@@ -1103,7 +1117,7 @@ elseif ($job == 'css') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="3"><span style="float: right;">[<a href="admin.php?action=designs&amp;job=css_add">Add new Stylesheets</a>]</span>Stylesheet Manager</td>
+   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=css_add">Add new Stylesheets</a></span>Stylesheet Manager</td>
   </tr>
   <tr>
    <td class="ubox" width="40%">Directory</td>
@@ -1119,9 +1133,9 @@ elseif ($job == 'css') {
    <td class="mbox"><?php echo $entry; ?></td>
    <td class="mbox" align="right"><?php echo $files; ?></td>
    <td class="mbox">
-   [<a href="admin.php?action=explorer&amp;path=<?php echo urlencode('designs/'.$entry.'/'); ?>">Browse</a>]
-   [<a href="admin.php?action=designs&amp;job=css_export&amp;id=<?php echo $entry; ?>">Export</a>]
-   [<a href="admin.php?action=designs&amp;job=confirm_delete&amp;type=css&amp;id=<?php echo $entry; ?>">Delete</a>]
+   <a class="button" href="admin.php?action=explorer&amp;path=<?php echo urlencode('designs/'.$entry.'/'); ?>">Browse</a>
+   <a class="button" href="admin.php?action=designs&amp;job=css_export&amp;id=<?php echo $entry; ?>">Export</a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=css&amp;id=<?php echo $entry; ?>">Delete</a>
    </td>
   </tr>
   <?php } } ?>
@@ -1319,7 +1333,7 @@ elseif ($job == 'images') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="3"><span style="float: right;">[<a href="admin.php?action=designs&amp;job=images_add">Add new Images</a>]</span>Image Manager</td>
+   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=images_add">Add new Images</a></span>Image Manager</td>
   </tr>
   <tr>
    <td class="ubox" width="40%">Directory</td>
@@ -1335,9 +1349,9 @@ elseif ($job == 'images') {
    <td class="mbox"><?php echo $entry; ?></td>
    <td class="mbox" align="right"><?php echo $files; ?></td>
    <td class="mbox">
-   [<a href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$entry.'/'); ?>">Browse</a>]
-   [<a href="admin.php?action=designs&amp;job=images_export&amp;id=<?php echo $entry; ?>">Export</a>]
-   [<a href="admin.php?action=designs&amp;job=confirm_delete&amp;type=images&amp;id=<?php echo $entry; ?>">Delete</a>]
+   <a class="button" href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$entry.'/'); ?>">Browse</a>
+   <a class="button" href="admin.php?action=designs&amp;job=images_export&amp;id=<?php echo $entry; ?>">Export</a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=images&amp;id=<?php echo $entry; ?>">Delete</a>
    </td>
   </tr>
   <?php } } ?>
@@ -1484,3 +1498,4 @@ elseif ($job == 'images_export') {
 		$filesystem->unlink($tempdir.$file);
 	}
 }
+?>

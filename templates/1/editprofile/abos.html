@@ -8,7 +8,9 @@
   <td class="tfoot" colspan="4"><?php echo $pages; ?></td>
 </tr>
 <tr> 
-<th width="2%"><?php echo $lang->phrase('delete_title'); ?></th>
+<th width="2%">
+  <input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" />
+</th>
 <th width="42%"><?php echo $lang->phrase('forum_topic'); ?></th>
 <th width="21%"><?php echo $lang->phrase('forum_last'); ?></th>
 <th width="35%"><?php echo $lang->phrase('editprofile_digest_type'); ?></th> 
@@ -34,7 +36,7 @@
 <?php } ?>
 <tr> 
   <td class="tfoot" colspan="4">
-  <span class="right"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></span>
+  <span class="right"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('delete_form'); ?>" /></span>
   <?php echo $pages; ?>
   </td>
 </tr>

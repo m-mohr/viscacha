@@ -3,17 +3,18 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "language.p
 
 include('classes/class.phpconfig.php');
 
-// ToDo: Übersetzen
 $langbase = array(
-	'global' => 'Global/Standard',
-	'modules' => 'Module',
+	'global' => 'Global',
+	'modules' => 'Plugins',
 	'javascript' => 'JavaScript',
-	'wwo' => 'Wer ist Wo online',
-	'thumbnail.class' => 'Grafik-Klasse',
-	'phpmailer.class' => 'E-Mail-Klasse'
+	'wwo' => 'Who is where online',
+	'thumbnail.class' => 'Graphics',
+	'phpmailer.class' => 'Email Class'
 );
 
 require('lib/language.inc.php');
+
+($code = $plugins->load('admin_language_jobs')) ? eval($code) : null;
 
 if ($job == 'manage') {
 	echo head();
@@ -21,28 +22,39 @@ if ($job == 'manage') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="6">Language Files</td>
+   <td class="obox" colspan="6">
+    <span style="float: right;">
+	<a class="button" href="admin.php?action=language&amp;job=import" target="Main">Import Language</a>
+	<a class="button" href="admin.php?action=language&amp;job=phrase" target="Main">Phrase Manager</a>
+	</span>
+	Language Files
+   </td>
   </tr>
   <tr>
    <td class="ubox" width="18%">Language</td>
-   <td class="ubox" width="43%">Description</td>
+   <td class="ubox" width="6%">Code</td>
+   <td class="ubox" width="37%">Description</td>
    <td class="ubox" width="5%">Published</td>
    <td class="ubox" width="34%">Action</td>
   </tr>
-  <?php while ($row = $db->fetch_assoc($result)) { ?>
+  <?php 
+  while ($row = $db->fetch_assoc($result)) {
+  	$settings = $gpc->prepare(return_array('settings', $row['id']));
+  ?>
   <tr>
    <td class="mbox"><?php echo $row['language'].iif($config['langdir'] == $row['id'], '<br /><span class="stext">Default</span>'); ?></td>
+   <td class="mbox"><?php echo $settings['lang_code'].iif(!empty($settings['country_code']), '_'.$settings['country_code']); ?></td>
    <td class="mbox stext"><?php echo $row['detail']; ?></td>
    <td class="mbox" align="center"><?php echo noki($row['publicuse'], ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=language&job=ajax_publicuse&id='.$row['id'].'\')"'); ?></td>
    <td class="mbox">
-   [<a href="admin.php?action=language&amp;job=lang_edit&amp;id=<?php echo $row['id']; ?>">Edit</a>]
-   [<a href="admin.php?action=language&amp;job=lang_copy&amp;id=<?php echo $row['id']; ?>" title="You can copy this language pack to translate it later.">Copy</a>]
-   [<a href="admin.php?action=language&amp;job=export&amp;id=<?php echo $row['id']; ?>">Export</a>]
-   [<a href="admin.php?action=language&amp;job=lang_delete&amp;id=<?php echo $row['id']; ?>">Delete</a>]
+   <a class="button" href="admin.php?action=language&amp;job=lang_edit&amp;id=<?php echo $row['id']; ?>">Edit</a>
+   <a class="button" href="admin.php?action=language&amp;job=lang_copy&amp;id=<?php echo $row['id']; ?>" title="You can copy this language pack to translate it later.">Copy</a>
+   <a class="button" href="admin.php?action=language&amp;job=export&amp;id=<?php echo $row['id']; ?>">Export</a>
+   <a class="button" href="admin.php?action=language&amp;job=lang_delete&amp;id=<?php echo $row['id']; ?>">Delete</a>
    <?php if ($row['publicuse'] == 1 && $config['langdir'] != $row['id']) { ?>
-   [<a href="admin.php?action=language&amp;job=lang_default&amp;id=<?php echo $row['id']; ?>">Set as default</a>]
+   <a class="button" href="admin.php?action=language&amp;job=lang_default&amp;id=<?php echo $row['id']; ?>">Set as default</a>
    <?php } ?>
-   [<a href="forum.php?language=<?php echo $row['id']; ?>" target="_blank">View</a>]
+   <a class="button" href="forum.php?language=<?php echo $row['id']; ?>" target="_blank">View</a>
    </td>
   </tr>
   <?php } ?>
@@ -112,6 +124,8 @@ elseif ($job == 'import2') {
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
@@ -300,8 +314,16 @@ elseif ($job == 'lang_settings') {
 	if (empty($settings['rss_language'])) {
 		$settings['rss_language'] = 'en';
 	}
+	if (empty($settings['lang_code'])) {
+		$settings['lang_code'] = 'en';
+	}
+	if (empty($settings['country_code'])) {
+		$settings['country_code'] = '';
+	}
 	
-	$rsslang = file2array('admin/data/rss_language.php');
+	$rss = file2array('admin/data/rss.txt');
+	$languages = file2array('admin/data/iso639.txt');
+	$country = file2array('admin/data/iso3166.txt');
 	?>
 <script language="JavaScript">
 <!--
@@ -333,26 +355,8 @@ function errordefault(box) {
    <td class="mbox" width="50%">Languagepack is public usable:</td>
    <td class="mbox" width="50%"><input<?php echo iif($config['langdir'] == $id, ' onclick="errordefault(this)"'); ?> type="checkbox" name="use" value="1"<?php echo iif($data['publicuse'] == 1, ' checked="checked"'); ?> /></td>
   </tr>
-  <tr>
-   <td class="mbox" width="50%">Writing direction:</td>
-   <td class="mbox" width="50%">
-   <select name="html_read_direction">
-   <option value="ltr"<?php echo iif($settings['html_read_direction'] == 'ltr', ' selected="selected"'); ?>>ltr: From left to right</option>
-   <option value="rtl"<?php echo iif($settings['html_read_direction'] == 'rtl', ' selected="selected"'); ?>>rtl: From right to left</option>
-   </select>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%">RSS language symbols:</td>
-   <td class="mbox" width="50%">
-   <select name="rss_language">
-   <?php foreach ($rsslang as $key => $val) { ?>
-   <option value="<?php echo $key; ?>"<?php echo iif($settings['rss_language'] == $key, ' selected="selected"'); ?>><?php echo $val; ?></option>
-   <?php } ?>
-   </select>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%">Symbol for spell check:<br /><span class="stext">Consists of the two-letter ISO 639-language-code and, after underscore, a optional two-letter ISO 3166-country-code.</span></td>
-   <td class="mbox" width="50%"><input type="text" name="spellcheck_dict" size="8" value="<?php echo isset($settings['spellcheck_dict']) ? $settings['spellcheck_dict'] : ''; ?>" /></td>
+  <tr> 
+   <td class="ubox" colspan="2">Number formatting</td>
   </tr>
   <tr>
    <td class="mbox" width="50%">Thousand seperator:</td>
@@ -363,8 +367,52 @@ function errordefault(box) {
    <td class="mbox" width="50%"><input type="text" name="decpoint" size="2" value="<?php echo isset($settings['decpoint']) ? $settings['decpoint'] : '.'; ?>" /></td>
   </tr>
   <tr> 
+   <td class="ubox" colspan="2">Country and Language specific settings</td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Language:<br /><span class="stext">Specify the language of this language pack.</span></td>
+   <td class="mbox" width="50%">
+   <select name="lang_code">
+   <?php foreach ($languages as $key => $val) { ?>
+   <option value="<?php echo $key; ?>"<?php echo iif($settings['lang_code'] == $key, ' selected="selected"'); ?>><?php echo $val; ?></option>
+   <?php } ?>
+   </select>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Country:<br /><span class="stext">Optionally specify country if this package contains special phrases for some country (for example the differences in British English and American English).</span></td>
+   <td class="mbox" width="50%">
+   <select name="country_code">
+   <option value=""<?php echo iif($settings['country_code'] == '', ' selected="selected"'); ?>>No specific Country</option>
+   <?php foreach ($country as $key => $val) { ?>
+   <option value="<?php echo $key; ?>"<?php echo iif($settings['country_code'] == $key, ' selected="selected"'); ?>><?php echo $val; ?></option>
+   <?php } ?>
+   </select>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Writing direction:</td>
+   <td class="mbox" width="50%">
+   <select name="html_read_direction">
+   <option value="ltr"<?php echo iif($settings['html_read_direction'] == 'ltr', ' selected="selected"'); ?>>ltr: From left to right</option>
+   <option value="rtl"<?php echo iif($settings['html_read_direction'] == 'rtl', ' selected="selected"'); ?>>rtl: From right to left</option>
+   </select>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">RSS language:</td>
+   <td class="mbox" width="50%">
+   <select name="rss_language">
+   <?php foreach ($rss as $key => $val) { ?>
+   <option value="<?php echo $key; ?>"<?php echo iif($settings['rss_language'] == $key, ' selected="selected"'); ?>><?php echo $val; ?></option>
+   <?php } ?>
+   </select>
+  </tr>
+  <tr> 
    <td class="mbox" width="50%">Charset:</td>
    <td class="mbox" width="50%"><input type="text" name="charset" value="<?php echo isset($settings['charset']) ? $settings['charset'] : 'ISO-8859-1'; ?>" size="20"></td> 
+  </tr>
+  <tr> 
+   <td class="ubox" colspan="2">Date and Time</td>
   </tr>
   <tr> 
    <td class="mbox" width="50%">Format for contributions:<br><span class="stext">For contributions, last visit etc. Abbreviation according to the PHP-function: date(). Further information: <a href="http://www.php.net/manual-lookup.php?function=date" target="_blank">PHP: date()</a></span></td>
@@ -375,7 +423,7 @@ function errordefault(box) {
    <td class="mbox" width="50%"><input type="text" name="dformat2" value="<?php echo isset($settings['dformat2']) ? $settings['dformat2'] : 'd.m.Y, H:i'; ?>" size="20"></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Format for last activity (in der Online-Liste):</span><br><span class="stext">Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
+   <td class="mbox" width="50%">Format for last activity (for Who-is-where-online-list):</span><br><span class="stext">Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
    <td class="mbox" width="50%"><input type="text" name="dformat3" value="<?php echo isset($settings['dformat3']) ? $settings['dformat3'] : 'H:i'; ?>" size="20"></td> 
   </tr>
   <tr> 
@@ -412,15 +460,26 @@ elseif ($job == 'lang_settings2') {
 		}
 	}
 	
+	$lc = $gpc->get('lang_code', none);
+	$cc = $gpc->get('country_code', none);
+	if (!empty($cc)) {
+		$scd = $lc.'_'.$cc;
+	}
+	else {
+		$scd = $lc;
+	}
+	
 	$db->query("UPDATE {$db->pre}language SET publicuse = '{$use}', language = '{$lang}', detail = '{$detail}' WHERE id = '{$id}' LIMIT 1");
 	
 	$c = new manageconfig();
 	$c->getdata("language/{$id}/settings.lng.php", 'lang');
 	$c->updateconfig('html_read_direction', str);
 	$c->updateconfig('rss_language', str);
+	$c->updateconfig('spellcheck_dict', str, $scd);
+	$c->updateconfig('lang_code', str);
+	$c->updateconfig('country_code', str);
 	$c->updateconfig('thousandssep', str);
 	$c->updateconfig('decpoint', str);
-	$c->updateconfig('spellcheck_dict', str);
 	$c->updateconfig('lang_name', str, $lang);
 	$c->updateconfig('lang_description', str, $detail);
 	$c->updateconfig('compatible_version', str);
@@ -686,7 +745,7 @@ elseif ($job == 'lang_emails') {
 	if (!is_dir($path)) {
 		$filesystem->mkdir($path, 0777);
 	}
-	$help = file2array('admin/data/lang_email.php');
+	$help = file2array('admin/data/lang_email.php', "\t");
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
@@ -1000,13 +1059,13 @@ elseif ($job == 'phrase') {
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
    <td class="obox" colspan="<?php echo count($cache)+1; ?>">
-   <span style="float: right;">[<a href="admin.php?action=language&job=phrase_add_lngfile">Add new Language File</a>] [<a href="admin.php?action=language&job=phrase_add_mailfile">Add new Mail File</a>]</span>
+   <span style="float: right;"><a class="button" href="admin.php?action=language&job=phrase_add_lngfile">Add new Language File</a> <a class="button" href="admin.php?action=language&job=phrase_add_mailfile">Add new Mail File</a></span>
    Phrase Manager</td>
   </tr>
   <tr>
    <td class="mmbox" width="25%">&nbsp;</td>
    <?php foreach ($cache as $row) { ?>
-   <td class="mmbox" align="center" width="<?php echo $width; ?>%"><?php echo $row['language']; ?> [<a href="admin.php?action=language&job=lang_edit&id=<?php echo $row['id']; ?>">Edit</a>]</td>
+   <td class="mmbox" align="center" width="<?php echo $width; ?>%"><?php echo $row['language']; ?> <a class="button" href="admin.php?action=language&job=lang_edit&id=<?php echo $row['id']; ?>">Edit</a></td>
    <?php } ?>
   </tr>
   <?php foreach ($complete as $file) { ?>
@@ -1021,7 +1080,7 @@ elseif ($job == 'phrase') {
    foreach ($cache as $row) { 
    	$status = in_array($file, $diff[$row['id']]);
    ?>
-   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' [<a href="admin.php?action=language&job=phrase_copy&file='.urlencode(base64_encode($file)).'&id='.$row['id'].'">Add</a>]'); ?></td>
+   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' <a class="button" href="admin.php?action=language&job=phrase_copy&file='.urlencode(base64_encode($file)).'&id='.$row['id'].'">Add</a>'); ?></td>
    <?php } ?>
   </tr>
   <?php } ?>
@@ -1136,12 +1195,12 @@ elseif ($job == 'phrase_file') {
    <td class="obox" colspan="<?php echo count($cache)+1; ?>">
    <span style="float: right;">
    <?php if ($show == 'diff') { ?>
-    [<a href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>">Show all phrases</a>] 
+    <a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>">Show all phrases</a> 
    <?php } else { ?>
-    [<a href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>&show=diff">Show only differences</a>] 
+    <a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>&show=diff">Show only differences</a> 
    <?php } ?>
-    [<a href="admin.php?action=language&job=phrase_file_find&file=<?php echo $file; ?>">Find phrases</a>]
-    [<a href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new phrase</a>]
+    <a class="button" href="admin.php?action=language&job=phrase_file_find&file=<?php echo $file; ?>">Find phrases</a>
+    <a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new phrase</a>
    </span>
    Phrase Manager &raquo; <?php echo $encfile; ?></td>
   </tr>
@@ -1151,7 +1210,7 @@ elseif ($job == 'phrase_file') {
   </tr>
   <?php } elseif (!isset($data[$page-1]) || count($data[$page-1]) == 0) { ?>
   <tr>
-   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">No phrases have been saved yet. [<a href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new Phrase</a>]</td> 
+   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">No phrases have been saved yet. <a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new Phrase</a></td> 
   </tr>
   <?php } else { ?>
   <tr>
@@ -1165,12 +1224,12 @@ elseif ($job == 'phrase_file') {
   </tr>
   <?php foreach ($data[$page-1] as $phrase) { ?>
   <tr>
-   <td class="mmbox" nowrap="nowrap"><input type="checkbox" name="delete[]" value="<?php echo $phrase; ?>">&nbsp;[<a href="admin.php?action=language&job=phrase_file_edit&file=<?php echo $file; ?>&phrase=<?php echo $phrase; ?>">Edit</a>]&nbsp;<?php echo $phrase; ?></td>
+   <td class="mmbox" nowrap="nowrap"><input type="checkbox" name="delete[]" value="<?php echo $phrase; ?>">&nbsp;<a class="button" href="admin.php?action=language&job=phrase_file_edit&file=<?php echo $file; ?>&phrase=<?php echo $phrase; ?>">Edit</a>&nbsp;<?php echo $phrase; ?></td>
    <?php
    foreach ($cache as $row) {
    	$status = in_array($phrase, $diff[$row['id']]);
    ?>
-   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' [<a href="admin.php?action=language&job=phrase_file_copy&file='.$file.'&id='.$row['id'].'&phrase='.$phrase.'">Add</a>]'); ?></td>
+   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' <a class="button" href="admin.php?action=language&job=phrase_file_copy&file='.$file.'&id='.$row['id'].'&phrase='.$phrase.'">Add</a>'); ?></td>
    <?php } ?>
   </tr>
   <?php } ?>
@@ -1193,7 +1252,7 @@ elseif ($job == 'phrase_copy') {
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
 	echo head();
 	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_copy2&file=<?php echo $file; ?>&id=<?php echo $lang; ?>">
+<form name="form" method="post" action="admin.php?action=language&amp;job=phrase_copy2&amp;file=<?php echo $file; ?>&amp;id=<?php echo $lang; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
    <td class="obox" colspan="2">Phrase Manager &raquo; <?php echo $encfile; ?> &raquo; Copy file</td>
@@ -1234,7 +1293,7 @@ elseif ($job == 'phrase_copy2') {
 	}
 	$filesystem->copy($source, $dest);
 	if (file_exists($dest)) {
-		ok('admin.php?action=language&job=phrase', 'File was copied successful');
+		ok('admin.php?action=language&job=phrase', 'File successfully copied.');
 	}
 	else {
 		error('admin.php?action=language&job=phrase', 'File could not be copied.');

@@ -5,24 +5,25 @@
 	</tr>
 	<tr class="tfoot"> 
 	  <td width="40%"><?php echo $lang->phrase('forum_topic'); ?></td>
-	  <td width="5%"><?php echo $lang->phrase('delete_title'); ?></td>
 	  <td width="40%"><?php echo $lang->phrase('editprofile_attachments_uploads'); ?></td>
 	  <td width="10%"><?php echo $lang->phrase('editprofile_attachments_size'); ?></td>
 	  <td width="5%"><?php echo $lang->phrase('editprofile_attachments_hits'); ?></td>
+	  <td width="5%"><?php echo $lang->phrase('delete_title'); ?></td>
 	</tr>
 <?php foreach ($cache as $row) { ?>
 	<tr class="tbody"> 
 	  <td width="40%"><a href="popup.php?action=showpost&amp;id=<?php echo $row['tid'].SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row['topic']; ?></a></td>
-	  <td class="center" width="5%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
 	  <td width="40%"><a href="attachments.php?action=attachment&amp;id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank"><?php echo $row['file']; ?></a></td>
-	  <td class="textright" width="10%" nowrap="nowrap"><?php echo $row['fsize']; ?></td>
-	  <td class="textright" width="5%"><?php echo $row['hits']; ?></td> 
+	  <td width="10%" nowrap="nowrap"><?php echo $row['fsize']; ?></td>
+	  <td class="textright" width="5%"><?php echo $row['hits']; ?></td>
+	  <td class="center" width="5%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
 	</tr>
 <?php } ?>
 	<tr class="tfoot"> 
-	  <td class="textright" colspan="3"><?php echo $lang->phrase('editprofile_attachments_allfiles'); ?></td> 
+	  <td class="textright" colspan="2"><?php echo $lang->phrase('editprofile_attachments_allfiles'); ?></td> 
 	  <td nowrap="nowrap"><?php echo $all[1]; ?></td> 
-	  <td nowrap="nowrap"><?php echo $all[2]; ?></td> 
+	  <td nowrap="nowrap" class="textright"><?php echo $all[2]; ?></td>
+	  <td nowrap="nowrap"><input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" /> <?php echo $lang->phrase('check_all'); ?></td>  
 	</tr>
 	<tr> 
 	  <td class="tfoot center" colspan="5"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('delete_form'); ?>" /></td> 

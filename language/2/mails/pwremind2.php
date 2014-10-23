@@ -2,7 +2,7 @@
 	<title>{@config->fname}: Password request</title>
 	<comment>Dear {@user->name},
 
-You are receiving this e-mail because you have requested a new password be sent for your account {@config->fname}.
+You are receiving this e-mail because you have (or someone pretending to be you has) requested a new password be sent for your account {@config->fname}.
 
 Your new password is: {$pw}
 

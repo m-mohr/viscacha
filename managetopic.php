@@ -92,6 +92,12 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if ($my->mp[0] == 1 && $my->mp[4] == 0) {
 			errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
+		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
+			$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name", __LINE__, __FILE__);
+			while ($row = $db->fetch_assoc($result)) {
+				$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'",__LINE__,__FILE__);
+			}
+		}
 		$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
 		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
@@ -356,7 +362,14 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 		
 		$iid = implode(',', $ids);
-		
+
+		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
+			$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND id IN ({$iid}) GROUP BY name", __LINE__, __FILE__);
+			while ($row = $db->fetch_assoc($result)) {
+				$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'",__LINE__,__FILE__);
+			}
+		}
+
 		$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iid})",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
 		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE tid IN ({$iid})",__LINE__,__FILE__);

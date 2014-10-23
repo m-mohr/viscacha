@@ -1,14 +1,14 @@
 <?php
 if (!class_exists('ftp')) {
 	if (is_dir("classes/ftp/")) {
-		require_once("classes/ftp/class.ftp.php");
-		require_once("classes/ftp/class.ftp_".pemftp_class_module().".php");
+		$path = 'classes';
 	}
 	else {
 		$path = realpath(dirname(__FILE__));
-		require_once("{$path}/ftp/class.ftp.php");
-		require_once("{$path}/ftp/class.ftp_".pemftp_class_module().".php");
 	}
+	require_once("{$path}/ftp/class.ftp.php");
+	$pemftp_class = pemftp_class_module();
+	require_once("{$path}/ftp/class.ftp_{$pemftp_class}.php");
 }
 
 class filesystem {
@@ -26,7 +26,7 @@ class filesystem {
 		$this->port = $port;
 		$this->user = $user;
 		$this->pw = $pw;
-		$this->installed_path = '/';
+		$this->installed_path = DIRECTORY_SEPARATOR;
 		$this->connected = false;
 	}
 	
@@ -52,8 +52,12 @@ class filesystem {
 				return false;
 			}
 			$this->ftp->SetType(FTP_AUTOASCII);
-			$this->ftp->Passive(FALSE);
-			$this->ftp->chdir($this->installed_path);
+			$this->ftp->Passive(false);
+			
+			if (!$this->ftp->chdir($this->installed_path)) {
+				$this->ftp->chdir(DIRECTORY_SEPARATOR);
+				trigger_error('Could not change working directory for FTP connection.', E_WARNING);
+			}
 			
 			$this->connected = true;
 			return true;
@@ -81,14 +85,50 @@ class filesystem {
 	}
 	
 	function file_put_contents($file, $data) {
-		return @file_put_contents($file, $data);
+		if (is_array($data)) {
+			$data = implode("\n", $data);
+		}
+		if (file_put_contents($file, $data) == false) {
+			if ($this->init()) {
+				$fp = tmpfile();
+				if (!is_resource($fp)) {
+					return false;
+				}
+				fwrite($fp, $data);
+				fseek($fp, 0);
+				if ($this->ftp->put(&$fp, $file) == false) {
+					return false;
+				}
+				if (is_resource($fp)) {
+					fclose($fp);
+				}
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return true;
+		}
 	}
 	
 	function copy($src, $dest) {
-		return @copy($src, $dest);
+		if (!file_exists($src)) {
+			return false;
+		}
+		$dir = dirname($dest);
+		while(!file_exists($dir)) {
+			$this->mkdir($dir, 0777);
+			$dir = dirname($dir);
+		}
+		return copy($src, $dest);
 	}
 	
 	function mkdir($file, $chmod = 0755) {
+		if (file_exists($file)) {
+			$this->ftp->chmod($file, $chmod);
+		}
 		if (!@mkdir($file, $chmod)) {
 			if ($this->init()) {
 				$success = $this->ftp->mkdir($file);
@@ -105,6 +145,9 @@ class filesystem {
 	}
 	
 	function rename($old, $new) {
+		if (!file_exists($old)) {
+			return false;
+		}
 		if (!@rename($old, $new)) {
 			if ($this->init()) {
 				return $this->ftp->rename($old, $new);
@@ -119,6 +162,9 @@ class filesystem {
 	}
 	
 	function chmod($file, $chmod) {
+		if (!file_exists($file)) {
+			return false;
+		}
 		if (!@chmod($file, $chmod)) {
 			if ($this->init()) {
 				return $this->ftp->chmod($file, $chmod);
@@ -133,6 +179,9 @@ class filesystem {
 	}
 	
 	function rmdir($file) {
+		if (!file_exists($file)) {
+			return false;
+		}
 		if (!@rmdir($file)) {
 			if ($this->init()) {
 				return $this->ftp->rmdir($file);

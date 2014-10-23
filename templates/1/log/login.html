@@ -18,7 +18,7 @@
 	<br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center">
-	 <?php echo iif(!empty($loc), '<input type="hidden" name="redirect" value="'.$loc.'" />'); ?>
+	 <input type="hidden" name="redirect" value="<?php echo $loc; ?>" />
 	 <input tabindex="3" type="submit" accesskey="s" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" />
 </div> 
 </div>
@@ -29,8 +29,10 @@
 <div class="bbody">
 <p><?php echo $lang->phrase('why_register_desc'); ?></p>
 <p class="center">
-[<a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a>] &nbsp; 
-[<a href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('login_registered'); ?></a>]
+[<a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a>]
+<?php if ($config['disableregistration'] == 0) { ?>
+ &nbsp; [<a href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('login_registered'); ?></a>]
+<?php } ?>
 </p>
 </div>
 </div>

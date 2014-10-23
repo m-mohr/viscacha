@@ -5,7 +5,7 @@
 You subscribed the topic "{@row->topic}".
 New posts have been made. The last entry is from {@row->last_name}.
 
-Here you can view the topic:
+You can view the topic here:
 {@config->furl}/showtopic.php?id={@row->id}
 
 Best regards,

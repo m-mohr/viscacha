@@ -13,7 +13,7 @@ function FetchElement(id) {
 		return document.layers[id];
 	}
 }
-function init(size) {
+function init() {
 	for(var i=0; i < document.images.length; i++) {
 	    name = document.images[i].alt;
 		if (name == 'collapse') {
@@ -26,6 +26,9 @@ function init(size) {
 				if(hide != '') {
 					switchimg.src = box_img_plus;
 					part.style.display = 'none';
+				}
+				else {
+					switchimg.src = box_img_minus;
 				}
 			}
 			HandCursor(switchimg);

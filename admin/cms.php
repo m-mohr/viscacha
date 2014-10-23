@@ -28,6 +28,8 @@ function SelectPackageLinks ($head) {
 	<?php
 }
 
+($code = $plugins->load('admin_cms_jobs')) ? eval($code) : null;
+
 if ($job == 'plugins') {
 	send_nocache_header();
 	echo head();
@@ -105,21 +107,21 @@ if ($job == 'plugins') {
 			if ($head['name'] != null) {
 				?>
 				<tr class="mbox">
-					<td><?php echo $head['name']; ?><?php echo iif ($head['active'] == 0, ' (<em>Inaktiv</em>)'); ?></td>
+					<td><?php echo $head['name']; ?><?php echo iif ($head['active'] == 0, ' (<em>Inactive</em>)'); ?></td>
 					<td nowrap="nowrap"><?php echo $head['position']; ?></td>
 					<td nowrap="nowrap">
 						<?php 
 						if ($head['active'] == 1) {
-							echo '<a href="admin.php?action=cms&job=plugins_active&id='.$head['id'].'&value=0">Deactivate</a>';
+							echo '<a href="admin.php?action=cms&amp;job=plugins_active&amp;id='.$head['id'].'&amp;value=0">Deactivate</a>';
 						}
 						else {
-							echo '<a href="admin.php?action=cms&job=plugins_active&id='.$head['id'].'&value=1">Activate</a>';
+							echo '<a href="admin.php?action=cms&amp;job=plugins_active&amp;id='.$head['id'].'&amp;value=1">Activate</a>';
 						}
 						?>
 					</td>
 					<td>
-					 [<a href="admin.php?action=cms&job=plugins_edit&id=<?php echo $head['id']; ?>">Edit</a>] 
-					 [<a href="admin.php?action=cms&job=plugins_delete&id=<?php echo $head['id']; ?>">delete</a>]
+					 <a class="button" href="admin.php?action=cms&amp;job=plugins_edit&amp;id=<?php echo $head['id']; ?>">Edit</a> 
+					 <a class="button" href="admin.php?action=cms&amp;job=plugins_delete&amp;id=<?php echo $head['id']; ?>">Delete</a>
 					</td>
 				</tr>
 				<?php
@@ -165,28 +167,28 @@ if ($job == 'plugins') {
 			}
 			?>
 			<tr class="mbox">
-				<td><?php echo $head['name']; ?><?php echo iif ($head['active'] == 0, ' (<em>Inaktiv</em>)'); ?></td>
+				<td><?php echo $head['name']; ?><?php echo iif ($head['active'] == 0, ' (<em>Inactvie</em>)'); ?></td>
 				<td nowrap="nowrap" title="<?php echo htmlspecialchars($head['title']); ?>">
 					<?php SelectPackageLinks($head); echo $head['module']; ?>&nbsp;&nbsp;	
 				</td>
 				<td nowrap="nowrap">
 					<?php 
 					if ($head['active'] == 1) {
-						echo '<a href="admin.php?action=cms&job=plugins_active&id='.$head['id'].'&value=0">Deactivate</a>';
+						echo '<a href="admin.php?action=cms&amp;job=plugins_active&amp;id='.$head['id'].'&amp;value=0">Deactivate</a>';
 					}
 					else {
-						echo '<a href="admin.php?action=cms&job=plugins_active&id='.$head['id'].'&value=1">Activate</a>';
+						echo '<a href="admin.php?action=cms&amp;job=plugins_active&amp;id='.$head['id'].'&amp;value=1">Activate</a>';
 					}
 					?>
 				</td>
 				<td align="right" nowrap="nowrap">
 					<?php echo $head['ordering']; ?>&nbsp;&nbsp;
-		 			<a href="admin.php?action=cms&job=plugins_move&id=<?php echo $head['id']; ?>&value=-1"><img src="admin/html/images/asc.gif" border="0" alt="Up"></a>&nbsp;
-		 			<a href="admin.php?action=cms&job=plugins_move&id=<?php echo $head['id']; ?>&value=1"><img src="admin/html/images/desc.gif" border="0" alt="Down"></a>
+		 			<a href="admin.php?action=cms&amp;job=plugins_move&amp;id=<?php echo $head['id']; ?>&amp;value=-1"><img src="admin/html/images/asc.gif" border="0" alt="Up"></a>&nbsp;
+		 			<a href="admin.php?action=cms&amp;job=plugins_move&amp;id=<?php echo $head['id']; ?>&amp;value=1"><img src="admin/html/images/desc.gif" border="0" alt="Down"></a>
 				</td>
 				<td>
-				 [<a href="admin.php?action=cms&job=plugins_edit&id=<?php echo $head['id']; ?>">Edit</a>] 
-				 [<a href="admin.php?action=cms&job=plugins_delete&id=<?php echo $head['id']; ?>">Delete</a>]
+				 <a class="button" href="admin.php?action=cms&amp;job=plugins_edit&amp;id=<?php echo $head['id']; ?>">Edit</a> 
+				 <a class="button" href="admin.php?action=cms&amp;job=plugins_delete&amp;id=<?php echo $head['id']; ?>">Delete</a>
 				</td>
 			</tr>
 			<?php
@@ -217,7 +219,7 @@ elseif ($job == 'plugins_active') {
 	$id = $gpc->get('id', int);
 	$active = $gpc->get('value', int);
 	if ($active != 0 && $active != 1) {
-		error('admin.php?action=cms&job=nav', 'Ungültiger Status angegeben');
+		error('admin.php?action=cms&job=nav', 'Invalid status given');
 	}
 
 	$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = '.$id, __LINE__, __FILE__);
@@ -231,7 +233,7 @@ elseif ($job == 'plugins_active_all') {
 	$id = $gpc->get('id', int);
 	$active = $gpc->get('value', int);
 	if ($active != 0 && $active != 1) {
-		error('admin.php?action=cms&job=nav', 'Ungültiger Status angegeben');
+		error('admin.php?action=cms&job=nav', 'Invalid status given');
 	}
 
 	$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE module = '.$id, __LINE__, __FILE__);
@@ -663,7 +665,7 @@ elseif ($job == 'package_template') {
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"> 
 	 <tr>
 	  <td class="obox" colspan="3">
-	  <span style="float: right;">[<a href="javascript: self.close();">Close Window</a>]</span>
+	  <span style="float: right;"><a class="button" href="javascript: self.close();">Close Window</a></span>
 	  Manage Templates for Package: <?php echo $data['title']; ?></td>
 	 </tr>
 	 <?php if (isset($ini['template']) && count($ini['template']) > 0) { ?>
@@ -923,12 +925,12 @@ elseif ($job == 'package_language') {
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
    <td class="obox" colspan="<?php echo count($cache)+1; ?>">
-   <span style="float: right;">[<a href="admin.php?action=cms&job=package_language_add&id=<?php echo $id; ?>">Add new Phrase</a>]</span>
+   <span style="float: right;"><a class="button" href="admin.php?action=cms&job=package_language_add&id=<?php echo $id; ?>">Add new Phrase</a></span>
    Phrase Manager</td>
   </tr>
   <?php if (count($ini['language']) == 0) { ?>
   <tr>
-   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">There were no phrases created. [<a href="admin.php?action=cms&job=package_language_add&id=<?php echo $id; ?>">Add new Phrase</a>]</td> 
+   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">There were no phrases created. <a class="button" href="admin.php?action=cms&job=package_language_add&id=<?php echo $id; ?>">Add new Phrase</a></td> 
   </tr>
   <?php } else { ?>
   <tr>
@@ -939,12 +941,12 @@ elseif ($job == 'package_language') {
   </tr>
   <?php foreach ($ini['language'] as $phrase => $value) { ?>
   <tr>
-   <td class="mmbox"><input type="checkbox" name="delete[]" value="<?php echo $phrase; ?>">&nbsp;[<a href="admin.php?action=cms&job=package_language_edit&phrase=<?php echo $phrase; ?>&id=<?php echo $id; ?>">Edit</a>]&nbsp;<?php echo $phrase; ?></td>
+   <td class="mmbox"><input type="checkbox" name="delete[]" value="<?php echo $phrase; ?>">&nbsp;<a class="button" href="admin.php?action=cms&job=package_language_edit&phrase=<?php echo $phrase; ?>&id=<?php echo $id; ?>">Edit</a>&nbsp;<?php echo $phrase; ?></td>
    <?php
    foreach ($cache as $row) {
    	$status = in_array($phrase, $diff[$row['id']]);
    ?>
-   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' [<a href="admin.php?action=cms&job=package_language_copy&language='.$row['id'].'&phrase='.$phrase.'&id='.$id.'">Add</a>]'); ?></td>
+   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' <a class="button" href="admin.php?action=cms&job=package_language_copy&language='.$row['id'].'&phrase='.$phrase.'&id='.$id.'">Add</a>'); ?></td>
    <?php } ?>
   </tr>
   <?php } ?>
@@ -1178,7 +1180,7 @@ elseif ($job == 'package_language_edit') {
 <form name="form" method="post" action="admin.php?action=cms&job=package_language_save2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpediting="4" align="center">
   <tr> 
-   <td class="obox" colspan="2">Phrase Manager &raquo; Edit new Phrase to Package</td>
+   <td class="obox" colspan="2">Phrase Manager &raquo; Edit Phrase</td>
   </tr>
   <tr>
    <td class="mbox" width="50%">Varname:<br />
@@ -1389,10 +1391,49 @@ elseif ($job == 'package_import2') {
 		copyr($tempdir, $dir);
 
 		if (isset($ini['language']) && count($ini['language']) > 0) {
-			$result = $db->query("SELECT id FROM {$db->pre}language",__LINE__,__FILE__);
-			while($row = $db->fetch_assoc($result)) {
-				$c->getdata("language/{$row['id']}/modules.lng.php", 'lang');
-				foreach ($ini['language'] as $varname => $text) {
+			$codes = array();
+			$keys = array_keys($ini);
+			foreach ($keys as $entry) {
+			   	if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+			   		if (!isset($codes[$code[1]])) {
+			   			$codes[$code[1]] = array();
+			   		}
+			   		if (isset($code[2])) {
+			   			$codes[$code[1]][] = $code[2];
+			   		}
+			   		else {
+			   			if (!in_array('', $codes[$code[1]])) {
+			   				$codes[$code[1]][] = '';
+			   			}
+			   		}
+			   	}
+			}
+			$langcodes = getLangCodes();
+			foreach ($langcodes as $code => $lid) {
+				$ldat = explode('_', $code);
+				if (isset($codes[$ldat[0]])) {
+					$count = count($codes[$ldat[0]]); 
+					if (in_array('', $codes[$ldat[0]])) {
+						$count--;
+					}
+				}
+				else {
+					$count = -1;
+				}
+				if (isset($codes[$ldat[0]]) && !empty($ldat[1]) && in_array($ldat[1], $codes[$ldat[0]])) { // Nehme Original
+					$src = 'language_'.$code;
+				}
+				elseif(isset($codes[$ldat[0]]) && in_array('', $codes[$ldat[0]])) { // Nehme gleichen Langcode, aber ohne Countrycode
+					$src = 'language_'.$ldat[0];
+				}
+				elseif(isset($codes[$ldat[0]]) && $count > 0) { // Nehme gleichen Langcode, aber falchen Countrycode
+					$src = 'language_'.$ldat[0].'_'.reset($codes[$ldat[0]]);
+				}
+				else { // Nehme Standard
+					$src = 'language';
+				}
+				$c->getdata("language/{$lid}/modules.lng.php", 'lang');
+				foreach ($ini[$src] as $varname => $text) {
 					$c->updateconfig($varname, str, $text);
 				}
 				$c->savedata();
@@ -1510,21 +1551,44 @@ elseif ($job == 'package_export2') {
 	if (empty($file)) {
 		$file = convert2adress($data['title']).'.zip';
 	}
+	
 	$ini = $myini->read("modules/{$data['id']}/config.ini");
+	
+	$dirs = array();
+	$langcodes = getLangCodes();
+	foreach ($langcodes as $code => $lid) {
+		$langdata = return_array('modules', $lid);
+		$langdata = array_intersect_key($langdata, $ini['language']);
+		if ($lid == $config['langdir']) {
+			$ini['language'] = $langdata;
+		}
+		else {
+			$ini['language_'.$code] = $langdata;
+		}
+	}
+	$myini->write("modules/{$data['id']}/config.ini", $ini);
+	
 	$tpl = $gpc->get('tpl', int);
 	$tempdir = "temp/";
 	$error = false;
 	
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
-	$v_list = $archive->create(makeOSPath(array("modules", $id)), PCLZIP_OPT_REMOVE_PATH, makeOSPath(array("modules", $id)));
+	$v_list = $archive->create(
+		"modules/{$id}/", 
+		PCLZIP_OPT_REMOVE_PATH, "modules/{$id}/"
+	);
 	if ($v_list == 0) {
 		$error = true;
 	}
 	else {
 		if (isset($ini['template']) && count($ini['template']) > 0) {
 			$archive = new PclZip($tempdir.$file);
-			$v_list = $archive->add(makeOSPath(array('templates', $tpl, 'modules', $id)), PCLZIP_OPT_REMOVE_PATH, makeOSPath(array('templates', $tpl, 'modules', $id)), PCLZIP_OPT_ADD_PATH, makeOSPath(array("templates")));
+			$v_list = $archive->add(
+				"templates/{$tpl}/modules/{$id}/", 
+				PCLZIP_OPT_REMOVE_PATH, "templates/{$tpl}/modules/{$id}/", 
+				PCLZIP_OPT_ADD_PATH, "templates/"
+			);
 			if ($v_list == 0) {
 				$error = true;
 				break;
@@ -1706,9 +1770,9 @@ elseif ($job == 'nav') {
   <tr> 
    <td class="obox" colspan="4">
    	<span style="float: right;">
-   	[<a href="admin.php?action=cms&job=nav_add">Add Link</a>]
-   	[<a href="admin.php?action=cms&job=nav_addbox">Add Box</a>]
-   	[<a href="admin.php?action=cms&job=nav_addplugin">Add PlugIn</a>]
+   	<a class="button" href="admin.php?action=cms&job=nav_add">Add Link</a>
+   	<a class="button" href="admin.php?action=cms&job=nav_addbox">Add Box</a>
+   	<a class="button" href="admin.php?action=cms&job=nav_addplugin">Add PlugIn</a>
    	</span>Manage Navigation
    </td>
   </tr>
@@ -1764,8 +1828,8 @@ elseif ($job == 'nav') {
 	<a href="admin.php?action=cms&job=nav_move&id=<?php echo $head['id']; ?>&value=1"><img src="admin/html/images/desc.gif" border="0" alt="Down"></a>
 	</td>
 	<td width="35%">
-	 [<a href="admin.php?action=cms&job=nav_edit&id=<?php echo $head['id']; ?>">Edit</a>] 
-	 [<a href="admin.php?action=cms&job=nav_delete&id=<?php echo $head['id']; ?>">Delete</a>]	
+	 <a class="button" href="admin.php?action=cms&job=nav_edit&id=<?php echo $head['id']; ?>">Edit</a> 
+	 <a class="button" href="admin.php?action=cms&job=nav_delete&id=<?php echo $head['id']; ?>">Delete</a>	
 	</td>
 	</tr>
 	<?php
@@ -1798,8 +1862,8 @@ elseif ($job == 'nav') {
 				<a href="admin.php?action=cms&job=nav_move&id=<?php echo $link['id']; ?>&value=1"><img src="admin/html/images/desc.gif" border="0" alt="Down"></a>
 				</font></td>			
 				<td class="mbox" width="25%">
-				 [<a href="admin.php?action=cms&job=nav_edit&id=<?php echo $link['id'].SID2URL_x; ?>">Edit</a>] 
-				 [<a href="admin.php?action=cms&job=nav_delete&id=<?php echo $link['id'].SID2URL_x; ?>">Delete</a>]
+				 <a class="button" href="admin.php?action=cms&job=nav_edit&id=<?php echo $link['id'].SID2URL_x; ?>">Edit</a> 
+				 <a class="button" href="admin.php?action=cms&job=nav_delete&id=<?php echo $link['id'].SID2URL_x; ?>">Delete</a>
 				</td>
 				</tr>
 				<?php
@@ -1832,8 +1896,8 @@ elseif ($job == 'nav') {
 							<a href="admin.php?action=cms&job=nav_move&id=<?php echo $sublink['id']; ?>&value=1"><img src="admin/html/images/desc.gif" border="0" alt="Down"></a>
 							</td>			
 							<td class="mbox" width="25%">
-							 [<a href="admin.php?action=cms&job=nav_edit&id=<?php echo $sublink['id']; ?>">Edit</a>] 
-							 [<a href="admin.php?action=cms&job=nav_delete&id=<?php echo $sublink['id']; ?>">Delete</a>]
+							 <a class="button" href="admin.php?action=cms&job=nav_edit&id=<?php echo $sublink['id']; ?>">Edit</a> 
+							 <a class="button" href="admin.php?action=cms&job=nav_delete&id=<?php echo $sublink['id']; ?>">Delete</a>
 							</td>
 							</tr>
 							<?php
@@ -2366,7 +2430,7 @@ elseif ($job == 'com') {
 ?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="5"><span style="float: right;">[<a href="admin.php?action=cms&job=com_add">Upload new Component</a>]</span>Manage Components</td>
+   <td class="obox" colspan="5"><span style="float: right;"><a class="button" href="admin.php?action=cms&job=com_add">Upload new Component</a></span>Manage Components</td>
   </tr>
   <tr> 
    <td class="ubox">Name</b></td>
@@ -2444,7 +2508,7 @@ elseif ($job == 'com_readme') {
 elseif ($job == 'com_admin') {
 	$id = $gpc->get('cid', int);
 	$mod = $gpc->get('file', str, 'frontpage');
-	$result = $db->query("SELECT * FROM {$db->pre}component WHERE id = {$id} LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 	$row = $db->fetch_assoc($result);
 	$cfg = $myini->read('components/'.$row['id'].'/components.ini');
 	$cfg = array_merge($row, $cfg);
@@ -2452,6 +2516,18 @@ elseif ($job == 'com_admin') {
 		echo head();
 		error('admin.php?action=cms&job=com','Section not found!');
 	}
+
+	DEFINE('COM_ID', $id);
+	DEFINE('COM_DIR', 'components/'.COM_ID.'/');
+	if (!isset($cfg['admin'][$mod])) {
+		DEFINE('COM_MODULE', 'frontpage');
+	}
+	else {
+		DEFINE('COM_MODULE', $mod);
+	}
+	DEFINE('COM_MODULE_FILE', $cfg['admin'][COM_MODULE]);
+	DEFINE('COM_FILE', $cfg['admin']['frontpage']);
+
 	$uri = explode('?', $cfg['admin'][$mod]);
 	$file = basename($uri[0]);
 	if (isset($uri[1])) {
@@ -2620,15 +2696,64 @@ elseif ($job == 'com_add2') {
 
 		if (isset($cfg['php']) && count($cfg['php']) > 0) {
 			$filesystem->mkdir("./components/{$id}");
+			if (!in_array($cfg['config']['install'], $cfg['php'])) {
+				$cfg['php'][] = $cfg['config']['install'];
+			}
+			if (!in_array($cfg['config']['uninstall'], $cfg['php'])) {
+				$cfg['php'][] = $cfg['config']['uninstall'];
+			}
 			foreach ($cfg['php'] as $file) {
 				$filesystem->copy("{$tdir}php/{$file}", "./components/{$id}/{$file}");
 			}
 		}
 		if (isset($cfg['language']) && count($cfg['language']) > 0) {
-			$filesystem->mkdir("./language/{$config['langdir']}/components/{$id}", 0777);
-			foreach ($cfg['language'] as $file) {
-				$filesystem->copy("{$tdir}/language/$file", "./language/{$config['langdir']}/components/{$id}/{$file}");
-				$filesystem->chmod("./language/{$config['langdir']}/components/$id/$file", 0666);
+			$d = dir($tdir);
+			$codes = array();
+			while (false !== ($entry = $d->read())) {
+			   	if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code) && is_dir("{$tdir}/{$entry}")) {
+			   		if (!isset($codes[$code[1]])) {
+			   			$codes[$code[1]] = array();
+			   		}
+			   		if (isset($code[2])) {
+			   			$codes[$code[1]][] = $code[2];
+			   		}
+			   		else {
+			   			if (!in_array('', $codes[$code[1]])) {
+			   				$codes[$code[1]][] = '';
+			   			}
+			   		}
+			   	}
+			}
+			$d->close();
+			$langcodes = getLangCodes();
+			foreach ($langcodes as $code => $lid) {
+				$ldat = explode('_', $code);
+				if (isset($codes[$ldat[0]])) {
+					$count = count($codes[$ldat[0]]); 
+					if (in_array('', $codes[$ldat[0]])) {
+						$count--;
+					}
+				}
+				else {
+					$count = -1;
+				}
+				$filesystem->mkdir("./language/{$lid}/components/{$id}", 0777);
+				if (isset($codes[$ldat[0]]) && !empty($ldat[1]) && in_array($ldat[1], $codes[$ldat[0]])) { // Nehme Original
+					$src = 'language_'.$code;
+				}
+				elseif(isset($codes[$ldat[0]]) && in_array('', $codes[$ldat[0]])) { // Nehme gleichen Langcode, aber ohne Countrycode
+					$src = 'language_'.$ldat[0];
+				}
+				elseif(isset($codes[$ldat[0]]) && $count > 0) { // Nehme gleichen Langcode, aber falchen Countrycode
+					$src = 'language_'.$ldat[0].'_'.reset($codes[$ldat[0]]);
+				}
+				else { // Nehme Standard
+					$src = 'language';
+				}
+				foreach ($cfg['language'] as $file) {
+					$filesystem->copy("{$tdir}/{$src}/{$file}", "./language/{$lid}/components/{$id}/{$file}");
+					$filesystem->chmod("./language/{$lid}/components/{$id}/{$file}", 0666);
+				}
 			}
 		}
 			
@@ -2679,7 +2804,13 @@ elseif ($job == 'com_add2') {
 			else {
 				$input = array();
 			}
-			include("components/{$id}/{$file}");
+			$path = "components/{$id}/{$file}";
+			if (!file_exists($path)) {
+				error('admin.php?action=cms&job=cms_add', 'Installation file not found.');
+			}
+			else {
+				include($path);
+			}
 		}	
 	}
 }
@@ -2687,7 +2818,7 @@ elseif ($job == 'com_export') {
 	$id = $gpc->get('id', int);
 	$tempdir = 'temp/';
 	
-	$result = $db->query("SELECT * FROM {$db->pre}component WHERE id = {$id} LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 	$row = $db->fetch_assoc($result);
 	$ini = $myini->read('components/'.$row['id'].'/components.ini');
 	$info = array_merge($row, $ini);
@@ -2700,9 +2831,18 @@ elseif ($job == 'com_export') {
 		'template' => "templates/{$design['template']}/components/{$id}/",
 		'image' => "images/{$design['images']}/",
 		'style' => "designs/{$design['stylesheet']}/",
-		'language' => "language/{$config['langdir']}/components/{$id}/",
 		'php' => "components/{$id}/"
 	);
+	$langcodes = getLangCodes();
+	foreach ($langcodes as $code => $lid) {
+		if ($lid == $config['langdir']) {
+			$dirs['language'] = "language/{$lid}/components/{$id}/";
+		}
+		else {
+			$dirs['language_'.$code] = "language/{$lid}/components/{$id}/";
+		}
+	}
+
 	$error = false;
 	$settings = $dirs['php']."components.ini";
 	
@@ -2715,12 +2855,16 @@ elseif ($job == 'com_export') {
 	else {
 		foreach ($dirs as $key => $dir) {
 			$filelist = array();
+			$newdir = $key;
+			if (strpos($key, 'language_') !== false) {
+				$key = 'language';
+			}
 			if (isset($ini[$key]) && count($ini[$key]) > 0) {
 				foreach ($ini[$key] as $cfile) {
 					$filelist[] = $dir.$cfile;
 				}
 				$archive = new PclZip($tempdir.$file);
-				$v_list = $archive->add($filelist, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $key);
+				$v_list = $archive->add($filelist, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, $newdir);
 				if ($v_list == 0) {
 					$error = true;
 					break;
@@ -2768,31 +2912,18 @@ elseif ($job == 'com_delete2') {
 	$cfg = $myini->read('components/'.$id.'/components.ini');
 
 	$db->query("DELETE FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
-
-	$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'",__LINE__,__FILE__);
-	$design = $db->fetch_assoc($result);
-
-	rmdirr("./language/{$config['langdir']}/components/$id");
-	rmdirr("./templates/{$design['template']}/components/$id");
-	if (isset($cfg['image']) && count($cfg['image']) > 0) {
-		foreach ($cfg['image'] as $file) {
-			$filesystem->unlink("./images/{$design['images']}/$file");
-		}
-	}
-	if (isset($cfg['style']) && count($cfg['style']) > 0) {
-		foreach ($cfg['style'] as $file) {
-			$filesystem->unlink("./designs/{$design['stylesheet']}/$file");
-		}
-	}
-	rmdirr("./components/$id");
-
-	$delobj = $scache->load('components');
-	$delobj->delete();
 	
-	if (empty($cfg['config']['uninstall'])) {
-		ok('admin.php?action=cms&job=com', 'Component was successfully deinstalled!');
+	$cache = array();
+	$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs",__LINE__,__FILE__);
+	$design = $db->fetch_assoc($result);
+	while ($row = $db->fetch_assoc($design)) {
+		$cache[] = $row;
 	}
-	else {
+	$result = $db->query("SELECT id FROM {$db->pre}language",__LINE__,__FILE__);
+	$languages = $db->fetch_assoc($result);
+	
+	$confirm = true;
+	if (!empty($cfg['config']['uninstall'])) {
 		$mod = $gpc->get('file', none, $cfg['config']['uninstall']);
 		$uri = explode('?', $mod);
 		$file = basename($uri[0]);
@@ -2802,7 +2933,44 @@ elseif ($job == 'com_delete2') {
 		else {
 			$input = array();
 		}
-		include("components/{$id}/{$file}");
+		$path = "components/{$id}/{$file}";
+		if (!file_exists($path)) {
+			error('admin.php?action=cms&job=cms_add', 'Installation file not found.');
+		}
+		else {
+			$confirm = false;
+			include($path);
+		}
+	}
+
+	while ($row = $db->fetch_assoc($languages)) {
+		rmdirr("./language/{$row['id']}/components/{$id}");
+	}
+	
+	foreach ($cache as $design) {
+		rmdirr("./templates/{$design['template']}/components/{$id}");
+	}
+	if (isset($cfg['image']) && count($cfg['image']) > 0) {
+		foreach ($cache as $design) {
+			foreach ($cfg['image'] as $file) {
+				$filesystem->unlink("./images/{$design['images']}/{$file}");
+			}
+		}
+	}
+	if (isset($cfg['style']) && count($cfg['style']) > 0) {
+		foreach ($cache as $design) {
+			foreach ($cfg['style'] as $file) {
+				$filesystem->unlink("./designs/{$design['stylesheet']}/{$file}");
+			}
+		}
+	}
+	rmdirr("./components/{$id}");
+
+	$delobj = $scache->load('components');
+	$delobj->delete();
+	
+	if (empty($cfg['config']['uninstall']) || $confirm == true) {
+		ok('admin.php?action=cms&job=com', 'Component successfully uninstalled!');
 	}
 }
 elseif ($job == 'doc') {
@@ -2813,12 +2981,12 @@ elseif ($job == 'doc') {
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
    <td class="obox" colspan="7">
-   <span style="float: right;">[<a href="admin.php?action=cms&job=doc_add">Create new document</a>]</span>
+   <span style="float: right;"><a class="button" href="admin.php?action=cms&job=doc_add">Create new document</a></span>
    Manage Documents &amp; Pages
    </td>
   </tr>
   <tr>
-   <td class="ubox" width="5%">DEL</td>
+   <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="40%">Title</td>
    <td class="ubox" width="5%">ID</td>
    <td class="ubox" width="20%">Author</td>
@@ -2852,8 +3020,8 @@ elseif ($job == 'doc') {
    <td class="mbox" width="15%"><?php echo $row['update']; ?></td>
    <td class="mbox center" width="5%"><?php echo noki($row['active'], ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=cms&job=doc_ajax_active&id='.$row['id'].'\')"'); ?></td>
    <td class="mbox" width="10%">
-   [<a href="docs.php?id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank">View</a>]
-   [<a href="admin.php?action=cms&job=doc_edit&id=<?php echo $row['id']; ?>">Edit</a>]
+   <a class="button" href="docs.php?id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank">View</a>
+   <a class="button" href="admin.php?action=cms&job=doc_edit&id=<?php echo $row['id']; ?>">Edit</a>
    </td>
   </tr>
 <?php } ?>
@@ -3227,10 +3395,10 @@ elseif ($job == 'feed') {
 <form name="form" method="post" action="admin.php?action=cms&job=feed_delete">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="5"><span style="float: right;">[<a href="admin.php?action=cms&job=feed_add">Add a new Newsfeed</a>]</span>Newsfeed Syndication</td>
+   <td class="obox" colspan="5"><span style="float: right;"><a class="button" href="admin.php?action=cms&job=feed_add">Add a new Newsfeed</a></span>Import of Newsfeeds (<?php echo $db->num_rows(); ?>)</td>
   </tr>
   <tr>
-   <td class="ubox" width="5%">Del</td>
+   <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="5%">ID</td>
    <td class="ubox" width="35%">Title</td> 
    <td class="ubox" width="45%">File</td>

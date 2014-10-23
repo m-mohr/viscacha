@@ -68,6 +68,9 @@ function ForumSubs ($tree, $cat, $board, $char = '+', $level = 0) {
 	    }
 	}
 }
+
+($code = $plugins->load('admin_forums_jobs')) ? eval($code) : null;
+
 if ($job == 'mods_ajax_changeperm') {
 	$mid = $gpc->get('mid', int);
 	$bid = $gpc->get('bid', int);
@@ -103,10 +106,10 @@ elseif ($job == 'mods') {
 <form name="form" method="post" action="admin.php?action=forums&job=mods_delete<?php echo iif($bid > 0, '&id='.$bid); ?>">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="<?php echo $colspan; ?>"><span style="float: right;">[<a href="admin.php?action=forums&amp;job=mods_add&amp;id=<?php echo $bid; ?>">Add Moderator</a>]</span>Moderator Manager</td>
+   <td class="obox" colspan="<?php echo $colspan; ?>"><span style="float: right;"><a class="button" href="admin.php?action=forums&amp;job=mods_add&amp;id=<?php echo $bid; ?>">Add Moderator</a></span>Moderator Manager</td>
   </tr>
   <tr class="ubox">
-    <td width="5%" rowspan="2">Delete</td>
+    <td width="5%" rowspan="2">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
     <td width="30%" rowspan="2">
     	<?php if ($bid == 0) { ?>
     	<a<?php echo iif($orderby == 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=member">
@@ -298,7 +301,7 @@ elseif ($job == 'manage') {
 	?>
 <table class="border">
   <tr><td class="obox" colspan="3">
-  <span style="float: right;">[<a href="admin.php?action=forums&job=cat_add">Add new Category</a>] [<a href="admin.php?action=forums&job=forum_add">Add new Forum</a>]</span>
+  <span style="float: right;"><a class="button" href="admin.php?action=forums&job=cat_add">Add new Category</a> <a class="button" href="admin.php?action=forums&job=forum_add">Add new Forum</a></span>
   Manage Forums &amp; Categories
   </td></tr>
   <tr> 
@@ -400,9 +403,9 @@ elseif ($job == 'forum_edit') {
   <tr> 
    <td class="obox" colspan="2">
    <span style="float: right;">
-   [<a href="admin.php?action=forums&amp;job=prefix&amp;id=<?php echo $id; ?>">Manage Prefixes</a>] 
-   [<a href="admin.php?action=forums&amp;job=mods&amp;id=<?php echo $id; ?>">Manage Moderators</a>] 
-   [<a href="admin.php?action=forums&amp;job=rights&amp;id=<?php echo $id; ?>">Manage Permissions</a>] 
+   <a class="button" href="admin.php?action=forums&amp;job=prefix&amp;id=<?php echo $id; ?>">Manage Prefixes</a> 
+   <a class="button" href="admin.php?action=forums&amp;job=mods&amp;id=<?php echo $id; ?>">Manage Moderators</a> 
+   <a class="button" href="admin.php?action=forums&amp;job=rights&amp;id=<?php echo $id; ?>">Manage Permissions</a> 
    </span>
    Edit a forum
    </td>
@@ -487,6 +490,10 @@ elseif ($job == 'forum_edit') {
    <td class="mbox">Show topics in active topic list:<br /><span class="stext">If checked, the topics in this forum will be shown in the active topic lists.</span></td>
    <td class="mbox"><input type="checkbox" name="active_topic" value="1"<?php echo iif($row['active_topic'] == '1', ' checked="checked""'); ?> /></td> 
   </tr>
+  <tr> 
+   <td class="mbox">Count posts made in this forum towards user post counts:<br /><span class="stext">If this is not checked, posts made in this forum will not be added to users' post counts. The current post counts are <b>not</b> affected if you change this. You have to <a href="admin.php?page=<?php echo rawurldecode('admin.php?action=members&amp;job=recount'); ?>" target="_blank">recount the post counts manually</a>.</span></td>
+   <td class="mbox"><input type="checkbox" name="count_posts" value="1"<?php echo iif($row['count_posts'] == '1', ' checked="checked""'); ?> /></td> 
+  </tr>
   <tr><td class="ubox" colspan="2">Forum Rules (Announcement)</td></tr>
   <tr>
    <td class="mbox">Display Method:</td>
@@ -531,6 +538,7 @@ elseif ($job == 'forum_edit2') {
 	$invisible = $gpc->get('invisible', int);
 	$readonly = $gpc->get('readonly', int);
 	$active_topic = $gpc->get('active_topic', int);
+	$count_posts = $gpc->get('count_posts', int);
 	$message_active = $gpc->get('message_active', int);
 	$message_title = $gpc->get('message_title', str);
 	$message_text = $gpc->get('message_text', str);
@@ -575,6 +583,9 @@ elseif ($job == 'forum_edit2') {
 		}
 		if ($active_topic != 0 && $active_topic != 1) {
 			$active_topic = 0;
+		}
+		if ($count_posts != 0 && $count_posts != 1) {
+			$count_posts = 1;
 		}
 		if ($auto_status != 'n' && $auto_status != 'a') {
 			$auto_status = '';
@@ -637,6 +648,7 @@ elseif ($job == 'forum_edit2') {
 		  `reply_notification` = '{$reply_notification}',
 		  `topic_notification` = '{$topic_notification}',
 		  `active_topic` = '{$active_topic}',
+		  `count_posts` = '{$count_posts}',
 		  `message_active` = '{$message_active}',
 		  `message_title` = '{$message_title}',
 		  `message_text` = '{$message_text}' 
@@ -751,7 +763,11 @@ elseif ($job == 'forum_add') {
    <td class="mbox"><input type="checkbox" name="active_topic" value="1" checked="checked" /></td> 
   </tr>
   <tr> 
-   <td class="mbox">Copy permissions from:<br /><span class="stext">The forum will have the same permissions as the one you select here. If no forum is selected the default settings are used. <em>Caution: This is experimental! Use with care and report bugs, please.</em></span></td>
+   <td class="mbox">Count posts made in this forum towards user post counts:<br /><span class="stext">If this is not checked, posts made in this forum will not be added to users' post counts.</span></td>
+   <td class="mbox"><input type="checkbox" name="count_posts" value="1" checked="checked" /></td> 
+  </tr>
+  <tr> 
+   <td class="mbox">Copy permissions from:<br /><span class="stext">The forum will have the same permissions as the one you select here. If no forum is selected the default settings are used. (<em>Experimental</em>)</span></td>
    <td class="mbox">
 	<select name="copypermissions" size="1">
    	 <option value="0" selected="selected">Default</option>
@@ -777,6 +793,11 @@ elseif ($job == 'forum_add') {
   <tr>
    <td class="mbox">Rules:<br /><span class="stext">HTML is allowed; BB-Code is not allowed!</span></td>
    <td class="mbox"><textarea name="message_text" rows="4" cols="70"></textarea></td>
+  </tr>
+  <tr><td class="ubox" colspan="2">Prefixes</td></tr>
+  <tr>
+   <td class="mbox">Prefixes:<br /><span class="stext">Every prefix into an own line. A prefix is an addition for the title of a topic. It is supposed to explain the sense of the topic. If prefixes are activated, the user can select from a pre-set list with prefixes.</span></td>
+   <td class="mbox"><textarea name="prefix" rows="3" cols="70"></textarea></td>
   </tr>
   <tr> 
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit" /></td> 
@@ -804,10 +825,12 @@ elseif ($job == 'forum_add2') {
 	$invisible = $gpc->get('invisible', int);
 	$readonly = $gpc->get('readonly', int);
 	$active_topic = $gpc->get('active_topic', int);
+	$count_posts = $gpc->get('count_posts', int);
 	$perm = $gpc->get('copypermissions', int);
 	$message_active = $gpc->get('message_active', int);
 	$message_title = $gpc->get('message_title', str);
 	$message_text = $gpc->get('message_text', str);
+	$prefix = $gpc->get('prefix', none);
 
 	$error = array();
 	if (strlen($name) < 2) {
@@ -844,6 +867,9 @@ elseif ($job == 'forum_add2') {
 		}
 		if ($active_topic != 0 && $active_topic != 1) {
 			$active_topic = 0;
+		}
+		if ($count_posts != 0 && $count_posts != 1) {
+			$count_posts = 1;
 		}
 		if ($auto_status != 'n' && $auto_status != 'a') {
 			$auto_status = '';
@@ -926,11 +952,11 @@ elseif ($job == 'forum_add2') {
 		
 		$db->query("
 		INSERT INTO {$db->pre}forums (
-		  `name`,`description`,`parent`,`position`,`opt`,`optvalue`,`forumzahl`,`topiczahl`,`invisible`,`readonly`,
+		  `name`,`description`,`parent`,`position`,`opt`,`optvalue`,`forumzahl`,`topiczahl`,`invisible`,`readonly`,`count_posts`,
 		  `auto_status`,`reply_notification`,`topic_notification`,`active_topic`,`message_active`,`message_title`,`message_text`
 		)
 		VALUES (
-		  '{$name}','{$description}','{$parent}','{$position}','{$opt}','{$optvalue}','{$forumzahl}','{$topiczahl}','{$invisible}','{$readonly}',
+		  '{$name}','{$description}','{$parent}','{$position}','{$opt}','{$optvalue}','{$forumzahl}','{$topiczahl}','{$invisible}','{$readonly}','{$count_posts}',
 		  '{$auto_status}','{$reply_notification}','{$topic_notification}','{$active_topic}','{$message_active}','{$message_title}','{$message_text}'
 		);
 		", __LINE__, __FILE__);
@@ -938,13 +964,23 @@ elseif ($job == 'forum_add2') {
 	
 		if ($perm > 0) {
 			$columns = implode(', ', array_keys($glk_forums));
-			$result = $db->query("SELECT {$columns} FROM {$db->pre}fgroups WHERE bid = '{$perm}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT {$columns}, gid FROM {$db->pre}fgroups WHERE bid = '{$perm}'", __LINE__, __FILE__);
 			while($row = $db->fetch_assoc($result)) {
+				$gid = $row['gid'];
+				unset($row['gid']);
 				ksort($glk_forums, SORT_STRING);
 				ksort($row, SORT_STRING);
 				$row_str = implode("', '", $row);
-				$db->query("INSERT INTO {$db->pre}fgroups ({$columns}, bid) VALUES ('{$row_str}', '{$newid}')", __LINE__, __FILE__);
+				$db->query("INSERT INTO {$db->pre}fgroups ({$columns}, bid, gid) VALUES ('{$row_str}', '{$newid}', '{$gid}')", __LINE__, __FILE__);
 			}
+		}
+		$prefixes = preg_split('/[\r\n]+/', $prefix, -1, PREG_SPLIT_NO_EMPTY);
+		if (count($prefixes) > 0) {
+			$sql_values = array();
+			foreach ($prefixes as $p) {
+				$sql_values[] = "('{$newid}', '{$p}')";
+			}
+			$db->query("INSERT INTO {$db->pre}prefix (bid,value) VALUES ".implode(', ', $sql_values), __LINE__, __FILE__);
 		}
 		
 		$delobj = $scache->load('cat_bid');
@@ -1002,10 +1038,10 @@ elseif ($job == 'rights') {
 <form name="form" method="post" action="admin.php?action=forums&job=rights_delete&id=<?php echo $id; ?>">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="<?php echo $colspan; ?>"><span style="float: right;">[<a href="admin.php?action=forums&job=rights_add&id=<?php echo $id; ?>">Add Usergroup</a>]</span>Forum Permission Manager</td>
+   <td class="obox" colspan="<?php echo $colspan; ?>"><span style="float: right;"><a class="button" href="admin.php?action=forums&job=rights_add&id=<?php echo $id; ?>">Add Usergroup</a></span>Forum Permission Manager</td>
   </tr>
   <tr>
-  	<td class="ubox" valign="bottom"><b>Delete</b></td>
+  	<td class="ubox" valign="bottom"><b>Delete</b><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
     <td class="ubox" valign="bottom"><b>Name / Public Title</b></td>
     <?php foreach ($glk_forums as $key) { ?>
    	<td class="ubox" valign="bottom" align="center"><?php txt2img($gls[$key]); ?></td>
@@ -1415,7 +1451,7 @@ elseif ($job == 'prefix') {
    <td class="obox" colspan="3">Manage Prefixes</td>
   </tr>
   <tr> 
-   <td class="ubox" width="10%">Delete</td>
+   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="70%">Value</td> 
    <td class="ubox" width="20%">Standard</td> 
   </tr>

@@ -37,23 +37,29 @@ class lang {
 		}
 	}
 
-	function init($dir) {
-		$this->setdir($dir);
+	function init($dir = null) {
+		if ($dir != null) {
+			$this->setdir($dir);
+		}
 		$this->group('settings');
 		$this->group('global');
 		$this->group('modules');
 		
 		@ini_set('default_charset', '');
-		@header('Content-type: text/html; charset: '.$this->phrase('charset'));
+		if (!headers_sent()) {
+			viscacha_header('Content-type: text/html; charset: '.$this->phrase('charset'));
+		}
 		
 		global $slog;
 		if (isset($slog) && is_object($slog) && method_exists($slog, 'setlang')) {
 			$slog->setlang($this->phrase('fallback_no_username'), $this->phrase('timezone_summer'));
 		}
 		global $config, $breadcrumb;
-		$isforum = array('addreply','attachments','edit','forum','manageforum','managetopic','misc','newtopic','pdf','search','showforum','showtopic');
-		if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, $isforum)) {
-			$breadcrumb->Add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
+		if (isset($breadcrumb)) {
+			$isforum = array('addreply','attachments','edit','forum','manageforum','managetopic','misc','newtopic','pdf','search','showforum','showtopic');
+			if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, $isforum)) {
+				$breadcrumb->Add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
+			}
 		}
 	}
 
@@ -202,7 +208,7 @@ class lang {
 	
 	function setdir($dirv) {
 		global $config;
-		if (is_dir($config['fpath'].'/')) {
+		if (@is_dir($config['fpath'].DIRECTORY_SEPARATOR)) {
 			$dir = "{$config['fpath']}/language/{$dirv}";
 		}
 		else {

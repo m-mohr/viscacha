@@ -46,6 +46,166 @@ echo $tpl->parse("menu");
 
 ($code = $plugins->load('members_start')) ? eval($code) : null;
 
+$fields = explode(',', $config['mlist_fields']);
+
+$im = false;
+$colspan = 1+count($fields);
+if (in_array('fullname', $fields)) 	$colspan--;
+if (in_array('icq', $fields)) 		$colspan--; $im = true;
+if (in_array('aol', $fields)) 		$colspan--; $im = true;
+if (in_array('yahoo', $fields))		$colspan--; $im = true;
+if (in_array('msn', $fields)) 		$colspan--; $im = true;
+if (in_array('jabber', $fields))	$colspan--; $im = true;
+if (in_array('skype', $fields)) 	$colspan--; $im = true;
+if ($im == true)					$colspan++;
+
+$_GET['order'] = strtolower($_GET['order']);
+if ($_GET['order'] != 'desc') {
+	$_GET['order'] = 'asc';
+}
+$_GET['sort'] = strtolower($_GET['sort']);
+if ($_GET['sort'] != 'posts' && $_GET['sort'] != 'regdate' && $_GET['sort'] != 'location' && $_GET['sort'] != 'gender' && $_GET['sort'] != 'birthday' && $_GET['sort'] != 'lastvisit') {
+	$sqlorderby = "name {$_GET['order']}";
+}
+else {
+	$sqlorderby = "{$_GET['sort']} {$_GET['order']}, name {$_GET['order']}";
+}
+
+$sqlwhere = array();
+if (strlen($_GET['letter']) == 1) {
+	$sqlwhere[] = "LEFT(name, 1) = '{$_GET['letter']}'";
+}
+if ($config['mlist_showinactive'] == 0) {
+	$sqlwhere[] = "confirm = '11'";
+}
+$groups = array();
+$g = $gpc->get('g', arr_int);
+if ($config['mlist_filtergroups'] > 0) {
+	$group_status = $scache->load('group_status');;
+	$statusdata = $group_status->get();
+	foreach ($statusdata as $row) {
+		if ($row['guest'] != 1) {
+			$groups[$row['id']] = $row['title'];
+		}
+	}
+	$sqlwhere_findinset = array();
+	foreach ($g as $key => $value) {
+		if (isset($statusdata[$value])) {
+			$sqlwhere_findinset[] = "FIND_IN_SET({$value}, groups)";
+		}
+		else {
+			unset($g[$key]);
+		}
+	}
+	if (count($sqlwhere_findinset) == 1) {
+		$sqlwhere[] = current($sqlwhere_findinset);
+	}
+	elseif (count($sqlwhere_findinset) > 1) {
+		$sqlwhere[] = '('.implode(' OR ', $sqlwhere_findinset).')';
+	}
+}
+if (count($sqlwhere) == 0) {
+	$sqlwhere[] = '1=1';
+}
+$sqlwhere = implode(' AND ', $sqlwhere);
+
+$query_page = 	http_build_query(
+					array(
+						'letter' => $_GET['letter'],
+						'id' => $_GET['id'],
+						'sort' => $_GET['sort'],
+						'order' => $_GET['order']
+					)
+				);
+$query_letter =	http_build_query(
+					array(
+						'id' => $_GET['id'],
+						'page' => $_GET['page'],
+						'sort' => $_GET['sort'],
+						'order' => $_GET['order']
+					)
+				);
+$query_th =		http_build_query(
+					array(
+						'letter' => $_GET['letter'],
+						'id' => $_GET['id'],
+						'page' => $_GET['page']
+					)
+				);
+
+($code = $plugins->load('members_queries')) ? eval($code) : null;
+
+$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE {$sqlwhere}",__LINE__,__FILE__);
+$count = $db->fetch_num($result);
+
+$temp = pages($count[0], $config['mlistenzahl'], "members.php?{$query_page}&amp;", $_GET['page']);
+$start = $_GET['page']*$config['mlistenzahl'];
+$start = $start-$config['mlistenzahl'];
+
+$fields[] = 'name';
+$fields[] = 'id';
+$key = array_search('pm', $fields);
+if ($key !== false) {
+	unset($fields[$key]);
+	$pm = true;
+}
+else {
+	$pm = false;
+}
+$sqlselect = implode(',', $fields);
+
+$result = $db->query("
+SELECT {$sqlselect} 
+FROM {$db->pre}user 
+WHERE {$sqlwhere} 
+ORDER BY {$sqlorderby} 
+LIMIT {$start},{$config['mlistenzahl']}
+",__LINE__,__FILE__);
+
+if ($count[0] > 0 && $db->num_rows($result) == 0) {
+	error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
+}
+
+$inner['index_bit'] = '';
+while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+	if (isset($row['regdate'])) {
+		$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
+	}
+	if (isset($row['location'])) {
+		$row['location'] = iif(!empty($row['location']), $row['location'], $lang->phrase('location_no_data'));
+	}
+	if (isset($row['gender'])) {
+		if ($row['gender'] == 'm' || $row['gender'] == 'w') {
+			$row['gender'] = $lang->phrase('gender_'.$row['gender']);
+		}
+		else {
+			$row['gender'] = $lang->phrase('gender_na');
+		}
+	}
+	if (isset($row['posts'])) {
+		$row['posts'] = numbers($row['posts']);
+	}
+	if (isset($row['birthday'])) {
+		$bday = explode('-', $row['birthday']);
+		if ($row['birthday'] != null && $row['birthday'] != '0000-00-00') {
+			$row['birthday'] = iif($bday[0] > 0, $lang->phrase('members_bday_full'), $lang->phrase('members_bday_short'));
+		}
+		else {
+			$row['birthday'] = $lang->phrase('members_na');
+		}
+	}
+	if(!empty($row['pic']) && !file_exists($row['pic'])) {
+		$row['pic'] = '';
+	}
+	if(isset($row['lastvisit'])) {
+		$row['lastvisit'] = iif ($row['lastvisit'] > 0, gmdate($lang->phrase('dformat1'), times($row['lastvisit'])), $lang->phrase('members_na'));
+	}
+	($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
+	$inner['index_bit'] .= $tpl->parse("members/index_bit");
+}
+
+($code = $plugins->load('members_prepared')) ? eval($code) : null;
+
 $letter = $lang->phrase('members_all');
 $row = array('letter' => '');
 $inner['index_letter'] = $tpl->parse("members/index_letter");
@@ -55,57 +215,8 @@ while ($row = mysql_fetch_assoc($result)) {
 	$inner['index_letter'] .= $tpl->parse("members/index_letter");
 }
 
-
-if ($_GET['order'] == '1') {
-	$_GET['order'] = 'DESC';
-}
-else {
-	$_GET['order'] = 'ASC';
-}
-
-if ($_GET['sort'] == 'regdate' || $_GET['sort'] == 'location') {
-	$sort = $_GET['sort'];
-}
-else {
-	$sort = 'name';
-}
-
-if (strlen($_GET['letter']) == 1) {
-	$sqlwhere = ' WHERE LEFT(name,1) = "'.$_GET['letter'].'"';
-}
-else {
-	$sqlwhere = '';
-}
-
-($code = $plugins->load('members_queries')) ? eval($code) : null;
-
-$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user {$sqlwhere}",__LINE__,__FILE__);
-$count = $db->fetch_num($result);
-
-$temp = pages($count[0], $config['mlistenzahl'], "members.php?sort={$_GET['sort']}&amp;letter={$_GET['letter']}&amp;order={$_GET['order']}".SID2URL_x."&amp;", $_GET['page']);
-$start = $_GET['page']*$config['mlistenzahl'];
-$start = $start-$config['mlistenzahl'];
-
-$result = $db->query("
-SELECT id,name,mail,hp,location,fullname,regdate 
-FROM {$db->pre}user {$sqlwhere} 
-ORDER BY {$sort} {$_GET['order']} 
-LIMIT {$start},{$config['mlistenzahl']}
-",__LINE__,__FILE__);
-
-if ($db->num_rows() == 0) {
-	error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
-}
-
-$inner['index_bit'] = '';
-while ($row = $gpc->prepare($db->fetch_object($result))) { 
-	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
-	($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
-	$inner['index_bit'] .= $tpl->parse("members/index_bit");
-}
-
-($code = $plugins->load('members_prepared')) ? eval($code) : null;
 echo $tpl->parse("members/index");
+
 ($code = $plugins->load('members_end')) ? eval($code) : null;
 
 $slog->updatelogged();

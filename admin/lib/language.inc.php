@@ -73,4 +73,18 @@ function createParentDir($parentfile, $path) {
 		}
 	}
 }
+
+function getLangCodes() {
+	global $db, $myini;
+	$l = array();
+	$result = $db->query('SELECT id FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	while($row = $db->fetch_assoc($result)) {
+		$settings = return_array('settings', $row['id']);
+		if (!isset($l[$settings['spellcheck_dict']])) {
+			$l[$settings['spellcheck_dict']] = array();
+		}
+		$l[$settings['spellcheck_dict']] = $row['id'];
+	}
+	return $l;
+}
 ?>

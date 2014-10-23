@@ -15,8 +15,8 @@ Musterland
 Telefon: +49 (0)123 12345-0<br />
 Fax: +49 (0)123 12345-1<br />
 Mobil: +49 (0)170 123456879<br />
-Email: <img alt="E-Mail" src="classes/graphic/text2image.php?text=<?php echo base64_encode($config['forenmail']); ?>&enc=1" border="0" /><br />
-Homepage: <a href="http://www.domain.de" target="_blank">Homepagename</a>
+Email: <img alt="Email" src="classes/graphic/text2image.php?text=<?php echo base64_encode($config['forenmail']); ?>&enc=1" border="0" /><br />
+Homepage: <a href="http://www.domain.de" target="_blank">Name Ihrer Homepage</a>
 </p></div>
 </div>
 <br class="minibr" />

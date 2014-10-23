@@ -19,9 +19,7 @@ addreply.php
 
 admin.php
 -admin_start
--admin_start_tasks
 -admin_include
--admin_navigation
 -admin_notallowed
 -admin_end
 
@@ -391,11 +389,62 @@ team.php
 -team_prepared
 -team_end
 
+admin/bbcodes.php
+-admin_bbcodes_jobs
+
+admin/cms.php
+-admin_cms_jobs
+
+admin/db.php
+-admin_db_jobs
+
+admin/designs.php
+-admin_designs_jobs
+
+admin/explorer.php
+-admin_explorer_jobs
+
+admin/filetypes.php
+-admin_filetypes_jobs
+
+admin/forums.php
+-admin_forums_jobs
+
 admin/frames.php
 -admin_navigation
+-admin_navigation_extended
+-admin_navigation_simple
+
+admin/groups.php
+-admin_groups_jobs
+
+admin/language.php
+-admin_language_jobs
+
+admin/members.php
+-admin_members_jobs
 
 admin/misc.php
 -admin_misc_jobs
+
+admin/posts.php
+-admin_posts_jobs
+
+admin/profilefields.php
+-admin_profilefields_jobs
+
+admin/settings.php
+-admin_settings_jobs
+
+admin/slog.php
+-admin_slog_jobs
+
+admin/spider.php
+-admin_spider_jobs
+
+admin/start.php
+-admin_start_jobs
+-admin_start_tasks
 
 classes/class.docoutput.php
 -docout_parse

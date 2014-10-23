@@ -1,7 +1,7 @@
 <?php
 include('../data/config.inc.php');
 $ignore = isset($_REQUEST['ignore']) ? $_REQUEST['ignore'] : null;
-if ($config['version'] != '0.8 Beta 2' && empty($ignore)) { ?>
+if ($config['version'] != VISCACHA_VERSION_OLD && empty($ignore)) { ?>
 <div class="bbody">
 <p><strong>Welcome to the Viscacha update wizard.</strong></p>
 <p>The currently installed version of Viscacha (<?php echo $config['version']; ?>) is not compatible with this update or is already installed! You can skip this error, but we do not recommend to proceed with this update. </p>

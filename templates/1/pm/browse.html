@@ -3,12 +3,12 @@
 	<tr>
         <th colspan="4"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /> <?php echo $lang->phrase('pm_browse_title'); ?></th>
 	</tr> 
-<?php if ($count[0] != '0') { ?>
+<?php if ($count[0] != 0) { ?>
 	<tr> 
           <td class="tfoot textright" colspan="4"><?php echo $temp; ?></td>
 	</tr>
 	<tr> 
-		<th width="4%" colspan="2">&nbsp;</th>
+		<th width="4%" colspan="2" nowrap="nowrap"><input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" /> <?php echo $lang->phrase('check_all'); ?></th>
 		<th width="66%"><?php echo $lang->phrase('forum_topic'); ?></th>
 		<th width="30%"><?php echo $lang->phrase('pm_authordate'); ?></th>
     </tr>	

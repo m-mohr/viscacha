@@ -1,20 +1,28 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "start.php") die('Error: Hacking Attempt');
 
+($code = $plugins->load('admin_start_jobs')) ? eval($code) : null;
+
 if ($job == 'save_notes') {
 	$location = $gpc->get('location', str, 'admin.php?action=index');
 	$filesystem->file_put_contents('admin/data/notes.php', $gpc->get('notes', none));
 	header('Location: '.$location);
 }
-else {
+elseif (empty($job) || $job == 'start') {
 	echo head();
 	$notes = file_get_contents('admin/data/notes.php');
 	$tasks = array();
+	
+	// Install-folder
+	if (is_dir('./install/')) {
+		$tasks[] = '<span style="color: red;">Please completely remove the installation directory ('.realpath('install/').') including all files and sub-folders. Leaving it on your server <strong>can compromise</strong> the security of your system.</span>';
+	}
+	
 	// Count the inactive members
 	$result = $db->query('SELECT COUNT(*) as activate FROM '.$db->pre.'user WHERE confirm = "00" OR confirm = "01"');
 	$user = $db->fetch_assoc($result);
 	if ($user['activate'] > 0) {
-		$tasks[] = '<li><a href="admin.php?action=members&job=activate">'.$user['activate'].' Users to Moderate/Unlock</a></li>';
+		$tasks[] = '<a href="admin.php?action=members&job=activate">'.$user['activate'].' Users to Moderate/Unlock</a>';
 	}
 	// Check for recent beackups
 	$dir = "./admin/backup/";
@@ -49,7 +57,16 @@ else {
 		else {
 			$x1 = 'Your last backup is '.ceil($last).' days old.';
 		}
-		$tasks[] = '<li>'.$x1.' <a href="admin.php?action=db&job=backup">It is recommended to create a new backup of your database!</a></li>';
+		$tasks[] = $x1.' <a href="admin.php?action=db&job=backup">It is recommended to create a new backup of your database!</a>';
+	}
+	// Version Check
+	$cache = $scache->load('version_check');
+	$age = time();
+	if ($cache->exists()) { 
+		$age = $cache->age();
+	}
+	if ($age > 14*24*60*60) {
+		$tasks[] = 'Your last <a href="admin.php?action=settings&amp;job=version">Viscacha version check</a> is more than 14 days ago. Please check for a new version.';
 	}
 	
 	$frontpage_content = '';
@@ -60,7 +77,7 @@ else {
 	 <table class="border">
 	  <tr> 
 	   <td class="obox">
-		<span class="right">[<a href="admin.php?action=logout<?php echo SID2URL_x; ?>" target="_top">Sign off</a>]</span>
+		<span class="right"><a class="button" href="admin.php?action=logout<?php echo SID2URL_x; ?>" target="_top">Sign off</a></span>
 		Welcome to the Viscacha Admin Control Panel, <?php echo $my->name; ?>!
 	   </td>
 	  </tr>
@@ -68,13 +85,8 @@ else {
 		<td class="mbox"><strong>Upcoming Tasks:</strong>
 		<ul>
 		<?php if (count($tasks) == 0) { ?>
-		<li>No upcoming tasks available!</li>
-		<?php
-		} 
-		else {
-			echo implode("\n", $tasks);
-		}
-		?>
+			<li>No upcoming tasks available!</li>
+		<?php } else { foreach ($tasks as $task) { echo "<li>{$task}</li>"; } } ?>
 		</ul>
 		</td>
 	  </tr>

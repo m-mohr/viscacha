@@ -110,7 +110,7 @@ function admin_customfields($uid) {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br>";
+					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
@@ -124,7 +124,7 @@ function admin_customfields($uid) {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br>";
+					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
@@ -198,7 +198,7 @@ function addprofile_customfields() {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\" /> {$val}<br>";
+					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\" /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
@@ -208,7 +208,7 @@ function addprofile_customfields() {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\" /> {$val}<br>";
+					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\" /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
@@ -252,7 +252,12 @@ function editprofile_customsave($editable, $uid) {
 		}
 		
 		if(($type == "multiselect" || $type == "checkbox") && is_array($value)) {
-			$options = implode("\n", $value);
+			if (is_array($value)) {
+				$options = implode("\n", $value);
+			}
+			else {
+				$options = '';
+			}
 		}
 		else {
 			$options = $value;
@@ -327,7 +332,7 @@ function editprofile_customfields($editable, $uid) {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br>";
+					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
@@ -341,7 +346,7 @@ function editprofile_customfields($editable, $uid) {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br>";
+					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}

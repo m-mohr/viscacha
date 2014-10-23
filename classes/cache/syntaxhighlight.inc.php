@@ -11,7 +11,7 @@ class cache_syntaxhighlight extends CacheItem {
 	        $source = 'classes/geshi/';
 	        $d = dir($source);
 	        while (false !== ($entry = $d->read())) {
-	            if (get_extension($entry, true) == 'php' && !is_dir($source.$entry)) {
+	            if (get_extension($entry) == 'php' && !is_dir($source.$entry)) {
 	                include_once($source.$entry);
 	                $short = str_replace('.php', '', $entry);
 	                $this->data[$short]['file'] = $entry;

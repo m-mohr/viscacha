@@ -16,9 +16,11 @@ class cache_parent_forums extends CacheItem {
 			foreach ($forums as $id => $forum) {
 				$this->data[$id] = array();
 				$this->data[$id][] = $id;
-				while (!empty($categories[$forum['parent']]['parent'])) {
-					$this->data[$id][] = $categories[$forum['parent']]['parent'];
-					$forum['parent'] = $categories[$forum['parent']]['parent'];
+				$c = $categories;
+				while (!empty($c[$forum['parent']]['parent'])) {
+					$temp = $c[$forum['parent']]['parent'];
+					unset($c[$forum['parent']]);
+					$forum['parent'] = $this->data[$id][] = $temp;
 				}
 			}
 			$this->export();

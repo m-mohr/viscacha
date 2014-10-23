@@ -16,6 +16,8 @@ function daynumber($time) {
 	return $daynumber;
 }
 
+($code = $plugins->load('admin_slog_jobs')) ? eval($code) : null;
+
 if ($job == 'empty') {
 	echo head();
 	$file = $gpc->get('file', str);
@@ -26,7 +28,7 @@ if ($job == 'empty') {
 	    $filename = 'data/cron/cron.log';
 	}
 	if (isset($filename) && file_exists($filename)) {
-	    $filesystem->file_put_contents($filename,'');
+	    $filesystem->file_put_contents($filename, '');
 	    ok('admin.php?action=slog&job='.$file, 'Logfile was successfully deleted');
 	}
 	else {
@@ -177,10 +179,10 @@ elseif ($job == 's_general_image') {
 		$statdate = date($phpformat, $row['statdate']);
 		
 		if ($timeorder == 1) {
-			$statdate = preg_replace_callback("/(\d+)~/", "getday", $statdate);
+			$statdate = preg_replace("/(\d+)~/e", "getday('\\1')", $statdate);
 		}
 		if ($timeorder > 1) {
-			$statdate = preg_replace_callback("/(\d+)~/", "getmonth", $statdate);
+			$statdate = preg_replace("/(\d+)~/e", "getmonth('\\1')", $statdate);
 		}
 		if ($timeorder == 2) {
 			$week = ceil((date('z', $row['statdate']) - daynumber($row['statdate'])) / 7) + ((daynumber(mktime(0, 0, 0, 1, 1, date('Y', $row['statdate']))) <= 3) ? (1) : (0));
@@ -399,7 +401,7 @@ if ($show == 1) {
   </tr>
   <tr> 
    <td class="mbox">
-	<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<table class="inlinetable">
 	<tr>
 	  <td>Members:</td><td><code><?php echo $members[0];?></code></td>
 	  <td colspan="2">&nbsp;</td>

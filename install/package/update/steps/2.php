@@ -12,6 +12,7 @@ define('CHEX', 777);
 define('CHWR', 666);
 require('lib/function.chmod.php');
 $chmod = array(
+array('path' => 'install', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
 array('path' => 'data', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
 array('path' => 'data/cron', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
 array('path' => 'feeds', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
@@ -30,7 +31,7 @@ array('path' => 'language', 'chmod' => CHEX, 'recursive' => true, 'req' => false
 array('path' => 'cache', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
 array('path' => 'temp', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
 array('path' => 'uploads', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'admin/data/notes.php', 'chmod' => CHWR, 'recursive' => false, 'req' => false),
+array('path' => 'admin/data', 'chmod' => CHWR, 'recursive' => true, 'req' => false),
 array('path' => '.htaccess', 'chmod' => CHWR, 'recursive' => false, 'req' => false),
 array('path' => 'data', 'chmod' => CHWR, 'recursive' => true, 'req' => true),
 array('path' => 'feeds', 'chmod' => CHWR, 'recursive' => true, 'req' => false),

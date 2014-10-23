@@ -1,8 +1,57 @@
-   <tr class="tbody"> 
-	  <td width="31%"><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>$row->fullname</em>"); ?></td> 
-	  <td width="3%" class="center"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td> 
-	  <td width="3%" class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td> 
-	  <td width="3%" class="center"><?php echo iif($row->hp,"<a href='$row->hp' target='_blank'><img src='".$tpl->img('homepage')."' alt='' /></a>",$lang->phrase('homepage_no_data')); ?></td>
-	  <td width="20%"><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
-	  <td width="20%"><?php echo $row->regdate; ?></td>
-	</tr>
+ <tr class="tbody">
+  <?php if (!empty($row['pic'])) { ?>
+  <td class="center">
+   <img src="<?php echo $row['pic']; ?>" alt="<?php echo $row['name']; ?>" />
+  </td>
+  <?php } ?>
+  <td>
+   <a href="profile.php?id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $row['name']; ?></a>
+   <?php echo iif(!empty($row['fullname']),"<br /><em>{$row['fullname']}</em>"); ?>
+  </td>
+  <?php if ($pm) { ?>
+  <td class="center">
+   <a href="pm.php?action=new&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a>
+  </td>
+  <?php } if (isset($row['mail'])) { ?>
+  <td class="center">
+   <a href="profile.php?action=mail&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a>
+  </td>
+  <?php } if (isset($row['hp'])) { ?>
+  <td class="center">
+   <?php echo iif($row['hp'], '<a href="'.$row['hp'].'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>', $lang->phrase('homepage_no_data')); ?>
+  </td>
+  <?php } if (isset($row['location'])) { ?>
+  <td>
+   <?php echo $row['location']; ?>
+  </td>
+  <?php } if (isset($row['gender'])) { ?>
+  <td class="center">
+   <?php echo $row['gender']; ?>
+  </td>
+  <?php } if (isset($row['posts'])) { ?>
+  <td class="textright">
+   <?php echo $row['posts']; ?>
+  </td>
+  <?php } if (isset($row['regdate'])) { ?>
+  <td class="center">
+   <?php echo $row['regdate']; ?>
+  </td>
+  <?php } if (isset($row['birthday'])) { ?>
+  <td>
+   <?php echo $row['birthday']; ?>
+  </td>
+  <?php } if (isset($row['lastvisit'])) { ?>
+  <td>
+   <?php echo $row['lastvisit']; ?>
+  </td>
+  <?php } if ($im) { ?>
+  <td align="center">&nbsp;<?php
+    echo iif(!empty($row->icq),'<a href="profile.php?action=ims&amp;type=icq&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('icq').'" alt="'.$lang->phrase('im_icq').'" /></a>&nbsp;');
+    echo iif(!empty($row->aol),'<a href="profile.php?action=ims&amp;type=aol&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('aol').'" alt="'.$lang->phrase('im_aol').'" /></a>&nbsp;');
+    echo iif(!empty($row->msn),'<a href="profile.php?action=ims&amp;type=msn&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /></a>&nbsp;');
+    echo iif(!empty($row->yahoo),'<a href="profile.php?action=ims&amp;type=yahoo&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('yahoo').'" alt="'.$lang->phrase('im_yahoo').'" /></a>&nbsp;');
+    echo iif(!empty($row->jabber),'<a href="profile.php?action=ims&amp;type=jabber&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('jabber').'" alt="'.$lang->phrase('im_jabber').'" /></a>&nbsp;');
+    echo iif(!empty($row->skype),'<a href="profile.php?action=ims&amp;type=skype&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('skype').'" alt="'.$lang->phrase('im_skype').'" /></a>&nbsp;');
+   ?></td>
+  <?php } ?>
+ </tr>

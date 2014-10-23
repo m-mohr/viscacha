@@ -93,19 +93,19 @@ if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) {
 
 if ($_GET['action'] == "save") {
 	$digest = $gpc->get('digest', int);
-    $error = array();
-    if (!$my->vlogin) {
+	$error = array();
+	if (!$my->vlogin) {
 		if ($config['botgfxtest_posts'] == 1) {
 			include("classes/graphic/class.veriword.php");
 			$vword = new VeriWord();
-		    if($_POST['letter']) {
-		        if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
-		        	$error[] = $lang->phrase('veriword_mistake');
-		        }
-		    }
-		    else {
-		        $error[] = $lang->phrase('veriword_failed');
-		    }
+			if($_POST['letter']) {
+				if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
+					$error[] = $lang->phrase('veriword_mistake');
+				}
+			}
+			else {
+				$error[] = $lang->phrase('veriword_failed');
+			}
 		}
 		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
 			$error[] = $lang->phrase('illegal_mail');
@@ -235,43 +235,46 @@ if ($_GET['action'] == "save") {
 			}
 		}
 		
-		$db->query ('
-		UPDATE '.$db->pre.'forums 
-		SET replies = replies+1, last_topic = "'.$_POST['id'].'" 
-		WHERE id = '.$info['board']
-		,__LINE__,__FILE__);
+		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
+			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'",__LINE__,__FILE__);
+		}
+		
+		$db->query ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$_POST['id']}' WHERE id = '{$info['board']}'",__LINE__,__FILE__);
 
-        $result = $db->query('
-        SELECT t.id, t.topic, u.name, u.mail, u.language 
-        FROM '.$db->pre.'abos AS a 
-        	LEFT JOIN '.$db->pre.'user AS u ON u.id = a.mid 
-        	LEFT JOIN '.$db->pre.'topics AS t ON t.id = a.tid 
-        WHERE a.type = "" AND a.tid = "'.$_POST['id'].'" AND a.mid != "'.$my->id.'"
-        ',__LINE__,__FILE__);
-        $lang_dir = $lang->getdir(true);
-	    while ($row = $db->fetch_assoc($result)) {
-	    	$lang->setdir($row['language']);
+		$lang_dir = $lang->getdir(true);
+		$result = $db->query('
+		SELECT t.id, t.topic, u.name, u.mail, u.language 
+		FROM '.$db->pre.'abos AS a 
+			LEFT JOIN '.$db->pre.'user AS u ON u.id = a.mid 
+			LEFT JOIN '.$db->pre.'topics AS t ON t.id = a.tid 
+		WHERE a.type = "" AND a.tid = "'.$_POST['id'].'" AND a.mid != "'.$my->id.'"
+		',__LINE__,__FILE__);
+		while ($row = $db->fetch_assoc($result)) {
+			$lang->setdir($row['language']);
 			$data = $lang->get_mail('digest_s');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 			$from = array();
 			xmail($to, $from, $data['title'], $data['comment']);
-	    }
-	    $lang->setdir($lang_dir);
-	    
+		}
+		$lang->setdir($config['langdir']);
 		if (count($last['reply_notification']) > 0) {
-			$to = array_combine(array_fill(1, count($last['reply_notification']), 'mail'), $last['reply_notification']);
+			$to = array();
+			foreach ($last['reply_notification'] as $mail) {
+				$to[] = array('mail' => $mail);
+			}
 			$data = $lang->get_mail('new_reply');
 			$from = array();
 			xmail($to, $from, $data['title'], $data['comment']);
 		}
-	    
-	    $close = $gpc->get('close', int);
-	    if ($close == 1 && $my->vlogin) {
-	    	$my->mp = $slog->ModPermissions($info['board']);
-	    	if ($my->mp[0] == 1) {
-	    		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
-	    	}
-	    }
+		$lang->setdir($lang_dir);
+		
+		$close = $gpc->get('close', int);
+		if ($close == 1 && $my->vlogin) {
+			$my->mp = $slog->ModPermissions($info['board']);
+			if ($my->mp[0] == 1) {
+				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
+			}
+		}
 
 		($code = $plugins->load('addreply_save_end')) ? eval($code) : null;
 
@@ -317,8 +320,8 @@ else {
 		$qid = $gpc->get('qid', arr_int);
 		$pids = getcookie('vquote');
 		if(!empty($pids) && preg_match("/^[0-9,]+$/", $pids)) {
-		    $qids = explode(',', $pids);
-		    makecookie($config['cookie_prefix'].'_vquote', '', 0);
+			$qids = explode(',', $pids);
+			makecookie($config['cookie_prefix'].'_vquote', '', 0);
 		}
 		elseif (count($qid) > 0) {
 			$qids = $qid;
@@ -357,7 +360,7 @@ else {
 		$vword = new VeriWord();
 		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
 		if ($config['botgfxtest_text_verification'] == 1) {
-			$code = $vword->output_word($veriid);
+			$textcode = $vword->output_word($veriid);
 		}
 	}
 	

@@ -105,7 +105,7 @@ class GPC {
     		}
     	}
     	elseif (is_string($var)) {
-    		if ($config['asia'] != 1) {
+    		if ($config['asia'] == 0) {
     			$var = htmlspecialchars($var, ENT_QUOTES);
     		}
     		else {
@@ -133,7 +133,10 @@ class GPC {
     		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
     		$var = $this->secure_null($var);
     		if ($config['asia'] == 1) {
+    			//$var = preg_replace('/[^\x26\x09\x0A\x0D\x20-\x7F]/e', '"&#".ord("$0").";"', $var);
     			$var = htmlentities($var, ENT_QUOTES, $config['asia_charset']);
+    			$var = str_replace('&amp;#', '&#', $var);
+				$var = htmlspecialchars_decode($var);
     		}
 			if (is_object($db)) {
     			$var = $db->escape_string($var);
@@ -204,13 +207,14 @@ class GPC {
     		}
     	}
 		else {
-			return str_replace("\0", '', $data);
+			$data = str_replace("\0", '', $data);
 		}
+		return $data;
 	}
 	
 	function stripslashes($array) {
 		if(is_array($array)) {
-			return array_map(array($this, 'stripslashes'), $array); 
+			return array_map(array(&$this, 'stripslashes'), $array); 
 		}
 		else {
 			return stripslashes($array);

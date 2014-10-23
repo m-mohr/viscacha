@@ -4,6 +4,7 @@ CREATE TABLE `{:=DBPREFIX=:}user` (
   `pw` varchar(32) NOT NULL default '',
   `mail` varchar(200) NOT NULL default '',
   `regdate` int(10) unsigned NOT NULL default '0',
+  `posts` mediumint(7) unsigned NOT NULL default '0',
   `fullname` varchar(200) NOT NULL default '',
   `hp` varchar(255) NOT NULL default '',
   `signature` text NOT NULL,

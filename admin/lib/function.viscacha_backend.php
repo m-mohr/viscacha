@@ -3,12 +3,13 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.v
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
+// Filesystem
 require_once("classes/class.filesystem.php");
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 $filesystem->set_wd($config['ftp_path']);
 @include_once("classes/function.chmod.php");
 if ($config['check_filesystem'] == 1) {
-	check_writable('admin/data/notes.php');
+	check_writable_r('admin/data');
 	check_writable_r('docs');
 	check_writable_r('language');
 	check_executable_r('admin/backup');
@@ -29,6 +30,10 @@ if ($config['check_filesystem'] == 1) {
 
 @ini_set('default_charset', '');
 header('Content-type: text/html; charset: iso-8859-1');
+
+// Colours
+$txt2img_fg = '204a87';
+$txt2img_bg = '94B7DF';
 
 $htmlhead = '';
 
@@ -115,9 +120,11 @@ include_once ("classes/class.language.php");
 require_once ("classes/function.global.php");
 
 function AdminLogInForm() {
+	global $gpc;
+    $addr = $gpc->get('addr', none);
 	?>
-	<form action="admin.php?action=login2" method="post" target="_top">
-	 <table class="border" style="width: 50%; margin: auto;">
+	<form action="admin.php?action=login2<?php echo iif(!empty($addr), '&amp;addr='.rawurlencode($addr)); ?>" method="post" target="_top">
+	 <table class="border" style="width: 50%;">
 	  <tr> 
 	   <td class="obox" colspan="2">Log in</td>
 	  </tr>
@@ -147,14 +154,6 @@ function isInvisibleHook($hook) {
 		default:
 			return false;
 	}
-}
-
-function makeOSPath($array) {
-	$dir = implode(DIRECTORY_SEPARATOR, $array);
-	if (is_dir($dir)) {
-		$dir .= DIRECTORY_SEPARATOR;
-	}
-	return $dir;
 }
 
 function pluginSettingGroupUninstall($pluginid) {
@@ -247,22 +246,22 @@ function get_webserver() {
 function fileAge($age) {
     if($age>=30*24*60*60) {
         $age/=(30*24*60*60);
-        $string = 'Monate';
+        $string = 'Months';
     }
     elseif($age>=24*60*60) {
         $age/=(24*60*60);
-        $string = 'Tage';
+        $string = 'Days';
     }
     elseif($age>=60*60) {
         $age/=(60*60);
-        $string = 'Std.';
+        $string = 'Hours';
     }
     elseif($age>=60) {
         $age/=60;
-        $string = 'Min.';
+        $string = 'Minutes';
     }
 	else {
-		$string = 'Sek.';
+		$string = 'Seconds';
 	}
 	return round($age, 0).' '.$string;
 }
@@ -366,9 +365,10 @@ function pages ($anzposts, $uri, $teiler=50) {
 }
 
 
-function txt2img ($text,$op=NULL) {
-	$imgtag = '<img src="classes/graphic/text2image.php?text='.rawurlencode($text).'&amp;angle=90" border="0">';
-	if ($op == NULL) {
+function txt2img ($text, $op=null) {
+	global $txt2img_fg, $txt2img_bg;
+	$imgtag = '<img src="classes/graphic/text2image.php?text='.rawurlencode($text).'&amp;angle=90&amp;bg='.$txt2img_bg.'&amp;fg='.$txt2img_fg.'" border="0">';
+	if ($op == null) {
 		echo $imgtag;
 	}
 	else {
@@ -418,8 +418,6 @@ function foot() {
 	<?php
 }
 
-
-
 function error ($errorurl, $errormsg='An unexpected error occurred') {
 	global $config, $my, $db;
 	if (!is_array($errormsg)) {
@@ -428,7 +426,7 @@ function error ($errorurl, $errormsg='An unexpected error occurred') {
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout('location.href="<?php echo $errorurl; ?>"', 10000);
+window.setTimeout(<?php echo JS_URL($errorurl); ?>, 10000);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -458,7 +456,7 @@ function ok ($url, $msg = "Settings were saved successfully!") {
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout('location.href="<?php echo $url; ?>"', 1000);
+window.setTimeout(<?php echo JS_URL($url); ?>, 2000);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -508,7 +506,7 @@ function SelectBoardStructure($name = 'id', $group = ADMIN_SELECT_ALL, $standard
 	$boards = $catbid->get();
 	
 	$tree2 = array();
-	SelectBoardStructure_html(&$tree2, $tree, $categories, $boards, $group, $standard);
+	SelectBoardStructure_html($tree2, $tree, $categories, $boards, $group, $standard);
 	$forums = iif($no_select == false, '<select name="'.$name.'" size="1">');
 	$forums .= implode("\n", $tree2);
 	$forums .= iif($no_select == false, '</select>');
@@ -536,7 +534,7 @@ function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standar
 				$value = iif($group == ADMIN_SELECT_ALL, 'forums_').$bdata['id'];
 				$html[] = '<option '.iif($standard != null && $standard == $value, ' selected="selected"').' value="'.$value.'">'.str_repeat($char, $level+1).$bdata['name'].'</option>';
 			}
-	    	SelectBoardStructure_html(&$html, $sub, $cat, $board, $group, $standard, $char, $level+2);
+	    	SelectBoardStructure_html($html, $sub, $cat, $board, $group, $standard, $char, $level+2);
 	    }
 	    if ($group == ADMIN_SELECT_FORUMS && $i == 0) {
 	    	$x = array_pop($html);

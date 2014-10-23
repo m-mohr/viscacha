@@ -34,7 +34,6 @@
 	  <?php } ?>
 	  <h5><?php echo $lang->phrase('profile_lastvisit'); ?></h5>
 	  <em><?php echo $row->lastvisit; ?></em>
-	  <?php if ($config['showpostcounter']) { ?>
 	  <br />
 	  <?php if ($config['memberrating'] == 1 && $ratingcounter >= $config['memberrating_counter']) { ?>
 	  <h5><?php echo $lang->phrase('profile_rating'); ?></h5>
@@ -42,13 +41,12 @@
 	  <br />
 	  <?php } ?>
 	  <h5><?php echo $lang->phrase('profile_posts'); ?></h5>
-	  <em><?php echo $anz[0].$lang->phrase('profile_posts_perday'); ?></em>
-	  <?php } if ($config['osi_profile'] == 1) { ?>
+	  <em><?php echo $row->posts.iif($config['showpostcounter'], $lang->phrase('profile_posts_perday')); ?></em>
+	  <?php if ($config['osi_profile'] == 1) { ?>
 	  <br />
 	  <h5><?php echo $lang->phrase('profile_osi'); ?></h5> 
 	  <?php echo iif($osi, '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online'), '<em>'.$lang->phrase('profile_offline')); ?></em>
-	  <?php } ?>
-	  <?php foreach ($customfields['2'] as $field) { ?>
+	  <?php } foreach ($customfields['2'] as $field) { ?>
 	  <br />
 	  <h5><?php echo $field['name']; ?>:</h5>
 	  <em><?php echo $field['value']; ?></em>
@@ -78,8 +76,8 @@
 	  <th><?php echo $lang->phrase('profile_instantmessenger'); ?></th>
 	</tr>
 	<tr class="tbody profiledata">
-	  <td valign="top">
-	  <ul class="hiddenl">
+	  <td valign="top" class="hiddenl">
+	  <ul>
 		<li><strong><?php echo $lang->phrase('profile_mail'); ?>:</strong> 
 		<?php if($row->opt_hidemail == 2) { ?>
 		<a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_mail_2'); ?></a>
@@ -126,7 +124,8 @@
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
 	<a href="managemembers.php?action=delete&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_user_delete'); ?></a> | 
-	<a href="managemembers.php?action=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_user_edit'); ?></a>
+	<a href="managemembers.php?action=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_user_edit'); ?></a> | 
+	<a href="managemembers.php?action=recount&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_user_recount'); ?></a>
 </div>
 </div>
 <?php } ?>

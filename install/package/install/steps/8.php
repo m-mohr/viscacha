@@ -29,12 +29,23 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			<?php
 		}
 		else {
-			// ToDo: Übersetzen
 			$act = array(
-			3 => 'Tabelle(n) wurden gelöscht und neu erstellt',
-			2 => 'Tabelle(n) wurden nicht geändert',
-			1 => 'Tabelle(n) wurden geleert',
-			0 => 'Tabelle(n) wurden neu erstellt',
+				3 => array(
+						'table has been deleted and recreated',
+						'tables have been deleted and recreated',
+					 ),
+				2 => array(
+						'table has not been changed',
+						'tables have not been changed',
+					 ),
+				1 => array(
+						'table has been emptied',
+						'tables have been emptied',
+					 ),
+				0 => array(
+						'table has been recreated',
+						'tables have been recreated'
+					 )
 			);
 			$done = array_fill(0, 4, 0);
 			foreach ($action as $table => $value) {
@@ -67,7 +78,8 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			else {
 				foreach ($act as $id => $name) {
 					if ($done[$id] > 0) {
-						echo "<strong>{$done[$id]} {$name}.</strong><br />";
+						$txt = $done[$id] == 1 ? $name[0] : $name[1];
+						echo "<strong>{$done[$id]} {$txt}.</strong><br />";
 					}
 				}
 			}
@@ -79,16 +91,16 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 ?>
 <div class="bbody">
 	<input type="hidden" name="save" value="1" />
-	<label for="name">Benutzername:</label>
+	<label for="name">User Name:</label>
 	<input class="label" id="name" name="name" size="40" />
 	<br class="newinput" /><hr class="formsep" />
-	<label for="pw">Passwort:</label>
+	<label for="pw">Password:</label>
 	<input class="label" type="password" id="pw" name="pw" size="40" />
 	<br class="newinput" /><hr class="formsep" />
-	<label for="pwx">Passwort wiederholen:</label>
+	<label for="pwx">Confirm Password:</label>
 	<input class="label" type="password" id="pwx" name="pwx" size="40" />
 	<br class="newinput" /><hr class="formsep" />
-	<label for="email">E-Mail-Adresse:</label>
+	<label for="email">E-mail address:</label>
 	<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $config['forenmail']; ?>" /> 
 	<br class="newinput" /><br class="iefix_br" />
 </div>

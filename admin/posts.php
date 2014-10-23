@@ -1,6 +1,8 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "posts.php") die('Error: Hacking Attempt');
 
+($code = $plugins->load('admin_posts_jobs')) ? eval($code) : null;
+
 if ($_GET['job'] == 'postrating') {
 	echo head();
 	?>
