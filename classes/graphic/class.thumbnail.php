@@ -54,7 +54,7 @@ function get_image() {
 function create_image(&$image) {
 
 	if ($image != NULL) {
-		$type = get_extension($this->path, TRUE);
+		$type = get_extension($this->path);
 	
 		imageinterlace ($image, 0);
 		if ($type == 'gif' AND IMAGEGIF) {
@@ -84,7 +84,7 @@ function create_thumbnail($attachment) {
 	$thumbnail = NULL;
 
 	$ext = get_extension($attachment);
-	if($ext == '.gif' or $ext == '.png' or $ext == '.jpg' or $ext == '.jpeg' or $ext == '.jpe') {
+	if($ext == 'gif' or $ext == 'png' or $ext == 'jpg' or $ext == 'jpeg' or $ext == 'jpe') {
 		
 		$imageinfo = getimagesize($attachment);
 		$new_width = $width = $imageinfo[0];
@@ -133,7 +133,7 @@ function create_thumbnail($attachment) {
 					if (!version_compare(PHP_VERSION, '4.3.2', 'eq')) {
 						$this->UnsharpMask($thumbnail);
 					}
-					if($ext == '.png') {
+					if($ext == 'png') {
 						imagetruecolortopalette($thumbnail, true, 256);
 					}
 				}

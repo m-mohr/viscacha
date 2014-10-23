@@ -30,34 +30,119 @@ if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
+// Variables
+require_once ("classes/function.gpc.php");
+/* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
+ 	_ENV, _SERVER: Won't be checked, but null-byte is deleted
+ 	_COOKIE: You can check them in the script ( getcookie() ), won't be checked
+ 	_REQUEST: Won't be checked - array has the original values (but without magic_quotes)
+ 	_POST, _GET with heysk specified in http_vars are checked and save
+*/
+$http_vars = array(
+'action' => str,
+'job' => str,
+'search' => str,
+'name' => str,
+'email' => str,
+'topic' => str,
+'comment' => str,
+'error' => str,
+'pw' => str,
+'pwx' => str,
+'order' => str,
+'sort' => str,
+'letter' => str,
+'fullname' => str,
+'about' => str,
+'location' => str,
+'signature' => str,
+'hp' => str,
+'icq' => str,
+'pic' => str,
+'question' => str,
+'type' => str,
+'gender' => str,
+'aol' => str,
+'msn' => str,
+'skype' => str,
+'yahoo' => str,
+'jabber' => str,
+'fid' => str,
+'file' => str,
+'groups' => str,
+'captcha' => str,
+'board' => int,
+'topic_id' => int,
+'id' => int,
+'page' => int,
+'temp' => int,
+'temp2' => int,
+'dosmileys' => int,
+'dowords' => int,
+'birthday' => int,
+'birthmonth' => int,
+'birthyear' => int,
+'opt_0' => int,
+'opt_1' => int,
+'opt_2' => int,
+'opt_3' => int,
+'opt_4' => int,
+'opt_5' => int,
+'opt_6' => int,
+'opt_7' => int,
+'notice' => arr_str,
+'boards' => arr_int,
+'delete' => arr_int
+);
 
-// Thanks to phpBB for this code
-if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals')) == 'on') {
-	unset($not_used, $input);
-	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES', 'config');
+$http_all = array_merge(array_keys($http_vars), array_keys($_POST), array_keys($_GET));
+$http_all = array_unique($http_all);
 
-	$input = array_merge($_GET, $_POST, $_COOKIE, $_ENV, $_FILES);
-	if (isset($_SERVER)) {
-		$input = array_merge($input, $_SERVER);
+$http_std = array(
+int => 0,
+arr_int => array(),
+arr_str => array(),
+str => '',
+none => null
+);
+
+
+foreach ($http_all as $key) {
+	if (isset($http_vars[$key])) {
+		$type = $http_vars[$key];
 	}
-	if (isset($_SESSION) && is_array($_SESSION)) {
-		$input = array_merge($input, $_SESSION);
+	else {
+		$type = str;
 	}
-
-	unset($input['input'], $input['not_unset']);
-
-	while (list($var,) = @each($input)) {
-		if (!in_array($var, $not_unset)) {
-			unset($$var);
-			// Testen
-			if (isset($GLOBALS[$var])) {
-				unset($GLOBALS[$var]);
-			}
-		}
+	if (isset($_POST[$key])) {
+        if ($type == int || $type == arr_int) {
+            $_POST[$key] = $gpc->save_int($_POST[$key]);
+        }
+        else {
+            $_POST[$key] = $gpc->save_str($_POST[$key]);
+        }
 	}
-
-	unset($input);
+	else {
+		$_POST[$key] = $http_std[$type];
+	}
+	if (isset($_GET[$key])) {
+        if ($type == int || $type == arr_int) {
+            $_GET[$key] = $gpc->save_int($_GET[$key]);
+        }
+        else {
+            $_GET[$key] = $gpc->save_str($_GET[$key]);
+        }
+	}
+	else {
+		$_GET[$key] = $http_std[$type];
+	}
 }
+
+$_GET['page'] = !isset($_GET['page']) || $_GET['page'] < 1 ? 1 : $_GET['page'];
+$_POST['page'] = !isset($_POST['page']) || $_POST['page'] < 1 ? 1 : $_POST['page'];
+$_REQUEST['page'] = !isset($_REQUEST['page']) || $_REQUEST['page'] < 1 ? 1 : $_REQUEST['page'];
+
+unset($http_vars, $http_all, $http_std);
 
 $inner = array();
 $htmlhead = '';
@@ -93,8 +178,6 @@ require_once ("classes/class.template.php");
 include_once ("classes/class.breadcrumb.php");
 // Global functions
 require_once ("classes/function.global.php");
-// Load Variables
-require_once ("classes/function.gpc.php");
 // Load Flood-Check
 include_once ("classes/function.flood.php");
 

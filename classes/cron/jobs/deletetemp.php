@@ -1,11 +1,12 @@
 <?php
+global $filesystem;
 
 function is_subdir($dir) {
 	if (is_dir($dir) && !preg_match("~\.{1,2}$~", $dir)) {
-		return TRUE;
+		return true;
 	}
 	else {
-		return FALSE;
+		return false;
 	}
 }
 
@@ -14,7 +15,6 @@ function unlink_dir($dir) {
 	$dir = $dir."/";
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		echo $dir.$entry."\n";
 		if (is_subdir($dir.$entry)) {
 			unlink_dir($dir.$entry);
 		}
@@ -25,7 +25,6 @@ function unlink_dir($dir) {
 	$d->close();
 }
 
-$dir = 'temp';
-unlink_dir($dir);
+unlink_dir('temp');
 
 ?>

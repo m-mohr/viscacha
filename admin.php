@@ -102,6 +102,11 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'posts') {
 		include('admin/posts.php');
 	}
+	elseif ($action == 'logout') {
+		$slog->sid_logout();
+		echo head();
+		ok('admin.php', 'You have successfully logged off!');
+	}
 	elseif ($action == 'locate') {
 		$url = $gpc->get('url', none);
 		if (!empty($url)) {
@@ -109,7 +114,7 @@ if ($my->p['admin'] == 1) {
 		}
 		else {
 			echo head();
-			error($_SERVER['HTTP_REFERER'], 'Please choose a valid option!');
+			error(htmlspecialchars($_SERVER['HTTP_REFERER']), 'Please choose a valid option!');
 		}
 	}
 	else {
@@ -132,10 +137,26 @@ else {
 		echo head();
 		error('index.php'.SID2URL_1, 'You are not allowed to view this page!');
 	}
-    viscacha_header('Location: log.php?redirect=admin.php'.SID2URL_JS_x);
+	
+	if ($action == "login2") {
+		$log_status = $slog->sid_login(true);
+		echo head();
+		if ($log_status == false) {
+			error('admin.php', 'You have entered an incorrect user name or password!');
+		}
+		else {
+			ok('admin.php', 'You have successfully logged in!');
+		}
+	}
+	else {
+		echo head();
+		AdminLogInForm();
+	}
+	echo foot();
 }
 
 ($code = $plugins->load('admin_end')) ? eval($code) : null;
 
+$slog->updatelogged();
 $db->close();	
 ?>

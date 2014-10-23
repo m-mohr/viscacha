@@ -1,0 +1,5 @@
+<select name="opt_0" size="1">
+<?php foreach ($prefix_arr as $id => $value) { ?>
+<option<?php echo iif($sel == $id, ' selected="selected"'); ?> value="<?php echo $id; ?>"><?php echo $value['value']; ?></option>
+<?php } ?>
+</select>&nbsp;

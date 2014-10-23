@@ -20,6 +20,7 @@ $lang['wwo_managetopic'] = 'Verwaltet ein Thema';
 $lang['wwo_members'] = 'Betrachtet die <a href="members.php">Mitgliederliste</a>';
 $lang['wwo_misc'] = 'Ist kein gläserner Mensch... ;)';
 $lang['wwo_misc_bbhelp'] = 'Liest die BB-Code-Hilfe';
+$lang['wwo_misc_board_rules'] = 'liest die <a href="misc.php?action=board_rules&id={$id}">Forenregln</a> des Forums <a href="showforum.php?id={$id}">{$title}</a>';
 $lang['wwo_misc_error'] = 'Hat eine ungültige Seite aufgerufen';
 $lang['wwo_misc_rules'] = 'Liest die die <a href="misc.php?action=rules">Verhaltensbedingungen</a>';
 $lang['wwo_misc_wwo'] = 'Betrachtet diese Wer-ist-Online-Liste';
@@ -33,7 +34,7 @@ $lang['wwo_pm_write'] = 'Schreibt eine <a href="pm.php?action=new">private Nachr
 $lang['wwo_popup'] = 'Liest die Hilfe';
 $lang['wwo_popup_filetypes'] = 'Liest die Beschreibung eines Dateityps';
 $lang['wwo_popup_hlcode'] = 'Betrachtet Quellcode (erweitert)';
-$lang['wwo_popup_showpost'] = 'Betrachtet einen einzelnen Beitrag: <a href="javascript:showpost(\'{$id}\');">{$title}</a>';
+$lang['wwo_popup_showpost'] = 'Betrachtet einen einzelnen Beitrag: <a href="popup.php?action=showpost&id={$id}" target="showpost" onclick="showpost(this)">{$title}</a>';
 $lang['wwo_portal'] = 'Betrachtet das <a href="index.php">Portal</a>';
 $lang['wwo_print'] = 'Druckt einen Beitrag: <a href="print.php?id={$id}">{$title}</a>';
 $lang['wwo_profile'] = 'Betrachtet das Profil von <a href="profile.php?id={$id}">{$title}</a>';

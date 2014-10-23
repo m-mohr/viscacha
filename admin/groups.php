@@ -50,12 +50,14 @@ if ($job == 'manage') {
 	<td><?php echo $row['id']; ?></td>
 	<?php 
 	foreach ($glk as $txt) {
-	   	$clickable = !($guest && array_search($txt, $guest_limitation) !== false);
+	   	$clickable = !($guest && in_array($txt, $guest_limitation));
 	   	if ($txt == 'guest') {
 	   		$clickable = false;
 	   	}
-	   	$js = iif ($clickable, ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=groups&job=ajax_changeperm&id='.$row['id'].'&key='.$txt.'\')"');
-	   	$js .= iif(!$clickable, ' style="-moz-opacity: 0.4; opacity: 0.4; filter:Alpha(opacity=40, finishopacity=0);"', '');
+	   	$js = iif ($clickable, 
+	   			' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=groups&job=ajax_changeperm&id='.$row['id'].'&key='.$txt.'\')"',
+	   			' style="-moz-opacity: 0.4; opacity: 0.4; filter:Alpha(opacity=40, finishopacity=0);"'
+	   		  );
 	   	echo '<td align="center"'.iif(!$clickable, ' class="mmbox"').'>';
 	   	echo noki($row[$txt], $js);
 	   	echo '</td>';

@@ -262,7 +262,7 @@ function CloseTag($tag) {
 }
 
 function insertImage() {
-	$type = get_extension($this->IMG, TRUE);
+	$type = get_extension($this->IMG);
 	if ($type == 'gif') {
 		$img = new ImageConverter($this->IMG,"png");
 		$url = $img->getURL();

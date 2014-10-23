@@ -207,10 +207,10 @@ elseif ($job == 'add' || $job == 'edit') {
 			<td class="mbox"><input type="text" name="bot_ip" size="50"<?php echo iif($job == 'edit', ' value="'.$row['bot_ip'].'"'); ?> /></td>
 		</tr>
 		<tr>
-			<td class="mbox" width="40%">Type:<br /><span class="stext">Mail collectors will be banned.</span></td>
+			<td class="mbox" width="40%">Type:<br /><span class="stext">Mail Collectors/Spam Bots will be banned.</span></td>
 			<td class="mbox">
 				<input type="radio" name="type" value="b"<?php echo iif(($job == 'edit' && $row['type'] == 'b'), ' checked="checked"'); ?> /> Search engine<br />
-   				<input type="radio" name="type" value="e"<?php echo iif(($job == 'edit' && $row['type'] == 'e'), ' checked="checked"'); ?> /> Mail-Collector<br />
+   				<input type="radio" name="type" value="e"<?php echo iif(($job == 'edit' && $row['type'] == 'e'), ' checked="checked"'); ?> /> Mail collector/Spam Bot<br />
    				<input type="radio" name="type" value="v"<?php echo iif(($job == 'edit' && $row['type'] == 'v'), ' checked="checked"'); ?> /> Validator
    			</td>
 		</tr>
@@ -341,7 +341,7 @@ else {
 					$row['type'] = 'Validator';
 				}
 				elseif ($row['type'] == 'e') {
-					$row['type'] = 'Mail-Collector';
+					$row['type'] = 'Mail Collector/Spam Bot';
 				}
 				else {
 					$row['type'] = 'Search engine';

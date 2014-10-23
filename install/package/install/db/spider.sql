@@ -11,7 +11,8 @@ CREATE TABLE `{:=DBPREFIX=:}spider` (
   PRIMARY KEY  (`id`)
 ) TYPE=MyISAM;
 
-INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `name`, `user_agent`, `type`, `last_visit`, `bot_visits`, `pending_agent`, `pending_ip`, `bot_ip`) VALUES (39, 'W3C (x)HTML-Validator', 'W3C_Validator', 'v', '', 0, '', '', ''),
+INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `name`, `user_agent`, `type`, `last_visit`, `bot_visits`, `pending_agent`, `pending_ip`, `bot_ip`) VALUES 
+(39, 'W3C (x)HTML-Validator', 'W3C_Validator', 'v', '', 0, '', '', ''),
 (9, 'Google', 'Googlebot|BackRub|Googlebot-Image', 'b', '', 0, '', '', ''),
 (10, 'Google AdSense', 'Mediapartners-Google', 'b', '', 0, '', '', ''),
 (14, 'Overture', 'FAST-WebCrawler', 'b', '', 0, '', '', ''),
@@ -48,4 +49,5 @@ INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `name`, `user_agent`, `type`, `last_vi
 (54, 'Sohu', 'sohu-search', 'b', '', 0, '', '', ''),
 (55, 'Twiceler', 'Twiceler', 'b', '', 0, '', '', ''),
 (61, 'Yahoo (Overture)', 'Yahoo! Slurp|Yahoo-MMCrawler', 'b', '', 0, '', '', ''),
-(60, 'IRL Crawler', 'IRLbot', 'b', '', 0, '', '', '');
+(60, 'IRL Crawler', 'IRLbot', 'b', '', 0, '', '', ''),
+(8, 'Forum Poster', 'Forum Poster', 'e', '', 0, '', '', '');

@@ -8,10 +8,9 @@ class INI {
 var $commentchar;
 
 /**
-* Constructor for this class
-*
 * This function only constructs this class and initialzes some variables.
-* <b>Instructions:</b>
+*
+* Instructions:
 * Sections can use any character excluding ASCII control characters and ASCII
 * DEL.  (You may even use [ and ] characters as literals!)
 * Keys can use any character excluding ASCII control characters, ASCII DEL,
@@ -138,7 +137,12 @@ function search ( $filename, $search_param, $return_section = false ) {
 * @author	Copyright (C) 2005 Justin Frim <phpcoder@cyberpimp.pimpdomain.com>
 */
 function read ($filename) {
-	$array1 = file($filename);
+	$array1 = @file($filename);
+	if (!is_array($array1)) {
+		trigger_error("Could not read ini-file {$filename}", E_NOTICE);
+		return array();
+	}
+	$array2 = array();
 	$section = '';
 	foreach ($array1 as $filedata) {
 		$dataline = trim($filedata);
@@ -177,9 +181,6 @@ function read ($filename) {
 					
 				}
 			}
-		}
-		else{
-			//It's a comment or blank line.  Ignore.
 		}
 	}
 	return $array2;

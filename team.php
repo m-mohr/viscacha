@@ -79,10 +79,10 @@ while($row = $gpc->prepare($db->fetch_object($result))) {
 }
 	
 $result = $db->query('
-SELECT m.time, m.mid, u.name as member, m.bid, c.name as board, u.mail, u.hp, u.location, u.fullname 
+SELECT m.time, m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname 
 FROM '.$db->pre.'moderators AS m 
 	LEFT JOIN '.$db->pre.'user AS u ON u.id = m.mid 
-	LEFT JOIN '.$db->pre.'cat AS c ON c.id = m.bid
+	LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
 ORDER BY u.name ASC
 ',__LINE__,__FILE__);
 

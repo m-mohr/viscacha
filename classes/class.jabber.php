@@ -1,30 +1,21 @@
 <?php
-
-// Modified by Yves Goergen, see "MOD:" comments
-//
-// Some (all?) Jabber servers won't accept a connection with another character
-// set than UTF-8. So you might still need to utf8_encode() input data.
-
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "class.jabber.php") die('Error: Hacking Attempt');   // MOD: Viscacha cmpliance
 
 /***************************************************************************
 
-	Class.Jabber.PHP v0.4
-	(c) 2002 Carlo "Gossip" Zottmann
-	http://phpjabber.g-blog.net *** gossip@jabber.g-blog.net
+	Class.Jabber.PHP v0.4.3a
+	(c) 2004 Nathan "Fritzy" Fritz
+	http://cjphp.netflint.net *** fritzy@netflint.net
 
-	The FULL documentation and examples for this software can be found at
-	http://phpjabber.g-blog.net (not many doc comments in here, sorry)
+	This is a bugfix version, specifically for those who can't get 
+	0.4 to work on Jabberd2 servers. 
 
-	last modified: 27.04.2003 13:01:53 CET
+	last modified: 24.03.2004 13:01:53 
+
+	Modified by Yves Goergen
 
  ***************************************************************************/
 
-/***************************************************************************
- *
-
- *
- ***************************************************************************/
 
 /*
 	Jabber::Connect()
@@ -135,7 +126,6 @@ class Jabber
 	var $charset;
 
 
-
 	function Jabber()
 	{
 		$this->server				= "localhost";
@@ -154,16 +144,17 @@ class Jabber
 		$this->subscription_queue	= array();
 
 		// MOD: added this
-		$this->connect_sleep_timer	= 1;
+		$this->connect_sleep_timer	= 2;
 		$this->iq_sleep_timer		= 1;
 		$this->delay_disconnect		= 1;
 
 		$this->returned_keep_alive	= TRUE;
 		$this->txnid				= 0;
 
-		$this->iq_version_name		= "Class.Jabber.PHP -- http://phpjabber.g-blog.net -- by Carlo 'Gossip' Zottmann, gossip@jabber.g-blog.net";
-		$this->iq_version_version	= "0.4.2";
-		$this->iq_version_os		= $_SERVER['SERVER_SOFTWARE'];
+		$this->iq_version_name		= "Viscacha - powered by Class.Jabber.PHP";
+		$this->iq_version_version	= "0.4.3a";
+		// MOD: Added isset()
+		$this->iq_version_os            = isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '';
 
 		$this->connection_class		= "CJP_StandardConnector";
 
@@ -235,8 +226,8 @@ class Jabber
 		$this->SendPacket("</stream:stream>");
 		$this->CONNECTOR->CloseSocket();
 
-		$this->PrintLog();
 		$this->_close_logfile();
+		$this->PrintLog();
 	}
 
 
@@ -275,7 +266,6 @@ class Jabber
 			// plain text
 			elseif ($packet['iq']['#']['query'][0]['#']['password'])
 			{
-				echo 3;
 				return $this->_sendauth_plaintext();
 			}
 			// dude, you're fucked
@@ -752,8 +742,8 @@ class Jabber
 
 			$count += 0.25;
 			usleep(250000);
-
-			if ($this->last_ping_time != date('H:i'))
+			
+			if ($this->last_ping_time + 180 < time())
 			{
 				// Modified by Nathan Fritz
 				if ($this->returned_keep_alive == FALSE)
@@ -761,13 +751,18 @@ class Jabber
 					$this->connected = FALSE;
 					$this->AddToLog('EVENT: Disconnected');
 				}
+				if ($this->returned_keep_alive == TRUE)
+				{
+					$this->connected = TRUE;
+				}
 
 				$this->returned_keep_alive = FALSE;
 				$this->keep_alive_id = 'keep_alive_' . time();
-				$this->SendPacket("<iq id='{$this->keep_alive_id}'/>", 'CruiseControl');
+				//$this->SendPacket("<iq id='{$this->keep_alive_id}'/>", 'CruiseControl');
+				$this->SendPacket("<iq type='get' from='" . $this->username . "@" . $this->server . "/" . $this->resource . "' to='" . $this->server . "' id='" . $this->keep_alive_id . "'><query xmlns='jabber:iq:time' /></iq>");
 				// **
 
-				$this->last_ping_time = date("H:i");
+				$this->last_ping_time = time();
 			}
 		}
 
@@ -816,7 +811,7 @@ class Jabber
 		elseif ($id && $xmlns)
 		{
 			$xml = "<iq type='$type' id='$id'";
-			$xml .= ($to) ? " to='$to'" : '';
+			$xml .= ($to) ? " to='" . htmlspecialchars($to) . "'" : '';
 			$xml .= ($from) ? " from='$from'" : '';
 			$xml .= ">
 						<query xmlns='$xmlns'>
@@ -1007,6 +1002,7 @@ class Jabber
 
 	function _sendauth_digest()
 	{
+		// MOD: Added this
 		if (function_exists('mhash')) {
 			$mh = bin2hex(mhash(MHASH_SHA1, $this->stream_id . $this->password));
 		}
@@ -1015,6 +1011,7 @@ class Jabber
 		}
 		$payload = "<username>{$this->username}</username>
 					<resource>{$this->resource}</resource>
+					// MOD: Changed this
 					<digest>" . $mh . "</digest>";
 
 		$packet = $this->SendIq(NULL, 'set', $this->auth_id, "jabber:iq:auth", $payload);
@@ -1082,13 +1079,21 @@ class Jabber
 
 		if (is_array($incoming_array))
 		{
-			if ($incoming_array["stream:stream"]['@']['from'] == $this->server
+			if (isset($incoming_array['stream:stream'])
+               			&& $incoming_array["stream:stream"]['@']['from'] == $this->server
 				&& $incoming_array["stream:stream"]['@']['xmlns'] == "jabber:client"
 				&& $incoming_array["stream:stream"]['@']["xmlns:stream"] == "http://etherx.jabber.org/streams")
 			{
 				$this->stream_id = $incoming_array["stream:stream"]['@']['id'];
 
-				return TRUE;
+				if ($incoming_array["stream:stream"]["#"]["stream:features"][0]["#"]["starttls"][0]["@"]["xmlns"] == "urn:ietf:params:xml:ns:xmpp-tls")
+				{
+					return $this->_starttls();
+				}
+				else
+				{
+					return TRUE;
+				}
 			}
 			else
 			{
@@ -1101,6 +1106,55 @@ class Jabber
 			$this->AddToLog("ERROR: _check_connected() #2");
 			return FALSE;
 		}
+	}
+
+
+
+	function _starttls()
+	{
+		if (!function_exists("stream_socket_enable_crypto"))
+		{
+			$this->AddToLog("WARNING: TLS is not available");
+			return TRUE;
+		}
+
+		$this->SendPacket("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>\n");
+		sleep(2);
+		$incoming_array = $this->_listen_incoming();
+
+		if (!is_array($incoming_array))
+		{
+			$this->AddToLog("ERROR: _starttls() #1");
+			return FALSE;
+		}
+
+		if ($incoming_array["proceed"]["@"]["xmlns"] != "urn:ietf:params:xml:ns:xmpp-tls")
+		{
+			$this->AddToLog("ERROR: _starttls() #2");
+			return FALSE;
+		}
+
+		$meta = stream_get_meta_data($this->CONNECTOR->active_socket);
+		socket_set_blocking($this->CONNECTOR->active_socket, 1);
+		if (!stream_socket_enable_crypto($this->CONNECTOR->active_socket, TRUE, STREAM_CRYPTO_METHOD_TLS_CLIENT))
+		{
+			socket_set_blocking($this->CONNECTOR->active_socket, $meta["blocked"]);
+			$this->AddToLog("ERROR: _starttls() #3");
+			return FALSE;
+		}
+		socket_set_blocking($this->CONNECTOR->active_socket, $meta["blocked"]);
+
+		$this->SendPacket("<?xml version='1.0' encoding='UTF-8' ?" . ">\n");
+		$this->SendPacket("<stream:stream to='{$this->server}' xmlns='jabber:client' xmlns:stream='http://etherx.jabber.org/streams' version='1.0'>\n");
+		sleep(2);
+
+		if (!$this->_check_connected())
+		{
+			$this->AddToLog("ERROR: _starttls() #4");
+			return FALSE;
+		}
+
+		return TRUE;
 	}
 
 
@@ -1147,6 +1201,7 @@ class Jabber
 	{
 		if ($this->enable_logging)
 		{
+			// MOD: Changed this
 			if (is_resource($this->log_filehandler))
 			{
 				fwrite($this->log_filehandler, $string . "\n\n");
@@ -1162,6 +1217,7 @@ class Jabber
 
 	function _close_logfile()
 	{
+		// MOD: Changed this
 		if (is_resource($this->log_filehandler))
 		{
 			fclose($this->log_filehandler);
@@ -1239,6 +1295,11 @@ class Jabber
 	function GetInfoFromMessageBody($packet = NULL)
 	{
 		return (is_array($packet)) ? $packet['message']['#']['body'][0]['#'] : FALSE;
+	}
+
+	function GetInfoFromMessageXMLNS($packet = NULL)
+	{
+		return (is_array($packet)) ? $packet['message']['#']['x'] : FALSE;
 	}
 
 
@@ -1497,6 +1558,12 @@ class Jabber
 	// method for requesting the current time
 	function Handler_iq_jabber_iq_time($packet)
 	{
+		if ($this->keep_alive_id == $this->GetInfoFromIqId($packet))
+		{
+			$this->returned_keep_alive = TRUE;
+			$this->connected = TRUE;
+			$this->AddToLog('EVENT: Keep-Alive returned, connection alive.');
+		}
 		$type	= $this->GetInfoFromIqType($packet);
 		$from	= $this->GetInfoFromIqFrom($packet);
 		$id		= $this->GetInfoFromIqId($packet);
@@ -1512,6 +1579,11 @@ class Jabber
 		}
 
 		$this->AddToLog("EVENT: jabber:iq:time (type $type) from $from");
+	}
+
+	function Handler_iq_error($packet)
+	{
+		// We'll do something with these later.  This is a placeholder so that errors don't bounce back and forth.
 	}
 
 
@@ -1530,26 +1602,28 @@ class Jabber
 						<os>{$this->iq_version_os}</os>
 						<version>{$this->iq_version_version}</version>";
 
-			$this->SendIq($from, 'result', $id, "jabber:iq:version", $payload);
+			#$this->SendIq($from, 'result', $id, "jabber:iq:version", $payload);
 		}
 
-		$this->AddToLog("EVENT: jabber:iq:version (type $type) from $from");
+		$this->AddToLog("EVENT: jabber:iq:version (type $type) from $from -- DISABLED");
 	}
 
 
 
 	// keepalive method, added by Nathan Fritz
-	function Handler_iq_($packet)
+	/*
+	function Handler_jabber_iq_time($packet)
 	{
 		if ($this->keep_alive_id == $this->GetInfoFromIqId($packet))
 		{
 			$this->returned_keep_alive = TRUE;
+			$this->connected = TRUE;
 			$this->AddToLog('EVENT: Keep-Alive returned, connection alive.');
 		}
 	}
-
-
-
+	*/
+	
+	
 	// ======================================================================
 	// <presence/> handlers
 	// ======================================================================
@@ -1660,19 +1734,26 @@ class Jabber
 	// xmlize()
 	// (c) Hans Anderson / http://www.hansanderson.com/php/xml/
 
-	function xmlize($data)
-	{
+	function xmlize($data, $WHITE=1, $encoding='UTF-8') {
+
+		$data = trim($data);
 		$vals = $index = $array = array();
-		$parser = xml_parser_create();
+		$parser = xml_parser_create($encoding);
 		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
-		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
+		xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, $WHITE);
 		xml_parse_into_struct($parser, $data, $vals, $index);
 		xml_parser_free($parser);
 
 		$i = 0;
 
-		$tagname = $vals[$i]['tag'];
-		$array[$tagname]['@'] = $vals[$i]['attributes'];
+		$tagname = isset($vals[$i]['tag']) ? $vals[$i]['tag'] : null;
+		if ( isset ($vals[$i]['attributes'] ) )
+		{
+			$array[$tagname]['@'] = $vals[$i]['attributes'];
+		} else {
+			$array[$tagname]['@'] = array();
+		}
+
 		$array[$tagname]['#'] = $this->_xml_depth($vals, $i);
 
 		return $array;
@@ -1683,67 +1764,82 @@ class Jabber
 	// _xml_depth()
 	// (c) Hans Anderson / http://www.hansanderson.com/php/xml/
 
-	function _xml_depth($vals, &$i)
-	{
+	function _xml_depth($vals, &$i) {
 		$children = array();
 
-		if (!empty($vals[$i]['value']))
+		if ( isset($vals[$i]['value']) )
 		{
-			array_push($children, trim($vals[$i]['value']));
+			array_push($children, $vals[$i]['value']);
 		}
 
-		while (++$i < count($vals))
-		{
-			switch ($vals[$i]['type'])
-			{
+		while (++$i < count($vals)) {
+
+			switch ($vals[$i]['type']) {
+
+				case 'open':
+
+					if ( isset ( $vals[$i]['tag'] ) )
+					{
+						$tagname = $vals[$i]['tag'];
+					} else {
+						$tagname = '';
+					}
+
+					if ( isset ( $children[$tagname] ) )
+					{
+						$size = sizeof($children[$tagname]);
+					} else {
+						$size = 0;
+					}
+
+					if ( isset ( $vals[$i]['attributes'] ) ) {
+						$children[$tagname][$size]['@'] = $vals[$i]["attributes"];
+
+					}
+
+					$children[$tagname][$size]['#'] = $this->_xml_depth($vals, $i);
+
+					break;
+
+
 				case 'cdata':
-					array_push($children, trim($vals[$i]['value']));
-	 				break;
+					array_push($children, $vals[$i]['value']);
+					break;
 
 				case 'complete':
 					$tagname = $vals[$i]['tag'];
-					if (isset($children[$tagname])) {
-						$size = sizeof($children[$tagname]);
-					}
-					else {
-						$size = 0;
-					}
-					if (!isset($vals[$i]['value'])) {
-						$vals[$i]['value'] = '';
-					}
-					$children[$tagname][$size]['#'] = trim($vals[$i]['value']);
-					if (!empty($vals[$i]['attributes']))
-					{
-						$children[$tagname][$size]['@'] = $vals[$i]['attributes'];
-					}
-					break;
 
-				case 'open':
-					$tagname = $vals[$i]['tag'];
-					if (isset($children[$tagname])) {
+					if( isset ($children[$tagname]) )
+					{
 						$size = sizeof($children[$tagname]);
-					}
-					else {
+					} else {
 						$size = 0;
 					}
-					if (!empty($vals[$i]['attributes']))
+
+					if( isset ( $vals[$i]['value'] ) )
 					{
-						$children[$tagname][$size]['@'] = $vals[$i]['attributes'];
-						$children[$tagname][$size]['#'] = $this->_xml_depth($vals, $i);
+						$children[$tagname][$size]["#"] = $vals[$i]['value'];
+					} else {
+						$children[$tagname][$size]["#"] = array();
 					}
-					else
-					{
-						$children[$tagname][$size]['#'] = $this->_xml_depth($vals, $i);
+
+					if ( isset ($vals[$i]['attributes']) ) {
+						$children[$tagname][$size]['@']
+						= $vals[$i]['attributes'];
 					}
+
 					break;
 
 				case 'close':
 					return $children;
 					break;
 			}
+
 		}
 
 		return $children;
+
+
 	}
 
 
@@ -1751,22 +1847,20 @@ class Jabber
 	// TraverseXMLize()
 	// (c) acebone@f2s.com, a HUGE help!
 
-	function TraverseXMLize($array, $arrName = "array", $level = 0)
-	{
+	function TraverseXMLize($array, $arrName = "array", $level = 0) {
+
 		if ($level == 0)
 		{
 			echo "<pre>";
 		}
 
-		while (list($key, $val) = @each($array))
+		foreach($array as $key=>$val)
 		{
-			if (is_array($val))
+			if ( is_array($val) )
 			{
 				$this->TraverseXMLize($val, $arrName . "[" . $key . "]", $level + 1);
-			}
-			else
-			{
-				echo '$' . $arrName . '[' . $key . '] = "' . $val . "\"\n";
+			} else {
+				$GLOBALS['traverse_array'][] = '$' . $arrName . '[' . $key . '] = "' . $val . "\"\n";
 			}
 		}
 
@@ -1774,6 +1868,9 @@ class Jabber
 		{
 			echo "</pre>";
 		}
+
+		return 1;
+
 	}
 }
 
@@ -1896,6 +1993,16 @@ class CJP_StandardConnector
 
 	function OpenSocket($server, $port)
 	{
+		if (function_exists("dns_get_record"))
+		{
+			$record = dns_get_record("_xmpp-client._tcp.$server", DNS_SRV);
+			if (!empty($record))
+			{
+				$server = $record[0]["target"];
+				$port = $record[0]["port"];
+			}
+		}
+
 		if ($this->active_socket = @fsockopen($server, $port))
 		{
 			@socket_set_blocking($this->active_socket, 0);

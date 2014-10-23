@@ -49,6 +49,143 @@ $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['datab
 // Construct base bb-code object
 $bbcode = new BBCode();
 
+define('REMOTE_INVALID_URL', 100);
+define('REMOTE_CLIENT_ERROR', 200);
+define('REMOTE_FILESIZE_ERROR', 300);
+define('REMOTE_IMAGE_HEIGHT_ERROR', 400);
+define('REMOTE_IMAGE_WIDTH_ERROR', 500);
+define('REMOTE_EXTENSION_ERROR', 600);
+define('REMOTE_IMAGE_ERROR', 700);
+
+function get_remote($file) {
+	if (!class_exists('Snoopy')) {
+		include('classes/class.snoopy.php');
+	}
+	
+	if (!preg_match('/^(http:\/\/)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $file, $url_ary)) {
+		return REMOTE_INVALID_URL;
+	}
+
+	$snoopy = new Snoopy;
+	if (is_id($url_ary[3])) {
+		$snoopy->port = $url_ary[3];
+	}
+	else {
+		$snoopy->port = null;
+	}
+	$status = $snoopy->fetch($file);
+	if ($status == true) {
+		return $snoopy->results;
+	}
+	else {
+		return REMOTE_CLIENT_ERROR;
+	}
+}
+
+function checkRemotePic($pic, $id) {
+	global $config, $filesystem;
+
+	$avatar_data = get_remote($pic);
+	if ($avatar_data == REMOTE_CLIENT_ERROR || $avatar_data == REMOTE_INVALID_URL) {
+		return $avatar_data;
+	}
+
+	if (strlen($avatar_data) > $config['avfilesize']) {
+		return REMOTE_FILESIZE_ERROR;
+	}
+	
+	$filename = md5(uniqid($id));
+	$origfile = 'temp/'.$filename;
+	$filesystem->file_put_contents($origfile, $avatar_data);
+
+	if (filesize($origfile) > $config['avfilesize']) {
+		return REMOTE_FILESIZE_ERROR;
+	}
+    $imageinfo = @getimagesize($origfile);
+    if (is_array($imageinfo)) {
+    	list($width, $height, $type) = $imageinfo;
+    }
+    else {
+    	return REMOTE_IMAGE_ERROR;
+    }
+	if ($width > $config['avwidth']) {
+		return REMOTE_IMAGE_WIDTH_ERROR;
+	}
+	if ($height > $config['avheight']) {
+		return REMOTE_IMAGE_HEIGHT_ERROR;
+	}
+    $types = explode(',', $config['avfiletypes']);
+    $ext = image_type_to_extension($type);
+	if (!in_array($ext, $types)) {
+		return REMOTE_EXTENSION_ERROR;
+	}
+
+	$dir = 'uploads/pics/';
+	$pic = $dir.$id.$ext;
+	removeOldImages($dir, $id);
+	@$filesystem->copy($origfile, $pic);
+	
+	return $pic;
+}
+
+function ini_maxupload() {
+    $keys = array(
+    'post_max_size' => 0,
+    'upload_max_filesize' => 0
+    );
+    foreach ($keys as $key => $bytes) {
+        $val = trim(@ini_get($key));
+        $last = strtolower($val{strlen($val)-1});
+        switch($last) {
+            case 'g':
+                $val *= 1024;
+            case 'm':
+                $val *= 1024;
+            case 'k':
+                $val *= 1024;
+        }
+        $keys[$key] = $val;
+    }
+    return min($keys);
+}
+
+/**
+ * orders a multidimentional array on the base of a label-key
+ *
+ * @param $arr, the array to be ordered
+ * @param $l the "label" identifing the field
+ * @param $f the ordering function to be used,
+ *    strnatcasecmp() by default
+ * @return  TRUE on success, FALSE on failure.
+ */
+function array_columnsort(&$arr, $l , $f='strnatcasecmp') {
+	return uasort($arr, create_function('$a, $b', "return $f(\$a['$l'], \$b['$l']);"));
+}
+
+function array_empty($array) {
+	$array = array_unique($array);
+	if (count($array) == 0) {
+		return true;
+	}
+	elseif (count($array) == 1) {
+		$current = current($array);
+		if (empty($current)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else {
+		foreach ($array as $val) {
+			if (!empty($val)) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
 function array_empty_trim($arr) {
 	$array = array();
 	foreach($arr as $key => $val) {
@@ -335,7 +472,7 @@ function removeOldImages ($dir, $name) {
     $dir_open = @opendir($dir);
     while (($dir_content = readdir($dir_open)) !== false) {
         if ($dir_content != '.' && $dir_content != '..') {
-            $ext = get_extension($dir_content);
+            $ext = get_extension($dir_content, true);
             $fname = str_ireplace($ext, '', $dir_content);
             if ($fname == $name) {
                 @$filesystem->unlink($dir.'/'.$dir_content);
@@ -485,13 +622,13 @@ function str_date($format, $time=FALSE) {
 	return $returndate;
 }
 
-// Returns the extension ( using pathinfo() ) of an file with a leading dot (e.g. '.gif' or '.php') or not ($leading = true)
-function get_extension($url, $leading=FALSE) {
+// Returns the extension in lower case ( using pathinfo() ) of an file with a leading dot (e.g. '.gif' or '.php') or not ($leading = false)
+function get_extension($url, $include_dot = false) {
 	$path_parts = pathinfo($url);
 	if (!isset($path_parts["extension"])) {
 		$path_parts["extension"] = '';
 	}
-	if ($leading == TRUE) {
+	if ($include_dot == false) {
 		return strtolower($path_parts["extension"]);
 	}
 	else {
@@ -501,21 +638,24 @@ function get_extension($url, $leading=FALSE) {
 function UpdateBoardStats ($board) {
 	global $config, $db, $scache;
 	if ($config['updateboardstats'] == '1') {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='$board'",__LINE__,__FILE__);
+		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='{$board}'",__LINE__,__FILE__);
 		$count = $db->fetch_num ($result);
 
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='$board'",__LINE__,__FILE__);
+		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='{$board}'",__LINE__,__FILE__);
 		$count2 = $db->fetch_num($result);
 		
 		$replies = $count[0]-$count2[0];
 		$topics = $count2[0];
 
-		$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '$board' ORDER BY last DESC LIMIT 1",__LINE__,__FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1",__LINE__,__FILE__);
 	    $last = $db->fetch_num($result);
 	    if (empty($last[0])) {
 			$last[0] = 0;
 		}
-		$db->query("UPDATE {$db->pre}cat SET topics = '".$topics."', replys = '".$replies."', last_topic = '".$last[0]."' WHERE id = '".$board."'",__LINE__,__FILE__);
+		$db->query("
+		UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last[0]}' 
+		WHERE id = '{$board}'
+		",__LINE__,__FILE__);
 		$delobj = $scache->load('cat_bid');
 		$delobj->delete();
 	}
@@ -527,25 +667,16 @@ function iif($if, $true, $false = '') {
 
 function getip($dots = 4) {
 	$ips = array();
-
-	// $_SERVER is sometimes for a windows server which can't handle getenv()
-	if(@getenv("REMOTE_ADDR")) {
-		$ips[] = @getenv("REMOTE_ADDR");
-	}
-	if(isset($_SERVER["REMOTE_ADDR"])) {
-		$ips[] = $_SERVER["REMOTE_ADDR"];
-	}
-	if(@getenv("HTTP_X_FORWARDED_FOR")) {
-		$ips[] = getenv("HTTP_X_FORWARDED_FOR");
-	}
-	if(isset($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-		$ips[] = $_SERVER["HTTP_X_FORWARDED_FOR"];
-	}
-	if (@getenv("HTTP_CLIENT_IP")) {
-		$ips[] = getenv("HTTP_CLIENT_IP");
-	}
-	if (isset($_SERVER["HTTP_CLIENT_IP"])) {
-		$ips[] = $_SERVER["HTTP_CLIENT_IP"];
+	$indices = array('REMOTE_ADDR', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP');
+	foreach ($indices as $index) {
+		// $_SERVER is sometimes for a windows server which can't handle getenv()
+		$tip = @getenv($index);
+		if(!empty($tip)) {
+			$ips[] = $tip;
+		}
+		if(!empty($_SERVER[$index])) {
+			$ips[] = $_SERVER[$index];
+		}
 	}
 
    	$private_ips = array("/^0\..+$/", "/^127\.0\.0\..+$/", "/^192\.168\..+$/", "/^172\.16\..+$/", "/^10..+$/", "/^224..+$/", "/^240..+$/", "/[^\d\.]+/");
@@ -553,8 +684,11 @@ function getip($dots = 4) {
 
 	foreach ($ips as $ip) {
 		$found = false;
+		if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/", $ip)) {
+			$found = true;
+		}
 		foreach ($private_ips as $pip) {
-			if (preg_match($pip, trim($ip)) == 1) {
+			if (preg_match($pip, trim($ip))) {
 				$found = true;
 			}
 		}
@@ -679,7 +813,6 @@ function SelectForums($html, $tree, $cat, $board, $group = true, $char = '&nbsp;
 	return $html;
 }
 
-// This function is simply for understanding the if-clauses better
 function check_forumperm($forum) {
 	global $my, $scache;
 
@@ -695,6 +828,9 @@ function check_forumperm($forum) {
 				if (!isset($my->pwfaccess[$id]) || $forums[$id]['optvalue'] != $my->pwfaccess[$id]) {
 					return false;
 				}
+			}
+			if ($forums[$id]['invisible'] == 2) {
+				return false;
 			}
 		}
 	}
@@ -841,7 +977,7 @@ function makecookie($name, $value = '', $expire = 31536000) {
 		return FALSE;
 	}
 
-//	if ($_SERVER['SERVER_PORT'] == '443') {
+//	if ($_SERVER['SERVER_PORT'] == '443' || isset($_SERVER['HTTPS'])) {
 //		$secure = 1;
 //	}
 //	else {

@@ -31,7 +31,10 @@ function SelectPackageLinks ($head) {
 if ($job == 'plugins') {
 	send_nocache_header();
 	echo head();
-	$sort = $gpc->get('sort', int);
+	if (!isset($my->settings['admin_plugins_sort'])) {
+		$my->settings['admin_plugins_sort'] = 1;
+	}
+	$sort = $gpc->get('sort', int, $my->settings['admin_plugins_sort']);
 	?>
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	  <tr> 
@@ -63,6 +66,7 @@ if ($job == 'plugins') {
 	<?php
 	if ($sort == 1) {
 		$package = null;
+		$my->settings['admin_plugins_sort'] = 1;
 		
 		$configs = array();
 		$result = $db->query("SELECT id, name FROM {$db->pre}settings_groups WHERE LEFT(name, 7) = 'module_'");
@@ -132,6 +136,8 @@ if ($job == 'plugins') {
 	}
 	else {
 		$pos = null;
+		$my->settings['admin_plugins_sort'] = 0;
+		
 		$result = $db->query("
 		SELECT p.*, m.title 
 		FROM {$db->pre}plugins AS p
@@ -618,8 +624,12 @@ elseif ($job == 'plugins_add3') {
 	if (!$isInvisibleHook) {
 		$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
 	}
-
-	ok('admin.php?action=cms&job=plugins_add&id='.$data['module'], 'Step 3 of 3: Plugin successfully added!');
+	if ($data['position'] == 'navigation') {
+		ok('admin.php?action=cms&job=nav_addplugin&id='.$data['module'], 'Step 3 of 3: Plugin successfully added! You have added a plugin to the hook "navigation". Before you can use it in your navigation, you have to add it to your Navigation Manager.');
+	}
+	else {
+		ok('admin.php?action=cms&job=plugins_add&id='.$data['module'], 'Step 3 of 3: Plugin successfully added!');
+	}
 }
 elseif ($job == 'package_template') {
 	$id = $gpc->get('id', int);
@@ -1293,30 +1303,31 @@ elseif ($job == 'package_import2') {
 	
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
-		$filetypes = array('.zip');
-		$dir = realpath('temp/');
+		$filetypes = array('zip');
+		$dir = realpath('temp').DIRECTORY_SEPARATOR;
 	
 		$insertuploads = array();
 		require("classes/class.upload.php");
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
-		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			if ($my_uploader->return_error()) {
-				array_push($inserterrors,$my_uploader->return_error());
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors,$my_uploader->return_error());
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
-		$file = $dir.'/'.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
-		}
+
 	}
 	elseif (file_exists($server)) {
-		$ext = get_extension($server, true);
+		$ext = get_extension($server);
 		if ($ext == 'zip') {
 			$file = $server;
 		}
@@ -1695,16 +1706,16 @@ elseif ($job == 'nav') {
   <tr> 
    <td class="obox" colspan="4">
    	<span style="float: right;">
-   	[<a href="admin.php?action=cms&job=nav_add">Link hinzufügen</a>]
-   	[<a href="admin.php?action=cms&job=nav_addbox">Box erstellen</a>]
-   	[<a href="admin.php?action=cms&job=nav_addplugin">PlugIn hinzufügen</a>]
-   	</span>Navigation verwalten
+   	[<a href="admin.php?action=cms&job=nav_add">Add Link</a>]
+   	[<a href="admin.php?action=cms&job=nav_addbox">Add Box</a>]
+   	[<a href="admin.php?action=cms&job=nav_addplugin">Add PlugIn</a>]
+   	</span>Manage Navigation
    </td>
   </tr>
   <tr> 
    <td class="ubox">Link</td>
    <td class="ubox">Status</td>
-   <td class="ubox">Reihenfolge</td>
+   <td class="ubox">Order</td>
    <td class="ubox">Action</td>
   </tr>
 <?php
@@ -1731,7 +1742,7 @@ elseif ($job == 'nav') {
 			$type[] = '<em>PlugIn</em>';
 		}
 		if ($head['active'] == 0) {
-			$type[] = '<em>Inaktiv</em>';
+			$type[] = '<em>Inactive</em>';
 		}
 	?>
 	<tr class="mmbox">
@@ -1869,7 +1880,11 @@ elseif ($job == 'nav_edit') {
   </tr>
 <?php if ($data['sub'] > 0) { ?>
   <tr> 
-   <td class="mbox" width="50%">File/URL: (<a href="javascript:docs();">Existing Documents</a>)</td>
+   <td class="mbox" width="50%">File/URL:<br />
+   <span class="stext">
+   - <a href="javascript:docs();">Existing Documents</a><br />
+   - <a href="javascript:coms();">Existing Components</a>
+   </span></td>
    <td class="mbox" width="50%"><input type="text" name="url" size="40" value="<?php echo $data['link']; ?>" /></td>
   </tr>
   <tr> 
@@ -1969,7 +1984,7 @@ elseif ($job == 'nav_edit2') {
 	}
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
-	ok('admin.php?action=cms&job=nav', 'Datensatz wurde erfolgreich geändert');
+	ok('admin.php?action=cms&job=nav', 'Data successfully changed!');
 }
 elseif ($job == 'nav_delete') {
 	echo head();
@@ -2059,6 +2074,7 @@ elseif ($job == 'nav_active') {
 }
 elseif ($job == 'nav_addplugin') {
 	echo head();
+	$id = $gpc->get('id', int);
 	$sort = $db->query("SELECT ordering, name FROM {$db->pre}menu WHERE sub = '0' ORDER BY ordering, id", __LINE__, __FILE__);
 	$plugs = $db->query("SELECT id, name FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering", __LINE__, __FILE__);
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
@@ -2077,7 +2093,7 @@ elseif ($job == 'nav_addplugin') {
    <td class="mbox" width="50%">
    <select name="plugin">
    <?php while ($row = $db->fetch_assoc($plugs)) { ?>
-   <option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+   <option value="<?php echo $row['id']; ?>"<?php echo iif($row['id'] == $id, ' selected="selected"'); ?>><?php echo $row['name']; ?></option>
    <?php } ?>
    </select>
    </td>
@@ -2155,7 +2171,11 @@ elseif ($job == 'nav_add') {
    <td class="mbox" width="50%"><input type="text" name="title" size="40" /></td>
   </tr>
   <tr> 
-   <td class="mbox" width="50%">File/URL: (<a href="javascript:docs();">Existing Documents</a>)</td>
+   <td class="mbox" width="50%">File/URL:<br />
+   <span class="stext">
+   - <a href="javascript:docs();">Existing Documents</a><br />
+   - <a href="javascript:coms();">Existing Components</a>
+   </span></td>
    <td class="mbox" width="50%"><input type="text" name="url" size="40" /></td>
   </tr>
   <tr> 
@@ -2297,25 +2317,48 @@ elseif ($job == 'nav_addbox2') {
 	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering) VALUES ('{$title}','{$groups}','{$sort}')", __LINE__, __FILE__);
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
-	ok('admin.php?action=cms&job=nav', 'Box wurde erfolgreich hinzugefügt');
+	ok('admin.php?action=cms&job=nav', 'Box successfully added');
 }
 elseif ($job == 'nav_docslist') {
-echo head();
-$result = $db->query('SELECT id, title FROM '.$db->pre.'documents');
-?>
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
-   <td class="obox">Existing Documents and Pages</td>
-  </tr>
-  <tr> 
-   <td class="mbox">
-   <?php while ($row = $db->fetch_assoc($result)) { ?>
-   <input type="radio" name="data" onclick="insert_doc('docs.php?id=<?php echo $row['id']; ?>','<?php echo htmlentities($row['title']); ?>')"> <?php echo $row['title']; ?><br>
-   <?php } ?>
-   </td>
- </table>
-<?php
-echo foot();
+	echo head();
+	$result = $db->query('SELECT id, title FROM '.$db->pre.'documents');
+	?>
+	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	  <tr> 
+	   <td class="obox">Existing Documents and Pages</td>
+	  </tr>
+	  <tr> 
+	   <td class="mbox">
+	   <?php while ($row = $db->fetch_assoc($result)) { ?>
+	   <input type="radio" name="data" onclick="insert_doc('docs.php?id=<?php echo $row['id']; ?>','<?php echo htmlentities($row['title']); ?>')"> <?php echo $row['title']; ?><br>
+	   <?php } ?>
+	   </td>
+	 </table>
+	<?php
+	echo foot();
+}
+elseif ($job == 'nav_comslist') {
+	echo head();
+	$result = $db->query("SELECT * FROM {$db->pre}component ORDER BY active", __LINE__, __FILE__);
+	?>
+	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	  <tr> 
+	   <td class="obox">Existing Components</td>
+	  </tr>
+	  <tr> 
+	   <td class="mbox">
+	   <?php
+		while ($row = $db->fetch_assoc($result)) {
+			$head = array();
+			$cfg = $myini->read('components/'.$row['id'].'/components.ini');
+			$head = array_merge($row, $cfg);
+	   ?>
+	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo htmlentities($head['config']['name']); ?>')"> <?php echo  $head['config']['name'].iif ($head['active'] == '0', ' (<em>Inactive</em>)'); ?><br />
+	   <?php } ?>
+	   </td>
+	 </table>
+	<?php
+	echo foot();
 }
 elseif ($job == 'com') {
 	send_nocache_header();
@@ -2340,7 +2383,7 @@ elseif ($job == 'com') {
 	?>
 	<tr>
 	<td class="mbox" width="40%">
-	<?php echo $head['config']['name']; ?><?php echo iif ($head['active'] == '0', ' (<i>Inaktiv</i>)'); ?>
+	<?php echo $head['config']['name']; ?><?php echo iif ($head['active'] == '0', ' (<i>Inactive</i>)'); ?>
 	</td>
 	<td class="mbox" width="15%">
 	<?php 
@@ -2352,7 +2395,7 @@ elseif ($job == 'com') {
 	?>
 	</td>
 	<td class="mbox" width="15%">
-	<?php echo $head['config']['version']; ?><br>
+	<?php echo $head['config']['version']; ?><br />
 	</td>
 	<td class="mbox" width="30%">
 	<form name="" action="admin.php?action=locate" method="post">
@@ -2483,11 +2526,19 @@ elseif ($job == 'com_add') {
 <form name="form" method="post" action="admin.php?action=cms&job=com_add2" enctype="multipart/form-data">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="2">Upload new Components</b></td>
+   <td class="obox" colspan="2">Import a new Component</td>
   </tr>
   <tr> 
-   <td class="mbox" width="50%">Packed Component:<br><span class="stext">Compressed file containing the component (.zip). You should install only components from confidential sources!</td>
-   <td class="mbox" width="50%"><input type="file" name="upload" size="60" /></td> 
+   <td class="mbox" width="50%"><em>Either</em> upload a file:<br /><span class="stext">Compressed file (.zip) containing the component. Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?>. You should install only components from confidential sources!</td>
+   <td class="mbox" width="50%"><input type="file" name="upload" size="40" /></td> 
+  </tr>
+  <tr>
+   <td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
+   <td class="mbox"><input type="text" name="server" size="50" /></td>
+  </tr>
+  <tr>
+   <td class="mbox">Delete file after import:</td>
+   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td>
   </tr>
   <tr> 
    <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="Upload"></td> 
@@ -2500,111 +2551,136 @@ elseif ($job == 'com_add') {
 elseif ($job == 'com_add2') {
 	echo head();
 	
-	if (isset($_FILES) && is_array($_FILES['upload']) && $_FILES['upload']['name']) {
+	$del = $gpc->get('delete', int);
+	$server = $gpc->get('server', none);
+	$inserterrors = array();
+	
+	$sourcefile = '';
+	if (!empty($_FILES['upload']['name'])) {
 		require("classes/class.upload.php");
+		$dir = 'temp/';
 		$my_uploader = new uploader();
-		if ($my_uploader->upload('upload', array('.zip'))) {
-			$my_uploader->save_file('temp/', '2');
+		$my_uploader->file_types(array('zip'));
+		$my_uploader->set_path($dir);
+		$my_uploader->max_filesize(ini_maxupload());
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$sourcefile = $dir.$my_uploader->fileinfo('filename');
+			}
 		}
-		if ($my_uploader->return_error()) {
-			error('admin.php?action=cms&job=com_add', $my_uploader->return_error());
-		} 
-		else {
-			$tdir = "temp/".time();
-			$filesystem->mkdir($tdir);
-			if (!is_dir($tdir)) {
-				error('admin.php?action=cms&job=com_add', 'Directory could not be created for extraction.');
-			}
-			include('classes/class.zip.php');
-			$archive = new PclZip('temp/'.$my_uploader->file['name']);
-			if ($archive->extract(PCLZIP_OPT_PATH, $tdir) == 0) {
-				error('admin.php?action=cms&job=com_add', $archive->errorInfo(true));
-			}
-
-			if (file_exists($tdir.'/components.ini')) {
-				$cfg = $myini->read($tdir.'/components.ini');
-			}
-			else {
-				error('admin.php?action=cms&job=com_add', 'components.ini file does not exist!');
-			}
-
-			if (!isset($cfg['module']['frontpage'])) {
-				$cfg['module']['frontpage'] = '';
-			}
-
-			$db->query("INSERT INTO {$db->pre}component (file) VALUES ('{$cfg['module']['frontpage']}')", __LINE__, __FILE__);
-			$id = $db->insert_id();
-
-			$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'",__LINE__,__FILE__);
-			$design = $db->fetch_assoc($result);
-			
-			$result = $db->query("SELECT stylesheet FROM {$db->pre}designs GROUP BY stylesheet",__LINE__,__FILE__);
-
-			if (isset($cfg['php']) && count($cfg['php']) > 0) {
-				$filesystem->mkdir("./components/$id");
-				foreach ($cfg['php'] as $file) {
-					$filesystem->copy("$tdir/php/$file", "./components/$id/$file");
-				}
-			}
-			if (isset($cfg['language']) && count($cfg['language']) > 0) {
-				$filesystem->mkdir("./language/{$config['langdir']}/components/$id", 0777);
-				foreach ($cfg['language'] as $file) {
-					$filesystem->copy("$tdir/language/$file", "./language/{$config['langdir']}/components/$id/$file");
-					$filesystem->chmod("./language/{$config['langdir']}/components/$id/$file", 0666);
-				}
-			}
-			
-			if (isset($cfg['template']) && count($cfg['template']) > 0) {
-				$filesystem->mkdir("./templates/{$design['template']}/components/$id", 0777);
-				foreach ($cfg['template'] as $file) {
-					$filesystem->copy("$tdir/template/$file", "./templates/{$design['template']}/components/$id/$file");
-					$filesystem->chmod("./templates/{$design['template']}/components/$id/$file", 0666);
-				}
-			}
-			
-			if (isset($cfg['image']) && count($cfg['image']) > 0) {
-				foreach ($cfg['image'] as $file) {
-					$filesystem->copy("$tdir/image/$file", "./images/{$design['images']}/$file");
-				}
-			}
-			
-			if (isset($cfg['style']) && count($cfg['style']) > 0) {
-				while ($css = $db->fetch_assoc($result)) {
-					foreach ($cfg['style'] as $file) {
-						$filesystem->copy("$tdir/style/$file", "./designs/{$css['stylesheet']}/$file");
-					}
-				}
-			}
-
-			$filesystem->copy("{$tdir}/components.ini","./components/{$id}/components.ini");
-			$filesystem->chmod("./components/{$id}/components.ini", 0666);
-
-			$delobj = $scache->load('components');
-			$delobj->delete();
-			
-			rmdirr($tdir);
-			unset($archive);
-			$filesystem->unlink('./temp/'.$my_uploader->file['name']);
-			
-			if (empty($cfg['config']['install'])) {
-				ok('admin.php?action=cms&job=com', 'Komponente wurde installiert!');
-			}
-			else {
-				$mod = $gpc->get('file', none, $cfg['config']['install']);
-				$uri = explode('?', $mod);
-				$file = basename($uri[0]);
-				if (isset($uri[1])) {
-					parse_str($uri[1], $input);
-				}
-				else {
-					$input = array();
-				}
-				include("components/{$id}/{$file}");
-			}	
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
 	}
+	elseif (file_exists($server)) {
+		$ext = get_extension($server);
+		if ($ext == 'zip') {
+			$sourcefile = $server;
+		}
+		else {
+			$inserterrors[] = 'The selected file is no ZIP-file.';
+		}
+	}
+	if (!file_exists($sourcefile)) {
+		$inserterrors[] = 'No valid file selected.';
+	}
+	if (count($inserterrors) > 0) {
+		error('admin.php?action=designs&job=design_import', $inserterrors);
+	}
 	else {
-		error('admin.php?action=cms&job=acom_add', 'No file was chosen.');
+		$tdir = "temp/".md5(microtime()).'/';
+		$filesystem->mkdir($tdir);
+		if (!is_dir($tdir)) {
+			error('admin.php?action=cms&job=com_add', 'Directory could not be created for extraction.');
+		}
+		include('classes/class.zip.php');
+		$archive = new PclZip($sourcefile);
+		if ($archive->extract(PCLZIP_OPT_PATH, $tdir) == 0) {
+			error('admin.php?action=cms&job=com_add', $archive->errorInfo(true));
+		}
+
+		if (file_exists($tdir.'components.ini')) {
+			$cfg = $myini->read($tdir.'components.ini');
+		}
+		else {
+			error('admin.php?action=cms&job=com_add', 'components.ini file does not exist!');
+		}
+
+		if (!isset($cfg['module']['frontpage'])) {
+			$cfg['module']['frontpage'] = '';
+		}
+
+		$db->query("INSERT INTO {$db->pre}component (file) VALUES ('{$cfg['module']['frontpage']}')", __LINE__, __FILE__);
+		$id = $db->insert_id();
+
+		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'",__LINE__,__FILE__);
+		$design = $db->fetch_assoc($result);
+			
+		$result = $db->query("SELECT stylesheet FROM {$db->pre}designs GROUP BY stylesheet",__LINE__,__FILE__);
+
+		if (isset($cfg['php']) && count($cfg['php']) > 0) {
+			$filesystem->mkdir("./components/{$id}");
+			foreach ($cfg['php'] as $file) {
+				$filesystem->copy("{$tdir}php/{$file}", "./components/{$id}/{$file}");
+			}
+		}
+		if (isset($cfg['language']) && count($cfg['language']) > 0) {
+			$filesystem->mkdir("./language/{$config['langdir']}/components/{$id}", 0777);
+			foreach ($cfg['language'] as $file) {
+				$filesystem->copy("{$tdir}/language/$file", "./language/{$config['langdir']}/components/{$id}/{$file}");
+				$filesystem->chmod("./language/{$config['langdir']}/components/$id/$file", 0666);
+			}
+		}
+			
+		if (isset($cfg['template']) && count($cfg['template']) > 0) {
+			$filesystem->mkdir("./templates/{$design['template']}/components/{$id}", 0777);
+			foreach ($cfg['template'] as $file) {
+				$filesystem->copy("{$tdir}template/{$file}", "./templates/{$design['template']}/components/{$id}/{$file}");
+				$filesystem->chmod("./templates/{$design['template']}/components/{$id}/{$file}", 0666);
+			}
+		}
+			
+		if (isset($cfg['image']) && count($cfg['image']) > 0) {
+			foreach ($cfg['image'] as $file) {
+				$filesystem->copy("{$tdir}image/{$file}", "./images/{$design['images']}/{$file}");
+			}
+		}
+			
+		if (isset($cfg['style']) && count($cfg['style']) > 0) {
+			while ($css = $db->fetch_assoc($result)) {
+				foreach ($cfg['style'] as $file) {
+					$filesystem->copy("{$tdir}style/{$file}", "./designs/{$css['stylesheet']}/{$file}");
+				}
+			}
+		}
+
+		$filesystem->copy("{$tdir}components.ini","./components/{$id}/components.ini");
+		$filesystem->chmod("./components/{$id}/components.ini", 0666);
+
+		$delobj = $scache->load('components');
+		$delobj->delete();
+			
+		rmdirr($tdir);
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($sourcefile);
+		}
+			
+		if (empty($cfg['config']['install'])) {
+			ok('admin.php?action=cms&job=com', 'Component successfully imported!');
+		}
+		else {
+			$mod = $gpc->get('file', none, $cfg['config']['install']);
+			$uri = explode('?', $mod);
+			$file = basename($uri[0]);
+			if (isset($uri[1])) {
+				parse_str($uri[1], $input);
+			}
+			else {
+				$input = array();
+			}
+			include("components/{$id}/{$file}");
+		}	
 	}
 }
 elseif ($job == 'com_export') {
@@ -2795,6 +2871,8 @@ elseif ($job == 'doc_ajax_active') {
 	$use = $db->fetch_assoc($result);
 	$use = invert($use['active']);
 	$db->query("UPDATE {$db->pre}documents SET active = '{$use}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$delobj = $scache->load('wraps');
+	$delobj->delete();
 	die(strval($use));
 }
 elseif ($job == 'doc_add') {
@@ -2935,8 +3013,11 @@ elseif ($job == 'doc_add3') {
   	}
   	else {
   		$content = $gpc->get('template', none);
-  		if (strlen(strip_tags($content)) > 4 && $filesystem->file_put_contents($file, $content) == 0) {
-  			$content = $gpc->$this->save_str($content);
+  		if ($filesystem->file_put_contents($file, $content) > 0) {
+  			$content = '';
+  		}
+  		else {
+  			$content = $gpc->save_str($content);
   			$file = '';
   		}
   	}
@@ -2958,7 +3039,10 @@ elseif ($job == 'doc_add3') {
 	
 	$db->query("INSERT INTO {$db->pre}documents ( `title` , `content` , `author` , `date` , `update` , `type` , `groups` , `active` , `file` ) VALUES ('{$title}', '{$content}', '{$my->id}', '{$time}' , '{$time}' , '{$type}', '{$groups}', '{$active}', '{$file}')", __LINE__, __FILE__);
 
-	ok('admin.php?action=cms&job=doc', 'Eintrag eingefügt');
+	$delobj = $scache->load('wraps');
+	$delobj->delete();
+
+	ok('admin.php?action=cms&job=doc', 'Document successfully added!');
 }
 elseif ($job == 'doc_delete') {
 	echo head();
@@ -2978,7 +3062,10 @@ elseif ($job == 'doc_delete') {
 
 		$db->query('DELETE FROM '.$db->pre.'documents WHERE '.implode(' OR ',$deleteids), __LINE__, __FILE__);
 		$anz = $db->affected_rows();
-			
+
+		$delobj = $scache->load('wraps');
+		$delobj->delete();
+
 		ok('admin.php?action=cms&job=doc', $anz.' Dokumente gelöscht');
 	}
 	else {
@@ -3101,11 +3188,13 @@ elseif ($job == 'doc_edit2') {
   	}
   	else {
   		$content = $gpc->get('template', none);
-  		if (strlen(strip_tags($content)) > 4 && $filesystem->file_put_contents($file, $content) == 0) {
-  			$content = $gpc->$this->save_str($content);
+  		if ($filesystem->file_put_contents($file, $content) > 0) {
+  			$content = '';
+  		}
+  		else {
+  			$content = $gpc->save_str($content);
   			$file = '';
   		}
-		$content = '';
   	}
 	
 	if (empty($title)) {
@@ -3125,7 +3214,10 @@ elseif ($job == 'doc_edit2') {
 	
 	$db->query("UPDATE {$db->pre}documents SET `title` = '{$title}', `content` = '{$content}', `update` = '{$time}', `groups` = '{$groups}', `active` = '{$active}', `file` = '{$file}', `author` = '{$author}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
 
-	ok('admin.php?action=cms&job=doc', 'Eintrag geändert');
+	$delobj = $scache->load('wraps');
+	$delobj->delete();
+
+	ok('admin.php?action=cms&job=doc', 'Document successfully changed!');
 }
 
 elseif ($job == 'feed') {
@@ -3202,10 +3294,10 @@ elseif ($job == 'feed_add2') {
 	$entries = $gpc->get('value', int);
 
 	if (empty($title)) {
-		error('admin.php?action=cms&job=feed_add'.SID2URL_x, 'Keinen Titel angegeben');
+		error('admin.php?action=cms&job=feed_add'.SID2URL_x, 'No title specified');
 	}
 	if (empty($file)) {
-		error('admin.php?action=cms&job=feed_add'.SID2URL_x, 'Keine Newsfeed-URL angegeben');
+		error('admin.php?action=cms&job=feed_add'.SID2URL_x, 'No URL specified');
 	}
 	if (empty($entries)) {
 		$entries = 0;
@@ -3216,7 +3308,7 @@ elseif ($job == 'feed_add2') {
 	$delobj = $scache->load('grabrss');
 	$delobj->delete();
 
-	ok('admin.php?action=cms&job=feed'.SID2URL_x, 'Newsfeed eingefügt');
+	ok('admin.php?action=cms&job=feed'.SID2URL_x, 'Newsfeed successfully added');
 }
 elseif ($job == 'feed_delete') {
 	echo head();
@@ -3233,17 +3325,17 @@ elseif ($job == 'feed_delete') {
 		$delobj = $scache->load('grabrss');
 		$delobj->delete();
 			
-		ok('admin.php?action=cms&job=feed'.SID2URL_x, $anz.' Newsfeeds gelöscht');
+		ok('admin.php?action=cms&job=feed'.SID2URL_x, $anz.' Newsfeed(s) successfully deleted');
 	}
 	else {
-		error('admin.php?action=cms&job=feed'.SID2URL_x, 'Keine Eingabe gemacht');
+		error('admin.php?action=cms&job=feed'.SID2URL_x, 'No newsfeed selected');
 	}
 }
 elseif ($job == 'feed_edit') {
 echo head();
 $id = $gpc->get('id', int);
 if (empty($id)) {
-	error('admin.php?action=cms&job=feed'.SID2URL_x, 'Keine gültige ID übergeben');
+	error('admin.php?action=cms&job=feed'.SID2URL_x, 'Invalid ID given');
 }
 $result = $db->query('SELECT * FROM '.$db->pre.'grab WHERE id = '.$id, __LINE__, __FILE__);
 $row = $db->fetch_assoc($result);
@@ -3282,13 +3374,13 @@ elseif ($job == 'feed_edit2') {
 	$entries = $gpc->get('value', int);
 	$id = $gpc->get('id', int);
 	if (!is_id($id)) {
-		error('admin.php?action=cms&job=feed'.SID2URL_x, 'Invalid ID delivered');
+		error('admin.php?action=cms&job=feed'.SID2URL_x, 'Invalid ID given');
 	}
 	if (empty($title)) {
-		error('admin.php?action=cms&job=feed_edit&id='.$id.SID2URL_x, 'No title given');
+		error('admin.php?action=cms&job=feed_edit&id='.$id.SID2URL_x, 'No title specified');
 	}
 	if (empty($file)) {
-		error('admin.php?action=cms&job=feed_edit&id='.$id.SID2URL_x, 'No Newsfeed-URL given');
+		error('admin.php?action=cms&job=feed_edit&id='.$id.SID2URL_x, 'No URL specified');
 	}
 	if (empty($entries)) {
 		$entries = 0;
@@ -3299,6 +3391,6 @@ elseif ($job == 'feed_edit2') {
 	$delobj = $scache->load('grabrss');
 	$delobj->delete();
 
-	ok('admin.php?action=cms&job=feed'.SID2URL_x, 'Entry updated');
+	ok('admin.php?action=cms&job=feed'.SID2URL_x, 'Newsfeed successfully updated');
 }
 ?>

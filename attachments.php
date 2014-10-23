@@ -58,7 +58,7 @@ if ($_GET['action'] == "thumbnail") {
 	else {
 		($code = $plugins->load('attachments_thumbnail_queries')) ? eval($code) : null;
 		$result = $db->query('
-		SELECT u.id, u.file, t.board 
+		SELECT u.id, u.source, t.board 
 		FROM '.$db->pre.'uploads AS u 
 			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid 
 		WHERE u.id = '.$_GET['id']
@@ -66,7 +66,7 @@ if ($_GET['action'] == "thumbnail") {
 		$row = $db->fetch_assoc($result);
 
 		$my->p = $slog->Permissions($row['board']);
-		$uppath = 'uploads/topics/'.$row['file'];
+		$uppath = 'uploads/topics/'.$row['source'];
 
 		if ($db->num_rows($result) != 1) {
 			$thumb->create_error('#2 '.$lang->phrase('thumb_error'));
@@ -79,10 +79,10 @@ if ($_GET['action'] == "thumbnail") {
 			$thumb->create_error('#4 '.$lang->phrase('thumb_error'));
 		}
 
-		$chachepath = 'uploads/topics/thumbnails/'.$row['id'].get_extension($uppath);
+		$chachepath = 'uploads/topics/thumbnails/'.$row['id'].get_extension($uppath, true);
 		$thumb->set_cacheuri($chachepath);
 		
-		if (file_exists($chachepath) == FALSE) {
+		if (file_exists($chachepath) == false) {
 			$thumbnail_source = $thumb->create_thumbnail($uppath);
 			$thumb->create_image($thumbnail_source);
 		}
@@ -99,8 +99,9 @@ elseif ($_GET['action'] == "attachment") {
 	else {
 		($code = $plugins->load('attachments_attachment_queries')) ? eval($code) : null;
 		$result = $db->query('
-		SELECT u.tid, u.file, t.board 
-		FROM '.$db->pre.'uploads AS u LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid 
+		SELECT u.tid, u.file, u.source, t.board 
+		FROM '.$db->pre.'uploads AS u 
+			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid 
 		WHERE u.id = '.$_GET['id'].' AND u.tid > 0 
 		LIMIT 1
 		',__LINE__,__FILE__);
@@ -118,7 +119,7 @@ elseif ($_GET['action'] == "attachment") {
 			errorLogin();
 		}
 
-		$uppath = 'uploads/topics/'.$row['file'];
+		$uppath = 'uploads/topics/'.$row['source'];
 
 		if (!file_exists($uppath)) {
 			error(array($lang->phrase('no_upload_found')));
@@ -216,14 +217,14 @@ else {
 				}
 				
 				$result = $db->query('
-				SELECT file 
+				SELECT source 
 				FROM '.$db->pre.'uploads 
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				',__LINE__,__FILE__);
 				
 				while ($row = $db->fetch_num($result)) {
 					if (file_exists('uploads/topics/'.$row[0])) {
-						@unlink('uploads/topics/'.$row[0]);
+						$filesystem->unlink('uploads/topics/'.$row[0]);
 					}
 				}
 				
@@ -243,24 +244,31 @@ else {
 			($code = $plugins->load('attachments_upload_save_add_start')) ? eval($code) : null;
 				
 			for ($i = 0; $i < $config['tpcmaxuploads']; $i++) {
-				if (empty($_FILES['upload_'.$i]['name'])) {
+
+				$field = "upload_{$i}";
+				if (empty($_FILES[$field]['name'])) {
 					continue;
 				}
-	
+
 				$my_uploader = new uploader();
 				$my_uploader->max_filesize($config['tpcfilesize']);
 				$my_uploader->max_image_size($config['tpcwidth'], $config['tpcheight']);
+				$my_uploader->file_types(explode(',', $config['tpcfiletypes']));
+				$my_uploader->set_path('uploads/topics/');
 				($code = $plugins->load('attachments_upload_add_prepare')) ? eval($code) : null;
-				if ($my_uploader->upload('upload_'.$i, explode('|', $config['tpcfiletypes']), 1)) {
-					$my_uploader->save_file('uploads/topics/', '2');
+				if ($my_uploader->upload($field)) {
+					if ($my_uploader->save_file()) {
+						array_push($insertuploads, array('file' => $my_uploader->fileinfo('name'), 'source' => $my_uploader->fileinfo('filename')));
+					}
 				}
-				if ($my_uploader->return_error()) {
-						array_push($inserterrors,$my_uploader->return_error());
+				if ($my_uploader->upload_failed()) {
+					array_push($inserterrors, $my_uploader->get_error());
 				}
-				array_push($insertuploads,$my_uploader->file['name']);
 			}
-			if (count($inserterrors) > 0) {;
-				error($inserterrors,'attachments.php?type='.$_GET['type'].'&amp;id='.$_GET['id'].SID2URL_x);
+			
+			if (count($inserterrors) > 0) {
+				echo $tpl->parse('popup/header');
+				error($inserterrors, 'attachments.php?type='.$_GET['type'].'&amp;id='.$_GET['id'].SID2URL_x);
 			}
 	
 			if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
@@ -274,28 +282,28 @@ else {
 			
 			($code = $plugins->load('attachments_upload_save_add_queries')) ? eval($code) : null;
 			if (count($insertuploads) > 0 && count($insertuploads) <= $config['tpcmaxuploads']) {
-				foreach ($insertuploads as $up) {
-					$up = trim($up);
-					$db->query("INSERT INTO {$db->pre}uploads (file,tid,mid,topic_id) VALUES ('$up','$tid','$upper','{$upinfo['topic_id']}')",__LINE__,__FILE__);
+				foreach ($insertuploads as $uploaddata) {
+					$uploaddata = $gpc->save_str($uploaddata);
+					$db->query("INSERT INTO {$db->pre}uploads (file,source,tid,mid,topic_id) VALUES ('{$uploaddata['file']}','{$uploaddata['source']}','{$tid}','{$upper}','{$upinfo['topic_id']}')",__LINE__,__FILE__);
 				}
 			}
 			
 			($code = $plugins->load('attachments_upload_save_add_end')) ? eval($code) : null;
-	
+			
 			viscacha_header('Location: attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
 		}
 	}
 	else {
 		echo $tpl->parse("popup/header");
 		
-		$filetypes = implode($lang->phrase('listspacer'), explode('|',$config['tpcfiletypes']));
+		$filetypes = implode($lang->phrase('listspacer'), explode(',',$config['tpcfiletypes']));
 		$filesize = formatFilesize($config['tpcfilesize']);
 
 		if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
-			$result = $db->query('SELECT id, file FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"',__LINE__,__FILE__);
+			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"',__LINE__,__FILE__);
 		}
 		elseif ($_GET['type'] == 'newtopic' || $_GET['type'] == 'addreply') {
-			$result = $db->query('SELECT id, file FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"',__LINE__,__FILE__);
+			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"',__LINE__,__FILE__);
 		}
 		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
 		
@@ -306,7 +314,7 @@ else {
 		
 		$uploads = array();
 		while ($row = $db->fetch_assoc($result)) {
-			$fsize = filesize('uploads/topics/'.$row['file']);
+			$fsize = filesize('uploads/topics/'.$row['source']);
 			$fsize = formatFilesize($fsize);
 			($code = $plugins->load('attachments_upload_form_upload')) ? eval($code) : null;
 			$uploads[] = array(

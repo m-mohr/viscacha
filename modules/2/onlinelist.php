@@ -1,6 +1,3 @@
-$memberdata_obj = $scache->load('memberdata');
-$memberdata = $memberdata_obj->get();
-
 $wwo = array();
 $wwo['i']=0; 
 $wwo['r']=0; 
@@ -8,15 +5,18 @@ $wwo['g']=0;
 $wwo['b']=0;
 $wwo['list'] = array();
 
-$result = $db->query('SELECT mid, remoteaddr, is_bot FROM '.$db->pre.'session',__LINE__,__FILE__);
+$result = $db->query("
+	SELECT s.mid, s.is_bot, u.name
+	FROM {$db->pre}session AS s 
+		LEFT JOIN {$db->pre}user AS u ON s.mid = u.id
+	ORDER BY u.name
+",__LINE__,__FILE__);
 $count = $db->num_rows($result);
 $sep = $lang->phrase('listspacer');
 while ($row = $db->fetch_assoc($result)) {
 	$wwo['i']++;
-	$row['remoteaddr'] = $gpc->prepare($row['remoteaddr']);
-	if ($row['mid'] > 0 && isset($memberdata[$row['mid']])) {
+	if ($row['mid'] > 0) {
 		$wwo['r']++;
-		$row['name'] = $memberdata[$row['mid']];
 		$row['sep'] = $sep;
 		$wwo['list'][] = $row;
 	}

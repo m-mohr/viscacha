@@ -257,7 +257,10 @@ elseif ($job == "manage") {
 	?>
 	<table class="border">
 	  <tr> 
-	   <td class="obox" colspan="6">Custom Profile Field Manager</td>
+	   <td class="obox" colspan="6">
+	    <span style="float: right;">[<a href="admin.php?action=profilefield&amp;job=add">Add new Profile Field</a>]</span>
+		Custom Profile Field Manager
+		</td>
 	  </tr>
 	  <tr class="ubox">
 		<td>Name</td>

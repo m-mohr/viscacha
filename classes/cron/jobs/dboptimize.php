@@ -1,10 +1,11 @@
 <?php
+global $db, $config;
 
 if ($config['optimizetables'] == '*') {
 	$tables = $db->list_tables();
 }
 else {
-	$tables = explode(',',$config['optimizetables']);
+	$tables = explode(',', $config['optimizetables']);
 }
 
 foreach ($tables as $table) {

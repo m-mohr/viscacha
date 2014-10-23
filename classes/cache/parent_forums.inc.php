@@ -2,23 +2,23 @@
 class cache_parent_forums extends CacheItem {
 
 	function load() {
-		global $db;
+		global $db, $scache;
 		if ($this->exists() == true) {
 		    $this->import();
 		}
 		else {
-			$parent = array();
-			$result = $db->query("SELECT id, bid FROM {$db->pre}cat");
-			while($row = $db->fetch_assoc($result)) {
-				$parent[$row['id']] = $row['bid'];
-			}
+			$categories_obj = $scache->load('categories');
+			$categories = $categories_obj->get();
+			$categories_obj = $scache->load('cat_bid');
+			$forums = $categories_obj->get();
+			
 			$this->data = array();
-			foreach ($parent as $id => $bid) {
+			foreach ($forums as $id => $forum) {
 				$this->data[$id] = array();
 				$this->data[$id][] = $id;
-				while ($bid > 0) {
-					$this->data[$id][] = $bid;
-					$bid = $parent[$bid];
+				while (!empty($categories[$forum['parent']]['parent'])) {
+					$this->data[$id][] = $categories[$forum['parent']]['parent'];
+					$forum['parent'] = $categories[$forum['parent']]['parent'];
 				}
 			}
 			$this->export();

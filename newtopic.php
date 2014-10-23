@@ -45,8 +45,7 @@ if (empty($board) || !isset($fc[$board])) {
 	error($lang->phrase('query_string_error'));
 }
 $last = $fc[$board];
-
-forum_opt($last['opt'], $last['optvalue'], $last['id'], 'posttopics');
+forum_opt($last, 'posttopics');
 
 if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) { 
 	$p_upload = 1;
@@ -238,9 +237,9 @@ elseif ($_GET['action'] == "save") {
 	}
 	
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($board);
+	$prefix_arr = $prefix_obj->get($board);
 	
-	if (!isset($prefix[$_POST['opt_0']]) && $last['prefix'] == 1) {
+	if (!isset($prefix_arr[$_POST['opt_0']]) && $last['prefix'] == 1) {
 		$error[] = $lang->phrase('prefix_not_optional');
 	}
 
@@ -345,10 +344,17 @@ elseif ($_GET['action'] == "save") {
 			}
 		}
 
-		$db->query ("UPDATE {$db->pre}cat SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'");	
+		$db->query ("UPDATE {$db->pre}forums SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'");	
 		$catobj = $scache->load('cat_bid');
 		$catobj->delete();
-		
+
+		if (count($last['topic_notification']) > 0) {
+			$to = array_combine(array_fill(1, count($last['topic_notification']), 'mail'), $last['topic_notification']);
+			$data = $lang->get_mail('new_topic');
+			$from = array();
+			xmail($to, $from, $data['title'], $data['comment']);
+		}
+				
 		($code = $plugins->load('newtopic_save_end')) ? eval($code) : null;
 		
 		if ($_POST['opt_2'] == '1') {
@@ -371,7 +377,7 @@ else {
 	$inner['bbhtml'] = $bbcode->getbbhtml();
 
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($board);
+	$prefix_arr = $prefix_obj->get($board);
 	
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
@@ -386,9 +392,9 @@ else {
 			}
 			$bbcode->setReplace($dowords);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
-			$data['formatted_prefix'] = '';
-			if (isset($prefix[$data['prefix']])) {
-				$data['formatted_prefix'] = $prefix[$data['prefix']];
+			$prefix = '';
+			if (isset($prefix_arr[$data['prefix']])) {
+				$prefix = $prefix_arr[$data['prefix']]['value'];
 			}
 		}
 	}
@@ -407,16 +413,20 @@ else {
 		$_GET['action'] = '';
 	}
 	
-	if (count($prefix) > 0) {
-		arsort($prefix);
+	if (count($prefix_arr) > 0) {
+		array_columnsort($prefix_arr, "value");
 		if ($last['prefix'] == 0) {
-			// PHP is stupid: have to work around array_unshift and array_merge
-			$prefix2 = array($lang->phrase('prefix_empty'));
-			foreach ($prefix as $key => $value) {
-				$prefix2[$key] = $value;
+			$prefix_arr_standard = $prefix_arr;
+			array_columnsort($prefix_arr_standard, "standard");
+			$standard = end($prefix_arr_standard);
+			if ($standard['standard'] == 1) {
+				$sel = key($prefix_arr_standard);
 			}
-			$prefix = $prefix2;
-			$sel = 0;
+			else {
+				$sel = 0;
+			}
+			unset($prefix_arr_standard, $standard);
+			$prefix_arr = array($lang->phrase('prefix_empty')) + $prefix_arr;
 		}
 		else {
 			$sel = -1;

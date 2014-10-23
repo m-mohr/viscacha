@@ -1,5 +1,5 @@
 <?php 
-define('VISCACHA_VERSION', '0.8 Beta 2');
+define('VISCACHA_VERSION', '0.8 Beta 3');
 error_reporting(E_ALL);
 
 if (!isset($_REQUEST) || !is_array($_REQUEST)) {
@@ -15,8 +15,8 @@ $packages = array(
 		'title' => 'Installation',
 		'description' => 'Choose this if you want to install a new copy of this software.'
 	),
-	'upd_08b1' => array(
-		'title' => 'Update: 0.8 Beta 1 => '.VISCACHA_VERSION,
+	'update' => array(
+		'title' => 'Update: 0.8 Beta 2 => '.VISCACHA_VERSION,
 		'description' => 'Already running Viscacha? Then choose this option to update to the new Version!'
 	)
 );

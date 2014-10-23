@@ -57,21 +57,21 @@ $my->mp = $slog->ModPermissions($info['board']);
 $cat_bid_obj = $scache->load('cat_bid');
 $fc = $cat_bid_obj->get();
 $last = $fc[$info['board']];
-forum_opt($last['opt'], $last['optvalue'], $last['id'], 'edit');
+forum_opt($last, 'edit');
 
 $prefix_obj = $scache->load('prefix');
-$prefix = $prefix_obj->get($info['board']);
+$prefix_arr = $prefix_obj->get($info['board']);
 
-$pre = '';
+$prefix = '';
 if ($info['prefix'] > 0) {
-	if (isset($prefix[$info['prefix']])) {
-		$pre = $prefix[$info['prefix']];
-		$pre = $lang->phrase('showtopic_prefix_title');
+	if (isset($prefix_arr[$info['prefix']])) {
+		$prefix = $prefix_arr[$info['prefix']]['value'];
+		$prefix = $lang->phrase('showtopic_prefix_title');
 	}
 }
 get_headboards($fc, $last);
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($pre.$info['topic'], 'showtopic.php?id='.$info['topic_id'].SID2URL_x);
+$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$info['topic_id'].SID2URL_x);
 $breadcrumb->Add($lang->phrase('edit'));
 echo $tpl->parse("header");
 
@@ -106,7 +106,7 @@ else {
 	$p_upload = FALSE;
 }
 
-$allowed = (($info['name'] == $my->id || $my->mp[0] == 1) && $my->p['edit'] && ($edit_seconds >= $diff || $my->mp[0] == 1)) ? true : false;
+$allowed = (($info['name'] == $my->id || $my->mp[0] == 1) && $my->p['edit'] && $my->vlogin && ($edit_seconds >= $diff || $my->mp[0] == 1)) ? true : false;
 
 ($code = $plugins->load('edit_start')) ? eval($code) : null;
 
@@ -117,9 +117,9 @@ if ($allowed == true) {
 		if ($_POST['temp'] == '1' && $my->mp[4] == '1') {
 			if ($info['tstart'] == 0 || $info['posts'] == 0) {
 				$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'",__LINE__,__FILE__);
-				$uresult = $db->query ("SELECT file FROM {$db->pre}uploads WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
+				$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
 				while ($urow = $db->fetch_num($uresult)) {
-				    @unlink('uploads/topics/'.$urow[0]);
+				    $filesystem->unlink('uploads/topics/'.$urow[0]);
 				}
 				$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
 				$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'",__LINE__,__FILE__);
@@ -240,8 +240,8 @@ if ($allowed == true) {
 				$bbcode->setReplace($dowords);
 				$data['formatted_comment'] = $bbcode->parse($data['comment']);
 				$data['formatted_prefix'] = '';
-				if (isset($prefix[$data['prefix']])) {
-					$data['formatted_prefix'] = $prefix[$data['prefix']];
+				if (isset($prefix_arr[$data['prefix']])) {
+					$data['formatted_prefix'] = $prefix_arr[$data['prefix']]['value'];
 				}
 			}
 		}
@@ -256,18 +256,13 @@ if ($allowed == true) {
 			);
 		}
 
-		if (count($prefix) > 0 && $info['tstart'] == 1) {
-			arsort($prefix);
+		if (count($prefix_arr) > 0 && $info['tstart'] == 1) {
+			array_columnsort($prefix_arr, "value");
 			if ($last['prefix'] == 0) {
-				// PHP is stupid: have to work around array_unshift and array_merge
-				$prefix2 = array($lang->phrase('prefix_empty'));
-				foreach ($prefix as $key => $value) {
-					$prefix2[$key] = $value;
-				}
-				$prefix = $prefix2;
+				$prefix_arr = array($lang->phrase('prefix_empty')) + $prefix_arr;
 			}
 			$sel = $data['prefix'];
-			$inner['index_prefix'] = $tpl->parse("newtopic/index_prefix");
+			$inner['index_prefix'] = $tpl->parse("edit/prefix");
 		}
 		else {
 			$inner['index_prefix'] = '';
@@ -278,7 +273,7 @@ if ($allowed == true) {
 
 		($code = $plugins->load('edit_form_prepared')) ? eval($code) : null;
 
-		echo $tpl->parse("edit");
+		echo $tpl->parse("edit/edit");
 		
 		($code = $plugins->load('edit_form_end')) ? eval($code) : null;
 	}

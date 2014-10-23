@@ -1,10 +1,4 @@
 <?php
-/* Bases on:
-**  Author........: catoc <catoc@163.net>
-**  Requirments...: PHP4 >= 4.0.1
-**                  PHP configured with --with-zlib[=DIR]
-**  Read more.....: http://php.weblogs.com/http_compression
-*/
 class OutputDoc {
 
 var $enc;
@@ -23,14 +17,15 @@ function Encoding() {
 
 function AddSid($content) {
 	if (!empty($this->sid)) {
-	    $own_url = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+	    $own_url = (isset($_SERVER['HTTPS']) || $_SERVER['SERVER_PORT'] == '443') ? 'https://' : 'http://';
 	    $own_url = preg_quote($own_url.$_SERVER['HTTP_HOST'], '~');
-		$content = preg_replace('~<a([^>]+?)href=("|\')('.$own_url.'(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~ie', '$this->ConstructLink("\1","\3")', $content);
+		$content = preg_replace_callback('~<a([^>]+?)href=("|\')('.$own_url.'(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~i', array($this, 'ConstructLink'), $content);
 	}
     return $content;
 }
 
-function ConstructLink($prehref, $url) {
+function ConstructLink($matches) {
+	list(,$prehref,,$url) = $matches;
 	if (substr($url,-1) == '?') {
 		$url = substr($url,0,strlen($url)-1);
 	} 
@@ -53,7 +48,7 @@ function ConstructLink($prehref, $url) {
 
 function CanGZIP() {
 	if (headers_sent() || connection_aborted() || !extension_loaded("zlib") || !function_exists('gzcompress')){
-		return FALSE;
+		return false;
 	}
 	if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'x-gzip') !== false) {
 		return "x-gzip";
@@ -61,7 +56,7 @@ function CanGZIP() {
 	if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'],'gzip') !== false) {
 		return "gzip";
 	}
-	return FALSE;
+	return false;
 }
 function Out($skip = 1){
 	global $breadcrumb, $config, $plugins;
@@ -72,7 +67,7 @@ function Out($skip = 1){
 	
 	($code = $plugins->load('docout_parse')) ? eval($code) : null;
 	
-	if ($this->enc != FALSE && $skip == 1 && $this->cfg == 1) {
+	if ($this->enc != false && $skip == 1 && $this->cfg == 1) {
 		viscacha_header("Content-Encoding: ".$this->enc);
 		print "\x1f\x8b\x08\x00\x00\x00\x00\x00";
 		$Size = strlen($Contents);

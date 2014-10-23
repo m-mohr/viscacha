@@ -3,7 +3,8 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "slog.php")
 
 function getmonth($number) {
 	global $months;
-	return $months[$number - 1];
+	$index = intval($number)-1;
+	return isset($months[$index]) ? $months[$index] : $number.'.';
 }
 function getday($number) {
 	global $days, $lang;
@@ -72,9 +73,7 @@ URL: <?php echo $data[5]; ?></textarea>
     </td>
     <td class="stext"><?php echo date("D, j M Y", $data[6]); ?><br /><?php echo date("G:i:s O", $data[6]); ?></td>
    </tr>
-   <?php } ?>
-      </table>
-   <?php } ?>
+   <?php } } ?>
    </td>
   </tr>
   <tr> 
@@ -177,8 +176,12 @@ elseif ($job == 's_general_image') {
 	while ($row = $db->fetch_assoc($result)) {
 		$statdate = date($phpformat, $row['statdate']);
 		
-		if ($timeorder == 1) $statdate = preg_replace("/(\d+)~/e", "getday('\\1')", $statdate);
-		if ($timeorder > 1) $statdate = preg_replace("/(\d+)~/e", "getmonth('\\1')", $statdate);
+		if ($timeorder == 1) {
+			$statdate = preg_replace_callback("/(\d+)~/", "getday", $statdate);
+		}
+		if ($timeorder > 1) {
+			$statdate = preg_replace_callback("/(\d+)~/", "getmonth", $statdate);
+		}
 		if ($timeorder == 2) {
 			$week = ceil((date('z', $row['statdate']) - daynumber($row['statdate'])) / 7) + ((daynumber(mktime(0, 0, 0, 1, 1, date('Y', $row['statdate']))) <= 3) ? (1) : (0));
 			if ($week == 53 && daynumber(mktime(0, 0, 0, 12, 31, date('Y', $row['statdate']))) < 3) {
@@ -372,11 +375,6 @@ if ($show == 1) {
 	$topics = $db->fetch_num($result);
 	$replies = $posts[0]-$topics[0];
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE mark = "a"',__LINE__,__FILE__);
-	$aposts = $db->fetch_num($result);
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE mark = "n"',__LINE__,__FILE__);
-	$nposts = $db->fetch_num($result);
-
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""',__LINE__,__FILE__);
 	$vote = $db->fetch_num($result);
 
@@ -413,10 +411,6 @@ if ($show == 1) {
 	<tr>
 	  <td>Threads:</td><td><code><?php echo $topics[0];?></code></td>
 	  <td>Replies:</td><td><code><?php echo $replies;?></code></td>
-	</tr>
-	<tr>
-	  <td>Articles:</td><td><code><?php echo $aposts[0];?></code></td>
-	  <td>News:</td><td><code><?php echo $nposts[0];?></code></td>
 	</tr>
 	<tr>
 	  <td>Subscriptions:</td><td><code><?php echo $abos[0];?></code></td>

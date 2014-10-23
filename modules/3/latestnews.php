@@ -13,10 +13,9 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 	$row['pre'] = '';
 	if ($row['prefix'] > 0) {
 		$prefix_obj = $scache->load('prefix');
-		$prefix = $prefix_obj->get($row['board']);
-		if (isset($prefix[$row['prefix']])) {
-			$row['pre'] = $prefix[$row['prefix']];
-			$lang->assign('pre', $row['pre']);
+		$prefix_arr = $prefix_obj->get($row['board']);
+		if (isset($prefix_arr[$row['prefix']])) {
+			$lang->assign('prefix', $prefix_arr[$row['prefix']]['value']);
 			$row['pre'] = $lang->phrase('showtopic_prefix_title');
 		}
 	}

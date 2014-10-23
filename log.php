@@ -162,22 +162,24 @@ elseif ($_GET['action'] == "pwremind3") {
 	}
 }
 else {
-	if ($my->vlogin) {
-		error($lang->phrase('log_already_logged'));
-	}
-	$breadcrumb->Add($lang->phrase('log_title'));
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
-	
 	$loc = htmlspecialchars($gpc->get('redirect', none));
 	if (empty($loc)) {
-		if (!empty($_SERVER['HTTP_REFERER'])) {
+		if (check_hp($_SERVER['HTTP_REFERER'])) {
 			$url = parse_url($_SERVER['HTTP_REFERER']);
 			if (strpos($config['furl'], $url['host']) !== FALSE) {
 				$loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
 			}
 		}
 	}
+
+	if ($my->vlogin) {
+		error($lang->phrase('log_already_logged'), $loc);
+	}
+
+	$breadcrumb->Add($lang->phrase('log_title'));
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
+
 	($code = $plugins->load('log_login_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/login");
 	($code = $plugins->load('log_login_form_end')) ? eval($code) : null;

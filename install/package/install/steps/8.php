@@ -29,6 +29,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			<?php
 		}
 		else {
+			// ToDo: Übersetzen
 			$act = array(
 			3 => 'Tabelle(n) wurden gelöscht und neu erstellt',
 			2 => 'Tabelle(n) wurden nicht geändert',
@@ -60,8 +61,15 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$done[$value]++;
 			}
 			echo '<div class="bfoot">';
-			foreach ($act as $id => $name) {
-				echo "<strong>{$done[$id]} {$name}.</strong><br />";
+			if (array_sum($done) == 0) {
+				echo "<strong>No changes applied!</strong>";
+			}
+			else {
+				foreach ($act as $id => $name) {
+					if ($done[$id] > 0) {
+						echo "<strong>{$done[$id]} {$name}.</strong><br />";
+					}
+				}
 			}
 			echo '</div>';
 		}

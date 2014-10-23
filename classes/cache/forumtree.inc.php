@@ -10,27 +10,31 @@ class cache_forumtree extends CacheItem {
 			$parent = array();
 			$sub = array();
 			$empty = array();
-			$full = array();
-			$result = $db->query("SELECT b.id, b.bid, b.cid FROM {$db->pre}cat AS b LEFT JOIN {$db->pre}categories AS c ON c.id = b.cid ORDER BY c.c_order, c.id, b.c_order, b.id");
+			$result = $db->query("
+			SELECT f.id, c.parent AS bid, f.parent AS cid, c.id AS cat_id
+			FROM {$db->pre}categories AS c 
+				LEFT JOIN {$db->pre}forums AS f ON c.id = f.parent 
+			ORDER BY c.position, f.position
+			", __LINE__, __FILE__);
 			while($row = $db->fetch_assoc($result)) {
-				if ($row['bid'] == 0) {
-					$parent[$row['cid']][$row['id']] = array();
+				if (!empty($row['id'])) {
+					if ($row['bid'] == 0) {
+						$parent[$row['cid']][$row['id']] = array();
+					}
+					else {
+						$sub[$row['bid']][$row['cid']][$row['id']] = array();
+					}
 				}
 				else {
-					$sub[$row['bid']][$row['cid']][$row['id']] = array();
+					if ($row['bid'] == 0) {
+						$parent[$row['cat_id']] = array();
+					}
+					else {
+						$sub[$row['bid']][$row['cat_id']] = array();
+					}
 				}
-				$full[] = $row['cid'];
 			}
-			$result = $db->query("SELECT id FROM {$db->pre}categories ORDER BY c_order, id");
-			while ($row = $db->fetch_assoc($result)) {
-				$empty[] = $row['id'];
-			}
-			$empty = array_diff($empty, $full);
-	
 			$this->data = $this->forumtree_array($parent, $sub);
-			foreach ($empty as $row) {
-				$this->data[$row] = array();	
-			}
 			$this->export();
 		}
 	}

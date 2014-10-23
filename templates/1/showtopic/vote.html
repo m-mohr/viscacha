@@ -6,8 +6,7 @@
 </h3>
 <div class="bbody">
 <?php foreach ($cachev as $row) { ?>
-   <input type="radio" value="<?php echo $row['id']; ?>" name="temp" />&nbsp;&nbsp;&nbsp;<?php echo $row['answer']; ?>
-   <br />
+   <input type="radio" id="vote_<?php echo $row['id']; ?>" value="<?php echo $row['id']; ?>" name="temp" /><label class="plainlabel sep" for="vote_<?php echo $row['id']; ?>"><?php echo $row['answer']; ?></label><br />
 <?php } ?>
 </div>
 <div class="bfoot center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>

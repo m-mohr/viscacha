@@ -352,24 +352,24 @@ elseif ($job == 'restore') {
 }
 elseif ($job == 'restore2') {
 	$delete = $gpc->get('delete', arr_str);
-	$edit = $gpc->get('file', str);
+	$file = $gpc->get('file', str);
 	$dir = "./admin/backup/";
 	
 	echo head();
 	
 	$d = 0;
 	if (count($delete) > 0) {
-		foreach ($delete as $file) {
-			$ext = get_extension($file, true);
-			if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
-				$filesystem->unlink($dir.$file);
+		foreach ($delete as $delfile) {
+			$ext = get_extension($delfile);
+			if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$delfile)) {
+				$filesystem->unlink($dir.$delfile);
 				$d++;
 			}
 		}
 		ok('admin.php?action=db&job=restore', $d.' backups deleted');
 	}
 	
-	$ext = get_extension($edit, true);
+	$ext = get_extension($file);
 	if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
 		if ($ext == 'zip') {
 			require_once('classes/class.zip.php');
@@ -398,7 +398,7 @@ elseif ($job == 'restore2') {
 elseif ($job == 'download') {
 	$dir = "./admin/backup/";
 	$file = $gpc->get('file', none);
-	$ext = get_extension($file, true);
+	$ext = get_extension($file);
 	if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
 		if ($ext == 'sql') {
 		    viscacha_header('Content-Type: text/plain');
@@ -410,6 +410,7 @@ elseif ($job == 'download') {
 		readfile($dir.$file);
 	}
 	else {
+		echo head();
 		error('admin.php?action=db&job=restore', 'File not found');
 	}
 }
@@ -530,7 +531,7 @@ elseif ($job == 'query2') {
 
 	$type = $gpc->get('type', int);
 	if ($type == 1) {
-		$filetypes = array('.zip','.sql');
+		$filetypes = array('zip','sql');
 		$dir = 'temp/';
 		$inserterrors = array();
 		require("classes/class.upload.php");
@@ -541,26 +542,25 @@ elseif ($job == 'query2') {
 		
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(ini_maxupload());
-		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			$errstr = $my_uploader->return_error();
-			if (!empty($errstr)) {
-				array_push($inserterrors, $my_uploader->return_error());
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors, $my_uploader->return_error());
-		}
-		$file = $dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
 		
 		if (count($inserterrors) > 0) {
 			error('admin.php?action=db&job=query', $inserterrors);
 		}
 		else {
-			$ext = get_extension($file, true);
+			$ext = get_extension($file);
 			if (($ext == 'zip' || $ext == 'sql') && file_exists($file)) {
 				if ($ext == 'zip') {
 					require_once('classes/class.zip.php');

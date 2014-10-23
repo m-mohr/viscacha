@@ -46,13 +46,13 @@
 		</select>
 		<br class="newinput" /><hr class="formsep" />
 		<label for="opt_1"><?php echo $lang->phrase('editprofile_emailpn'); ?></label>
-		<input type="checkbox" name="opt_1" id="opt_1" <?php echo iif($my->opt_pmnotify == 1,' checked="checked"'); ?> value="1"></td> 
+		<input type="checkbox" name="opt_1" id="opt_1" <?php echo iif($my->opt_pmnotify == 1,' checked="checked"'); ?> value="1" />
 		<br class="newinput" /><hr class="formsep" />
 		<label for="opt_2"><?php echo $lang->phrase('editprofile_bad'); ?></label>
-		<input type="checkbox" name="opt_2" id="opt_2" <?php echo iif($my->opt_hidebad == 1,' checked="checked"'); ?> value="1"></td> 
+		<input type="checkbox" name="opt_2" id="opt_2" <?php echo iif($my->opt_hidebad == 1,' checked="checked"'); ?> value="1" />
 		<br class="newinput" /><hr class="formsep" />
 		<label for="opt_7"><?php echo $lang->phrase('editprofile_showsig'); ?></label>
-		<input type="checkbox" name="opt_7" id="opt_7" <?php echo iif($my->opt_showsig == 1,' checked="checked"'); ?> value="1"></td> 
+		<input type="checkbox" name="opt_7" id="opt_7" <?php echo iif($my->opt_showsig == 1,' checked="checked"'); ?> value="1" />
 		<br class="newinput" /><hr class="formsep" />
 		<label for=""><?php echo $lang->phrase('editprofile_showmail'); ?></label>
 		<select name="opt_3" id="opt_3" class="label">
@@ -70,7 +70,7 @@
 		<br class="newinput" /><hr class="formsep" />
 		<label for=""><?php echo $lang->phrase('editprofile_design'); ?></label>
 		<select name="opt_4" id="opt_4" class="label">
-			<option selected="selected" value="<?php echo $my->template; ?>"><?php echo $lang->phrase('editprofile_design_current'); ?></option>
+			<option selected="selected" value="<?php echo $update['template']; ?>"><?php echo $lang->phrase('editprofile_design_current'); ?></option>
 			<?php foreach ($design as $row) { ?>
 			<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 			<?php } ?>
@@ -78,7 +78,7 @@
 		<br class="newinput" /><hr class="formsep" />
 		<label for=""><?php echo $lang->phrase('editprofile_language'); ?></label>
 		<select name="opt_5" id="opt_5" class="label">
-			<option selected="selected" value="<?php echo $my->language; ?>"><?php echo $lang->phrase('editprofile_language_current'); ?></option>
+			<option selected="selected" value="<?php echo $update['language']; ?>"><?php echo $lang->phrase('editprofile_language_current'); ?></option>
 			<?php foreach ($language as $row) { ?>
 			<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?></option>
 			<?php } ?>

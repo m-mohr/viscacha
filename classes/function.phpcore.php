@@ -168,8 +168,8 @@ function msg_handler($errno, $errtext, $errfile, $errline) {
 		<h1>General Error</h1>
 		<p class="center">
 			[<a href="<?php echo $config['furl']; ?>/index.php">Return to Index</a>]
-			<?php if (!empty($_SERVER['HTTP_REFERER'])) { ?>
-			&nbsp;&nbsp;[<a href="<?php echo $_SERVER['HTTP_REFERER']; ?>">Return to last Page</a>]
+			<?php if (check_hp($_SERVER['HTTP_REFERER'])) { ?>
+			&nbsp;&nbsp;[<a href="<?php echo htmlspecialchars($_SERVER['HTTP_REFERER']); ?>">Return to last Page</a>]
 			<?php } ?>
 		</p>
 		<h3>Error Message</h3>
@@ -598,14 +598,231 @@ if (!defined('MHASH_ADLER32')) {
     define('MHASH_ADLER32', 18);
 }
 
+// image_type_to_*()
+
+$imagetype_extension = array('gif', 'jpg', 'png', 'swf', 'psd', 'bmp', 'tiff', 'jpc', 'jp2', 'jpf', 'jb2', 'swc', 'aiff', 'wbmp', 'xbm');
+
+if (!defined('IMAGETYPE_GIF')) {
+    define('IMAGETYPE_GIF', 1);
+}
+
+if (!defined('IMAGETYPE_JPEG')) {
+    define('IMAGETYPE_JPEG', 2);
+}
+
+if (!defined('IMAGETYPE_PNG')) {
+    define('IMAGETYPE_PNG', 3);
+}
+
+if (!defined('IMAGETYPE_SWF')) {
+    define('IMAGETYPE_SWF', 4);
+}
+
+if (!defined('IMAGETYPE_PSD')) {
+    define('IMAGETYPE_PSD', 5);
+}
+
+if (!defined('IMAGETYPE_BMP')) {
+    define('IMAGETYPE_BMP', 6);
+}
+
+if (!defined('IMAGETYPE_TIFF_II')) {
+    define('IMAGETYPE_TIFF_II', 7);
+}
+
+if (!defined('IMAGETYPE_TIFF_MM')) {
+    define('IMAGETYPE_TIFF_MM', 8);
+}
+
+if (!defined('IMAGETYPE_JPC')) {
+    define('IMAGETYPE_JPC', 9);
+}
+
+if (!defined('IMAGETYPE_JP2')) {
+    define('IMAGETYPE_JP2', 10);
+}
+
+if (!defined('IMAGETYPE_JPX')) {
+    define('IMAGETYPE_JPX', 11);
+}
+
+if (!defined('IMAGETYPE_JB2')) {
+    define('IMAGETYPE_JB2', 12);
+}
+
+if (!defined('IMAGETYPE_SWC')) {
+    define('IMAGETYPE_SWC', 13);
+}
+
+if (!defined('IMAGETYPE_IFF')) {
+    define('IMAGETYPE_IFF', 14);
+}
+
+if (!defined('IMAGETYPE_WBMP')) {
+    define('IMAGETYPE_WBMP', 15);
+}
+
+if (!defined('IMAGETYPE_XBM')) {
+    define('IMAGETYPE_XBM', 16);
+}
+
 /* Missing functions (from PHP-Compat) */
+
+/**
+ * Replace image_type_to_mime_type()
+ *
+ * @category    PHP
+ * @package     PHP_Compat
+ * @link        http://php.net/function.image_type_to_mime_type
+ * @author      Aidan Lister <aidan@php.net>
+ * @since       PHP 4.3.0
+ * @require     PHP 4.0.0 (user_error)
+ */
+if (!function_exists('image_type_to_mime_type')) {
+    function image_type_to_mime_type($imagetype) {
+        switch ($imagetype):
+            case IMAGETYPE_GIF:
+                return 'image/gif';
+                break;
+            case IMAGETYPE_JPEG:
+                return 'image/jpeg';
+                break;
+            case IMAGETYPE_PNG:
+                return 'image/png';
+                break;
+            case IMAGETYPE_SWF:
+            case IMAGETYPE_SWC:
+                return 'application/x-shockwave-flash';
+                break;
+            case IMAGETYPE_PSD:
+                return 'image/psd';
+                break;
+            case IMAGETYPE_BMP:
+                return 'image/bmp';
+                break;
+            case IMAGETYPE_TIFF_MM:
+            case IMAGETYPE_TIFF_II:
+                return 'image/tiff';
+                break;
+            case IMAGETYPE_JP2:
+                return 'image/jp2';
+                break;
+            case IMAGETYPE_IFF:
+                return 'image/iff';
+                break;
+            case IMAGETYPE_WBMP:
+                return 'image/vnd.wap.wbmp';
+                break;
+            case IMAGETYPE_XBM:
+                return 'image/xbm';
+                break;
+            case IMAGETYPE_JPX:
+            case IMAGETYPE_JB2:
+            case IMAGETYPE_JPC:
+            default:
+                return 'application/octet-stream';
+                break;
+
+        endswitch;
+    }
+}
+
+/**
+ * Replace image_type_to_extension()
+ *
+ * Function is not documented yet. It is maybe different from the original function!
+ *
+ * @link        http://php.net/function.image_type_to_extension
+ * @author		Matthias Mohr
+ * @require     PHP 4.0.0 (trigger_error)
+ */
+if(!function_exists('image_type_to_extension')) {
+	function image_type_to_extension($imagetype, $include_dot = false) {
+		if(empty($imagetype)) {
+			return false;
+		}
+		if (!is_bool($include_dot)) {
+			trigger_error('Argument 2 has to be a boolean!', E_WARNING);
+			return false;
+		}
+		if ($include_dot == true) {
+			$dor = '.';
+		}
+		else {
+			$dot = '';
+		}
+		switch($imagetype) {
+			case IMAGETYPE_GIF	   : return $dot.'gif';
+			case IMAGETYPE_JPEG	   : return $dot.'jpg';
+			case IMAGETYPE_PNG	   : return $dot.'png';
+			case IMAGETYPE_SWF	   : return $dot.'swf';
+			case IMAGETYPE_PSD	   : return $dot.'psd';
+			case IMAGETYPE_BMP	   : return $dot.'bmp';
+			case IMAGETYPE_TIFF_II : return $dot.'tiff';
+			case IMAGETYPE_TIFF_MM : return $dot.'tiff';
+			case IMAGETYPE_JPC	   : return $dot.'jpc';
+			case IMAGETYPE_JP2	   : return $dot.'jp2';
+			case IMAGETYPE_JPX	   : return $dot.'jpf';
+			case IMAGETYPE_JB2	   : return $dot.'jb2';
+			case IMAGETYPE_SWC	   : return $dot.'swc';
+			case IMAGETYPE_IFF	   : return $dot.'aiff';
+			case IMAGETYPE_WBMP	   : return $dot.'wbmp';
+			case IMAGETYPE_XBM	   : return $dot.'xbm';
+			default				   : return false;
+		}
+	}
+}
+
+/**
+ * Replace array_walk_recursive()
+ *
+ * @category    PHP
+ * @package     PHP_Compat
+ * @link        http://php.net/function.array_walk_recursive
+ * @author      Tom Buskens <ortega@php.net>
+ * @author      Aidan Lister <aidan@php.net>
+ * @since       PHP 5
+ * @require     PHP 4.0.6 (is_callable)
+ */
+if (!function_exists('array_walk_recursive')) {
+    function array_walk_recursive(&$input, $funcname)
+    {
+        if (!is_callable($funcname)) {
+            if (is_array($funcname)) {
+                $funcname = $funcname[0] . '::' . $funcname[1];
+            }
+            user_error('array_walk_recursive() Not a valid callback ' . $user_func,
+                E_USER_WARNING);
+            return;
+        }
+
+        if (!is_array($input)) {
+            user_error('array_walk_recursive() The argument should be an array',
+                E_USER_WARNING);
+            return;
+        }
+
+        $args = func_get_args();
+
+        foreach ($input as $key => $item) {
+            if (is_array($item)) {
+                array_walk_recursive($item, $funcname, $args);
+                $input[$key] = $item;
+            } else {
+                $args[0] = &$item;
+                $args[1] = &$key;
+                call_user_func_array($funcname, $args);
+                $input[$key] = $item;
+            }
+        }
+    }
+}
 
 /**
  * Replace htmlspecialchars_decode()
  *
  * @link        http://php.net/function.htmlspecialchars_decode
  * @author      Matthias Mohr
- * @version     $Revision: 1.0 $
  * @since       PHP 5.1.0
  * @require     PHP 4.0.0 (trigger_error)
  */

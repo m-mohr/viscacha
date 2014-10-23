@@ -3,6 +3,7 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "language.p
 
 include('classes/class.phpconfig.php');
 
+// ToDo: Übersetzen
 $langbase = array(
 	'global' => 'Global/Standard',
 	'modules' => 'Module',
@@ -103,30 +104,29 @@ elseif ($job == 'import2') {
 	
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = 1024*1024;
-		$filetypes = array('.zip');
-		$dir = realpath('temp/');
+		$filetypes = array('zip');
+		$dir = realpath('temp/').DIRECTORY_SEPARATOR;
 	
 		$insertuploads = array();
 		require("classes/class.upload.php");
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
-		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			if ($my_uploader->return_error()) {
-				array_push($inserterrors,$my_uploader->return_error());
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors,$my_uploader->return_error());
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
-		$file = $dir.'/'.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
-		}
+
 	}
 	elseif (file_exists($server)) {
-		$ext = get_extension($server, true);
+		$ext = get_extension($server);
 		if ($ext == 'zip') {
 			$file = $server;
 		}
@@ -1047,8 +1047,15 @@ elseif ($job == 'phrase_file_find') {
    <td class="obox" colspan="2">Phrase Manager &raquo; Find Phrase</td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Keyword:<br />The keyword will be searched in the keys (unique identifier for phrases) and in the values (the phrases itself).</td>
+   <td class="mbox" width="40%">Keyword:</td>
    <td class="mbox" width="60%"><input type="text" name="key" size="40" /></td>
+  <tr>
+  <tr>
+   <td class="mbox" width="40%">Search in:<br />Key = unique identifier for a phrase; value = the phrase itself</td>
+   <td class="mbox" width="60%">
+   	<input type="checkbox" name="keys" value="1" checked="checked" /> Keys<br />
+   	<input type="checkbox" name="values" value="1" checked="checked" /> Values
+   </td>
   <tr> 
    <td class="ubox" align="center" colspan="2"><input type="submit" value="Find"></td>
   </tr>
@@ -1067,24 +1074,40 @@ elseif ($job == 'phrase_file') {
 	$cache = array();
 	$diff = array();
 	$complete = array();
+	$lang_data = array();
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
 	while($row = $db->fetch_assoc($result)) {
 		$cache[$row['id']] = $row;
-		$diff[$row['id']] = array_keys(return_array($group, $row['id']));
+		$lang_data[$row['id']] = return_array($group, $row['id']);
+		$diff[$row['id']] = array_keys($lang_data[$row['id']]);
 		$complete = array_merge($complete, array_diff($diff[$row['id']], $complete) );
 	}
+	$search = $gpc->get('key', none);
+	$keys = $gpc->get('keys', int);
+	$values = $gpc->get('values', int);
 	if ($show == 'diff') {
 		$same = call_user_func_array('array_intersect', $diff);
 		$complete = array_diff($complete, $same);
 	}
-	$search = $gpc->get('key', none);
-	if ($show == 'search') {
+	elseif ($show == 'search') {
 		if (strlen($search) < 3) {
 			error('admin.php?action=language&job=phrase_file_find', 'The keyword is too short. (Minimum: 3)');
 		}
-		foreach ($complete as $key => $value) {
-			if (stristr($key, $search) === false && stristr($value, $search) === false) {
-				unset($complete[$key]);
+		$ids = array_keys($cache);
+		foreach ($complete as $index => $key) {
+			$found = false;
+			if ($keys == 1 && stristr($key, $search) !== false) {
+				$found = true;
+			}
+			if ($values == 1 && $found == false) {
+				foreach ($ids as $id) {
+					if (isset($lang_data[$id][$key]) && stristr($lang_data[$id][$key], $search) !== false) {
+						$found = true;
+					}
+				}
+			}
+			if ($found == false) {
+				unset($complete[$index]);
 			}
 		}
 	}
@@ -1102,9 +1125,9 @@ elseif ($job == 'phrase_file') {
 	}
 	$pages = count($data);
 	$pages_html = "Pages ({$pages}):";
-	// Ersetzen durch Buchstaben (?) -> [A] [B] ...
+	// ToDo: Ersetzen durch Buchstaben (?) -> [A] [B] ...
 	for($i=1;$i<=$pages;$i++) {
-   		$pages_html .= ' ['.iif($i == $page, "<strong>{$i}</strong>", "<a href='admin.php?action=language&job=phrase_file&file={$file}&page={$i}&show={$show}&key={$search}'>{$i}</a>").']';
+   		$pages_html .= ' ['.iif($i == $page, "<strong>{$i}</strong>", "<a href='admin.php?action=language&amp;job=phrase_file&amp;file={$file}&amp;page={$i}&amp;show={$show}&amp;key={$search}&amp;keys={$keys}&amp;values={$values}'>{$i}</a>").']';
 	}
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_file_delete&file=<?php echo $file; ?>">
@@ -1206,11 +1229,15 @@ elseif ($job == 'phrase_copy2') {
 	if (file_exists($dest)) {
 		error('admin.php?action=language&job=phrase', 'This file already exists. It has not been overwritten.');
 	}
-	if (file_exists($source) && $filesystem->copy($source, $dest)) {
+	if (!file_exists($source)) {
+		error('admin.php?action=language&job=phrase', 'This file does not exist.');
+	}
+	$filesystem->copy($source, $dest);
+	if (file_exists($dest)) {
 		ok('admin.php?action=language&job=phrase', 'File was copied successful');
 	}
 	else {
-		error('admin.php?action=language&job=phrase', 'Sourcefile does not exists or file could not be copied.');
+		error('admin.php?action=language&job=phrase', 'File could not be copied.');
 	}
 }
 elseif ($job == 'phrase_file_edit') {
@@ -1432,7 +1459,7 @@ elseif ($job == 'phrase_add_lngfile2') {
 		$c->createfile("language/{$row['id']}/{$dir}{$file}.lng.php", 'lang');
 	}
 	echo head();
-	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode("{$dir}{$file}.lng.php")), 'Language file sucessfully created.');
+	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode("{$dir}{$file}.lng.php")), 'Language file successfully created.');
 }
 elseif ($job == 'phrase_add_mailfile') {
 	echo head();

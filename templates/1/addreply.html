@@ -8,7 +8,13 @@
 </div>
 </div>
 <br class="minibr" />
-<?php } ?>
+<?php } else { if ($last['message_active'] == '1') { ?>
+<div class="border">
+<h3><img id="img_rules_<?php echo $info['board']; ?>" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $last['message_title']; ?></h3>
+<div id="part_rules_<?php echo $info['board']; ?>" class="bbody"><?php echo $last['message_text']; ?></div>
+</div>
+<br class="minibr" />
+<?php }} ?>
 <form method="post" action="addreply.php?action=save<?php echo SID2URL_x; ?>">
 <div class="border">
 <h3><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('addreply_title'); ?></h3>
@@ -40,6 +46,10 @@
 <?php } } else { ?>
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
 <span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
+<br class="newinput" /><hr class="formsep" />
+<?php } if ($last['message_active'] == '2') { ?>
+<label><?php echo $lang->phrase('board_rules'); ?>:</label>
+<a class="label" href="misc.php?action=board_rules&amp;id=<?php echo $info['board'].SID2URL_x; ?>" target="_blank"><?php echo $last['message_title']; ?></a>
 <br class="newinput" /><hr class="formsep" />
 <?php } ?>
 <label for="topic"><?php echo $lang->phrase('title'); ?></label> 

@@ -46,7 +46,7 @@ if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals
 	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES');
 
 	$input = array_merge($_GET, $_POST, $_COOKIE, $_ENV, $_FILES);
-	if (isset($_SERVER)) {
+	if (isset($_SERVER) && is_array($_SERVER)) {
 		$input = array_merge($input, $_SERVER);
 	}
 	if (isset($_SESSION) && is_array($_SESSION)) {

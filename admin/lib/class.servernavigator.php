@@ -26,11 +26,9 @@ class ServerNavigator
 	var $plain;
 	var $extract;
 
-	function ServerNavigator($use_image_icons = true, $show_subfolders_size = false)
-	{
-	global $gpc;
-	
-		// Suggestion: ZIP- (und -RAR) Dateien entpacken-Option(?)
+	function ServerNavigator($use_image_icons = true, $show_subfolders_size = false) {
+		global $gpc;
+		
 		$this->plain 				= array(
 			'txt','php','php3','php4','php5','phtml','shtml','html','htm','css','js','pl','cgi','inc','asp','bat','cfm',
 			'pm','log','xml','ini','csv','dat','sql','htc','htaccess','htusers','inf','tex','tsv','xsl','xslt','klip',
@@ -204,7 +202,7 @@ class ServerNavigator
 
 		$html = '	   <table cellpadding="4" cellspacing="0" class="border">';
 		$html .= "\n".'		 <tr>';
-		$html .= "\n".'		   <td class="obox">Filemanager</td>';
+		$html .= "\n".'		   <td class="obox">'.iif(count($dir_list) == 0, $newdir_html).'Filemanager</td>';
 		$html .= "\n".'		 </tr>';
 		$html .= "\n".'		 <tr>';
 		$html .= "\n".'		   <td class="ubox">Directory: ' . realpath('../'.$this->root) . $heading_path . '</td>';
@@ -215,7 +213,7 @@ class ServerNavigator
 		
 		if (count($dir_list) > 0) {	
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="obox" colspan="5">'.$newdir_html.' Directories</td>';
+			$html .= "\n".'		   <td class="obox" colspan="5">'.$newdir_html.'Directories</td>';
 			$html .= "\n".'		 </tr>';
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="ubox" width="30%">Directory</td>';
@@ -264,7 +262,7 @@ class ServerNavigator
 
 		if (count($file_list) > 0) {	
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="obox" colspan="6">'.iif(!$print_spacer, $newdir_html).'Files</td>';
+			$html .= "\n".'		   <td class="obox" colspan="6">Files</td>';
 			$html .= "\n".'		 </tr>';
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="ubox" width="30%">Total: '.$total_files.' files ('.$total_size.')</td>';

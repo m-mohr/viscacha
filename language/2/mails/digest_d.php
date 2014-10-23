@@ -1,11 +1,11 @@
 <mail>
-	<title>{@config->fname}: New posting for topic "{@row->topic}"</title>
+	<title>{@config->fname}: New post for topic "{@row->topic}"</title>
 	<comment>Hello {@row->name}
 
 You subscribed the topic "{@row->topic}".
-New postings are available. The last entry is from {@row->last_name}.
+New posts have been made. The last entry is from {@row->last_name}.
 
-Here you can view the topic:: 
+Here you can view the topic:
 {@config->furl}/showtopic.php?id={@row->id}
 
 Best regards,

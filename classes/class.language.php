@@ -11,6 +11,7 @@ class lang {
 	var $cache;
 	var $js;
 	
+	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
 	function lang($js = false) {
 		$this->js = $js;
 		$this->file = '';
@@ -52,7 +53,7 @@ class lang {
 		global $config, $breadcrumb;
 		$isforum = array('addreply','attachments','edit','forum','manageforum','managetopic','misc','newtopic','pdf','search','showforum','showtopic');
 		if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, $isforum)) {
-			$breadcrumb->Add($this->phrase('forumname'), 'forum.php');
+			$breadcrumb->Add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
 		}
 	}
 
@@ -61,7 +62,7 @@ class lang {
 		require($file);
 		echo 'var lng = new Array();'."\n";
 		foreach ($lang as $k => $l) {
-			$l = addslashes($l);
+			$l = str_replace("'", "\\'", $l);
 			echo "lng['$k'] = '$l';\n";
 		}
 	}
@@ -184,9 +185,14 @@ class lang {
 	function group($group) {
 		$file = $this->dir.DIRECTORY_SEPARATOR.$group.'.lng.php';
 		if (file_exists($file) && !isset($this->cache[$file])) {
-			require($file);
-			$this->lngarray += $lang;
-			$this->cache[$group] = TRUE;
+			@require($file);
+			if (isset($lang) && is_array($lang)) {
+				$this->lngarray += $lang;
+				$this->cache[$group] = TRUE;
+			}
+			else {
+				echo "<!-- Could not parse language-file {$file} -->";
+			}
 		}
 		else {
 			echo "<!-- Could not load language-file {$file} -->";
@@ -196,7 +202,7 @@ class lang {
 	
 	function setdir($dirv) {
 		global $config;
-		if (is_dir($config['fpath'])) {
+		if (is_dir($config['fpath'].'/')) {
 			$dir = "{$config['fpath']}/language/{$dirv}";
 		}
 		else {

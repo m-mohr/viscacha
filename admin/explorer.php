@@ -1,7 +1,7 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "explorer.php") die('Error: Hacking Attempt');
 
-$uploadfields = 3;
+$uploadfields = 5;
 require_once("admin/lib/class.servernavigator.php");
 include_once('classes/class.template.php');
 $tpl = new tpl();
@@ -10,39 +10,40 @@ $ServerNavigator = new ServerNavigator();
 if ($job == 'upload') {
 
 	$cfg = $gpc->get('cfg', str);
+	$path = $gpc->get('path', none);
 
 	if ($cfg == 'cron') {
 		$ups = 1;
 		$filesize = 100; // 100KB
-		$filetypes = '.php';
+		$filetypes = 'php';
 		$dir = realpath('./classes/cron/jobs/');
 		$url = 'javascript:history.back();';
 	}
 	elseif ($cfg == 'codefiles') {
 		$ups = 1;
 		$filesize = 200; // 200KB
-		$filetypes = '.php';
+		$filetypes = 'php';
 		$dir = realpath('./classes/geshi/');
 		$url = 'admin.php?action=bbcodes&job=codefiles';
 	}
 	elseif ($cfg == 'dbrestore') {
 		$ups = 1;
 		$filesize = ini_maxupload();
-		$filetypes = '.sql|.zip';
+		$filetypes = 'sql|zip';
 		$dir = realpath('./admin/backup/');
 		$url = 'admin.php?action=db&job=restore';
 	}
 	elseif ($cfg == 'captcha_fonts') {
 		$ups = 1;
 		$filesize = 500; // 500KB
-		$filetypes = '.ttf';
+		$filetypes = 'ttf';
 		$dir = realpath('./classes/fonts/');
 		$url = 'admin.php?action=misc&job=captcha_fonts';
 	}
 	elseif ($cfg == 'captcha_noises') {
 		$ups = 1;
 		$filesize = 200; // 200KB
-		$filetypes = '.jpg';
+		$filetypes = 'jpg';
 		$dir = realpath('./classes/graphic/noises/');
 		$url = 'admin.php?action=misc&job=captcha_noises';
 		$imgwidth = 300;
@@ -54,7 +55,7 @@ if ($job == 'upload') {
 		$filetypes = '';
 		$path = $gpc->get('path');
 		$dir = realpath($path);
-		$url = 'admin.php?action=explorer&path='.urldecode($ServerNavigator->realPath($path));
+		$url = 'admin.php?action=explorer&path='.urlencode($ServerNavigator->realPath($path));
 	}
 	$filesize *= 1024;
 	$filetypes = explode('|', $filetypes);
@@ -76,20 +77,18 @@ if ($job == 'upload') {
 	 
 	    $my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir.DIRECTORY_SEPARATOR);
 		if (isset($imgwidth) && isset($imgheight)) {
 			$my_uploader->max_image_size($imgwidth, $imgheight);
 		}
-		if ($my_uploader->upload('upload_'.$i, $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			$errstr = $my_uploader->return_error();
-			if (!empty($errstr)) {
-				array_push($inserterrors, $my_uploader->return_error());
-			}
+		if ($my_uploader->upload('upload_'.$i)) {
+			$my_uploader->save_file();
 		}
-		else {
-			array_push($inserterrors, $my_uploader->return_error());
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
-    	$file = $dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'];
+    	$file = $dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename');
     	if (!file_exists($file)) {
     	    $inserterrors[] = 'File ('.$file.') does not exist.';
     	}
@@ -111,14 +110,14 @@ if ($job == 'upload') {
 			while(file_exists($dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf')) {
 				$n++;
 			}
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'], $dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf');
+			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf');
 		}
 		elseif ($cfg == 'captcha_noises') {
 			$n = 1;
 			while(file_exists($dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg')) {
 				$n++;
 			}
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'], $dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg');
+			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg');
 		}
 		ok($url, 'Upload ready!');
 	}
@@ -375,7 +374,7 @@ elseif ($job == "extract") {
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), 'File is not an supported archive.');
 	}
 	$newdir = realpath(extract_dir($file, false));
-	$filename = basename($file, get_extension($file));
+	$filename = basename($file, get_extension($file, true));
 	$newdir .= DIRECTORY_SEPARATOR.$filename;
 	?>
 <form name="form" method="post" action="admin.php?action=explorer&job=extract2">

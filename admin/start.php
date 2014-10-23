@@ -60,7 +60,7 @@ else {
 	 <table class="border">
 	  <tr> 
 	   <td class="obox">
-		<span class="right">[<a href="log.php?action=logout<?php echo SID2URL_x; ?>">Sign off</a>]</span>
+		<span class="right">[<a href="admin.php?action=logout<?php echo SID2URL_x; ?>" target="_top">Sign off</a>]</span>
 		Welcome to the Viscacha Admin Control Panel, <?php echo $my->name; ?>!
 	   </td>
 	  </tr>

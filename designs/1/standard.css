@@ -161,9 +161,8 @@ h1 a, h1 a:hover {
 	width: 100%;
 	background-color: #ffffff;
 }
-#content h3 img, #window h3 img, .tables th img, .h3 {
+#content h3 img, #window h3 img, .tables th img, .h3 img {
 	vertical-align: middle;
-	/* display: none */
 }
 .inlineheader {
 	border-top: 1px solid #839FBC;
@@ -293,6 +292,14 @@ h1 a, h1 a:hover {
 }
 
 /* Tabellenlose Formulare */
+.plainlabel {
+	float: none;
+	display: inline;
+	width: auto;
+	padding-right: 0px;
+	font-weight: normal;
+}
+
 .label, label, .labeldiv {
 	float: left;
 	display: block;

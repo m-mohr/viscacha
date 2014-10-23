@@ -1,4 +1,5 @@
 <?php
+global $filesystem;
 
 $dir = 'uploads/topics/thumbnails/';
 $d = dir($dir);

@@ -2,11 +2,11 @@
 <div class="navigation_cat">
 <h3><?php echo $lang->phrase('login'); ?></h3>
 <p>
-	<strong><?php echo $lang->phrase('login_name'); ?></strong><br />
-	<input type="text" name="name" size="20" /><br />
-	<strong><?php echo $lang->phrase('login_password'); ?></strong><br />
-	<input type="password" name="pw" size="20" /><br />
-	<input type="checkbox" name="remember" value="1" checked="checked" /> <?php echo $lang->phrase('login_rememberme'); ?><br />
+	<label for="nav_name" class="plainlabel"><strong><?php echo $lang->phrase('login_name'); ?></strong></label><br />
+	<input type="text" name="name" id="nav_name" size="20" /><br />
+	<label for="nav_pw" class="plainlabel"><strong><?php echo $lang->phrase('login_password'); ?></strong></label><br />
+	<input type="password" name="pw" id="nav_pw" size="20" /><br />
+	<input type="checkbox" name="remember" id="nav_remember" value="1" checked="checked" /> <label for="nav_remember" class="plainlabel"><?php echo $lang->phrase('login_rememberme'); ?></label><br />
 	<input type="submit" name="Submit" value="<?php echo $lang->phrase('mymenu_send'); ?>" />
 	<input type="hidden" name="redirect" value="<?php echo $request_uri; ?>" />
 </p>

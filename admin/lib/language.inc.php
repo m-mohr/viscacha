@@ -61,15 +61,15 @@ function return_array($group, $id) {
 function createParentDir($parentfile, $path) {
 	global $filesystem;
 	$parents = array();
-	while(($pos = strrpos($parentfile, '/')) !== false) {
+	while(($pos = strrpos($parentfile, DIRECTORY_SEPARATOR)) !== false) {
 		$parentfile = substr($parentfile, 0, $pos);
 		$parents[] = $parentfile;
 	}
 	$parents = array_reverse($parents);
 	foreach ($parents as $dir) {
-		$path = $path.'/'.$dir;
-		if (!file_exists($path)) {
-			$filesystem->mkdir($path);
+		$path2 = $path.DIRECTORY_SEPARATOR.$dir;
+		if (!file_exists($path2)) {
+			$filesystem->mkdir($path2, 0777);
 		}
 	}
 }

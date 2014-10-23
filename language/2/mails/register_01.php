@@ -4,7 +4,7 @@
 
 You just registered at the board "{@config->fname}".
 
-The board administrator has to confirm your registration before you can login. We will send you an activation e-mail if your account gets activated!
+The board administrator has to confirm your registration before you can login. We will send you an activation e-mail as soon as your account gets activated!
 
 Best regards,
 your {@config->fname} team

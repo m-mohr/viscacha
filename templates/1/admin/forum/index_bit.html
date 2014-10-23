@@ -3,7 +3,7 @@
 	<td width='48%'>
 		<?php echo iif($row->vquestion," <img align='right' src='".$tpl->img('vote')."' alt='Umfrage: $row->vquestion' />"); ?>
 		<?php echo $pref; ?>
-		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'><?php echo iif($showprefix, '['.$prefix[$row->prefix].'] ').$row->topic; ?></a>
+		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'><?php echo iif($showprefix, $lang->phrase('showtopic_prefix_title')).$row->topic; ?></a>
     </td>
 	<td width='20%' class='stext'>
 		<?php echo $rstart; ?><br />

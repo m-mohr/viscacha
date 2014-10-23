@@ -254,11 +254,7 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 		$error[] = $lang->phrase('query_string_error');
 	}
 
-	$result = $db->query('
-	SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} 
-	FROM '.$db->pre.'user 
-	WHERE id = "'.$_GET['id'].'"
-	',__LINE__,__FILE__);
+	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
 	
 	$row = $gpc->prepare($db->fetch_assoc($result));
 	if ($row[$_GET['type']] == NULL || $row[$_GET['type']] == '') {

@@ -2,7 +2,7 @@
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "settings.lng.php") die('Error: Hacking Attempt');
 $lang = array();
 $lang['charset'] = 'ISO-8859-1';
-$lang['compatible_version'] = '0.8 Beta 2';
+$lang['compatible_version'] = '0.8 Beta 3';
 $lang['decpoint'] = ',';
 $lang['dformat1'] = 'd.m.Y, H:i';
 $lang['dformat2'] = 'd.m.Y';

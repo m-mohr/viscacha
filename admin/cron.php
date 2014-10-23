@@ -27,10 +27,10 @@ elseif ($_GET['job'] == 'add') {
 <form name="form" method="post" action="admin.php?action=cron&job=add2<?php echo SID2URL_x; ?>">
  <table class="border">
   <tr> 
-   <td class="obox" colspan=2>Add a new task</td>
+   <td class="obox" colspan="2">Add a new task</td>
   </tr>
   <tr> 
-   <td class="mbox" colspan=2><span class='stext'>
+   <td class="mbox" colspan="2"><span class="stext">
 <?php if ($config['pccron'] == 1) { ?>
 <b>Status: Cron Jobs are simulated</b> [<a href="admin.php?action=settings&job=cron<?php echo SID2URL_x; ?>">change</a>]<br>
 Because original Cron Jobs are often not availible, Viscacha can simulate Cron Jobs. This works as follows:<br />
@@ -44,7 +44,7 @@ Normal Cron Jobs are used. You have to start an Cron Job for every entry (of the
   <tr> 
    <td class="mbox" width="50%"><font class="mtext">File:</font><br>
 <span class="stext">
-File in directory "<a target="_blank" href="admin.php?action=explorer&path=<?php echo urlencode('./classes/cron/jobs'); ?>">classes/cron/jobs</a>".<br />
+File in directory "<a href="admin.php?action=explorer&path=<?php echo urlencode('./classes/cron/jobs'); ?>">classes/cron/jobs</a>".<br />
 <strong><a href="admin.php?action=cron&job=upload" target="_blank">Upload new file</a></strong></span></td>
    <td class="mbox" width="50%"><input type="text" name="temp1" size="50"></td> 
   </tr>

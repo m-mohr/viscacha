@@ -513,16 +513,19 @@ class FeedCreator extends HtmlDescribable {
 	 * @param redirect	boolean	optional	send an HTTP redirect header or not. If true, the user will be automatically redirected to the created file.
 	 */
 	function saveFeed($filename="", $displayContents=true) {
+		global $filesystem;
 		if ($filename=="") {
 			$filename = $this->_generateFilename();
 		}
-		$feedFile = fopen($filename, "w");
-		if ($feedFile) {
+		$feedFile = @fopen($filename, "w");
+		if (is_resource($feedFile)) {
 			fputs($feedFile,$this->createFeed());
 			fclose($feedFile);
+			$filesystem->chmod($filename, 0666);
 			$this->_redirect($filename, $displayContents);
-		} else {
-			echo "<br /><b>Error creating feed file, please check write permissions.</b><br />";
+		}
+		else {
+			trigger_error('Error creating feed file, please check write permissions.', E_WARNING);
 		}
 	}
 	

@@ -96,54 +96,6 @@ function GroupCheck($groups) {
     }
 }
 
-function checkRemotePic($pic, $url_ary, $id, $redir = "editprofile.php?action=pic") {
-	global $lang, $config, $filesystem;
-	$redir .= SID2URL_x;
-	if (empty($url_ary[4])) {
-		error($lang->phrase('editprofile_pic_error1'), $redir);
-	}
-
-	$base_get = '/' . $url_ary[4];
-	$port = (!empty($url_ary[3])) ? $url_ary[3] : 80;
-
-	if (!($fsock = @fsockopen($url_ary[2], $port, $errno, $errstr, 10))) {
-		error($lang->phrase('editprofile_pic_error2'), $redir);
-	}
-
-	@fputs($fsock, "GET $base_get HTTP/1.1\r\n");
-	@fputs($fsock, "HOST: " . $url_ary[2] . "\r\n");
-	@fputs($fsock, "Connection: close\r\n\r\n");
-
-	$avatar_data = '';
-	while(!@feof($fsock)) {
-		$avatar_data .= @fread($fsock, $config['avfilesize']);
-	}
-	@fclose($fsock);
-
-	if (!preg_match('#Content-Length\: ([0-9]+)[^ /][\s]+#i', $avatar_data, $file_data1) || !preg_match('#Content-Type\: image/[x\-]*([a-z]+)[\s]+#i', $avatar_data, $file_data2)) {
-		error($lang->phrase('editprofile_pic_error4'), $redír);
-	}
-		
-	list(,$avatar_data) = explode("\r\n\r\n", $avatar_data, 2);
-		
-	$ext = get_extension($pic);
-	$filename = md5(uniqid($id));
-	$origfile = 'temp/'.$filename.$ext;
-	file_put_contents($origfile, $avatar_data);
-    $filesize = filesize($origfile);
-    list($width, $height, $type) = @getimagesize($origfile);
-    $types = explode('|', $config['avfiletypes']);
-
-	if ($width > 0 && $height > 0 && $width <= $config['avwidth'] && $height <= $config['avheight'] && $filesize <= $config['avfilesize'] && in_array($ext, $types)) {
-		$pic = 'uploads/pics/'.$id.$ext;
-		removeOldImages('uploads/pics/', $id);
-		@$filesystem->copy($origfile, $pic);
-	}
-	else {
-		error($lang->phrase('editprofile_pic_error3'), $redir);
-	}
-	return $pic;
-}
 function numbers ($nvar,$deci=NULL) {
 	global $config, $lang;
 	
@@ -244,7 +196,7 @@ function count_nl($str='',$max=NULL) {
 function get_mimetype($file) {
     global $db, $scache;
 
-	$ext = strtolower(get_extension($file, TRUE));
+	$ext = strtolower(get_extension($file));
 
 	$mimetype_headers = $scache->load('mimetype_headers');
 	$mime = $mimetype_headers->get();
@@ -376,12 +328,12 @@ function SubStats($rtopics, $rreplys, $rid, $cat_cache,$bids=array()) {
 			if (isset($cat_cache[$subfs['id']])) {
 				$substats = SubStats(0, 0, $subfs['id'], $cat_cache, $bids);
 				$rtopics = $rtopics+$subfs['topics']+$substats[0];
-				$rreplys = $rreplys+$subfs['replys']+$substats[1];
+				$rreplys = $rreplys+$subfs['replies']+$substats[1];
 				$bids = $substats[2];
 			}
 			else {
 				$rtopics = $rtopics+$subfs['topics'];
-				$rreplys = $rreplys+$subfs['replys'];
+				$rreplys = $rreplys+$subfs['replies'];
 			}
 		}
 	}
@@ -395,8 +347,6 @@ function BoardSelect($board = 0) {
 	$found = false;
 	$sub_cache = array();
 	$sub_cache_last = array();
-	$cat_cache = array();
-	$mod_cache = array();
 	$forum_cache = array();
 	
 	$categories_obj = $scache->load('categories');
@@ -410,14 +360,15 @@ function BoardSelect($board = 0) {
 
 	($code = $plugins->load('forums_query')) ? eval($code) : null;
     // Fetch Forums
-	$result = $db->query("SELECT 
-    	c.id, c.name, c.desc, c.opt, c.optvalue, c.bid, c.topics, c.replys, c.cid, c.last_topic, c.invisible,  
+	$result = $db->query("
+	SELECT 
+    	f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,  
     	t.topic as btopic, t.id as btopic_id, t.last as bdate, u.name AS uname, t.last_name AS bname
-    FROM {$db->pre}cat AS c
-        LEFT JOIN {$db->pre}topics AS t ON c.last_topic=t.id 
+    FROM {$db->pre}forums AS f
+        LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id 
         LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id 
-    ORDER BY c.cid, c.c_order, c.id"
-    ,__LINE__,__FILE__);
+    ORDER BY f.parent, f.position
+	",__LINE__,__FILE__);
 	
 	if ($db->num_rows($result) == 0) {
 		$errormsg = array('There are currently no boards to show. Pleas visit the <a href="admin.php'.SID2URL_1.'">Admin Control Panel</a> and create some forums.');
@@ -428,18 +379,18 @@ function BoardSelect($board = 0) {
 	} 
 
 	while($row = $db->fetch_assoc($result)) {
-		$gpc->prepare($row['name']);
-		$gpc->prepare($row['btopic']);
-		$gpc->prepare($row['uname']);
-		$gpc->prepare($row['bname']);
+		$row['name'] = $gpc->prepare($row['name']);
+		$row['uname'] = $gpc->prepare($row['uname']);
+		$row['bname'] = $gpc->prepare($row['bname']);
+		$row['bid'] = $cat_cache[$row['parent']]['parent'];
 	    // Caching for Subforums
-	    if ($row['bid'] > 0) {
+	    if (!empty($row['bid'])) {
 	        $sub_cache[$row['bid']][] = $row;
 	        $sub_cache_last[$row['id']] = $row;
 	    }
 	    // Caching the Forums
 	    if ($row['bid'] == $board) {
-	        $forum_cache[$row['cid']][] = $row;
+	        $forum_cache[$row['parent']][] = $row;
 	    }
 	    ($code = $plugins->load('forums_caching')) ? eval($code) : null;
 	}
@@ -459,9 +410,9 @@ function BoardSelect($board = 0) {
     	    
     	    // Subforendaten vererben (Letzter Beitrag, Markierung)
     	    if(isset($sub_cache[$forum['id']])) {	
-    			$substats = SubStats($forum['topics'], $forum['replys'], $forum['id'], $sub_cache);
+    			$substats = SubStats($forum['topics'], $forum['replies'], $forum['id'], $sub_cache);
     			$forum['topics'] = $substats[0];
-    			$forum['replys'] = $substats[1];
+    			$forum['replies'] = $substats[1];
     			$bids = $substats[2];
     		}
     
@@ -514,12 +465,12 @@ function BoardSelect($board = 0) {
             // Rechte und Gelesensystem
     		if ($forum['opt'] != 're') {
     			if (!check_forumperm($forum)) {
-    				if ($forum['invisible'] == 1) {
+    				if ($forum['invisible'] != 0) {
     					$forum['show'] = false;
     				}
 					$forum['foldimg'] = $tpl->img('cat_locked');
     				$forum['topics'] = '-';
-    				$forum['replys'] = '-';
+    				$forum['replies'] = '-';
     				$forum['btopic'] = false;
     			}
     			else {
@@ -530,18 +481,19 @@ function BoardSelect($board = 0) {
     				   	$forum['foldimg'] = $tpl->img('cat_red');
     				   	$forum['new'] = true;
     				}
-		    		if ($forum['btopic']) {
+		    		if (!empty($forum['btopic'])) {
 		    			if (strxlen($forum['btopic']) >= 40) {
 		    				$forum['btopic'] = substr($forum['btopic'],0,40);
 		    				$forum['btopic'] .= "...";
 		    			}
+		    			$forum['btopic'] = $gpc->prepare($forum['btopic']);
 		    			$forum['bdate'] = str_date($lang->phrase('dformat1'), times($forum['bdate']));
 		    			
 		    		}
     		    }
     	    }
     	    $forum['topics'] = numbers($forum['topics']);
-    	    $forum['replys'] = numbers($forum['replys']);
+    	    $forum['replies'] = numbers($forum['replies']);
     	    
     	    // Moderatoren
     	    $forum['mod'] = array();
@@ -568,7 +520,7 @@ function BoardSelect($board = 0) {
 						$sub_cache[$forum['id']][$i]['new'] = false;
 			    		if ($sub_cache[$forum['id']][$i]['opt'] != 're') {
 			    			if (!check_forumperm($sub_cache[$forum['id']][$i])) {
-			    				if ($sub_cache[$forum['id']][$i]['invisible'] == 1) {
+			    				if ($sub_cache[$forum['id']][$i]['invisible'] != 0) {
 			    					$show = false;
 			    				}
 			    				else {
@@ -731,24 +683,31 @@ function ok ($errormsg = NULL, $errorurl = "javascript:history.back(-1)", $EOS =
 	exit;
 }
 
-function forum_opt($opt, $optvalue, $bid, $check = 'forum') {
+function forum_opt($array, $check = 'forum') {
 	global $my, $lang, $tpl;
-	if ($opt == 'pw' && (!isset($my->pwfaccess[$bid]) || $my->pwfaccess[$bid] != $optvalue)) {
+	extract($array, EXTR_PREFIX_ALL, 'f');
+	if ($f_opt == 'pw' && (!isset($my->pwfaccess[$f_id]) || $my->pwfaccess[$f_id] != $f_optvalue)) {
     	if (!$tpl->tplsent('header')) {
     		echo $tpl->parse('header');
     	}
     	if (!$tpl->tplsent('menu')) {
     		echo $tpl->parse('menu');
     	}
-	    GoBoardPW($optvalue, $bid);
+	    GoBoardPW($f_optvalue, $f_id);
 	}
-	elseif ($opt == "re") {
-		error($lang->phrase('forumopt_re'),$optvalue);
+	elseif ($f_opt == "re") {
+		error($lang->phrase('forumopt_re'), $f_optvalue);
+	}
+	elseif ($f_invisible == 2) {
+		error($lang->phrase('query_string_error'));
+	}
+	elseif (($check == 'postreplies' || $check == 'posttopics' || $check == 'edit') && $f_readonly == '1') {
+		error($lang->phrase('forum_is_read_only'));
 	}
 	elseif ($my->p[$check] == 0 || $my->p['forum'] == 0) {
 		errorLogin();
 	}
-
+	
 }
 
 function import_error_data($fid) {

@@ -5,7 +5,7 @@ CREATE TABLE `{:=DBPREFIX=:}session` (
   `wiw_action` varchar(50) NOT NULL default '',
   `wiw_id` int(10) unsigned default NULL,
   `ip` varchar(16) NOT NULL default '',
-  `remoteaddr` text NOT NULL,
+  `user_agent` text NOT NULL,
   `lastvisit` int(10) unsigned NOT NULL default '0',
   `mark` longtext NOT NULL,
   `sid` varchar(128) NOT NULL default '',

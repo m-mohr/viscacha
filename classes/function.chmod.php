@@ -149,6 +149,7 @@ function get_chmod($file, $numeric = true) {
 
 if ($config['check_filesystem'] == 1) {
 	check_writable_r('data');
+	check_writable_r('feeds');
 	check_writable('.htaccess');
 	check_executable_r('cache');
 	check_executable_r('temp');

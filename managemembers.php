@@ -231,6 +231,33 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		if (!isset($cache2[$_POST['opt_5']])) {
 			$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 		}
+		if (!empty($_POST['pic']) && preg_match('/^(http:\/\/|www.)([\w‰ˆ¸ƒ÷‹@\-_\.]+)\:?([0-9]*)\/(.*)$/', $_POST['pic'])) {
+			$_POST['pic'] = checkRemotePic($_POST['pic'], $_GET['id'], "managemembers.php?action=edit&id=".$_GET['id']);
+			switch ($_POST['pic']) {
+				case REMOTE_INVALID_URL:
+					$error[] = $lang->phrase('editprofile_pic_error1');
+					$_POST['pic'] = '';
+				break;
+				case REMOTE_CLIENT_ERROR:
+					$error[] = $lang->phrase('editprofile_pic_error2');
+					$_POST['pic'] = '';
+				break;
+				case REMOTE_FILESIZE_ERROR:
+				case REMOTE_IMAGE_HEIGHT_ERROR:
+				case REMOTE_IMAGE_WIDTH_ERROR:
+				case REMOTE_EXTENSION_ERROR:
+					$error[] = $lang->phrase('editprofile_pic_error3');
+					$_POST['pic'] = '';
+				break;
+				case REMOTE_IMAGE_ERROR:
+					$error[] = $lang->phrase('editprofile_pic_error4');
+					$_POST['pic'] = '';
+				break;
+			}
+		}
+		elseif (empty($_POST['pic']) || !file_exists($_POST['pic'])) {
+			$_POST['pic'] = '';
+		}		
 		($code = $plugins->load('managemembers_edit2_errorhandling')) ? eval($code) : null;
 	
 		if (count($error) > 0) {
@@ -260,13 +287,6 @@ if ($my->vlogin && $my->p['admin'] == 1) {
             else {
                 $update_sql = ' ';
             }
-            
-			if (!empty($_POST['pic']) && preg_match('/^(http:\/\/|www.)([\w‰ˆ¸ƒ÷‹@\-_\.]+)\:?([0-9]*)\/(.*)$/', $_POST['pic'], $url_ary)) {
-				$_POST['pic'] = checkRemotePic($_POST['pic'], $url_ary, $_GET['id'], "managemembers.php?action=edit&id=".$_GET['id'].SID2URL_x);
-			}
-			elseif (empty($_POST['pic']) || !file_exists($_POST['pic'])) {
-				$_POST['pic'] = '';
-			}
 			
 			admin_customsave($user['id']);
 

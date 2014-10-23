@@ -766,35 +766,23 @@ elseif ($job == 'email2') {
 elseif ($job == 'lang') {
 	$config = $gpc->prepare($config);
 	echo head();
+
+	$charsets = array();
+	$charsets['ISO-8859-1'] = 'Western European, Latin-1';
+	$charsets['ISO-8859-15'] = 'Western European, Latin-9';
+	$charsets['UTF-8'] = 'ASCII compatible multi-byte 8-bit Unicode';
+	$charsets['cp1252'] = 'Windows specific charset for Western European';
+	if (version_compare(PHP_VERSION, '4.3.2', '>=')) {
+		$charsets['cp866'] = 'DOS-specific Cyrillic charset (PHP >= 4.3.2)';
+		$charsets['cp1251'] = 'Windows-specific Cyrillic charset (PHP >= 4.3.2)';
+		$charsets['KOI8-R'] = 'Russian (PHP >= 4.3.2)';
+	}
+	$charsets['BIG5'] = 'Traditional Chinese, mainly used in Taiwan';
+	$charsets['GB2312'] = 'Simplified Chinese, national standard character set';
+	$charsets['BIG5-HKSCS'] = 'Big5 with Hong Kong extensions, Traditional Chinese.';
+	$charsets['Shift_JIS'] = 'Japanese';
+	$charsets['EUC-JP'] = 'Japanese';
 	
-	// ToDo: Übersetzen
-	$charsets = array(
-	'ISO-8859-1' => 'Westeuropäisch, Latin-1',
-//	'ISO-8859-2' => 'Osteuropäisch, Latin-2',
-//	'ISO-8859-3' => 'Südeuropäisch, Latin-3',
-//	'ISO-8859-4' => 'Baltisch, Latin-4',
-//	'ISO-8859-5' => 'Kyrillisch',
-//	'ISO-8859-6' => 'Arabisch',
-//	'ISO-8859-7' => 'Griechisch',
-//	'ISO-8859-8' => 'Hebräisch',
-//	'ISO-8859-9' => 'Türkisch, Latin-5',
-//	'ISO-8859-10' => 'Nordisch, Latin-6',
-//	'ISO-8859-11' => 'Thai',
-//	'ISO-8859-13' => 'Baltisch, Latin-7',
-//	'ISO-8859-14' => 'Keltisch, Latin-8',
-	'ISO-8859-15' => 'Westeuropäisch, Latin-9',
-//	'ISO-8859-16' => 'Südosteuropäisch, Latin-10',
-	'UTF-8' => 'ASCII-kompatibles Multi-Byte 8-Bit Unicode.',
-	'cp866' => 'DOS-spezifischer Kyrillischer Zeichensatz. (Ab PHP version 4.3.2)',
-	'cp1251' => 'Windows-spezifischer Kyrillischer Zeichensatz. (Ab PHP version 4.3.2)',
-	'cp1252' => 'Windows spezifischer Zeichensatz für westeuropäische Sprachen.',
-	'KOI8-R' => 'Russisch. (Ab PHP version 4.3.2)',
-	'BIG5' => 'Traditionelles Chinesisch, hauptsächlich in Taiwan verwendet.',
-	'GB2312' => 'Vereinfachtes Chinesisch, nationaler Standard-Zeichensatz.',
-	'BIG5-HKSCS' => 'traditionelles Chinesisch mit Hongkong-spezifischen Erweiterungen',
-	'Shift_JIS' => 'Japanisch',
-	'EUC-JP' => 'Japanisch'
-	);
 	
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=lang2">
@@ -1157,18 +1145,7 @@ elseif ($job == 'db2') {
 elseif ($job == 'attupload') {
 	$config = $gpc->prepare($config);
 	echo head();
-	
-	$array = explode('|',$config['tpcfiletypes']);
-	$array2 = array();
-	foreach ($array as $row) {
-		if (strpos($row, '.') == 0) {
-			$array2[] = substr($row,1);
-		}
-		else {
-			$array2[] = $row;
-		}
-	}
-	$config['tpcfiletypes'] = implode(',',$array2);
+
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=attupload2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1180,7 +1157,7 @@ elseif ($job == 'attupload') {
 	   <td class="mbox" width="50%"><input type="checkbox" name="tpcallow" value="1"<?php echo iif($config['tpcallow'],' checked'); ?>></td> 
 	  </tr>
 	  <tr> 
-	   <td class="mbox" width="50%">Allowed File Formats for Upload:<br /><font class="stext">Indicate separated by ",".</font></td>
+	   <td class="mbox" width="50%">Allowed File Formats for Upload:<br /><font class="stext">Each file type separated by ",". Without leading dot!</font></td>
 	   <td class="mbox" width="50%"><input type="text" name="tpcfiletypes" value="<?php echo $config['tpcfiletypes']; ?>" size="50"></td> 
 	  </tr>
 	  <tr> 
@@ -1223,14 +1200,12 @@ elseif ($job == 'attupload2') {
 	echo head();
 
 	$c->getdata();
-	
-	// Beitragsupload
-	$array = explode(',',$gpc->get('tpcfiletypes'));
-	$array2 = array();
-	foreach ($array as $row) {
-		$array2[] = '.'.$row;
-	}
-	$ft = implode('|',$array2);
+
+	$list = $gpc->get('tpcfiletypes', none);
+	$arraylist = explode(',', $list);
+	$arraylist = array_map('strtolower', $arraylist);
+	$arraylist = array_map('trim', $arraylist);
+	$list = implode(',',$arraylist);
 
 	$c->updateconfig('tpcallow',int);
 	$c->updateconfig('tpcdownloadspeed',int);
@@ -1238,7 +1213,7 @@ elseif ($job == 'attupload2') {
 	$c->updateconfig('tpcheight',int);
 	$c->updateconfig('tpcwidth',int);
 	$c->updateconfig('tpcfilesize',int);
-	$c->updateconfig('tpcfiletypes',str, $ft);
+	$c->updateconfig('tpcfiletypes',str,$list);
 	$c->updateconfig('tpcthumbwidth',int);
 	$c->updateconfig('tpcthumbheight',int);
 	
@@ -1249,18 +1224,7 @@ elseif ($job == 'attupload2') {
 elseif ($job == 'avupload') {
 	$config = $gpc->prepare($config);
 	echo head();
-	
-	$array = explode('|',$config['avfiletypes']);
-	$array2 = array();
-	foreach ($array as $row) {
-		if (strpos($row, '.') == 0) {
-			$array2[] = substr($row,1);
-		}
-		else {
-			$array2[] = $row;
-		}
-	}
-	$ft = implode(',',$array2);
+
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=avupload2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1268,19 +1232,19 @@ elseif ($job == 'avupload') {
 	   <td class="obox" colspan="2"><b>Profile pictures &amp; Avatars</b></td>
 	  </tr>
 	  <tr> 
-	   <td class="mbox" width="50%">Allowed file formats for profile pictures:<br /><font class="stext">Indicate separated by ",".</font></td>
-	   <td class="mbox" width="50%"><input type="text" name="avfiletypes" value="<?php echo $ft; ?>" size="50"></td> 
+	   <td class="mbox" width="50%">Allowed file formats for profile pictures:<br /><span class="stext">Each fily type separated by ",". Without leading dot!<br />Possible file types: <?php echo implode(', ', $imagetype_extension); ?></span></td>
+	   <td class="mbox" width="50%"><input type="text" name="avfiletypes" value="<?php echo $config['avfiletypes']; ?>" size="50"></td> 
 	  </tr>
 	  <tr> 
-	   <td class="mbox" width="50%">Max. file size for profile pictures in Bytes:<br /><font class="stext">1 KB = 1024 Byte</font></td>
+	   <td class="mbox" width="50%">Max. file size for profile pictures in Bytes:<br /><span class="stext">1 KB = 1024 Byte</span></td>
 	   <td class="mbox" width="50%"><input type="text" name="avfilesize" value="<?php echo $config['avfilesize']; ?>" size="10"></td> 
 	  </tr>
 	  <tr> 
-	   <td class="mbox" width="50%">Max. width for profile pictures:<br /><font class="stext">Empty = any</font></td>
+	   <td class="mbox" width="50%">Max. width for profile pictures:<br /><span class="stext">Empty = any</span></td>
 	   <td class="mbox" width="50%"><input type="text" name="avwidth" value="<?php echo $config['avwidth']; ?>" size="5"></td> 
 	  </tr>
 	  <tr> 
-	   <td class="mbox" width="50%">Max. height for profile pictures:<br /><font class="stext">Empty = any</font></td>
+	   <td class="mbox" width="50%">Max. height for profile pictures:<br /><span class="stext">Empty = any</span></td>
 	   <td class="mbox" width="50%"><input type="text" name="avheight" value="<?php echo $config['avheight']; ?>" size="5"></td> 
 	  </tr>
 	  <tr> 
@@ -1295,14 +1259,15 @@ elseif ($job == 'avupload2') {
 	echo head();
 
 	$c->getdata();
-	$array = explode(',',$gpc->get('avfiletypes', none));
-	$array2 = array();
-	foreach ($array as $row) {
-		$array2[] = '.'.$row;
-	}
-	$ft = implode('|',$array2);
 	
-	$c->updateconfig('avfiletypes',str, $ft);
+	$list = $gpc->get('avfiletypes', none);
+	$arraylist = explode(',', $list);
+	$arraylist = array_map('strtolower', $arraylist);
+	$arraylist = array_map('trim', $arraylist);
+	$arraylist = array_intersect($imagetype_extension, $arraylist);
+	$list = implode(',',$arraylist);
+	
+	$c->updateconfig('avfiletypes',str,$list);
 	$c->updateconfig('avfilesize',int);
 	$c->updateconfig('avwidth',int);
 	$c->updateconfig('avheight',int);
@@ -1727,6 +1692,8 @@ elseif ($job == 'textprocessing2') {
 	$c->updateconfig('maxurltrenner',str);
 	$c->updateconfig('smileysperrow',int);
 	$c->updateconfig('topicuppercase',int);
+	$c->updateconfig('smileypath',str);
+	$c->updateconfig('smileyurl',str);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=textprocessing');

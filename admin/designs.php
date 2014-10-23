@@ -99,7 +99,7 @@ elseif ($job == 'design_edit') {
 	$templates = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$templates[] = $entry;
 		}
 	}
@@ -109,7 +109,7 @@ elseif ($job == 'design_edit') {
 	$images = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$images[] = $entry;
 		}
 	}
@@ -119,7 +119,7 @@ elseif ($job == 'design_edit') {
 	$stylesheet = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$stylesheet[] = $entry;
 		}
 	}
@@ -130,7 +130,7 @@ elseif ($job == 'design_edit') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="6">>Edit Design</td>
+   <td class="obox" colspan="6">Edit Design</td>
   </tr>
   <tr>
    <td class="mbox" width="40%">Name for this design:</td>
@@ -214,7 +214,7 @@ elseif ($job == 'design_delete') {
 // Do NOT removes data. That "feature" is terrible on account of loosing data!
 	
 	echo head();
-	ok('admin.php?action=designs&job=design', 'Design erfolgreich gelöscht.');
+	ok('admin.php?action=designs&job=design', 'Design successfully deleted');
 }
 elseif ($job == 'design_add') {
 	$id = $gpc->get('id', int);
@@ -223,7 +223,7 @@ elseif ($job == 'design_add') {
 	$templates = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$templates[] = $entry;
 		}
 	}
@@ -233,7 +233,7 @@ elseif ($job == 'design_add') {
 	$images = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$images[] = $entry;
 		}
 	}
@@ -243,7 +243,7 @@ elseif ($job == 'design_add') {
 	$stylesheet = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$stylesheet[] = $entry;
 		}
 	}
@@ -342,30 +342,30 @@ elseif ($job == 'design_import2') {
 	
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
-		$filetypes = array('.zip');
-		$dir = realpath('temp/');
+		$filetypes = array('zip');
+		$dir = realpath('temp').DIRECTORY_SEPARATOR;
 	
 		$insertuploads = array();
 		require("classes/class.upload.php");
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
-		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			if ($my_uploader->return_error()) {
-				array_push($inserterrors,$my_uploader->return_error());
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors,$my_uploader->return_error());
-		}
-		$file = $dir.'/'.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
 	}
 	elseif (file_exists($server)) {
-		$ext = get_extension($server, true);
+		$ext = get_extension($server);
 		if ($ext == 'zip') {
 			$file = $server;
 		}
@@ -394,6 +394,9 @@ elseif ($job == 'design_import2') {
 		error('admin.php?action=designs&job=design_import', 'ZIP-archive could not be read or the folder is empty.');
 	}
 	else {
+		if (!file_exists($tempdir.'design.ini')) {
+			error('admin.php?action=designs&job=design_import', 'ZIP-archive does not contain design.ini.');
+		}
 		$ini = $myini->read($tempdir.'design.ini');
 		
 		$result = $db->query("SELECT * FROM `{$db->pre}designs` WHERE id = '{$config['templatedir']}' LIMIT 1");
@@ -601,7 +604,7 @@ elseif ($job == 'templates') {
   </tr>
   <?php 
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$files = count_dir($dir.$entry);
   ?>
   <tr>
@@ -646,30 +649,30 @@ elseif ($job == 'templates_add2') {
 	
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
-		$filetypes = array('.zip');
-		$dir = realpath('temp/');
+		$filetypes = array('zip');
+		$dir = realpath('temp').DIRECTORY_SEPARATOR;
 	
 		$insertuploads = array();
 		require("classes/class.upload.php");
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
-		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			if ($my_uploader->return_error()) {
-				array_push($inserterrors,$my_uploader->return_error());
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors,$my_uploader->return_error());
-		}
-		$file = $dir.'/'.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
 	}
 	elseif (file_exists($server)) {
-		$ext = get_extension($server, true);
+		$ext = get_extension($serve);
 		if ($ext == 'zip') {
 			$file = $server;
 		}
@@ -850,7 +853,7 @@ elseif ($job == 'templates_file_revert') {
 		$basename = $file;
 	}
 	else {
-		$basename = basename ($path.'/'.$file, get_extension($path.'/'.$file));
+		$basename = basename ($path.'/'.$file, get_extension($path.'/'.$file, true));
 		$content = file_get_contents($path.'/'.$file);
 		$filesystem->file_put_contents($path.'/'.$basename, $content);
 		$filesystem->unlink($path.'/'.$file);
@@ -881,7 +884,7 @@ elseif ($job == 'templates_file_history') {
    	if ($dh = opendir($path)) {
 	   	while (($hfile = readdir($dh)) !== false) {
 	   		$data = pathinfo($path.'/'.$hfile);
-	   		$ext = get_extension($path.'/'.$hfile);
+	   		$ext = get_extension($path.'/'.$hfile, true);
 	   		$basename = basename ($path.'/'.$hfile, $ext);
 	   		if ($basename == $file && stripos($ext, 'bak') !== false) {
 		   		$history[] = $hfile;
@@ -1062,7 +1065,7 @@ elseif ($job == 'templates_browse') {
 				$color = 'black';
 				$custom = false;
 			}
-			$extension = get_extension($dir['name'], true);
+			$extension = get_extension($dir['name']);
 			if (stripos($extension, 'bak') !== false || stripos($extension, 'htaccess') !== false) {
 				continue;
 			}
@@ -1109,7 +1112,7 @@ elseif ($job == 'css') {
   </tr>
   <?php 
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$files = count_dir($dir.$entry);
   ?>
   <tr>
@@ -1197,30 +1200,30 @@ elseif ($job == 'css_add2') {
 	
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
-		$filetypes = array('.zip');
-		$dir = realpath('temp/');
+		$filetypes = array('zip');
+		$dir = realpath('temp').DIRECTORY_SEPARATOR;
 	
 		$insertuploads = array();
 		require("classes/class.upload.php");
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			if ($my_uploader->return_error()) {
-				array_push($inserterrors,$my_uploader->return_error());
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors,$my_uploader->return_error());
-		}
-		$file = $dir.'/'.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
 	}
 	elseif (file_exists($server)) {
-		$ext = get_extension($server, true);
+		$ext = get_extension($server);
 		if ($ext == 'zip') {
 			$file = $server;
 		}
@@ -1325,7 +1328,7 @@ elseif ($job == 'images') {
   </tr>
   <?php 
 	while (false !== ($entry = $d->read())) {
-		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$files = count_dir($dir.$entry);
   ?>
   <tr>
@@ -1383,30 +1386,30 @@ elseif ($job == 'images_add2') {
 	
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
-		$filetypes = array('.zip');
-		$dir = realpath('temp/');
+		$filetypes = array('zip');
+		$dir = realpath('temp').DIRECTORY_SEPARATOR;
 	
 		$insertuploads = array();
 		require("classes/class.upload.php");
 		 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
-		if ($my_uploader->upload('upload', $filetypes)) {
-			$my_uploader->save_file($dir, 2);
-			if ($my_uploader->return_error()) {
-				array_push($inserterrors,$my_uploader->return_error());
+		$my_uploader->file_types($filetypes);
+		$my_uploader->set_path($dir);
+		if ($my_uploader->upload('upload')) {
+			if ($my_uploader->save_file()) {
+				$file = $dir.$my_uploader->fileinfo('filename');
+				if (!file_exists($file)) {
+					$inserterrors[] = 'File ('.$file.') does not exist.';
+				}
 			}
 		}
-		else {
-			array_push($inserterrors,$my_uploader->return_error());
-		}
-		$file = $dir.'/'.$my_uploader->file['name'];
-		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
+		if ($my_uploader->upload_failed()) {
+			array_push($inserterrors,$my_uploader->get_error());
 		}
 	}
 	elseif (file_exists($server)) {
-		$ext = get_extension($server, true);
+		$ext = get_extension($server);
 		if ($ext == 'zip') {
 			$file = $server;
 		}

@@ -69,7 +69,7 @@ if ($_GET['action'] == "pw2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_pw2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '$my->id' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
 		ok($lang->phrase('editprofile_pw_success'), "log.php".SID2URL_1);
 	}
 
@@ -77,11 +77,11 @@ if ($_GET['action'] == "pw2") {
 elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 	if (count($_POST['delete']) > 0) {
 		($code = $plugins->load('editprofile_attachments2_start')) ? eval($code) : null;
-		$result = $db->query ("SELECT file FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
+		$result = $db->query ("SELECT source FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
 		while ($row = $db->fetch_assoc($result)) {
-			@unlink('uploads/topics/'.$row['file']);
+			$filesystem->unlink('uploads/topics/'.$row['source']);
 		}
-		$db->query ("DELETE FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN (".implode(',',$_POST['delete']).")",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
 		ok($lang->phrase('editprofile_attachments_deleted'), "editprofile.php?action=attachments".SID2URL_x);
 	}
@@ -97,7 +97,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.board, r.topic, u.id, u.tid, u.file, u.hits 
+	SELECT r.board, r.topic, u.id, u.tid, u.file, u.source, u.hits 
 	FROM {$db->pre}uploads AS u 
 		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid 
 	WHERE u.mid = '$my->id' 
@@ -108,8 +108,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	$cache = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$row['topic'] = $gpc->prepare($row['topic']);
-		$row['file'] = trim($row['file']);
-		$uppath = 'uploads/topics/'.$row['file'];
+		$uppath = 'uploads/topics/'.$row['source'];
 		$fsize = filesize($uppath);
 		$all[0]++;
 		$all[1] += $fsize;
@@ -148,12 +147,13 @@ elseif ($_GET['action'] == "abos") {
 	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.last_name, t.board, t.posts 
 	FROM {$db->pre}abos AS a 
 		LEFT JOIN {$db->pre}topics AS t ON a.tid=t.id 
-	WHERE a.mid = '{$my->id}' {$sqlwhere}
+		LEFT JOIN {$db->pre}forums AS f ON f.id=t.board 
+	WHERE a.mid = '{$my->id}' AND f.invisible != '2' {$sqlwhere}
 	ORDER BY a.id DESC
 	",__LINE__,__FILE__);
 	
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get();
+	$prefix_arr = $prefix_obj->get();
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
 	$catbid = $scache->load('cat_bid');
@@ -166,8 +166,9 @@ elseif ($_GET['action'] == "abos") {
 			$info['topiczahl'] = $config['topiczahl'];
 		}
 
-		if (!empty($row['prefix']) && isset($prefix[$row['board']][$row['prefix']])) {
-			$row['prefix'] = '['.$prefix[$row['board']][$row['prefix']].']';
+		if (!empty($row['prefix']) && isset($prefix_arr[$row['board']][$row['prefix']])) {
+			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
+			$row['prefix'] = $lang->phrase('showtopic_prefix_title');
 		}
 		else {
 			$row['prefix'] = '';
@@ -337,7 +338,7 @@ elseif ($_GET['action'] == "signature") {
 			$preview = false;
 		}
 		else {
-			$signature = $_POST['signature'];
+			$signature = $gpc->unescape($_POST['signature']);
 			$preview = true;
 			BBProfile($bbcode, 'signature');
 			$parsedPreview = $bbcode->parse($signature);
@@ -389,6 +390,7 @@ elseif ($_GET['action'] == "about") {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
 		if ($_GET['job'] == 'preview') {
 			$preview = true;
+			$data = $gpc->unescape($data);
 			$parsedPreview = $bbcode->parse($data);
 		}
 		else {
@@ -406,6 +408,18 @@ elseif ($_GET['action'] == "about") {
 	echo $tpl->parse("editprofile/about");
 	($code = $plugins->load('editprofile_abos_end')) ? eval($code) : null;
 }
+elseif ($_GET['action'] == "pic3") {
+
+	($code = $plugins->load('editprofile_pic3_start')) ? eval($code) : null;
+	if ($my->p['usepic'] == 0) {
+		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
+	}
+	removeOldImages('uploads/pics/', $my->id);
+	$db->query("UPDATE {$db->pre}user SET pic = '' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+	($code = $plugins->load('editprofile_pic3_end')) ? eval($code) : null;
+	ok($lang->phrase('editprofile_pic_success'), "editprofile.php?action=pic".SID2URL_x);
+	
+}
 elseif ($_GET['action'] == "pic2") {
 
 	$pic = $gpc->get('pic', none);
@@ -417,20 +431,42 @@ elseif ($_GET['action'] == "pic2") {
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($config['avfilesize']);
 		$my_uploader->max_image_size($config['avwidth'], $config['avheight']);
-		if ($my_uploader->upload('upload', explode('|', $config['avfiletypes']))) {
-			$my_uploader->save_file('uploads/pics/', '2');
-		}
-		if ($my_uploader->return_error()) {
-			error($my_uploader->return_error(),'editprofile.php?action=pic');
-		}
-		else {
+		$my_uploader->file_types(explode(',', $config['avfiletypes']));
+		$my_uploader->set_path('uploads/pics/');
+		$my_uploader->rename_file($my->id);
+		if ($my_uploader->upload('upload')) {
 			removeOldImages('uploads/pics/', $my->id);
-			$ext = $my_uploader->rename_file('uploads/pics/', $my_uploader->file['name'], $my->id);
+			if ($my_uploader->save_file()) {
+				$my->pic = 'uploads/pics/'.$my_uploader->fileinfo('filename');
+			}
 		}
-		$my->pic = 'uploads/pics/'.$my->id.$ext;
+		if ($my_uploader->upload_failed()) {
+			error($my_uploader->get_error(), 'editprofile.php?action=pic');
+		}
 	}
-	elseif (!empty($pic) && preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $pic, $url_ary)) {
-		$my->pic = checkRemotePic($pic, $url_ary, $my->id);
+	elseif (!empty($pic) && preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $pic)) {
+		$my->pic = checkRemotePic($pic, $my->id);
+		switch ($my->pic) {
+			case REMOTE_INVALID_URL:
+				$error[] = $lang->phrase('editprofile_pic_error1');
+				$my->pic = '';
+			break;
+			case REMOTE_CLIENT_ERROR:
+				$error[] = $lang->phrase('editprofile_pic_error2');
+				$my->pic = '';
+			break;
+			case REMOTE_FILESIZE_ERROR:
+			case REMOTE_IMAGE_HEIGHT_ERROR:
+			case REMOTE_IMAGE_WIDTH_ERROR:
+			case REMOTE_EXTENSION_ERROR:
+				$error[] = $lang->phrase('editprofile_pic_error3');
+				$my->pic = '';
+			break;
+			case REMOTE_IMAGE_ERROR:
+				$error[] = $lang->phrase('editprofile_pic_error4');
+				$my->pic = '';
+			break;
+		}
 	}
 	else {
 		removeOldImages('uploads/pics/', $my->id);
@@ -446,7 +482,7 @@ elseif ($_GET['action'] == "pic") {
 	$breadcrumb->Add($lang->phrase('editprofile_pic'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
-	$filetypes = str_replace("|", ", ", $config['avfiletypes']);
+	$filetypes = str_replace(",", $lang->phrase('listspacer'), $config['avfiletypes']);
 	$filesize = formatFilesize($config['avfilesize']);
 
 	$size = '';
@@ -589,13 +625,26 @@ elseif ($_GET['action'] == "settings") {
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
+	$result = $db->query("SELECT template, language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
+	$update = $db->fetch_assoc($result);
+
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
-	$mydesign = $design[$my->template]['name'];
+	if (isset($design[$update['template']])) {
+		$mydesign = $design[$update['template']]['name'];
+	}
+	else {
+		$mydesign = $design[$config['templatedir']]['name'];
+	}
 	
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
-	$mylanguage = $language[$my->language]['language'];
+	if (isset($language[$update['language']])) {
+		$mylanguage = $language[$update['language']]['language'];
+	}
+	else {
+		$mylanguage = $language[$config['langdir']]['language'];
+	}
 	
 	$customfields = editprofile_customfields(2, $my->id);
 	
@@ -649,6 +698,14 @@ elseif ($_GET['action'] == "settings2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_settings2_query')) ? eval($code) : null;
+		
+		if (isset($my->settings['q_tpl']) && $_POST['opt_4'] != $my->template) {
+			unset($my->settings['q_tpl']);
+		}
+		if (isset($my->settings['q_lng']) && $_POST['opt_5'] != $my->language) {
+			unset($my->settings['q_lng']);
+		}
+		
 		$db->query("UPDATE {$db->pre}user SET timezone = '".$_POST['location']."', opt_textarea = '".$_POST['opt_0']."', opt_pmnotify = '".$_POST['opt_1']."', opt_hidebad = '".$_POST['opt_2']."', opt_hidemail = '".$_POST['opt_3']."', template = '".$_POST['opt_4']."', language = '".$_POST['opt_5']."', opt_newsletter = '".$_POST['opt_6']."', opt_showsig = '".$_POST['opt_7']."' WHERE id = $my->id LIMIT 1",__LINE__,__FILE__);
 		ok($lang->phrase('data_success'), "editprofile.php?action=settings".SID2URL_x);
 	}
@@ -666,7 +723,8 @@ elseif ($_GET['action'] == "mylast") {
 	SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, r.id AS pid 
 	FROM {$db->pre}replies AS r 
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id 
-	WHERE r.name = '$my->id' 
+		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board 
+	WHERE r.name = '{$my->id}' AND f.invisible != '2' 
 	GROUP BY r.topic_id 
 	ORDER BY r.date DESC 
 	LIMIT 0, {$config['mylastzahl']}
@@ -674,7 +732,7 @@ elseif ($_GET['action'] == "mylast") {
 	$anz = $db->num_rows($result);
 	
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get();
+	$prefix_arr = $prefix_obj->get();
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 
@@ -696,8 +754,9 @@ elseif ($_GET['action'] == "mylast") {
 			$row['alt'] = $lang->phrase('forum_icon_new');
 			$row['src'] = $tpl->img('dir_open2');
 		}
-		if (isset($prefix[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
-			$row['pre'] = '['.$prefix[$row['board']][$row['prefix']].']';
+		if (isset($prefix_arr[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
+			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
+			$row['pre'] = $lang->phrase('showtopic_prefix_title');
 		}
 		else {
 			$row['pre'] = '';
@@ -725,7 +784,7 @@ elseif ($_GET['action'] == "addabo") {
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 	$last = $fc[$info['board']];
-	forum_opt($last['opt'], $last['optvalue'], $last['id']);
+	forum_opt($last);
 
 	if ($_GET['type'] == 0) {
 		$type = '';
@@ -754,8 +813,23 @@ elseif ($_GET['action'] == "addabo") {
 	}
 	else {
 		$db->query('INSERT INTO '.$db->pre.'abos (tid,mid,type) VALUES ("'.$_GET['id'].'","'.$my->id.'","'.$type.'")',__LINE__,__FILE__);
-		ok($lang->phrase('data_success'));
+		ok($lang->phrase('subscribed_successfully'));
 	}
+}
+elseif ($_GET['action'] == "removeabo") {
+	($code = $plugins->load('editprofile_removeabo_start')) ? eval($code) : null;
+	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id'],__LINE__,__FILE__);
+	$info = $db->fetch_assoc($result);
+	$my->p = $slog->Permissions($info['board']);
+
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
+	$last = $fc[$info['board']];
+	forum_opt($last);
+
+	($code = $plugins->load('editprofile_removeabo_prepared')) ? eval($code) : null;
+	$db->query("DELETE FROM {$db->pre}abos WHERE tid = '{$_GET['id']}' AND mid = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+	ok($lang->phrase('unsubscribed_successfully'));
 }
 elseif ($_GET['action'] == "copy") {
 
@@ -786,7 +860,7 @@ elseif ($_GET['action'] == "copy") {
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 	$last = $fc[$row['board']];
-	forum_opt($last['opt'], $last['optvalue'], $last['id']);
+	forum_opt($last);
 
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();

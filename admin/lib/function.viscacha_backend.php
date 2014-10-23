@@ -38,60 +38,69 @@ $days = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Satur
 
 // Arrays for Permissions
 $gls = array(
-'admin' => 'Is Administrator',
-'gmod' => 'Is Global Moderator',
-'guest' => 'Is Guest',
-'members' => 'Can view Memberlist',
-'profile' => 'Can view Profiles',
-'pdf' => 'Can view PDF-Files',
-'pm' => 'Can use PM',
-'wwo' => 'Can view Who is Online',
-'search' => 'Can use Search',
-'team' => 'Can view Teamlist',
-'usepic' => 'Can use (own) Avatar',
-'useabout' => 'Create (own) Personal Page',
-'usesignature' => 'Can use (own) Signature',
-'downloadfiles' => 'Can download Attachements',
-'forum' => 'Can view Forums',
-'posttopics' => 'Can start a new Thread',
-'postreplies' => 'Can write a reply',
-'addvotes' => 'Can start a Poll',
-'attachments' => 'Can add Attachements',
-'edit' => 'Can edit own Posts',
-'voting' => 'Can vote',
-'docs' => 'Can view Documents/Pages'
+	'admin' => 'Is Administrator',
+	'gmod' => 'Is Global Moderator',
+	'guest' => 'Is Guest',
+	'members' => 'Can view Memberlist',
+	'profile' => 'Can view Profiles',
+	'pdf' => 'Can view PDF-Files',
+	'pm' => 'Can use PM',
+	'wwo' => 'Can view Who is Online',
+	'search' => 'Can use Search',
+	'team' => 'Can view Teamlist',
+	'usepic' => 'Can use (own) Avatar',
+	'useabout' => 'Create (own) Personal Page',
+	'usesignature' => 'Can use (own) Signature',
+	'downloadfiles' => 'Can download Attachements',
+	'forum' => 'Can view Forums',
+	'posttopics' => 'Can start a new Thread',
+	'postreplies' => 'Can write a reply',
+	'addvotes' => 'Can start a Poll',
+	'attachments' => 'Can add Attachements',
+	'edit' => 'Can edit own Posts',
+	'voting' => 'Can vote',
+	'docs' => 'Can view Documents/Pages'
 );
-$glk = array_keys($gls);
-$glk_forums = array('downloadfiles','forum','posttopics','postreplies','addvotes','attachments','edit','voting');
 $gll = array(
-'admin' => 'The user ist he highest ranked Administrator in the forum. He may use this admincenter and has full control of the forum!',
-'gmod' => 'The user will automatically be moderator in all forums and can use all options and actions on topics.',
-'guest' => 'The users in this usergroup are (not registered) guests.',
-'members' => 'May view the memberlist and use eventually observably data.',
-'profile' => 'The user may view the profiles of the members and use eventually observably data.',
-'pdf' => 'The user may download particular topics as PDF-file.',
-'pm' => 'The user may use the Private Messaging (PM) System. He can send, receive, administer and archive private messages.',
-'wwo' => 'May view the where-is-who-online-list with the users residence.',
-'search' => 'May use the Search and view the results.',
-'team' => 'May view the teamlist with administrators, global moderators and moderators.',
-'usepic' => 'May upload his own picture for his profile (frequently named avatar) or indicate an URL to a picture.',
-'useabout' => 'May create a personal site in his user profile.',
-'usesignature' => 'The user may create his own signature.',
-'downloadfiles' => 'The user may view and download attached files.',
-'forum' => 'The user may generally view the forums and read them.',
-'posttopics' => 'New topics may be started.',
-'postreplies' => 'Answers to topics may be written.',
-'addvotes' => 'Polls may be created within topics.',
-'attachments' => 'The user may attach files to his post.',
-'edit' => 'The user may edit and delete his own posts.',
-'voting' => 'The user may participate in polls in topics.',
-'docs' => 'May view all documents &amp; pages.'
+	'admin' => 'The user ist he highest ranked Administrator in the forum. He may use this admincenter and has full control of the forum!',
+	'gmod' => 'The user will automatically be moderator in all forums and can use all options and actions on topics.',
+	'guest' => 'The users in this usergroup are (not registered) guests.',
+	'members' => 'May view the memberlist and use eventually observably data.',
+	'profile' => 'The user may view the profiles of the members and use eventually observably data.',
+	'pdf' => 'The user may download particular topics as PDF-file.',
+	'pm' => 'The user may use the Private Messaging (PM) System. He can send, receive, administer and archive private messages.',
+	'wwo' => 'May view the where-is-who-online-list with the users residence.',
+	'search' => 'May use the Search and view the results.',
+	'team' => 'May view the teamlist with administrators, global moderators and moderators.',
+	'usepic' => 'May upload his own picture for his profile (frequently named avatar) or indicate an URL to a picture.',
+	'useabout' => 'May create a personal site in his user profile.',
+	'usesignature' => 'The user may create his own signature.',
+	'downloadfiles' => 'The user may view and download attached files.',
+	'forum' => 'The user may generally view the forums and read them.',
+	'posttopics' => 'New topics may be started.',
+	'postreplies' => 'Answers to topics may be written.',
+	'addvotes' => 'Polls may be created within topics.',
+	'attachments' => 'The user may attach files to his post.',
+	'edit' => 'The user may edit and delete his own posts.',
+	'voting' => 'The user may participate in polls in topics.',
+	'docs' => 'May view all documents &amp; pages.'
+);
+
+$glk = array_keys($gls);
+$glk_forums = array(
+	'f_downloadfiles' => 'downloadfiles',
+	'f_forum' => 'forum',
+	'f_posttopics' => 'posttopics',
+	'f_postreplies' => 'postreplies',
+	'f_addvotes' => 'addvotes',
+	'f_attachments' => 'attachments',
+	'f_edit' => 'edit',
+	'f_voting' => 'voting'
 );
 $guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
 
 // Variables
-require_once ("classes/class.gpc.php");
-$gpc = new GPC();
+require_once ("classes/function.gpc.php");
 $action = $gpc->get('action', none);
 if (empty($_REQUEST['page'])) {
 	$_REQUEST['page'] = 1;
@@ -105,6 +114,29 @@ include_once ("classes/class.language.php");
 // Global functions
 require_once ("classes/function.global.php");
 
+function AdminLogInForm() {
+	?>
+	<form action="admin.php?action=login2" method="post" target="_top">
+	 <table class="border" style="width: 50%; margin: auto;">
+	  <tr> 
+	   <td class="obox" colspan="2">Log in</td>
+	  </tr>
+	  <tr> 
+		<td class="mbox" width="40%">User Name:</td>
+		<td class="mbox" width="60%"><input type="text" name="name" size="40" /></td>
+	  </tr>
+	  <tr> 
+		<td class="mbox" width="40%">Password:</td>
+		<td class="mbox" width="60%"><input type="password" name="pw" size="40" /></td>
+	  </tr>
+	  <tr> 
+	   <td class="ubox" align="center" colspan="2"><input type="submit" value="Log in" /></td>
+	  </tr>
+	 </table>
+	</form>
+	<?php
+}
+
 function isInvisibleHook($hook) {
 	switch ($hook) {
 		case 'uninstall':
@@ -114,7 +146,6 @@ function isInvisibleHook($hook) {
 		break;
 		default:
 			return false;
-		break;
 	}
 }
 
@@ -213,78 +244,6 @@ function get_webserver() {
 	return $webserver;
 }
 
-function get_remote($file) {
-	if (!preg_match('/^(http:\/\/)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $file, $url_ary)) {
-		return null;
-	}
-	if (!class_exists('Snoopy')) {
-		include('classes/class.snoopy.php');
-	}
-	$snoopy = new Snoopy;
-	$snoopy->port = null;
-	$status = $snoopy->fetch($file);
-	if ($status == true) {
-		return $snoopy->results;
-	}
-	else {
-		return null;
-	}
-}
-
-function checkRemotePic($pic, $url_ary, $id) {
-	global $config, $filesystem;
-	if ($config['avwidth'] == 0) {
-		$config['avwidth'] = 2048;
-	}
-	if ($config['avheight'] == 0) {
-		$config['avheight'] = 2048;
-	}
-	if (empty($url_ary[4])) {
-		error("admin.php?action=members&job=edit&id=".$id, 'No valid URL indicated.');
-	}
-
-	$base_get = '/' . $url_ary[4];
-	$port = (!empty($url_ary[3])) ? $url_ary[3] : 80;
-
-	if (!($fsock = @fsockopen($url_ary[2], $port, $errno, $errstr, 15))) {
-		error("admin.php?action=members&job=edit&id=".$id, "The server does not respond to your request:<br />{errno}: {$errstr}");
-	}
-
-	@fputs($fsock, "GET {$base_get} HTTP/1.1\r\n");
-	@fputs($fsock, "HOST: " . $url_ary[2] . "\r\n");
-	@fputs($fsock, "Connection: close\r\n\r\n");
-
-	$avatar_data = '';
-	while(!@feof($fsock)) {
-		$avatar_data .= @fread($fsock, $config['avfilesize']);
-	}
-	@fclose($fsock);
-
-	if (!preg_match('#Content-Length\: ([0-9]+)[^ /][\s]+#i', $avatar_data, $file_data1) || !preg_match('#Content-Type\: image/[x\-]*([a-z]+)[\s]+#i', $avatar_data, $file_data2)) {
-		error("admin.php?action=members&job=edit&id=".$id, 'The server does not return a valid response!');
-	}
-		
-	list(,$avatar_data) = explode("\r\n\r\n", $avatar_data, 2);
-		
-	$ext = get_extension($pic);
-	$filename = md5(uniqid($id));
-	$origfile = 'temp/'.$filename.$ext;
-	$filesystem->file_put_contents($origfile, $avatar_data);
-    $filesize = filesize($origfile);
-    list($width, $height, $type) = @getimagesize($origfile);
-    $types = explode('|', $config['avfiletypes']);
-
-	if ($width > 0 && $height > 0 && $width <= $config['avwidth'] && $height <= $config['avheight'] && $filesize <= $config['avfilesize'] && in_array($ext, $types)) {
-		$pic = 'uploads/pics/'.$id.$ext;
-		removeOldImages('uploads/pics/', $id);
-		$filesystem->copy($origfile, $pic);
-	}
-	else {
-		error("admin.php?action=members&job=edit&id=".$id, 'Image does not match the criteria!');
-	}
-	return $pic;
-}
-
 function fileAge($age) {
     if($age>=30*24*60*60) {
         $age/=(30*24*60*60);
@@ -306,27 +265,6 @@ function fileAge($age) {
 		$string = 'Sek.';
 	}
 	return round($age, 0).' '.$string;
-}
-
-function ini_maxupload() {
-    $keys = array(
-    'post_max_size' => 0,
-    'upload_max_filesize' => 0
-    );
-    foreach ($keys as $key => $bytes) {
-        $val = trim(@ini_get($key));
-        $last = strtolower($val{strlen($val)-1});
-        switch($last) {
-            case 'g':
-                $val *= 1024;
-            case 'm':
-                $val *= 1024;
-            case 'k':
-                $val *= 1024;
-        }
-        $keys[$key] = $val;
-    }
-    return min($keys);
 }
 
 function recur_dir($dir, $clevel = 0) {
@@ -553,25 +491,55 @@ function noki ($int, $js = '', $id = '') {
 
 }
 
-function AdminSelectForum($tree, $cat, $board, $char = '&nbsp;&nbsp;', $level = 0) {
+define('ADMIN_SELECT_CATEGORIES', 2);
+define('ADMIN_SELECT_FORUMS', 1);
+define('ADMIN_SELECT_ALL', 0);
+
+function SelectBoardStructure($name = 'id', $group = ADMIN_SELECT_ALL, $standard = null, $no_select = false) {
+	global $scache;
+	
+	$forumtree = $scache->load('forumtree');
+	$tree = $forumtree->get();
+	
+	$categories_obj = $scache->load('categories');
+	$categories = $categories_obj->get();
+	
+	$catbid = $scache->load('cat_bid');
+	$boards = $catbid->get();
+	
+	$tree2 = array();
+	SelectBoardStructure_html(&$tree2, $tree, $categories, $boards, $group, $standard);
+	$forums = iif($no_select == false, '<select name="'.$name.'" size="1">');
+	$forums .= implode("\n", $tree2);
+	$forums .= iif($no_select == false, '</select>');
+	return $forums;
+}
+
+function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standard = null, $char = '&nbsp;&nbsp;', $level = 0) {
 	foreach ($tree as $cid => $boards) {
 		$cdata = $cat[$cid];
-		?>
-		<option style="background-color: #000000; color: #ffffff;" value="c_<?php echo $cdata['id']; ?>">
-		<?php echo str_repeat($char, $level).$cdata['name']; ?>
-		</option>
-		<?php
+		if ($group == ADMIN_SELECT_FORUMS) {
+			$html[] = '<optgroup label="'.str_repeat($char, $level).$cdata['name'].'"></optgroup>';
+		}
+		else {
+			$value = iif($group == ADMIN_SELECT_ALL, 'categories_').$cdata['id'];
+			$html[] = '<option'.iif($group != ADMIN_SELECT_CATEGORIES, 'style="font-weight: bold;"').iif($standard != null && $standard == $value, ' selected="selected"').' value="'.$value.'">'.str_repeat($char, $level).$cdata['name'].'</option>';
+		}
+		$i = 0;
 		foreach ($boards as $bid => $sub) {
 			$bdata = $board[$bid];
 			if ($bdata['opt'] == 're') {
 				continue;
 			}
-			?>
-			<option value="f_<?php echo $bdata['id']; ?>">
-			<?php echo str_repeat($char, $level+1).'+&nbsp;'.$bdata['name']; ?>
-			</option>
-	    	<?php
-	    	AdminSelectForum($sub, $cat, $board, $char, $level+2);
+			$i++;
+			if ($group != ADMIN_SELECT_CATEGORIES) {
+				$value = iif($group == ADMIN_SELECT_ALL, 'forums_').$bdata['id'];
+				$html[] = '<option '.iif($standard != null && $standard == $value, ' selected="selected"').' value="'.$value.'">'.str_repeat($char, $level+1).$bdata['name'].'</option>';
+			}
+	    	SelectBoardStructure_html(&$html, $sub, $cat, $board, $group, $standard, $char, $level+2);
+	    }
+	    if ($group == ADMIN_SELECT_FORUMS && $i == 0) {
+	    	$x = array_pop($html);
 	    }
 	}
 }

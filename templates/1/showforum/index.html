@@ -1,4 +1,11 @@
 <?php echo iif($subforums, '<br />'); ?>
+<?php if ($info['message_active'] == '1') { ?>
+<div class="border">
+<h3><img id="img_rules_<?php echo $board; ?>" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" />&nbsp;<?php echo $info['message_title']; ?></h3>
+<div id="part_rules_<?php echo $board; ?>" class="bbody"><?php echo $info['message_text']; ?></div>
+</div>
+<br class="minibr" />
+<?php } if ($info['readonly'] == '0' || $info['topics'] > 0 || !$subforums) { ?>
 <table class="tables">
   <tr>
 	<td class="tfoot textright" colspan="5">
@@ -21,11 +28,22 @@
 		<li><a href="misc.php?action=markforumasread&amp;board=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('forum_options_markread'); ?></a></li>
 		</ul>
 		</div>
-		<?php if ($my->p['posttopics'] == 1) { ?>
+		<?php if ($my->p['posttopics'] == 1 && $info['readonly'] == '0') { ?>
 		<a class="sep" href="newtopic.php?id=<?php echo $board.SID2URL_x; ?>"><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('forum_newtopic'); ?></a>
 		<?php } ?>
 	</td>
   </tr>
+  <?php if ($info['message_active'] == '2') { ?>
+  <tr>
+    <td class="tbody" colspan="1"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /></td>
+    <td class="tbody" colspan="4">
+      <?php echo $lang->phrase('board_rules'); ?>: 
+      <a href="misc.php?action=board_rules&amp;id=<?php echo $board.SID2URL_x; ?>">
+        <?php echo $info['message_title']; ?>
+      </a>
+    </td>
+  </tr>
+  <?php } ?>
   <tr> 
 	<th width="2%">&nbsp;</th>
 	<th width="48%"><?php echo $lang->phrase('forum_topic'); ?></th>
@@ -36,7 +54,7 @@
 	<?php echo $inner['index_bit']; ?>
   <tr> 
 	<td class="tfoot" colspan="5">
-	  <?php if ($my->p['posttopics'] == 1) { ?>
+	  <?php if ($my->p['posttopics'] == 1 && $info['readonly'] == '0') { ?>
 	  <span class="right"><a href="newtopic.php?id=<?php echo $board.SID2URL_x; ?>"><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('forum_newtopic'); ?></a></span>
 	  <?php } echo $pages; ?>
 	</td>
@@ -92,3 +110,4 @@
 </div>
 <?php } ?>
 <br />
+<?php } ?>

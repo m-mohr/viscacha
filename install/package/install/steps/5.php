@@ -27,29 +27,29 @@ $fpath = str_replace('\\', '/', realpath('../'));
 <div class="bbody">
 	<input type="hidden" name="save" value="1" />
 	<table class="tables">
-	 <tr> 
-	  <td class="mbox" width="50%">Name der Seite:<br /><span class="stext">Sollte 64 Zeichen nicht überschreiten</span></td>
-	  <td class="mbox" width="50%"><input type="text" name="fname" value="" size="50" /></td> 
+	 <tr>
+	  <td class="mbox" width="50%">Site name:<br /><span class="stext">Maximum: 64 characters</span></td>
+	  <td class="mbox" width="50%"><input type="text" name="fname" value="" size="50" /></td>
 	 </tr>
-	 <tr> 
-	  <td class="mbox" width="50%">Kurze Beschreibung der Seite:<br /><span class="stext">HTML ist möglich.</span></td>
-	  <td class="mbox" width="50%"><input type="text" name="fdesc" value="" size="50" /></td> 
+	 <tr>
+	  <td class="mbox" width="50%">Site description:<br /><span class="stext">HTML is allowed.</span></td>
+	  <td class="mbox" width="50%"><input type="text" name="fdesc" value="" size="50" /></td>
 	 </tr>
-	 <tr> 
-	  <td class="mbox" width="50%">URL des Seite:<br /><span class="stext">Url zum Ordner in dem die Dateien liegen (ohne / am Ende).</span></td>
-	  <td class="mbox" width="50%"><input type="text" name="furl" value="<?php echo $furl; ?>" size="50" /></td> 
+	 <tr>
+	  <td class="mbox" width="50%">Site URL:<br /><span class="stext">URL without trailing slash (/) to the folder containing the files.</span></td>
+	  <td class="mbox" width="50%"><input type="text" name="furl" value="<?php echo $furl; ?>" size="50" /></td>
 	 </tr>
-	 <tr> 
-	  <td class="mbox" width="50%">Pfad zum Forum:<br /><span class="stext">Pfad zum Ordner in dem die Dateien liegen (ohne / am Ende).</span></td>
-	  <td class="mbox" width="50%"><input type="text" name="fpath" value="<?php echo $fpath; ?>" size="50" /></td> 
+	 <tr>
+	  <td class="mbox" width="50%">Path to site:<br /><span class="stext">Path without trailing slash (/) to the folder containing the files.</span></td>
+	  <td class="mbox" width="50%"><input type="text" name="fpath" value="<?php echo $fpath; ?>" size="50" /></td>
 	 </tr>
-	 <tr> 
-	  <td class="mbox" width="50%">Emailadresse des Forums:<br /><span class="stext">Wird bei allen ausgehenden Emails verwendet.</span></td>
-	  <td class="mbox" width="50%"><input type="text" name="forenmail" value="<?php echo $email; ?>" size="50" /></td> 
+	 <tr>
+	  <td class="mbox" width="50%">Email address :<br /><span class="stext">The emails will be sent from this address.</span></td>
+	  <td class="mbox" width="50%"><input type="text" name="forenmail" value="<?php echo $email; ?>" size="50" /></td>
 	 </tr>
-	 <tr> 
-	  <td class="mbox" width="50%">Prefix f&uuml;r Cookies:<br /><span class="stext">Nur Buchstaben von a-z und _ benutzen!</span></td>
-	  <td class="mbox" width="50%"><input type="text" size="10" name="cookie_prefix" value="vc" /></td> 
+	 <tr>
+	  <td class="mbox" width="50%">Cookie prefix:<br /><span class="stext">Only the characters a-z and _ are allowed!</span></td>
+	  <td class="mbox" width="50%"><input type="text" size="10" name="cookie_prefix" value="vc" /></td>
 	 </tr>
 	</table>
 </div>

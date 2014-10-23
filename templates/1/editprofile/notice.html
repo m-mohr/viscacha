@@ -9,9 +9,10 @@
 	<div id="notice_<?php echo $i; ?>">
 	<textarea name="notice[]" rows="<?php echo $notices[$i]['rows']; ?>" cols="85"><?php echo $notices[$i]['text']; ?></textarea><br />
 	<span class="stext">[<a href="javascript:deletenotice(<?php echo $i; ?>);"><?php echo $lang->phrase('notice_delete'); ?></a>] [<?php echo $notices[$i]['length'].$lang->phrase('notice_chars'); ?>]</span>
-	<hr class="formsep" />
+	<?php echo iif($i != $notes-1, '<hr class="formsep" />'); ?>
 	</div>
-<?php } ?>
+<?php } if ($notes == 0) { echo $lang->phrase('no_existing_notices'); } ?>
+<hr />
 <strong><?php echo $lang->phrase('new_notice'); ?></strong><br />
 <textarea name="notice[]" rows="7" cols="85"></textarea>
 </div>

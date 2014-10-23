@@ -1,9 +1,9 @@
 <mail>
-	<title>{@config->fname}: New posting in topic "{@row->topic}"</title>
+	<title>{@config->fname}: New post in topic "{@row->topic}"</title>
 	<comment>Hello {@row->name}
 
 YOu have subscribed the topic "{@row->topic}".
-There is a new posting for this topic. The posting is from {$pname}.
+There is a new post for this topic. The post is from {$pname}.
 
 Here you can view the topic: 
 {@config->furl}/showtopic.php?id={@row->id}

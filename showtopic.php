@@ -125,21 +125,21 @@ elseif ($_GET['action'] == 'jumpto') {
 
 ($code = $plugins->load('showtopic_redirect')) ? eval($code) : null;
 
-$pre = '';
+$prefix = '';
 if ($info['prefix'] > 0) {
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($info['board']);
-	if (isset($prefix[$info['prefix']])) {
-		$pre = $prefix[$info['prefix']];
-		$pre = $lang->phrase('showtopic_prefix_title');
+	$prefix_arr = $prefix_obj->get($info['board']);
+	if (isset($prefix_arr[$info['prefix']])) {
+		$prefix = $prefix_arr[$info['prefix']]['value'];
+		$prefix = $lang->phrase('showtopic_prefix_title');
 	}
 }
 
 $topforums = get_headboards($fc, $last, TRUE);
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($pre.$info['topic']);
+$breadcrumb->Add($prefix.$info['topic']);
 
-forum_opt($last['opt'], $last['optvalue'], $last['id']);
+forum_opt($last);
 
 echo $tpl->parse("header");
 echo $tpl->parse("menu");
@@ -248,7 +248,7 @@ if (!empty($info['vquestion'])) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, hits FROM {$db->pre}uploads WHERE topic_id = ".$info['id'],__LINE__,__FILE__);
+	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = ".$info['id'],__LINE__,__FILE__);
 	$uploads = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
@@ -280,7 +280,11 @@ ORDER BY date ASC {$searchsql}
 ",__LINE__,__FILE__);
 
 $firstnew = 0;
-$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].SID2URL_x;
+$firstnew_url = null;
+if ($info['last'] > $my->clv) {
+	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].SID2URL_x;
+}
+
 while ($row = $gpc->prepare($db->fetch_object($result))) {
 	$inner['upload_box'] = '';
 	$inner['image_box'] = '';
@@ -296,13 +300,14 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$row->mid = 0;
 	}
 
-	if ($firstnew == 1) {
+	if ($firstnew > 0) {
 		$firstnew++;
 	}
 	if ($row->date > $my->clv && $firstnew == 0) {
 		$firstnew = 1;
 		$firstnew_url = "#firstnew";
 	}
+	
 	$new = iif($row->date > $my->clv, 'new', 'old');
 	
 	BBProfile($bbcode);
@@ -341,9 +346,8 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		foreach ($uploads[$row->id] as $file) {
-			$file['file'] = trim($file['file']);
-			$uppath = 'uploads/topics/'.$file['file'];
-			$imginfo = get_extension($uppath, TRUE);
+			$uppath = 'uploads/topics/'.$file['source'];
+			$imginfo = get_extension($uppath);
 			
 			if (!isset($fileicons[$imginfo])) {
 				$icon = 'unknown.gif';
@@ -400,7 +404,13 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	
 	($code = $plugins->load('showtopic_entry_prepared')) ? eval($code) : null;
 	$inner['index_bit'] .= $tpl->parse("showtopic/index_bit");
-} 
+}
+
+$abox['id'] = null;
+if ($my->vlogin) { 
+	$result = $db->query('SELECT id FROM '.$db->pre.'abos WHERE mid = '.$my->id.' AND tid = '.$info['id'],__LINE__,__FILE__); 
+	$abox = $db->fetch_assoc($result);
+}
 
 ($code = $plugins->load('showtopic_prepared')) ? eval($code) : null;
 echo $tpl->parse("showtopic/index");

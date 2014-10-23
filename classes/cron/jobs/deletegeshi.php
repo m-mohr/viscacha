@@ -1,4 +1,5 @@
 <?php
+global $filesystem;
 
 $dir = 'cache/geshicode/';
 $d = dir($dir);

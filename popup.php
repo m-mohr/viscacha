@@ -151,11 +151,11 @@ elseif ($_GET['action'] == "showpost") {
 	$fc = $catbid->get();
 	$last = $fc[$row->board];
 	
-	forum_opt($last['opt'], $last['optvalue'], $last['id']);
+	forum_opt($last);
 	
 	($code = $plugins->load('popup_showpost_start')) ? eval($code) : null;
 	if ($config['tpcallow'] == 1) {
-		$uploads = $db->query("SELECT id, tid, mid, file, hits FROM {$db->pre}uploads WHERE tid = ".$_GET['id'],__LINE__,__FILE__);
+		$uploads = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE tid = ".$_GET['id'],__LINE__,__FILE__);
 	}
 	$inner['upload_box'] = '';
 	
@@ -201,10 +201,9 @@ elseif ($_GET['action'] == "showpost") {
 		$bottom = FALSE;
 	}
 
-	if ($config['tpcallow'] == 1 && isset($uploads) && $db->num_rows($uploads) > 0) {
+	if ($config['tpcallow'] == 1 && $db->num_rows($uploads) > 0) {
 		while ($file = $db->fetch_assoc($uploads)) {
-			$file['file'] = trim($file['file']);
-			$uppath = 'uploads/topics/'.$file['file'];
+			$uppath = 'uploads/topics/'.$file['source'];
 			$fsize = filesize($uppath);
 			$fsize = formatFilesize($fsize);
 			($code = $plugins->load('popup_showpost_attachments_prepared')) ? eval($code) : null;
@@ -259,7 +258,7 @@ elseif ($_GET['action'] == "edithistory") {
 	$fc = $catbid->get();
 	$last = $fc[$row['board']];
 	
-	forum_opt($last['opt'], $last['optvalue'], $last['id']);
+	forum_opt($last);
 	
 	($code = $plugins->load('popup_edithistory_start')) ? eval($code) : null;
 	

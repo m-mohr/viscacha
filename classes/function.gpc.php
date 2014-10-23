@@ -24,121 +24,76 @@
 
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.gpc.php") die('Error: Hacking Attempt');
 
-/* Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
- _ENV, _SERVER: Won't be checked
- _COOKIE: You can check them in the script, won't be checked
- _REQUEST: Won't be checked - array has the original values (with magic_quotes if enabled)
- _POST, _GET: Are checked and save (after this file)
-*/
-
 include('classes/class.gpc.php');
-
 $gpc = new GPC();
 
-$http_vars = array(
-'action' => str,
-'job' => str,
-'search' => str,
-'name' => str,
-'email' => str,
-'topic' => str,
-'comment' => str,
-'error' => str,
-'pw' => str,
-'pwx' => str,
-'order' => str,
-'sort' => str,
-'letter' => str,
-'fullname' => str,
-'about' => str,
-'location' => str,
-'signature' => str,
-'hp' => str,
-'icq' => str,
-'pic' => str,
-'question' => str,
-'type' => str,
-'gender' => str,
-'aol' => str,
-'msn' => str,
-'skype' => str,
-'yahoo' => str,
-'jabber' => str,
-'fid' => str,
-'file' => str,
-'groups' => str,
-'captcha' => str,
-'board' => int,
-'topic_id' => int,
-'id' => int,
-'page' => int,
-'temp' => int,
-'temp2' => int,
-'dosmileys' => int,
-'dowords' => int,
-'birthday' => int,
-'birthmonth' => int,
-'birthyear' => int,
-'opt_0' => int,
-'opt_1' => int,
-'opt_2' => int,
-'opt_3' => int,
-'opt_4' => int,
-'opt_5' => int,
-'opt_6' => int,
-'opt_7' => int,
-'notice' => arr_str,
-'boards' => arr_int,
-'delete' => arr_int
+// Thanks to phpBB for this code
+if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals')) == 'on') {
+	unset($not_used, $input);
+	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES', 'config', 'gpc', 'imagetype_extension');
+
+	$input = array_merge($_GET, $_POST, $_COOKIE, $_ENV, $_FILES);
+	if (isset($_SERVER)) {
+		$input = array_merge($input, $_SERVER);
+	}
+	if (isset($_SESSION) && is_array($_SESSION)) {
+		$input = array_merge($input, $_SESSION);
+	}
+
+	unset($input['input'], $input['not_unset']);
+
+	while (list($var,) = @each($input)) {
+		if (!in_array($var, $not_unset)) {
+			unset($$var);
+			if (isset($GLOBALS[$var])) {
+				unset($GLOBALS[$var]);
+			}
+		}
+	}
+
+	unset($input);
+}
+
+if (get_magic_quotes_gpc() == 1) {
+	$_GET = $gpc->stripslashes($_GET);
+	$_POST = $gpc->stripslashes($_POST);
+	$_REQUEST = $gpc->stripslashes($_REQUEST);
+}
+
+// Thanks to phpBB for this 6 lines
+if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
+	die("Hacking attempt (Globals)");
+}
+if (isset($_SESSION) && !is_array($_SESSION)) {
+	die("Hacking attempt (Session Variable)");
+}
+
+$http_svars = array(
+	'PHP_SELF',
+	'HTTP_USER_AGENT',
+	'SERVER_SOFTWARE',
+	'REMOTE_ADDR',
+	'SCRIPT_NAME',
+	'SERVER_PORT',
+	'SERVER_NAME',
+	'HTTP_REFERER',
+	'HTTP_X_FORWARDED_FOR',
+	'HTTP_CLIENT_IP',
+	'REQUEST_URI',
+	'HTTP_ACCEPT_ENCODING',
+	'DOCUMENT_ROOT'
 );
+foreach ($http_svars as $http_var) {
+	$_SERVER[$http_var] = getenv($http_var);
+}
 
-$http_all = array_merge(array_keys($http_vars), array_keys($_POST), array_keys($_GET));
-$http_all = array_unique($http_all);
-
-$http_std = array(
-int => 0,
-arr_int => array(),
-arr_str => array(),
-str => '',
-none => null
-);
-
-
-foreach ($http_all as $key) {
-	if (isset($http_vars[$key])) {
-		$type = $http_vars[$key];
-	}
-	else {
-		$type = str;
-	}
-	if (isset($_POST[$key])) {
-        if ($type == int || $type == arr_int) {
-            $_POST[$key] = $gpc->save_int($_POST[$key]);
-        }
-        else {
-            $_POST[$key] = $gpc->save_str($_POST[$key]);
-        }
-	}
-	else {
-		$_POST[$key] = $http_std[$type];
-	}
-	if (isset($_GET[$key])) {
-        if ($type == int || $type == arr_int) {
-            $_GET[$key] = $gpc->save_int($_GET[$key]);
-        }
-        else {
-            $_GET[$key] = $gpc->save_str($_GET[$key]);
-        }
-	}
-	else {
-		$_GET[$key] = $http_std[$type];
+if (empty($_SERVER['DOCUMENT_ROOT'])) {
+	$_SERVER['DOCUMENT_ROOT'] = getDocumentRoot();
+	if (empty($_SERVER['DOCUMENT_ROOT'])) {
+		$_SERVER['DOCUMENT_ROOT'] = $config['fpath'];
 	}
 }
 
-$_GET['page'] = !isset($_GET['page']) || $_GET['page'] < 1 ? 1 : $_GET['page'];
-$_POST['page'] = !isset($_POST['page']) || $_POST['page'] < 1 ? 1 : $_POST['page'];
-$_REQUEST['page'] = !isset($_REQUEST['page']) || $_REQUEST['page'] < 1 ? 1 : $_REQUEST['page'];
-
-unset($http_vars, $http_all, $http_std);
-
+$_SERVER = $gpc->secure_null($_SERVER);
+$_ENV = $gpc->secure_null($_ENV);
 ?>

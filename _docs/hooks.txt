@@ -110,6 +110,8 @@ editprofile.php
  - editprofile_abos_Start
  - editprofile_abos_prepared
  - editprofile_abos_end
+ - editprofile_pic3_start
+ - editprofile_pic3_end
  - editprofile_pic2_query
  - editprofile_pic_prepared
  - editprofile_profile_start
@@ -216,6 +218,9 @@ misc.php
  - misc_vote_savedata
  - misc_bbhelp_prepared
  - misc_bbhelp_end
+ - misc_board_rules_start
+ - misc_board_rules_prepared
+ - misc_board_rules_end
  - misc_rules_prepared
  - misc_rules_end
  - misc_error_prepared

@@ -1,4 +1,5 @@
 <?php
+global $filesystem;
 
 $dir = 'cache/search/';
 $d = dir($dir);

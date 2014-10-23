@@ -72,6 +72,10 @@ function useit(rq){
 function docs() {
     window.open("admin.php?action=cms&job=nav_docslist","","width=480,height=480,resizable=yes,scrollbars=yes");   
 }
+function coms() {
+    window.open("admin.php?action=cms&job=nav_comslist","","width=480,height=480,resizable=yes,scrollbars=yes");   
+}
+
 function insert_doc(url,title) {
 	opener.document.getElementsByName("url")[0].value = url;
 	if (opener.document.getElementsByName("title")[0].value.length < 2) {
@@ -204,7 +208,6 @@ function ajax() {
   return this;
 }
 
-// Sucht nach Nutzernamen
 function ajax_searchmember(field, ins) {
 	inline = FetchElement(ins);
 	if (field.value.length > 2) {
@@ -229,7 +232,6 @@ function ajax_searchmember(field, ins) {
 		inline.innerHTML = 'None (Name is too short)';
 	}
 }
-// Sucht nach Nutzernamen - Einfügen d. Nutzernamens
 function ajax_smIns(name, form, sugg) {
 	inline = FetchElement(form);
 	inline.value = name;

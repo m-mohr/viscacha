@@ -1,0 +1,24 @@
+<br />
+<form method="post" action="addreply.php?action=save<?php echo SID2URL_x; ?>">
+<div class="border">
+<h3><img id="img_quickreply" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('quickreply_title'); ?></h3>
+<div id="part_quickreply">
+<div class="bbody">
+<label><?php echo $inner['smileys']; ?></label>
+<?php echo $inner['bbhtml']; ?>
+<br class="newinput" /><hr class="formsep" />
+<textarea name="comment" id="comment" cols="50" rows="10" style="width: 100%"></textarea>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center">
+  <input type="submit" accesskey="s" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
+  <input type="submit" accesskey="p" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
+  <input type="submit" accesskey="e" name="Extended" value="<?php echo $lang->phrase('quickreply_extended'); ?>" />
+  <input type="hidden" name="id" value="<?php echo $_GET['id']; ?>" />
+  <input type="hidden" name="topic" value="<?php echo $lang->phrase('reply_prefix').$info['topic']; ?>" />
+  <input type="hidden" name="dosmileys" value="1" />
+  <input type="hidden" name="dowords" value="1" />
+</div>
+</div>
+</div>
+</form>

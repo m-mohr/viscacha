@@ -87,7 +87,7 @@ elseif ($_GET['action'] == "wwo") {
 
 	// Foren cachen
 	$catbid = $scache->load('cat_bid');
-	$fc = $catbid->get();
+	$cat_cache = $catbid->get();
 	// Documents cachen
 	$wraps_obj = $scache->load('wraps');
 	$wrap_cache = $wraps_obj->get();
@@ -102,12 +102,14 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
 	$result=$db->query("
-	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, remoteaddr, is_bot 
+	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent, is_bot 
 	FROM {$db->pre}session 
 	ORDER BY active DESC
 	",__LINE__,__FILE__);
 	
-	while ($row = $gpc->prepare($db->fetch_object($result))) {
+	while ($row = $db->fetch_object($result)) {
+		$row->user_agent = strip_tags($row->user_agent);
+		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
 		$bot = 0;
 		$time = gmdate($lang->phrase('dformat3'), times($row->active));
@@ -115,7 +117,7 @@ elseif ($_GET['action'] == "wwo") {
 			$row->name = $memberdata[$row->mid];
 		}
 		else {
-			$row->name = NULL;
+			$row->name = $lang->phrase('fallback_no_username');
 		}
 		
 		switch (strtolower($row->wiw_script)) {
@@ -269,10 +271,18 @@ elseif ($_GET['action'] == "wwo") {
 			case 'wwo':
 			case 'bbhelp':
 			case 'rules':
+			case 'error':
 				$loc = $lang->phrase('wwo_misc_'.$row->wiw_action);
 				break;
-			case 'error':
-				$loc = $lang->phrase('wwo_misc_error');
+			case 'board_rules':
+				$id = $row->wiw_id;
+				if (isset($cat_cache[$id]['name'])) {
+					$title = $cat_cache[$id]['name'];
+				}
+				else {
+					$title = $lang->phrase('wwo_fallback');
+				}
+				$loc = $lang->phrase('wwo_misc_board_rules');
 				break;
 			default:
 				$loc = $lang->phrase('wwo_misc');
@@ -374,7 +384,7 @@ elseif ($_GET['action'] == "bbhelp") {
 }
 elseif ($_GET['action'] == "markasread") {
 	$my->p = $slog->Permissions();
-	if (!empty($_SERVER['HTTP_REFERER'])) {
+	if (check_hp($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
 		if (strpos($config['furl'], $url['host']) !== FALSE) {
 			$loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
@@ -412,6 +422,34 @@ elseif ($_GET['action'] == "rules") {
 	($code = $plugins->load('misc_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/rules");
 	($code = $plugins->load('misc_rules_end')) ? eval($code) : null;
+}
+elseif ($_GET['action'] == "board_rules") {
+	$my->p = $slog->Permissions($_GET['id']);
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
+	
+	if (!isset($fc[$_GET['id']])) {
+		error($lang->phrase('query_string_error'));
+	}
+	$info = $fc[$_GET['id']];
+	if ($info['message_active'] == '0') {
+		error($lang->phrase('no_board_rules_specified'));
+	}
+	
+	($code = $plugins->load('misc_board_rules_start')) ? eval($code) : null;
+	
+	$topforums = get_headboards($fc, $info);
+	$breadcrumb->Add($info['name'], "showforum.php?id=".$info['id'].SID2URL_x);
+	$breadcrumb->Add($lang->phrase('board_rules'));
+	
+	forum_opt($info);
+	
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
+	
+	($code = $plugins->load('misc_board_rules_prepared')) ? eval($code) : null;
+	echo $tpl->parse("misc/board_rules");
+	($code = $plugins->load('misc_board_rules_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "error") {
 	$my->p = $slog->Permissions();

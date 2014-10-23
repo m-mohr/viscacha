@@ -68,17 +68,17 @@ if ($last['topiczahl'] < 1) {
 	$last['topiczahl'] = $config['topiczahl'];
 }
 
-$pre = '';
+$prefix = '';
 if ($info['prefix'] > 0) {
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($info['board']);
-	if (isset($prefix[$info['prefix']])) {
-		$pre = $prefix[$info['prefix']];
-		$pre = $lang->phrase('showtopic_prefix_title');
+	$prefix_arr = $prefix_obj->get($info['board']);
+	if (isset($prefix_arr[$info['prefix']])) {
+		$prefix = $prefix_arr[$info['prefix']]['value'];
+		$prefix = $lang->phrase('showtopic_prefix_title');
 	}
 }
 
-forum_opt($last['opt'], $last['optvalue'], $last['id'], 'pdf');
+forum_opt($last, 'pdf');
 
 $start = $_GET['page']*$last['topiczahl'];
 $start = $start-$last['topiczahl'];
@@ -97,13 +97,13 @@ BBProfile($bbcode);
 $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
 $pdf = new PDF();
-$pdftitle = html_entity_decode($config['fname'].": ".$pre.$info['topic']);
+$pdftitle = html_entity_decode($config['fname'].": ".$prefix.$info['topic']);
 $pdf->SetCompression($config['pdfcompress']);
 $pdf->AliasNbPages('[Pages]');
 $pdf->SetCreator('Viscacha '.$config['version']);
 $pdf->SetAuthor($config['fname']);
-$pdf->SetSubject($pre.$info['topic']);
-$pdf->SetTitle($pre.$info['topic']);
+$pdf->SetSubject($prefix.$info['topic']);
+$pdf->SetTitle($prefix.$info['topic']);
 $pdf->AddPage();
 
 ($code = $plugins->load('pdf_start')) ? eval($code) : null;
@@ -157,7 +157,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, hits FROM {$db->pre}uploads WHERE topic_id = ".$info['id'],__LINE__,__FILE__);
+	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = ".$info['id'],__LINE__,__FILE__);
 	$uploads = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
@@ -172,7 +172,7 @@ FROM {$db->pre}replies AS r
 WHERE r.topic_id = '{$info['id']}' {$searchsql}
 ",__LINE__,__FILE__);
 
-while ($row = $gpc->prepare($db->fetch_object($result))) {
+while ($row = $db->fetch_object($result)) { // no $gpc->prepare for pdf
 	$inner['upload_box'] = '';	
 
 	if ($row->guest == 0) {
@@ -185,7 +185,6 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$row->groups = GROUP_GUEST;
 	}
 
-	$row->comment = trim($row->comment);
 	$bbcode->setSmileys(0);
 	if ($config['wordstatus'] == 0) {
 		$row->dowords = 0;
@@ -194,15 +193,14 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}
-	$row->comment = html_entity_decode($bbcode->parse($row->comment, 'pdf'));
+	$row->comment = html_entity_decode($bbcode->parse($row->comment, 'pdf'), ENT_QUOTES);
 	$row->date = gmdate($lang->phrase('dformat1'), times($row->date));
-	$row->topic = html_entity_decode($row->topic);
+	$row->topic = html_entity_decode($row->topic, ENT_QUOTES);
 
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		$row->comment .= '<br><hr><b>'.$lang->phrase('pdf_attachments').'</b><br>';
 		foreach ($uploads[$row->id] as $file) {
-			$file['file'] = trim($file['file']);
-			$uppath = 'uploads/topics/'.$file['file'];
+			$uppath = 'uploads/topics/'.$file['source'];
 			
 			// Dateigroesse
 			$fsize = filesize($uppath);

@@ -7,7 +7,7 @@ class cache_categories extends CacheItem {
 		    $this->import();
 		}
 		else {
-		    $result = $db->query("SELECT id, name, desctxt, c_order FROM {$db->pre}categories ORDER BY c_order, id",__LINE__,__FILE__);
+		    $result = $db->query("SELECT id, name, description, parent, position FROM {$db->pre}categories ORDER BY position",__LINE__,__FILE__);
 		    $this->data = array();
 		    while ($row = $db->fetch_assoc($result)) {
 		        $this->data[$row['id']] = $row;

@@ -12,7 +12,7 @@
 	</tr>
 <?php foreach ($cache as $row) { ?>
 	<tr class="tbody"> 
-	  <td width="40%"><a href="popup.php?action=showpost&id=<?php echo $row['tid'].SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row['topic']; ?></a></td>
+	  <td width="40%"><a href="popup.php?action=showpost&amp;id=<?php echo $row['tid'].SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row['topic']; ?></a></td>
 	  <td class="center" width="5%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
 	  <td width="40%"><a href="attachments.php?action=attachment&amp;id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank"><?php echo $row['file']; ?></a></td>
 	  <td class="textright" width="10%" nowrap="nowrap"><?php echo $row['fsize']; ?></td>

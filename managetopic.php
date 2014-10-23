@@ -59,23 +59,23 @@ $fc = $catbid->get();
 $last = $fc[$info['board']];
 $topforums = get_headboards($fc, $last, true);
 
-$pre = '';
+$prefix = '';
 if ($info['prefix'] > 0) {
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($info['board']);
+	$prefix_arr = $prefix_obj->get($info['board']);
 	if (isset($prefix[$info['prefix']])) {
-		$pre = $prefix[$info['prefix']];
-		$pre = $lang->phrase('showtopic_prefix_title');
+		$prefix = $prefix_arr[$info['prefix']]['value'];
+		$prefix = $lang->phrase('showtopic_prefix_title');
 	}
 }
 
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($pre.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
+$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
 $breadcrumb->Add($lang->phrase('teamcp'));
 
 echo $tpl->parse("header");
 
-forum_opt($last['opt'], $last['optvalue'], $last['id']);
+forum_opt($last);
 
 if ($my->vlogin && $my->mp[0] == 1) {
 
@@ -94,11 +94,12 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 		$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
-		$uresult = $db->query ("SELECT file FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
-		while ($urow = $db->fetch_num($uresult)) {
-			@unlink('uploads/topics/'.$urow[0]);
-			if (file_exists('uploads/topics/thumbnails/'.$urow[0])) {
-				@unlink('uploads/topics/thumbnails/'.$urow[0]);
+		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
+		while ($urow = $db->fetch_assoc($uresult)) {
+			$filesystem->unlink('uploads/topics/'.$urow['source']);
+			$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
+			if (file_exists($thumb)) {
+				$filesystem->unlink($thumb);
 			}
 		}
 		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
@@ -218,7 +219,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if ($notallowed) {
 			errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
-		$db->query("UPDATE {$db->pre}topics SET mark = '".$input."' WHERE id = '".$info['id']."'",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$info['id']}'",__LINE__,__FILE__);	
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
@@ -358,11 +359,12 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		
 		$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iid})",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
-		$uresult = $db->query ("SELECT file FROM {$db->pre}uploads WHERE tid IN ({$iid})",__LINE__,__FILE__);
-		while ($urow = $db->fetch_num($uresult)) {
-			@unlink('uploads/topics/'.$urow[0]);
-			if (file_exists('uploads/topics/thumbnails/'.$urow[0])) {
-				@unlink('uploads/topics/thumbnails/'.$urow[0]);
+		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE tid IN ({$iid})",__LINE__,__FILE__);
+		while ($urow = $db->fetch_assoc($uresult)) {
+			$filesystem->unlink('uploads/topics/'.$urow['source']);
+			$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
+			if (file_exists($thumb)) {
+				$filesystem->unlink($thumb);
 			}
 		}
 		$db->query ("DELETE FROM {$db->pre}postratings WHERE pid IN ({$iid})",__LINE__,__FILE__);

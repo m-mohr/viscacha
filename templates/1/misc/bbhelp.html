@@ -105,9 +105,9 @@
 <div class="bbody">
   Hiermit können Überschiften erzeugt werden. Mögliche Werte von Überschrift (Groß) bis Unterunterüberschrift (Klein): large, middle, small
   <br /><br />
-  Aus [h=large]Überschrift[/h] wird <h4 style="font-size: 14pt; margin: 0px; margin-top: 10px;">Überschrift</h3>
-  Aus [h=middle]Unterüberschrift[/h] wird <h5 style="font-size: 13pt; margin: 0px; margin-top: 10px;">Unterüberschrift</h4>
-  Aus [h=small]Unterunterüberschrift[/h] wird <h6 style="font-size: 12pt; margin: 0px; margin-top: 10px;">Unterunterüberschrift</h5>
+  Aus [h=large]Überschrift[/h] wird <h4 style="font-size: 14pt; margin: 0px; margin-top: 10px;">Überschrift</h4>
+  Aus [h=middle]Unterüberschrift[/h] wird <h5 style="font-size: 13pt; margin: 0px; margin-top: 10px;">Unterüberschrift</h5>
+  Aus [h=small]Unterunterüberschrift[/h] wird <h6 style="font-size: 12pt; margin: 0px; margin-top: 10px;">Unterunterüberschrift</h6>
 </div>
 <div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[align=?]Ausgerichteter Text[/align]<a name="align"></a></div>
 <div class="bbody">
@@ -203,7 +203,7 @@ Ausgabe:<br />
   <table cellspacing="4" cellpadding="1">
   <?php foreach ($smileys as $smiley) { ?>
   <tr>
-    <td><img src="<?php echo $smiley['replace']; ?>" /></td>
+    <td><img src="<?php echo $smiley['replace']; ?>" alt="<?php echo htmlspecialchars($smiley['desc']); ?>" /></td>
     <td><input type="text" size="10" value=" <?php echo $smiley['search']; ?> " /></td>
     <td><?php echo $smiley['desc']; ?></td>
   </tr>

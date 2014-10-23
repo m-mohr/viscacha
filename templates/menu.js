@@ -1,158 +1,143 @@
-//
-// Klappmenüs
-//
 var boxes = new Array();
 function initImg(size) {
 	for(var i =0; i < document.images.length; i++) {
-	    name = document.images[i].name;
-		if (name == 'collapse') {
+		if (document.images[i].alt == 'switch') {
 			switchimg = document.images[i];
-			id = switchimg.id.replace("img_","")
+			id = switchimg.id.replace("img_","");
 			boxes[i] = id;
-			part = FetchElement("part_"+id)
+			part = FetchElement("part_"+id);
 			if(document.cookie && part.style.display != 'none') {
-				hide = GetCookie(id)
+				hide = GetCookie(id);
 				if(hide != '') {
-					switchimg.src = box_img_plus
-					part.style.display = 'none'
+					switchimg.src = box_img_plus;
+					part.style.display = 'none';
 				}
 			}
-			HandCursor(switchimg)
-			Switch(switchimg)
+			HandCursor(switchimg);
+			Switch(switchimg);
 		}
-		else if (name = 'resize') {
+		else if (document.images[i].name = 'resize') {
 			ResizeImg(document.images[i],size);
 		}
 	}
 }
 function Switch(switchimg) {
 	switchimg.onclick = function() {
-		id = this.id.replace("img_","")
-		part = FetchElement("part_"+id)
-		disp = part.style.display
+		id = this.id.replace("img_","");
+		part = FetchElement("part_"+id);
+		disp = part.style.display;
 		if(disp == 'none') {
-			switchimg.src = box_img_minus
-			part.style.display = ''
-			KillCookie(id)
+			switchimg.src = box_img_minus;
+			part.style.display = '';
+			KillCookie(id);
 		}
 		else {
-			switchimg.src = box_img_plus
-			part.style.display = 'none'
-			SetCookie(id)
+			switchimg.src = box_img_plus;
+			part.style.display = 'none';
+			SetCookie(id);
 		}
 	}
 }
 function SetCookie(n) {
 	var a = new Date();
 	a = new Date(a.getTime() +1000*60*60*24*365);
-	document.cookie = n+'=hidden; expires='+a.toGMTString()+';'
+	document.cookie = n+'=hidden; expires='+a.toGMTString()+';';
 }
 function GetCookie(n) {
-	a = document.cookie
+	a = document.cookie;
 	res = '';
 	while(a != '') {
-		cookiename = a.substring(0,a.search('='))
-		altcookiename = a.substring(1,a.search('='))
-		cookievalue = a.substring(a.search('=')+1,a.search(';'))
+		cookiename = a.substring(0,a.search('='));
+		altcookiename = a.substring(1,a.search('='));
+		cookievalue = a.substring(a.search('=')+1,a.search(';'));
 		if(cookievalue == '') {
-			cookievalue = a.substring(a.search('=')+1,a.length)
+			cookievalue = a.substring(a.search('=')+1,a.length);
 		}
 	 	if(n == cookiename || n == altcookiename) {
-			res = cookievalue
+			res = cookievalue;
 		}
-		i = a.search(';')+1
+		i = a.search(';')+1;
 		if(i == 0) {
-			i = a.length
+			i = a.length;
 		}
-		a = a.substring(i,a.length)
+		a = a.substring(i,a.length);
 	}
 	return(res)
 }
 function KillCookie(n) {
-	document.cookie = n+'=; expires=Thu, 01-Jan-70 00:00:01 GMT;'
+	document.cookie = n+'=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
 }
-
-//
-// Popups
-//
-// Variablen
+// ============================
 var MenuTimeout = 1000;
-// Funktionen
 var active = 0;
 var MenuCountHide = 0;
-// Position y
 function GetLeft(l) {
-	if (l.offsetParent) return (l.offsetLeft + GetLeft(l.offsetParent))
-	else return (l.offsetLeft)
+	if (l.offsetParent) return (l.offsetLeft + GetLeft(l.offsetParent));
+	else return (l.offsetLeft);
 }
-// Position x
 function GetTop(l) {
-	if (l.offsetParent) return (l.offsetTop + GetTop(l.offsetParent))
-	else return (l.offsetTop)
+	if (l.offsetParent) return (l.offsetTop + GetTop(l.offsetParent));
+	else return (l.offsetTop);
 }
-// Menü verstecken?
 function TryHideMenu(menu,CountHide) {
 	if (CountHide != MenuCountHide) {
 		return;
 	}
-	HideMenu(menu)
+	HideMenu(menu);
 }
-// Überwachung starten
 function MenuEvent(active) {
-	var elementevent = FetchElement("popup_"+active)
+	var elementevent = FetchElement("popup_"+active);
 	elementevent.onmouseover = function() {
-        	MenuCountHide++
+        	MenuCountHide++;
 	}
 	elementevent.onmouseout = function() {
-		setTimeout("TryHideMenu('" + active + "', " + MenuCountHide + ")", MenuTimeout)
+		setTimeout("TryHideMenu('" + active + "', " + MenuCountHide + ")", MenuTimeout);
 	}
 }
-// Menu anzeigen
 function ShowMenu(id) {
 	if(active != 0) {
 		if (id == active) {
-			HideMenu(active)
+			HideMenu(active);
     	}
 		else {
-			HideMenu(active)
-			ShowMenu(id)
+			HideMenu(active);
+			ShowMenu(id);
 		}
 	}
 	else {
-		var elementbutton = FetchElement("menu_"+id)
-		var buttonleft = GetLeft(elementbutton)
-		var buttontop = GetTop(elementbutton)
-		var buttonwidth = elementbutton.offsetWidth
-		var buttonheight = elementbutton.offsetHeight
-		var elementmenu = FetchElement("popup_"+id)
-		var menuwidth = elementmenu.offsetWidth
+		var elementbutton = FetchElement("menu_"+id);
+		var buttonleft = GetLeft(elementbutton);
+		var buttontop = GetTop(elementbutton);
+		var buttonwidth = elementbutton.offsetWidth;
+		var buttonheight = elementbutton.offsetHeight;
+		var elementmenu = FetchElement("popup_"+id);
+		var menuwidth = elementmenu.offsetWidth;
 		if((buttonleft+menuwidth) >= document.body.clientWidth) {
-			var posx = buttonleft + buttonwidth - menuwidth
+			var posx = buttonleft + buttonwidth - menuwidth;
 		}
 		else {
-			var posx = buttonleft
+			var posx = buttonleft;
 		}
-		var posy = buttontop + buttonheight
+		var posy = buttontop + buttonheight;
 	
-		elementmenu.style.zIndex = 1
-		elementmenu.style.left = posx+'px'
-		elementmenu.style.top = posy+'px'
-		elementmenu.style.visibility = 'visible'
-		active = id
-		MenuEvent(active)
+		elementmenu.style.zIndex = 1;
+		elementmenu.style.left = posx+'px';
+		elementmenu.style.top = posy+'px';
+		elementmenu.style.visibility = 'visible';
+		active = id;
+		MenuEvent(active);
 	}
 }
-// Menu verstecken
 function HideMenu(menu) {
-	var elementhide = FetchElement("popup_"+menu)
-	elementhide.style.zIndex = -1
-	elementhide.style.left = '0px'
-	elementhide.style.top = '0px'
-	elementhide.style.visibility = 'hidden'
-	active = 0
+	var elementhide = FetchElement("popup_"+menu);
+	elementhide.style.zIndex = -1;
+	elementhide.style.left = '-1000px';
+	elementhide.style.top = '-1000px';
+	elementhide.style.visibility = 'hidden';
+	active = 0;
 }
 function Click() {
-	id = this.id.replace("menu_","")
+	id = this.id.replace("menu_","");
 	ShowMenu(id);
 }
 function Swap() {

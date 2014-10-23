@@ -476,6 +476,12 @@ function logged () {
 		}
 		else {
 			$my->vlogin = false;
+			$fields = $db->list_fields($db->pre.'user');
+			$fields = array_merge($fields, $db->list_fields($db->pre.'session'));
+			$fields = array_merge($fields, $db->list_fields($db->pre.'userfields'));
+			foreach ($fields as $field) {
+				$my->$field = null;
+			}
 		}
 	}
 	else {
@@ -691,7 +697,7 @@ function sid_load() {
 function sid_new() {
 	global $config, $db, $gpc;
 
-	if (!$this->sidload) {
+	if (!$this->sidload && $this->cookiedata[0] != 0) {
 		$load = $db->query('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1',__LINE__,__FILE__);
 		if ($db->num_rows($load) == 1) {
 			$this->sidload = true;
@@ -699,21 +705,28 @@ function sid_new() {
 			return $my;
 		}
 	}
-
-	$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1',__LINE__,__FILE__);
-	$my = $gpc->prepare($db->fetch_object($result));
-	if ($db->num_rows($result) == 1 && $my->confirm == '11') {
+	
+	if (!array_empty($this->cookiedata)) {
+		$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1',__LINE__,__FILE__);
+		$my = $gpc->prepare($db->fetch_object($result));
+		$nodata = ($db->num_rows($result) == 1) ? false : true;
+	}
+	else {
+		$nodata = true;
+	}
+	
+	if ($nodata == false && $my->confirm == '11') {
 		$id = &$my->id;
 		$lastvisit = &$my->lastvisit;
 		$my->clv = $my->lastvisit;
-		$my->vlogin = TRUE;
+		$my->vlogin = true;
 		makecookie($config['cookie_prefix'].'_vdata', $my->id."|".$my->pw);
 	}
 	else {
 		$id = 0;
 		$lastvisit = $this->cookielastvisit;
 		$my->clv = $this->cookielastvisit;
-		$my->vlogin = FALSE;
+		$my->vlogin = false;
 		makecookie($config['cookie_prefix'].'_vdata', "|", -60);
 	}
 	
@@ -731,7 +744,7 @@ function sid_new() {
 	$qid = $gpc->get('id', int);
 
 	$db->query("INSERT INTO {$db->pre}session 
-	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, remoteaddr, lastvisit, mark, pwfaccess, settings, is_bot) VALUES
+	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings, is_bot) VALUES
 	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str(htmlspecialchars($this->user_agent))."','{$lastvisit}','{$my->mark}','{$my->pwfaccess}','{$my->settings}','{$my->is_bot}')",__LINE__,__FILE__);
 
 	return $my;
@@ -742,19 +755,20 @@ function sid_new() {
  */
 function sid_logout() {
 	global $my, $db, $config, $gpc;
-	if ($my->id > 0) {
-		$sql = "mid = '".$my->id."'";
-	}
-	else {
-		$sql = "sid = '".$my->sid."'";
-	}
 	
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
+	$time = time();
 	
-	$db->query ("UPDATE {$db->pre}session SET wiw_script = '".SCRIPTNAME."', wiw_action = '".$action."', wiw_id = '".$qid."', active = '".time()."', mid = '0' WHERE ".$sql,__LINE__,__FILE__);
+	$db->query ("
+	UPDATE {$db->pre}session 
+	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0' 
+	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$my->sid}'")." 
+	LIMIT 1
+	",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'",__LINE__,__FILE__);
+	
 	makecookie($config['cookie_prefix'].'_vdata', '|', -60);
-	$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."' WHERE id = '".$my->id."'",__LINE__,__FILE__);
 }
 
 /**
@@ -765,7 +779,17 @@ function sid_logout() {
  */
 function sid_login($remember = true) {
 	global $my, $config, $db, $gpc, $scache;
-	$result = $db->query('SELECT u.*, f.*, s.mid FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'session AS s ON s.mid = u.id LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE name="'.$_POST['name'].'" AND pw=MD5("'.$_POST['pw'].'") LIMIT 1',__LINE__,__FILE__);
+	$username = $gpc->get('name', str);
+	$pw = $gpc->get('pw', str);
+
+	$result = $db->query("
+	SELECT u.*, f.*, s.mid 
+	FROM {$db->pre}user AS u 
+		LEFT JOIN {$db->pre}session AS s ON s.mid = u.id 
+		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id 
+	WHERE name = '{$username}' AND pw = MD5('{$pw}') 
+	LIMIT 1
+	",__LINE__,__FILE__);
 
 	$my2 = array();
 	$my2['mark'] = $my->mark;
@@ -808,9 +832,7 @@ function sid_login($remember = true) {
 			$my->template = $my->settings['q_tpl'];
 		}
 		if (isset($cache2[$q_tpl]) != false) {
-			//if ($gpc->get('admin', int) != 1) {
-				$my->settings['q_tpl'] = $q_tpl;
-			//}
+			$my->settings['q_tpl'] = $q_tpl;
 			$my->template = $q_tpl;
 		}
 		if (isset($cache[$q_tpl]) != false) {
@@ -837,7 +859,9 @@ function sid_login($remember = true) {
 		
 		if (!empty($my->mid)) {
 			$sqlwhere = "mid = '{$my->id}'";
-			$db->query ("DELETE FROM {$db->pre}session WHERE sid = '{$my->sid}' LIMIT 1",__LINE__,__FILE__);
+			if ($this->cookies) {
+				$db->query ("DELETE FROM {$db->pre}session WHERE sid = '{$my->sid}' LIMIT 1",__LINE__,__FILE__);
+			}
 		}
 		else {
 			$sqlwhere = "sid = '{$my->sid}'";	
@@ -1155,8 +1179,14 @@ function GlobalPermissions() {
 		}
 		return array_combine($boardid, array_fill(0, count($boardid), $this->permissions));
 	}
+
+	if (count($parent) > 0) {
+		$fpermissions = array_combine($boardid, array_fill(0, count($parent), array()));
+	}
+	else {
+		$fpermissions = array();
+	}
 	
-	$fpermissions = array_combine($boardid, array_fill(0, count($parent), array()));
 	while ($row = $db->fetch_assoc($result)) {
 		$gid = $row['gid'];
 		$bid = $row['bid'];

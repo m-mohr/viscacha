@@ -52,7 +52,7 @@ if ($info['forumzahl'] < 1) {
 $my->p = $slog->Permissions($info['id']);
 $my->mp = $slog->ModPermissions($info['id']);
 
-forum_opt($info['opt'], $info['optvalue'], $info['id']);
+forum_opt($info);
 
 $breadcrumb->Add($lang->phrase('teamcp'));
 
@@ -90,24 +90,26 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			($code = $plugins->load('manageforum_query')) ? eval($code) : null;
 			$result = $db->query("
 			SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name 
-			FROM {$db->pre}topics WHERE board = '$board' {$marksql}
-			ORDER BY sticky DESC, last DESC LIMIT $start, {$info['forumzahl']}
+			FROM {$db->pre}topics
+			WHERE board = '{$board}' {$marksql}
+			ORDER BY sticky DESC, last DESC LIMIT {$start}, {$info['forumzahl']}
 			",__LINE__,__FILE__);
 			
 			$memberdata_obj = $scache->load('memberdata');
 			$memberdata = $memberdata_obj->get();
 
 			$prefix_obj = $scache->load('prefix');
-			$prefix = $prefix_obj->get($board);
+			$prefix_arr = $prefix_obj->get($board);
 		
 			while ($row = $gpc->prepare($db->fetch_object($result))) {
 				$pref = '';
-				$showprefix = FALSE;
-				if (isset($prefix[$row->prefix]) && $row->prefix > 0) {
-					$showprefix = TRUE;
+				$showprefix = false;
+				if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
+					$prefix = $prefix_arr[$row->prefix]['value'];
+					$showprefix = true;
 				}
 				else {
-					$prefix[$row->prefix] = '';
+					$prefix = '';
 				}
 				
 				if(is_id($row->name) && isset($memberdata[$row->name])) {
@@ -124,24 +126,29 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				
 				$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 				$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-				
-				if ($row->mark == 'n') {
-					$pref .= $lang->phrase('forum_mark_n'); 
-				}
-				elseif ($row->mark == 'a') {
-					$pref .= $lang->phrase('forum_mark_a');
-				}
-				elseif ($row->mark == 'b') {
-					$pref .= $lang->phrase('forum_mark_b');
-				}
-				elseif ($row->mark == 'g') {
-					$pref .= $lang->phrase('forum_mark_g');
-				}
-				elseif ($row->status == '2') {
+
+				if ($row->status == '2') {
 					$pref .= $lang->phrase('forum_moved');
 				}
-				elseif ($row->sticky == '1') {
-					$pref .= $lang->phrase('forum_announcement');
+				else {
+					if (empty($row->mark) && !empty($info['auto_status'])) {
+						$row->mark = $info['auto_status'];
+					}
+					if ($row->mark == 'n') {
+						$pref .= $lang->phrase('forum_mark_n'); 
+					}
+					elseif ($row->mark == 'a') {
+						$pref .= $lang->phrase('forum_mark_a');
+					}
+					elseif ($row->mark == 'b') {
+						$pref .= $lang->phrase('forum_mark_b');
+					}
+					elseif ($row->mark == 'g') {
+						$pref .= $lang->phrase('forum_mark_g');
+					}
+					if ($row->sticky == '1') {
+						$pref .= $lang->phrase('forum_announcement');
+					}
 				}
 
 				($code = $plugins->load('manageforum_entry_prepared')) ? eval($code) : null;
@@ -240,11 +247,12 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$ids = implode(',', $_POST['delete']);
 		$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
-		$uresult = $db->query ("SELECT file FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
-		while ($urow = $db->fetch_num($uresult)) {
-			@unlink('uploads/topics/'.$urow[0]);
-			if (file_exists('uploads/topics/thumbnails/'.$urow[0])) {
-				@unlink('uploads/topics/thumbnails/'.$urow[0]);
+		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
+		while ($urow = $db->fetch_assoc($uresult)) {
+			$filesystem->unlink('uploads/topics/'.$urow['source']);
+			$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
+			if (file_exists($thumb)) {
+				$filesystem->unlink($thumb);
 			}
 		}
 		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);

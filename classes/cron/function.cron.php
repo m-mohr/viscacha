@@ -1,19 +1,19 @@
 <?php
 
-define("PC_MINUTE",	1);
-define("PC_HOUR",	2);
-define("PC_DOM",	3);
-define("PC_MONTH",	4);
-define("PC_DOW",	5);
-define("PC_CMD",	7);
-define("PC_COMMENT",8);
-define("PC_ARGS",	19);
-define("PC_CRONLINE", 20);
+define("PC_MINUTE",		1);
+define("PC_HOUR",		2);
+define("PC_DOM",		3);
+define("PC_MONTH",		4);
+define("PC_DOW",		5);
+define("PC_CMD",		7);
+define("PC_COMMENT",	8);
+define("PC_ARGS",		19);
+define("PC_CRONLINE", 	20);
 
 define("CRON_PATH", 'classes/cron/jobs/');
 
 function logMessage($msg) {
-	GLOBAL $writeDir, $useLog, $debug, $resultsSummary;
+	global $writeDir, $useLog, $debug, $resultsSummary;
 	if ($msg[strlen($msg)-1]!="\n") {
 		$msg.="\n";
 	}
@@ -28,8 +28,8 @@ function logMessage($msg) {
 }
 
 function lTrimZeros($number) {
-	GLOBAL $debug;
-	while ($number[0]=='0') {
+	global $debug;
+	while ($number[0] == '0') {
 		$number = substr($number,1);
 	}
 	return $number;
@@ -47,7 +47,7 @@ function multisort(&$array, $sortby, $order='asc') {
 }
 
 function parseElement($element, &$targetArray, $numberOfElements) {
-	GLOBAL $debug;
+	global $debug;
 	$subelements = explode(",",$element);
 	for ($i=0;$i<$numberOfElements;$i++) {
 		$targetArray[$i] = $subelements[0]=="*";
@@ -73,7 +73,7 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 }
 
 function incDate(&$dateArr, $amount, $unit) {
-	GLOBAL $debug;
+	global $debug;
 	
 	if ($debug) {
 		echo sprintf("Increasing from %02d.%02d. %02d:%02d by %d %6s ",$dateArr['mday'],$dateArr['mon'],$dateArr['hours'],$dateArr['minutes'],$amount,$unit);
@@ -125,7 +125,7 @@ function incDate(&$dateArr, $amount, $unit) {
 }
 
 function getLastScheduledRunTime($job) {
-  GLOBAL $debug;
+  	global $debug;
 	$cron_string = $job[PC_MINUTE].' '.$job[PC_HOUR].' '.$job[PC_DOM].' '.$job[PC_MONTH].' '.$job[PC_DOW];
 	$cronPars = new CronParser();
 	$cronPars->calcLastRan($cron_string);
@@ -136,14 +136,14 @@ function getLastScheduledRunTime($job) {
 }
 
 function getJobFileName($job) {
-	GLOBAL $writeDir, $debug;
+	global $writeDir, $debug;
 	$jobArgHash = ( count($job[PC_ARGS]) > 1 ? '_'.md5(implode('', $job[PC_ARGS])) : '' );
 	$jobfile = $writeDir.urlencode($job[PC_CMD]).$jobArgHash.".job";
 	return $jobfile;
 }
 
 function getLastActualRunTime($job) {
-	GLOBAL $debug;
+	global $debug;
 	$jobfile = getJobFileName($job);
 	if (file_exists($jobfile)) {
     	return filemtime($jobfile);
@@ -157,7 +157,7 @@ function markLastRun($job, $lastRun) {
 }
 
 function runJob($job) {
-	GLOBAL $debug, $sendLogToEmail, $resultsSummary, $jobdir, $config, $db;
+	global $debug, $sendLogToEmail, $resultsSummary, $jobdir;
 	$resultsSummary = "";
 	
 	$lastActual = $job["lastActual"];
@@ -201,7 +201,7 @@ function runJob($job) {
 }
 
 function parseCronFile($cronTabFile) {
-	GLOBAL $debug;
+	global $debug;
 	$file = file($cronTabFile);
 	$job = Array();
 	$jobs = Array();
@@ -253,8 +253,11 @@ function PixelImage() {
 
 function InitCron() {
 	global $cronTab, $maxJobs;
-	@ignore_user_abort(FALSE);
-	@set_time_limit(60);
+	@ignore_user_abort(false);
+	$save_mode = @ini_get('safe_mode');
+	if (!$save_mode) {
+		@set_time_limit(60);
+	}
 	$jobs = parseCronFile($cronTab);
 	$jobsRun = 0;
 	for ($i=0;$i<count($jobs);$i++) {

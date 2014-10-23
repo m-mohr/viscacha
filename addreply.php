@@ -63,21 +63,21 @@ $my->p = $slog->Permissions($info['board']);
 $cat_bid_obj = $scache->load('cat_bid');
 $fc = $cat_bid_obj->get();
 $last = $fc[$info['board']];
-forum_opt($last['opt'], $last['optvalue'], $last['id'], 'postreplies');
+forum_opt($last, 'postreplies');
 
-$pre = '';
+$prefix = '';
 if ($info['prefix'] > 0) {
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($info['board']);
-	if (isset($prefix[$info['prefix']])) {
-		$pre = $prefix[$info['prefix']];
-		$pre = $lang->phrase('showtopic_prefix_title');
+	$prefix_arr = $prefix_obj->get($info['board']);
+	if (isset($prefix_arr[$info['prefix']])) {
+		$prefix = $prefix_arr[$info['prefix']]['value'];
+		$prefix = $lang->phrase('showtopic_prefix_title');
 	}
 }
 
 get_headboards($fc, $last);
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($pre.$info['topic'], 'showtopic.php?id='.$_GET['id'].SID2URL_x);
+$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$_GET['id'].SID2URL_x);
 $breadcrumb->Add($lang->phrase('addreply_title'));
 
 if ($info['status'] != 0) {
@@ -236,25 +236,34 @@ if ($_GET['action'] == "save") {
 		}
 		
 		$db->query ('
-		UPDATE '.$db->pre.'cat 
-		SET replys = replys+1, last_topic = "'.$_POST['id'].'" 
+		UPDATE '.$db->pre.'forums 
+		SET replies = replies+1, last_topic = "'.$_POST['id'].'" 
 		WHERE id = '.$info['board']
 		,__LINE__,__FILE__);
 
         $result = $db->query('
-        SELECT t.id, t.topic, u.name, u.mail 
+        SELECT t.id, t.topic, u.name, u.mail, u.language 
         FROM '.$db->pre.'abos AS a 
         	LEFT JOIN '.$db->pre.'user AS u ON u.id = a.mid 
         	LEFT JOIN '.$db->pre.'topics AS t ON t.id = a.tid 
         WHERE a.type = "" AND a.tid = "'.$_POST['id'].'" AND a.mid != "'.$my->id.'"
         ',__LINE__,__FILE__);
-        
+        $lang_dir = $lang->getdir(true);
 	    while ($row = $db->fetch_assoc($result)) {
+	    	$lang->setdir($row['language']);
 			$data = $lang->get_mail('digest_s');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 			$from = array();
 			xmail($to, $from, $data['title'], $data['comment']);
 	    }
+	    $lang->setdir($lang_dir);
+	    
+		if (count($last['reply_notification']) > 0) {
+			$to = array_combine(array_fill(1, count($last['reply_notification']), 'mail'), $last['reply_notification']);
+			$data = $lang->get_mail('new_reply');
+			$from = array();
+			xmail($to, $from, $data['title'], $data['comment']);
+		}
 	    
 	    $close = $gpc->get('close', int);
 	    if ($close == 1 && $my->vlogin) {
@@ -306,12 +315,9 @@ else {
 		
 		// Multiquote
 		$qid = $gpc->get('qid', arr_int);
-		if(isset($_COOKIE[$config['cookie_prefix'].'_vquote'])) {
-		    $pids = $_COOKIE[$config['cookie_prefix'].'_vquote'];
-		    $pids = urldecode($pids);
-		    if(!empty($pids) && preg_match("/^[0-9,]+$/", $pids)) {
-		    	$qids = explode(',',$pids);
-		    }
+		$pids = getcookie('vquote');
+		if(!empty($pids) && preg_match("/^[0-9,]+$/", $pids)) {
+		    $qids = explode(',', $pids);
 		    makecookie($config['cookie_prefix'].'_vquote', '', 0);
 		}
 		elseif (count($qid) > 0) {

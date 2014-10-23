@@ -13,7 +13,7 @@ class cache_prefix extends CacheItem {
 				if (!isset($this->data[$row['bid']])) {
 					$this->data[$row['bid']] = array();
 				}
-				$this->data[$row['bid']][$row['id']] = $row['value'];
+				$this->data[$row['bid']][$row['id']] = array('value' => $row['value'], 'standard' => $row['standard']);
 			}
 			$this->export();
 		}

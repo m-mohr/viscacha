@@ -329,16 +329,24 @@ class DB {
 		$func = $this->escaper;
 		return $func($value);
 	}
-	function list_tables($result='') {
-		if (empty($result)) {
-			$result = $this->database;
+	function list_tables($db = null) {
+		if ($db == null) {
+			$db = $this->database;
 		}
-		$result = $this->query('SHOW TABLES FROM '.$result,__LINE__,__FILE__);
+		$result = $this->query('SHOW TABLES FROM '.$db,__LINE__,__FILE__);
 		$tables = array();
 		while ($row = $this->fetch_num($result)) {
 			$tables[] = $row[0];
 		}
 		return $tables;
+	}
+	function list_fields($table) {
+		$result = $this->query('SHOW COLUMNS FROM '.$table,__LINE__,__FILE__);
+		$columns = array();
+		while ($row = $this->fetch_num($result)) {
+			$columns[] = $row[0];
+		}
+		return $columns;
 	}
 	function num_fields($result='') {
 		if (empty($result)) {

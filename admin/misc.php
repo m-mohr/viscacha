@@ -15,7 +15,8 @@ elseif ($job == 'cache') {
 		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {					  
 			$nfo = pathinfo($dir.$file);
 			if ($nfo['extension'] == 'php') {
-				$result[] = array(
+				$name = str_replace('.inc.php', '', $nfo['basename']);
+				$result[$name] = array(
 				'file' => $nfo['basename'],
 				'size' => filesize($dir.$file),
 				'age' => time()-filemtime($dir.$file)
@@ -23,6 +24,7 @@ elseif ($job == 'cache') {
 			}
 		}
 	}
+	ksort($result);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
@@ -36,10 +38,7 @@ elseif ($job == 'cache') {
    <td class="ubox" width="10%">Age</td>
    <td class="ubox" width="40%">Options</td>
   </tr>
-  <?php
-  foreach ($result as $row) {
-  	$name = str_replace('.inc.php', '', $row['file']);
-  ?>
+  <?php foreach ($result as $name => $row) { ?>
   <tr>
    <td class="mbox" width="40%"><?php echo $name; ?></td>
    <td class="mbox" width="10%" nowrap="nowrap" align="right"><?php echo formatFilesize($row['size']); ?></td>
@@ -57,6 +56,14 @@ elseif ($job == 'cache_view') {
 	$cache = new CacheItem($file);
 	$cache->import();
 	$data = $cache->get();
+
+	// ToDo: Better appearance
+	ob_start();
+	print_r($data);
+	$out = ob_get_contents();
+	ob_end_clean();
+	$out = htmlspecialchars($out);
+	
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
@@ -64,7 +71,7 @@ elseif ($job == 'cache_view') {
   </tr>
   <tr> 
    <td class="mbox">
-   <pre><?php print_r($data); ?></pre>
+   <pre><?php echo $out; ?></pre>
    </td>
   </tr>
  </table>
@@ -129,9 +136,6 @@ elseif ($job == 'onlinestatus') {
    An overview of available servers and further information you can find here: <a href="http://osi.viscacha.org/" target="_blank">Online-Status-Server-overview</a>.
    </p>
    </td> 
-  </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
   </tr>
  </table>
 	<?php
@@ -246,28 +250,24 @@ elseif ($job == 'feedcreator_add') {
 	$class = $gpc->get('class', str);
 	$active = $gpc->get('active', str);
 	$dl = $gpc->get('dl', str);
-	$dir = realpath('./classes/feedcreator/');
+	$dir = realpath('./classes/feedcreator/').DIRECTORY_SEPARATOR;
 	
 	$inserterrors = array();
 	require("classes/class.upload.php");
 	$my_uploader = new uploader();
 	$my_uploader->max_filesize(200*1024);
-	if ($my_uploader->upload('upload', array('.php'))) {
-		if (strlen($my_uploader->return_error()) > 0) {
-			array_push($inserterrors,$my_uploader->return_error());
+	$my_uploader->file_types(array('php'));
+	$my_uploader->set_path($dir);
+	if ($my_uploader->upload('upload')) {
+		if ($my_uploader->save_file()) {
+			$file = $my_uploader->fileinfo('filename');
 		}
-		$my_uploader->save_file($dir, 2);
-		$file = $my_uploader->file['name'];
 	}
-	else {
-		if (strlen($my_uploader->return_error()) > 0) {
-			array_push($inserterrors,$my_uploader->return_error());
-		}
-		else {
-			if (count($inserterrors) == 0) {
-				array_push($inserterrors, 'An unexpected error occurred');
-			}
-		}
+	if ($my_uploader->upload_failed()) {
+		array_push($inserterrors, $my_uploader->get_error());
+	}
+	if (empty($file)) {
+		array_push($inserterrors, 'File does not exist!');
 	}
 	if (count($inserterrors) > 0) {
 		error('admin.php?action=misc&job=feedcreator', $inserterrors);
@@ -328,7 +328,7 @@ elseif ($job == "captcha") {
 	$dir = 'classes/graphic/noises/';
 	if ($dh = opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if(get_extension($file) == '.jpg') {
+			if(get_extension($file) == 'jpg') {
 				$noises++;
 			}
 		}
@@ -375,7 +375,7 @@ elseif ($job == "captcha_noises") {
 	$dir = 'classes/graphic/noises/';
 	if ($dh = opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if(get_extension($file) == '.jpg') {
+			if(get_extension($file) == 'jpg') {
 				$fonts[] = $dir.$file;
 			}
 		}
@@ -650,15 +650,14 @@ elseif ($job == "credits") {
 		<strong>Used Scripts</strong> (most are modified):
 		<ul>
 		<li><a href="http://www.fpdf.org" target="_blank">FPDF 1.53 by Olivier Plathey</a> (PDF Creation, Freeware)</li>
-		<li><a href="http://www.angryrobot.com" target="_blank">File-Upload-Class 2.15 by David Fox, Angryrobot Productions</a> (File-Uploads; BSD)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Roman Numeral Conversion by Huda M Elmatsani</a> (Roman Numeral Conversion; Freeware)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Image Converter by Huda M Elmatsani</a> (Convert Images; Freeware)</li>
 		<li><a href="http://www.flaimo.com" target="_blank">vCard-Class 1.001 by Michael Wimmer</a> (vCard Output; Unspecified)</li>
 		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.5 by Vincent Blavet</a> (Zip File Handling; LPGL)</li>
-		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.7.12 by Nigel McNie</a> (Syntax Highlighting; GPL)</li>
+		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.7.13 by Nigel McNie</a> (Syntax Highlighting; GPL)</li>
 		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing Newsfeeds; GPL)</li>
 		<li><a href="http://phpmailer.sourceforge.net/" target="_blank">PHPMailer 1.73 by Brent R. Matzelle and SMTP Class 1.02 by Chris Ryan</a> (Sending E-Mails with SMTP; LGPL)</li>
-		<li><a href="http://cjphp.netflint.net" target="_blank">Class.Jabber.PHP v0.4.2 by Nathan Fritz</a> (Jabber Messages; GPL)</li>
+		<li><a href="http://cjphp.netflint.net" target="_blank">Class.Jabber.PHP v0.4.3a by Nathan Fritz</a> (Jabber Messages; GPL)</li>
 		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating Newsfeeds; LGPL)</li>
 		<li><a href="http://spellerpages.sourceforge.net/" target="_blank">Speller Pages 0.5.1 by James Shimada</a> (Spell Checker User Interface; LPGL)</li>
 		<li><a href="http://pear.php.net/package/PHP_Compat" target="_blank">PHP_Compat 1.5.0 by Aidan Lister, Stephan Schmidt</a> (PHP Core Functions; PHP)</li>

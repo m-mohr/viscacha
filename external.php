@@ -108,7 +108,7 @@ $rss->editor = $config['fname'];
 $rss->editorEmail = $config['forenmail'];
 
 $sqllimit = 15;
-$sqlwhere = "r.tstart = '1' AND c.opt != 'pw' ".$slog->sqlinboards('t.board');
+$sqlwhere = "r.tstart = '1' AND f.invisible != '2' AND f.active_topic = '1' AND f.opt != 'pw' ".$slog->sqlinboards('t.board');
 $sqlorder = "t.date DESC";
 $sqljoin = $sqlfields = '';
 
@@ -116,10 +116,10 @@ $sqljoin = $sqlfields = '';
 
 // Get the last 15 topics
 $result = $db->query("
-SELECT r.dowords, r.comment, r.guest, c.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status {$sqlfields} 
+SELECT r.dowords, r.comment, r.guest, f.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status {$sqlfields} 
 FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id 
 	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
-	LEFT JOIN {$db->pre}cat AS c ON t.board=c.id 
+	LEFT JOIN {$db->pre}forums AS f ON t.board=f.id 
 	{$sqljoin}
 WHERE {$sqlwhere} 
 ORDER BY {$sqlorder} 

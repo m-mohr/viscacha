@@ -58,7 +58,7 @@ else {
 $topforums = get_headboards($fc, $info);
 $breadcrumb->Add($info['name']);
 
-forum_opt($info['opt'], $info['optvalue'], $info['id']);
+forum_opt($info);
 
 echo $tpl->parse("header");
 echo $tpl->parse("menu");
@@ -71,16 +71,21 @@ $subforums = BoardSelect($board);
 
 $filter = $gpc->get('sort', int);
 if ($filter == 2) {
-	$marksql = ' AND mark = "a" ';
+	$marksql = ' AND mark = "a" '.iif($info['auto_status'] == 'a', 'AND mark = "" ');
 }
 elseif ($filter == 3) {
-	$marksql = ' AND mark = "n" ';
+	$marksql = ' AND mark = "n" '.iif($info['auto_status'] == 'n', 'AND mark = "" ');
 }
 elseif ($filter == 4) {
 	$marksql = ' AND mark = "g" ';
 }
 elseif ($filter == 5) {
-	$marksql = ' AND (mark = "g" OR mark = "n" OR mark = "a") ';
+	if (empty($info['auto_status'])) {
+		$marksql = ' AND (mark = "g" OR mark = "n" OR mark = "a") ';
+	}
+	else {
+		$marksql = ' AND mark != "b" ';
+	}
 }
 elseif ($filter == 1) {
 	$marksql = ' AND mark != "b" ';
@@ -128,18 +133,20 @@ if ($info['topics'] > 0) {
 	",__LINE__,__FILE__);
 	
 	$prefix_obj = $scache->load('prefix');
-	$prefix = $prefix_obj->get($board);
+	$prefix_arr = $prefix_obj->get($board);
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
 
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$pref = '';
-		$showprefix = FALSE;
-		if (isset($prefix[$row->prefix]) && $row->prefix > 0) {
-			$showprefix = TRUE;
+		
+		$showprefix = false;
+		if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
+			$showprefix = true;
+			$prefix = $prefix_arr[$row->prefix]['value'];
 		}
 		else {
-			$prefix[$row->prefix] = '';
+			$prefix = '';
 		}
 		
 		$last = $fc[$row->board];
@@ -158,25 +165,29 @@ if ($info['topics'] > 0) {
 		
 		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-		
-		if ($row->mark == 'n') {
-			$pref .= $lang->phrase('forum_mark_n'); 
-		}
-		elseif ($row->mark == 'a') {
-			$pref .= $lang->phrase('forum_mark_a');
-		}
-		elseif ($row->mark == 'b') {
-			$pref .= $lang->phrase('forum_mark_b');
-		}
-		elseif ($row->mark == 'g') {
-			$pref .= $lang->phrase('forum_mark_g');
-		}
-		
+
 		if ($row->status == '2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
-		elseif ($row->sticky == '1') {
-			$pref .= $lang->phrase('forum_announcement');
+		else {
+			if (empty($row->mark) && !empty($info['auto_status'])) {
+				$row->mark = $info['auto_status'];
+			}
+			if ($row->mark == 'n') {
+				$pref .= $lang->phrase('forum_mark_n'); 
+			}
+			elseif ($row->mark == 'a') {
+				$pref .= $lang->phrase('forum_mark_a');
+			}
+			elseif ($row->mark == 'b') {
+				$pref .= $lang->phrase('forum_mark_b');
+			}
+			elseif ($row->mark == 'g') {
+				$pref .= $lang->phrase('forum_mark_g');
+			}
+			if ($row->sticky == '1') {
+				$pref .= $lang->phrase('forum_announcement');
+			}
 		}
 
 		if ((isset($my->mark['t'][$row->id]) && $my->mark['t'][$row->id] > $row->last) || $row->last < $my->clv) {
