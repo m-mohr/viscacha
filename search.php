@@ -207,7 +207,10 @@ if ($_GET['action'] == "search") {
 		}
 		$fid = md5(microtime());
 		file_put_contents('cache/search/'.$fid.'.inc.php', serialize($data));
+		$slog->updatelogged();
+		$db->close();
 		viscacha_header('Location: search.php?action=result&fid='.$fid.SID2URL_JS_x);
+		exit;
 	}
 	else {
 		error($lang->phrase('search_nothingfound'), 'search.php'.SID2URL_1);
@@ -462,15 +465,25 @@ elseif ($_GET['action'] == "active") {
 	if (!isset($count)) {
     	$sqlwhere = " last > '{$timestamp}' ";
     	
+    	$start = ($_GET['page']-1)*$config['activezahl'];
+    	
     	($code = $plugins->load('search_actiev_query')) ? eval($code) : null;
+    	$result = $db->query("
+    	SELECT COUNT(*) 
+    	FROM {$db->pre}topics AS t
+    		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board 
+    	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')
+    	,__LINE__,__FILE__);
+    	list($count) = $db->fetch_num($result);
+    	
     	$result = $db->query("
     	SELECT t.prefix, t.vquestion, t.posts, t.mark, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name 
     	FROM {$db->pre}topics AS t
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board 
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')." 
-    	ORDER BY t.last DESC"
+    	ORDER BY t.last DESC
+    	LIMIT {$start}, {$config['activezahl']}"
     	,__LINE__,__FILE__);
-    	$count = $db->num_rows($result);
     		
     	if ($count > 0) {
     		$temp = pages($count, $config['activezahl'], "search.php?action=active&amp;type=".$_GET['type'].SID2URL_x."&amp;", $_GET['page']);

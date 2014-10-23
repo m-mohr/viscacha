@@ -289,8 +289,29 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$result = $db->query('SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM '.$db->pre.'topics WHERE id = '.$_GET['id'].' LIMIT 1',__LINE__,__FILE__);
 		$info = $gpc->prepare($db->fetch_assoc($result));
 
-		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id",__LINE__,__FILE__);
+		if (strlen($_GET['fid']) == 32) {
+			$data = $gpc->prepare(import_error_data($_GET['fid']));
+			$data[0] = $data['answer'][0];
+			unset($data['answer'][0]);
+			$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id",__LINE__,__FILE__);
+			while ($row = $db->fetch_assoc($result)) {
+				$data['original'][$row['id']] = $row['answer'];
+			}
+		}
+		else {
+			$data = $data['answer'] = array();
+			$data['question'] = $info['vquestion'];
+			$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id",__LINE__,__FILE__);
+			while ($row = $db->fetch_assoc($result)) {
+				$data['answer'][$row['id']] = $row['answer'];
+				$data['original'][$row['id']] = $row['answer'];
+			}
+			$data[0] = '';
+		}
+
+
 		
+		$i = 0;
 		echo $tpl->parse("menu");
 		echo $tpl->parse("admin/topic/vote_edit");
 	}
@@ -309,17 +330,22 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			$error[] = $lang->phrase('max_replies_vote');
 		}
 		if (count($error) > 0) {
-			error($error,'managetopic.php?action=vote_edit&amp;id='.$_GET['id'].SID2URL_x);
+			$data = array(
+				'question' => $_POST['question'],
+				'answer' => $_POST['notice']
+			);
+			$fid = save_error_data($data);
+			error($error,'managetopic.php?action=vote_edit&amp;id='.$_GET['id']."&amp;fid=".$fid.SID2URL_x);
 		}
 		else {
 			$db->query("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
 			$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id",__LINE__,__FILE__);
 			while($row = $db->fetch_assoc($result)) {
-				if (!empty($_POST['notice'][$row['id']]) && strlen($_POST['notice'][$row['id']]) < 255) {
+				if (strlen($_POST['notice'][$row['id']]) > 0 && strlen($_POST['notice'][$row['id']]) < 255) {
 					$db->query("UPDATE {$db->pre}vote SET answer = '{$_POST['notice'][$row['id']]}' WHERE id = '{$row['id']}'",__LINE__,__FILE__);
 				}
 			}
-			if (!empty($_POST['notice'][0]) && strlen($_POST['notice'][0]) < 255) {
+			if (strlen($_POST['notice'][0]) > 0 && strlen($_POST['notice'][0]) < 255) {
 				$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES ('{$_GET['id']}','{$_POST['notice'][0]}')",__LINE__,__FILE__);
 			}
 			ok($lang->phrase('data_success'),"showtopic.php?id={$_GET['id']}");

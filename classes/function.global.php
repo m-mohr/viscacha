@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -61,7 +61,7 @@ function get_remote($file) {
 	if (!class_exists('Snoopy')) {
 		include('classes/class.snoopy.php');
 	}
-	
+
 	if (!preg_match('/^(http:\/\/)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $file, $url_ary)) {
 		return REMOTE_INVALID_URL;
 	}
@@ -93,7 +93,7 @@ function checkRemotePic($pic, $id) {
 	if (strlen($avatar_data) > $config['avfilesize']) {
 		return REMOTE_FILESIZE_ERROR;
 	}
-	
+
 	$filename = md5(uniqid($id));
 	$origfile = 'temp/'.$filename;
 	$filesystem->file_put_contents($origfile, $avatar_data);
@@ -124,8 +124,16 @@ function checkRemotePic($pic, $id) {
 	$pic = $dir.$id.$ext;
 	removeOldImages($dir, $id);
 	@$filesystem->copy($origfile, $pic);
-	
+
 	return $pic;
+}
+
+function saveCommaSeparated($list) {
+	$list = preg_replace('~[^\d,]+~i', '', $list);
+	$list = explode(',', $list);
+	$list = array_empty_trim($list);
+	$list = implode(',', $list);
+	return $list;
 }
 
 function JS_URL($url) {
@@ -133,7 +141,7 @@ function JS_URL($url) {
 		$url = $command[1];
 	}
 	else {
-		$url = "'location.href=\"{$url}\"'";
+		$url = 'location.href="'.$url.'"';
 	}
 	return $url;
 }
@@ -198,10 +206,15 @@ function array_empty($array) {
 
 function array_empty_trim($arr) {
 	$array = array();
-	foreach($arr as $key => $val) {
-		$trimmed = trim($val);
-		if (!empty($trimmed)) {
-			$array[$key] = $val;
+	if (!is_array($arr)) {
+		trigger_error('array_empty_trim() expected argument to be an array!', E_USER_NOTICE);
+	}
+	else {
+		foreach($arr as $key => $val) {
+			$trimmed = trim($val);
+			if (!empty($trimmed)) {
+				$array[$key] = $val;
+			}
 		}
 	}
 	return $array;
@@ -239,7 +252,7 @@ function file2array($file, $delimiter = ';') {
 
 	$filearray = array();
 	$lines = file($file);
-	
+
 	foreach ($lines as $row) {
 		$row = rtrim($row);
 		$row = explode($delimiter,$row, 2);
@@ -263,7 +276,7 @@ function invert ($int) {
 	return $int;
 }
 
-function extract_dir($source, $realpath = true) { 
+function extract_dir($source, $realpath = true) {
 	if ($realpath) {
 		$source = realpath($source);
 	}
@@ -280,7 +293,7 @@ function extract_dir($source, $realpath = true) {
 	else {
 		$dest = '';
 	}
-	return $dest; 
+	return $dest;
 }
 
 /*	Delete a file, or a folder and its contents
@@ -296,7 +309,7 @@ function rmdirr($dirname) {
 	}
 	if (is_file($dirname)) {
 		return $filesystem->unlink($dirname);
-	} 
+	}
 	$dir = dir($dirname);
 	while (false !== $entry = $dir->read()) {
 		if ($entry == '.' || $entry == '..') {
@@ -304,24 +317,24 @@ function rmdirr($dirname) {
 		}
 		if (is_dir("$dirname/$entry")) {
 			rmdirr("$dirname/$entry");
-		} 
+		}
 		else {
 			$filesystem->unlink("$dirname/$entry");
 		}
-	}  
-	$dir->close(); 
+	}
+	$dir->close();
 	return $filesystem->rmdir($dirname);
 }
-/** 
- * Copy a file, or recursively copy a folder and its contents 
- * 
- * @author      Aidan Lister <aidan@php.net> 
- * @version     1.0.1 
- * @link        http://aidanlister.com/repos/v/function.copyr.php 
- * @param       string   $source    Source path 
- * @param       string   $dest      Destination path 
- * @return      bool     Returns TRUE on success, FALSE on failure 
- */ 
+/**
+ * Copy a file, or recursively copy a folder and its contents
+ *
+ * @author      Aidan Lister <aidan@php.net>
+ * @version     1.0.1
+ * @link        http://aidanlister.com/repos/v/function.copyr.php
+ * @param       string   $source    Source path
+ * @param       string   $dest      Destination path
+ * @return      bool     Returns TRUE on success, FALSE on failure
+ */
 function copyr($source, $dest) {
 	global $filesystem;
     if (is_file($source)) {
@@ -382,94 +395,94 @@ function serverload($int = false) {
 	return $returnload;
 }
 
-function convert2adress($url) { 
-    
-   $url = strtolower($url); 
-    
-   $find = array(' ', 
-      '&quot;', 
-      '&', 
-      '\r\n', 
-      '\n', 
-      '/', 
-      '\\', 
-      '+', 
-      '<', 
-      '>'); 
-   $url = str_replace ($find, '-', $url); 
-    
-   $find = array('é', 
-      'è', 
-      'ë', 
-      'ê', 
-      'É', 
-      'È', 
-      'Ë', 
-      'Ê'); 
-   $url = str_replace ($find, 'e', $url); 
-    
-   $find = array('í', 
-      'ì', 
-      'î', 
-      'ï', 
-      'Í', 
-      'Ì', 
-      'Î', 
-      'Ï'); 
-   $url = str_replace ($find, 'i', $url); 
-    
-   $find = array('ó', 
-      'ò', 
-      'ô', 
-      'Ó', 
-      'Ò', 
-      'Ô'); 
-   $url = str_replace ($find, 'o', $url); 
-    
-   $find = array('ö', 
-       'Ö'); 
-   $url = str_replace ($find, 'oe', $url); 
-    
-   $find = array('á', 
-      'à', 
-      'â', 
-      'Á', 
-      'À', 
-      'Â'); 
-   $url = str_replace ($find, 'a', $url); 
-    
-   $find = array('ä', 
-       'Ä'); 
-   $url = str_replace ($find, 'ae', $url); 
-    
-   $find = array('ú', 
-      'ù', 
-      'û', 
-      'Ú', 
-      'Ù', 
-      'Û'); 
-   $url = str_replace ($find, 'u', $url); 
-    
-   $find = array('ü', 
-       'Ü'); 
-   $url = str_replace ($find, 'ue', $url); 
-    
-   $find = array('ß'); 
-   $url = str_replace ($find, 'ss', $url); 
-    
-   $find = array('/[^a-z0-9\-<>]/', 
-      '/[\-]+/', 
-      '/<[^>]*>/'); 
-    
-   $repl = array('', 
-      '-', 
-      ''); 
-    
-   $url =  preg_replace ($find, $repl, $url); 
-    
-   $url = str_replace ('--', '-', $url); 
+function convert2adress($url) {
 
-   return $url; 
+   $url = strtolower($url);
+
+   $find = array(' ',
+      '&quot;',
+      '&',
+      '\r\n',
+      '\n',
+      '/',
+      '\\',
+      '+',
+      '<',
+      '>');
+   $url = str_replace ($find, '-', $url);
+
+   $find = array('é',
+      'è',
+      'ë',
+      'ê',
+      'É',
+      'È',
+      'Ë',
+      'Ê');
+   $url = str_replace ($find, 'e', $url);
+
+   $find = array('í',
+      'ì',
+      'î',
+      'ï',
+      'Í',
+      'Ì',
+      'Î',
+      'Ï');
+   $url = str_replace ($find, 'i', $url);
+
+   $find = array('ó',
+      'ò',
+      'ô',
+      'Ó',
+      'Ò',
+      'Ô');
+   $url = str_replace ($find, 'o', $url);
+
+   $find = array('ö',
+       'Ö');
+   $url = str_replace ($find, 'oe', $url);
+
+   $find = array('á',
+      'à',
+      'â',
+      'Á',
+      'À',
+      'Â');
+   $url = str_replace ($find, 'a', $url);
+
+   $find = array('ä',
+       'Ä');
+   $url = str_replace ($find, 'ae', $url);
+
+   $find = array('ú',
+      'ù',
+      'û',
+      'Ú',
+      'Ù',
+      'Û');
+   $url = str_replace ($find, 'u', $url);
+
+   $find = array('ü',
+       'Ü');
+   $url = str_replace ($find, 'ue', $url);
+
+   $find = array('ß');
+   $url = str_replace ($find, 'ss', $url);
+
+   $find = array('/[^a-z0-9\-<>]/',
+      '/[\-]+/',
+      '/<[^>]*>/');
+
+   $repl = array('',
+      '-',
+      '');
+
+   $url =  preg_replace ($find, $repl, $url);
+
+   $url = str_replace ('--', '-', $url);
+
+   return $url;
 }
 
 function is_id ($x) {
@@ -527,30 +540,30 @@ function check_hp($hp) {
 }
 function check_mail($email) {
 	global $config;
-	if(preg_match("/^([_a-zA-Zäöü0-9-]+(\.[_a-zA-Z0-9äöu-]+)*@[a-zA-Zäöu0-9-]+(\.[a-zA-Z0-9äöü-]+)*(\.[a-zA-Z]{2,}))/si",$email)){
-	    if ($config['sessionmails'] == 0) {
-	    	// get the domain in lower case
-	    	$domain = strstr($email, '@');
-	    	$domain = substr($domain, 1);
-	    	$domain = strtolower($domain);
-	    	// get the known doamins in lower case
+	if(preg_match("/^([_a-zA-Zäöü0-9-]+(\.[_a-zA-Z0-9äöu-]+)*@[a-zA-Zäöu0-9-]+(\.[a-zA-Z0-9äöü-]+)*(\.[a-zA-Z]{2,}))/si", $email)) {
+	 	list(, $domain) = explode('@', $email);
+	 	$domain = strtolower($domain);
+		// Check MX record.
+	 	// The idea for this is from UseBB/phpBB
+	 	if ($config['email_check_mx']) {
+	 		if (checkdnsrr($domain, 'MX') === false) {
+	 			return false;
+	 		}
+	 	}
+		if ($config['sessionmails'] == 1) {
+	    	// get the known domains in lower case
 	    	$sessionmails = file('data/sessionmails.php');
 	    	$sessionmails = array_map("trim", $sessionmails);
 	    	$sessionmails = array_map("strtolower", $sessionmails);
 			// compare the data and return the result
 			if (in_array($domain, $sessionmails)) {
-				return FALSE;
-			}
-			else {
-				return TRUE;
+				return false;
 			}
 	    }
-	    else {
-	    	return TRUE;
-	    }
+	    return true;
 	}
 	else {
-		return FALSE;
+		return false;
 	}
 }
 
@@ -623,12 +636,12 @@ function str_date($format, $time=FALSE) {
 		else {
 			$returndate = gmdate($format, $time);
 		}
-	
+
 	}
 	else {
 		$returndate = gmdate($format, $time);
 	}
-	
+
 	return $returndate;
 }
 
@@ -653,7 +666,7 @@ function UpdateBoardStats ($board) {
 
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='{$board}'",__LINE__,__FILE__);
 		$count2 = $db->fetch_num($result);
-		
+
 		$replies = $count[0]-$count2[0];
 		$topics = $count2[0];
 
@@ -663,7 +676,7 @@ function UpdateBoardStats ($board) {
 			$last[0] = 0;
 		}
 		$db->query("
-		UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last[0]}' 
+		UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last[0]}'
 		WHERE id = '{$board}'
 		",__LINE__,__FILE__);
 		$delobj = $scache->load('cat_bid');
@@ -799,16 +812,16 @@ function CheckForumTree($tree, &$tree2, $board) {
 
 function BoardSubs ($group = true) {
 	global $scache;
-	
+
 	$forumtree = $scache->load('forumtree');
 	$tree = $forumtree->get();
-	
+
 	$categories_obj = $scache->load('categories');
 	$categories = $categories_obj->get();
-	
+
 	$catbid = $scache->load('cat_bid');
 	$boards = $catbid->get();
-	
+
 	$tree2 = array();
 	$forums = SelectForums(array(), $tree, $categories, $boards, $group);
 	return implode("\n", $forums);
@@ -848,19 +861,17 @@ function check_forumperm($forum) {
 	
 	$catbid = $scache->load('cat_bid');
 	$forums = $catbid->get();
-
 	if (isset($tree[$forum['id']]) && is_array($tree[$forum['id']])) {
 		foreach ($tree[$forum['id']] as $id) {
-			if ($forums[$id]['opt'] == 'pw') {
-				if (!isset($my->pwfaccess[$id]) || $forums[$id]['optvalue'] != $my->pwfaccess[$id]) {
-					return false;
-				}
+			if ($forums[$id]['opt'] == 'pw' && (!isset($my->pwfaccess[$id]) || $forums[$id]['optvalue'] != $my->pwfaccess[$id])) {
+				return false;
 			}
 			if ($forums[$id]['invisible'] == 2) {
 				return false;
 			}
 		}
 	}
+
 	if ($my->p['forum'] == 0) {
 		if (isset($my->pb[$forum['id']]) && $my->pb[$forum['id']]['forum'] == 1) {
 			return true;
@@ -898,13 +909,13 @@ Params:
 
 function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachment = array()) {
 	global $config, $my, $lang, $bbcode;
-	
+
 	require_once("classes/mail/class.phpmailer.php");
 	require_once('classes/mail/extended.phpmailer.php');
-	
+
 	$mail = new PHPMailer();
 	$mail->CharSet = $lang->phrase('charset');
-	
+
 	// Added Check_mail for better security
 	// Now it is not possible to add various headers to the mail
 	if (!isset($from['mail']) || !check_mail($from['mail'])) {
@@ -937,7 +948,7 @@ function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachme
 	else {
 		$mail->IsMail();
 	}
-	
+
 	$mail->Subject = $topic;
 	if (!is_array($to)) {
 		$to = array('0' => array('mail' => $to));
@@ -961,14 +972,14 @@ function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachme
 	    else {
 	    	$mail->Body    = html_entity_decode($comment);
 	    }
-	    
+
 	    if (isset($email['name'])) {
 	    	$mail->AddAddress($email['mail'], $email['name']);
 	    }
 	    else {
 	    	$mail->AddAddress($email['mail']);
 	    }
-	    
+
 	    foreach ($attachment as $file) {
 	    	if ($file['type'] == 'string') {
 	    		$mail->AddStringAttachment($file['file'], $file['name']);
@@ -977,11 +988,11 @@ function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachme
 	    		$mail->AddAttachment($file['file'], $file['name']);
 	    	}
 	    }
-	
+
 		if ($mail->Send()) {
 			$i++;
 		}
-		
+
 	    $mail->ClearAddresses();
 	    $mail->ClearAttachments();
 	}

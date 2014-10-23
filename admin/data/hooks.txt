@@ -339,6 +339,12 @@ register.php
 -register_form_start
 -register_form_prepared
 -register_form_end
+-register_resend_start
+-register_resend_form_start
+-register_resend_form_end
+-register_resend2_start
+-register_resend2_check
+-register_resend2_end
 
 search.php
 -search_start

@@ -35,7 +35,7 @@
 			<?php echo iif (!empty($forum['description']), "<br />{$forum['description']}"); ?>
 			<?php if (count($forum['mod'])) { ?>
 			<br /><span class="stext">
-			<strong><?php echo $lang->phrase('forum_mods'); ?></strong> 
+			<strong><?php echo $lang->phrase('forum_mods'); ?></strong>
 			<?php foreach($forum['mod'] as $m) { ?>
 			<a href="profile.php?id=<?php echo $m['mid'].SID2URL_x; ?>"><?php echo $m['name']; ?></a><?php echo $m['sep']; ?>
 			<?php } ?>
@@ -56,15 +56,15 @@
 			<?php echo $forum['replies']; ?> <?php echo $lang->phrase('xreplies'); ?>
 		</td>
 		<td width="34%" class="stext">
-		<?php if($forum['btopic']) { ?>
-			<a href="showtopic.php?id=<?php echo $forum['tid'].SID2URL_x; ?>&amp;action=last">
-			<strong><?php echo $forum['btopic']; ?></strong>
+		<?php if(!empty($forum['l_topic'])) { ?>
+			<a href="showtopic.php?id=<?php echo $forum['l_tid'].SID2URL_x; ?>&amp;action=last">
+			<strong><?php echo $forum['l_topic']; ?></strong>
 			</a><br />
 			<span class="left nowrap">
-			<?php echo $lang->phrase('by'); ?> 
-			<?php echo iif ($forum['lname'][1], '<a href="profile.php?id='.$forum['lname'][1].SID2URL_x.'">'.$forum['lname'][0].'</a>', $forum['lname'][0]); ?>
+			<?php echo $lang->phrase('by'); ?>
+			<?php echo iif ($forum['l_name'][1], '<a href="profile.php?id='.$forum['l_name'][1].SID2URL_x.'">'.$forum['l_name'][0].'</a>', $forum['l_name'][0]); ?>
 			</span>
-			<span class="right nowrap"><?php echo $forum['bdate']; ?></span>
+			<span class="right nowrap"><?php echo $forum['l_date']; ?></span>
 		<?php } else { echo $lang->phrase('cat_no_lastpost'); } ?>
 		</td>
 	</tr>

@@ -20,6 +20,7 @@ var $positive;
 var $negative;
 var $boards;
 var $sidload;
+var $change_mid;
 
 /**
  * Constructor for this class.
@@ -40,10 +41,6 @@ function slog () {
 	$this->cookiedata = array(0, '');
 	$this->cookielastvisit = 0;
 	$this->defineGID();
-	$this->gFields = array('downloadfiles', 'forum', 'posttopics', 'postreplies', 'addvotes', 'attachments', 'edit', 'voting','admin', 'gmod', 'guest', 'members', 'profile', 'pdf', 'pm', 'wwo', 'search', 'team', 'usepic', 'useabout', 'usesignature', 'docs');
-	$this->fFields = array('f_downloadfiles', 'f_forum', 'f_posttopics', 'f_postreplies', 'f_addvotes', 'f_attachments', 'f_edit', 'f_voting');
-	$this->minFields = array('flood');
-	$this->maxFields = array();
 	$this->groups = array();
 	$this->permissions = array();
 	$this->querysid = true;
@@ -51,6 +48,11 @@ function slog () {
 	$this->negative = array();
 	$this->boards = array();
 	$this->sidload = false;
+	$this->change_mid = null;
+	$data = unserialize(file_get_contents('data/group_fields.php'));
+	foreach ($data as $key => $values) {
+		$this->$key = $values;
+	}
 }
 
 /**
@@ -242,8 +244,8 @@ function log_robot()  {
 function defineGID() {
 	global $db, $scache;
 
-	$groups_obj = $scache->load('groupstandard');
-	$data = $groups_obj->get();
+	$groups_obj = $scache->load('groups');
+	$data = $groups_obj->standard();
 
 	if (!defined('GROUP_GUEST')) {
 	    DEFINE('GROUP_GUEST', $data['group_guest']);
@@ -278,8 +280,8 @@ function getStatus($groups, $implode = '') {
 	global $scache;
 	$titles = array();
 	if (count($this->statusdata) == 0) {
-		$group_status = $scache->load('group_status');
-		$this->statusdata = $group_status->get();
+		$group_status = $scache->load('groups');
+		$this->statusdata = $group_status->status();
 	}
 	$groups = explode(',', $groups);
 	if (count($groups) == 1) {
@@ -354,40 +356,46 @@ function setlang($l1, $l2) {
 function updatelogged () {
 	global $my, $db, $gpc, $plugins;
 	$serialized = serialize($my->mark);
-	if (!is_array($my->pwfaccess)) {
+	if (!isset($my->pwfaccess) || !is_array($my->pwfaccess)) {
 		$my->pwfaccess = array();
 	}
 	if (!is_array($my->settings)) {
 		$my->settings = array();
 	}
-	$serializedpwf = serialize($my->pwfaccess);
-	$serializedstg = serialize($my->settings);
-	$sqlwhere = $sqlset = $sqluserset = '';
-	if ($my->id > 0) {
-		$sqlwhere = "mid = '".$my->id."'";
+	$serializedpwf = $gpc->save_str(serialize($my->pwfaccess));
+	$serializedstg = $gpc->save_str(serialize($my->settings));
+	$sqlwhere = $sqlset = array();
+	if ($my->id > 0 && !is_id($this->change_mid)) {
+		$sqlwhere[] = "mid = '{$my->id}'";
 	}
 	else {
-		$sqlwhere = "sid = '".$my->sid."'";
+		$sqlwhere[] = "sid = '{$this->sid}'";
 	}
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
 	
+	if (is_id($this->change_mid)) {
+		$sqlset[] = "mid = '{$this->change_mid}'";
+	}
+	
 	($code = $plugins->load('permissions_updatelogged_query')) ? eval($code) : null;
 	
-	$db->query ("
-	UPDATE {$db->pre}session 
-	SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."', pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}' {$sqlset} 
-	WHERE {$sqlwhere} 
-	LIMIT 1
-	",__LINE__,__FILE__);
+	$sqlset = iif(count($sqlset) > 0, ', ').implode(', ', $sqlset);
+	$sqlwhere2 = implode(', ', $sqlwhere);
+	
+	if (count($sqlwhere) > 0) {
+		$db->query ("
+		UPDATE {$db->pre}session 
+		SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."', 
+			pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}' {$sqlset} 
+		WHERE {$sqlwhere2} 
+		LIMIT 1
+		",__LINE__,__FILE__);
+	}
 
 	if ($my->vlogin) {
 		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
-		$db->query("
-		UPDATE {$db->pre}user 
-		SET lastvisit = '".time()."' {$sqluserset}  
-		WHERE id = '{$my->id}'
-		",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'",__LINE__,__FILE__);
 	}
 
 }
@@ -460,7 +468,7 @@ function logged () {
 		$this->sid = '';
 	}
 	
-	if (empty($this->sid)) {
+	if (empty($this->sid) && array_empty($this->cookiedata)) {
 		$result = $db->query('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1',__LINE__,__FILE__);
 		if ($db->num_rows() == 1) {
 			$sidrow = $db->fetch_assoc($result);
@@ -488,7 +496,7 @@ function logged () {
 		$my = $this->sid_load();
 	}
 	
-	$expire = $config['sessionsave']+1*60;
+	$expire = ($config['sessionsave']+1)*60;
 	makecookie($config['cookie_prefix'].'_vhash', $this->sid, $expire);
 	
 	if ($gpc->get('action') == "markasread" || !isset($my->mark)) {
@@ -652,7 +660,7 @@ function sid_load() {
 		$sid_checkip = "s.sid = '{$this->sid}'";
 	}
 
-	if (!empty($this->cookiedata[0]) && !empty($this->cookiedata[1])) {
+	if (!array_empty($this->cookiedata)) {
 		$sql = 'u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"';
 	}
 	elseif ($this->get_robot_type() == 'b') {
@@ -664,7 +672,9 @@ function sid_load() {
 
 	$result = $db->query('
 	SELECT u.*, f.*, s.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings, s.is_bot  
-	FROM '.$db->pre.'session AS s LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
+	FROM '.$db->pre.'session AS s 
+		LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id 
+		LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
 	WHERE '.$sql.'
 	LIMIT 1
 	',__LINE__,__FILE__);
@@ -697,7 +707,7 @@ function sid_load() {
 function sid_new() {
 	global $config, $db, $gpc;
 
-	if (!$this->sidload && $this->cookiedata[0] != 0) {
+	if (!$this->sidload && !array_empty($this->cookiedata)) {
 		$load = $db->query('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1',__LINE__,__FILE__);
 		if ($db->num_rows($load) == 1) {
 			$this->sidload = true;
@@ -763,7 +773,7 @@ function sid_logout() {
 	$db->query ("
 	UPDATE {$db->pre}session 
 	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0' 
-	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$my->sid}'")." 
+	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$this->sid}'")." 
 	LIMIT 1
 	",__LINE__,__FILE__);
 	$db->query("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'",__LINE__,__FILE__);
@@ -783,28 +793,40 @@ function sid_login($remember = true) {
 	$pw = $gpc->get('pw', str);
 
 	$result = $db->query("
-	SELECT u.*, f.*, s.mid 
+	SELECT u.*, f.*, s.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings, s.is_bot   
 	FROM {$db->pre}user AS u 
-		LEFT JOIN {$db->pre}session AS s ON s.mid = u.id 
+		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}') 
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id 
-	WHERE name = '{$username}' AND pw = MD5('{$pw}') 
-	LIMIT 1
+	WHERE u.name = '{$username}' AND u.pw = MD5('{$pw}') AND s.is_bot = '0'
 	",__LINE__,__FILE__);
-
-	$my2 = array();
-	$my2['mark'] = $my->mark;
-	$my2['sid'] = $my->sid;
-
-	$mytemp = $gpc->prepare($db->fetch_object($result));
-
-	if ($db->num_rows($result) == 1 && $mytemp->confirm == '11') {
+	$sessions = $db->num_rows($result);
 	
-		$my = &$mytemp;
-		
-		$my->vlogin = TRUE;
-		
-		$my->mark = $my2['mark'];
-		$my->sid = $my2['sid'];
+	if ($sessions > 1) {
+		while ($row = $db->fetch_object($result)) {
+			if ($row->sid == $this->sid) {
+				$mytemp = $gpc->prepare($row);
+				break;
+			}
+		}
+		if (!isset($mytemp)) {
+			$mytemp = $gpc->prepare($row);
+			unset($row);
+		}
+		else {
+			unset($row);
+			$db->query("DELETE FROM {$db->pre}session WHERE mid = '{$mytemp->id}' AND sid != '{$mytemp->sid}'");
+		}
+	}
+	else {
+		$mytemp = $gpc->prepare($db->fetch_object($result));
+	}
+
+	if ($sessions > 0 && $mytemp->confirm == '11') {
+	
+		$mytemp->mark = $my->mark;
+		$my = $mytemp;
+		unset($mytemp);
+		$my->vlogin = true;
 		$my->p = $this->Permissions();
 		
 		if (!isset($my->timezone)) {
@@ -856,16 +878,6 @@ function sid_login($remember = true) {
 			$my->settings['q_lng'] = $q_lng;
 			$my->language = $q_lng;
 		}
-		
-		if (!empty($my->mid)) {
-			$sqlwhere = "mid = '{$my->id}'";
-			if ($this->cookies) {
-				$db->query ("DELETE FROM {$db->pre}session WHERE sid = '{$my->sid}' LIMIT 1",__LINE__,__FILE__);
-			}
-		}
-		else {
-			$sqlwhere = "sid = '{$my->sid}'";	
-		}
 		if (!isset($my->settings) || !is_array($my->settings)) {
 			$my->settings = array();
 		}
@@ -873,14 +885,14 @@ function sid_login($remember = true) {
 		$action = $gpc->get('action', str);
 		$qid = $gpc->get('id', int);
 		
-		$db->query ("UPDATE {$db->pre}session SET settings = '".serialize($my->settings)."', mark = '".serialize($my->mark)."', wiw_script = '".SCRIPTNAME."', wiw_action = '".$action."', wiw_id = '".$qid."', active = '".time()."', mid = '$my->id', lastvisit = '$my->lastvisit' WHERE $sqlwhere LIMIT 1",__LINE__,__FILE__);
+		$this->change_mid = $my->id;
 		if ($remember == true) {
 			$expire = 31536000;
 		}
 		else {
 			$expire = null;
 		}
-		makecookie($config['cookie_prefix'].'_vdata', $my->id."|".$my->pw, $expire);
+		makecookie($config['cookie_prefix'].'_vdata', $my->id.'|'.$my->pw, $expire);
 		makecookie($config['cookie_prefix'].'_vlastvisit', $my->lastvisit);
 		$this->cookiedata[0] = $my->id;
 		$this->cookiedata[1] = $my->pw;
@@ -1016,8 +1028,8 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 	$this->groups = explode(',', $groups);
 	
 	if (count($this->statusdata) == 0) {
-		$group_status = $scache->load('group_status');
-		$this->statusdata = $group_status->get();
+		$group_status = $scache->load('groups');
+		$this->statusdata = $group_status->status();
 	}
 	
 	$groups = array();
@@ -1034,14 +1046,15 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 			$groups[] = GROUP_GUEST;
 		}
 	}
-	$this->groups = $groups;
-	$groups = implode(',', $groups);
 	
 	$keys = array_merge($this->gFields, $this->maxFields, $this->minFields);
 	$permissions = array_combine($keys, array_fill(0, count($keys), array()));
-	$result = $db->query("SELECT ".implode(', ', $keys)." FROM {$db->pre}groups WHERE id IN ({$groups})");
-	if ($db->num_rows() > 1) {
-		while ($row = $db->fetch_assoc($result)) {
+	$groupdb_cache = $scache->load('groups');
+	$groupdb = $groupdb_cache->groups();
+	$this->groups = array_intersect(array_keys($groupdb), $groups);
+	if (count($this->groups) > 1) {
+		foreach ($this->groups as $gid) {
+			$row = $groupdb[$gid];
 			foreach ($row as $key => $value) {
 				$permissions[$key][] = $value;
 			}
@@ -1056,7 +1069,8 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 		}
 	}
 	else {
-		$permissions = $db->fetch_assoc($result);
+		$gid = current($this->groups);
+		$permissions = $groupdb[$gid];
 	}
 	// Set positive and negative with global group settings
 	$boardid = $this->getBoards();
@@ -1089,27 +1103,22 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 		if (count($boards) == 0) {
 			return $permissions;
 		}
-		elseif (count($boards) == 1) {
-			$sqlwherebid = "= '{$board}'";
-		}
-		else {
-			$sqlwherebid = "IN (".implode(',', $boards).")";
-		}
 
-		$result = $db->query("SELECT gid, bid, ".implode(', ', $this->fFields)." FROM {$db->pre}fgroups WHERE gid IN ({$groups},0) AND bid {$sqlwherebid}");
-		if ($db->num_rows() == 0) {
+		$groups[] = 0;
+		$fgroups_cache = $scache->load('fgroups');
+		$fgroups = $fgroups_cache->getBoard($groups, iif(count($boards) == 1, $board, $boards));
+		if (count($fgroups) == 0) {
 			return $permissions;
 		}
 		
 		$permissions2 = array();
 		$fpermissions = array_combine($boards, array_fill(0, count($boards), array()));
-		while ($row = $db->fetch_assoc($result)) {
-			$gid = $row['gid'];
-			$bid = $row['bid'];
-			unset($row['gid'], $row['bid']);
-			$fpermissions[$bid][$gid] = $row;
+		foreach ($fgroups as $gid => $trow) {
+			foreach ($trow as $bid => $row) {
+				$fpermissions[$bid][$gid] = $row;
+			}
 		}
-
+		
 		$gkeys = array();
 		foreach ($boards as $bid) {
 			$gkeys = array_merge($gkeys, array_intersect(array_keys($fpermissions[$bid]), $this->groups));
@@ -1171,9 +1180,12 @@ function GlobalPermissions() {
 	$parent = $parent_forums->get();
 	$boardid = array_keys($parent);
 	
-	$groups = implode(',', $this->groups);
-	$result = $db->query("SELECT gid, bid, ".implode(', ', $this->fFields)." FROM {$db->pre}fgroups WHERE gid IN ({$groups},0)");
-	if ($db->num_rows() == 0) {
+	$groups = $this->groups;
+	$groups[] = 0;
+	$fgroups_cache = $scache->load('fgroups');
+	$fgroups = $fgroups_cache->getGlobal($groups);
+
+	if (count($fgroups) == 0) {
 		if (count($boardid) == 0) {
 			return array();
 		}
@@ -1187,11 +1199,10 @@ function GlobalPermissions() {
 		$fpermissions = array();
 	}
 	
-	while ($row = $db->fetch_assoc($result)) {
-		$gid = $row['gid'];
-		$bid = $row['bid'];
-		unset($row['gid'], $row['bid']);
-		$fpermissions[$bid][$gid] = $row;
+	foreach ($fgroups as $gid => $trow) {
+		foreach ($trow as $bid => $row) {
+			$fpermissions[$bid][$gid] = $row;
+		}
 	}
 
 	$fFieldValues = array();

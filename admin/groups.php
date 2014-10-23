@@ -93,9 +93,7 @@ elseif ($job == 'ajax_changeperm') {
 	}
 	$perm = invert($perm[$key]);
 	$db->query("UPDATE {$db->pre}groups AS g SET g.{$key} = '{$perm}' WHERE id = '{$id}' LIMIT 1");
-	$delobj = $scache->load('group_status');
-	$delobj->delete();
-	$delobj = $scache->load('team_ag');
+	$delobj = $scache->load('groups');
 	$delobj->delete();
 	die(strval($perm));
 }
@@ -223,7 +221,7 @@ elseif ($job == 'add2') {
 	$gid = $db->insert_id();
 
 	$copyf = $gpc->get('copyf', int);
-	if ($copy == 1 && $copyf == 1) {
+	if ($copy > 0 && $copyf == 1) {
 		$fields = array('f_downloadfiles', 'f_forum', 'f_posttopics', 'f_postreplies', 'f_addvotes', 'f_attachments', 'f_edit', 'f_voting');
 		$result = $db->query("SELECT * FROM {$db->pre}fgroups WHERE gid = '{$gid}'");
 		while ($row = $db->fetch_assoc($result)) {
@@ -235,7 +233,9 @@ elseif ($job == 'add2') {
 		}
 	}
 	
-	$delobj = $scache->load('group_status');
+	$delobj = $scache->load('groups');
+	$delobj->delete();
+	$delobj = $scache->load('fgroups');
 	$delobj->delete();
 	if ($db->affected_rows()) {
 		ok('admin.php?action=groups&job=manage');
@@ -250,10 +250,13 @@ elseif ($job == 'delete') {
 	if (isset($_POST['submit_delete']) && count($del) > 0) {
 		$db->query("DELETE FROM {$db->pre}groups WHERE id IN (".implode(',',$del).")");
 		$anz = $db->affected_rows();
-		$delobj = $scache->load('group_status');
+		$db->query("DELETE FROM {$db->pre}fgroups WHERE gid IN (".implode(',',$del).")");
+		$delobj = $scache->load('groups');
+		$delobj->delete();
+		$delobj = $scache->load('fgroups');
 		$delobj->delete();
 		echo head();
-		ok('admin.php?action=groups&job=manage', $anz.' entries deleted');
+		ok('admin.php?action=groups&job=manage', $anz.' groups deleted');
 	}
 	elseif (isset($_POST['submit_edit']) && $edit > 0) {
 		viscacha_header('Location: admin.php?action=groups&job=edit&id='.$edit);
@@ -331,7 +334,7 @@ elseif ($job == 'edit2') {
 	
 	$db->query('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1', __LINE__, __FILE__);
 	
-	$delobj = $scache->load('group_status');
+	$delobj = $scache->load('groups');
 	$delobj->delete();
 	
 	if ($db->affected_rows()) {

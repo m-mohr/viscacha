@@ -15,7 +15,7 @@ elseif (empty($job) || $job == 'start') {
 	
 	// Install-folder
 	if (is_dir('./install/')) {
-		$tasks[] = '<span style="color: red;">Please completely remove the installation directory ('.realpath('install/').') including all files and sub-folders. Leaving it on your server <strong>can compromise</strong> the security of your system.</span>';
+		$tasks[] = '<span style="color: red;">Please completely remove the installation directory ('.realpath('install/').') including all files and sub-folders. Leaving it on your server <strong>can compromise</strong> the security of your system. <strong><a href="admin.php?action=explorer&amp;path='.rawurlencode('./install/').'&amp;job=delete&amp;type=dir">Click here to remove the installation directory.</a></strong></span>';
 	}
 	
 	// Count the inactive members

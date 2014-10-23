@@ -75,7 +75,7 @@ function createParentDir($parentfile, $path) {
 }
 
 function getLangCodes() {
-	global $db, $myini;
+	global $db;
 	$l = array();
 	$result = $db->query('SELECT id FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
 	while($row = $db->fetch_assoc($result)) {

@@ -119,7 +119,9 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'locate') {
 		$url = $gpc->get('url', none);
 		if (!empty($url)) {
+			$db->close();
 			viscacha_header('Location: '.$url);
+			exit;
 		}
 		else {
 			echo head();
@@ -153,7 +155,7 @@ else {
 		error('index.php'.SID2URL_1, 'You are not allowed to view this page!');
 	}
 	
-	$addr = $gpc->get('addr', none);
+	$addr = rawurldecode($gpc->get('addr', none));
 	if ($action == "login2") {
 		$log_status = $slog->sid_login(true);
 		echo head();

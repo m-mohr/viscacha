@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -64,7 +64,7 @@ if ($_GET['order'] != 'desc') {
 	$_GET['order'] = 'asc';
 }
 $_GET['sort'] = strtolower($_GET['sort']);
-if ($_GET['sort'] != 'posts' && $_GET['sort'] != 'regdate' && $_GET['sort'] != 'location' && $_GET['sort'] != 'gender' && $_GET['sort'] != 'birthday' && $_GET['sort'] != 'lastvisit') {
+if ($_GET['sort'] != 'hp' && $_GET['sort'] != 'online' && $_GET['sort'] != 'posts' && $_GET['sort'] != 'regdate' && $_GET['sort'] != 'location' && $_GET['sort'] != 'gender' && $_GET['sort'] != 'birthday' && $_GET['sort'] != 'lastvisit') {
 	$sqlorderby = "name {$_GET['order']}";
 }
 else {
@@ -81,8 +81,8 @@ if ($config['mlist_showinactive'] == 0) {
 $groups = array();
 $g = $gpc->get('g', arr_int);
 if ($config['mlist_filtergroups'] > 0) {
-	$group_status = $scache->load('group_status');;
-	$statusdata = $group_status->get();
+	$groups = $scache->load('groups');
+	$statusdata = $groups->status();
 	foreach ($statusdata as $row) {
 		if ($row['guest'] != 1) {
 			$groups[$row['id']] = $row['title'];
@@ -142,6 +142,17 @@ $temp = pages($count[0], $config['mlistenzahl'], "members.php?{$query_page}&amp;
 $start = $_GET['page']*$config['mlistenzahl'];
 $start = $start-$config['mlistenzahl'];
 
+$sqljoin = '';
+$online_key = array_search('online', $fields);
+if ($online_key !== false) {
+	$sqljoin = "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id";
+	unset($fields[$online_key]);
+	$online = true;
+}
+else {
+	$online = false;
+}
+
 $fields[] = 'name';
 $fields[] = 'id';
 $key = array_search('pm', $fields);
@@ -153,12 +164,16 @@ else {
 	$pm = false;
 }
 $sqlselect = implode(',', $fields);
+if ($online_key !== false) {
+	$sqlselect .= ", IF (s.mid > 0, 1, 0) AS online";
+}
 
 $result = $db->query("
-SELECT {$sqlselect} 
-FROM {$db->pre}user 
-WHERE {$sqlwhere} 
-ORDER BY {$sqlorderby} 
+SELECT {$sqlselect}
+FROM {$db->pre}user AS u
+{$sqljoin}
+WHERE {$sqlwhere}
+ORDER BY {$sqlorderby}
 LIMIT {$start},{$config['mlistenzahl']}
 ",__LINE__,__FILE__);
 
@@ -200,6 +215,9 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 	if(isset($row['lastvisit'])) {
 		$row['lastvisit'] = iif ($row['lastvisit'] > 0, gmdate($lang->phrase('dformat1'), times($row['lastvisit'])), $lang->phrase('members_na'));
 	}
+	if (isset($row['online'])) {
+		$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
+	}
 	($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
 	$inner['index_bit'] .= $tpl->parse("members/index_bit");
 }
@@ -209,7 +227,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 $letter = $lang->phrase('members_all');
 $row = array('letter' => '');
 $inner['index_letter'] = $tpl->parse("members/index_letter");
-$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter",__LINE__,__FILE__); 
+$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter",__LINE__,__FILE__);
 while ($row = mysql_fetch_assoc($result)) {
 	$letter = &$row['letter'];
 	$inner['index_letter'] .= $tpl->parse("members/index_letter");
@@ -223,5 +241,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();	
+$db->close();
 ?>

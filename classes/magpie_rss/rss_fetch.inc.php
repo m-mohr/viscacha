@@ -31,8 +31,6 @@ require_once( MAGPIE_DIR . 'rss_parse.inc.php' );
 require_once( MAGPIE_DIR . 'rss_cache.inc.php' );
 
 require_once(extract_dir(MAGPIE_DIR) . 'class.snoopy.php');
-$grabrss = $scache->load('grabrss');
-$grabrss_cache = $grabrss->get();
 
 /* 
  * CONSTANTS - redefine these in your script to change the

@@ -1,29 +1,16 @@
 <div class="border">
 <h3><img src="<?php echo $tpl->img('vote'); ?>" alt="" /> <?php echo $lang->phrase('add_vote_to_thread'); ?></h3>
 <div class="bfoot"><?php echo $lang->phrase('title_refresh_vote_replies'); ?></div>
+<form method="post" action="newtopic.php?action=savevote&amp;id=<?php echo $board; ?>&amp;topic_id=<?php echo $_GET['topic_id'].SID2URL_x; ?>">
 <div class="bbody">
-    <form name="form2" method="post" action="newtopic.php?action=startvote&amp;id=<?php echo $board; ?>&amp;topic_id=<?php echo $_GET['topic_id'].SID2URL_x; ?>">
-    <?php if (count($error) > 0) { ?>
-    <div class="iefix_left">
-    <strong><?php echo $lang->phrase('error'); ?></strong><br />
-    <ul>
-    <?php foreach ($error as $row) { ?>
-    <li><?php echo $row; ?></li>
-    <?php } ?>
-    </ul>
-    </div>
-    <br class="newinput" /><hr class="formsep" />
-    <?php } ?>
     <label for="temp"><?php echo $lang->phrase('add_vote_replies'); ?><br /><span class="stext"><?php echo $lang->phrase('add_vote_replies_desc'); ?></span></label>
     <div class="label">
-    <input type="text" size="3" id="temp" name="temp" value="<?php echo $_GET['temp']; ?>" />
-    <input type="submit" value="<?php echo $lang->phrase('refresh_form'); ?>" />
+    <input type="text" size="3" id="temp" name="temp" value="<?php echo $temp; ?>" />
+    <input type="submit" name="Update" value="<?php echo $lang->phrase('refresh_form'); ?>" />
     </div>
     <br class="newinput" />
-    </form>
 </div>
 <?php if (count($error) == 0) { ?>
-<form name="form2" method="post" action="newtopic.php?action=savevote&amp;id=<?php echo $board; ?>&amp;topic_id=<?php echo $_GET['topic_id']; ?>&amp;temp=<?php echo $_GET['temp'].SID2URL_x; ?>">
 <div class="bfoot"><?php echo $lang->phrase('title_vote_question_replies'); ?></div>  
 <div class="bbody">
     <label for="question"><?php echo $lang->phrase('add_vote_question'); ?></label>
@@ -33,9 +20,9 @@
 <div class="bfoot"><?php echo $lang->phrase('title_vote_replies'); ?></div>		  
 <div class="bbody">
     <?php 
-    for ($i = 1; $i <= $_GET['temp']; $i++) { 
-    echo iif($i > 1, '<hr class="formsep" />');
-    $lang->assign('i', $i);
+    for ($i = 1; $i <= $temp; $i++) { 
+        echo iif($i > 1, '<hr class="formsep" />');
+        $lang->assign('i', $i);
     ?>
     <label for="notice_<?php echo $i; ?>"><?php echo $lang->phrase('add_vote_reply'); ?></label>
     <input type="text" size="40" id="notice_<?php echo $i; ?>" class="label" name="notice[<?php echo $i; ?>]" value="<?php echo $data[$i]; ?>" />
@@ -43,7 +30,7 @@
     <?php } ?>
     <br class="iefix_br" />
 </div>
-<div class="bfoot center"><input type="submit" accesskey="s" name="Submit2" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input type="submit" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </form>
 <?php } ?>
 </div>

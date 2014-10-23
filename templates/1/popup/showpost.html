@@ -13,8 +13,11 @@
 </div>
 <div class="inlineheader h3">
   <div class="viewmembername">
-    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a><br />
-    <span class="stext"><?php echo $row->level; ?></span>
+    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a>
+    <?php if ($config['post_user_status'] == 1 && $row->guest == 0) { ?>
+    <img src="<?php echo $tpl->img(iif($row->online == 1, 'online', 'offline')); ?>"  title="<?php echo $row->lang_online; ?>" alt="<?php echo $row->lang_online; ?>" />
+    <?php } ?>
+    <br /><span class="stext"><?php echo $row->level; ?></span>
   </div>
   <?php if ($row->guest == 0) { ?>
   <div class="viewmemberdetails stext">
@@ -37,7 +40,7 @@ if (!empty($inner['upload_box'])) {
    <br class="uploadbox_br" />
 <?php } if ($bottom) { ?>
    <hr />
-  <?php if (!empty($row->fullname)) { ?>
+  <?php if (!empty($row->fullname) && $config['fullname_posts'] == 1) { ?>
    <div class="fullname stext"><?php echo $row->fullname; ?></div>
   <?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
    <div class="signature"><?php echo $row->signature; ?></div>

@@ -12,7 +12,7 @@ $lang['wwo_editprofile'] = 'is viewing their own profile';
 $lang['wwo_fallback'] = '-';
 $lang['wwo_forum'] = 'is viewing the <a href="forum.php">board overview</a>';
 $lang['wwo_log_login'] = 'is logging in';
-$lang['wwo_log_logout'] = 'is logging out out';
+$lang['wwo_log_logout'] = 'is logging out';
 $lang['wwo_log_pwremind'] = 'is wanting to be reminded of his password';
 $lang['wwo_manageforum'] = 'is administering a board';
 $lang['wwo_managemembers'] = 'is performing administration on the members';

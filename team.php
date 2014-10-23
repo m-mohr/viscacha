@@ -47,8 +47,8 @@ echo $tpl->parse("menu");
 
 ($code = $plugins->load('team_top')) ? eval($code) : null;
 
-$team_ag = $scache->load('team_ag');
-$team = $team_ag->get();
+$groups = $scache->load('groups');
+$team = $groups->team();
 
 $cache = array();
 $t = array_merge($team['admin'], $team['gmod']);

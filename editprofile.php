@@ -360,7 +360,10 @@ elseif ($_GET['action'] == "about2") {
 	if (count($error) > 0 || !empty($_POST['Preview'])) {
 		$fid = save_error_data($_POST['about']);
 		if (!empty($_POST['Preview'])) {
+			$slog->updatelogged();
+			$db->close();
 			viscacha_header("Location: editprofile.php?action=about&job=preview&fid=".$fid.SID2URL_JS_x);
+			exit;
 		}
 		else {
 			error($error, "editprofile.php?action=about&amp;fid=".$fid.SID2URL_x);

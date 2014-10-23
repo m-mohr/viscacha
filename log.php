@@ -25,7 +25,6 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'log');
-DEFINE('TEMPSHOWLOG', 1);
 
 include("data/config.inc.php");
 include("classes/function.viscacha_frontend.php");
@@ -44,7 +43,10 @@ if ($_GET['action'] == "login2") {
 	$remember = $gpc->get('remember', int, 1);
 	$loc = getRedirectURL();
 	if ($my->vlogin) {
-		viscacha_header($loc);
+		$slog->updatelogged();
+		$db->close();
+		viscacha_header("Location: {$loc}");
+		exit;
 	}
 
 	if ($remember == 1) {
@@ -67,7 +69,10 @@ if ($_GET['action'] == "login2") {
 elseif ($_GET['action'] == "logout") {
 
 	if (!$my->vlogin) {
+		$slog->updatelogged();
+		$db->close();
 		viscacha_header('Location: log.php');
+		exit;
 	}
 	else {
 		$loc = getRedirectURL();

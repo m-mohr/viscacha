@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -147,17 +147,21 @@ function GroupCheck($groups) {
     }
 }
 
-function numbers ($nvar,$deci=NULL) {
+function numbers ($nvar,$deci=null) {
 	global $config, $lang;
-	
-	if ($nvar == '-') return $nvar;
-	
-	if (strstr($nvar,'.') == false) $deci = '0';
-	else $deci = $config['decimals'];
-	
-	$var = number_format($nvar, $deci, $lang->phrase('decpoint'), $lang->phrase('thousandssep'));
-	
-	return $var;
+
+	if (!is_numeric($nvar)) {
+		return $nvar;
+	}
+
+	if ($deci == null) {
+		$deci = $config['decimals'];
+	}
+	if (strpos($nvar, '.') === false) {
+		$deci = 0;
+	}
+
+	return number_format($nvar, $deci, $lang->phrase('decpoint'), $lang->phrase('thousandssep'));
 }
 
 function formatFilesize($byte) {
@@ -203,7 +207,7 @@ function get_headboards($fc, $last, $returnids = FALSE) {
 
 	$headids = array($last['id']);
 	$bc_cache = array();
-	
+
 	while ($last['bid'] > 0 && $fc[$last['bid']]['bid'] > -1) {
 		$last = $fc[$last['bid']];
 		$bc_cache[] = array(
@@ -213,11 +217,11 @@ function get_headboards($fc, $last, $returnids = FALSE) {
 		$headids[] = $last['id'];
 	}
 	$bc_cache = array_reverse($bc_cache);
-	
+
 	foreach ($bc_cache as $row) {
 		$breadcrumb->Add($row['title'], $row['url']);
 	}
-	
+
 	if ($returnids == TRUE) {
 		return $headids;
 	}
@@ -251,7 +255,7 @@ function get_mimetype($file) {
 
 	$mimetype_headers = $scache->load('mimetype_headers');
 	$mime = $mimetype_headers->get();
-    
+
     if (isset($mime[$ext])) {
 		return array(
 		'mime' => $mime[$ext]['mimetype'],
@@ -302,14 +306,14 @@ function pages ($anzposts, $epp, $uri, $p = 0, $template = '') {
 	        $pages[$i] = $i;
 	    }
 	}
-	
+
 	if ($p > 0) {
 		$tpl->globalvars(compact("p"));
 		$pages[$p] = $tpl->parse("main/pages_current".$template);
 	}
 
 	ksort($pages);
-	
+
 	$tpl->globalvars(compact("uri", "anz", "pages"));
 	$lang->assign('anz', $anz);
     return $tpl->parse("main/pages".$template);
@@ -350,10 +354,10 @@ function t2 ($time = NULL) {
 		$zeitmessung1 = $time;
 	}
 	$zeitmessung2=benchmarktime();
-	
+
 	$zeitmessung=$zeitmessung2-$zeitmessung1;
 	$zeitmessung=substr($zeitmessung,0,7);
-	
+
 	return $zeitmessung;
 }
 
@@ -396,13 +400,11 @@ function BoardSelect($board = 0) {
 	global $config, $my, $tpl, $db, $gpc, $lang, $scache, $plugins;
 
 	$found = false;
-	$sub_cache = array();
-	$sub_cache_last = array();
-	$forum_cache = array();
-	
+	$sub_cache = $forum_cache = $last_cache = array();
+
 	$categories_obj = $scache->load('categories');
 	$cat_cache = $categories_obj->get();
-	
+
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
 
@@ -412,40 +414,42 @@ function BoardSelect($board = 0) {
 	($code = $plugins->load('forums_query')) ? eval($code) : null;
     // Fetch Forums
 	$result = $db->query("
-	SELECT 
-    	f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,  
-    	t.topic as btopic, t.id as btopic_id, t.last as bdate, u.name AS uname, t.last_name AS bname
+	SELECT
+    	f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
+    	t.topic as l_topic, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
     FROM {$db->pre}forums AS f
-        LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id 
-        LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id 
+        LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id
+        LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id
     ORDER BY f.parent, f.position
 	",__LINE__,__FILE__);
-	
+
+	$keys = array('l_topic' => null, 'l_tid' => null, 'l_date' => null, 'l_uname' => null, 'l_name' => null, 'l_bid' => null);
+
 	if ($db->num_rows($result) == 0) {
 		$errormsg = array('There are currently no boards to show. Pleas visit the <a href="admin.php'.SID2URL_1.'">Admin Control Panel</a> and create some forums.');
-		$errorurl = '';
-		$tpl->globalvars(compact("errorurl","errormsg"));
+		$errorurl = $js_errorurl = '';
+		$tpl->globalvars(compact("js_errorurl", "errorurl","errormsg"));
 		echo $tpl->parse('main/error');
 		return $found;
-	} 
+	}
 
 	while($row = $db->fetch_assoc($result)) {
 		$row['name'] = $gpc->prepare($row['name']);
-		$row['uname'] = $gpc->prepare($row['uname']);
-		$row['bname'] = $gpc->prepare($row['bname']);
+		$row['l_uname'] = $gpc->prepare($row['l_uname']);
+		$row['l_name'] = $gpc->prepare($row['l_name']);
 		$row['bid'] = $cat_cache[$row['parent']]['parent'];
 	    // Caching for Subforums
 	    if (!empty($row['bid'])) {
 	        $sub_cache[$row['bid']][] = $row;
-	        $sub_cache_last[$row['id']] = $row;
 	    }
 	    // Caching the Forums
 	    if ($row['bid'] == $board) {
 	        $forum_cache[$row['parent']][] = $row;
 	    }
+	    $last_cache[$row['id']] = $row;
 	    ($code = $plugins->load('forums_caching')) ? eval($code) : null;
 	}
-	
+
 	// Work with the chached data!
     foreach ($cat_cache as $cat) {
     	$forums = array();
@@ -456,63 +460,33 @@ function BoardSelect($board = 0) {
             $found = true;
     		$forum['new'] = false;
     		$forum['show'] = true;
-    		
-            $forum['mbdate'] = $forum['bdate'];
-    	    
+
     	    // Subforendaten vererben (Letzter Beitrag, Markierung)
-    	    if(isset($sub_cache[$forum['id']])) {	
+    	    if(isset($sub_cache[$forum['id']])) {
     			$substats = SubStats($forum['topics'], $forum['replies'], $forum['id'], $sub_cache);
     			$forum['topics'] = $substats[0];
     			$forum['replies'] = $substats[1];
-    			$bids = $substats[2];
     		}
-    
-    		$last = $forum['last_topic'];
-    		$last_date = $forum['bdate'];
+
+			// Letzter Beitrag
+    		$last = $last_cache[$forum['id']];
     		if(isset($sub_cache[$forum['id']])) {
-    			foreach ($bids as $bidf) {
-    				$sub = $sub_cache_last[$bidf];
-    				if ($last_date < $sub['bdate']) {
-    					$last = $sub['id'];
-    					$last_date = $sub['bdate'];
+    			foreach ($substats[2] as $last_bid) {
+    				$sub = $last_cache[$last_bid];
+    				if ($last['l_date'] < $sub['l_date'] && check_forumperm($sub)) {
+    					$last = $sub;
     				}
     			}
     		}
+    		$forum = array_merge($forum, array_intersect_key($last, $keys));
 
-			$forum['lname'] = is_id($forum['bname']) ? $forum['uname'] : $forum['bname'];
+    		if (is_id($forum['l_name']) && isset($memberdata[$forum['l_name']])) {
+    			$forum['l_name'] = array($forum['l_uname'], $forum['l_name']);
+    		}
+    		else {
+    			$forum['l_name'] = array($forum['l_name'], 0);
+    		}
 
-    		if ($last != $forum['last_topic'] && check_forumperm($last)) {
-    			$forum['id2'] = $last;
-    			$forum['last_topic'] = $sub_cache_last[$last]['last_topic'];
-    			$forum['btopic_id'] = $sub_cache_last[$last]['btopic_id'];
-    			$forum['btopic'] = $sub_cache_last[$last]['btopic'];
-    			$forum['bdate'] = $sub_cache_last[$last]['bdate'];
-    			if (!isset($sub_cache_last[$last]['lname'])) {
-    				$forum['lname'] = is_id($sub_cache_last[$last]['bname']) ? $sub_cache_last[$last]['uname'] : $sub_cache_last[$last]['bname'];
-    			}
-    			else {
-    				$forum['lname'] = $sub_cache_last[$last]['lname'];
-    			}
-    		}
-    		else {
-    			$forum['id2'] = $forum['id'];
-    		}
-    		
-    		$id = array_search(trim($forum['lname']), $memberdata);
-    		if (is_id($id)) {
-    			$forum['lname'] = array($forum['lname'], $id);
-    		}
-    		else {
-    			$forum['lname'] = array($forum['lname'], 0);
-    		}
-    	
-    		if ($forum['btopic_id']) {
-    			$forum['tid'] = $forum['btopic_id'];
-    		}
-    		else {
-    			$forum['tid'] = $forum['last_topic'];
-    		}
-    		
             // Rechte und Gelesensystem
     		if ($forum['opt'] != 're') {
     			if (!check_forumperm($forum)) {
@@ -522,30 +496,30 @@ function BoardSelect($board = 0) {
 					$forum['foldimg'] = $tpl->img('cat_locked');
     				$forum['topics'] = '-';
     				$forum['replies'] = '-';
-    				$forum['btopic'] = false;
+    				$forum['l_topic'] = false;
     			}
     			else {
-    				if ((isset($my->mark['f'][$forum['id']]) && $my->mark['f'][$forum['id']] > $forum['bdate']) || $forum['bdate'] < $my->clv || $forum['topics'] < 1) {
+    				if ((isset($my->mark['f'][$forum['id']]) && $my->mark['f'][$forum['id']] > $forum['l_date']) || $forum['l_date'] < $my->clv || $forum['topics'] < 1) {
     					$forum['foldimg'] = $tpl->img('cat_open');
     				}
     				else {
     				   	$forum['foldimg'] = $tpl->img('cat_red');
     				   	$forum['new'] = true;
     				}
-		    		if (!empty($forum['btopic'])) {
-		    			if (strxlen($forum['btopic']) > 40) {
-		    				$forum['btopic'] = substr($forum['btopic'], 0, 40);
-		    				$forum['btopic'] .= "...";
+		    		if (!empty($forum['l_topic'])) {
+		    			if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
+		    				$forum['l_topic'] = substr($forum['l_topic'], 0, $config['lasttopic_chars']);
+		    				$forum['l_topic'] .= "...";
 		    			}
-		    			$forum['btopic'] = $gpc->prepare($forum['btopic']);
-		    			$forum['bdate'] = str_date($lang->phrase('dformat1'), times($forum['bdate']));
-		    			
+		    			$forum['l_topic'] = $gpc->prepare($forum['l_topic']);
+		    			$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
+
 		    		}
     		    }
     	    }
     	    $forum['topics'] = numbers($forum['topics']);
     	    $forum['replies'] = numbers($forum['replies']);
-    	    
+
     	    // Moderatoren
     	    $forum['mod'] = array();
     	    if(isset($mod_cache[$forum['id']])) {
@@ -579,7 +553,7 @@ function BoardSelect($board = 0) {
 								}
 			    			}
 			    			else {
-			    				if ((isset($my->mark['f'][$sub_cache[$forum['id']][$i]['id']]) && $my->mark['f'][$sub_cache[$forum['id']][$i]['id']] > $sub_cache[$forum['id']][$i]['bdate']) || $sub_cache[$forum['id']][$i]['bdate'] < $my->clv || $sub_cache[$forum['id']][$i]['topics'] < 1) {
+			    				if ((isset($my->mark['f'][$sub_cache[$forum['id']][$i]['id']]) && $my->mark['f'][$sub_cache[$forum['id']][$i]['id']] > $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['l_date'] < $my->clv || $sub_cache[$forum['id']][$i]['topics'] < 1) {
 			    					$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_open');
 			    				}
 			    				else {
@@ -629,7 +603,7 @@ function GoBoardPW ($bpw, $bid) {
 
 function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 	extract($GLOBALS, EXTR_SKIP);
-	
+
 	if ($errormsg == NULL) {
 		$errormsg = $lang->phrase('not_allowed');
 	}
@@ -646,7 +620,7 @@ function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
 		echo $tpl->parse('header');
 	}
-	
+
 	($code = $plugins->load('frontend_errorlogin')) ? eval($code) : null;
 	$tpl->globalvars(compact("errormsg","errorurl"));
     echo $tpl->parse("main/not_allowed");
@@ -670,7 +644,7 @@ function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 
 function error ($errormsg = null,$errorurl = 'javascript:history.back(-1);', $EOS = NULL) {
 	extract($GLOBALS, EXTR_SKIP);
-	
+
 	$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
 	$errorurl = urldecode(str_replace('&', '&amp;', $js_errorurl));
 
@@ -687,7 +661,7 @@ function error ($errormsg = null,$errorurl = 'javascript:history.back(-1);', $EO
 	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
 		echo $tpl->parse('header');
 	}
-	
+
 	($code = $plugins->load('frontend_error')) ? eval($code) : null;
 	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
     echo $tpl->parse("main/error");
@@ -725,7 +699,7 @@ function ok ($errormsg = NULL, $errorurl = "javascript:history.back(-1)", $EOS =
 	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
 		echo $tpl->parse('header');
 	}
-	
+
 	($code = $plugins->load('frontend_ok')) ? eval($code) : null;
 	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
     echo $tpl->parse("main/ok");
@@ -771,7 +745,7 @@ function forum_opt($array, $check = 'forum') {
 	elseif ($my->p[$check] == 0 || $my->p['forum'] == 0) {
 		errorLogin();
 	}
-	
+
 }
 
 function import_error_data($fid) {
@@ -796,9 +770,9 @@ function save_error_data($fc) {
 }
 
 function count_filled($array) {
-	$int = 0;	
+	$int = 0;
 	foreach ($array as $val) {
-		if (!empty($val)) {
+		if (!empty($val) || strlen($val) > 0) {
 			$int++;
 		}
 	}

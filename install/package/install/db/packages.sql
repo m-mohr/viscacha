@@ -1,6 +1,6 @@
 CREATE TABLE `{:=DBPREFIX=:}packages` (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
-  `title` varchar(200) NOT NULL,
+  `title` varchar(200) NOT NULL default '',
   PRIMARY KEY  (`id`)
 ) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=17 ;
 

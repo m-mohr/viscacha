@@ -7,7 +7,7 @@ class manageconfig {
 	var $data;
 	var $opt;
 	var $varname;
-	
+
 	function manageconfig() {
 
 		if (!defined('str')) {
@@ -18,12 +18,17 @@ class manageconfig {
 		}
 
 	}
-	
+
 	function getdata($file='data/config.inc.php', $varname = 'config') {
 		$this->data = array();
 		$this->file = $file;
 		$this->varname = $varname;
-		require($this->file);
+		if (file_exists($this->file)) {
+			require($this->file);
+		}
+		else {
+			$this->createfile($this->file, $varname);
+		}
 		if (!isset($$varname)) {
 			$$varname = array();
 		}
@@ -35,11 +40,11 @@ class manageconfig {
 		global $filesystem;
 		$top = '<?php'."\n".'if (isset($_SERVER[\'PHP_SELF\']) && basename($_SERVER[\'PHP_SELF\']) == "'.basename($file).'") die(\'Error: Hacking Attempt\');'."\n";
 		$top .= '$'.$varname.' = array();'."\n".'?>';
-	
+
 		$filesystem->file_put_contents($file, $top);
-	
+
 	}
-	
+
 	function _escapeNewline($nl) {
 		$nl = str_replace("\r\n", '\\r\\n', $nl[1]);
 		$nl = str_replace("\n", '\\n', $nl);
@@ -50,7 +55,7 @@ class manageconfig {
 		$str .= "\".'";
 		return $str;
 	}
-	
+
 	function _prepareString($val2) {
 		$val2 = str_replace("\0", "", $val2);
 		$val2 = str_replace('\\', '\\\\', $val2);
@@ -59,7 +64,7 @@ class manageconfig {
 		$val2 = "'{$val2}'";
 		return $val2;
 	}
-	
+
 	function savedata() {
 		global $filesystem;
 		$top = '<?php'."\n".'if (isset($_SERVER[\'PHP_SELF\']) && basename($_SERVER[\'PHP_SELF\']) == "'.basename($this->file).'") die(\'Error: Hacking Attempt\');'."\n";
@@ -88,11 +93,11 @@ class manageconfig {
 				$cfg[] = '$'.$this->varname."['{$key}'] = {$val};";
 			}
 		}
-		natcasesort($cfg);		
+		natcasesort($cfg);
 
 		$newdata = implode("\n", $cfg);
 		$bottom = "\n".'?>';
-	
+
 		$filesystem->file_put_contents($this->file,$top.$newdata.$bottom);
 	}
 

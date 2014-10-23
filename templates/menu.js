@@ -139,6 +139,7 @@ function HideMenu(menu) {
 function Click() {
 	id = this.id.replace("menu_","");
 	ShowMenu(id);
+	return false;
 }
 function Swap() {
 	id = this.id.replace("menu_","")
@@ -163,5 +164,5 @@ function RegisterMenu(id) {
 	}
 }
 function Link() {
-	return;
+	return false;
 }

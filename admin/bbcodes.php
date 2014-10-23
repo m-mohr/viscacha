@@ -386,7 +386,7 @@ elseif ($job == 'smileys') {
    <td class="mbox" width="50%"><input type="text" name="img" size="50"></td> 
   </tr>
    <td class="mbox" width="50%">Upload an image<br><span class="stext">Allowed file types: .gif, .jpg, .jpeg, .png, .jpe, .bmp<br />Maximum file size: 200 KB</span></td>
-   <td class="mbox" width="50%"><input type="file" name="upload_0" size="40" /></td>
+   <td class="mbox" width="50%"><input type="file" name="upload" size="40" /></td>
   <tr> 
    <td class="mbox" width="50%">Description:<br><span class="stext">Optional</span></td>
    <td class="mbox" width="50%"><input type="text" name="desc" size="50"></td> 
@@ -417,10 +417,7 @@ elseif ($job == 'smileys_ajax_pos') {
 elseif ($job == 'smileys_add') {
 	echo head();
 	$error = array();
-	
-	$ups = 1;
-	$filesize = 200*1024;
-	$filetypes = array('.gif', '.jpg', '.png', '.bmp', '.jpeg', '.jpe');
+
 	$path = 'temp/';
 	$dir = realpath($path);
 
@@ -432,38 +429,33 @@ elseif ($job == 'smileys_add') {
 	
 	$has_upload = false;
 	
-	for ($i = 0; $i < $ups; $i++) {
-	    if (empty($_FILES['upload_'.$i]['name'])) {
-	    	continue;
-	    }
-	 
-	    $my_uploader = new uploader();
-		$my_uploader->max_filesize($filesize);
-		$my_uploader->file_types($filetypes);
-		$my_uploader->set_path($dir);
-		if (isset($imgwidth) && isset($imgheight)) {
-			$my_uploader->max_image_size($imgwidth, $imgheight);
-		}
-		if ($my_uploader->upload('upload_'.$i)) {
-			if ($my_uploader->save_file()) {
-				$has_upload = $gpc->save_str($my_uploader->fileinfo('filename'));
-			}
-		}
-		if ($my_uploader->upload_failed()) {
-			$error[] = $my_uploader->get_error();
+	if (empty($_FILES['upload']['name'])) {
+		continue;
+	}
+	$my_uploader = new uploader();
+	$my_uploader->max_filesize(200*1024);
+	$my_uploader->file_types(array('gif', 'jpg', 'png', 'bmp', 'jpeg', 'jpe'));
+	$my_uploader->set_path($dir);
+	if ($my_uploader->upload('upload')) {
+		if ($my_uploader->save_file()) {
+			$has_upload = $gpc->save_str($my_uploader->fileinfo('filename'));
 		}
 	}
+	if ($my_uploader->upload_failed()) {
+		$error[] = $my_uploader->get_error();
+	}
+
 	if (strlen($gpc->get('code', str)) < 2) {
 		$error[] = 'Code is too short';
 	}
-	if (empty($has_upload) || strlen($img) < 5) {
+	if (empty($has_upload) && empty($img)) {
 		$error[] = 'Path of image is too short';
 	}
 	if (strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
 		$error[] = 'Wrong specification(s)';
 	}
 	if (count($error) > 0) {
-	    error('admin.php?action=bbcodes&job=smiley', $error);
+	    error('admin.php?action=bbcodes&job=smileys', $error);
 	}
 	if ($has_upload) {
 		$filesystem->copy($path.$has_upload, $config['smileypath'].'/'.$has_upload);

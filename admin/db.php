@@ -196,9 +196,9 @@ elseif ($job == 'backup2') {
 	$structure = $gpc->get('structure', int);
 	$data = $gpc->get('data', int);
 	$drop = $gpc->get('drop', int);
-	$zip = $gpc->get('zip', int); 
+	$zip = $gpc->get('zip', int);
 	echo head();
-	$db->backup_settings("\n","--");
+	$db->backup_settings();
 	$sqldata = $db->backup($tables, $structure, $data, $drop);
 	$ok = "Backup successfully created!";
 	if (!empty($sqldata) && strlen($sqldata) > 0) {

@@ -1,7 +1,7 @@
 CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `name` varchar(200) NOT NULL,
-  `module` mediumint(7) unsigned NOT NULL,
+  `name` varchar(200) NOT NULL default '',
+  `module` mediumint(7) unsigned NOT NULL default '0',
   `ordering` smallint(4) NOT NULL default '0',
   `active` enum('0','1') NOT NULL default '0',
   `position` varchar(128) NOT NULL default 'navigation',

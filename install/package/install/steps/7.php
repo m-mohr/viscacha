@@ -64,6 +64,9 @@ else {
 	<input type="hidden" name="save" value="1" />
 	<table class="tables">
 	<tr>
+	    <td colspan="4" class="bfoot">Setting up the database is a very time consuming task. It may need several minutes to load the page completely!</td>
+	</tr>
+	<tr>
 		<td width="40%"><strong>Table</strong></td>
 		<td width="10%"><strong>Exists</strong></td>
 		<td width="10%"><strong>Entries</strong></td>

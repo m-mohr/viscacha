@@ -91,7 +91,12 @@ if (count($error) == 0) {
 Please go through the settings and change everything to fit your needs.
 After doing this, you can switch your board "online". By default it is switched "offline".
 If you have problems, visit <a href="http://docs.viscacha.org" target="_blank">Viscacha.org</a>.</p>
-<p class="hl_false">For your server security please completely remove the installation directory (<code><?php echo realpath('./'); ?></code>) including all files and sub-folders!</p>
+<p class="hl_false">
+For your server security please completely remove the installation directory (<code><?php echo realpath('./'); ?></code>) including all files and sub-folders!
+<?php if (file_exists($lf)) { ?>
+It is locked at the moment, but we highly recommend to remove the directory.
+<?php } ?>
+</p>
 </div>
 <div class="bfoot center"><a class="submit" href="../admin/">Go to Admin Control Panel</a></div>
 <?php } ?>

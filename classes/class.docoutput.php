@@ -66,7 +66,7 @@ function Out($skip = 1){
 	$Contents = $this->AddSid($Contents);
 	
 	($code = $plugins->load('docout_parse')) ? eval($code) : null;
-	
+
 	if ($this->enc != false && $skip == 1 && $this->cfg == 1) {
 		viscacha_header("Content-Encoding: ".$this->enc);
 		print "\x1f\x8b\x08\x00\x00\x00\x00\x00";

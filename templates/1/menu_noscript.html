@@ -1,0 +1,28 @@
+	<noscript>
+		<br />
+		<div class="popup_noscript">
+			<a name="generallinks"></a><strong><?php echo $lang->phrase('menu_links_misc'); ?></strong>
+			<ul>
+			<li><a href="misc.php?action=markasread<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('mark_all_posts_read'); ?></a></li>
+			<li><a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a></li>
+			</ul>
+			<strong><?php echo $lang->phrase('search_active_topics'); ?></strong>
+			<ul>
+			<li><a href="search.php?action=active&amp;type=days-1<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_24h'); ?></a></li>
+			<?php if ($my->vlogin) { ?>
+			<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
+			<li><a href="search.php?action=active&amp;type=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_fav'); ?></a></li>
+			<?php } if ($my->clv > 0) { ?>
+			<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
+			<?php } ?>
+			</ul>
+			<?php if ($config['syndication'] == 1) { ?>
+			<strong><?php echo $lang->phrase('choose_newsfeed'); ?></strong>
+			<ul>
+			  <?php foreach (show_feeds() as $key => $name) { ?>
+			  	<li><a href="external.php?action=<?php echo $key; ?>"><?php echo $name; ?></a></li>
+			<?php  } ?>
+			</ul>
+			<?php } ?>
+		</div>
+	</noscript>

@@ -1,22 +1,23 @@
 <?php
 
 class tpl {
-	
+
 	var $dir;
 	var $altdir;
 	var $contents;
 	var $vars;
+	var $oldvars;
 	var $benchmark;
 	var $sent;
 	var $imgdir = FALSE;
 	var $stdimgdir;
-	
-	
+
+
 	function tpl() {
 		global $config, $my, $gpc, $scache;
 
 		$admin = $gpc->get('admin', str);
-		
+
 		if ($admin != $config['cryptkey']) {
 			$fresh = false;
 		}
@@ -25,7 +26,7 @@ class tpl {
 		}
 		$loaddesign_obj = $scache->load('loaddesign');
 		$cache = $loaddesign_obj->get($fresh);
-		
+
 		$this->dir = '';
 		$this->altdir = './templates/'.$cache[$config['templatedir']]['template'].'/';
 		if (!empty($my->imagesid) && $my->imagesid != $cache[$config['templatedir']]['images']) {
@@ -35,9 +36,9 @@ class tpl {
 
 		$this->contents = '';
 		$this->benchmark = array('all' => 0, 'ok' => 0, 'error' => 0, 'time' => 0, 'detail' => array('0' => array('time' => 'N/A', 'file' => 'footer.html')) );
-		$this->vars = array();
+		$this->vars = $this->oldvars = array();
 		$this->sent = array();
-		
+
 		if (!$this->setdir()) {
 			die('Template-Directory does not exist');
 		}
@@ -64,24 +65,25 @@ class tpl {
 	}
 
     function globalvars ($vars) {
+    	$this->oldvars = array_merge($this->vars, $this->oldvars);
         $this->vars = $vars;
     }
-	
+
 	function parse($thisfile,$thisext='html') {
-	
+
     	$thiszm1=benchmarktime();
 		$this->benchmark['all']++;
-		
+
 		$file_unique = FALSE;
 		$thisext = '.'.$thisext;
-		
+
 		if (file_exists($this->dir.$thisfile.$thisext)) {
 			$file_unique = $this->dir.$thisfile.$thisext;
 		}
 		elseif (file_exists($this->altdir.$thisfile.$thisext)) {
 			$file_unique = $this->altdir.$thisfile.$thisext;
 		}
-		
+
 		if ($file_unique == FALSE) {
 		    $this->benchmark['error']++;
 		    $this->benchmark['detail'][] = array('time' => 0, 'file' => $thisfile.$thisext);
@@ -89,30 +91,32 @@ class tpl {
 		}
 
 		extract($GLOBALS, EXTR_SKIP);
+		extract($this->oldvars, EXTR_SKIP);
 		extract($this->vars);
-        
+
         $this->benchmark['ok']++;
-		
+
 		ob_start();
 		include($file_unique);
 		$this->contents = ob_get_contents();
 		ob_end_clean();
 
 		$this->sent[] = $thisfile.$thisext;
+		$this->oldvars = array_merge($this->vars, $this->oldvars);
 		$this->vars = array();
-        
+
     	$thiszm2=benchmarktime();
-    
+
     	$this->benchmark['time'] += $thiszm2-$thiszm1;
-    	
+
     	$this->benchmark['detail'][] = array('time' => substr($thiszm2-$thiszm1,0,7), 'file' => $file_unique);
-        
+
         return $this->contents;
 	}
-	
+
 	function setdir($dirv=NULL) {
 		global $my;
-		
+
 		if ($dirv == NULL) {
 			$dirv = $my->templateid;
 		}
@@ -130,7 +134,7 @@ class tpl {
 			return false;
 		}
 	}
-	
+
 	function getdir() {
 		return $this->dir;
 	}

@@ -29,7 +29,7 @@ if ($config['check_filesystem'] == 1) {
 }
 
 @ini_set('default_charset', '');
-header('Content-type: text/html; charset: iso-8859-1');
+header('Content-type: text/html; charset=iso-8859-1');
 
 // Colours
 $txt2img_fg = '204a87';
@@ -119,24 +119,28 @@ include_once ("classes/class.language.php");
 // Global functions
 require_once ("classes/function.global.php");
 
+function nl2whitespace($str){
+	return preg_replace("~(\r\n|\n|\r)~", " ", $str);
+}
+
 function AdminLogInForm() {
 	global $gpc;
     $addr = $gpc->get('addr', none);
 	?>
 	<form action="admin.php?action=login2<?php echo iif(!empty($addr), '&amp;addr='.rawurlencode($addr)); ?>" method="post" target="_top">
 	 <table class="border" style="width: 50%;">
-	  <tr> 
+	  <tr>
 	   <td class="obox" colspan="2">Log in</td>
 	  </tr>
-	  <tr> 
+	  <tr>
 		<td class="mbox" width="40%">User Name:</td>
 		<td class="mbox" width="60%"><input type="text" name="name" size="40" /></td>
 	  </tr>
-	  <tr> 
+	  <tr>
 		<td class="mbox" width="40%">Password:</td>
 		<td class="mbox" width="60%"><input type="password" name="pw" size="40" /></td>
 	  </tr>
-	  <tr> 
+	  <tr>
 	   <td class="ubox" align="center" colspan="2"><input type="submit" value="Log in" /></td>
 	  </tr>
 	 </table>
@@ -160,7 +164,7 @@ function pluginSettingGroupUninstall($pluginid) {
 	global $db;
 	$result = $db->query("SELECT id, name FROM {$db->pre}settings_groups WHERE name = 'module_{$pluginid}' LIMIT 1");
 	$row = $db->fetch_assoc($result);
-	
+
 	$c = new manageconfig();
 	$c->getdata();
 	$result = $db->query("SELECT name FROM {$db->pre}settings WHERE sgroup = '{$row['id']}'");
@@ -168,7 +172,7 @@ function pluginSettingGroupUninstall($pluginid) {
 		$c->delete(array($row['name'], $row2['name']));
 	}
 	$c->savedata();
-	
+
 	$db->query("DELETE FROM {$db->pre}settings WHERE sgroup = '{$row['id']}'", __LINE__, __FILE__);
 	$db->query("DELETE FROM {$db->pre}settings_groups WHERE id = '{$row['id']}'", __LINE__, __FILE__);
 }
@@ -204,7 +208,7 @@ function array2sqlsetlist($array, $seperator = ', ') {
 
 function gzAbortNotLoaded() {
 	if (!extension_loaded("zlib") || !function_exists('readgzfile')) {
-		error('javascript:history.back(-1);', 'GZIP Extension not loaded.');	
+		error('javascript:history.back(-1);', 'GZIP Extension not loaded.');
 	}
 }
 
@@ -292,7 +296,7 @@ function recur_dir($dir, $clevel = 0) {
 						'dir'=>false,
 						'level'=>$clevel,
 						'mod_time'=>filemtime($newpath),
-						'size'=>filesize($newpath));		
+						'size'=>filesize($newpath));
 				}
 		}
 	}
@@ -322,36 +326,36 @@ function formatFilesize($byte) {
 	return round($byte, 2)." ".$string;
 }
 
-function count_dir($dir, $totalsize=0) { 
+function count_dir($dir, $totalsize=0) {
 	$dir = $dir.'/';
-	$handle = opendir($dir); 
+	$handle = opendir($dir);
 	while ($file = readdir ($handle)) {
 		if ($file == '.' || $file == '..') {
 			continue;
-		} 
-		if(is_dir($dir.$file)) { 
-			$totalsize = count_dir($dir.$file, $totalsize); 
+		}
+		if(is_dir($dir.$file)) {
+			$totalsize = count_dir($dir.$file, $totalsize);
 		}
 		else {
-			$totalsize++; 
+			$totalsize++;
 		}
 	}
-	closedir($handle); 
-	return $totalsize; 
+	closedir($handle);
+	return $totalsize;
 }
 
 function pages ($anzposts, $uri, $teiler=50) {
 	global $gpc;
 
 	$page = $gpc->get('page', int, 1);
-	
+
 	if ($anzposts == 0) {
 		$anzposts = 1;
 	}
 
    	$pgs = $anzposts/$teiler;
     $anz = ceil($pgs);
-	
+
 	$p = "Pages ($anz):";
 	for ($i = 1; $i <= $anz; $i++) {
 		if ($page == $i) {
@@ -426,7 +430,7 @@ function error ($errorurl, $errormsg='An unexpected error occurred') {
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout(<?php echo JS_URL($errorurl); ?>, 10000);
+window.setTimeout('<?php echo JS_URL($errorurl); ?>', 10000);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -456,7 +460,7 @@ function ok ($url, $msg = "Settings were saved successfully!") {
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout(<?php echo JS_URL($url); ?>, 2000);
+window.setTimeout('<?php echo JS_URL($url); ?>', 1000);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -495,16 +499,16 @@ define('ADMIN_SELECT_ALL', 0);
 
 function SelectBoardStructure($name = 'id', $group = ADMIN_SELECT_ALL, $standard = null, $no_select = false) {
 	global $scache;
-	
+
 	$forumtree = $scache->load('forumtree');
 	$tree = $forumtree->get();
-	
+
 	$categories_obj = $scache->load('categories');
 	$categories = $categories_obj->get();
-	
+
 	$catbid = $scache->load('cat_bid');
 	$boards = $catbid->get();
-	
+
 	$tree2 = array();
 	SelectBoardStructure_html($tree2, $tree, $categories, $boards, $group, $standard);
 	$forums = iif($no_select == false, '<select name="'.$name.'" size="1">');

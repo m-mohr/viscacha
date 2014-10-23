@@ -9,8 +9,11 @@
 </div>
 <div class="inlineheader h3">
   <div class="viewmembername">
-    <a href='profile.php?id=<?php echo $row['mid'].SID2URL_x; ?>'><?php echo $row['name']; ?></a><br />
-    <span class="stext"><?php echo $row['level']; ?></span>
+    <a href='profile.php?id=<?php echo $row['mid'].SID2URL_x; ?>'><?php echo $row['name']; ?></a>
+    <?php if ($config['pm_user_status'] == 1) { ?>
+    <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="<?php echo $row['lang_online']; ?>" alt="<?php echo $row['lang_online']; ?>" />
+    <?php } ?>
+    <br /><span class="stext"><?php echo $row['level']; ?></span>
   </div>
   <div class="viewmemberdetails stext">
     <?php echo $lang->phrase('post_info_registered_since').$row['regdate']; ?><br />

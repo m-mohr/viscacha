@@ -27,6 +27,10 @@ class cache_smileys extends CacheItem {
 	function seturl ($url) {
 		$this->url = $url;
 	}
+	
+	function rebuildable() {
+		return false;
+	}
 
 }
 ?>

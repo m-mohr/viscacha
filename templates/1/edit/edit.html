@@ -13,7 +13,7 @@
 <div class="border">
 <h3><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('edit'); ?></h3>
 <div class="bbody">
-<label for="topic"><?php echo $lang->phrase('title'); ?></label> 
+<label for="topic"><?php echo $lang->phrase('title'); ?></label>
 <?php if (empty($inner['index_prefix'])) { ?>
 <input type="text" class="label" id="topic" name="topic" size="40" value="<?php echo $data['topic']; ?>" />
 <?php } else { ?>
@@ -22,16 +22,25 @@
 </div>
 <?php } ?>
 <br class="newinput" /><hr class="formsep" />
-<label for="about"><?php echo $lang->phrase('edit_reason'); ?></label> 
+<label for="about"><?php echo $lang->phrase('edit_reason'); ?></label>
 <input class="label" type="text" id="about" name="about" size="40" value="<?php echo $data['about']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <label><?php echo $inner['smileys']; ?></label>
 <?php echo $inner['bbhtml']; ?>
 <br class="newinput" /><hr class="formsep" />
-<label for="comment"><?php echo $lang->phrase('post'); ?></label> 
-<textarea id="comment" name="comment" cols="50" rows="10" class="label"><?php echo $data['comment']; ?></textarea>
+<label for="comment"><?php echo $lang->phrase('post'); ?></label>
+<div class="label">
+	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="9"><?php echo $data['comment']; ?></textarea>
+	<div class="stext">
+		<span class="textright right">
+			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
+			[<a href="#" onclick="return resize_textarea(-1)"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>]
+		</span>
+		[<a href="#" onclick="return textarea_length(<?php echo $config['maxpostlength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
+	</div>
+</div>
 <br class="newinput" /><hr class="formsep" />
-<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label> 
+<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
   <input type="checkbox" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1,' checked="checked"'); ?>> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
   <input type="checkbox" name="dowords" value="1"<?php echo iif($data['dowords'] == 1,' checked="checked"'); ?>> <?php echo $lang->phrase('post_settings_words'); ?>
@@ -39,7 +48,7 @@
 <br class="newinput" />
 <?php if ($p_upload) { ?>
 <hr class="formsep" />
-<label><?php echo $lang->phrase('attachments'); ?></label> 
+<label><?php echo $lang->phrase('attachments'); ?></label>
 <div class="label">
   <a href="attachments.php?type=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
   <span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
@@ -47,7 +56,7 @@
 <br class="newinput" />
 <?php } if ($del_mod || $del_user) { ?>
 <hr class="formsep" />
-<label for="temp"><?php echo $lang->phrase('edit_del'); ?></label> 
+<label for="temp"><?php echo $lang->phrase('edit_del'); ?></label>
 <div class="label"><input type="checkbox" id="temp" name="temp" onclick="confirmdelete(this);" value="1" /></div>
 <br class="newinput" />
 <?php } ?>

@@ -9,8 +9,6 @@ if (!empty($_REQUEST['id'])) {
 	$lang->javascript();
 }
 else {
-?>
-	alert("Could not load language file for javascript without id!");
-<?php
+	echo 'alert("Could not load language file for javascript without id!");';
 }
 ?>

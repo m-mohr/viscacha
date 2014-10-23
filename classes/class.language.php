@@ -1,7 +1,7 @@
 <?php
 
 class lang {
-	
+
 	var $dir;
 	var $dirid;
 	var $file;
@@ -10,7 +10,7 @@ class lang {
 	var $lngarray;
 	var $cache;
 	var $js;
-	
+
 	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
 	function lang($js = false) {
 		$this->js = $js;
@@ -20,7 +20,7 @@ class lang {
 		$this->lngarray = array();
 		$this->cache = array();
 		$this->assign = array();
-		if ($this->js) {
+		if ($this->js > 0) {
 			$dir = $this->js;
 		}
 		else {
@@ -28,7 +28,7 @@ class lang {
 			$dir = $config['langdir'];
 		}
 		if (!$this->setdir($dir)) {
-			if ($this->js) {
+			if ($this->js > 0) {
 				die('alert("Language-Directory not found!");');
 			}
 			else {
@@ -44,12 +44,13 @@ class lang {
 		$this->group('settings');
 		$this->group('global');
 		$this->group('modules');
-		
+		$this->group('custom');
+
 		@ini_set('default_charset', '');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset: '.$this->phrase('charset'));
+			viscacha_header('Content-type: text/html; charset='.$this->phrase('charset'));
 		}
-		
+
 		global $slog;
 		if (isset($slog) && is_object($slog) && method_exists($slog, 'setlang')) {
 			$slog->setlang($this->phrase('fallback_no_username'), $this->phrase('timezone_summer'));
@@ -123,7 +124,7 @@ class lang {
 	function parse_pvar($content) {
 		return preg_replace('#\{(\$|\%|\@)(.+?)\}#ie', "\$this->parse_variable('\\2','\\1')", $content);
 	}
-	
+
 	function phrase($phrase) {
 		if (isset($this->lngarray[$phrase])) {
 			$pphrase = $this->lngarray[$phrase];
@@ -134,13 +135,13 @@ class lang {
 			return '';
 		}
 	}
-	
+
 	function assign($key, $val) {
 		$this->assign[$key] = $val;
 	}
-	
+
 	function parse_variable($key,$type) {
-		
+
 		if ($type == '%') {
 			$keys = explode('->',$key);
 			if (isset($this->assign[$keys[0]]->$keys[1])) {
@@ -187,14 +188,14 @@ class lang {
 		}
 		return '';
 	}
-	
+
 	function group($group) {
 		$file = $this->dir.DIRECTORY_SEPARATOR.$group.'.lng.php';
 		if (file_exists($file) && !isset($this->cache[$file])) {
-			@require($file);
+			@include($file);
 			if (isset($lang) && is_array($lang)) {
 				$this->lngarray += $lang;
-				$this->cache[$group] = TRUE;
+				$this->cache[$group] = true;
 			}
 			else {
 				echo "<!-- Could not parse language-file {$file} -->";
@@ -205,14 +206,12 @@ class lang {
 		}
 	}
 
-	
+
 	function setdir($dirv) {
 		global $config;
-		if (@is_dir($config['fpath'].DIRECTORY_SEPARATOR)) {
-			$dir = "{$config['fpath']}/language/{$dirv}";
-		}
-		else {
-			$dir = "language/{$dirv}";
+		$dir = "language/{$dirv}";
+		if (@is_dir("{$config['fpath']}/{$dir}") == true) {
+			$dir = "{$config['fpath']}/{$dir}";
 		}
 		$dir = realpath($dir);
 		if (file_exists($dir)) {
@@ -224,13 +223,22 @@ class lang {
 			return false;
 		}
 	}
-	
+
 	function getdir($id = false) {
 		if ($id == true) {
 			return $this->dirid;
 		}
 		else {
 			return $this->dir;
+		}
+	}
+
+	function group_is_loaded($group) {
+		if (isset($this->cache[$group]) && $this->cache[$group] == true) {
+			return true;
+		}
+		else {
+			return false;
 		}
 	}
 

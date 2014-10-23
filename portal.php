@@ -34,8 +34,11 @@ $zeitmessung1 = t1();
 $slog = new slog();
 $my = $slog->logged();
 if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
+	$slog->updatelogged();
+	$db->close();
 	header("HTTP/1.0 301 Moved Permanently");
     header('Location: index.php');
+    exit;
 }
 $lang->init($my->language);
 $tpl = new tpl();

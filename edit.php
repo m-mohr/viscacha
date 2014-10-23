@@ -199,7 +199,10 @@ if ($allowed == true) {
 				($code = $plugins->load('edit_save_errordata')) ? eval($code) : null;
 				$fid = save_error_data($data);
 				if (!empty($_POST['Preview'])) {
+					$slog->updatelogged();
+					$db->close();
 					viscacha_header("Location: edit.php?action=preview&id={$info['id']}&fid=".$fid.SID2URL_JS_x);
+					exit;
 				}
 				else {
 					error($error,"edit.php?id={$info['id']}&amp;fid=".$fid.SID2URL_x);

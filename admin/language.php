@@ -9,7 +9,8 @@ $langbase = array(
 	'javascript' => 'JavaScript',
 	'wwo' => 'Who is where online',
 	'thumbnail.class' => 'Graphics',
-	'phpmailer.class' => 'Email Class'
+	'phpmailer.class' => 'Email Class',
+	'custom' => 'Custom Phrases'
 );
 
 require('lib/language.inc.php');
@@ -21,7 +22,7 @@ if ($job == 'manage') {
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6">
     <span style="float: right;">
 	<a class="button" href="admin.php?action=language&amp;job=import" target="Main">Import Language</a>
@@ -37,7 +38,7 @@ if ($job == 'manage') {
    <td class="ubox" width="5%">Published</td>
    <td class="ubox" width="34%">Action</td>
   </tr>
-  <?php 
+  <?php
   while ($row = $db->fetch_assoc($result)) {
   	$settings = $gpc->prepare(return_array('settings', $row['id']));
   ?>
@@ -113,15 +114,15 @@ elseif ($job == 'import2') {
 	$server = $gpc->get('server', none);
 	$del = $gpc->get('delete', int);
 	$inserterrors = array();
-	
+
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = 1024*1024;
 		$filetypes = array('zip');
 		$dir = realpath('temp/').DIRECTORY_SEPARATOR;
-	
+
 		$insertuploads = array();
 		require("classes/class.upload.php");
-		 
+
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
@@ -155,9 +156,9 @@ elseif ($job == 'import2') {
 	if (count($inserterrors) > 0) {
 		error('admin.php?action=language&job=import', $inserterrors);
 	}
-	
+
 	$tempdir = 'temp/'.md5(microtime()).'/';
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
@@ -177,10 +178,10 @@ elseif ($job == 'import2') {
 		$overwrite = $db->insert_id();
 	}
 	$newdir = "language/{$overwrite}/";
-	
+
 	copyr($tempdir, $newdir);
 	rmdirr($tempdir);
-	
+
 	$info = return_array('settings', $overwrite);
 	if (isset($info['lang_name'])) {
 		$db->query("UPDATE {$db->pre}language SET language = '{$info['lang_name']}', detail = '{$info['lang_description']}' WHERE id = '{$overwrite}' LIMIT 1");
@@ -205,14 +206,14 @@ elseif ($job == 'import2') {
 }
 elseif ($job == 'export') {
 	$id = $gpc->get('id', int);
-	
+
 	$result = $db->query('SELECT language, detail FROM '.$db->pre.'language WHERE id = "'.$id.'" LIMIT 1');
 	$row = $db->fetch_assoc($result);
-	
+
 	$file = convert2adress($row['language'].'-v'.str_replace(' ', '', $config['version'])).'.zip';
 	$dir = "language/{$id}/";
 	$tempdir = "temp/";
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($dir, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_COMMENT, "{$row['language']}\n\n{$row['detail']}\n\nVersion: {$config['version']}");
@@ -238,7 +239,7 @@ elseif ($job == 'lang_copy') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_copy2&id=<?php echo $gpc->get('id', int); ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6">Copy language file</td>
   </tr>
   <tr>
@@ -250,7 +251,7 @@ elseif ($job == 'lang_copy') {
    <td class="mbox" width="60%"><textarea name="desc" rows="3" cols="70"></textarea></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Copy" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Copy" /></td>
   </tr>
  </table>
 </form>
@@ -320,7 +321,7 @@ elseif ($job == 'lang_settings') {
 	if (empty($settings['country_code'])) {
 		$settings['country_code'] = '';
 	}
-	
+
 	$rss = file2array('admin/data/rss.txt');
 	$languages = file2array('admin/data/iso639.txt');
 	$country = file2array('admin/data/iso3166.txt');
@@ -336,7 +337,7 @@ function errordefault(box) {
 </script>
 <form name="form" method="post" action="admin.php?action=language&job=lang_settings2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Edit language file &raquo; settings</td>
   </tr>
   <tr>
@@ -355,7 +356,7 @@ function errordefault(box) {
    <td class="mbox" width="50%">Languagepack is public usable:</td>
    <td class="mbox" width="50%"><input<?php echo iif($config['langdir'] == $id, ' onclick="errordefault(this)"'); ?> type="checkbox" name="use" value="1"<?php echo iif($data['publicuse'] == 1, ' checked="checked"'); ?> /></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" colspan="2">Number formatting</td>
   </tr>
   <tr>
@@ -366,7 +367,7 @@ function errordefault(box) {
    <td class="mbox" width="50%">Decimal seperator:</td>
    <td class="mbox" width="50%"><input type="text" name="decpoint" size="2" value="<?php echo isset($settings['decpoint']) ? $settings['decpoint'] : '.'; ?>" /></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" colspan="2">Country and Language specific settings</td>
   </tr>
   <tr>
@@ -407,34 +408,34 @@ function errordefault(box) {
    <?php } ?>
    </select>
   </tr>
-  <tr> 
+  <tr>
    <td class="mbox" width="50%">Charset:</td>
-   <td class="mbox" width="50%"><input type="text" name="charset" value="<?php echo isset($settings['charset']) ? $settings['charset'] : 'ISO-8859-1'; ?>" size="20"></td> 
-  </tr>
-  <tr> 
-   <td class="ubox" colspan="2">Date and Time</td>
-  </tr>
-  <tr> 
-   <td class="mbox" width="50%">Format for contributions:<br><span class="stext">For contributions, last visit etc. Abbreviation according to the PHP-function: date(). Further information: <a href="http://www.php.net/manual-lookup.php?function=date" target="_blank">PHP: date()</a></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat1" value="<?php echo isset($settings['dformat1']) ?  $settings['dformat1'] : 'd.m.Y, H:i'; ?>" size="20"></td> 
-  </tr>
-  <tr> 
-   <td class="mbox" width="50%">Format for the date of registry:</span><br><span class="stext">Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat2" value="<?php echo isset($settings['dformat2']) ? $settings['dformat2'] : 'd.m.Y, H:i'; ?>" size="20"></td> 
-  </tr>
-  <tr> 
-   <td class="mbox" width="50%">Format for last activity (for Who-is-where-online-list):</span><br><span class="stext">Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat3" value="<?php echo isset($settings['dformat3']) ? $settings['dformat3'] : 'H:i'; ?>" size="20"></td> 
-  </tr>
-  <tr> 
-   <td class="mbox" width="50%">Format, that is used after "Today" and "Yesterday":</span><br><span class="stext">Only if it is activated above! For contribitions, last visit etc. Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat4" value="<?php echo isset($settings['dformat4']) ? $settings['dformat4'] : 'H:i'; ?>" size="20"></td> 
+   <td class="mbox" width="50%"><input type="text" name="charset" value="<?php echo isset($settings['charset']) ? $settings['charset'] : 'ISO-8859-1'; ?>" size="20"></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" colspan="2">Date and Time</td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Format for contributions:<br><span class="stext">For contributions, last visit etc. Abbreviation according to the PHP-function: date(). Further information: <a href="http://www.php.net/manual-lookup.php?function=date" target="_blank">PHP: date()</a></span></td>
+   <td class="mbox" width="50%"><input type="text" name="dformat1" value="<?php echo isset($settings['dformat1']) ?  $settings['dformat1'] : 'd.m.Y, H:i'; ?>" size="20"></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Format for the date of registry:</span><br><span class="stext">Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
+   <td class="mbox" width="50%"><input type="text" name="dformat2" value="<?php echo isset($settings['dformat2']) ? $settings['dformat2'] : 'd.m.Y, H:i'; ?>" size="20"></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Format for last activity (for Who-is-where-online-list):</span><br><span class="stext">Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
+   <td class="mbox" width="50%"><input type="text" name="dformat3" value="<?php echo isset($settings['dformat3']) ? $settings['dformat3'] : 'H:i'; ?>" size="20"></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%">Format, that is used after "Today" and "Yesterday":</span><br><span class="stext">Only if it is activated above! For contribitions, last visit etc. Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a></span></td>
+   <td class="mbox" width="50%"><input type="text" name="dformat4" value="<?php echo isset($settings['dformat4']) ? $settings['dformat4'] : 'H:i'; ?>" size="20"></td>
+  </tr>
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
-</form>	
+</form>
 	<?php
 	echo foot();
 }
@@ -445,7 +446,7 @@ elseif ($job == 'lang_settings2') {
 	$detail = $gpc->get('desc', str);
 	$lang = $gpc->get('language', str);
 	$error = '';
-	
+
 	$result = $db->query("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
 	$puse = $db->fetch_assoc($result);
 	if ($puse['publicuse'] == 1 && $use == 0) {
@@ -459,7 +460,7 @@ elseif ($job == 'lang_settings2') {
 			$use = 1;
 		}
 	}
-	
+
 	$lc = $gpc->get('lang_code', none);
 	$cc = $gpc->get('country_code', none);
 	if (!empty($cc)) {
@@ -468,9 +469,9 @@ elseif ($job == 'lang_settings2') {
 	else {
 		$scd = $lc;
 	}
-	
+
 	$db->query("UPDATE {$db->pre}language SET publicuse = '{$use}', language = '{$lang}', detail = '{$detail}' WHERE id = '{$id}' LIMIT 1");
-	
+
 	$c = new manageconfig();
 	$c->getdata("language/{$id}/settings.lng.php", 'lang');
 	$c->updateconfig('html_read_direction', str);
@@ -489,11 +490,11 @@ elseif ($job == 'lang_settings2') {
 	$c->updateconfig('dformat4',str);
 	$c->updateconfig('charset',str);
 	$c->savedata();
-	
+
 	$delobj = $scache->load('loadlanguage');
 	$delobj->delete();
-	
-	ok('admin.php?action=language&job=lang_edit&id='.$id, 'Changes were successfully changed'.$error.'.');	
+
+	ok('admin.php?action=language&job=lang_edit&id='.$id, 'Changes were successfully changed'.$error.'.');
 }
 elseif ($job == 'lang_ignore') {
 	echo head();
@@ -508,7 +509,7 @@ elseif ($job == 'lang_ignore') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_ignore2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Edit language file &raquo; ignored search keys</td>
   </tr>
   <tr>
@@ -525,16 +526,16 @@ elseif ($job == 'lang_ignore') {
    </td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
-</form>		
+</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'lang_ignore2') {
 	echo head();
-	
+
 	$id = $gpc->get('id', int);
 	$ignore = $gpc->get('ignore', none);
 	$lines = preg_split('`[\n\r]+`', trim($ignore)) ;
@@ -546,8 +547,8 @@ elseif ($job == 'lang_ignore2') {
 		$filesystem->mkdir("language/{$id}/words/", 0777);
 	}
 	$filesystem->file_put_contents("language/{$id}/words/search.inc.php", implode("\n", $lines));
-	
-	ok('admin.php?action=language&job=lang_edit&id='.$id);	
+
+	ok('admin.php?action=language&job=lang_edit&id='.$id);
 }
 elseif ($job == 'lang_rules') {
 	echo head();
@@ -566,11 +567,11 @@ elseif ($job == 'lang_rules') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_rules2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox">Edit language file &raquo; Terms of behaviour</td>
   </tr>
   <tr>
-   <td class="ubox">Existing rules:</td> 
+   <td class="ubox">Existing rules:</td>
   </tr>
   <tr>
    <td class="mbox">
@@ -584,7 +585,7 @@ elseif ($job == 'lang_rules') {
    </td>
   </tr>
   <tr>
-   <td class="ubox" align="center">Add new rule(s):</td> 
+   <td class="ubox" align="center">Add new rule(s):</td>
   </tr>
   <tr>
    <td class="mbox">
@@ -600,16 +601,16 @@ elseif ($job == 'lang_rules') {
    </td>
   </tr>
   <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
-</form>		
+</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'lang_rules2') {
 	echo head();
-	
+
 	$id = $gpc->get('id', int);
 	$rules = $gpc->get('rules', arr_str);
 	$delete = $gpc->get('delete', arr_int);
@@ -625,13 +626,13 @@ elseif ($job == 'lang_rules2') {
 		$filesystem->mkdir("language/{$id}/words/", 0777);
 	}
 	$filesystem->file_put_contents("language/{$id}/words/rules.inc.php", implode("\n", $newrules));
-	
+
 	if ($c > 0) {
 		ok('admin.php?action=language&job=lang_rules&c='.$c.'&id='.$id, 'Settings were saved successfully! You can add the new rules now.');
 	}
 	else {
 		ok('admin.php?action=language&job=lang_edit&id='.$id);
-	}	
+	}
 }
 elseif ($job == 'lang_txttpl') {
 	echo head();
@@ -645,11 +646,11 @@ elseif ($job == 'lang_txttpl') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_txttpl2&id=<?php echo $id; ?>&file=<?php echo $file; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox">Edit language file &raquo; Text templates</td>
   </tr>
   <tr>
-   <td class="ubox"><?php echo getLangVarsHelp(); ?></td> 
+   <td class="ubox"><?php echo getLangVarsHelp(); ?></td>
   </tr>
   <tr>
    <td class="mbox" align="center">
@@ -657,16 +658,16 @@ elseif ($job == 'lang_txttpl') {
    </td>
   </tr>
   <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
-</form>		
+</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'lang_txttpl2') {
 	echo head();
-	
+
 	$id = $gpc->get('id', int);
 	$file = $gpc->get('file', str);
 	if (!is_dir("language/{$id}/texts/")) {
@@ -678,8 +679,8 @@ elseif ($job == 'lang_txttpl2') {
 	}
 	$tpl = $gpc->get('tpl', none);
 	$filesystem->file_put_contents($path, $tpl);
-	
-	ok('admin.php?action=language&job=lang_edit&id='.$id);	
+
+	ok('admin.php?action=language&job=lang_edit&id='.$id);
 }
 elseif ($job == 'lang_emailtpl') {
 	echo head();
@@ -694,12 +695,12 @@ elseif ($job == 'lang_emailtpl') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_emailtpl2&id=<?php echo $id; ?>&file=<?php echo $file; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Edit language file &raquo; e-mail-texts &raquo; <?php echo $file; ?></td>
   </tr>
   <tr>
    <td class="ubox" width="20%">Help:</td>
-   <td class="ubox" width="80%"><?php echo getLangVarsHelp(); ?></td> 
+   <td class="ubox" width="80%"><?php echo getLangVarsHelp(); ?></td>
   </tr>
   <tr>
    <td class="mbox" width="20%">Subject:</td>
@@ -710,16 +711,16 @@ elseif ($job == 'lang_emailtpl') {
    <td class="mbox" width="80%"><textarea name="tpl" rows="10" cols="80"><?php echo $tpl[2]; ?></textarea></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
-</form>		
+</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'lang_emailtpl2') {
 	echo head();
-	
+
 	$id = $gpc->get('id', int);
 	$file = $gpc->get('file', str);
 	if (!is_dir("language/{$id}/mails/")) {
@@ -731,12 +732,12 @@ elseif ($job == 'lang_emailtpl2') {
 	}
 	$tpl = $gpc->get('tpl', none);
 	$title = $gpc->get('title', none);
-	
+
 	$xml = "<mail>\n\t<title>{$title}</title>\n\t<comment>{$tpl}</comment>\n</mail>";
 
 	$filesystem->file_put_contents($path, $xml);
-	
-	ok('admin.php?action=language&job=lang_emails&id='.$id);	
+
+	ok('admin.php?action=language&job=lang_emails&id='.$id);
 }
 elseif ($job == 'lang_emails') {
 	echo head();
@@ -748,13 +749,13 @@ elseif ($job == 'lang_emails') {
 	$help = file2array('admin/data/lang_email.php', "\t");
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox">Edit language file &raquo; e-mail-texts</td>
   </tr>
   <tr>
    <td class="mbox">
    <ul>
-    <?php 
+    <?php
     $i = 0;
 	$result = opendir($path);
 	while (($file = readdir($result)) !== false) {
@@ -790,6 +791,7 @@ elseif ($job == 'lang_array') {
 	$file = $gpc->get('file', str);
 	$lng = return_array($file, $id);
 	$lng = array_map('htmlspecialchars', $lng);
+	$lng = array_map('nl2whitespace', $lng);
 	ksort($lng);
 	$lng = array_chunk($lng, 50, true);
 	$pages = count($lng);
@@ -798,18 +800,18 @@ elseif ($job == 'lang_array') {
 	for($i=1;$i<=$pages;$i++) {
    		$pages_html .= ' ['.iif($i == $page, "<strong>{$i}</strong>", "<a href='admin.php?action=language&job=lang_array&id={$id}&file={$file}&page={$i}'>{$i}</a>").']';
 	}
-	
+
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_array2&id=<?php echo $id; ?>&file=<?php echo $file; ?>&page=<?php echo $page; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Edit language file &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : ucfirst($file); ?></td>
   </tr>
   <tr>
-   <td class="mbox stext" colspan="2"><?php echo getLangVarsHelp(); ?></td> 
+   <td class="mbox stext" colspan="2"><?php echo getLangVarsHelp(); ?></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2"><?php echo $pages_html; ?></td> 
+   <td class="ubox" colspan="2"><?php echo $pages_html; ?></td>
   </tr>
   <?php
   foreach ($lng[$page-1] as $key => $value) {
@@ -830,13 +832,13 @@ elseif ($job == 'lang_array') {
   <tr>
    <td class="ubox" colspan="2" align="right">
    <?php echo $pages_html; ?>
-   </td> 
+   </td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
-</form>	
+</form>
 	<?php
 	echo foot();
 }
@@ -860,8 +862,8 @@ elseif ($job == 'lang_array2') {
 		$c->updateconfig($key, str, $_REQUEST[$post]);
 	}
 	$c->savedata();
-	
-	ok('admin.php?action=language&job=lang_array&id='.$id.'&file='.$file.'&page='.$page);	
+
+	ok('admin.php?action=language&job=lang_array&id='.$id.'&file='.$file.'&page='.$page);
 }
 elseif ($job == 'lang_com') {
 	echo head(' onload="init()"');
@@ -869,7 +871,7 @@ elseif ($job == 'lang_com') {
 	$cid = $gpc->get('cid', int);
 	$file = $gpc->get('file', str);
 	$files = array();
-	
+
 	$dir = "language/{$id}/components/{$cid}/";
 	if (is_dir($dir)) {
 	   if ($dh = opendir($dir)) {
@@ -890,27 +892,29 @@ elseif ($job == 'lang_com') {
 	}
 
 	$lng = return_array('components/'.$cid.'/'.$file, $id);
+	$lng = array_map('htmlspecialchars', $lng);
+	$lng = array_map('nl2whitespace', $lng);
 	ksort($lng);
 	sort($files);
 	$pages_html = "Dateien:";
 	foreach ($files as $page) {
 	  		$pages_html .= ' ['.iif($file == $page, "<strong>{$page}</strong>", "<a href='admin.php?action=language&job=lang_com&id={$id}&file={$page}&cid={$cid}'>{$page}</a>").']';
 	}
-	
+
 	?>
 	<form name="form" method="post" action="admin.php?action=language&job=lang_com2&id=<?php echo $id; ?>&file=<?php echo $file; ?>&cid=<?php echo $cid; ?>">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr> 
+	  <tr>
 	   <td class="obox" colspan="2">Edit language file &raquo; component: <?php echo $cid; ?> &raquo; <?php echo ucfirst($file); ?></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox stext" colspan="2"><?php echo getLangVarsHelp(); ?></td> 
+	   <td class="mbox stext" colspan="2"><?php echo getLangVarsHelp(); ?></td>
 	  </tr>
 	  <?php if (count($files) > 1) { ?>
 	  <tr>
 	   <td class="ubox" colspan="2">
 	   <?php echo $pages_html; ?>
-	   </td> 
+	   </td>
 	  </tr>
 	  <?php
 	  }
@@ -932,14 +936,14 @@ elseif ($job == 'lang_com') {
 	  <tr>
 	   <td class="ubox" colspan="2">
 	   <?php echo $pages_html; ?>
-	   </td> 
+	   </td>
 	  </tr>
 	  <?php } ?>
 	  <tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
 	  </tr>
 	 </table>
-	</form>	
+	</form>
 	<?php
 	echo foot();
 }
@@ -963,21 +967,21 @@ elseif ($job == 'lang_com2') {
 		$c->updateconfig($key, str, $gpc->prepare($_REQUEST[$post]));
 	}
 	$c->savedata();
-	
-	ok('admin.php?action=language&job=lang_com&id='.$id.'&file='.$file.'&cid='.$cid);	
+
+	ok('admin.php?action=language&job=lang_com&id='.$id.'&file='.$file.'&cid='.$cid);
 }
 elseif ($job == 'lang_default') {
 	echo head();
 	$id = $gpc->get('id', int);
-	
+
 	$c = new manageconfig();
 	$c->getdata();
 	$c->updateconfig('langdir', int, $id);
 	$c->savedata();
-	
+
 	$delobj = $scache->load('loadlanguage');
 	$delobj->delete();
-	
+
 	ok('admin.php?action=language&job=manage');
 }
 elseif ($job == 'lang_edit') {
@@ -985,7 +989,7 @@ elseif ($job == 'lang_edit') {
 	$id = $gpc->get('id', int);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox">Edit language file</td>
   </tr>
   <tr>
@@ -1057,7 +1061,7 @@ elseif ($job == 'phrase') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_delete">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="<?php echo count($cache)+1; ?>">
    <span style="float: right;"><a class="button" href="admin.php?action=language&job=phrase_add_lngfile">Add new Language File</a> <a class="button" href="admin.php?action=language&job=phrase_add_mailfile">Add new Mail File</a></span>
    Phrase Manager</td>
@@ -1077,14 +1081,14 @@ elseif ($job == 'phrase') {
    <?php } else { echo $file; } ?>
    </td>
    <?php
-   foreach ($cache as $row) { 
+   foreach ($cache as $row) {
    	$status = in_array($file, $diff[$row['id']]);
    ?>
    <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' <a class="button" href="admin.php?action=language&job=phrase_copy&file='.urlencode(base64_encode($file)).'&id='.$row['id'].'">Add</a>'); ?></td>
    <?php } ?>
   </tr>
   <?php } ?>
-  <tr> 
+  <tr>
    <td class="ubox" align="center" colspan="<?php echo count($cache)+1; ?>"><input type="submit" value="Delete selected items"></td>
   </tr>
  </table>
@@ -1102,7 +1106,7 @@ elseif ($job == 'phrase_file_find') {
 <input type="hidden" name="show" value="search" />
 <input type="hidden" name="file" value="<?php echo $file; ?>" />
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Phrase Manager &raquo; Find Phrase</td>
   </tr>
   <tr>
@@ -1115,7 +1119,7 @@ elseif ($job == 'phrase_file_find') {
    	<input type="checkbox" name="keys" value="1" checked="checked" /> Keys<br />
    	<input type="checkbox" name="values" value="1" checked="checked" /> Values
    </td>
-  <tr> 
+  <tr>
    <td class="ubox" align="center" colspan="2"><input type="submit" value="Find"></td>
   </tr>
  </table>
@@ -1191,13 +1195,13 @@ elseif ($job == 'phrase_file') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_file_delete&file=<?php echo $file; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="<?php echo count($cache)+1; ?>">
    <span style="float: right;">
    <?php if ($show == 'diff') { ?>
-    <a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>">Show all phrases</a> 
+    <a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>">Show all phrases</a>
    <?php } else { ?>
-    <a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>&show=diff">Show only differences</a> 
+    <a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>&show=diff">Show only differences</a>
    <?php } ?>
     <a class="button" href="admin.php?action=language&job=phrase_file_find&file=<?php echo $file; ?>">Find phrases</a>
     <a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new phrase</a>
@@ -1206,15 +1210,15 @@ elseif ($job == 'phrase_file') {
   </tr>
   <?php if (count($cache) < 2 && $show == 'diff') { ?>
   <tr>
-   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">Not enough languages found to compare. At least 2 languages have to be installed!</td> 
+   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">Not enough languages found to compare. At least 2 languages have to be installed!</td>
   </tr>
   <?php } elseif (!isset($data[$page-1]) || count($data[$page-1]) == 0) { ?>
   <tr>
-   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">No phrases have been saved yet. <a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new Phrase</a></td> 
+   <td class="mbox" colspan="<?php echo count($cache)+1; ?>">No phrases have been saved yet. <a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>">Add new Phrase</a></td>
   </tr>
   <?php } else { ?>
   <tr>
-   <td class="ubox" colspan="<?php echo count($cache)+1; ?>"><?php echo $pages_html; ?></td> 
+   <td class="ubox" colspan="<?php echo count($cache)+1; ?>"><?php echo $pages_html; ?></td>
   </tr>
   <tr>
    <td class="mmbox" width="25%">&nbsp;</td>
@@ -1234,9 +1238,9 @@ elseif ($job == 'phrase_file') {
   </tr>
   <?php } ?>
   <tr>
-   <td class="ubox" colspan="<?php echo count($cache)+1; ?>"><?php echo $pages_html; ?></td> 
+   <td class="ubox" colspan="<?php echo count($cache)+1; ?>"><?php echo $pages_html; ?></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" align="center" colspan="<?php echo count($cache)+1; ?>"><input type="submit" value="Delete selected phrases"></td>
   </tr>
   <?php } ?>
@@ -1254,7 +1258,7 @@ elseif ($job == 'phrase_copy') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&amp;job=phrase_copy2&amp;file=<?php echo $file; ?>&amp;id=<?php echo $lang; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Phrase Manager &raquo; <?php echo $encfile; ?> &raquo; Copy file</td>
   </tr>
   <tr>
@@ -1269,7 +1273,7 @@ elseif ($job == 'phrase_copy') {
 	<?php } } ?>
    </select></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" align="center" colspan="2"><input type="submit" value="Copy file"></td>
   </tr>
  </table>
@@ -1301,12 +1305,12 @@ elseif ($job == 'phrase_copy2') {
 }
 elseif ($job == 'phrase_file_edit') {
 	echo head();
-	
+
 	$phrase = $gpc->get('phrase', none);
 	$file = $gpc->get('file', none);
 	$encfile = base64_decode($file);
 	$basefile = substr($encfile, 0, strlen($encfile)-8);
-	
+
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
 	$cache = array();
 	while($row = $db->fetch_assoc($result)) {
@@ -1323,7 +1327,7 @@ elseif ($job == 'phrase_file_edit') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_file_edit2&file=<?php echo $file; ?>">
  <table class="border" border="0" cellspacing="0" cellpediting="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Phrase Manager &raquo; Edit new Phrase to Package</td>
   </tr>
   <tr>
@@ -1334,25 +1338,25 @@ elseif ($job == 'phrase_file_edit') {
   <tr>
    <td class="mbox" width="50%">Text:<br />
    <span class="stext">This is the default language used.</span></td>
-   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo htmlspecialchars($cache[$config['langdir']]['phrase']); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo htmlspecialchars(nl2whitespace($cache[$config['langdir']]['phrase'])); ?>" /></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Translations</td>
   </tr>
   <tr>
    <td class="ubox" colspan="2"><ul>
 	<li>When editing a custom phrase, you may also specify the translations into whatever languages you have installed.</li>
 	<li>If you do leave a translation box blank, it will inherit the text from the 'Text' box.</li>
-   </ul></td> 
+   </ul></td>
   </tr>
   <?php foreach ($cache as $row) { ?>
   <tr>
    <td class="mbox" width="50%"><em><?php echo $row['language']; ?></em> Translation:<br /><span class="stext">Optional. HTML is allowed but not recommended.</span></td>
-   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo htmlspecialchars($row['phrase']); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo htmlspecialchars(nl2whitespace($row['phrase'])); ?>" /></td>
   </tr>
   <?php } ?>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
 </form>
@@ -1361,13 +1365,13 @@ elseif ($job == 'phrase_file_edit') {
 }
 elseif ($job == 'phrase_file_edit2') {
 	echo head();
-	
+
 	$file = $gpc->get('file', none);
 	$encfile = base64_decode($file);
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
 	$lang = $gpc->get('langt', none);
-	
+
 	$c = new manageconfig();
 	foreach ($lang as $id => $t) {
 		if (empty($t)) {
@@ -1377,7 +1381,7 @@ elseif ($job == 'phrase_file_edit2') {
 		$c->updateconfig($varname, str, $t);
 		$c->savedata();
 	}
-	
+
 	ok('admin.php?action=language&job=phrase_file&file='.$file);
 }
 elseif ($job == 'phrase_file_copy') {
@@ -1390,7 +1394,7 @@ elseif ($job == 'phrase_file_copy') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_file_copy2&phrase=<?php echo $phrase; ?>&file=<?php echo $file; ?>&id=<?php echo $lang; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Phrase Manager &raquo; <?php echo $encfile; ?> &raquo; Copy phrase</td>
   </tr>
   <tr>
@@ -1408,7 +1412,7 @@ elseif ($job == 'phrase_file_copy') {
 	<?php } } } ?>
    </select></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" align="center" colspan="2"><input type="submit" value="Copy phrase"></td>
   </tr>
  </table>
@@ -1478,7 +1482,7 @@ elseif ($job == 'phrase_add_lngfile') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_add_lngfile2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Phrase Manager &raquo; Add new Language File</td>
   </tr>
   <tr>
@@ -1491,7 +1495,7 @@ elseif ($job == 'phrase_add_lngfile') {
    <span class="stext">In this directory the file will be saved. <code>ID</code> is variable.</span></td>
    <td class="mbox" width="50%"><select name="dir">
     <option value="<?php echo base64_decode(''); ?>">language/ID/ (Main directory for language files)</option>
-   <?php 
+   <?php
    $result = $db->query("SELECT * FROM {$db->pre}component ORDER BY active DESC");
    while ($row = $db->fetch_assoc($result)) {
 	$cfg = $myini->read('components/'.$row['id'].'/components.ini');
@@ -1502,7 +1506,7 @@ elseif ($job == 'phrase_add_lngfile') {
    </select></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Create" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Create" /></td>
   </tr>
  </table>
 </form>
@@ -1526,7 +1530,7 @@ elseif ($job == 'phrase_add_mailfile') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_add_mailfile2">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Add new Mail File</td>
   </tr>
   <tr>
@@ -1536,7 +1540,7 @@ elseif ($job == 'phrase_add_mailfile') {
   </tr>
   <tr>
    <td class="mmbox" width="30%">Help:</td>
-   <td class="mmbox stext" width="70%"><?php echo getLangVarsHelp(); ?></td> 
+   <td class="mmbox stext" width="70%"><?php echo getLangVarsHelp(); ?></td>
   </tr>
   <tr>
    <td class="mbox" width="30%">Title:</td>
@@ -1552,17 +1556,17 @@ Yours sincerely,
 Your {@config->fname} Team
 {@config->furl}</textarea></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Translations</td>
   </tr>
   <tr>
    <td class="mmbox" colspan="2"><ul>
 	<li>When inserting a custom mail, you may also specify the translations into whatever languages you have installed.</li>
 	<li>If you do leave a translation box (text or title) blank, it will inherit the text or title from the box above.</li>
-   </ul></td> 
+   </ul></td>
   </tr>
   <?php while($row = $db->fetch_assoc($result)) { ?>
-  <tr> 
+  <tr>
    <td class="ubox" colspan="2"><b><?php echo $row['language']; ?></b> Translation:</td>
   </tr>
   <tr>
@@ -1575,16 +1579,16 @@ Your {@config->fname} Team
   </tr>
   <?php } ?>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Create" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Create" /></td>
   </tr>
  </table>
-</form>		
+</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'phrase_add_mailfile2') {
 	echo head();
-	
+
 	$file = $gpc->get('file', str);
 	$tpl = $gpc->get('tpl', none);
 	$title = $gpc->get('title', none);
@@ -1605,7 +1609,7 @@ elseif ($job == 'phrase_add_mailfile2') {
 		$filesystem->file_put_contents("language/{$id}/mails/{$file}.php", $xml);
 	}
 
-	ok('admin.php?action=language&job=phrase');	
+	ok('admin.php?action=language&job=phrase');
 }
 elseif ($job == 'phrase_add') {
 	echo head();
@@ -1614,7 +1618,7 @@ elseif ($job == 'phrase_add') {
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_add2&file=<?php echo $gpc->get('file', none); ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Phrase Manager &raquo; <?php echo $file; ?> &raquo; Add new Phrase</td>
   </tr>
   <tr>
@@ -1626,14 +1630,14 @@ elseif ($job == 'phrase_add') {
    <td class="mbox" width="50%">Text:</td>
    <td class="mbox" width="50%"><input type="text" name="text" size="50" /></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Translations</td>
   </tr>
   <tr>
    <td class="ubox" colspan="2"><ul>
 	<li>When inserting a custom phrase, you may also specify the translations into whatever languages you have installed.</li>
 	<li>If you do leave a translation box blank, it will inherit the text from the 'Text' box.</li>
-   </ul></td> 
+   </ul></td>
   </tr>
   <?php
   while($row = $db->fetch_assoc($result)) {
@@ -1645,7 +1649,7 @@ elseif ($job == 'phrase_add') {
   </tr>
   <?php } } ?>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td>
   </tr>
  </table>
 </form>
@@ -1658,7 +1662,7 @@ elseif ($job == 'phrase_add2') {
 	$text = $gpc->get('text', none);
 	$file = base64_decode($gpc->get('file', none));
 	$lang = $gpc->get('langt', none);
-	
+
 	$c = new manageconfig();
 	foreach ($lang as $id => $t) {
 		if (empty($t)) {
@@ -1668,7 +1672,7 @@ elseif ($job == 'phrase_add2') {
 		$c->updateconfig($varname, str, $t);
 		$c->savedata();
 	}
-	
-	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode($file)));	
+
+	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode($file)));
 }
 ?>

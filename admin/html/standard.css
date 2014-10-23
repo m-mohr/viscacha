@@ -61,6 +61,20 @@ a:hover {
 	border: 1px solid #3465A4;
 	padding: 4px;
 }
+.invisibletable {
+	border-width: 0px;
+	width: 100%;
+	border-collapse: collapse;
+	margin: 5px;
+}
+.invisibletable td, .invisibletable th {
+	border-width: 0px;
+	padding: 3px;
+}
+.invisibletable th {
+	text-align: left;
+	border: 0px;
+}
 .inlinetable {
 	border: 1px solid #bbbbbb;
 	width: 100%;
@@ -229,4 +243,82 @@ a:hover {
 .bb_hide span {
 	margin-left: 10px;
 	display: block;
+}
+
+
+.popup {
+	z-index: 10; 
+	left: 0px; 
+	visibility: hidden; 
+	width: 200px;
+	position: absolute; 
+	top: 0px; 
+	border: 1px solid #336699;
+	border-top: 0px solid;
+	text-align: left;
+	font-weight: normal;
+}
+.popup select {
+	width: 194px;
+}
+.popup strong {
+	display: block;
+	padding: 2px;  
+	font-size: 9pt; 
+	color: #336699;
+	background-color: #BCCADA;
+	border-top: 1px solid #336699;
+}
+.popup ul {
+	padding: 0px; 
+	margin: 0px; 
+	list-style-type: none;	
+}
+.popup li { 
+	font-size: 9pt;
+	background-color: #ffffff;
+	font-weight: normal;
+	border-top: 1px solid #336699;
+	padding: 0px;
+	display: block;
+}
+.popup li form, .popup li p {
+	padding: 2px;
+	margin: 0px;
+}
+.popup li a, .popup_line {
+	padding: 2px;
+	color: #336699; 
+	text-decoration: none;
+	display: block;
+	cursor: pointer;
+	background-color: #ffffff;
+}
+.popup li a:hover, .popup_line:hover { 
+	color: #000000;
+	background-color: #F5F8FA;
+}
+#menu_bbcolor, #menu_bbsize, #menu_bbhx, #menu_help, #menu_bbalign {
+	font-size: 9pt;font-weight: bold;font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+}
+#codebuttons a, #menu_bbcolor, #menu_bbsize, #menu_bbhx, #menu_help, #menu_bbalign {
+	border: 1px solid #336699;background-color: #F5F8FA;
+}
+#codebuttons br {
+	clear: left;
+}
+#codebuttons a {
+	height: 18px;float: left;display: block;padding: 2px;margin: 1px;vertical-align: middle;
+}
+#codebuttons a:hover {
+	background-color: #BCCADA;
+}
+#codebuttons img {
+	vertical-align: middle;border-width: 0px;
+}
+.bbcolor {
+	line-height: 10px;font-size: 10px;
+}
+.bbcolor span {
+	width: 10px;height: 10px;display: block;float: left;cursor: pointer;
 }

@@ -244,7 +244,7 @@ class PowerGraphic {
 		// Defines array $temp
 		foreach ($x as $id => $value) {
 			
-			if (empty($value)) {
+			if (strlen($value) < 1) {
 				continue;
 			}
 			if (empty($y[$id])) {
@@ -312,7 +312,6 @@ class PowerGraphic {
 	{
 	
 		$this->img = imagecreatetruecolor($this->width, $this->height);
-
 		$this->load_color_palette();
 
 		// Fill background
@@ -587,7 +586,12 @@ class PowerGraphic {
 
 			foreach ($this->x as $i => $parameter)
 			{
-				$size	 = $this->y[$i] * 360 / $this->sum_total;
+				if ($this->sum_total == 0) {
+					$size = 360;
+				}
+				else {
+					$size	 = $this->y[$i] * 360 / $this->sum_total;
+				}
 				$sizes[] = $size;
 				$start  += $size;
 			}
@@ -597,53 +601,68 @@ class PowerGraphic {
 			if ($this->type == 5)
 			{
 				$start = 270;
+				$height /= 1.6;
 
-				foreach ($sizes as $i => $size)
-				{
-					$num_color = $i + 1;
-					if (!isset($this->color['arc_' . $num_color . '_shadow'])) {
-						$num_color = 1;
-					}
-					$shadowColor = 'arc_' . $num_color . '_shadow';
-					for($i=1; $i <= 10; $i++) {
-						imagefilledarc($this->img, $center_x, ($center_y+$i), $width, $height, $start, ($start+$size), $this->color[$shadowColor], IMG_ARC_PIE);
+				if ($this->sum_total == 0) {
+					for($i=1; $i <= 11; $i++) {
+						imagefilledarc($this->img, $center_x, ($center_y+$i-1), $width, $height, $start, ($start+$size), $this->color['gray_shadow'], IMG_ARC_NOFILL);
 					}	
-					$start += $size;
+					imagefilledarc($this->img, $center_x, $center_y, ($width+2), $height, $start, ($start+$size), $this->color['gray'], IMG_ARC_PIE);
 				}
-				
-				$start = 270;
-
-				// Draw pieces
-				foreach ($sizes as $i => $size)
-				{
-					$num_color = $i + 1;
-					if (!isset($this->color['arc_' . $num_color])) {
-						$num_color = 1;
+				else {
+					foreach ($sizes as $i => $size)
+					{
+						$num_color = $i + 1;
+						if (!isset($this->color['arc_' . $num_color . '_shadow'])) {
+							$num_color = 1;
+						}
+						$shadowColor = 'arc_' . $num_color . '_shadow';
+						for($i=1; $i <= 10; $i++) {
+							imagefilledarc($this->img, $center_x, ($center_y+$i-1), $width, $height, $start, ($start+$size), $this->color[$shadowColor], IMG_ARC_NOFILL);
+						}	
+						$start += $size;
 					}
-					$color = 'arc_' . $num_color;
-					imagefilledarc($this->img, $center_x, $center_y, ($width+2), ($height+2), $start, ($start+$size), $this->color[$color], IMG_ARC_PIE);
 					
-					$start += $size;
+					$start = 270;
+	
+					// Draw pieces
+					foreach ($sizes as $i => $size)
+					{
+						$num_color = $i + 1;
+						if (!isset($this->color['arc_' . $num_color])) {
+							$num_color = 1;
+						}
+						$color = 'arc_' . $num_color;
+						imagefilledarc($this->img, $center_x, $center_y, ($width+2), $height, $start, ($start+$size), $this->color[$color], IMG_ARC_PIE);
+						
+						$start += $size;
+					}
 				}
 			}
 
 			// Draw DONUT
 			else if ($this->type == 6)
 			{
-				foreach ($sizes as $i => $size)
-				{
-					$num_color = $i + 1;
-					while ($num_color > 7) {
-						$num_color -= 5;
-					}
-					$color		  = 'arc_' . $num_color;
-					$color_shadow = 'arc_' . $num_color . '_shadow';
-					imagefilledarc($this->img, $center_x, $center_y, $width, $height, $start, ($start+$size), $this->color[$color], IMG_ARC_PIE);
-					$start += $size;
+				if ($this->sum_total == 0) {
+					imagefilledarc($this->img, $center_x, $center_y, $width, $height, $start, ($start+$size), $this->color['gray'], IMG_ARC_PIE);
+					imagefilledarc($this->img, $center_x, $center_y, 100, 100, 0, 360, $this->color['background'], IMG_ARC_PIE);
 				}
-				imagefilledarc($this->img, $center_x, $center_y, 100, 100, 0, 360, $this->color['background'], IMG_ARC_PIE);
-				imagearc($this->img, $center_x, $center_y, 100, 100, 0, 360, $this->color['bg_legend']);
-				imagearc($this->img, $center_x, $center_y, ($width+1), ($height+1), 0, 360, $this->color['bg_legend']);
+				else {
+					foreach ($sizes as $i => $size)
+					{
+						$num_color = $i + 1;
+						while ($num_color > 7) {
+							$num_color -= 5;
+						}
+						$color		  = 'arc_' . $num_color;
+						$color_shadow = 'arc_' . $num_color . '_shadow';
+						imagefilledarc($this->img, $center_x, $center_y, $width, $height, $start, ($start+$size), $this->color[$color], IMG_ARC_PIE);
+						$start += $size;
+					}
+					imagefilledarc($this->img, $center_x, $center_y, 100, 100, 0, 360, $this->color['background'], IMG_ARC_PIE);
+					imagearc($this->img, $center_x, $center_y, 100, 100, 0, 360, $this->color['bg_legend']);
+					imagearc($this->img, $center_x, $center_y, ($width+1), ($height+1), 0, 360, $this->color['bg_legend']);
+				}
 			}
 		}
 
@@ -853,7 +872,12 @@ class PowerGraphic {
 				}
 				$color = 'arc_' . $num;
 
-				$percent = number_format(round(($this->y[$i] * 100 / $this->sum_total), 2), 2, ".", "") . ' %';
+				if ($this->sum_total != 0) {
+					$percent = number_format(round(($this->y[$i] * 100 / $this->sum_total), 2), 2, ".", "") . ' %';
+				}
+				else {
+					$percent = '0 %';
+				}
 				$less	 = (strlen($percent) * 7);
 
 				if ($num != 1) {
@@ -915,6 +939,7 @@ class PowerGraphic {
 			case 2:
 				$background = array(220, 220, 220);
 				$this->color['title']		= imagecolorallocate($this->img,   0,   0, 100);
+				$this->color['gray']		= array(175, 175, 175);
 				$this->color['axis_values'] = imagecolorallocate($this->img,  50,  50,  50);
 				$this->color['axis_line']   = imagecolorallocate($this->img, 100, 100, 100);
 				$this->color['bg_lines']	= imagecolorallocate($this->img, 240, 240, 240);
@@ -952,6 +977,7 @@ class PowerGraphic {
 			case 3:
 				$background = array(0, 0, 0);
 				$this->color['title']		= imagecolorallocate($this->img, 255, 255, 255);
+				$this->color['gray']		= array(175, 175, 175);
 				$this->color['axis_values'] = imagecolorallocate($this->img,   0, 230,   0);
 				$this->color['axis_line']   = imagecolorallocate($this->img,   0, 200,   0);
 				$this->color['bg_lines']	= imagecolorallocate($this->img, 100, 100, 100);
@@ -990,6 +1016,7 @@ class PowerGraphic {
 			case 4:
 				$background = array(250, 250, 220);
 				$this->color['title']		= imagecolorallocate($this->img, 130,  30,  40);
+				$this->color['gray']		= array(175, 175, 175);
 				$this->color['axis_values'] = imagecolorallocate($this->img,  50, 150,  50);
 				$this->color['axis_line']   = imagecolorallocate($this->img,  50, 100,  50);
 				$this->color['bg_lines']	= imagecolorallocate($this->img, 200, 224, 180);
@@ -1028,6 +1055,7 @@ class PowerGraphic {
 			default:
 				$background = array(255, 255, 255);
 				$this->color['title']		= imagecolorallocate($this->img,   0,   0, 0);
+				$this->color['gray']		= array(175, 175, 175);
 				$this->color['axis_values'] = imagecolorallocate($this->img,   0,   0,  0);
 				$this->color['axis_line']   = imagecolorallocate($this->img,   0,   0, 0);
 				$this->color['bg_lines']	= imagecolorallocate($this->img, 200, 200, 200);
@@ -1072,7 +1100,10 @@ class PowerGraphic {
 			}
 		$this->color['background']  = imagecolorallocate($this->img, $background[0], $background[1], $background[2]);
 		$this->scale = ceil(array_sum($background)/count($background));
-		
+
+		$this->color['gray_shadow']	= imagecolorallocate($this->img, $this->get_shadow($this->color['gray'][0]), $this->get_shadow($this->color['gray'][1]), $this->get_shadow($this->color['gray'][2]));
+		$this->color['gray']		= imagecolorallocate($this->img, $this->color['gray'][0], $this->color['gray'][1], $this->color['gray'][2]);
+	
  		if (ereg("^(1|2)$", $this->type)) {
 			$i = 1;
 			foreach ($colours as $array) {

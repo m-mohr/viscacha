@@ -29,7 +29,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 	if (!$ftp->connect()) {
 		?></pre></div>
 	<div class="bbody">Could not connect to ftp server! Pleasy try again later or check the ftp server settings (server, port)!</div>
-	<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-1; ?>">Go back</a></div>
+	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
 		<?php
 	}
 	else {
@@ -37,7 +37,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 			$ftp->quit();
 			?></pre></div>
 	<div class="bbody">Could not authenticate to ftp server! Pleasy try again later or check the ftp authentication settings (username, password)!</div>
-	<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-1; ?>">Go back</a></div>
+	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
 			<?php
 		}
 		else {
@@ -45,7 +45,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 				$ftp->quit();
 				?></pre></div>
 	<div class="bbody">Directory "<?php echo $config['ftp_path']; ?>" does not exist!</div>
-	<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-1; ?>">Go back</a></div>
+	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
 				<?php
 			}
 			else {
@@ -216,6 +216,6 @@ foreach ($files as $arr) {
 <?php if (!$failure) { ?>
 <input type="submit" value="Continue" />
 <?php } else { ?>
-<a class="submit" href="index.php?step=<?php echo $step; ?>">Reload page</a>
+<a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Reload page</a>
 <?php } ?>
 </div>

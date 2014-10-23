@@ -42,10 +42,25 @@ elseif ($job == 'cache') {
 						'cached' => false
 					);
 				}
+				$cache = $scache->load($name);
+				$result[$name]['rebuild'] = $cache->rebuildable();
 			}
 		}
 	}
 	ksort($result);
+	
+	$pluginsize = 0;
+	$files = 0;
+	$dir = 'cache/modules/';
+	if ($dh = @opendir($dir)) {
+		while (($file = readdir($dh)) !== false) {
+			if (strpos($file, '.php') !== false) {
+				$files++;
+				$pluginsize += filesize($dir.$file);
+			}
+	    }
+		closedir($dh);
+	}
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
@@ -61,6 +76,12 @@ elseif ($job == 'cache') {
    <td class="ubox" width="10%">File Size</td>
    <td class="ubox" width="15%">Approximate Age</td>
    <td class="ubox" width="40%">Options</td>
+  </tr>
+  <tr>
+   <td class="mbox"><b>Plugins</b> (<?php echo $files; ?> Files)</td>
+   <td class="mbox" nowrap="nowrap" align="right"><?php echo iif ($pluginsize > 0, formatFilesize($pluginsize), '-'); ?></td>
+   <td class="mbox" nowrap="nowrap">-</td>
+   <td class="mbox"><a class="button" href="admin.php?action=misc&amp;job=cache_delete_plugins">Delete Cache</a></td>
   </tr>
   <?php foreach ($result as $name => $row) { ?>
   <tr>
@@ -110,32 +131,74 @@ elseif ($job == 'cache_view') {
 	echo foot();
 }
 elseif ($job == 'cache_delete' || $job == 'cache_refresh') {
-	$file = $gpc->get('file', str);
+	$name = $gpc->get('file', str);
+	$file = $name.'.inc.php';
 	echo head();
-	$cache = $scache->load($file);
-	$cache->delete();
-	if ($job == 'cache_refresh') {
-		$cache->load();
+	$not = true;
+	if (file_exists('classes/cache/'.$file)) {
+		$cache = $scache->load($name);
+		$cache->delete();
+		if ($job == 'cache_refresh') {
+			$cache->load();
+			if ($cache->rebuildable() == false){
+				$not = false;
+			}
+		}
+	}
+	else {
+		if (file_exists('cache/'.$file)) {
+			$filesystem->unlink('cache/'.$file);
+			$not = null;
+		}
+		else {
+			$not = false;
+		}
+	}
+	if ($not == null) {
+		error('admin.php?action=misc&job=cache', 'No valid cache-file specified.');
+	}
+	if ($not == false) {
+		error('admin.php?action=misc&job=cache', iif($job == 'cache_refresh', 'The cache file is only deleted. It will be created the next time it is needed.'));
 	}
 	ok('admin.php?action=misc&job=cache', iif($job == 'cache_refresh', 'The cache-file was rebuilt.', 'The cache-file was deleted. It will be rebuild the next time it is needed.'));
 }
 elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 	echo head();
-	$dir = iif ($job == 'cache_refresh_all', 'classes/cache', 'cache');
+	$classesdir = 'classes/cache/';
+	$cachedir = 'cache/';
+	$dir = iif ($job == 'cache_refresh_all', $classesdir, $cachedir);
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
 			if (strpos($file, '.inc.php') !== false) {
 				$file = str_replace('.inc.php', '', $file);
-				$cache = $scache->load($file);
-				$cache->delete();
-				if ($job == 'cache_refresh_all') {
-					$cache->load();
+				if (file_exists($classesdir.$file)) {
+					$cache = $scache->load($file);
+					$cache->delete();
+					if ($job == 'cache_refresh_all' && $cache->rebuildable() == true) {
+						$cache->load();
+					}
+				}
+				else {
+					$filesystem->unlink($cachedir.$file);
 				}
 			}
 	    }
 		closedir($dh);
 	}
-	ok('admin.php?action=misc&job=cache', iif($job == 'cache_refresh_all', 'The cache-files were rebuilt.', 'The cache-files were deleted. They will be rebuild the next time they are needed.'));
+	ok('admin.php?action=misc&job=cache', iif($job == 'cache_refresh_all', 'The cache-files were rebuilt. Some files are only deleted and will be rebuild the next time they are needed.', 'The cache-files were deleted. They will be rebuild the next time they are needed.'));
+}
+elseif ($job == 'cache_delete_plugins') {
+	echo head();
+	$dir = 'cache/modules/';
+	if ($dh = @opendir($dir)) {
+		while (($file = readdir($dh)) !== false) {
+			if (strpos($file, '.php') !== false) {
+				$filesystem->unlink($dir.$file);
+			}
+	    }
+		closedir($dh);
+	}
+	ok('admin.php?action=misc&job=cache', 'The cache-files were deleted. They will be rebuild the next time they are needed.');
 }
 elseif ($job == 'onlinestatus') {
 	echo head();
@@ -691,7 +754,7 @@ elseif ($job == "credits") {
 		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Image Converter by Huda M Elmatsani</a> (Convert Images; Freeware)</li>
 		<li><a href="http://www.flaimo.com" target="_blank">vCard-Class 1.001 by Michael Wimmer</a> (vCard Output; Unspecified)</li>
 		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.5 by Vincent Blavet</a> (Zip File Handling; LPGL)</li>
-		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.7.13 by Nigel McNie</a> (Syntax Highlighting; GPL)</li>
+		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.7.15 by Nigel McNie</a> (Syntax Highlighting; GPL)</li>
 		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing Newsfeeds; GPL)</li>
 		<li><a href="http://phpmailer.sourceforge.net/" target="_blank">PHPMailer 1.73 by Brent R. Matzelle and SMTP Class 1.02 by Chris Ryan</a> (Sending E-Mails with SMTP; LGPL)</li>
 		<li><a href="http://cjphp.netflint.net" target="_blank">Class.Jabber.PHP v0.4.3a by Nathan Fritz</a> (Jabber Messages; GPL)</li>

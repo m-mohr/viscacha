@@ -52,7 +52,6 @@ class CacheItem {
 	}
 	
 	function import() {
-	
 		if (file_exists($this->file)) {
 	        $data = file_get_contents($this->file);
 	        $this->data = unserialize($data);
@@ -79,10 +78,13 @@ class CacheItem {
 			$age = time()-filemtime($this->file);
 			return $age;
 		}
+		else {
+			return -1;
+		}
 	}
 	
 	function exists($max_age = null) {
-	    if (file_exists($this->file) && filesize($this->file) > 4) {
+	    if (file_exists($this->file) && filesize($this->file) > 0) {
 			if ($max_age != null) {
 				return !($this->expired($max_age));
 			}
@@ -107,8 +109,12 @@ class CacheItem {
 		// Will be implemented in sub-class
 	}
 	
+	function rebuildable() {
+		return true;
+	}
+
 	function get($max_age = null) {
-		if ($this->data == null || $this->expired($max_age)) {
+		if ($this->data == null || ($max_age != null && $this->expired($max_age))) {
 			$this->load();
 		}
 		return $this->data;

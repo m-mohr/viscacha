@@ -4,6 +4,35 @@ function setTextfield(name) {
 	textfield = name;
 }
 
+function resize_textarea(to) {
+	if (to < 0) {
+		var rows = -3;
+	}
+	else {
+		var rows = 3;
+	}
+	var textarea = FetchElement(textfield);
+	var newrows = textarea.rows + rows;
+	if (newrows >= 6) {
+		textarea.rows = newrows;
+	}
+	return false;
+}
+
+function textarea_length(size) {
+	var textarea = FetchElement(textfield);
+	var av = size-textarea.value.length;
+	if (av >= 0) {
+		var key = 'js_ta_left';
+	}
+	else {
+		var key = 'js_ta_too_much';
+		av = av * -1;
+	}
+	alert(lng['js_ta_used']+av+lng[key]+"\n"+lng['js_ta_max']+size);
+	return false;
+}
+
 function refreshElement(parentWindow) {
 	if (parentWindow == 1) {
 		return OpenerFetchElement(textfield);
@@ -64,7 +93,7 @@ function InsertTags(aTag, eTag, parentWindow, param2) {
         if (insText.length == 0) {
           range.move('character', -eTag.length);
         } else {
-          range.moveStart('character', aTag.length + insText.length + eTag.length);      
+          range.moveStart('character', aTag.length + insText.length + eTag.length);
         }
         range.select();
     }
@@ -123,7 +152,7 @@ function bbcolor(bgc) {
 }
 
 function popup_code() {
-	window.open("popup.php?action=code"+sidx,"","width=300,height=600,resizable=yes,scrollbars=yes,status=yes");   
+	window.open("popup.php?action=code"+sidx,"","width=300,height=600,resizable=yes,scrollbars=yes,status=yes");
 }
 
 function list(type) {
@@ -184,7 +213,7 @@ function InsertTagsParams(front, end, txt, txt2) {
 	}
 }
 
-function SuchenUndErsetzen(QuellText, SuchText, ErsatzText) {   
+function SuchenUndErsetzen(QuellText, SuchText, ErsatzText) {
 // (c) Ralf Pfeifer, http://www.arstechnica.de/computer/JavaScript/JS11_01.html
 	if ((QuellText == null) || (SuchText == null))			 { return null; }
 	if ((QuellText.length == 0) || (SuchText.length == 0))   { return QuellText; }

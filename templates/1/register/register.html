@@ -21,14 +21,14 @@
 <br class="newinput" /><hr class="formsep" />
 <label for="email">
     <?php echo $lang->phrase('email'); ?>
-    <?php if ($config['sessionmails'] == 0) { ?>
+    <?php if ($config['sessionmails'] == 1) { ?>
 	  <br /><span class="stext"><?php echo $lang->phrase('register_tempmails'); ?></span>
     <?php } ?>
 </label>
 <input class="label" type="text" id="email" name="email" size="40" value="<?php echo $_GET['email']; ?>" />
 <?php foreach ($customfields as $row) { ?>
 <br class="newinput" /><hr class="formsep" />
-  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label> 
+  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
   <?php echo $row['input']; } ?>
 <br class="newinput" />
 <?php if ($config['botgfxtest'] == 1) { ?>
@@ -67,6 +67,6 @@
 <br class="iefix_br" />
 </div>
 <?php } ?>
-<div class="bfoot center"><input onclick="submit_flood(this)" type="submit" accesskey="s" name="Submit1" id="submitregister" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+<div class="bfoot center"><input onclick="submit_flood(this)" type="submit" accesskey="s" name="Submit1" id="submitregister" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>

@@ -127,10 +127,11 @@ if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$
 	
 	($code = $plugins->load('profile_vcard_prepared')) ? eval($code) : null;
 	$text = $vCard->getCardOutput();
-	viscacha_header("Content-Disposition: attachment; filename=$filename");
+	viscacha_header("Content-Type: text/x-vcard");
+	viscacha_header("Content-Disposition: attachment; filename=\"{$filename}\"");
 	viscacha_header('Content-Length: '. strlen($text));
-	viscacha_header("Content-Type: text/x-vcard; name=$filename");
 	echo $text;
+	$slog->updatelogged();
 	$db->close();
 	exit();
 }
@@ -507,7 +508,9 @@ elseif ($is_member) {
 	}
 }
 else {
+	$db->close();
 	viscacha_header('Location: members.php');
+	exit;
 }
 
 ($code = $plugins->load('profile_end')) ? eval($code) : null;

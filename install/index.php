@@ -1,8 +1,8 @@
-<?php 
+<?php
 error_reporting(E_ALL);
 
-define('VISCACHA_VERSION', '0.8 Beta 4');
-define('VISCACHA_VERSION_OLD', '0.8 Beta 3');
+define('VISCACHA_VERSION', '0.8 RC1');
+define('VISCACHA_VERSION_OLD', '0.8 Beta 4');
 
 $locked = file_exists('./locked.txt');
 
@@ -10,11 +10,11 @@ if (!$locked) {
 	if (!isset($_REQUEST) || !is_array($_REQUEST)) {
 		$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
 	}
-	
+
 	$config = array();
 	require_once('../classes/function.phpcore.php');
 	require_once('lib/function.variables.php');
-	
+
 	$packages = array(
 		'install' => array(
 			'title' => 'Installation',
@@ -25,7 +25,7 @@ if (!$locked) {
 			'description' => 'Already running Viscacha? Then choose this option to update to the new Version!'
 		)
 	);
-	
+
 	$package = null;
 	if (isset($_REQUEST['package']) && isset($packages[$_REQUEST['package']])) {
 		$package = trim($_REQUEST['package']);
@@ -63,7 +63,7 @@ if (!$locked) {
 <div id="container">
     <h1>&nbsp;</h1>
     <div class="breadcrumb">
-    	<a href="index.php">Viscacha Setup</a> &raquo; 
+    	<a href="index.php">Viscacha Setup</a> &raquo;
     	<?php if (empty($package) && !$locked) { ?>
     	Choose Package
     	<?php } elseif (!$locked) { ?>
@@ -130,7 +130,7 @@ if (!$locked) {
 			<h3>Viscacha is currently locked</h3>
 			<div class="bbody">
 			<p><strong>This part of Viscacha is currently locked.</strong></p>
-			<p>To unlock the installation/update remove the file &quot;locked&quot; in your &quot;install&quot;-folder.</p>
+			<p>To unlock the installation/update remove the file &quot;locked.txt&quot; in your &quot;install&quot;-folder.</p>
 			</div>
 		</div>
 		<?php } ?>

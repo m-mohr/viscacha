@@ -9,7 +9,7 @@ FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id 
 	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id 
-WHERE (t.mark = 'n' OR f.auto_status = 'n') AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1' 
+WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark = '')) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1' 
 ORDER BY r.date DESC
 LIMIT 0,{$anznews}"
 ,__LINE__,__FILE__);

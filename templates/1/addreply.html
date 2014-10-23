@@ -52,16 +52,25 @@
 <a class="label" href="misc.php?action=board_rules&amp;id=<?php echo $info['board'].SID2URL_x; ?>" target="_blank"><?php echo $last['message_title']; ?></a>
 <br class="newinput" /><hr class="formsep" />
 <?php } ?>
-<label for="topic"><?php echo $lang->phrase('title'); ?></label> 
+<label for="topic"><?php echo $lang->phrase('title'); ?></label>
 <input class="label" type="text" name="topic" id="topic" size="40" value="<?php echo $data['topic']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <label><?php echo $inner['smileys']; ?></label>
 <?php echo $inner['bbhtml']; ?>
 <br class="newinput" /><hr class="formsep" />
-<label for="comment"><?php echo $lang->phrase('post'); ?>&nbsp;</label> 
-<textarea class="label" name="comment" id="comment" cols="50" rows="10"><?php echo $data['comment']; ?></textarea>
+<label for="comment"><?php echo $lang->phrase('post'); ?>&nbsp;</label>
+<div class="label">
+	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="9"><?php echo $data['comment']; ?></textarea>
+	<div class="stext">
+		<span class="textright right">
+			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
+			[<a href="#" onclick="return resize_textarea(-1)"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>]
+		</span>
+		[<a href="#" onclick="return textarea_length(<?php echo $config['maxpostlength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
+	</div>
+</div>
 <br class="newinput" /><hr class="formsep" />
-<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label> 
+<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
 	<input type="checkbox" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
 	<input type="checkbox" name="dowords" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
@@ -70,7 +79,7 @@
 <?php
 if ($p_upload == 1) { ?>
 <hr class="formsep" />
-<label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label> 
+<label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label>
 <div class="label">
 	<a href="attachments.php?type=addreply&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
 	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>

@@ -84,6 +84,7 @@ if ($_GET['action'] == 'firstnew') {
 		if ($pgs < 1) {
 			$pgs = 1;
 		}
+		$db->close();
 		viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
 		exit;
 	}
@@ -93,6 +94,7 @@ elseif ($_GET['action'] == 'last') {
 	$result = $db->query('SELECT id FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' ORDER BY date DESC LIMIT 1',__LINE__,__FILE__);
 	$new = $db->fetch_num($result);
 	$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
+	$db->close();
 	viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
@@ -106,6 +108,7 @@ elseif ($_GET['action'] == 'mylast') {
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
+	$db->close();
 	viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
@@ -119,6 +122,7 @@ elseif ($_GET['action'] == 'jumpto') {
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
+	$db->close();
 	viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
@@ -146,18 +150,10 @@ echo $tpl->parse("menu");
 
 ($code = $plugins->load('showtopic_start')) ? eval($code) : null;
 
-$start = $_GET['page']*$last['topiczahl'];
-$start = $start-$last['topiczahl'];
-
 // Some speed optimisation
 $speeder = $info['posts']+1;
-// Speed up the first pages with less than 10 posts
-if ($speeder > $last['topiczahl']) {
-	$searchsql = " LIMIT ".$start.",".$last['topiczahl'];
-}
-else {
-	$searchsql = " LIMIT ".$speeder;
-}
+$start = $_GET['page']*$last['topiczahl'];
+$start = $start-$last['topiczahl'];
 
 $temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id']."&amp;", $_GET['page']);
 
@@ -270,17 +266,28 @@ if ($config['postrating'] == 1) {
 	}
 }
 
+// Speed up the first pages with less than 10 posts
+if ($speeder > $last['topiczahl']) {
+	$sql_limit = " LIMIT {$start},{$last['topiczahl']}";
+}
+else {
+	$sql_limit = " LIMIT {$speeder}";
+}
+$sql_select = iif($config['pm_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
+$sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT 
 	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, 
 	u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
-	f.* 
+	f.* {$sql_select}
 FROM {$db->pre}replies AS r 
 	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
 	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
+	{$sql_join}
 WHERE r.topic_id = '{$info['id']}' 
-ORDER BY date ASC {$searchsql}
+ORDER BY date ASC
+{$sql_limit}
 ",__LINE__,__FILE__);
 
 $firstnew = 0;
@@ -334,6 +341,9 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$row->signature = $bbcode->parse($row->signature);
 	}
 
+	if ($config['post_user_status'] == 1) {
+		$row->lang_online = $lang->phrase('profile_'.iif($row->online == 1, 'online', 'offline'));
+	}
 	$row->date = str_date($lang->phrase('dformat1'), times($row->date));
 	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
 	$row->level = $slog->getStatus($row->groups, ', ');
@@ -341,7 +351,7 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$row->location = $lang->phrase('showtopic_na');
 	}
 
-	if (!empty($row->fullname) || (!empty($row->signature) && $my->opt_showsig == 1)) {
+	if ((!empty($row->fullname) && $config['fullname_posts'] == 1) || (!empty($row->signature) && $my->opt_showsig == 1)) {
 		$bottom = TRUE;
 	}
 	else {

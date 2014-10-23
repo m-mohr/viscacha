@@ -34,7 +34,7 @@ elseif ($_GET['job'] == 'postrating2') {
 	$temp = pages($count[0], "admin.php?action=members&job=memberrating&amp;", 25);
 	
 	if ($count[0] < 1) {
-		error('admin.php?action=posts&job=postrating', 'Forum does not contain any posts.');
+		error('admin.php?action=posts&job=postrating', 'The forum does not contain any rated posts.');
 	}
 	
 	$catbid = $scache->load('cat_bid');

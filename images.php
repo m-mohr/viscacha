@@ -99,6 +99,7 @@ elseif ($_GET['action'] == 'captcha') {
 	$vword->set_filter($config['botgfxtest_filter']);
 	$vword->set_color($config['botgfxtest_colortext']);
 	$vword->set_size($width, $height, $config['botgfxtest_format'], $config['botgfxtest_quality']);
+	send_nocache_header();
 	$vword->output_image($_GET['captcha']);
 }
 elseif ($_GET['action'] == 'postrating' || $_GET['action'] == 'memberrating' || $_GET['action'] == 'threadrating') {

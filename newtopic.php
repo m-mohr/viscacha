@@ -62,25 +62,21 @@ $breadcrumb->Add($lang->phrase('newtopic_title'));
 
 if ($_GET['action'] == "startvote") {
 
-	$my->mp = $slog->ModPermissions($board);
+	$result = $db->query("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}' LIMIT 1", __LINE__, __FILE__);
+	$info = $db->fetch_assoc($result);
 
-	if (empty($_GET['temp'])) {
-		$_GET['temp'] = $_POST['temp'];
+	$my->mp = $slog->ModPermissions($info['board']);
+
+	$temp = $gpc->get('temp', int, 2);
+	if ($temp < 2) {
+		$temp = 2;
 	}
-	if ($_GET['temp'] < 1) {
-		$_GET['temp'] = 2;
+	if ($temp > 50) {
+		$temp = 50;
 	}
 
 	($code = $plugins->load('newtopic_startvote_start')) ? eval($code) : null;
 	
-	$result = $db->query("
-	SELECT id, vquestion, name 
-	FROM {$db->pre}topics 
-	WHERE id = '{$_GET['topic_id']}' 
-	LIMIT 1
-	", __LINE__, __FILE__);
-	
-	$info = $db->fetch_assoc($result);
 	$error = array();
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion']) || ($info['name'] != $my->id && $my->mp[0] == 0)) {
 		$error[] = $lang->phrase('not_allowed');
@@ -89,22 +85,19 @@ if ($_GET['action'] == "startvote") {
 		$error[] = $lang->phrase('query_string_error');
 	}
 	if (count($error) > 0) {
-		errorLogin($error,"showforum.php?id=".$board.SID2URL_x);
+		errorLogin($error,"showforum.php?id=".$info['board'].SID2URL_x);
 	}
-
-	$error = array();
-	if ($_GET['temp'] < 2) {
-		$error[] = $lang->phrase('min_replies_vote');
-	}
-	if ($_GET['temp'] > 50) {
-		$error[] = $lang->phrase('max_replies_vote');
-	}
-
+	
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
+		for ($i = 1; $i <= $temp; $i++) { 
+			if (!isset($data[$i])) {
+				$data[$i] = '';
+			}
+		}
 	}
 	else {
-		$data = array_fill(1, $_GET['temp'], '');
+		$data = array_fill(1, $temp, '');
 		$data['question'] = '';
 	}
 
@@ -118,21 +111,30 @@ if ($_GET['action'] == "startvote") {
 
 }
 elseif ($_GET['action'] == "savevote") {
-	
-	$result = $db->query('SELECT id, vquestion FROM '.$db->pre.'topics WHERE id = "'.$_GET['topic_id'].'" LIMIT 1');
-	$info = $db->fetch_assoc($result);
-	$error = array();
-	if ($my->p['addvotes'] == 0 || !empty($info['vquestion'])) {
-		$error[] = $lang->phrase('not_allowed');
+
+	$temp = $gpc->get('temp', int);
+	$topic_id = $gpc->get('topic_id', int);
+
+	if (!empty($_POST['Update'])) {
+		$_POST['notice']['question'] = $_POST['question'];
+		$fid = save_error_data($_POST['notice']);
+		$slog->updatelogged();
+		$db->close();
+		viscacha_header("Location: newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
+		exit;
 	}
-	if ($db->num_rows() != 1) {
+	
+	if ($my->p['addvotes'] == 0 || !empty($info['vquestion'])) {
+		errorLogin($lang->phrase('not_allowed'),"showforum.php?id=".$info['board'].SID2URL_x);
+	}
+	
+	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1');
+	$info = $db->fetch_assoc($result);
+	
+	$error = $sqlwhere = array();
+	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('query_string_error');
 	}
-	if (count($error) > 0) {
-		errorLogin($error,"showforum.php?id=".$board.SID2URL_x);
-	}
-	
-	$error = array();
 	if (strxlen($_POST['question']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('question_too_long');
 	}
@@ -142,24 +144,30 @@ elseif ($_GET['action'] == "savevote") {
 	if (count_filled($_POST['notice']) < 2) {
 		$error[] = $lang->phrase('min_replies_vote');
 	}
+	else {
+		foreach ($_POST['notice'] as $uval) {
+			if (strlen($uval) > 0 && strlen($uval) < 255) {
+				array_push($sqlwhere, "({$topic_id}, '{$uval}')");
+			}
+		}
+		if (count_filled($sqlwhere) < 2) {
+			$error[] = $lang->phrase('min_replies_vote');
+		}
+	}
 	if (count_filled($_POST['notice']) > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
+
+	
 	($code = $plugins->load('newtopic_savevote_errorhandling')) ? eval($code) : null;
 	
 	if (count($error) > 0) {
 		$_POST['notice']['question'] = $_POST['question'];
 		($code = $plugins->load('newtopic_savevote_errordata')) ? eval($code) : null;
 		$fid = save_error_data($_POST['notice']);
-		error($error,"newtopic.php?action=startvote&amp;id={$board}&amp;topic_id={$_GET['topic_id']}&amp;temp={$_GET['temp']}&amp;fid=".$fid.SID2URL_x);
+		error($error,"newtopic.php?action=startvote&amp;id={$info['board']}&topic_id={$topic_id}&amp;temp={$temp}&amp;fid=".$fid.SID2URL_x);
 	}
 	else {
-		$sqlwhere = array();
-		foreach ($_POST['notice'] as $uval) {
-			if (!empty($uval) && strlen($uval) < 255) {
-				array_push($sqlwhere, "({$_GET['topic_id']}, '{$uval}')");
-			}
-		}
 		$sqlwhere = implode(", ",$sqlwhere);
 
 		($code = $plugins->load('newtopic_savevote_queries')) ? eval($code) : null;
@@ -168,11 +176,11 @@ elseif ($_GET['action'] == "savevote") {
 		$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES {$sqlwhere}",__LINE__,__FILE__);
 		$inserted = $db->affected_rows();
 		if ($inserted > 1) {
-			ok($lang->phrase('data_success'),"showtopic.php?id={$_GET['topic_id']}");
+			ok($lang->phrase('data_success'),"showtopic.php?id={$topic_id}");
 		}
 		else {
-			$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$_GET['topic_id']}'",__LINE__,__FILE__);
-			error($lang->phrase('add_vote_failed'),"showtopic.php?id={$_GET['topic_id']}");
+			$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$topic_id}'",__LINE__,__FILE__);
+			error($lang->phrase('add_vote_failed'),"showtopic.php?id={$topic_id}");
 		}
 	}
 }
@@ -272,7 +280,10 @@ elseif ($_GET['action'] == "save") {
 		($code = $plugins->load('newtopic_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data);
 		if (!empty($_POST['Preview'])) {
+			$slog->updatelogged();
+			$db->close();
 			viscacha_header("Location: newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
+			exit;
 		}
 		else {
 			error($error,"newtopic.php?id={$board}&amp;fid=".$fid.SID2URL_x);

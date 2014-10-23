@@ -46,17 +46,20 @@ $breadcrumb->Add($lang->phrase('editprofile_pm'), 'pm.php'.SID2URL_x);
 if ($_GET['action'] == 'show') {
 
 	BBProfile($bbcode);
-	
+
+	$sql_select = iif($config['pm_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
+	$sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");	
 	($code = $plugins->load('pm_show_query')) ? eval($code) : null;
 	$result = $db->query("
 	SELECT 
 		   p.dir, p.status, p.id, p.topic, p.comment, p.date, p.pm_from as mid, 
-		   u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
-		   f.* 
+		   u.id as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
+		   f.* {$sql_select}
 	FROM {$db->pre}pm AS p 
 		LEFT JOIN {$db->pre}user AS u ON p.pm_from = u.id 
 		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
-	WHERE p.pm_to = '".$my->id."' AND p.id = '{$_GET['id']}' 
+		{$sql_join}
+	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}' 
 	ORDER BY p.date ASC
 	",__LINE__,__FILE__);
 	if ($db->num_rows() != 1) {
@@ -65,7 +68,9 @@ if ($_GET['action'] == 'show') {
 	
 	$row = $gpc->prepare($db->fetch_assoc($result));
 	
-	$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = ".$_GET['id'],__LINE__,__FILE__);
+	if ($row['status'] == '0') {
+		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'",__LINE__,__FILE__);
+	}
 
 	if (empty($row['name'])) {
 		$row['regdate'] = '-';
@@ -92,6 +97,14 @@ if ($_GET['action'] == 'show') {
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 	$row['read'] = iif($row['status'] == 1,'old','new');
 	$row['level'] = $slog->getStatus($row['groups'], ', ');
+	if ($config['pm_user_status'] == 1) {
+		$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
+	}
+
+	if ($my->opt_showsig == 1) {
+		BBProfile($bbcode, 'signature');
+		$row['signature'] = $bbcode->parse($row['signature']);
+	}
 
 	($code = $plugins->load('pm_show_prepared')) ? eval($code) : null;
 
@@ -223,7 +236,10 @@ elseif ($_GET['action'] == "save") {
 		($code = $plugins->load('pm_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data);
 		if (!empty($_POST['Preview'])) {
+			$slog->updatelogged();
+			$db->close();
 			viscacha_header("Location: pm.php?action=preview&fid=".$fid.SID2URL_JS_x);
+			exit;
 		}
 		else {
 			error($error,"pm.php?action=new&amp;fid=".$fid.SID2URL_x);
@@ -286,7 +302,7 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		if ($_GET['action'] == 'quote') {
 			$info['comment'] = str_replace("[br]", "\n", $info['comment']);
 			$info['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $info['comment']);
-			$data['comment'] = "[QUOTE]".$info['comment']."[/QUOTE]";
+			$data['comment'] = "[quote]".$info['comment']."[/quote]";
 		}
 		else {
 			$data['comment'] = '';

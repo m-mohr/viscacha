@@ -1,8 +1,8 @@
 class cache_birthday_module extends CacheItem {
 
-	function load($today = null) {
+	function load() {
 		global $db, $gpc;
-		if ($this->exists($today) == true) {
+		if ($this->exists() == true) {
 		    $this->import();
 		}
 		else {
@@ -17,10 +17,9 @@ class cache_birthday_module extends CacheItem {
     		$this->export();
 		}
 	}
-	
 	function get($max_age = null) {
-		if ($this->data == null) {
-			$this->load($max_age);
+		if ($this->data == null || $this->age() >= $max_age) {
+			$this->load();
 		}
 		return $this->data;
 	}
@@ -28,10 +27,10 @@ class cache_birthday_module extends CacheItem {
 }
 
 $stime = times();
-$today = $stime - gmmktime (0, 0, 0, gmdate('m',$stime), gmdate('d',$stime), gmdate('Y',$stime), date('I',$stime)) - 60;
+$today_morning = $stime - gmmktime (0, 0, 0, gmdate('m',$stime), gmdate('d',$stime), gmdate('Y',$stime), date('I',$stime));
 
 $birthday_module = $scache->load('birthday_module');
-$data = $birthday_module->get($today);
+$data = $birthday_module->get($today_morning);
 
 if (count($data) > 0) {
 	$tpl->globalvars(compact("data"));

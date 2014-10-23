@@ -17,13 +17,16 @@
 	-->
 	</script>
 	<br class="newinput" /><hr class="formsep" />
-	<label for="signature" class="stext"><?php echo $lang->phrase('editprofile_signature_longdesc'); ?></label>
-  	<textarea class="label" name="signature" id="signature" rows="5" cols="80"><?php echo $signature; ?></textarea>
+	<label for="signature" class="stext">
+		<?php echo $lang->phrase('editprofile_signature_longdesc'); ?><br /><br />
+		[<a href="#" onclick="return textarea_length(<?php echo $config['maxsiglength']; ?>)"><?php echo $lang->phrase('textarea_check_length'); ?></a>]
+	</label>
+  	<textarea class="label" name="signature" id="signature" rows="7" cols="80"><?php echo $signature; ?></textarea>
   	<br class="newinput" /><br class="iefix_br" />
   </div>
   <div class="bfoot center">
-   <input type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" /> 
+   <input type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
    <input type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
-  </div> 
+  </div>
 </div>
 </form>

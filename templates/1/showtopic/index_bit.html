@@ -1,10 +1,21 @@
 <div class="border">
 <div class="bfoot topfooter">
     <span class="right">
-    <?php if($my->p['edit'] == 1 && $last['readonly'] == '0' && $info['status'] == 0 && ($my->mp[4] == 1 || $my->id == $row->mid)) { ?>
+    <?php if($my->p['edit'] == 1 && $last['readonly'] == 0 && $info['status'] == 0 && ($my->mp[4] == 1 || $my->id == $row->mid)) { ?>
 	    <a href="edit.php?id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('post_edit'); ?></a>
     <?php } if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0') { ?>
-	    <a class="sep" title="<?php echo $lang->phrase('post_quote_desc'); ?>" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>" onclick="multiquote(<?php echo $row->id; ?>); return false;"><img src="<?php echo $tpl->img('no_mquote'); ?>" alt="" id="mq_<?php echo $row->id; ?>" /> <?php echo $lang->phrase('post_quote'); ?></a>
+	    <a class="sep" id="menu_mquote_<?php echo $row->id; ?>" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>">
+		<img src="<?php echo $tpl->img('no_mquote'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" id="mq_<?php echo $row->id; ?>" /> 
+		<?php echo $lang->phrase('post_quote'); ?>
+		</a>
+		<script type="text/javascript">RegisterMenu('mquote_<?php echo $row->id; ?>');</script>
+		<div class="popup" id="popup_mquote_<?php echo $row->id; ?>">
+		 <strong><?php echo $lang->phrase('post_quote'); ?></strong>
+		 <ul>
+		 <li><a href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>"><?php echo $lang->phrase('post_quote_direct'); ?></a></li>
+		 <li><a href="javascript:multiquote(<?php echo $row->id; ?>);" id="mq_<?php echo $row->id; ?>_link"><?php echo $lang->phrase('post_quote_multi'); ?></a></li>
+		 </ul>
+		</div>
     <?php } if($my->vlogin) { ?>
 	    <a class="sep" title="<?php echo $lang->phrase('post_copy_desc'); ?>" href="editprofile.php?action=copy&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('copy'); ?>" alt="" /> <?php echo $lang->phrase('post_copy'); ?></a>
     <?php } if ($my->mp[0] == 1) { ?>
@@ -17,8 +28,11 @@
 </div>
 <div class="inlineheader h3">
   <div class="viewmembername">
-    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a><br />
-    <span class='stext'><?php echo $row->level; ?></span>
+    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a>
+    <?php if ($config['post_user_status'] == 1 && $row->guest == 0) { ?>
+    <img src="<?php echo $tpl->img(iif($row->online == 1, 'online', 'offline')); ?>"  title="<?php echo $row->lang_online; ?>" alt="<?php echo $row->lang_online; ?>" />
+    <?php } ?>
+    <br /><span class='stext'><?php echo $row->level; ?></span>
   </div>
   <div class="viewmemberdetails stext">
     <?php if ($row->guest == 0) { ?>
@@ -56,7 +70,7 @@
   <br class="uploadbox_br" />
   <?php } if ($bottom) { ?>
       <hr />
-      <?php if (!empty($row->fullname)) { ?>
+      <?php if (!empty($row->fullname) && $config['fullname_posts'] == 1) { ?>
       <div class="fullname stext"><?php echo $row->fullname; ?></div>
       <?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
       <div class="signature"><?php echo $row->signature; ?></div>

@@ -173,7 +173,7 @@ class GPC {
     		
     		for ($i = 0; $i < $cnt; $i++) {
     			$key = $keys[$i];
-    			$var[$key] = $this->unescape_r($var[$key]);
+    			$var[$key] = $this->unescape($var[$key]);
     		}
     	}
     	elseif (is_object($var)) {
@@ -183,7 +183,7 @@ class GPC {
     		
     		for ($i = 0; $i < $cnt; $i++) {
     			$key = $keys[$i];
-    			$var->$key = $this->unescape_r($ovar[$key]);
+    			$var->$key = $this->unescape($ovar[$key]);
     		}
     	}
     	elseif (is_string($var)) {

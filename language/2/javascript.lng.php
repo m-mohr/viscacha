@@ -18,7 +18,13 @@ $lang['js_no_changed'] = 'No words changed.';
 $lang['js_no_found'] = 'No misspellings found.';
 $lang['js_no_sug'] = '- No suggestions -';
 $lang['js_one_changed'] = 'One word changed.';
+$lang['js_quote_multi'] = 'Save post for quoting (Multiquote)';
+$lang['js_quote_multi_2'] = 'Removed saved post (Multiquote)';
 $lang['js_sc_complete'] = 'Spell check complete:';
 $lang['js_submitted'] = 'Submitting..';
+$lang['js_ta_left'] = ' characters left.';
+$lang['js_ta_max'] = 'The maximum allowed length is: ';
+$lang['js_ta_too_much'] = ' characters too much.';
+$lang['js_ta_used'] = 'You have ';
 $lang['js_x_changed'] = ' words changed.';
 ?>

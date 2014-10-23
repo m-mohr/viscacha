@@ -20,7 +20,7 @@
 <div class="bfoot center">
 	 <input type="hidden" name="redirect" value="<?php echo $loc; ?>" />
 	 <input tabindex="3" type="submit" accesskey="s" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" />
-</div> 
+</div>
 </div>
 </form>
 <br class="minibr" />
@@ -33,6 +33,7 @@
 <?php if ($config['disableregistration'] == 0) { ?>
  &nbsp; [<a href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('login_registered'); ?></a>]
 <?php } ?>
+ &nbsp; [<a href="register.php?action=resend<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('register_resend_title'); ?></a>]
 </p>
 </div>
 </div>

@@ -355,7 +355,7 @@ class uploader {
 
 		global $lang;
 
-		if (is_object($lang)) {
+		if (is_object($lang) && method_exists($lang, 'group_is_loaded') == true && $lang->group_is_loaded('global') == true) {
 			switch($this->error) {
 				case UPLOAD_ERR_FILE_INDEX:
 					$message = $lang->phrase('upload_error_noupload');
@@ -405,7 +405,6 @@ class uploader {
 					$message = "Max. imagesize reached. Image is not allowed to be greater than {$miw} x {$mih} pixels.";
 				break;
 				case UPLOAD_ERR_FILE_TYPE:
-					$lang->assign('aft', implode($lang->phrase('listspacer'), $this->file_types));
 					$message = 'Only '.implode(', ', $this->file_types).' files are allowed to be uploaded.';
 				break;
 				case UPLOAD_ERR_COPY:
