@@ -2183,6 +2183,7 @@ elseif ($job == 'plugins_edit') {
 			'module' => $packageid,
 			'position' => $pos,
 			'title' => $ini['names'][$pos],
+			'name' => $ini['names'][$pos],
 			'active' => 1,
 			'required' => $ini['required'][$pos]
 		);
@@ -2232,7 +2233,7 @@ elseif ($job == 'plugins_edit') {
 	 </tr>
 	 <tr class="mbox">
 	  <td width="25%"><?php echo $lang->phrase('admin_packages_plugins_edit_title_for_plugin'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_edit_title_text'); ?></span></td>
-	  <td width="75%"><input type="text" name="title" size="40" value="<?php echo $package['title']; ?>" /></td>
+	  <td width="75%"><input type="text" name="name" size="40" value="<?php echo $package['name']; ?>" /></td>
 	 </tr>
 	 <tr class="mbox">
 	  <td><?php echo $lang->phrase('admin_packages_plugins_edit_package'); ?></td>
@@ -2315,7 +2316,7 @@ elseif ($job == 'plugins_edit2') {
 	echo head();
 	$id = $gpc->get('id', none);
 	$package = $gpc->get('package', int);
-	$title = $gpc->get('title', str);
+	$name = $gpc->get('name', str);
 	$hook = $gpc->get('hook', str);
 	$code = $gpc->get('code', none);
 	$active = $gpc->get('active', int);
@@ -2340,15 +2341,15 @@ elseif ($job == 'plugins_edit2') {
 		$ini = $myini->read($dir."plugin.ini");
 	}
 
-	if (strlen($title) < 4) {
+	if (strlen($name) < 4) {
 		error('admin.php?action=packages&job=plugins_edit&id='.$id, $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
-	elseif (strlen($title) > 200) {
+	elseif (strlen($name) > 200) {
 		error('admin.php?action=packages&job=plugins_edit&id='.$id, $lang->phrase('admin_packages_err_maximum_number_of_characters_for_title'));
 	}
 
 	if (is_id($package) == false) {
-		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$title}', `active` = '{$active}', `position` = '{$hook}' WHERE id = '{$id}' LIMIT 1");
+		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$name}', `active` = '{$active}', `position` = '{$hook}' WHERE id = '{$id}' LIMIT 1");
 	}
 
 	$file = $gpc->get('file', none);
@@ -2369,7 +2370,7 @@ elseif ($job == 'plugins_edit2') {
 		} while (isset($ini['php'][$hook]));
 	}
 	$ini['php'][$hook] = $file;
-	$ini['names'][$hook] = $title;
+	$ini['names'][$hook] = $name;
 	if ($data['position'] != $hook && is_id($package) == false) {
 		$ini['required'][$hook] = 0;
 		unset($ini['php'][$data['position']]);

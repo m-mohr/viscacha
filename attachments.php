@@ -51,12 +51,12 @@ if ($_GET['action'] == "thumbnail") {
 	}
 	else {
 		($code = $plugins->load('attachments_thumbnail_queries')) ? eval($code) : null;
-		$result = $db->query('
-		SELECT u.id, u.source, t.board
-		FROM '.$db->pre.'uploads AS u
-			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid
-		WHERE u.id = '.$_GET['id']
-		);
+		$result = $db->query("
+			SELECT u.id, u.source, t.board
+			FROM {$db->pre}uploads AS u
+				LEFT JOIN {$db->pre}topics AS t ON t.id = u.topic_id
+			WHERE u.id = '{$_GET['id']}'
+		");
 		$row = $db->fetch_assoc($result);
 
 		$my->p = $slog->Permissions($row['board']);
@@ -92,13 +92,13 @@ elseif ($_GET['action'] == "attachment") {
 	}
 	else {
 		($code = $plugins->load('attachments_attachment_queries')) ? eval($code) : null;
-		$result = $db->query('
-		SELECT u.tid, u.file, u.source, t.board
-		FROM '.$db->pre.'uploads AS u
-			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid
-		WHERE u.id = '.$_GET['id'].' AND u.tid > 0
-		LIMIT 1
-		');
+		$result = $db->query("
+			SELECT u.file, u.source, t.board
+			FROM {$db->pre}uploads AS u
+				LEFT JOIN {$db->pre}topics AS t ON t.id = u.topic_id
+			WHERE u.id = '{$_GET['id']}'
+			LIMIT 1
+		");
 		$row = $db->fetch_assoc($result);
 
 		$my->p = $slog->Permissions($row['board']);

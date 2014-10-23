@@ -18,6 +18,7 @@ $lang['admin_db_database'] = 'Database';
 $lang['admin_db_data_length'] = 'Data Length';
 $lang['admin_db_delete'] = 'Delete';
 $lang['admin_db_download'] = 'Download';
+$lang['admin_db_entries_per_call'] = 'Number of data sets saved per call:';
 $lang['admin_db_error'] = 'Error:';
 $lang['admin_db_execute_queries'] = 'Execute Queries';
 $lang['admin_db_export'] = 'Export';

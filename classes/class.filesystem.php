@@ -159,7 +159,7 @@ class filesystem {
 		}
 		$ret = @copy($src, $dest);
 		if ($ret == false) {
-            $fp = @fopen($file, "r");
+            $fp = @fopen($src, "r");
             if (is_resource($fp)) {
             	if ($this->init()) {
             		$file = $this->_ftpize_path($file);

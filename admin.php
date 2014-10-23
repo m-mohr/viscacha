@@ -106,11 +106,6 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'posts') {
 		include('admin/posts.php');
 	}
-	elseif ($action == 'logout') {
-		$slog->sid_logout();
-		echo head();
-		ok('admin.php', $lang->phrase('admin_successfully_logged_off'));
-	}
 	elseif ($action == 'locate') {
 		$url = $gpc->get('url', none);
 		$url = addslashes($url);
@@ -143,6 +138,11 @@ if ($my->p['admin'] == 1) {
 			}
 		}
 	}
+}
+elseif ($action == 'logout' && $my->vlogin) {
+	$slog->sid_logout();
+	echo head();
+	ok('admin.php', $lang->phrase('admin_successfully_logged_off'));
 }
 else {
 	($code = $plugins->load('admin_notallowed')) ? eval($code) : null;

@@ -14,6 +14,6 @@ Ihr {@config->fname} Team
 {@config->furl}
 _____________________________________________________________________
 Um keine E-Mail-Benachrichtigungen mehr zu erhalten, besuchen Sie
-bitte die Abonnement-Verwaltung in Ihren persönlichen Einstellungen:
+bitte die Abonnement-Verwaltung in Ihren pers&ouml;nlichen Einstellungen:
 {@config->furl}/editprofile.php?action=abos</comment>
 </mail>

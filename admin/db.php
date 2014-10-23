@@ -1,6 +1,8 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+define('ADMIN_IMPORT_PATH', 'admin/lib/import/');
+
 // BF: MultiLangAdmin
 $lang->group("admin/db");
 
@@ -18,6 +20,7 @@ function highlight_sql_query($sql) {
 	$geshi->enable_classes(false);
 	$geshi->set_header_type(GESHI_HEADER_DIV);
 	$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
+	$geshi->enable_keyword_links(false);
 	return $geshi->parse_code();
 }
 
@@ -158,6 +161,7 @@ elseif ($job == 'optimize2') {
 elseif ($job == 'backup') {
 	echo head();
 	$result = $db->list_tables();
+	$counts = array(100, 500, 1000, 2000, 3000, 5000, 10000, 20000, 50000);
 	?>
 <form name="form" method="post" action="admin.php?action=db&job=backup2">
  <table class="border">
@@ -175,7 +179,7 @@ elseif ($job == 'backup') {
   </tr>
   <tr>
     <td class="mbox" width="30%" valign="top">
-	<select name="backup[]" size="10"  multiple="multiple">
+	<select name="backup[]" size="20"  multiple="multiple">
 	<?php foreach ($result as $row) { ?>
     <option value="<?php echo $row; ?>"><?php echo $row; ?></option>
 	<?php } ?>
@@ -186,6 +190,13 @@ elseif ($job == 'backup') {
    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="drop" value="1" checked="checked" /> <?php echo $lang->phrase('admin_db_add_drop_table'); ?><br /><br />
    <input type="checkbox" name="data" value="1" checked="checked" /> <strong><?php echo $lang->phrase('admin_db_export_data'); ?></strong>
    <br /><br /><input type="checkbox" name="zip" value="1" /> <strong><?php echo $lang->phrase('admin_db_save_as_zip'); ?></strong>
+   <br /><br />
+   <strong><?php echo $lang->phrase('admin_db_entries_per_call'); ?></strong>
+   <select name="intervall">
+	<?php foreach ($counts as $count) { ?>
+	   <option value="<?php echo $count; ?>"<?php echo iif($count == $db->std_limit, ' selected="selected"'); ?>><?php echo $count; ?></option>
+	<?php } ?>
+   </select>
    </td>
   </tr>
   <tr>
@@ -200,6 +211,10 @@ elseif ($job == 'backup2') {
 	@ignore_user_abort(false);
 	@set_time_limit(300);
 	echo head();
+	$intervall = $gpc->get('intervall', int);
+	if ($intervall > 10 && $intervall < 1000000) {
+		$db->std_limit = $intervall;
+	}
 	$tables = $gpc->get('backup', arr_str);
 	if (count($tables) == 0) {
 		error('admin.php?action=db&job=backup', $lang->phrase('admin_db_not_table_specified'));
@@ -222,6 +237,7 @@ elseif ($job == 'backup2') {
 			$temp[] = array(
 				'table' => $table,
 				'offset' => $offset,
+				'offset_end' => ($offset + $db->std_limit),
 				'structure' => ($offset == 0 && $structure == 1)
 			);
 			$temp['steps']++;
@@ -294,7 +310,7 @@ elseif ($job == 'backup3') {
 		}
 		if ($temp[$step]['offset'] >= 0) {
 			$data .= $db->new_line.$db->getData($temp[$step]['table'], $temp[$step]['offset']).$db->new_line;
-			$offset_details = ' {'.$temp[$step]['offset'].', '.($temp[$step]['offset']+$db->std_limit).'}';
+			$offset_details = ' {'.$temp[$step]['offset'].', '.($temp[$step]['offset_end']).'}';
 		}
 
 		fwrite($fp, $data);
@@ -855,6 +871,86 @@ elseif ($job == 'query2') {
 		}
 
 	}
+	echo foot();
+}
+elseif ($job == 'convert') {
+	echo head();
+	?>
+ <table class="border">
+  <tr>
+   <td class="obox" colspan="10">Merge databases</td>
+  </tr>
+  <tr>
+   <td class="mbox" colspan="10">
+    This feature allows you to import and/or convert data from other forum software or Viscacha.<br />
+    <b>This feature is experimental! Please make full backups before you start this tool!</b>
+   </td>
+  </tr>
+  <tr class="ubox">
+   <td width="25%" rowspan="2">Software</td>
+   <td width="12%" rowspan="2">Compatible Versions</td>
+   <td width="63%" colspan="8">Import of the following data...</td>
+  </tr>
+  <tr class="ubox">
+   <td width="7%">Forums</td>
+   <td width="7%">Posts</td>
+   <td width="7%">Members</td>
+   <td width="7%">Passwords</td>
+   <td width="7%">Permissions</td>
+   <td width="7%">PMs</td>
+   <td width="7%">Uploads</td>
+   <td width="14%">Other</td>
+  </tr>
+  <tr class="mbox">
+   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=viscacha">Viscacha</a></td>
+   <td><?php echo $config['version']; ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td>Complete merge</td>
+  </tr>
+  <tr class="mbox">
+   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=cc12">CuteCast</a></td>
+   <td>1.2</td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td>Subscriptions</td>
+  </tr>
+  <tr class="mbox">
+   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=phpbb30">phpBB</a></td>
+   <td>3.0.x</td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td>?</td>
+  </tr>
+  <tr class="mbox">
+   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=wbb23">Woltlab Burning Board</a></td>
+   <td>2.3.x</td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td><?php echo noki(true); ?></td>
+   <td><?php echo noki(false); ?></td>
+   <td>Subscriptions</td>
+  </tr>
+ </table>
+	<?php
 	echo foot();
 }
 ?>

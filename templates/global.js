@@ -52,6 +52,11 @@ function HandCursor(element) {
 		element.style.cursor = "hand"
 	}
 }
+function key(event) { // Returns the pressed key
+	event = (window.event) ? window.event : event; // windows.event for IE
+	return (event.which ? event.which : event.keyCode);
+}
+
 /**
  * Gives a readable foreground-color for the given background-color.
  */

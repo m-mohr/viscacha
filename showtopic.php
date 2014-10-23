@@ -64,33 +64,41 @@ else {
 	$qUrl = $qUrl2 = '';
 }
 
-if ($_GET['action'] == 'firstnew') {
-	if ($info['last'] >= $my->clv) {
-		$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date <= '{$my->clv}'");
-		$old = $db->fetch_assoc($result);
-		$tp = $old['count'] + 1; // Number of old post (with topic start post) + 1, to get the first new post, not the last old post
-		$pgs = ceil($tp/$last['topiczahl']);
-		if ($pgs < 1) {
-			$pgs = 1;
-		}
-		$db->close();
-		sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
-		exit;
+if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
+	$sql_order = iif($last['post_order'] == 1, '>', '<=');
+	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$my->clv}'");
+	$old = $db->fetch_assoc($result);
+	if ($last['post_order'] != 1) {
+		$old['count']++; // Number of old post (with topic start post) + 1, to get the first new post, not the last old post
 	}
+	$pgs = ceil($old['count']/$last['topiczahl']);
+	if ($pgs < 1) {
+		$pgs = 1;
+	}
+	$db->close();
+	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
+	exit;
 }
 elseif ($_GET['action'] == 'last') {
 	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
-	$result = $db->query('SELECT id FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' ORDER BY date DESC LIMIT 1');
+	// For post_order = 1: Query could be saved, we can just jump to the first page, first post is the post we are looking for...
+	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' ORDER BY date DESC LIMIT 1");
 	$new = $db->fetch_num($result);
-	$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
+	if ($last['post_order'] == 1) {
+		$pgs = 1;
+	}
+	else {
+		$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
+	}
 	$db->close();
 	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
 elseif ($_GET['action'] == 'mylast') {
-	$result = $db->query('SELECT date, id FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' AND name="'.$my->id.'" ORDER BY date DESC LIMIT 1');
-	$mylast =$db->fetch_num($result);
-	$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' AND date > '.$mylast[0]);
+	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND name = '{$my->id}' ORDER BY date DESC LIMIT 1");
+	$mylast = $db->fetch_num($result);
+	$sql_order = iif($last['post_order'] == 1, '>=', '<');
+	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} {$mylast[0]}");
 	$new = $db->fetch_assoc($result);
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
@@ -102,9 +110,10 @@ elseif ($_GET['action'] == 'mylast') {
 	exit;
 }
 elseif ($_GET['action'] == 'jumpto') {
-	$result = $db->query('SELECT date, id FROM '.$db->pre.'replies WHERE topic_id = "'.$info['id'].'" AND id="'.$gpc->get('topic_id', int).'" ORDER BY date DESC LIMIT 1');
-	$mylast =$db->fetch_num($result);
-	$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = "'.$info['id'].'" AND date > "'.$mylast[0].'"');
+	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND id = '{$_GET['topic_id']}'");
+	$mylast = $db->fetch_num($result);
+	$sql_order = iif($last['post_order'] == 1, '<', '>');
+	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$mylast[0]}'");
 	$new = $db->fetch_assoc($result);
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
@@ -274,6 +283,7 @@ else {
 }
 $sql_select = iif($config['pm_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
 $sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
+$sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
@@ -285,10 +295,13 @@ FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid AND r.guest = '0'
 	{$sql_join}
 WHERE r.topic_id = '{$info['id']}'
-ORDER BY date ASC
+ORDER BY date {$sql_order}
 {$sql_limit}
 ");
 
+if ($last['post_order'] == 1) {
+	list($firstnew_id) = $db->fetch_num($db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date > '{$my->clv}'"));
+}
 $firstnew = 0;
 $firstnew_url = null;
 if ($info['last'] >= $my->clv) {
@@ -325,7 +338,8 @@ while ($row = $db->fetch_object($result)) {
 	if ($firstnew > 0) {
 		$firstnew++;
 	}
-	if ($row->date >= $my->clv && $firstnew == 0) {
+	if (($last['post_order'] == 0 && $row->date >= $my->clv && $firstnew == 0) ||
+		($last['post_order'] == 1 && !empty($firstnew_id) && $row->id == $firstnew_id)) {
 		$firstnew = 1;
 		$firstnew_url = "#firstnew";
 	}

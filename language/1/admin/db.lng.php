@@ -18,6 +18,7 @@ $lang['admin_db_database'] = 'Datenbank';
 $lang['admin_db_data_length'] = 'Datenlänge';
 $lang['admin_db_delete'] = 'Löschen';
 $lang['admin_db_download'] = 'Download';
+$lang['admin_db_entries_per_call'] = 'Zu speichernde Datensätze pro Anfrage:';
 $lang['admin_db_error'] = 'Fehler:';
 $lang['admin_db_execute_queries'] = 'Datenbank-Abfragen ausführen';
 $lang['admin_db_export'] = 'Exportieren';

@@ -19,9 +19,9 @@
 <label for="membersuggest_val"><?php echo $lang->phrase('pm_addressee'); ?></label>
 <div class="label">
   <?php if (!isset($showname)) { ?>
-  <input id="membersuggest_val" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value);" name="name" size="40" value="<?php echo $data['name']; ?>" />
+  <input id="membersuggest_val" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" name="name" size="40" value="<?php echo $data['name']; ?>" />
   <?php } else { ?>
-  <input id="membersuggest_val" name="name2" disabled="disabled" type="text" onkeyup="ajax_searchmember(this.value);" size="40" value="<?php echo $showname; ?>" />
+  <input id="membersuggest_val" name="name2" disabled="disabled" type="text" onkeyup="ajax_searchmember(this.value, key(event));" onblur="ajax_searchmember(this.value);" size="40" value="<?php echo $showname; ?>" />
   <span class="stext" id="edit_pmto">[<a tabindex="2" href="javascript:edit_pmto();"><?php echo $lang->phrase('pm_addressee_edit'); ?></a>]</span>
   <input id="membersuggest_val2" type="hidden" name="name" value="<?php echo $data['name']; ?>" />
   <?php } ?>

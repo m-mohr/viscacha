@@ -592,7 +592,7 @@ function times ($time = false, $timezone = false) {
 	global $my, $config;
 	$stime = $time == false ? time() : $time;
 	if ($timezone == false) {
-		if (isset($my->timezone)) {
+		if (isset($my->timezone) && $my->timezone !== null && $my->timezone !== '') {
 			global $my;
 			$timezone = $my->timezone;
 		}

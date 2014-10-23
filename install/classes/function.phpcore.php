@@ -76,11 +76,16 @@ function viscacha_function_exists($func) {
 // Variable headers are not secure in php (HTTP response Splitting).
 // Better use viscacha_header() instead of header().
 // viscacha_header() removes \r, \n, \0
-function viscacha_header($header) {
+function viscacha_header($header, $replace = true, $code = 0) {
 	$header = str_replace("\n", '', $header);
 	$header = str_replace("\r", '', $header);
 	$header = str_replace("\0", '', $header);
-	header($header);
+	if ($code > 0) {
+		header($header, $replace, $code);
+	}
+	else {
+		header($header, $replace);
+	}
 }
 
 /**
@@ -143,7 +148,8 @@ function sendStatusCode($code, $additional = null) {
 
 	if (isset($status[$code])) {
 
-		viscacha_header("Status: {$code} {$status[$code]}", true, $code);
+		// Send status code
+		viscacha_header("Status: {$code} {$status[$code]}");
 
 		// Additional headers
 		if ($additional != null) {
@@ -151,13 +157,13 @@ function sendStatusCode($code, $additional = null) {
 				case '301':
 				case '302':
 				case '307':
-					viscacha_header("Location: {$additional}", true, $code);
+					viscacha_header("Location: {$additional}");
 				break;
 				case '401':
-					viscacha_header('WWW-Authenticate: Basic Realm="'.$additional.'"', true, $code);
+					viscacha_header('WWW-Authenticate: Basic Realm="'.$additional.'"');
 				break;
 				case '503':
-					viscacha_header("Retry-After: {$additional}", true, $code);
+					viscacha_header("Retry-After: {$additional}");
 				break;
 			}
 		}

@@ -16,7 +16,7 @@
 	<br class="newinput" /><hr class="formsep" />
 	<label for="pw"><?php echo $lang->phrase('login_password'); ?></label>
 	<input type="password" name="pw" tabindex="2" id="pw" class="label" size="15" />
-	<input type="hidden" name="location" value="<?php echo $errorurl; ?>" />
+	<input type="hidden" name="redirect" value="<?php echo $errorurl; ?>" />
 	<br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center"><input accesskey="s" tabindex="3" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
@@ -24,7 +24,7 @@
 <?php } else { ?>
 <div class="bbody">
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
-<?php echo $my->name; ?> [<a href="log.php?action=logout&amp;location=<?php echo rawurlencode($errorurl); ?><?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]
+<?php echo $my->name; ?> [<a href="log.php?action=logout&amp;redirect=<?php echo rawurlencode($errorurl); ?><?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]
 </div>
 <?php } ?>
 </div>

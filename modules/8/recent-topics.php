@@ -19,11 +19,9 @@ if ($db->num_rows($result) > 0) {
 		if (is_id($row['name']) && isset($memberdata[$row['name']])) {
 			$row['name'] = $memberdata[$row['name']];
 		}
+
 		$row['date'] = str_date($lang->phrase('dformat1'),times($row['date']));
-		if (strxlen($row['topic']) >= 75) {
-			$row['topic'] = subxstr($row['topic'], 0, 75);
-			$row['topic'] .= $lang->phrase('dot_more');
-		}
+
 		if (isset($prefix[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
 			$lang->assign('prefix', $prefix[$row['board']][$row['prefix']]['value']);
 			$row['prefix'] = $lang->phrase('showtopic_prefix_title');
@@ -31,6 +29,16 @@ if ($db->num_rows($result) > 0) {
 		else {
 			$row['prefix'] = '';
 		}
+
+		if (strxlen($row['topic']) >= 75) {
+			$row['topic_full'] = $row['prefix'].$row['topic'];
+			$row['topic'] = subxstr($row['topic'], 0, 75);
+			$row['topic'] .= $lang->phrase('dot_more');
+		}
+		else {
+			$row['topic_full'] = '';
+		}
+
 		$lastbox[] = $row;
 
 	}

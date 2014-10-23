@@ -19,7 +19,13 @@
           <div class="bbody">
             <?php echo $offline; ?>
           </div>
-          <div class="bfoot center"><a href="admin.php" rel="nofollow"><?php echo $lang->phrase('offline_adminlogin'); ?></a></div>
+          <div class="bfoot center">
+			<?php if($my->vlogin) { ?>
+			<a href="admin.php?action=logout" rel="nofollow"><?php echo $lang->phrase('logout'); ?></a>
+			<?php } else { ?>
+			<a href="admin.php" rel="nofollow"><?php echo $lang->phrase('offline_adminlogin'); ?></a>
+			<?php } ?>
+		  </div>
 	    </div>
 	  </div>
     </div>

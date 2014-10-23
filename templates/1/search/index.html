@@ -22,13 +22,13 @@
 <div class="bbody">
 <label for="searchsuggest_val"><?php echo $lang->phrase('search_keywords'); ?></label>
 <div class="label">
-    <input tabindex="1" class="label_inner" id="searchsuggest_val" type="text" name="search" onblur="ajax_search(this.value);" size="40" />
+    <input tabindex="1" class="label_inner" id="searchsuggest_val" type="text" name="search" onkeyup="ajax_search(this.value, key(event))" onblur="ajax_search(this.value)" size="40" />
     <span class="stext" id="searchsuggest"></span>
 </div>
 <br class="newinput" /><hr class="formsep" />
 <label for="membersuggest_val"><?php echo $lang->phrase('search_username'); ?></label>
 <div class="label">
-    <input tabindex="2" class="label_inner" id="membersuggest_val" type="text" onkeyup="ajax_searchmember(this.value);" name="name" size="40" />
+    <input tabindex="2" class="label_inner" id="membersuggest_val" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" name="name" size="40" />
     <span class="stext" id="membersuggest"></span>
 </div>
 <br class="newinput" /><br class="iefix_br" />

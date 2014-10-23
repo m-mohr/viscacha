@@ -3,7 +3,7 @@
 <div class="bbody" id="part_cat_i3">
 <span class="stext">
 <?php foreach ($lastbox as $row) { ?>
-<?php echo $row['date']; ?>: <a href='showtopic.php?action=last&amp;id=<?php echo $row['id'].SID2URL_x; ?>'><?php echo $row['prefix'].$row['topic']; ?></a> <?php echo $lang->phrase('by'); ?> <?php echo $row['name']; ?><br />
+<?php echo $row['date']; ?>: <a title="<?php echo $row['topic_full']; ?>" href="showtopic.php?action=last&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $row['prefix'].$row['topic']; ?></a> <?php echo $lang->phrase('by'); ?> <?php echo $row['name']; ?><br />
 <?php } ?>
 </span>
 </div>

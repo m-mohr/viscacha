@@ -7,8 +7,9 @@ if (!class_exists('filesystem')) {
 }
 
 $tar_packs = array(
-	1 => 'update.classes.tar',
-	2 => 'update.misc.tar'
+	1 => 'update.admin.tar',
+	2 => 'update.classes.tar',
+	3 => 'update.misc.tar'
 );
 if (empty($_REQUEST['sub']) || !isset($tar_packs[$_REQUEST['sub']])) {
 	$sub = 1;

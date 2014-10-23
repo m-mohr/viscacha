@@ -378,7 +378,7 @@ function getTimezone($base = null) {
 
 	$tz = $lang->phrase('gmt');
 
-	if ($base === null) {
+	if ($base === null || $base === '') {
 		$base = $my->timezone;
 	}
 
@@ -596,7 +596,7 @@ function logged () {
 		}
 	}
 
-	if (!isset($my->timezone) || $my->timezone === null) {
+	if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 		$my->timezone = $config['timezone'];
 	}
 
@@ -951,7 +951,7 @@ function sid_login($remember = true) {
 		$my->vlogin = true;
 		$my->p = $this->Permissions();
 
-		if (!isset($my->timezone) || $my->timezone === null) {
+		if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 			$my->timezone = $config['timezone'];
 		}
 
@@ -993,6 +993,8 @@ function sid_login($remember = true) {
 		if (!isset($my->settings) || !is_array($my->settings)) {
 			$my->settings = array();
 		}
+
+		$this->setlang();
 
 		$action = $gpc->get('action', str);
 		$qid = $gpc->get('id', int);
@@ -1070,7 +1072,7 @@ function cleanUserData($data) {
 		}
 	}
 	else {
-		trigger_error('Data passed to cleanUserData has not been not secured! Wrong data type specified.', E_WARNING);
+		trigger_error('Data passed to cleanUserData has not been not secured! Wrong data type specified.', E_USER_WARNING);
 	}
 	return $data;
 }
@@ -1227,8 +1229,8 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 
 		$permissions2 = array();
 		$fpermissions = array_combine($boards, array_fill(0, count($boards), array()));
-		foreach ($fgroups as $gid => $trow) {
-			foreach ($trow as $bid => $row) {
+		foreach ($fgroups as $bid => $trow) {
+			foreach ($trow as $gid => $row) {
 				$fpermissions[$bid][$gid] = $row;
 			}
 		}

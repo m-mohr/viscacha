@@ -196,7 +196,10 @@ elseif ($job == 'import2') {
 
 	$inserted = false;
 	if ($overwrite == 0) {
-		$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES (".$lang->phrase('admin_lang_new_langpack').", ".$lang->phrase('admin_lang_langpack_import_error').")");
+		// We insert some error data and overwrite it later on successful creation
+		$langTitle = $db->escape_string($lang->phrase('admin_lang_new_langpack'));
+		$langDetails = $db->escape_string($lang->phrase('admin_lang_langpack_import_error'));
+		$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES ('{$langTitle}', '{$langDetails}')");
 		$inserted = true;
 		$overwrite = $db->insert_id();
 	}
@@ -385,7 +388,7 @@ elseif ($job == 'lang_settings') {
 <script language="JavaScript">
 <!--
 function errordefault(box) {
-	alert($lang->phrase('admin_lang_cannot_unpublish_until_defined_other_lang'));
+	alert(<?php echo $lang->phrase('admin_lang_cannot_unpublish_until_defined_other_lang'); ?>);
 	box.checked = true;
 	return false;
 }

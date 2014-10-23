@@ -10,7 +10,7 @@ class cache_cat_bid extends CacheItem {
 			$categories_obj = $scache->load('categories');
 			$cat_cache = $categories_obj->get();
 		    $result = $db->query("
-			SELECT id, name, parent, position, description, topics, replies, opt, optvalue, forumzahl, topiczahl, prefix, invisible, readonly, auto_status, active_topic, count_posts, reply_notification, topic_notification, message_active, message_title, message_text
+			SELECT id, name, parent, position, description, topics, replies, opt, optvalue, forumzahl, topiczahl, prefix, invisible, readonly, auto_status, active_topic, count_posts, reply_notification, topic_notification, message_active, message_title, message_text, lid, post_order
 			FROM {$db->pre}forums
 			");
 		    $this->data = array();
@@ -35,6 +35,10 @@ class cache_cat_bid extends CacheItem {
 				BBProfile($bbcode);
 				$bbcode->setReplace($config['wordstatus']);
 				$row['message_text'] = $bbcode->parse($row['message_text']);
+
+				if ($row['post_order'] == -1) {
+					$row['post_order'] = $config['post_order'];
+				}
 
 		        $this->data[$row['id']] = $row;
 		    }

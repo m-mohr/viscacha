@@ -37,8 +37,8 @@ var WYSIWYG = {
 		this.PopupsDir = "admin.php?action=cms&job=doc_";
 
 		// Default WYSIWYG width and height (use px or %)
-		this.Width = "95%";
-		this.Height = "350px";
+		this.width = "95%";
+		this.height = "350px";
 
 		// Default stylesheet of the WYSIWYG editor window
 		this.DefaultStyle = "font-family: \"Trebuchet MS\", Verdana, Arial, Helvetica, sans-serif; font-size: 9pt; background-color: #FFFFFF; white-space: normal;";
@@ -653,15 +653,15 @@ var WYSIWYG = {
 		// Override the width and height of the editor with the
 		// size given by the style attributes width and height
 		if(textarea.style.width) {
-			this.config[n].Width = textarea.style.width;
+			this.config[n].width = textarea.style.width;
 		}
 		if(textarea.style.height) {
-			this.config[n].Height = textarea.style.height;
+			this.config[n].height = textarea.style.height;
 		}
 
 		// determine the width + height
-		var currentWidth = this.config[n].Width;
-		var currentHeight = this.config[n].Height;
+		var currentWidth = this.config[n].width;
+		var currentHeight = this.config[n].height;
 
 		// Calculate the width + height of the editor
 		var ifrmWidth = "100%";
@@ -726,15 +726,15 @@ var WYSIWYG = {
 		// Override the width and height of the editor with the
 		// size given by the style attributes width and height
 		if(textarea.style.width) {
-			this.config[n].Width = textarea.style.width;
+			this.config[n].width = textarea.style.width;
 		}
 		if(textarea.style.height) {
-			this.config[n].Height = textarea.style.height
+			this.config[n].height = textarea.style.height
 		}
 
 		// determine the width + height
-		var currentWidth = this.config[n].Width;
-		var currentHeight = this.config[n].Height;
+		var currentWidth = this.config[n].width;
+		var currentHeight = this.config[n].height;
 
 		// Calculate the width + height of the editor
 		var toolbarWidth = currentWidth;
@@ -856,11 +856,13 @@ var WYSIWYG = {
 		doc.close();
 
 		// Make the iframe editable in both Mozilla and IE
-		// Improve compatiblity for IE + Mozilla
-		if (doc.body.contentEditable) {
+		// Firefox has some problems with contentEditable, dunno why, have to investigate that
+		if (!WYSIWYG_Core.isFF) {
+			// All browsers should under stand that
 			doc.body.contentEditable = true;
 		}
 		else {
+			// Old way for gecko based browsers, but it's working better than contentEditable
 			doc.designMode = "on";
 		}
 
@@ -1301,8 +1303,8 @@ var WYSIWYG = {
 		if (this.maximized[n]) {
 			WYSIWYG_Core.setAttribute(doc, 'style', 'overflow:');
 			WYSIWYG_Core.setAttribute(divElm, 'style', 'position:static;z-index:9998;top:0;left:0;width:' + setting.Width + ';height:100%');
-			WYSIWYG_Core.setAttribute(tableElm, 'style', 'width:' + setting.Width + ';height:' + setting.Height);
-			WYSIWYG_Core.setAttribute(editor, 'style', 'width:100%;height:' + setting.Height);
+			WYSIWYG_Core.setAttribute(tableElm, 'style', 'width:' + setting.Width + ';height:' + setting.height);
+			WYSIWYG_Core.setAttribute(editor, 'style', 'width:100%;height:' + setting.height);
 			this.maximized[n] = false;
 		} else {
 			var YOffset = (this.isOpera) ? 0 : this.getYOffset(n);

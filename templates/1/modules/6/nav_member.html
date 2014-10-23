@@ -8,7 +8,7 @@
 	<br class="minibr" />
     <ul class="nav">
 	<li><a href="editprofile.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('editprofile_short'); ?></a></li>
-	<li><a href="log.php?action=logout&redirect=<?php echo $request_uri.SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a></li>
+	<li><a href="log.php?action=logout&amp;redirect=<?php echo $request_uri.SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a></li>
 	<?php if ($my->p['admin'] == 1) { ?><li><a href="admin.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('admincp'); ?></a></li><?php } ?>
 	</ul>
 </div>

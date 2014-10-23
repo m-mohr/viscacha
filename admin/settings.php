@@ -254,6 +254,15 @@ elseif ($job == 'posts') {
 	   <td class="mbox" width="50%"><input type="text" name="topiczahl" value="<?php echo $config['topiczahl']; ?>" size="4"></td>
 	  </tr>
 	  <tr>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_post_order_title'); ?></td>
+	   <td class="mbox" width="50%">
+	    <select name="post_order">
+	     <option value="0"<?php echo iif($config['post_order'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_post_order_old'); ?></option>
+	     <option value="1"<?php echo iif($config['post_order'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_post_order_new'); ?></option>
+	    </select>
+	   </td>
+	  </tr>
+	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_length_for_reason'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="maxeditlength" value="<?php echo $config['maxeditlength']; ?>" size="6"></td>
 	  </tr>
@@ -373,6 +382,7 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('fullname_posts', int);
 	$c->updateconfig('post_user_status', int);
 	$c->updateconfig('vote_change', int);
+	$c->updateconfig('post_order', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');

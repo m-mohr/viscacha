@@ -75,9 +75,19 @@ class GPC {
 				}
 			}
 			elseif ($type == int || $type == arr_int) {
-				$var = $this->save_int($value);
-				if ($type == arr_int && !is_array($var)) {
-					$var = array($var);
+				if ($type == int && ($value === '' || $value === null)) {
+					if ($standard === null) {
+						$var = 0;
+					}
+					else {
+						$var = $standard;
+					}
+				}
+				else {
+					$var = $this->save_int($value);
+					if ($type == arr_int && !is_array($var)) {
+						$var = array($var);
+					}
 				}
 			}
 			elseif ($type == db_esc) {

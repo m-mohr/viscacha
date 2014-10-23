@@ -222,23 +222,67 @@ class lang {
 	}
 
 	function parse_pvar($content) {
-		return preg_replace('#\{(\$|\%|\@)(.+?)\}#ie', "\$this->parse_variable('\\2','\\1')", $content);
+		return preg_replace('#\{(\$|\%|\@|\&)(.+?)\}#ie', "\$this->parse_variable('\\2','\\1')", $content);
 	}
 
 	function parse_variable($key, $type) {
-		if ($type == '%') {
-			$keys = explode('->',$key);
-			if (isset($this->assign[$keys[0]]->$keys[1])) {
-				$var = $this->assign[$keys[0]]->$keys[1];
-				return $var;
+		$keys = explode('->',$key);
+		if ($type == '&') {
+			if (count($keys) == 1) { // Function
+				if (substr($keys[0], -1) == ')') {
+					$keys[0] = substr($keys[0], 0, -1);
+				}
+				$methodKeys = explode('(', $keys[0], 2);
+				if (function_exists($methodKeys[0])) {
+					$args = array();
+					if (!empty($methodKeys[1])) {
+						$args = array($methodKeys[1]);
+					}
+					return call_user_func_array($methodKeys[0], $args);
+				}
 			}
-			elseif(isset($GLOBALS[$keys[0]]->$keys[1])) {
-				return $GLOBALS[$keys[0]]->$keys[1];
+			elseif (count($keys) == 2 && class_exists($keys[0])) { // Class property / method
+				$methodKeys = explode('(', $keys[1], 2);
+				if (count($methodKeys) > 1 && substr($methodKeys[1], -1) == ')' && method_exists($keys[0], $methodKeys[0])) { // Object method
+					$args = array();
+					$arg = substr($methodKeys[1], 0, -1);
+					if (!empty($arg)) {
+						$args = array($arg);
+					}
+					return call_user_func_array(array($keys[0], $methodKeys[0]), $args);
+				}
+// ToDo: This is not available on all PHP 5 versions, create a woraround...
+//				elseif (count($methodKeys) == 1 && isset($keys[0]::${$methodKeys[0]})) { // Class property
+//					return $keys[0]::${$methodKeys[0]};
+//				}
 			}
 		}
-		elseif ($type == '@') {
-			$keys = explode('->',$key);
-			if (isset($keys[2])) {
+		elseif ($type == '%') { // Object property / method
+			if (isset($this->assign[$keys[0]])) {
+				$var = $this->assign[$keys[0]];
+			}
+			elseif(isset($GLOBALS[$keys[0]])) {
+				$var = $GLOBALS[$keys[0]];
+			}
+
+			if (count($keys) == 2 && isset($var) && is_object($var)) {
+				$methodKeys = explode('(', $keys[1], 2);
+				if (count($methodKeys) > 1 && substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
+					$args = array();
+					$arg = substr($methodKeys[1], 0, -1);
+					if (!empty($arg)) {
+						$args = array($arg);
+					}
+					return call_user_func_array(array($var, $methodKeys[0]), $args);
+				}
+				elseif (count($methodKeys) == 1 && isset($var->$methodKeys[0])) { // Object property
+					return $var->$methodKeys[0];
+				}
+			}
+
+		}
+		elseif ($type == '@') { // Array
+			if (count($keys) == 3) { // Two dimensional
 				if (isset($this->assign[$keys[0]][$keys[1]][$keys[2]])) {
 					$var = $this->assign[$keys[0]][$keys[1]][$keys[2]];
 					return $var;
@@ -247,7 +291,7 @@ class lang {
 					return $GLOBALS[$keys[0]][$keys[1]][$keys[2]];
 				}
 			}
-			else {
+			else { // One dimensional
 				if (isset($this->assign[$keys[0]][$keys[1]])) {
 					$var = $this->assign[$keys[0]][$keys[1]];
 					return $var;
@@ -257,13 +301,12 @@ class lang {
 				}
 			}
 		}
-		else {
-			if (isset($this->assign[$key])) {
-				$var = $this->assign[$key];
-				return $var;
+		elseif ($type == '$' && count($keys) == 1) { // (Scalar) variable
+			if (isset($this->assign[$keys[0]])) {
+				return $this->assign[$keys[0]];
 			}
-			elseif(isset($GLOBALS[$key])) {
-				return $GLOBALS[$key];
+			elseif(isset($GLOBALS[$keys[0]])) {
+				return $GLOBALS[$keys[0]];
 			}
 		}
 		return "{{$type}{$key}}"; // Not found. Don't change anything!

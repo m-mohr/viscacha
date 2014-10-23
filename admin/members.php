@@ -337,33 +337,38 @@ elseif ($job == 'emailsearch2') {
 			}
 		}
 		elseif ($key == 'birthday') {
-			$value[1] = intval(trim($value[1]));
-			if ($value[1] < 1 || $value[1] > 31) {
-				$value[1] = '%';
-			}
-			$value[2] = intval(trim($value[2]));
-			if ($value[2] < 1 || $value[2] > 12) {
-				$value[2] = '%';
-			}
-			if (strlen($value[3]) == 2) {
-				if ($value[3] > 40) {
-					$value[3] += 1900;
-				}
-				else {
-					$value[3] += 2000;
-				}
-			}
-			else {
-				$value[3] = intval(trim($value[3]));
-			}
-			if ($value[3] < 1900 || $value[3] > 2100) {
-				$value[3] = '%';
-			}
-			if ($value[1] == '%' && $value[2] == '%' && $value[3] == '%') {
+			if (!isset($value[1]) || !isset($value[2]) || !isset($value[3])) {
 				$input[$key] = DONT_CARE;
 			}
 			else {
-				$input[$key] = $value[3].'-'.$value[2].'-'.$value[1];
+				$value[1] = intval(trim($value[1]));
+				if ($value[1] < 1 || $value[1] > 31) {
+					$value[1] = '%';
+				}
+				$value[2] = intval(trim($value[2]));
+				if ($value[2] < 1 || $value[2] > 12) {
+					$value[2] = '%';
+				}
+				if (strlen($value[3]) == 2) {
+					if ($value[3] > 40) {
+						$value[3] += 1900;
+					}
+					else {
+						$value[3] += 2000;
+					}
+				}
+				else {
+					$value[3] = intval(trim($value[3]));
+				}
+				if ($value[3] < 1900 || $value[3] > 2100) {
+					$value[3] = '%';
+				}
+				if ($value[1] == '%' && $value[2] == '%' && $value[3] == '%') {
+					$input[$key] = DONT_CARE;
+				}
+				else {
+					$input[$key] = $value[3].'-'.$value[2].'-'.$value[1];
+				}
 			}
 		}
 		elseif ($key == 'gender') {
@@ -376,6 +381,9 @@ elseif ($job == 'emailsearch2') {
 			else {
 				$input[$key] = $value;
 			}
+		}
+		elseif ($key == 'id' || $key == 'posts' || $key == 'lang') {
+			$input[$key] = $value;
 		}
 		else {
 			if (empty($value)) {
@@ -859,13 +867,13 @@ elseif ($job == 'merge') {
 <tr>
 <td class="mbox"><?php echo $lang->phrase('admin_member_basemember'); ?></td>
 <td class="mbox">
-	<input type="text" name="name1" id="name1" onkeyup="ajax_searchmember(this, 'sugg1');" size="40" /><br />
+	<input type="text" name="name1" id="name1" onblur="ajax_searchmember(this, 'sugg1')" onkeyup="ajax_searchmember(this, 'sugg1', key(event))" size="40" /><br />
 	<span class="stext"><?php echo $lang->phrase('admin_member_suggestions'); ?> <span id="sugg1"></span></span>
 </td>
 </tr>
 <td class="mbox"><?php echo $lang->phrase('admin_member_needlessmember'); ?></td>
 <td class="mbox">
-	<input type="text" name="name2" id="name2" onkeyup="ajax_searchmember(this, 'sugg2');" size="40" /><br />
+	<input type="text" name="name2" id="name2" onblur="ajax_searchmember(this, 'sugg2')" onkeyup="ajax_searchmember(this, 'sugg2', key(event))" size="40" /><br />
 	<span class="stext"><?php echo $lang->phrase('admin_member_suggestions'); ?> <span id="sugg2"></span></span>
 </td>
 </tr>
@@ -1011,7 +1019,7 @@ elseif ($job == 'merge2') {
 	if (($base['birthday'] == '0000-00-00' || $base['birthday'] == '1000-00-00') && $old['birthday'] != '0000-00-00' && $old['birthday'] != '1000-00-00') {
 		$newdata[] ="birthday = '{$old['birthday']}'";
 	}
-	if ((!isset($base['timezone']) || $base['timezone'] === null) && !empty($old['timezone'])) {
+	if ((!isset($base['timezone']) || $base['timezone'] === null || $base['timezone'] === '') && !empty($old['timezone'])) {
 		$newdata[] ="timezone = '{$old['timezone']}'";
 	}
 	$g1 = explode(',', $base['groups']);
@@ -1663,12 +1671,16 @@ elseif ($job == 'edit2') {
 	$cache2 = $loadlanguage_obj->get();
 
 	$keys_int = array('id', 'birthday', 'birthmonth', 'birthyear', 'opt_0', 'opt_1', 'opt_2', 'opt_3', 'opt_4', 'opt_5');
-	$keys_str = array('groups', 'fullname', 'email', 'location', 'icq', 'gender', 'hp', 'aol', 'yahoo', 'msn', 'jabber', 'signature', 'pic', 'temp', 'comment', 'skype');
+	$keys_str = array('groups', 'fullname', 'location', 'icq', 'gender', 'hp', 'signature', 'temp', 'comment');
+	$keys_db = array('email', 'aol', 'yahoo', 'msn', 'jabber', 'pic', 'skype');
 	foreach ($keys_int as $val) {
 		$query[$val] = $gpc->get($val, int);
 	}
 	foreach ($keys_str as $val) {
 		$query[$val] = $gpc->get($val, str);
+	}
+	foreach ($keys_db as $val) {
+		$query[$val] = $gpc->get($val, db_esc);
 	}
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$query['id']);
@@ -1960,7 +1972,7 @@ elseif ($job == 'banned') {
    <td class="mbox"><?php echo $crea; ?></td>
    <td class="mbox"><?php echo $row[2]; ?></td>
    <td class="mbox"><?php echo $diff; ?></td>
-   <td class="mbox"><?php echo htmlspecialchars($row[5]); ?></td>
+   <td class="mbox"><?php echo empty($row[5]) ? htmlspecialchars($row[5]) : ''; ?></td>
   </tr>
   <?php } ?>
   <tr>
@@ -2115,10 +2127,11 @@ elseif ($job == 'ban_delete') {
 		error('admin.php?action=members&job=banned', $lang->phrase('admin_member_nothing_selected'));
 	}
 	$banned = file('data/bannedip.php');
+	$banned = array_map('trim', $banned);
 	$file = array();
 	foreach ($banned as $line) {
 		$add = true;
-		$row = explode("\t", rtrim($line, "\r\n"), 6);
+		$row = explode("\t", $line, 6);
 		foreach ($delete as $del) {
 			$del = explode("#", $del, 3);
 			if ($del[0] == $row[0] && $del[1] == $row[1] && $del[2] == $row[4]) {
@@ -2634,7 +2647,11 @@ elseif ($job == 'search2') {
 		'language' => array($lang->phrase('admin_member_lang'), int),
 		'confirm' => array($lang->phrase('admin_member_status'), none)
 	);
-	$change = array('m' => $lang->phrase('admin_member_male'), 'w' => $lang->phrase('admin_member_female'), '' => '-');
+	$change = array(
+		'm' => $lang->phrase('admin_member_male'),
+		'w' => $lang->phrase('admin_member_female'),
+		'' => '-'
+	);
 
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
@@ -2688,33 +2705,38 @@ elseif ($job == 'search2') {
 			}
 		}
 		elseif ($key == 'birthday') {
-			$value[1] = intval(trim($value[1]));
-			if ($value[1] < 1 || $value[1] > 31) {
-				$value[1] = '%';
-			}
-			$value[2] = intval(trim($value[2]));
-			if ($value[2] < 1 || $value[2] > 12) {
-				$value[2] = '%';
-			}
-			if (strlen($value[3]) == 2) {
-				if ($value[3] > 40) {
-					$value[3] += 1900;
-				}
-				else {
-					$value[3] += 2000;
-				}
-			}
-			else {
-				$value[3] = intval(trim($value[3]));
-			}
-			if ($value[3] < 1900 || $value[3] > 2100) {
-				$value[3] = '%';
-			}
-			if ($value[1] == '%' && $value[2] == '%' && $value[3] == '%') {
+			if (!isset($value[1]) || !isset($value[2]) || !isset($value[3])) {
 				$input[$key] = DONT_CARE;
 			}
 			else {
-				$input[$key] = $value[3].'-'.$value[2].'-'.$value[1];
+				$value[1] = intval(trim($value[1]));
+				if ($value[1] < 1 || $value[1] > 31) {
+					$value[1] = '%';
+				}
+				$value[2] = intval(trim($value[2]));
+				if ($value[2] < 1 || $value[2] > 12) {
+					$value[2] = '%';
+				}
+				if (strlen($value[3]) == 2) {
+					if ($value[3] > 40) {
+						$value[3] += 1900;
+					}
+					else {
+						$value[3] += 2000;
+					}
+				}
+				else {
+					$value[3] = intval(trim($value[3]));
+				}
+				if ($value[3] < 1900 || $value[3] > 2100) {
+					$value[3] = '%';
+				}
+				if ($value[1] == '%' && $value[2] == '%' && $value[3] == '%') {
+					$input[$key] = DONT_CARE;
+				}
+				else {
+					$input[$key] = $value[3].'-'.$value[2].'-'.$value[1];
+				}
 			}
 		}
 		elseif ($key == 'gender') {
@@ -2727,6 +2749,9 @@ elseif ($job == 'search2') {
 			else {
 				$input[$key] = $value;
 			}
+		}
+		elseif ($key == 'id' || $key == 'posts' || $key == 'icq' || $key == 'design' || $key == 'lang') {
+			$input[$key] = $value;
 		}
 		else {
 			if (empty($value)) {
@@ -2807,7 +2832,7 @@ elseif ($job == 'search2') {
 				if (empty($row['icq'])) {
 					$row['icq'] = '-';
 				}
-				if (!isset($row['timezone']) || $row['timezone'] === '') {
+				if (!isset($row['timezone']) || $row['timezone'] === null || $row['timezone'] === '') {
 					$row['timezone'] = $config['timezone'];
 				}
 				$row['timezone'] = (int) str_replace('+', '', $row['timezone']);

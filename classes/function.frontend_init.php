@@ -41,6 +41,9 @@ if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'
 // Debugging / Error Handling things
 require_once("classes/function.errorhandler.php");
 
+// Variables
+require_once ("classes/function.gpc.php");
+
 // A class for Languages
 require_once("classes/class.language.php");
 $lang = new lang();
@@ -54,9 +57,6 @@ $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
 $db->setPersistence($config['pconnect']);
-
-// Variables
-require_once ("classes/function.gpc.php");
 
 /* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
  	_ENV, _SERVER: Won't be checked, but null-byte is deleted

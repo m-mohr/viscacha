@@ -125,7 +125,13 @@ function ajax_doubleudata(name) {
 	}
 }
 // Sucht nach Nutzernamen (PN)
-function ajax_searchmember(name) {
+function ajax_searchmember(name, key) {
+	if (typeof key == 'number') { // undefined on blur
+		// Not on special chars
+		if (key < 48 || (key > 91 && key < 123)) {
+			return;
+		}
+	}
 	inline = FetchElement('membersuggest');
 	if (name.length > 2) {
 		var myConn = new ajax();
@@ -157,9 +163,14 @@ function ajax_smIns(name) {
 	inline2.innerHTML = '';
 }
 // Sucht nach ignorierten Wörtern
-function ajax_search(words) {
+function ajax_search(words, key) {
+	if (typeof key == 'number') { // undefined on blur
+		// Space (32), DEL (46), Backspace (8), "," (188)
+		if (key != 32 && key != 8 && key != 46 && key != 188) {
+			return;
+		}
+	}
 	inline = FetchElement('searchsuggest');
-	inline.innerHTML = '';
 	if (words.length > 2) {
 		var myConn = new ajax();
 		if (!myConn) {alert(lng['ajax0']);}
@@ -179,6 +190,9 @@ function ajax_search(words) {
 			}
 		};
 		myConn.connect("ajax.php", "GET", "action=search&search="+escape(words)+sidx+ieRand(), fnWhenDone);
+	}
+	else {
+		inline.innerHTML = '';
 	}
 }
 // Namen richtig setzen beim PM schreiben

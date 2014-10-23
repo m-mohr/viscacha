@@ -464,16 +464,26 @@ if ($data['sub'] == 0) {
    <select name="sort">
    	<?php
    	$last = null;
-	while ($row = $db->fetch_assoc($sort)) {
+   	while ($row = $db->fetch_assoc($sort)) {
 	   	if ($last != $row['position']) {
 	   		if ($last != null) {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
-	   		unset($pos[$last]);
+	   		if (!isset($pos[$last])) {
+	   			$pos[$last] = $row['position'];
+	   		}
+		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	unset($pos[$last]);
 	   	}
-   		echo '<option value="'.$row['id'].'"'.iif($row['id'] == $data['id'], ' selected="selected"').'>'.$plugins->navLang($row['name'], true).'</option>';
+   		echo '<option value="'.$row['id'].'"'.iif($row['id'] == $data['id'], ' selected="selected"').'">'.$plugins->navLang($row['name'], true).'</option>';
+	}
+	foreach ($pos as $key => $name) {
+		?>
+		</optgroup>
+		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
+		<?php
 	}
 	?>
 	</optgroup>
@@ -532,11 +542,19 @@ elseif ($job == 'nav_edit2') {
 		$db->query("UPDATE {$db->pre}menu SET name = '{$title}', link = '{$url}', param = '{$target}', groups = '{$groups}', sub = '{$sub}', active = '{$active}', position = '{$pos['position']}' WHERE id = '{$id}' LIMIT 1");
 	}
 	else {
-		$sort = $gpc->get('sort', int);
-		$result = $db->query("SELECT id, ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
-		$sort = $db->fetch_assoc($result);
-		if ($sort['id'] > $id) {
-			$sort['ordering']++;
+		$sort = $gpc->get('sort', str);
+		if (substr($sort, 0, 4) == 'pos_') {
+			$sort = array(
+				'ordering' => 0,
+				'position' => substr($sort, 4)
+			);
+		}
+		else {
+			$result = $db->query("SELECT id, ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
+			$sort = $db->fetch_assoc($result);
+			if ($sort['id'] > $id) {
+				$sort['ordering']++;
+			}
 		}
 		$module_sql = '';
 		if ($data['module'] > 0) {
@@ -699,7 +717,6 @@ elseif ($job == 'nav_addplugin') {
 	}
 	?>
 	</optgroup>
-   </select>
    </select>
    </td>
   </tr>
@@ -901,16 +918,26 @@ elseif ($job == 'nav_addbox') {
    <select name="sort">
    	<?php
    	$last = null;
-	while ($row = $db->fetch_assoc($sort)) {
+   	while ($row = $db->fetch_assoc($sort)) {
 	   	if ($last != $row['position']) {
 	   		if ($last != null) {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
-	   		unset($pos[$last]);
+	   		if (!isset($pos[$last])) {
+	   			$pos[$last] = $row['position'];
+	   		}
+		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
+	}
+	foreach ($pos as $key => $name) {
+		?>
+		</optgroup>
+		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
+		<?php
 	}
 	?>
 	</optgroup>
@@ -939,9 +966,19 @@ elseif ($job == 'nav_addbox2') {
 	if (empty($title)) {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
-	$sort = $gpc->get('sort', int);
-	$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
-	$sort = $db->fetch_assoc($result); // Keine Erhöhung des Prioritätswerts nötig, da ID der neuen Box > ID gewählten Box
+
+
+	$sort = $gpc->get('sort', str);
+	if (substr($sort, 0, 4) == 'pos_') {
+		$sort = array(
+			'ordering' => 0,
+			'position' => substr($sort, 4)
+		);
+	}
+	else {
+		$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
+		$sort = $db->fetch_assoc($result); // Keine Erhöhung des Prioritätswerts nötig, da ID der neuen Box > ID gewählten Box
+	}
 
 	$groups = $gpc->get('groups', arr_int);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');

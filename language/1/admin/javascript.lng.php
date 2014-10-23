@@ -3,8 +3,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['ajax0'] = 'Kann AJAX nicht initialisieren. Bitte benutzen Sie einen anderen AJAX-kompatiblen Browser!';
 $lang['ajax1'] = 'Name erfolgreich eingefügt...';
-$lang['ajax2'] = 'None (The username is too short!)';
-$lang['ajax3'] = 'None';
+$lang['ajax2'] = 'Keine (Der Benutzername ist zu kurz!)';
+$lang['ajax3'] = 'Keine';
 $lang['ajax4'] = 'Lade Informationen aus der Datenbank-Sicherung. Bitte warten...';
 $lang['bbcodes_note_prompt1'] = 'Bitte Erklärung für ein Wort eingeben';
 $lang['bbcodes_note_prompt2'] = 'Bitte das zu erklärende Wort eingeben';

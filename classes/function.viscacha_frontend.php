@@ -477,19 +477,31 @@ function BoardSelect($board = 0) {
 	$index_moderators = $scache->load('index_moderators');
 	$mod_cache = $index_moderators->get();
 
+	$prefix_obj = $scache->load('prefix');
+	$prefix = $prefix_obj->get();
+
 	($code = $plugins->load('forums_query')) ? eval($code) : null;
 	// Fetch Forums
 	$result = $db->query("
 	SELECT
 		f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
-		t.topic as l_topic, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
+		t.topic as l_topic, t.prefix AS l_prefix, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
 	FROM {$db->pre}forums AS f
 		LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id
 		LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id
 	ORDER BY f.parent, f.position
 	");
 
-	$keys = array('l_topic' => null, 'l_tid' => null, 'l_date' => null, 'l_uname' => null, 'l_name' => null, 'l_bid' => null);
+	$keys = array(
+		'l_prefix' => null,
+		'l_topic_full' => null,
+		'l_topic' => null,
+		'l_tid' => null,
+		'l_date' => null,
+		'l_uname' => null,
+		'l_name' => null,
+		'l_bid' => null
+	);
 
 	while($row = $db->fetch_assoc($result)) {
 		$row['name'] = $gpc->prepare($row['name']);
@@ -558,6 +570,7 @@ function BoardSelect($board = 0) {
 					$forum['topics'] = '-';
 					$forum['replies'] = '-';
 					$forum['l_topic'] = false;
+					$forum['l_topic_full'] = '';
 				}
 				else {
 					if ($slog->isForumRead($forum['id'], $forum['l_date']) || $forum['topics'] < 1) {
@@ -570,13 +583,24 @@ function BoardSelect($board = 0) {
 					   	$forum['new'] = true;
 					}
 					if (!empty($forum['l_topic'])) {
+						if (isset($prefix[$forum['id']][$forum['l_prefix']]) && $forum['l_prefix'] > 0) {
+							$lang->assign('prefix', $prefix[$forum['id']][$forum['l_prefix']]['value']);
+							$forum['l_prefix'] = $lang->phrase('showtopic_prefix_title');
+						}
+						else {
+							$forum['l_prefix'] = '';
+						}
+
 						if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
+							$forum['l_topic_full'] = $forum['l_prefix'].$forum['l_topic'];
 							$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
 							$forum['l_topic'] .= "...";
 						}
-						$forum['l_topic'] = $gpc->prepare($forum['l_topic']);
-						$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
+						else {
+							$forum['l_topic_full'] = '';
+						}
 
+						$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
 					}
 				}
 			}

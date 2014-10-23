@@ -67,8 +67,8 @@
 		</td>
 		<td width="34%" class="stext">
 		<?php if(!empty($forum['l_topic'])) { ?>
-			<a href="showtopic.php?id=<?php echo $forum['l_tid'].SID2URL_x; ?>&amp;action=last">
-			<strong><?php echo $forum['l_topic']; ?></strong>
+			<a title="<?php echo $forum['l_topic_full']; ?>" href="showtopic.php?id=<?php echo $forum['l_tid'].SID2URL_x; ?>&amp;action=last">
+			<strong><?php echo $forum['l_prefix'].$forum['l_topic']; ?></strong>
 			</a><br />
 			<span class="left nowrap">
 			<?php echo $lang->phrase('by'); ?>

@@ -1,11 +1,10 @@
 ########################################
-# Readme for Viscacha 0.8 Gold         #
+# Readme for Viscacha 0.8.1            #
 ########################################
 
 == Table of Contents ==
 1.	Installation
 2.	Update Viscacha
-2.1	Stylesheet changes
 3.	System requirements
 4.	Contact
 
@@ -41,28 +40,8 @@ Warning: Since 0.8 RC7 we provide separate packages for installation
 6. After the update is ready and you are back in your Admin Control
    Panel, please check for updates of your installed packages!
 
-Note: You can only update from Viscacha 0.8 RC5, 0.8 RC6 and 0.8 RC7.
-
-== 2.1 == Stylesheet Changes (only 0.8 RC7 to 0.8 Gold) ==
-This changes are for later design updates that are not installed while 
-updating. This steps will be shown or executed in the update script!
-
-You have to apply the following changes (for all CSS files) to all
-your installed designs. * is a placeholder for a Design-ID (1 2,3,...).
-The CSS definitions can vary depending on your modifications to the
-styles.
-
-== Changes in file designs/*/standard.css ==
-
-1. Search:
-------------------------------------------------------------------------
-.popup {
-------------------------------------------------------------------------
-
-Add below:
-------------------------------------------------------------------------
-	overflow: hidden;
-------------------------------------------------------------------------
+Note: You can only upgrade from Viscacha 0.8 Gold. To update from a
+      prior version you have to upgrade to Viscacha 0.8 Gold first.
 
 
 == System requirements ==
@@ -82,19 +61,12 @@ Recommended system requirements:
 If you are testing Viscacha, please give me some feedback how Viscacha
 worked, which errors occurred and which server configuration was used.
 
-Following information are useful for me:
+Following information are useful for us:
 - Operating system (of the server)
 - Server software and version
 - E-mail-server (SMTP, Sendmail, PHP's mail() function)
 - MySQL version (strict mode enabled?)
-- PHP version
-- Status of the extensions: mysql, mysqli, pcre, gd, zlib, xml,
-                            mime_magic, mbstring, sockets, xdiff, ftp
-- The following settings in the file php.ini:
-  - safe_mode
-  - magic_quotes_gpc
-  - register_globals
-  - open_basedir
+- PHP version and configuration (e.q. through phpinfo() page)
 
 
 == Contact ==

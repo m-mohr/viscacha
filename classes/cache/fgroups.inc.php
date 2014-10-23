@@ -37,6 +37,7 @@ class cache_fgroups extends CacheItem {
 		if (!is_array($boards)) {
 			$boards = array($boards);
 		}
+		$data = array();
 		foreach ($groups as $gid) {
 			if (isset($this->data[$gid])) {
 				foreach ($boards as $bid) {
@@ -46,7 +47,7 @@ class cache_fgroups extends CacheItem {
 				}
 			}
 		}
-		return $this->data;
+		return $data;
 	}
 
 }

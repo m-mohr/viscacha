@@ -158,7 +158,13 @@ function ajax_backupinfo(file, id) {
 	myConn.connect("admin.php", "GET", "action=db&job=restore_info&file="+file+sidx, fnWhenDone);
 }
 
-function ajax_searchmember(field, ins) {
+function ajax_searchmember(field, ins, key) {
+	if (typeof key == 'number') { // undefined on blur
+		// Not on special chars
+		if (key < 48 || (key > 91 && key < 123)) {
+			return;
+		}
+	}
 	inline = FetchElement(ins);
 	if (field.value.length > 2) {
 		var myConn = new ajax();
@@ -201,8 +207,8 @@ function ajax_noki(img, params) {
 	};
 	myConn.connect("admin.php", "GET", params+ieRand(), fnWhenDone);
 }
-function noki(int) {
-	if (int == '1') {
+function noki(integer) {
+	if (integer == '1') {
 		return 'admin/html/images/yes.gif';
 	}
 	else {

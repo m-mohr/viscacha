@@ -10,7 +10,7 @@
 <div class="border">
 <div class="bfoot topfooter"><strong><?php echo $row->name; ?></strong> (<?php echo $row->date; ?>):</div>
 <div class="bbody">
-	<span class="stext"><?php echo $lang->phrase('subject'); ?> <strong><a href="popup.php?action=showpost&id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->topic; ?></a></strong></span>
+	<span class="stext"><?php echo $lang->phrase('subject'); ?> <strong><a href="popup.php?action=showpost&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->topic; ?></a></strong></span>
 	<hr />
 	<?php echo $row->comment; ?>
 </div>
