@@ -30,7 +30,7 @@ if ($job == 'smileys_delete') {
 elseif ($job == 'smileys_edit') {
 	$editid = $gpc->get('id', arr_int);
 	if (count($editid) == 0) {
-		sendStatusCode(307, $config['furl'].'/admin.php?action=bbcodes&job=smileys');
+		sendStatusCode(302, $config['furl'].'/admin.php?action=bbcodes&job=smileys');
 		exit;
 	}
 	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $editid).')');

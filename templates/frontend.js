@@ -135,12 +135,12 @@ function ajax_searchmember(name, key) {
 	inline = FetchElement('membersuggest');
 	if (name.length > 2) {
 		var myConn = new ajax();
-		if (!myConn) {alert(lng['ajax0']);}
+		if (!myConn) { alert(lng['ajax0']); }
 		var fnWhenDone = function (oXML) {
 			suggest = oXML.responseText;
 			if (suggest.length > 3) {
 				names = oXML.responseText.split(",");
-				for (var i=0;i<names.length;i++) {
+				for (var i=0; i<names.length; i++) {
 					names[i] = '<a tabindex="1'+i+'" href="javascript:ajax_smIns(\''+names[i]+'\');">'+names[i]+'</a>';
 				}
 				inline.innerHTML = lng['ajax7']+names.join(', ');
@@ -157,7 +157,7 @@ function ajax_searchmember(name, key) {
 }
 // Sucht nach Nutzernamen (PN) - Einfügen d. Nutzernamens
 function ajax_smIns(name) {
-	inline = FetchElement('membersuggest_val');
+	inline = FetchElement('membersuggest_name');
 	inline.value = name;
 	inline2 = FetchElement('membersuggest');
 	inline2.innerHTML = '';
@@ -194,13 +194,6 @@ function ajax_search(words, key) {
 	else {
 		inline.innerHTML = '';
 	}
-}
-// Namen richtig setzen beim PM schreiben
-function edit_pmto() {
-	FetchElement('membersuggest_val').name = 'name';
-	FetchElement('membersuggest_val2').name = 'name2';
-	FetchElement('membersuggest_val').disabled = '';
-	FetchElement('edit_pmto').style.display = 'none';
 }
 
 ///////////////////////// MultiQuote /////////////////////////

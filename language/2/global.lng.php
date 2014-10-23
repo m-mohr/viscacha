@@ -464,7 +464,6 @@ $lang['page_gzip_off'] = 'Off';
 $lang['page_gzip_on'] = 'On<br />Compression Rate: ';
 $lang['password_repeat'] = 'Confirm password:';
 $lang['pm_addressee'] = 'Recipient:';
-$lang['pm_addressee_edit'] = 'Change recipient';
 $lang['pm_authordate'] = 'Send date';
 $lang['pm_browse_title'] = 'PMs in folder "{$dir_name}" ({@count->0})';
 $lang['pm_confirmdelete'] = 'Do you really want to delete this PM?';

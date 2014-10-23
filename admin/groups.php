@@ -270,10 +270,10 @@ elseif ($job == 'delete') {
 		ok('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_x_groups_deleted'));
 	}
 	elseif (isset($_POST['submit_edit']) && $edit > 0) {
-		sendStatusCode(307, $config['furl'].'/admin.php?action=groups&job=edit&id='.$edit);
+		sendStatusCode(302, $config['furl'].'/admin.php?action=groups&job=edit&id='.$edit);
 	}
 	else {
-		sendStatusCode(307, $config['furl'].'/admin.php?action=groups&job=manage');
+		sendStatusCode(302, $config['furl'].'/admin.php?action=groups&job=manage');
 	}
 }
 elseif ($job == 'edit') {

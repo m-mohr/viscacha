@@ -229,7 +229,7 @@ else {
 
 				$slog->updatelogged();
 				$db->close();
-				sendStatusCode(307, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
+				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
 				exit;
 			}
 		}
@@ -290,7 +290,7 @@ else {
 			else {
 				$slog->updatelogged();
 				$db->close();
-				sendStatusCode(307, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
+				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
 				exit;
 			}
 		}

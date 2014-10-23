@@ -14,17 +14,11 @@
 <h3><img src="<?php echo $tpl->img('pm_new'); ?>" alt="" /> <?php echo $lang->phrase('pm_writenew'); ?></h3>
 <div class="bbody">
 <label><?php echo $lang->phrase('pm_sender'); ?>:</label>
-<span class="iefix_left"><?php echo $my->name; ?><input type="hidden" name="id" value="<?php echo $my->id; ?>" /></span>
+<span class="iefix_left"><?php echo $my->name; ?></span>
 <br class="newinput" /><hr class="formsep" />
-<label for="membersuggest_val"><?php echo $lang->phrase('pm_addressee'); ?></label>
+<label for="membersuggest_name"><?php echo $lang->phrase('pm_addressee'); ?></label>
 <div class="label">
-  <?php if (!isset($showname)) { ?>
-  <input id="membersuggest_val" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" name="name" size="40" value="<?php echo $data['name']; ?>" />
-  <?php } else { ?>
-  <input id="membersuggest_val" name="name2" disabled="disabled" type="text" onkeyup="ajax_searchmember(this.value, key(event));" onblur="ajax_searchmember(this.value);" size="40" value="<?php echo $showname; ?>" />
-  <span class="stext" id="edit_pmto">[<a tabindex="2" href="javascript:edit_pmto();"><?php echo $lang->phrase('pm_addressee_edit'); ?></a>]</span>
-  <input id="membersuggest_val2" type="hidden" name="name" value="<?php echo $data['name']; ?>" />
-  <?php } ?>
+  <input id="membersuggest_name" name="name" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" size="40" value="<?php echo $data['name']; ?>" />
   <br /><span class="stext" id="membersuggest"></span>
 </div>
 <br class="newinput" /><hr class="formsep" />

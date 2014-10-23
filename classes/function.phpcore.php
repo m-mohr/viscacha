@@ -94,7 +94,7 @@ function viscacha_header($header, $replace = true, $code = 0) {
  * Aditional header data can be send depending on the code number given in the first parameter.
  * Only some error codes support this and each error code has its own additional header data.
  * Supported additional headers:
- * - 301/302/307 => Location: Specify a new location (url)
+ * - 201/202/301/302/307 => Location: Specify a new location (url)
  * - 401 => WWW-Authenticate: Specify a page name
  * - 503 => Retry-after: Specify the time the page is unavailable
  *
@@ -154,6 +154,8 @@ function sendStatusCode($code, $additional = null) {
 		// Additional headers
 		if ($additional != null) {
 			switch ($code) {
+				case '201':
+				case '202':
 				case '301':
 				case '302':
 				case '307':

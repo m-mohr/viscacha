@@ -116,7 +116,7 @@ elseif ($_GET['action'] == "savevote") {
 		$fid = save_error_data($_POST['notice'], $fid);
 		$slog->updatelogged();
 		$db->close();
-		sendStatusCode(307, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
+		sendStatusCode(302, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
 		exit;
 	}
 
@@ -295,7 +295,7 @@ elseif ($_GET['action'] == "save") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
-			sendStatusCode(307, $config['furl']."/newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
+			sendStatusCode(302, $config['furl']."/newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
 			exit;
 		}
 		else {

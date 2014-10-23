@@ -188,7 +188,7 @@ if ($_GET['action'] == "save") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
-			sendStatusCode(307, $config['furl']."/addreply.php?action=preview&id={$id}&fid=".$fid.SID2URL_JS_x);
+			sendStatusCode(302, $config['furl']."/addreply.php?action=preview&id={$id}&fid=".$fid.SID2URL_JS_x);
 			exit;
 		}
 		else {

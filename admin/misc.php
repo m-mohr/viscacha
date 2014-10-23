@@ -352,7 +352,7 @@ elseif ($job == 'feedcreator_active') {
 		}
 		$filesystem->file_put_contents('data/feedcreator.inc.php', implode("\n", $n));
 	}
-	sendStatusCode(307, $config['furl'].'/admin.php?action=misc&job=feedcreator');
+	sendStatusCode(302, $config['furl'].'/admin.php?action=misc&job=feedcreator');
 
 }
 elseif ($job == 'feedcreator_add') {

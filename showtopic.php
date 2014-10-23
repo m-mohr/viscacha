@@ -76,7 +76,7 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
 	exit;
 }
 elseif ($_GET['action'] == 'last') {
@@ -91,7 +91,7 @@ elseif ($_GET['action'] == 'last') {
 		$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
 	}
 	$db->close();
-	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
 elseif ($_GET['action'] == 'mylast') {
@@ -106,7 +106,7 @@ elseif ($_GET['action'] == 'mylast') {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 elseif ($_GET['action'] == 'jumpto') {
@@ -121,7 +121,7 @@ elseif ($_GET['action'] == 'jumpto') {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 

@@ -43,7 +43,12 @@ include ("admin/lib/function.viscacha_backend.php");
 
 if ($my->p['admin'] == 1) {
 
-	if ($action == "frames") {
+	if ($action == 'logout' && $my->vlogin) {
+		$slog->sid_logout();
+		echo head();
+		ok('admin.php', $lang->phrase('admin_successfully_logged_off'));
+	}
+	else if ($action == "frames") {
 		include('admin/frames.php');
 	}
 	elseif ($action == 'index') {
@@ -111,7 +116,7 @@ if ($my->p['admin'] == 1) {
 		$url = addslashes($url);
 		if (!empty($url)) {
 			$db->close();
-			sendStatusCode(307, $url);
+			sendStatusCode(302, $url);
 			exit;
 		}
 		else {
@@ -138,11 +143,6 @@ if ($my->p['admin'] == 1) {
 			}
 		}
 	}
-}
-elseif ($action == 'logout' && $my->vlogin) {
-	$slog->sid_logout();
-	echo head();
-	ok('admin.php', $lang->phrase('admin_successfully_logged_off'));
 }
 else {
 	($code = $plugins->load('admin_notallowed')) ? eval($code) : null;

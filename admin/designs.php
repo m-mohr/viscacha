@@ -1558,6 +1558,6 @@ elseif ($job == 'images_export') {
 	}
 }
 else {
-	sendStatusCode(307, $config['furl'].'/admin.php?action=designs&job=design&interface=1');
+	sendStatusCode(302, $config['furl'].'/admin.php?action=designs&job=design&interface=1');
 }
 ?>

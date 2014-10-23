@@ -30,14 +30,12 @@ if (!defined('VISCACHA_CORE')) {
 }
 
 require_once("data/config.inc.php");
+require_once("classes/function.viscacha_frontend.php");
 
 if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
-	require_once("classes/function.phpcore.php");
-	sendStatusCode(301, 'index.php');
+	sendStatusCode(301, 'index.php'.SID2URL_1);
     exit;
 }
-
-require_once("classes/function.viscacha_frontend.php");
 
 $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();

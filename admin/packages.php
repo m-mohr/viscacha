@@ -790,6 +790,7 @@ elseif ($job == 'package_import2') {
 			$sg = $db->insert_id();
 			foreach ($package as $section => $values) {
 				if (substr($section, 0, 8) == 'setting_') {
+					// TODO: Check data for completeness, e.q. optionscode might be missing
 					$name = $gpc->save_str(substr($section, 8));
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
@@ -1785,7 +1786,7 @@ elseif ($job == 'package_active') {
 		}
 		$delobj = $scache->load('components');
 		$delobj->delete();
-		sendStatusCode(307, $config['furl'].'/admin.php?action=packages&job=package');
+		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=package');
 	}
 }
 elseif ($job == 'plugins') {
@@ -2022,7 +2023,7 @@ elseif ($job == 'plugins_move') {
 		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 		$delobj = $scache->load('components');
 		$delobj->delete();
-		sendStatusCode(307, $config['furl'].'/admin.php?action=packages&job=plugins');
+		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
 	}
 }
 elseif ($job == 'plugins_active') {
@@ -2043,7 +2044,7 @@ elseif ($job == 'plugins_active') {
 		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 		$delobj = $scache->load('components');
 		$delobj->delete();
-		sendStatusCode(307, $config['furl'].'/admin.php?action=packages&job=plugins');
+		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
 	}
 }
 elseif ($job == 'plugins_delete') {

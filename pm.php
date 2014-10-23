@@ -225,15 +225,16 @@ elseif ($_GET['action'] == "save") {
 		$error[] = $lang->phrase('title_too_short');
 	}
 
-	if (!is_id($_POST['name'])) {
-		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name="'.$_POST['name'].'" LIMIT 1');
+	$name_id = 0;
+	if (strxlen($_POST['name']) > 0) {
+		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_POST['name'].'" LIMIT 1');
 		$user = $db->fetch_num($result);
-		if ($user[0] > 0) {
-			$_POST['name'] = $user[0];
+		if (!empty($user[0])) {
+			$name_id = $user[0];
 		}
-		else {
-			$error[] = $lang->phrase('pm_toname_notfound');
-		}
+	}
+	if (!is_id($name_id) || empty($_POST['name'])) {
+		$error[] = $lang->phrase('pm_toname_notfound');
 	}
 
 	($code = $plugins->load('pm_save_errorhandling')) ? eval($code) : null;
@@ -246,6 +247,7 @@ elseif ($_GET['action'] == "save") {
 			'topic' => $_POST['topic'],
 			'comment' => $_POST['comment'],
 			'name' => $_POST['name'],
+			'name_id' => $name_id,
 			'outgoing' => $_POST['temp']
 		);
 		($code = $plugins->load('pm_save_errordata')) ? eval($code) : null;
@@ -253,7 +255,7 @@ elseif ($_GET['action'] == "save") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
-			sendStatusCode(307, $config['furl'].'/pm.php?action=preview&fid='.$fid.SID2URL_JS_x);
+			sendStatusCode(302, $config['furl'].'/pm.php?action=preview&fid='.$fid.SID2URL_JS_x);
 			exit;
 		}
 		else {
@@ -267,18 +269,18 @@ elseif ($_GET['action'] == "save") {
 		($code = $plugins->load('pm_save_queries')) ? eval($code) : null;
 		$db->query("
 		INSERT INTO {$db->pre}pm (topic,pm_from,pm_to,comment,date,dir)
-		VALUES ('{$_POST['topic']}','{$my->id}','{$_POST['name']}','{$_POST['comment']}','{$date}','1')
+		VALUES ('{$_POST['topic']}','{$my->id}','{$name_id}','{$_POST['comment']}','{$date}','1')
 		");
 
 		if ($_POST['temp'] == 1) {
 			$db->query("
 			INSERT INTO {$db->pre}pm (topic,pm_from,pm_to,comment,date,dir,status)
-			VALUES ('{$_POST['topic']}','{$_POST['name']}','{$my->id}','{$_POST['comment']}','{$date}','2','1')
+			VALUES ('{$_POST['topic']}','{$name_id}','{$my->id}','{$_POST['comment']}','{$date}','2','1')
 			");
 		}
 
 		$lang_dir = $lang->getdir(true);
-		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE id = '{$_POST['name']}'");
+		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE id = '{$name_id}'");
 		$row = $slog->cleanUserData($db->fetch_assoc($result));
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
@@ -315,7 +317,7 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 			SELECT p.topic, p.comment, u.name, p.pm_from AS uid
 			FROM {$db->pre}pm AS p
 				LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
-			WHERE p.id='{$_GET['id']}' AND p.dir != '2' AND p.pm_to = '{$my->id}'
+			WHERE p.id = '{$_GET['id']}' AND p.dir != '2' AND p.pm_to = '{$my->id}'
 			LIMIT 1
 		");
 		if ($db->num_rows($result) != 1) {
@@ -323,7 +325,8 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		}
 		$info = $gpc->prepare($db->fetch_assoc($result));
 		$data = array(
-			'name' => $info['uid'],
+			'name' => $info['name'],
+			'name_id' => $info['uid'],
 			'topic' => $lang->phrase('reply_prefix').$info['topic'],
 			'outgoing' => 1
 		);
@@ -340,26 +343,13 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 	else {
 		$data = array(
 			'name' => $_GET['name'],
+			'name_id' => 0,
 			'comment' => '',
 			'topic' => '',
 			'outgoing' => 1
 		);
-		if (is_id($_GET['id'])) {
-			$data['name'] = $_GET['id'];
-		}
 	}
 	($code = $plugins->load('pm_compose_data')) ? eval($code) : null;
-
-	if (is_id($data['name'])) {
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
-		if (isset($memberdata[$data['name']])) {
-			$showname = $memberdata[$data['name']];
-		}
-		else {
-			$data['name'] = '';
-		}
-	}
 
 	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");

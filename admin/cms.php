@@ -632,7 +632,7 @@ elseif ($job == 'nav_move') {
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
 
-	sendStatusCode(307, $config['furl'].'/admin.php?action=cms&job=nav');
+	sendStatusCode(302, $config['furl'].'/admin.php?action=cms&job=nav');
 }
 elseif ($job == 'nav_active') {
 	$id = $gpc->get('id', int);
@@ -659,7 +659,7 @@ elseif ($job == 'nav_active') {
 
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
-	sendStatusCode(307, $config['furl'].'/admin.php?action=cms&job=nav');
+	sendStatusCode(302, $config['furl'].'/admin.php?action=cms&job=nav');
 }
 elseif ($job == 'nav_addplugin') {
 	echo head();

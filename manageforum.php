@@ -170,7 +170,7 @@ elseif ($_GET['action'] == "close") {
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
-		sendStatusCode(307, $config['furl'].'/'.$url);
+		sendStatusCode(302, $config['furl'].'/'.$url);
 		exit;
 	}
 	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
@@ -191,7 +191,7 @@ elseif ($_GET['action'] == "open") {
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
-		sendStatusCode(307, $config['furl'].'/'.$url);
+		sendStatusCode(302, $config['furl'].'/'.$url);
 		exit;
 	}
 	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
@@ -210,7 +210,7 @@ elseif ($_GET['action'] == "move") {
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
-		sendStatusCode(307, $config['furl'].'/'.$url);
+		sendStatusCode(302, $config['furl'].'/'.$url);
 	}
 	$my->pb = $slog->GlobalPermissions();
 	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
@@ -280,7 +280,7 @@ elseif ($_GET['action'] == "delete") {
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
-		sendStatusCode(307, $config['furl'].'/'.$url);
+		sendStatusCode(302, $config['furl'].'/'.$url);
 		exit;
 	}
 	$ids = implode(',', $_POST['delete']);

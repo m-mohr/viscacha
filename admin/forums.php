@@ -1070,7 +1070,7 @@ elseif ($job == 'cat_move' || $job == 'forum_move') {
 	$delobj = $scache->load($cache);
 	$delobj->delete();
 
-	sendStatusCode(307, $config['furl'].'/admin.php?action=forums&job=manage');
+	sendStatusCode(302, $config['furl'].'/admin.php?action=forums&job=manage');
 }
 elseif ($job == 'rights') {
 	echo head();

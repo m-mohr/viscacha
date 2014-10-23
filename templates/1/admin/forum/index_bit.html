@@ -1,7 +1,7 @@
 <tr class="tbody">
 	<td width='2%'><input type="checkbox" name="delete[]" value="<?php echo $row->id.SID2URL_x; ?>" /></td>
 	<td width='48%'>
-		<?php echo iif($row->vquestion," <img align='right' src='".$tpl->img('vote')."' alt='Umfrage: $row->vquestion' />"); ?>
+		<?php echo iif($row->vquestion," <img align='right' src='".$tpl->img('vote')."' alt='".$lang->phrase('vote_titlevote')." $row->vquestion' />"); ?>
 		<?php echo $pref; ?>
 		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'><?php echo iif($showprefix, $lang->phrase('showtopic_prefix_title')).$row->topic; ?></a>
     </td>

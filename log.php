@@ -79,7 +79,7 @@ elseif ($_GET['action'] == "logout") {
 	if (!$my->vlogin) {
 		$slog->updatelogged();
 		$db->close();
-		sendStatusCode(307, $config['furl'].'/log.php');
+		sendStatusCode(302, $config['furl'].'/log.php');
 		exit;
 	}
 	else {
