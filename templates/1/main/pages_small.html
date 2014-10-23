@@ -1,0 +1,6 @@
+<?php
+echo $lang->phrase('pages');
+foreach ($pages as $i) {
+    echo iif(is_id($i), ' <a href="'.$uri.'page='.$i.SID2URL_x.'">'.$i.'</a>', $i);
+}
+?>

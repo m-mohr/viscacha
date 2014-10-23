@@ -26,7 +26,7 @@
 		$feed.= $this->_createGeneratorComment();
 		$feed.= $this->_createStylesheetReferences();
 		$feed.= "<feed xmlns=\"http://www.w3.org/2005/Atom\"";
-		if ($this->language!="") {
+		if (!empty($this->language)) {
 			$feed.= " xml:lang=\"".$this->language."\"";
 		}
 		$feed.= ">\n"; 
@@ -36,10 +36,10 @@
 		$feed.= "    <id>".htmlspecialchars($this->link)."</id>\n";
 		$now = new FeedDate();
 		$feed.= "    <updated>".htmlspecialchars($now->iso8601())."</updated>\n";
-		if ($this->editor!="") {
+		if (!empty($this->editor)) {
 			$feed.= "    <author>\n";
 			$feed.= "        <name>".$this->editor."</name>\n";
-			if ($this->editorEmail!="") {
+			if (!empty($this->editorEmail)) {
 				$feed.= "        <email>".$this->editorEmail."</email>\n";
 			}
 			$feed.= "    </author>\n";
@@ -59,15 +59,15 @@
 			$feed.= "        <updated>".htmlspecialchars($itemDate->iso8601())."</updated>\n";
 			$feed.= "        <id>".htmlspecialchars($this->items[$i]->link)."</id>\n";
 			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "        ");
-			if ($this->items[$i]->author!="") {
+			if (!empty($this->items[$i]->author)) {
 				$feed.= "        <author>\n";
 				$feed.= "            <name>".htmlspecialchars($this->items[$i]->author)."</name>\n";
 				$feed.= "        </author>\n";
 			}
-			if ($this->items[$i]->description!="") {
-				$feed.= "        <summary>".htmlspecialchars($this->items[$i]->description)."</summary>\n";
+			if (!empty($this->items[$i]->description)) {
+				$feed.= "        <summary type=\"html\">".htmlspecialchars($this->items[$i]->description)."</summary>\n";
 			}
-			if ($this->items[$i]->enclosure != NULL) {
+			if (!empty($this->items[$i]->enclosure)) {
 			$feed.="        <link rel=\"enclosure\" href=\"". $this->items[$i]->enclosure->url ."\" type=\"". $this->items[$i]->enclosure->type."\"  length=\"". $this->items[$i]->enclosure->length . "\" />\n";
 			}
 			$feed.= "    </entry>\n";

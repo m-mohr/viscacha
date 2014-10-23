@@ -84,9 +84,9 @@ class text2image {
 	}
 
 	function output($format = 'png') {
-		if ($format == 'jpeg' || $format == 'jpe' || $format == 'jpeg' && function_exists('imagejpeg')) {
+		if (($format == 'jpeg' || $format == 'jpe' || $format == 'jpeg') && function_exists('imagejpeg')) {
 			header("Content-Type: image/jpeg");
-			imagejpeg($this->img, 90);
+			imagejpeg($this->img, '', 90);
 		}
 		elseif ($format == 'gif' && function_exists('imagegif')) {
 			header("Content-Type: image/gif");

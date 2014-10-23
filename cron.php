@@ -49,8 +49,12 @@ $debug = false;
 
 $resultsSummary = "";
 
+($code = $plugins->load('cron_start')) ? eval($code) : null;
+
 PixelImage();
 InitCron();
+
+($code = $plugins->load('cron_end')) ? eval($code) : null;
 
 $db->close();
 

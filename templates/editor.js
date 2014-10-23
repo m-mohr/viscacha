@@ -1,14 +1,20 @@
+var textfield = 'comment';
+
+function setTextfield(name) {
+	textfield = name;
+}
+
 function refreshElement(parentWindow) {
 	if (parentWindow == 1) {
-		return OpenerFetchElement('comment');
+		return OpenerFetchElement(textfield);
 	}
 	else {
-		return FetchElement('comment');
+		return FetchElement(textfield);
 	}
 }
 
 function setFocus(field) {
-	if (!field.hasfocus) {
+	if (field.hasFocus != true) {
 		field.focus();
 	}
 }
@@ -41,13 +47,12 @@ function InsertTags(aTag, eTag, parentWindow, param2) {
 	var input = refreshElement(parentWindow);
 	setFocus(input);
 
-
 	if (parentWindow == 1) {
 		var docsel = window.opener.document;
 	}
 	else {
 		var docsel = document;
-	}	 
+	}
 	if(typeof docsel.selection != 'undefined') {
         var range = docsel.selection.createRange();
         var insText = range.text;

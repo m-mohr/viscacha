@@ -39,13 +39,14 @@ $lang->init($my->language);
 $tpl = new tpl();
 $my->p = $slog->Permissions($board);
 
-$fc = cache_cat_bid();
+$catbid = $scache->load('cat_bid');
+$fc = $catbid->get();
 if (empty($board) || !isset($fc[$board])) {
 	error($lang->phrase('query_string_error'));
 }
 $last = $fc[$board];
 
-forum_opt($last['opt'], $last['optvalue'], $last['id']);
+forum_opt($last['opt'], $last['optvalue'], $last['id'], 'posttopics');
 
 if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) { 
 	$p_upload = 1;
@@ -58,18 +59,28 @@ get_headboards($fc, $last);
 $breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
 $breadcrumb->Add($lang->phrase('newtopic_title'));
 
+($code = $plugins->load('newtopic_start')) ? eval($code) : null;
+
 if ($_GET['action'] == "startvote") {
 
-    $my->mp = $slog->ModPermissions($board);
+	$my->mp = $slog->ModPermissions($board);
 
 	if (empty($_GET['temp'])) {
 		$_GET['temp'] = $_POST['temp'];
 	}
 	if ($_GET['temp'] < 1) {
-	    $_GET['temp'] = 2;
+		$_GET['temp'] = 2;
 	}
 
-	$result = $db->query('SELECT id, vquestion, name FROM '.$db->pre.'topics WHERE id = "'.$_GET['topic_id'].'" LIMIT 1');
+	($code = $plugins->load('newtopic_startvote_start')) ? eval($code) : null;
+	
+	$result = $db->query("
+	SELECT id, vquestion, name 
+	FROM {$db->pre}topics 
+	WHERE id = '{$_GET['topic_id']}' 
+	LIMIT 1
+	", __LINE__, __FILE__);
+	
 	$info = $db->fetch_assoc($result);
 	$error = array();
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion']) || ($info['name'] != $my->id && $my->mp[0] == 0)) {
@@ -89,7 +100,7 @@ if ($_GET['action'] == "startvote") {
 	if ($_GET['temp'] > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
-	
+
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
 	}
@@ -102,7 +113,9 @@ if ($_GET['action'] == "startvote") {
 
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
+	($code = $plugins->load('newtopic_startvote_prepared')) ? eval($code) : null;
 	echo $tpl->parse("newtopic/startvote");
+	($code = $plugins->load('newtopic_startvote_end')) ? eval($code) : null;
 
 }
 elseif ($_GET['action'] == "savevote") {
@@ -133,37 +146,55 @@ elseif ($_GET['action'] == "savevote") {
 	if (count_filled($_POST['notice']) > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
+	($code = $plugins->load('newtopic_savevote_errorhandling')) ? eval($code) : null;
+	
 	if (count($error) > 0) {
 		$_POST['notice']['question'] = $_POST['question'];
+		($code = $plugins->load('newtopic_savevote_errordata')) ? eval($code) : null;
 		$fid = save_error_data($_POST['notice']);
 		error($error,"newtopic.php?action=startvote&amp;id={$board}&amp;topic_id={$_GET['topic_id']}&amp;temp={$_GET['temp']}&amp;fid=".$fid.SID2URL_x);
 	}
 	else {
-		$where = array();
+		$sqlwhere = array();
 		foreach ($_POST['notice'] as $uval) {
 			if (!empty($uval) && strlen($uval) < 255) {
-				array_push($where, "(".$_GET['topic_id'].", '".$uval."')");
+				array_push($sqlwhere, "({$_GET['topic_id']}, '{$uval}')");
 			}
 		}
-			
+		$sqlwhere = implode(", ",$sqlwhere);
+
+		($code = $plugins->load('newtopic_savevote_queries')) ? eval($code) : null;
+
 		$db->query("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$info['id']}'",__LINE__,__FILE__);
-		$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES ".implode(", ",$where),__LINE__,__FILE__);
+		$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES {$sqlwhere}",__LINE__,__FILE__);
 		$inserted = $db->affected_rows();
 		if ($inserted > 1) {
 			ok($lang->phrase('data_success'),"showtopic.php?id={$_GET['topic_id']}");
 		}
 		else {
 			$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$_GET['topic_id']}'",__LINE__,__FILE__);
-			ok($lang->phrase('add_vote_failed'),"showtopic.php?id={$_GET['topic_id']}");
+			error($lang->phrase('add_vote_failed'),"showtopic.php?id={$_GET['topic_id']}");
 		}
 	}
 }
 elseif ($_GET['action'] == "save") {
 
-    $error = array();
+	$error = array();
 
-    if (!$my->vlogin) {
-		if (!check_mail($_POST['email'])) {
+	if (!$my->vlogin) {
+		if ($config['botgfxtest_posts'] == 1) {
+			include("classes/graphic/class.veriword.php");
+			$vword = new VeriWord();
+		    if($_POST['letter']) {
+		        if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
+		        	$error[] = $lang->phrase('veriword_mistake');
+		        }
+		    }
+		    else {
+		        $error[] = $lang->phrase('veriword_failed');
+		    }
+		}
+		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
 			$error[] = $lang->phrase('illegal_mail');
 		}
 		if (double_udata('name',$_POST['name']) == false) {
@@ -205,15 +236,20 @@ elseif ($_GET['action'] == "save") {
 	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
-	$prefix = cache_prefix($board);
+	
+	$prefix_obj = $scache->load('prefix');
+	$prefix = $prefix_obj->get($board);
+	
 	if (!isset($prefix[$_POST['opt_0']]) && $last['prefix'] == 1) {
 		$error[] = $lang->phrase('prefix_not_optional');
 	}
 
-	$bbcode = initBBCodes();
+	BBProfile($bbcode);
 	$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
 
-	if (count($error) > 0 || !empty($_POST['Preview2'])) {
+	($code = $plugins->load('newtopic_save_errorhandling')) ? eval($code) : null;
+
+	if (count($error) > 0 || !empty($_POST['Preview'])) {
 		$data = array(
 			'topic' => $_POST['topic'],
 			'comment' => $_POST['comment'],
@@ -221,14 +257,22 @@ elseif ($_GET['action'] == "save") {
 			'dosmileys' => $_POST['dosmileys'],
 			'dowords' => $_POST['dowords'],
 			'vote' => $_POST['opt_2'],
-			'replies' => $_POST['temp']
+			'replies' => $_POST['temp'],
+			'guest' => 1
 		);
 		if (!$my->vlogin) {
-			$data['email'] = $_POST['email'];
+			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
+				$data['email'] = '';
+			}
+			else {
+				$data['email'] = $_POST['email'];
+			}
 			$data['name'] = $_POST['name'];
+			$data['guest'] = 1;
 		}
+		($code = $plugins->load('newtopic_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data);
-		if (!empty($_POST['Preview2'])) {
+		if (!empty($_POST['Preview'])) {
 			viscacha_header("Location: newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
 		}
 		else {
@@ -237,23 +281,28 @@ elseif ($_GET['action'] == "save") {
 	}
 	else {
 		set_flood();
-	
+
 		$date = time();
 
+		if ($my->vlogin) {
+			$guest = 0;
+		}
+		else {
+			$guest = 1;
+		}
+
+		($code = $plugins->load('newtopic_save_savedata')) ? eval($code) : null;
+		
 		$db->query("
-		INSERT INTO {$db->pre}topics  
-		(board,topic,name,date,last,last_name,prefix) 
-		VALUES 
-		('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}')"
-		,__LINE__,__FILE__); 
+		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix) 
+		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}')
+		",__LINE__,__FILE__); 
 		$tredirect = $db->insert_id();
 		
 		$db->query("
-		INSERT INTO {$db->pre}replies 
-		(board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart) 
-		VALUES 
-		('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1')"
-		,__LINE__,__FILE__);
+		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest) 
+		VALUES ('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}')
+		",__LINE__,__FILE__);
 		$rredirect = $db->insert_id();
 
 		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'",__LINE__,__FILE__);
@@ -274,9 +323,34 @@ elseif ($_GET['action'] == "save") {
 			}
 		}
 		
-		$db->query ("UPDATE {$db->pre}cat SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'");
-		$scache = new scache('cat_bid');
-		$scache->deletedata();
+		$close = $gpc->get('close', int);
+		$pin = $gpc->get('pin', int);
+		$stat = $gpc->get('status', int);
+		if (($close == 1 || $pin == 1 || $stat > 0) && $my->vlogin) {
+			$my->mp = $slog->ModPermissions($board);
+			if ($close == 1 && $my->mp[0] == 1) {
+				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
+			}
+			if ($pin == 1 && $my->mp[0] == 1) {
+				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);	
+			}
+			if (($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1)) {
+				if ($stat == 1) {
+					$input = 'a';
+				}
+				if ($stat == 2) {
+					$input = 'n';
+				}
+				$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
+			}
+		}
+
+		$db->query ("UPDATE {$db->pre}cat SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'");	
+		$catobj = $scache->load('cat_bid');
+		$catobj->delete();
+		
+		($code = $plugins->load('newtopic_save_end')) ? eval($code) : null;
+		
 		if ($_POST['opt_2'] == '1') {
 			ok($lang->phrase('new_thread_vote_success'),"newtopic.php?action=startvote&amp;id={$board}&amp;topic_id={$tredirect}&amp;temp={$_POST['temp']}");
 		}
@@ -287,14 +361,17 @@ elseif ($_GET['action'] == "save") {
 
 }
 else {
+	$my->mp = $slog->ModPermissions($board);
+
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
-    $bbcode = initBBCodes();
+	BBProfile($bbcode);
 	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
 	$inner['bbhtml'] = $bbcode->getbbhtml();
 
-	$prefix = cache_prefix($board);
+	$prefix_obj = $scache->load('prefix');
+	$prefix = $prefix_obj->get($board);
 	
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
@@ -353,12 +430,23 @@ else {
 		$inner['index_prefix'] = '';
 	}
 	
-	$mymodules->load('newtopic_top');
+	if ($config['botgfxtest_posts'] == 1) {
+		include("classes/graphic/class.veriword.php");
+		$vword = new VeriWord();
+		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
+		if ($config['botgfxtest_text_verification'] == 1) {
+			$code = $vword->output_word($veriid);
+		}
+	}
+	
+	($code = $plugins->load('newtopic_form_prepared')) ? eval($code) : null;
 	
 	echo $tpl->parse("newtopic/index");
 	
-	$mymodules->load('newtopic_bottom');
+	($code = $plugins->load('newtopic_form_end')) ? eval($code) : null;
 }
+
+($code = $plugins->load('newtopic_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

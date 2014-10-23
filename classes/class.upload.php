@@ -193,11 +193,11 @@ class uploader {
 	 * 
 	 * @param path		  (string) File path to your upload directory
 	 * @param overwrite_mode  (int) 	1 = overwrite existing file
-	 * 					2 = rename if filename already exists (file.txt becomes file_copy0.txt)
+	 * 					2 = rename if filename already exists (file.txt becomes file_0.txt)
 	 * 					3 = do nothing if a file exists
 	 * 
 	 */
-	function save_file($path, $overwrite_mode="3"){
+	function save_file($path, $overwrite_mode=3){
 		if ($this->error) {
 			return false;
 		}

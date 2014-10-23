@@ -1,72 +1,143 @@
 <?php
-/* 
-* Caching Class 1.1
-* (c) 2004 by MaMo Net, www.mamo-net.de
-* License: GPL 
+/*
+	Viscacha - A bulletin board solution for easily managing your content
+	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
+	
+	Author: Matthias Mohr
+	Publisher: http://www.mamo-net.de
+	Start Date: May 22, 2004
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	
+	-- Caching Suite v2.0 --
+	This class is part of Viscacha.
 */
 
-class scache {
+if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "class.cache.php") die('Error: Hacking Attempt');
 
-	var $filename;
+class CacheItem {
+
+	var $name;
 	var $file;
+	var $data;
 	
-	function scache ($filename, $cachedir = "cache/") {
-		$this->filename = $filename;
+	function CacheItem ($filename, $cachedir = "cache/") {
+		$this->name = $filename;
 		$this->file = $cachedir.$filename.".inc.php";
+		$this->data = null;
 	}
 	
-	function exportdata($data) {
+	function export() {
 	
-	    $wdata = serialize($data);
-	    if (file_put_contents($this->file,$wdata) > 0) {
-	        return TRUE;
+	    $ser_data = serialize($this->data);
+	    if (file_put_contents($this->file,$ser_data) > 0) {
+	        return true;
 	    }
 	    else {
-	        return FALSE;
+	        return false;
 	    }
 	
 	}
 	
-	function importdata() {
+	function import() {
 	
 		if (file_exists($this->file)) {
 	        $data = file_get_contents($this->file);
-	        $cdata = unserialize($data);
-	        return $cdata;
+	        $this->data = unserialize($data);
+	        return true;
 	    }
 	    else {
-	        return FALSE;
+	        return false;
 	    }
 	
 	}
-	function existsdata($max_age = FALSE) {
+	
+	function exists($max_age = null) {
 	
 	    if (file_exists($this->file) && filesize($this->file) > 4) {
-			if ($max_age != FALSE) {
+			if ($max_age != null) {
 				$last = filemtime($this->file);
 				$expired = time()-$max_age;
 				if ($last < $expired) {
-					$this->deletedata();
-					return FALSE;
+					$this->delete();
+					return false;
 				}
 			}
-	        return TRUE;
+	        return true;
 	    }
 	    else {
-	        return FALSE;
+	        return false;
 	    }
 	
 	}
-	function deletedata() {
+	function delete() {
 		global $filesystem;
 	    if (file_exists($this->file)) {
 	    	if ($filesystem->unlink($this->file)) {
-	        	return TRUE;
+	        	return true;
 	       	}
 	    }
-	    return FALSE;
+	    return false;
+	}
 	
+	function load() {
+		// Will be implemented in sub-class
+	}
+	
+	function get() {
+		if ($this->data == null) {
+			$this->load();
+		}
+		return $this->data;
+	}
+	
+	function set($data) {
+		$this->data = $data;
 	}
 
+}
+
+class CacheServer {
+
+	var $cachedir;
+	var $data;
+
+	function CacheServer($cachedir = 'cache/') {
+		$this->cachedir = $cachedir;
+		$this->data = array();
+	}
+	
+	function load($name, $sourcedir = 'classes/cache/') {
+		$class = "cache_{$name}";
+		$file = $sourcedir.$name.'.inc.php';
+		if (!class_exists($class) && file_exists($file)) {
+			include($file);
+		}
+		if (class_exists($class)) {
+			$object = new $class($name, $this->cachedir);
+		}
+		else {
+			// trigger_error('Cache Class of type '.$name.' could not be loaded.', E_USER_WARNING);
+			$object = new CacheItem($name, $this->cachedir);
+		}
+		$this->data[$name] = $object;
+		return $object;
+	}
+	
+	function unload($name) {
+		unset($this->data[$name]);
+	}
 }
 ?>

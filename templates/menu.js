@@ -168,13 +168,13 @@ function Hide() {
 	}
 }
 function RegisterMenu(id) {
-	var buttonregister = FetchElement("menu_"+id)
+	var buttonregister = FetchElement("menu_"+id);
 	if(buttonregister) {
-		HandCursor(buttonregister)
-		buttonregister.unselectable = true
-		buttonregister.onclick = Click
-		buttonregister.onmouseover = Swap
-		window.onresize = Hide
+		HandCursor(buttonregister);
+		buttonregister.unselectable = true;
+		buttonregister.onclick = Click;
+		buttonregister.onmouseover = Swap;
+		window.onresize = Hide;
 	}
 }
 function Link() {

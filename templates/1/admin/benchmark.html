@@ -24,7 +24,7 @@
 	<td width="25%"><strong>Templates Time:</strong></td>
 	<td width="25%"><?php echo substr($this->benchmark['time'], 0, 7); ?> sec.</td>
 </tr>
-<?php if (isset($bbcode)) { ?>
+<?php if ($bbcode->existsProfile('standard')) { ?>
 <tr class="tbody">
 	<td width="25%"><strong>BB-Codes + Smileys:</strong></td>
 	<td width="25%"><?php echo $bbcode->getBenchmark('bbcode'); ?> sec.</td>
@@ -43,12 +43,13 @@
 	</td>
 	<td width="50%" colspan="2" valign="top" class='stext'>
 	<strong>Queries:</strong><br />
-	<div style=" width: 290px; height: 280px; overflow: scroll;">
+	<div style="width: 290px; height: 280px; overflow: scroll;">
 	<?php
 	foreach ($db->benchmark() as $row) {
 	    echo '<u><i'.iif(($zeitmessung/50) < $row['time'], ' style="color: red;"').'>'.$row['time'].'</i></u>:<br />'.$row['query'].'<br />';
 	}
 	?>
+	</div>
 	</td>
 </tr>
 <?php } ?>

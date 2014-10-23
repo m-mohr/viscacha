@@ -4,10 +4,10 @@
  * ----------
  * Author: Járja Norbert (jnorbi@vipmail.hu)
  * Copyright: (c) 2004 Járja Norbert, Nigel McNie (http://qbnz.com/highlighter)
- * Release Version: 1.0.7.6
- * CVS Revision Version: $Revision: 1.9 $
+ * Release Version: 1.0.7.12
+ * CVS Revision Version: $Revision: 1.17.2.2 $
  * Date Started: 2004/07/26
- * Last Modified: $Date: 2006/01/21 23:36:08 $
+ * Last Modified: $Date: 2006/07/22 11:30:32 $
  *
  * Delphi (Object Pascal) language file for GeSHi.
  *

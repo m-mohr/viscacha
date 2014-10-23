@@ -4,10 +4,10 @@
  * --------
  * Author: Amit Gupta (http://blog.igeek.info/)
  * Copyright: (c) 2004 Amit Gupta (http://blog.igeek.info/), Nigel McNie (http://qbnz.com/highlighter)
- * Release Version: 1.0.7.6
- * CVS Revision Version: $Revision: 1.7 $
+ * Release Version: 1.0.7.12
+ * CVS Revision Version: $Revision: 1.14.2.2 $
  * Date Started: 2004/08/13
- * Last Modified: $Date: 2005/12/30 04:48:03 $
+ * Last Modified: $Date: 2006/07/22 11:30:31 $
  *
  * ASP language file for GeSHi.
  *

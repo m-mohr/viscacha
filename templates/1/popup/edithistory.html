@@ -10,13 +10,13 @@
 </tr>
 <tr class="tbody">
 	<td><?php echo $row['date']; ?></td>
-	<td><?php echo $row['name']; ?></td>
+	<td><?php echo $row['name']; ?><?php echo iif($my->p['admin'] == 1, '<br /><span class="stext">'.$lang->phrase('ipadress').$row['ip'].'</span>'); ?></td>
 	<td><em><?php echo $lang->phrase('edithistory_topicstart'); ?></em></td>
 </tr>
 <?php foreach ($edit as $line) { ?>
 <tr class="tbody">
 	<td><?php echo $line['date']; ?></td>
-	<td><?php echo $line['name']; ?></td>
+	<td><?php echo $line['name']; ?><?php echo iif($my->p['admin'] == 1, '<br /><span class="stext">'.$lang->phrase('ipadress').$line['ip'].'</span>'); ?></td>
 	<td><?php echo $line['reason']; ?></td>
 </tr>
 <?php } ?>

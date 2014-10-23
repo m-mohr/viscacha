@@ -13,9 +13,19 @@ class tpl {
 	
 	
 	function tpl() {
-		global $config, $my;
+		global $config, $my, $gpc, $scache;
 
-		$cache = cache_loaddesign();
+		$admin = $gpc->get('admin', str);
+		
+		if ($admin != $config['cryptkey']) {
+			$fresh = false;
+		}
+		else {
+			$fresh = true;
+		}
+		$loaddesign_obj = $scache->load('loaddesign');
+		$cache = $loaddesign_obj->get($fresh);
+		
 		$this->dir = '';
 		$this->altdir = './templates/'.$cache[$config['templatedir']]['template'].'/';
 		if (!empty($my->imagesid) && $my->imagesid != $cache[$config['templatedir']]['images']) {
@@ -54,9 +64,7 @@ class tpl {
 	}
 
     function globalvars ($vars) {
-
         $this->vars = $vars;
-
     }
 	
 	function parse($thisfile,$thisext='html') {
@@ -114,7 +122,7 @@ class tpl {
 			$this->dir = $dir;
 			return true;
 		}
-		elseif (id_dir($dir)) {
+		elseif (is_dir($dir)) {
 			$this->dir = $this->altdir;
 			return true;
 		}

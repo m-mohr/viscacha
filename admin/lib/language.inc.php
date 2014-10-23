@@ -1,9 +1,9 @@
 <?php
 function getLangVarsHelp() {
-	$var = 'Das Sprachensystem unterstützt das variable Einsetzen von Platzhaltern in Phrasen und Texten. Alle Platzhalter werden von { und } umschlossen. Man kann die Variablen aus PHP wie folgt benutzen:<br />';
-	$var .= 'Normale Variablen des Typs <code>$var</code> werden zu <code>{$var}</code>,<br />';
-	$var .= 'Arrays des Typs <code>$var[&#039;key&#039;]</code> werden zu <code>{@var->key}</code> und <br />';
-	$var .= 'Objekte des Typs <code>$var->key</code> werden zu <code>{%var->key}</code>.';
+	$var = 'The language system supports the variable insertion of wildcard-characters in phrases and texts. All wildcards will be bracket by { and }. You can use the variables from PHP as follows:<br />';
+	$var .= 'Normal variables of the type <code>$var</code> will become <code>{$var}</code>,<br />';
+	$var .= 'Arrays of the type <code>$var[&#039;key&#039;]</code> will become <code>{@var->key}</code> and<br />';
+	$var .= 'Objects of the type <code>$var->key</code> will become <code>{%var->key}</code>.';
 	return $var;
 }
 
@@ -50,7 +50,7 @@ function dir_array($dir, $chop = false) {
 function return_array($group, $id) {
 	$file = "language/{$id}/{$group}.lng.php";
 	if (file_exists($file)) {
-		@include($file);
+		include($file);
 	}
 	if (!isset($lang) || !is_array($lang)) {
 		$lang = array();

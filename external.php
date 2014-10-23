@@ -63,16 +63,9 @@ define("TIME_ZONE", $posneg.$tz2.':'.$tz3);
 // Include the Feedcreator class
 include("classes/class.feedcreator.php"); 
 
-$bbcode = initBBCodes();
+BBProfile($bbcode);
 
-// Check if the user only wants some content (News/Articles)
-$statustype = '';
-if ($_GET['type'] == 'news') {
-	$statustype = "AND t.mark = 'n' ";
-}
-elseif ($_GET['type'] == 'article') {
-	$statustype = "AND t.mark = 'a' ";
-}
+($code = $plugins->load('external_start')) ? eval($code) : null;
 
 $action = strtoupper($_GET['action']);
 $data = file('data/feedcreator.inc.php');
@@ -114,13 +107,23 @@ $rss->lastBuildDate = time();
 $rss->editor = $config['fname'];
 $rss->editorEmail = $config['forenmail'];
 
+$sqllimit = 15;
+$sqlwhere = "r.tstart = '1' AND c.opt != 'pw' ".$slog->sqlinboards('t.board');
+$sqlorder = "t.date DESC";
+$sqljoin = $sqlfields = '';
+
+($code = $plugins->load('external_query')) ? eval($code) : null;
+
 // Get the last 15 topics
 $result = $db->query("
-SELECT r.dowords, r.comment, c.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status 
-FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id LEFT JOIN {$db->pre}user AS u ON r.name=u.id LEFT JOIN {$db->pre}cat AS c ON t.board=c.id 
-WHERE r.tstart = '1' AND c.opt != 'pw' $statustype ".$slog->sqlinboards('t.board')."
-ORDER BY t.date DESC 
-LIMIT 15
+SELECT r.dowords, r.comment, r.guest, c.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status {$sqlfields} 
+FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id 
+	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
+	LEFT JOIN {$db->pre}cat AS c ON t.board=c.id 
+	{$sqljoin}
+WHERE {$sqlwhere} 
+ORDER BY {$sqlorder} 
+LIMIT {$sqllimit}
 ",__LINE__,__FILE__);
 
 // Loop through them if the site is not offline
@@ -128,10 +131,11 @@ if ($config['foffline'] == 0) {
 	while ($row = $db->fetch_object($result)) {
 	
 	    // Formats the data
-	    if (!$row->gmail) {
+	    if ($row->guest == 0) {
 	        $row->email = $row->umail;
 	        $row->name = $row->uname;
-	    } else {
+	    }
+		else {
 	        $row->email = $row->gmail;
 	        $row->name = $row->gname;
 	    }
@@ -160,6 +164,8 @@ if ($config['foffline'] == 0) {
 		$item->authorEmail = $row->email;
 	    $item->pubDate = gmdate('r', times($row->date));
 		$item->category = $row->forum;
+		
+		($code = $plugins->load('external_item_prepared')) ? eval($code) : null;
 	
 	    $rss->addItem($item); 
 	}
@@ -171,11 +177,17 @@ else {
     $item->description = $lang->phrase('offline_body_ext'); 
     $item->date = gmdate('r', time());
     $item->author = $config['fname'];
-
+	
+	($code = $plugins->load('external_offline')) ? eval($code) : null;
+	
     $rss->addItem($item); 
 }
-// Save the feed
+
+($code = $plugins->load('external_prepared')) ? eval($code) : null;
+
 $rss->saveFeed($format['class'], '', $h); 
+
+($code = $plugins->load('external_end')) ? eval($code) : null;
 
 $phpdoc->Out();
 $db->close();		

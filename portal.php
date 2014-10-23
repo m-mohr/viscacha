@@ -46,9 +46,9 @@ $my->pb = $slog->GlobalPermissions();
 $breadcrumb->Add($lang->phrase('portal_title'));
 echo $tpl->parse("header");
 
-$bbcode = initBBCodes();
+BBProfile($bbcode);
 
-$mymodules->load('portal');
+($code = $plugins->load('portal')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

@@ -11,8 +11,8 @@
 	  <label for="email"><?php echo $lang->phrase('editprofile_email'); ?></label> 
 	  <input class="label" id="email" type="text" name="email" size="40" value="<?php echo $my->mail; ?>" /> 
 	<br class="newinput" /><hr class="formsep" />
-	  <label for="location"><?php echo $lang->phrase('editprofile_location'); ?></label> 
-	  <input class="label" id="location" type="text" name="location" size="40" value="<?php echo $my->location; ?>" /> 
+	  <label for="location"><?php echo $lang->phrase('editprofile_location'); ?></label>
+	  <input class="label" id="location" type="text" name="location" size="40" value="<?php echo $my->location; ?>" />
 	<br class="newinput" /><hr class="formsep" />
 	  <label for="gender"><?php echo $lang->phrase('editprofile_gender'); ?></label> 
 	  <select class="label" id="gender" size="1" name="gender">
@@ -72,14 +72,16 @@
 	<br class="newinput" /><hr class="formsep" />
 	  <label for="jabber"><?php echo $lang->phrase('editprofile_jabber'); ?></label> 
 	  <input class="label" id="jabber" type="text" name="jabber" size="40" value="<?php echo $my->jabber; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="skype"><?php echo $lang->phrase('editprofile_skype'); ?></label> 
+	  <input class="label" id="skype" type="text" name="skype" size="40" value="<?php echo $my->skype; ?>" />
+	<?php foreach ($customfields as $row) { ?>
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label> 
+	  <?php echo $row['input']; ?>
+	<?php } ?>
 	<br class="newinput" /><br class="minibr" />
   </div>
   <div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
-</div>
-<br class="minibr" />
-<div class="border">
-  <h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?></h3>
-  <div class="bbody center"><textarea name="signature" rows="4" cols="80"><?php echo $my->signature; ?></textarea> </div>
-  <div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
 </div>
 </form>

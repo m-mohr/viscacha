@@ -3,7 +3,7 @@
 <form name="form2" method="post" action="managetopic.php?action=vote_edit2&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>">
 <div class="bbody">
     <label for="question"><?php echo $lang->phrase('add_vote_question'); ?></label>
-    <input type="text" size="40" id="question" class="label" name="question" value="<?php echo $gpc->prepare($info['vquestion']); ?>" />
+    <input type="text" size="40" id="question" class="label" name="question" value="<?php echo $info['vquestion']; ?>" />
     <br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot"><?php echo $lang->phrase('title_vote_replies'); ?></div>		  
@@ -13,7 +13,7 @@
         $lang->assign('i', $row['answer']);
     ?>
     <label for="notice_<?php echo $row['id']; ?>"><?php echo $lang->phrase('managetopic_vote_reply'); ?></label>
-    <input type="text" size="40" id="notice_<?php echo $row['id']; ?>" class="label" name="notice[<?php echo $row['id']; ?>]" value="<?php echo $gpc->prepare($row['answer']); ?>" />
+    <input type="text" size="40" id="notice_<?php echo $row['id']; ?>" class="label" name="notice[<?php echo $row['id']; ?>]" value="<?php echo $row['answer']; ?>" />
     <br class="newinput" /><hr class="formsep" />
     <?php } ?>
     <label for="notice_0"><?php echo $lang->phrase('managetopic_vote_reply_new'); ?></label>

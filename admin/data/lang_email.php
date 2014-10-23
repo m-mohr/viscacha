@@ -1,11 +1,12 @@
-admin_confirmed	Benachrichtigung nach Freischaltung eines Mitglieds durch den Administrator
-digest_d	Tägliche Benachrichtigung über neue Beiträge
-digest_s	Sofortige Benachrichtigung über neue Beiträge
-digest_w	Wöchentliche Benachrichtigung über neue Beiträge
-mass_topic_moved	"Thema wurde verschoben"-Benachrichtigung (Massenverschieben)
-newpm	Benachrichtigung über eine neue PM
-pwremind	Passwort-Vergessen-Email
-register_00	Registrierungsbestätigung (bei Freischaltung per E-Mail und Administrator)
-register_01	Registrierungsbestätigung (bei Freischaltung per Administrator)
-register_10	Registrierungsbestätigung (bei Freischaltung per E-Mail)
-topic_moved	"Thema wurde verschoben"-Benachrichtigung
+admin_confirmed	Notification about activation of a member by an admin
+digest_d	Daily notification about new posts
+digest_s	Immediate notification about new posts
+digest_w	Weekly notification about new posts
+mass_topic_moved	"Topic was moved"-notification (used for moving multiple topics)
+newpm	Notification about a new PM
+pwremind	Confirmation of wanting a new password (Step 1)
+pwremind2	E-mail containing new password (Step 2)
+register_00	Confirmation of registration (for activation via E-mail and by the administrator)
+register_01	Confirmation of registration (for activation by the administrator)
+register_10	Confirmation of registration (for activation via E-mail)
+topic_moved	"Topic was moved"-notification

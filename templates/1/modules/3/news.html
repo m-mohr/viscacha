@@ -1,0 +1,12 @@
+<div class="border">
+<h3><?php echo $lang->phrase('portal_news').$row['pre'].$row['topic']; ?></h3>
+<div class="bbody">
+	<?php echo $row['comment']; ?><br />
+    <a class="block textright" href="showtopic.php?id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $lang->phrase('read_more'); ?></a>
+</div>
+<div class="bfoot">
+	<span class="right"><a href="showtopic.php?id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $lang->phrase('x_comments'); ?></a></span>
+	<?php echo $lang->phrase('portal_date_written'); ?>
+</div>
+</div>
+<br class="minibr" />

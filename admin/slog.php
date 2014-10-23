@@ -51,7 +51,7 @@ elseif ($job == 'l_mysqlerror') {
 	else {
    ?>
    <tr class="ubox">
-    <td>Errormessage</td>
+    <td>Error report</td>
     <td>Query</td>
     <td>Information</td>
     <td>Date</td>
@@ -78,7 +78,7 @@ URL: <?php echo $data[5]; ?></textarea>
    </td>
   </tr>
   <tr> 
-   <td class="ubox" align="center" colspan="8"><input type="submit" name="Submit" value="Log-Datei jetzt leeren!"></td> 
+   <td class="ubox" align="center" colspan="8"><input type="submit" name="Submit" value="Delete the log file now!"></td> 
   </tr>
  </table>
 </form> 
@@ -98,13 +98,13 @@ elseif ($job == 'l_cron') {
 <form name="form" method="post" action="admin.php?action=slog&file=l_cron&job=empty">
  <table class="border">
   <tr> 
-   <td class="obox">Scheduled Tasks: Logfile</td>
+   <td class="obox">Scheduled Tasks: Log file</td>
   </tr>
   <tr> 
    <td class="mbox"><?php echo $log; ?></td>
   </tr>
   <tr> 
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Log-Datei jetzt leeren!"></td> 
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="Delete the log file now!"></td> 
   </tr>
  </table>
 </form> 
@@ -125,23 +125,23 @@ elseif ($job == 's_general_image') {
 		case 1: 
 			$table = $db->pre."user";
 			$datefield = "regdate";
-			$stats_name = 'Registrierungen';
+			$stats_name = 'Registration';
 		break;
 		case 2: 
 			$table = $db->pre."topics";
 			$datefield = "date";
-			$stats_name = 'Themen';
+			$stats_name = 'Topics';
 		break;
 		case 3: 
 			$table = $db->pre."replies";
 			$datefield = "date";
-			$stats_name = 'Antworten';
+			$stats_name = 'Posts';
 		break;
 		default: 
 			$table = $db->pre."pm";
 			$datefield = "date";
 			$sql = ' AND dir != "2" ';
-			$stats_name = 'Private Nachrichten';
+			$stats_name = 'Private Messages';
 		break;
 	}
 	
@@ -173,8 +173,8 @@ elseif ($job == 's_general_image') {
 	
 	$max = 0;
 	$cache = array();
-	$result = $db->query("SELECT COUNT(*), DATE_FORMAT(FROM_UNIXTIME($datefield),'$sqlformat') AS timeorder, MAX($datefield) AS statdate FROM $table WHERE $datefield > '$from' AND $datefield < '$to' $sql GROUP BY timeorder ORDER BY $datefield $sort", __LINE__, __FILE__);
-	while ($row = $db->fetch_array($result)) {
+	$result = $db->query("SELECT COUNT(*) AS nr, DATE_FORMAT(FROM_UNIXTIME($datefield),'$sqlformat') AS timeorder, MAX($datefield) AS statdate FROM $table WHERE $datefield > '$from' AND $datefield < '$to' $sql GROUP BY timeorder ORDER BY $datefield $sort", __LINE__, __FILE__);
+	while ($row = $db->fetch_assoc($result)) {
 		$statdate = date($phpformat, $row['statdate']);
 		
 		if ($timeorder == 1) $statdate = preg_replace("/(\d+)~/e", "getday('\\1')", $statdate);
@@ -182,15 +182,15 @@ elseif ($job == 's_general_image') {
 		if ($timeorder == 2) {
 			$week = ceil((date('z', $row['statdate']) - daynumber($row['statdate'])) / 7) + ((daynumber(mktime(0, 0, 0, 1, 1, date('Y', $row['statdate']))) <= 3) ? (1) : (0));
 			if ($week == 53 && daynumber(mktime(0, 0, 0, 12, 31, date('Y', $row['statdate']))) < 3) {
-				$tempRow = $db->fetch_array($result);
-				$row[0] += $tempRow[0];
+				$tempRow = $db->fetch_num($result);
+				$row['nr'] += $tempRow[0];
 				$week = 1;
 			}
 			$statdate = str_replace("#", "#".$week, $statdate);
 		}
 			
-		if ($row[0] > $max) $max = $row[0];
-		$cache[] = array($row[0], $statdate);
+		if ($row['nr'] > $max) $max = $row['nr'];
+		$cache[] = array($row['nr'], $statdate);
 	}
 	
 	$PG->title     = $stats_name;
@@ -222,27 +222,27 @@ elseif ($job == 's_general') {
 	require_once("classes/class.charts.php");
 	$PG = new PowerGraphic();
 	$skin = $gpc->get('skin', int, 1);
-	$modus = $gpc->get('modus', int, 1);
+	$modus = $gpc->get('modus', int, 2);
 	$type = $gpc->get('dtype', int, 3);
-	$timeorder = $gpc->get('timeorder', int, 2);
+	$timeorder = $gpc->get('timeorder', int, 3);
 	$sortorder = $gpc->get('sortorder', str, 'asc');
 	?>
 <form method="post" action="admin.php?action=slog&job=s_general&show=1">
  <table border="0" class="border">
   <tr class="obox">
-   <td colspan="2">Statistik-Filter</td>
+   <td colspan="2">Generate Statistics</td>
   </tr>
   <tr class="mbox">
-   <td>Art der Statistik</td>
+   <td>Contents of the statistics:</td>
    <td><select name="dtype">
-    <option value="1"<?php echo iif($type == 1,' selected="selected"'); ?>>Registrierungen</option>
-    <option value="2"<?php echo iif($type == 2,' selected="selected"'); ?>>Themen</option>
-    <option value="3"<?php echo iif($type == 3,' selected="selected"'); ?>>Beitr&auml;ge</option>
-    <option value="4"<?php echo iif($type == 4,' selected="selected"'); ?>>Private Nachrichten</option>
+    <option value="1"<?php echo iif($type == 1,' selected="selected"'); ?>>Registration</option>
+    <option value="2"<?php echo iif($type == 2,' selected="selected"'); ?>>Topics</option>
+    <option value="3"<?php echo iif($type == 3,' selected="selected"'); ?>>Posts</option>
+    <option value="4"<?php echo iif($type == 4,' selected="selected"'); ?>>Private Messages</option>
    </select></td>
   </tr>
   <tr class="mbox">
-   <td>Statistik von</td>
+   <td>Statistics starting at the...</td>
    <td>
    <select name="from_day">
 	<?php
@@ -277,7 +277,7 @@ elseif ($job == 's_general') {
    </td>
   </tr>
   <tr class="mbox">
-   <td>Statistik bis</td>
+   <td>Statistics ending at the...</td>
    <td>
    <select name="to_day">
 	<?php
@@ -312,7 +312,7 @@ elseif ($job == 's_general') {
    </td>
   </tr>
   <tr class="mbox">
-   <td>Zeitliche Ordnung</td>
+   <td>Time interval:</td>
    <td><select name="timeorder">
     <option value="1"<?php echo iif($timeorder == 1,' selected="selected"'); ?>>T&auml;glich</option>
     <option value="2"<?php echo iif($timeorder == 2,' selected="selected"'); ?>>W&ouml;chentlich</option>
@@ -320,10 +320,10 @@ elseif ($job == 's_general') {
    </select></td>
   </tr>
   <tr class="mbox">
-   <td>Sortierung</td>
+   <td>Sorting</td>
    <td><select name="sortorder">
-    <option value="asc"<?php echo iif($sortorder == 'asc',' selected="selected"'); ?>>Aufsteigend</option>
-    <option value="desc"<?php echo iif($sortorder == 'desc',' selected="selected"'); ?>>Absteigend</option>
+    <option value="asc"<?php echo iif($sortorder == 'asc',' selected="selected"'); ?>>Ascending</option>
+    <option value="desc"<?php echo iif($sortorder == 'desc',' selected="selected"'); ?>>Descending</option>
    </select></td>
   </tr>
   <tr class="mbox">
@@ -335,7 +335,7 @@ elseif ($job == 's_general') {
 </select></td>
   </tr>
   <tr class="mbox">
-   <td>Design</td>
+   <td>Skin</td>
    <td><select name="skin">
 <?php foreach ($PG->available_skins as $code => $color) { ?>
     <option value="<?php echo $code; ?>"<?php echo iif($code == $skin, ' selected="selected"'); ?>><?php echo $color; ?></option>
@@ -343,7 +343,7 @@ elseif ($job == 's_general') {
 </select></td>
   </tr>
   <tr class="ubox">
-   <td colspan="2" align="center"><input type="submit" value="Create" /></td>
+   <td colspan="2" align="center"><input type="submit" value="Generate" /></td>
   </tr>
  </table>
 </form>
@@ -357,7 +357,7 @@ if ($show == 1) {
 ?>
 <table border="0" class="border">
   <tr class="obox">
-   <td>Statistik-Ausgabe</td>
+   <td>Generated Statistics</td>
   </tr>
   <tr class="mbox">
    <td><a href="<?php echo $url; ?>"><img src="<?php echo $url; ?>" style="border: 1px solid #000000;" alt="Statistics"></a></td>
@@ -367,33 +367,33 @@ if ($show == 1) {
 	}
 	else {
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'replies',__LINE__,__FILE__);
-	$posts = $db->fetch_array($result);
+	$posts = $db->fetch_num($result);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics',__LINE__,__FILE__);
-	$topics = $db->fetch_array($result);
+	$topics = $db->fetch_num($result);
 	$replies = $posts[0]-$topics[0];
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE mark = "a"',__LINE__,__FILE__);
-	$aposts = $db->fetch_array($result);
+	$aposts = $db->fetch_num($result);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE mark = "n"',__LINE__,__FILE__);
-	$nposts = $db->fetch_array($result);
+	$nposts = $db->fetch_num($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""',__LINE__,__FILE__);
-	$vote = $db->fetch_array($result);
+	$vote = $db->fetch_num($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user',__LINE__,__FILE__);
-	$members = $db->fetch_array($result);
+	$members = $db->fetch_num($result);
 	
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos',__LINE__,__FILE__);
-	$abos = $db->fetch_array($result);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type != "f"',__LINE__,__FILE__);
+	$abos = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'fav',__LINE__,__FILE__);
-	$favs = $db->fetch_array($result);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type = "f"',__LINE__,__FILE__);
+	$favs = $db->fetch_num($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'uploads',__LINE__,__FILE__);
-	$uploads = $db->fetch_array($result);
+	$uploads = $db->fetch_num($result);
 	
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'votes',__LINE__,__FILE__);
-	$votes = $db->fetch_array($result);
+	$votes = $db->fetch_num($result);
 ?>
  <table class="border">
   <tr> 
@@ -402,8 +402,14 @@ if ($show == 1) {
   <tr> 
    <td class="mbox">
 	<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr><td>Members:</td><td><code><?php echo $members[0];?></code></td></tr>
-	<tr><td>Posts:</td><td><code><?php echo $posts[0];?></code></td></tr>
+	<tr>
+	  <td>Members:</td><td><code><?php echo $members[0];?></code></td>
+	  <td colspan="2">&nbsp;</td>
+	</tr>
+	<tr>
+	  <td>Posts:</td><td><code><?php echo $posts[0];?></code></td>
+	  <td>Attachments:</td><td><code><?php echo $uploads[0];?></code></td>
+	</tr>
 	<tr>
 	  <td>Threads:</td><td><code><?php echo $topics[0];?></code></td>
 	  <td>Replies:</td><td><code><?php echo $replies;?></code></td>
@@ -412,14 +418,13 @@ if ($show == 1) {
 	  <td>Articles:</td><td><code><?php echo $aposts[0];?></code></td>
 	  <td>News:</td><td><code><?php echo $nposts[0];?></code></td>
 	</tr>
-	<tr><td>Attachments:</td><td><code><?php echo $uploads[0];?></code></td></tr>
 	<tr>
 	  <td>Subscriptions:</td><td><code><?php echo $abos[0];?></code></td>
 	  <td>Favourite threads:</td><td><code><?php echo $favs[0];?></code></td>
 	</tr>
 	<tr>
-	  <td width="25%">Polls:</td><td width="25%"><code><?php echo $vote[0];?></code></td>
-	  <td width="25%">Voter:</td><td width="25%"><code><?php echo $votes[0];?></code></td>
+	  <td width="25%">Votes:</td><td width="25%"><code><?php echo $vote[0];?></code></td>
+	  <td width="25%">Participants in the votes:</td><td width="25%"><code><?php echo $votes[0];?></code></td>
 	</tr>
 	</table>
    </td> 

@@ -2,8 +2,9 @@
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "start.php") die('Error: Hacking Attempt');
 
 if ($job == 'save_notes') {
+	$location = $gpc->get('location', str, 'admin.php?action=index');
 	$filesystem->file_put_contents('admin/data/notes.php', $gpc->get('notes', none));
-	header('Location: admin.php?action=index');
+	header('Location: '.$location);
 }
 else {
 	echo head();
@@ -51,7 +52,10 @@ else {
 		$tasks[] = '<li>'.$x1.' <a href="admin.php?action=db&job=backup">It is recommended to create a new backup of your database!</a></li>';
 	}
 	
+	$frontpage_content = '';
 	$webserver = get_webserver();
+	($code = $plugins->load('admin_start_tasks')) ? eval($code) : null;
+	
 	?>
 	 <table class="border">
 	  <tr> 
@@ -100,6 +104,7 @@ else {
 	  </tr>
 	 </table>
 	<br />
+	<?php echo $frontpage_content; ?>
 	<form action="admin.php?action=index&job=save_notes" method="post">
 	 <table class="border">
 	  <tr> 
@@ -158,6 +163,7 @@ else {
 		<option value="http://www.viscacha.org/">Home Page (viscacha.org)</option>
 		<option value="http://docs.viscacha.org/">Reference Manual</option>
 		<option value="http://files.viscacha.org/">Download Latest Version</option>
+		<option value="http://bugs.viscacha.org/">Bugtracker &amp; ToDo</option>
 		</optgroup>
 	</select>
 	</form>

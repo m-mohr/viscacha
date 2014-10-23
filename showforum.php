@@ -41,17 +41,18 @@ $my->p = $slog->Permissions($board);
 $my->pb = $slog->GlobalPermissions();
 $my->mp = $slog->ModPermissions($board);
 
-$fc = cache_cat_bid();
+$catbid = $scache->load('cat_bid');
+$fc = $catbid->get();
 if (empty($board) || !isset($fc[$board])) {
 	error($lang->phrase('query_string_error'));
 }
 $info = $fc[$board];
 
 if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) {
-	$modcp = TRUE;
+	$modcp = true;
 }
 else {
-	$modcp = FALSE;
+	$modcp = false;
 }
 
 $topforums = get_headboards($fc, $info);
@@ -62,11 +63,11 @@ forum_opt($info['opt'], $info['optvalue'], $info['id']);
 echo $tpl->parse("header");
 echo $tpl->parse("menu");
 
-$mymodules->load('showforum_top');
+($code = $plugins->load('showforum_forums_start')) ? eval($code) : null;
 
 $subforums = BoardSelect($board);
 
-$mymodules->load('showforum_middle');
+($code = $plugins->load('showforum_forums_end')) ? eval($code) : null;
 
 $filter = $gpc->get('sort', int);
 if ($filter == 2) {
@@ -99,25 +100,37 @@ else {
 	}
 }
 
+($code = $plugins->load('showforum_filer_query')) ? eval($code) : null;
+
 if (!empty($marksql)) {
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' ".$marksql,__LINE__,__FILE__);
-	$vlasttopics = $db->fetch_array($result);
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' {$marksql}",__LINE__,__FILE__);
+	$vlasttopics = $db->fetch_num($result);
 	$info['topics'] = $vlasttopics[0];
 }
 
-$pages = pages($info['topics'], 'forumzahl', 'showforum.php?id='.$board.'sort='.$_GET['sort'].'&amp;');
+if ($info['forumzahl'] < 1) {
+	$info['forumzahl'] = $config['forumzahl'];
+}
+$pages = pages($info['topics'], $info['forumzahl'], 'showforum.php?id='.$board.'sort='.$_GET['sort'].'&amp;', $_GET['page']);
+
 $inner['index_bit'] = '';
 if ($info['topics'] > 0) {
-	$start = $_GET['page']*$config['forumzahl'];
-	$start = $start-$config['forumzahl'];
+	$start = $_GET['page']*$info['forumzahl'];
+	$start = $start-$info['forumzahl'];
+	
+	($code = $plugins->load('showforum_query')) ? eval($code) : null;
 	$result = $db->query("
 	SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name 
-	FROM {$db->pre}topics WHERE board = '{$board}' $marksql
-	ORDER BY sticky DESC, last DESC LIMIT {$start}, ".$config['forumzahl']
-	,__LINE__,__FILE__);
+	FROM {$db->pre}topics 
+	WHERE board = '{$board}' {$marksql}
+	ORDER BY sticky DESC, last DESC 
+	LIMIT {$start}, {$info['forumzahl']}
+	",__LINE__,__FILE__);
 	
-	$prefix = cache_prefix($board);
-	$memberdata = cache_memberdata();
+	$prefix_obj = $scache->load('prefix');
+	$prefix = $prefix_obj->get($board);
+	$memberdata_obj = $scache->load('memberdata');
+	$memberdata = $memberdata_obj->get();
 
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$pref = '';
@@ -128,6 +141,8 @@ if ($info['topics'] > 0) {
 		else {
 			$prefix[$row->prefix] = '';
 		}
+		
+		$last = $fc[$row->board];
 		
 		if(is_id($row->name) && isset($memberdata[$row->name])) {
 			$row->mid = $row->name;
@@ -156,7 +171,8 @@ if ($info['topics'] > 0) {
 		elseif ($row->mark == 'g') {
 			$pref .= $lang->phrase('forum_mark_g');
 		}
-		elseif ($row->status == '2') {
+		
+		if ($row->status == '2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
 		elseif ($row->sticky == '1') {
@@ -185,16 +201,31 @@ if ($info['topics'] > 0) {
 				$src = $tpl->img('dir_open2');
 			}
 		}
+
+		if ($last['topiczahl'] < 1) {
+			$last['topiczahl'] = $config['topiczahl'];
+		}
+	
+		if ($row->posts > $last['topiczahl']) {
+			$topic_pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small');
+		}
+		else {
+			$topic_pages = '';
+		}
+		
+		($code = $plugins->load('showforum_entry_prepared')) ? eval($code) : null;
+		
 		$inner['index_bit'] .= $tpl->parse("showforum/index_bit");
 	}
 }
 else {
+	($code = $plugins->load('showforum_empty')) ? eval($code) : null;
 	$inner['index_bit'] .= $tpl->parse("showforum/index_bit_empty");
 }
 
+($code = $plugins->load('showforum_prepared')) ? eval($code) : null;
 echo $tpl->parse("showforum/index");
-
-$mymodules->load('showforum_bottom');
+($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

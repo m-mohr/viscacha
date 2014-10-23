@@ -56,11 +56,12 @@ lblFormat 						 += "<option value=\"<address>\">Address</option>";
 lblFormat 						 += "<option value=\"<pre>\">Preformatted</option>";
 // Font Dropdown
 var lblFont 					 =  "<option value=\"\" selected>Font</option>";
-lblFont 							 += "<option value=\"Arial, Helvetica, sans-serif\">Arial</option>";
-lblFont 							 += "<option value=\"Courier New, Courier, mono\">Courier New</option>";
-lblFont 							 += "<option value=\"Palatino Linotype\">Palatino Linotype</option>";
-lblFont 							 += "<option value=\"Times New Roman, Times, serif\">Times New Roman</option>";
-lblFont 							 += "<option value=\"Verdana, Arial, Helvetica, sans-serif\">Verdana</option>";
+lblFont 							 += "<option style=\"font-family: Arial\" value=\"Arial, Helvetica, sans-serif\">Arial</option>";
+lblFont 							 += "<option style=\"font-family: Comic Sans MS\" value=\"Comic Sans MS\">Comic Sans MS</option>";
+lblFont 							 += "<option style=\"font-family: Courier New\" value=\"Courier New, Courier, mono\">Courier New</option>";
+lblFont 							 += "<option style=\"font-family: Palatino Linotype\" value=\"Palatino Linotype\">Palatino Linotype</option>";
+lblFont 							 += "<option style=\"font-family: Times New Roman\" value=\"Times New Roman, Times, serif\">Times New Roman</option>";
+lblFont 							 += "<option style=\"font-family: Verdana\" value=\"Verdana, Arial, Helvetica, sans-serif\">Verdana</option>";
 // Size Dropdown
 var lblSize 					 =  "<option value=\"\">Size</option>";
 lblSize 							 += "<option value=\"1\">1</option>";

@@ -42,6 +42,7 @@ $nonadmin = '';
 if ($my->p['admin'] != 1) {
 	$nonadmin = "AND active = '1'";
 }
+($code = $plugins->load('docs_query')) ? eval($code) : null;
 $result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}' {$nonadmin} LIMIT 1");
 if ($db->num_rows() != 1) {
 	error($lang->phrase('docs_not_found'));
@@ -60,15 +61,27 @@ Inline:
 */
 
 if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
-	$memberdata = cache_memberdata();
+	$memberdata_obj = $scache->load('memberdata');
+	$memberdata = $memberdata_obj->get();
 	if(is_id($info['author']) && isset($memberdata[$info['author']])) {
 		$info['name'] = $memberdata[$info['author']];
 	}
 	else {
 		$info['name'] = $lang->phrase('fallback_no_username');
 	}
-	$info['date'] = str_date($lang->phrase('dformat1'), times($info['date']));
-	$info['update'] = str_date($lang->phrase('dformat1'), times($info['update']));
+	($code = $plugins->load('docs_prepare')) ? eval($code) : null;
+	if ($info['date'] > 0 ) {
+		$info['date'] = str_date($lang->phrase('dformat1'), times($info['date']));
+	}
+	else {
+		$info['date'] = $lang->phrase('docs_date_na');
+	}
+	if ($info['update'] > 0) {
+		$info['update'] = str_date($lang->phrase('dformat1'), times($info['update']));
+	}
+	else {
+		$info['date'] = $lang->phrase('docs_date_na');
+	}
 	$type = doctypes();
 	if (isset($type[$info['type']])) {
 		$typedata = $type[$info['type']];
@@ -90,6 +103,7 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 		$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
 		$breadcrumb->Add($info['title']);
 		echo $tpl->parse("header");
+		($code = $plugins->load('docs_body_start')) ? eval($code) : null;
 		if (empty($typedata['template'])) {
 			echo $info['content'];
 		}
@@ -101,6 +115,7 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 		if (empty($info['content'])) {
 			$info['content'] = @file_get_contents($info['file']);
 		}
+		($code = $plugins->load('docs_html_start')) ? eval($code) : null;
 		if (empty($typedata['template'])) {
 			preg_match("~<body([^>]+?)>~is", $info['content'], $match_body_attr);
 			preg_match("~<title>(.+?)</title>~is", $info['content'], $match_title);
@@ -122,17 +137,19 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 				$info['content'] = $match_body[1];
 			}
 			echo $tpl->parse("header");
+			($code = $plugins->load('docs_html_parser_prepared')) ? eval($code) : null;
 			echo DocCodeParser($info['content'], $typedata['parser']);
 		}
 		else {
 			$breadcrumb->Add($info['title']);
 			$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
 			echo $tpl->parse("header");
+			($code = $plugins->load('docs_html_template_prepared')) ? eval($code) : null;
 			echo $tpl->parse("docs/{$typedata['template']}");
 		}
 
 	}
-	$mymodules->load('docs_bottom');
+	($code = $plugins->load('docs_end')) ? eval($code) : null;
 }
 else {
 	errorLogin();

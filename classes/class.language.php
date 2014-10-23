@@ -137,7 +137,9 @@ class lang {
 		if ($type == '%') {
 			$keys = explode('->',$key);
 			if (isset($this->assign[$keys[0]]->$keys[1])) {
-				return $this->assign[$keys[0]]->$keys[1];
+				$var = $this->assign[$keys[0]]->$keys[1];
+				unset($this->assign[$keys[0]]->$keys[1]);
+				return $var;
 			}
 			elseif(isset($GLOBALS[$keys[0]]->$keys[1])) {
 				return $GLOBALS[$keys[0]]->$keys[1];
@@ -147,7 +149,9 @@ class lang {
 			$keys = explode('->',$key);
 			if (isset($keys[2])) {
 				if (isset($this->assign[$keys[0]][$keys[1]][$keys[2]])) {
-					return $this->assign[$keys[0]][$keys[1]][$keys[2]];
+					$var = $this->assign[$keys[0]][$keys[1]][$keys[2]];
+					unset($this->assign[$keys[0]][$keys[1]][$keys[2]]);
+					return $var;
 				}
 				elseif(isset($GLOBALS[$keys[0]][$keys[1][$keys[2]]])) {
 					return $GLOBALS[$keys[0]][$keys[1]][$keys[2]];
@@ -155,7 +159,9 @@ class lang {
 			}
 			else {
 				if (isset($this->assign[$keys[0]][$keys[1]])) {
-					return $this->assign[$keys[0]][$keys[1]];
+					$var = $this->assign[$keys[0]][$keys[1]];
+					unset($this->assign[$keys[0]][$keys[1]]);
+					return $var;
 				}
 				elseif(isset($GLOBALS[$keys[0]][$keys[1]])) {
 					return $GLOBALS[$keys[0]][$keys[1]];
@@ -164,7 +170,9 @@ class lang {
 		}
 		else {
 			if (isset($this->assign[$key])) {
-				return $this->assign[$key];
+				$var = $this->assign[$key];
+				unset($this->assign[$key]);
+				return $var;
 			}
 			elseif(isset($GLOBALS[$key])) {
 				return $GLOBALS[$key];
@@ -188,9 +196,14 @@ class lang {
 	
 	function setdir($dirv) {
 		global $config;
-		$dir = $config['fpath']."/language/$dirv";
+		if (is_dir($config['fpath'])) {
+			$dir = "{$config['fpath']}/language/{$dirv}";
+		}
+		else {
+			$dir = "language/{$dirv}";
+		}
 		$dir = realpath($dir);
-		if (is_dir($dir)) {
+		if (file_exists($dir)) {
 			$this->dirid = $dirv;
 			$this->dir = $dir;
 			return true;

@@ -1,12 +1,12 @@
-<form name="form2" method="post" action="managemembers.php?action=edit2&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>">
+<form name="form_<?php echo $random; ?>" method="post" action="managemembers.php?action=edit2&amp;random=<?php echo $random; ?>&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>">
 <div class="border">
 <h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_profile'); ?></h3>
 <div class="bbody">
-<label for="name"><?php echo $lang->phrase('editprofile_name'); ?></label>
-<input type="text" name="name" id="name" class="label" size="40" value="<?php echo $user['name']; ?>" />
+<label for="name_<?php echo $random; ?>"><?php echo $lang->phrase('editprofile_name'); ?></label>
+<input type="text" name="name_<?php echo $random; ?>" id="name_<?php echo $random; ?>" class="label" size="40" value="<?php echo $user['name']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<label for="pw"><?php echo $lang->phrase('editprofile_pw_new'); ?></label>
-<input type="password" name="pw" id="pw" class="label" size="40" value="" />
+<label for="pw_<?php echo $random; ?>"><?php echo $lang->phrase('editprofile_pw_new'); ?></label>
+<input type="password" name="pw_<?php echo $random; ?>" id="pw_<?php echo $random; ?>" class="label" size="40" value="" />
 <br class="newinput" /><hr class="formsep" />
 <label for="groups">
 <img id="img_mmeg" name="collapse" src="<?php echo $tpl->img('minus'); ?>" alt="" />
@@ -91,6 +91,13 @@
 <br class="newinput" /><hr class="formsep" />
 <label for="jabber"><?php echo $lang->phrase('editprofile_jabber'); ?></label> 
 <input type="text" name="jabber" id="jabber" class="label" size="40" value="<?php echo $user['jabber']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="skype"><?php echo $lang->phrase('editprofile_skype'); ?></label> 
+<input type="text" name="skype" id="skype" class="label" size="40" value="<?php echo $user['skype']; ?>" />
+<?php foreach ($customfields['1'] as $row1) { ?>
+<br class="newinput" /><hr class="formsep" />
+  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label> 
+  <?php echo $row1['input']; } ?>
 <br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
@@ -192,6 +199,14 @@
 	<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?></option>
 	<?php } ?>
 </select>
+<?php foreach ($customfields['2'] as $row1) { ?>
+<br class="newinput" /><hr class="formsep" />
+  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label> 
+<?php echo $row1['input']; } ?>
+<?php foreach ($customfields['0'] as $row1) { ?>
+<br class="newinput" /><hr class="formsep" />
+  <label for="<?php echo $row1['field']; ?>"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label> 
+  <?php echo $row1['input']; } ?>
 <br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
@@ -205,7 +220,7 @@
 	<?php echo $inner['bbhtml']; ?>
 	<br class="newinput" /><hr class="formsep" />
 	<label for="comment"></label> 
-	<textarea class="label" name="comment" id="comment" rows="20" cols="65"><?php echo $user['about']; ?></textarea>
+	<textarea class="label" name="comment" id="comment" rows="20" cols="80"><?php echo $user['about']; ?></textarea>
 	<br class="newinput" /><br class="iefix_br" />
 </div>	 
 <div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>

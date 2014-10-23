@@ -268,6 +268,9 @@ foreach ($empty_svars as $key) {
 }
 
 if (empty($_SERVER['DOCUMENT_ROOT'])) {
-	$_SERVER['DOCUMENT_ROOT'] = $config['fpath'];
+	$_SERVER['DOCUMENT_ROOT'] = getDocumentRoot();
+	if (empty($_SERVER['DOCUMENT_ROOT'])) {
+		$_SERVER['DOCUMENT_ROOT'] = $config['fpath'];
+	}
 }
 ?>

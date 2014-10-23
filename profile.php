@@ -41,7 +41,9 @@ $is_member = false;
 $url_ext = '';
 $guest = $gpc->get('guest', int);
 
-$memberdata = cache_memberdata();
+$memberdata_obj = $scache->load('memberdata');
+$memberdata = $memberdata_obj->get();
+
 if (isset($memberdata[$_GET['id']])) {
 	$username = $memberdata[$_GET['id']];
 }
@@ -54,7 +56,7 @@ if ($my->p['profile'] != 1) {
 }
 
 if ($guest > 0) {
-	$result = $db->query('SELECT email, name FROM '.$db->pre.'replies WHERE id = "'.$guest.'" AND email != "" LIMIT 1');
+	$result = $db->query("SELECT email, name, guest FROM {$db->pre}replies WHERE id = '{$guest}' AND guest = '1' LIMIT 1");
 	$guest_data = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 1) {
 		$is_guest = true;
@@ -73,6 +75,7 @@ if (isset($memberdata[$_GET['id']])) {
 	$is_member = true;
 }
 
+($code = $plugins->load('profile_start')) ? eval($code) : null;
 
 $breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
 $breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
@@ -80,7 +83,13 @@ $breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$
 if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$my->vlogin && $config['vcard_dl_guests'] == 1) || $my->vlogin)) {
 	require ("classes/class.vCard.inc.php");
 
-	$result = $db->query("SELECT id, name, mail, hp, birthday, location, fullname, groups FROM {$db->pre}user WHERE id = ".$_GET['id'],__LINE__,__FILE__);
+	($code = $plugins->load('profile_vcard_start')) ? eval($code) : null;
+
+	$result = $db->query("
+	SELECT id, name, mail, hp, birthday, location, fullname, groups 
+	FROM {$db->pre}user 
+	WHERE id = '{$_GET['id']}'
+	",__LINE__,__FILE__);
 	$row = $gpc->prepare($db->fetch_object($result));
 	$row->level = $slog->getStatus($row->groups, ', ');
 	
@@ -115,11 +124,14 @@ if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$
 	}
 		
 	$filename = $row->id . '.vcf';
+	
+	($code = $plugins->load('profile_vcard_prepared')) ? eval($code) : null;
 	$text = $vCard->getCardOutput();
 	viscacha_header("Content-Disposition: attachment; filename=$filename");
 	viscacha_header('Content-Length: '. strlen($text));
 	viscacha_header("Content-Type: text/x-vcard; name=$filename");
 	echo $text;
+	$db->close();
 	exit();
 }
 elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
@@ -129,7 +141,7 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 
 	if ($my->vlogin && $row->opt_hidemail != 1) {
 		if ($_GET['action'] == 'sendmail') {
-		
+
 			$error = array();
 			if (flood_protect() == FALSE) {
 				$error[] = $lang->phrase('flood_control');
@@ -146,11 +158,13 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 			if (strxlen($_POST['topic']) < $config['mintitlelength']) {
 				$error[] = $lang->phrase('title_too_short');
 			}
+			($code = $plugins->load('profile_mail_errorhandling')) ? eval($code) : null;
 			if (count($error) > 0) {
 				$data = array(
 					'topic' => $_POST['topic'],
 					'comment' => $_POST['comment']
 				);
+				($code = $plugins->load('profile_mail_errordata')) ? eval($code) : null;
 				$fid = save_error_data($data);
 				error($error,"profile.php?action=mail&amp;id={$_GET['id']}&amp;fid=".$fid.SID2URL_x);
 			}
@@ -180,9 +194,9 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 				);
 			}
 			echo $tpl->parse("header");
-			$mymodules->load('profile_mail_top');
+			($code = $plugins->load('profile_mail_prepared')) ? eval($code) : null;
 			echo $tpl->parse("profile/mail");
-			$mymodules->load('profile_mail_bottom');
+			($code = $plugins->load('profile_mail_end')) ? eval($code) : null;
 			
 		}
 	}
@@ -225,21 +239,32 @@ elseif ($_GET['action'] == "sendjabber" && $is_member) {
 }
 elseif ($_GET['action'] == "ims" && $is_member) {
 	$error = array();
-	if ($_GET['type'] == 'icq' || $_GET['type'] == 'aol' || $_GET['type'] == 'yahoo' || $_GET['type'] == 'msn' || $_GET['type'] == 'jabber') {
+	if ($my->p['profile'] == 0) {
+		$error[] = $lang->phrase('not_allowed');
+	}
+	
+	$sqlfields = '';
+	
+	($code = $plugins->load('profile_ims_start')) ? eval($code) : null;
+	
+	if ($_GET['type'] == 'icq' || $_GET['type'] == 'aol' || $_GET['type'] == 'yahoo' || $_GET['type'] == 'msn' || $_GET['type'] == 'jabber' || $_GET['type'] == 'skype') {
 		$imtext = $lang->phrase('im_'.$_GET['type']);
 	}
 	else {
 		$error[] = $lang->phrase('query_string_error');
 	}
-	if ($my->p['profile'] == 0) {
-		$error[] = $lang->phrase('not_allowed');
-	}
-		
-	$result = $db->query('SELECT id, name, icq, aol, yahoo, msn, jabber FROM '.$db->pre.'user WHERE id = "'.$_GET['id'].'"',__LINE__,__FILE__);
+
+	$result = $db->query('
+	SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} 
+	FROM '.$db->pre.'user 
+	WHERE id = "'.$_GET['id'].'"
+	',__LINE__,__FILE__);
+	
 	$row = $gpc->prepare($db->fetch_assoc($result));
 	if ($row[$_GET['type']] == NULL || $row[$_GET['type']] == '') {
 		$error[] = $lang->phrase('im_no_data');
 	}
+	
 	if (count($error) > 0) {
 		errorLogin($error, 'profile.php?id='.$_GET['id'].SID2URL_x);
 	}
@@ -252,29 +277,24 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 		echo $tpl->parse("menu");
 		include("classes/class.imstatus.php");
 		$imstatus = new IMStatus();
-		if ($t == 'aol') {
-			$status = $imstatus->aim($d);
-		}
-		else {
-			$status = $imstatus->$t($d);
-		}
+		$status = $imstatus->$t($d);
 		if ($status) {
 			$imstatus = $lang->phrase('im_status_'.$status);	
 		}
 		else {
 			$imstatus = $lang->phrase('im_no_connection').'<!-- Error #'.$imstatus->error(IM_ERRNO).' occurred during query: '.$imstatus->error(IM_ERRSTR).' -->';
 		}
+		($code = $plugins->load('profile_ims_prepared')) ? eval($code) : null;
 		echo $tpl->parse("profile/ims");
-		$mymodules->load('profile_ims_bottom');
+		($code = $plugins->load('profile_ims_start')) ? eval($code) : null;
 	}
 }
 elseif ($_GET['action'] == 'emailimage' && $is_guest) {
-	if (headers_sent()) exit;
+	if (headers_sent()) {
+		exit;
+	}
 	include('classes/graphic/class.text2image.php');
 	$img = new text2image();
-	if (!isset($_REQUEST['angle'])) {
-		$_REQUEST['angle'] = 0;
-	}
 	$img->prepare($email, 0, 10, 'classes/fonts/trebuchet.ttf');
 	$img->build();
 	$img->output();
@@ -285,16 +305,25 @@ elseif ($is_guest) {
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	$group = 'fallback_no_username';
+	($code = $plugins->load('profile_guest_prepared')) ? eval($code) : null;
 	echo $tpl->parse("profile/guest");
 }
 elseif ($is_member) {
-	$result=$db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$_GET['id'],__LINE__,__FILE__);
+	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
+
+	$result = $db->query("
+	SELECT u.*, f.* 
+	FROM {$db->pre}user AS u 
+		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
+	WHERE id = {$_GET['id']} 
+	LIMIT 1
+	",__LINE__,__FILE__);
+	
 	if ($db->num_rows($result) == 1) {
 		$row = $gpc->prepare($db->fetch_object($result));
 	
 		if ($config['showpostcounter']) {
-			$sql='SELECT COUNT(name) FROM '.$db->pre.'replies WHERE name = "'.$_GET['id'].'"'; // etwas ungenau, aber noch recht schnell
-			$anz= $db->fetch_array($db->query($sql,__LINE__,__FILE__));
+			$anz= $db->fetch_num($db->query('SELECT COUNT(name) FROM '.$db->pre.'replies WHERE name = "'.$_GET['id'].'"',__LINE__,__FILE__)); // etwas ungenau, aber noch recht schnell
 			
 			$days2 = $anz[0] / ((times() - $row->regdate) / 86400);
 			$days2 = sprintf("%01.2f", $days2);
@@ -315,19 +344,17 @@ elseif ($is_member) {
 		
 		$vcard = ($config['vcard_dl'] == 1 && ((!$my->vlogin && $config['vcard_dl_guests'] == 1) || $my->vlogin));
 			
-		$bbcode = initBBCodes(TRUE);
-			
-		$bbcode->setProfile();
+		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
 		$bbcode->setReplace(0);
 		$bbcode->setAuthor($row->id);
 		$row->about = $bbcode->parse($row->about);
 		
-		$bbcode->setProfile('signature');
+		BBProfile($bbcode, 'signature');
 		$row->signature = $bbcode->parse($row->signature);
 		
 		// Set the instant-messengers
-		if ($row->jabber || $row->icq > 0 || $row->aol || $row->msn || $row->yahoo) {
+		if ($row->jabber || $row->icq > 0 || $row->aol || $row->msn || $row->yahoo || $row->skype) {
 			$imanz = 1;
 		}
 		else {
@@ -361,7 +388,7 @@ elseif ($is_member) {
 		$vcarddl = '';
 		if ($config['osi_profile'] == 1) {
 			$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id'],__LINE__,__FILE__);
-			$wwo = $db->fetch_array($result);
+			$wwo = $db->fetch_num($result);
 			if ($wwo[0] > 0) {
 				$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
 				$osi = 1;
@@ -370,19 +397,123 @@ elseif ($is_member) {
 				$osi = 0;
 			}
 		}
-		$mymodules->load('profile_top');
-		echo $tpl->parse("profile/index");
-		$mymodules->load('profile_bottom');
 
+		// Custom Profile Fields
+		$customfields = array('1' => array(), '2' => array(), '3' => array());
+		$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE viewable != '0' ORDER BY disporder");
+		while($profilefield = $db->fetch_assoc($query)) {
+			$select = array();
+			$thing = explode("\n", $profilefield['type'], 2);
+			$type = $thing[0];
+			if (!isset($thing[1])) {
+				$options = '';
+			}
+			else {
+				$options = $thing[1];
+			}
+			$field = "fid{$profilefield['fid']}";
+			if($type == "multiselect") {
+				$useropts = @explode("\n", $row->$field);
+				while(list($key, $val) = each($useropts)) {
+					$seloptions[$val] = $val;
+				}
+				$expoptions = explode("\n", $options);
+				if(is_array($expoptions)) {
+					while(list($key, $val) = each($expoptions)) {
+						list($key, $val) = explode('=', $val, 2);
+						if(isset($seloptions[$key]) && $key == $seloptions[$key]) {
+							$select[] = trim($val);
+						}
+					}
+					$code = implode(', ', $select);
+				}
+			}
+			elseif($type == "select") {
+				$expoptions = explode("\n", $options);
+				if(is_array($expoptions)) {
+					while(list($key, $val) = each($expoptions)) {
+						list($key, $val) = explode('=', $val, 2);
+						if ($key == $row->$field) {
+							$code = trim($val);
+						}
+					}
+				}
+			}
+			elseif($type == "radio") {
+				$expoptions = explode("\n", $options);
+				if(is_array($expoptions)) {
+					while(list($key, $val) = each($expoptions)) {
+						list($key, $val) = explode('=', $val, 2);
+						if ($key == $row->$field) {
+							$code = trim($val);
+						}
+					}
+				}
+			}
+			elseif($type == "checkbox") {
+				$useropts = @explode("\n", $row->$field);
+				while(list($key, $val) = each($useropts)) {
+					$seloptions[$val] = $val;
+				}
+				$expoptions = explode("\n", $options);
+				if(is_array($expoptions)) {
+					while(list($key, $val) = each($expoptions)) {
+						list($key, $val) = explode('=', $val, 2);
+						if (isset($seloptions[$key]) && $key == $seloptions[$key]) {
+							$select[] = trim($val);
+						}
+					}
+					$code = implode(', ', $select);
+				}
+			}
+			elseif($type == "textarea") {
+				$code = nl2br($row->$field);
+			}
+			else {
+				$code = $row->$field;
+			}
+			if (empty($code)) {
+				$code = $lang->phrase('profile_na');
+			}
+			$customfields[$profilefield['viewable']][] = array(
+				'value' => $code,
+				'name' => $profilefield['name'],
+				'description' => $profilefield['description'],
+				'maxlength' => $profilefield['maxlength']
+			);
+			unset($code, $select, $val, $options, $expoptions, $useropts, $seloptions);
+		}
+		
+		if ($config['memberrating'] == 1) {
+			$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE aid = '{$row->id}'");
+			$ratings = array();
+			while ($dat = $db->fetch_assoc($result)) {
+				$ratings[] = $dat['rating'];
+			}
+			$ratingcounter = count($ratings);
+			if ($ratingcounter> 0 && $ratingcounter >= $config['memberrating_counter']) {
+				$row->rating = round(array_sum($ratings)/$ratingcounter*50)+50;
+			}
+			else {
+				$row->rating = $lang->phrase('profile_na');
+			}
+		}
+
+		($code = $plugins->load('profile_member_prepared')) ? eval($code) : null;
+		echo $tpl->parse("profile/index");
+		($code = $plugins->load('profile_member_end')) ? eval($code) : null;
 	}
 	else {
 		$group = 'fallback_no_username_group';
+		($code = $plugins->load('profile_member_fallback')) ? eval($code) : null;
 		echo $tpl->parse("profile/guest");
 	}
 }
 else {
 	viscacha_header('Location: members.php');
 }
+
+($code = $plugins->load('profile_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

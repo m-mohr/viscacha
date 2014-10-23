@@ -30,11 +30,9 @@ if (!defined('MAGPIE_DIR')) {
 require_once( MAGPIE_DIR . 'rss_parse.inc.php' );
 require_once( MAGPIE_DIR . 'rss_cache.inc.php' );
 
-// for including 3rd party libraries
-define('MAGPIE_EXTLIB', MAGPIE_DIR . 'extlib' . DIR_SEP);
-require_once( MAGPIE_EXTLIB . 'Snoopy.class.inc.php');
-require_once( MAGPIE_EXTLIB . 'sqlcache.inc.php');
-
+require_once(extract_dir(MAGPIE_DIR) . 'class.snoopy.php');
+$grabrss = $scache->load('grabrss');
+$grabrss_cache = $grabrss->get();
 
 /* 
  * CONSTANTS - redefine these in your script to change the
@@ -159,7 +157,7 @@ function fetch_rss ($url, $maxage = 3600) {
         
         // setup headers
         if ( $cache_status == 'STALE' ) {
-            $rss = $cache->get( $url );
+            $rss = $cache->get( $cache_key );
             if (isset($rss->etag) && isset($rss->last_modified) && $rss->etag && $rss->last_modified) {
                 $request_headers['If-None-Match'] = $rss->etag;
                 $request_headers['If-Last-Modified'] = $rss->last_modified;
@@ -242,6 +240,7 @@ function error2 ($errormsg, $lvl=E_USER_WARNING) {
         if ( $errormsg ) {
             $errormsg = "MagpieRSS: $errormsg";
             $MAGPIE_ERROR = $errormsg;         
+            trigger_error( $errormsg, $lvl);                
         }
 }
 function debug ($debugmsg, $lvl=E_USER_NOTICE) {
@@ -378,7 +377,7 @@ function init () {
     }
     
     if ( !defined('MAGPIE_USER_AGENT') ) {
-        $ua = 'Viscacha (+http://www.mamo-net.de; MagpieRSS)'; 
+        $ua = 'Viscacha (+http://www.viscacha.org; MagpieRSS)'; 
         define('MAGPIE_USER_AGENT', $ua);
     }
     

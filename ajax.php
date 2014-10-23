@@ -39,7 +39,9 @@ $my->p = $slog->Permissions();
 $action = $gpc->get('action', str);
 
 viscacha_header("Content-type: text/plain");
-viscacha_header("Cache-Control: no-store, no-cache");
+send_nocache_header();
+
+($code = $plugins->load('ajax_start')) ? eval($code) : null;
 
 // Schliesst oder oeffnet einen Beitrag mittels AJAX
 if ($action == 'openclosethread') {
@@ -146,6 +148,8 @@ elseif ($action == 'search') {
 		echo 1;
 	}
 }
+
+($code = $plugins->load('ajax_end')) ? eval($code) : null;
 
 $phpdoc->Out(0);
 $db->close();

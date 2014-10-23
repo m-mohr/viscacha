@@ -21,7 +21,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define("FEEDCREATOR_VERSION", "Viscacha BoardCMS ".$config['version']." - FeedCreator 1.7.2");
+define("FEEDCREATOR_VERSION", "Viscacha ".$config['version']." - FeedCreator 1.7.x");
 
 
 
@@ -66,6 +66,14 @@ class FeedItem extends HtmlDescribable {
 	 * the FeedCreator class used.
 	 */
 	var $additionalElements = Array();
+
+	// Added by Joseph LeBlanc, contact@jlleblanc.com
+	var $enclosures = Array();
+	function addEnclosure($url, $length = 0, $type)
+	{
+		$this->enclosures[] = array("url" => $url, "length" => $length, "type" => $type);
+	}
+	// end add, Joseph LeBlanc
 
 	// on hold
 	// var $source;
@@ -508,7 +516,7 @@ class FeedCreator extends HtmlDescribable {
 		if ($filename=="") {
 			$filename = $this->_generateFilename();
 		}
-		$feedFile = fopen($filename, "w+");
+		$feedFile = fopen($filename, "w");
 		if ($feedFile) {
 			fputs($feedFile,$this->createFeed());
 			fclose($feedFile);
@@ -597,8 +605,12 @@ class FeedDate {
 	 * @return a date in ISO 8601 format
 	 */
 	function iso8601() {
-		$date = date("Y-m-d\TH:i:sO",$this->unix);
-		return $date;
+	  	//$int_date: current date in UNIX timestamp
+	   	$date_mod = date('Y-m-d\TH:i:s', $this->unix);
+	   	$pre_timezone = date('O', $this->unix);
+	   	$time_zone = substr($pre_timezone, 0, 3).":".substr($pre_timezone, 3, 2);
+	   	$date_mod .= $time_zone;
+	   	return $date_mod;
 	}
 	
 	/**

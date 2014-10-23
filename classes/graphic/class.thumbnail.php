@@ -36,40 +36,11 @@ function thumbnail () {
 }
 
 function create_error($text) {
-
-	$text = $text;
-	$size = "8";
-	$font = "classes/fonts/trebuchet.ttf";
-	
-	$TextBoxSize = imagettfbbox ($size, 0, $font, preg_replace("/\[br\]/is","\r\n",$text));
-	
-	$TxtBx_Lwr_L_x = $TextBoxSize[0];
-	$TxtBx_Lwr_L_y = $TextBoxSize[1];
-	$TxtBx_Lwr_R_x = $TextBoxSize[2];
-	$TxtBx_Lwr_R_y = $TextBoxSize[3];
-	$TxtBx_Upr_R_x = $TextBoxSize[4];
-	$TxtBx_Upr_R_y = $TextBoxSize[5];
-	$TxtBx_Upr_L_x = $TextBoxSize[6];
-	$TxtBx_Upr_L_y = $TextBoxSize[7];
-	$width = max($TxtBx_Lwr_R_x, $TxtBx_Upr_R_x) - min($TxtBx_Lwr_L_x, $TxtBx_Upr_L_x);
-	$height = max($TxtBx_Lwr_L_y, $TxtBx_Lwr_R_y) - min($TxtBx_Upr_R_y, $TxtBx_Upr_L_y);
-	$x = -(min($TxtBx_Upr_L_x, $TxtBx_Lwr_L_x));
-	$y = -(min($TxtBx_Upr_R_y, $TxtBx_Upr_L_y));
-	
-	$img = imagecreate($width+2,$height+1);
-	// Only PHP-Version 4.3.2 or higher
-	if (function_exists('imageantialias')) {
-		imageantialias($img,FALSE);
-	}
-	$white = imagecolorallocate ($img, 255, 255, 255);
-	$black = imagecolorallocate ($img, 0, 0, 0);
-	imagecolortransparent($img, $white);
-	
-	ImageTTFText ($img, $size, 0, $x, $y, $black, $font, preg_replace("/<br>/is","\r\n",$text));
-	
-	header("Content-Type: image/png");
-	ImagePNG($img);
-	ImageDestroy($img);
+	require('classes/graphic/class.text2image.php');
+	$img = new text2image();
+	$img->prepare(preg_replace("/<br>/is","\r\n",$text), 0, 8, '../fonts/trebuchet.ttf');
+	$img->build(4);
+	$img->output();
 	exit;
 }
 
@@ -87,15 +58,15 @@ function create_image(&$image) {
 	
 		imageinterlace ($image, 0);
 		if ($type == 'gif' AND IMAGEGIF) {
-			imagegif($image, $this->path, 60);
+			imagegif($image, $this->path);
 			imagedestroy($image);
 		}
 		elseif (($type == 'png' OR $type == 'gif') AND IMAGEPNG) {
-			imagepng($image, $this->path, 60);
+			imagepng($image, $this->path);
 			imagedestroy($image);
 		}
 		elseif (IMAGEJPEG) {
-			imagejpeg($image, $this->path, 60);
+			imagejpeg($image, $this->path, 70);
 			imagedestroy($image);
 		}
 		else {
@@ -122,7 +93,7 @@ function create_thumbnail($attachment) {
 			switch($imageinfo[2]) {
 				case 1:
 					if (!(function_exists('imagecreatefromgif') AND $image = @imagecreatefromgif($attachment))) {
-						$this->create_error($this->lang['tne__giferror']);
+						$this->create_error($this->lang['tne_giferror']);
 					}
 					break;
 				case 2:

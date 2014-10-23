@@ -27,8 +27,8 @@ error_reporting(E_ALL);
 DEFINE('SCRIPTNAME', 'log');
 DEFINE('TEMPSHOWLOG', 1);
 
-include ("data/config.inc.php");
-include ("classes/function.viscacha_frontend.php");
+include("data/config.inc.php");
+include("classes/function.viscacha_frontend.php");
 
 $zeitmessung1 = t1();
 
@@ -38,97 +38,153 @@ $lang->init($my->language);
 $tpl = new tpl();
 $my->p = $slog->Permissions();
 
+($code = $plugins->load('log_start')) ? eval($code) : null;
+
 if ($_GET['action'] == "login2") {
+	$remember = $gpc->get('remember', int, 1);
+	$loc = strip_tags($gpc->get('redirect', none, 'index.php'.SID2URL_1));
+	$file = basefilename($loc);
+	if ($file == 'log.php') {
+		$loc = 'index.php'.SID2URL_1;
+	}
 
-    $loc = strip_tags($gpc->get('location', none, 'index.php'.SID2URL_1));
-    $file = basename($loc);
-    if ($file = 'log.php') {
-    	$loc = 'index.php'.SID2URL_1;
-    }
+	if ($my->vlogin) {
+		viscacha_header($loc);
+	}
 
-    if ($my->vlogin) {
-        viscacha_header($loc);
-    }
-
-    if (!$slog->sid_login()) {
-		error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;location=".urlencode($loc).SID2URL_x);
-    }
-    else {
-        ok($lang->phrase('log_msglogin'), $loc);
-    }
-    
+	if ($remember == 1) {
+		$remember = true;
+	}
+	else {
+		$remember = false;
+	}
+	
+	($code = $plugins->load('log_login2')) ? eval($code) : null;
+	
+	$log_status = $slog->sid_login($remember);
+	if (!$log_status) {
+		error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;redirect=".urlencode($loc).SID2URL_x);
+	}
+	else {
+		ok($lang->phrase('log_msglogin'), $loc);
+	}
 }
 elseif ($_GET['action'] == "logout") {
 
-    if (!$my->vlogin) {
-    	viscacha_header('Location: log.php');
-    }
-    else {
-        $slog->sid_logout();
-        $loc = strip_tags($gpc->get('location', none, 'index.php'.SID2URL_1));
-	    $file = basename($loc);
-	    if ($file = 'log.php') {
-	    	$loc = 'index.php'.SID2URL_1;
-	    }
-        ok($lang->phrase('log_msglogout'), $loc);
-    }
+	if (!$my->vlogin) {
+		viscacha_header('Location: log.php');
+	}
+	else {
+		$loc = strip_tags($gpc->get('redirect', none, 'index.php'.SID2URL_1));
+		$file = basefilename($loc);
+		if ($file == 'log.php') {
+			$loc = 'index.php'.SID2URL_1;
+		}
+		($code = $plugins->load('log_logout')) ? eval($code) : null;
+		$slog->sid_logout();
+
+		ok($lang->phrase('log_msglogout'), $loc);
+	}
 
 }
 elseif ($_GET['action'] == "pwremind") {
-    if ($my->vlogin) {
-        error($lang->phrase('log_already_logged'));
-    }
-    $breadcrumb->Add($lang->phrase('log_pwremind_title'));
+	if ($my->vlogin) {
+		error($lang->phrase('log_already_logged'));
+	}
+	$breadcrumb->Add($lang->phrase('log_pwremind_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
+	($code = $plugins->load('log_pwremind_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/pwremind");
+	($code = $plugins->load('log_pwremind_form_end')) ? eval($code) : null;
 	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind2") {
-	if (flood_protect() == FALSE) {
+	if (flood_protect() == false) {
 		error($lang->phrase('flood_control'),'log.php?action=login'.SID2URL_x);
 	}
 	set_flood();
+	
+	($code = $plugins->load('log_pwremind2_start')) ? eval($code) : null;
 
-    $result=$db->query('SELECT id FROM '.$db->pre.'user WHERE name="'.$_POST['name'].'" AND mail="'.$_POST['email'].'" LIMIT 1',__LINE__,__FILE__);
-    $user=$db->fetch_array($result);
-    if ($db->num_rows($result) != 1) {
+	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' LIMIT 1",__LINE__,__FILE__);
+	
+	$user = $db->fetch_assoc($result);
+	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
-    }
+	}
 	else {
-		$pw = random_word();
+
+		$confirmcode = md5($config['cryptkey'].$user['pw']);
+
+		($code = $plugins->load('log_pwremind2_prepare')) ? eval($code) : null;
 		
 		$data = $lang->get_mail('pwremind');
-		$to = array('0' => array('name' => $_POST['name'], 'mail' => $_POST['email']));
+		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
 		$from = array();
 		xmail($to, $from, $data['title'], $data['comment']);
 
-		$db->query("UPDATE {$db->pre}user SET pw = MD5('".$pw."') WHERE id = '".$user['id']."' LIMIT 1",__LINE__,__FILE__);
+		($code = $plugins->load('log_pwremind2_end')) ? eval($code) : null;
+		
 		ok($lang->phrase('log_pwremind_success'), "log.php?action=login".SID2URL_x);
 	}
 	$slog->updatelogged();
 }
+elseif ($_GET['action'] == "pwremind3") {
+	if (flood_protect() == false) {
+		error($lang->phrase('flood_control'),'log.php?action=login'.SID2URL_x);
+	}
+	set_flood();
+
+	($code = $plugins->load('log_pwremind3_start')) ? eval($code) : null;
+
+	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+	$user = $db->fetch_assoc($result);
+	
+	$confirmcode = md5($config['cryptkey'].$user['pw']);
+	if ($confirmcode == $_GET['fid']) {
+	
+		$pw = random_word();
+		$md5 = md5($pw);
+		$db->query("UPDATE {$db->pre}user SET pw = '{$md5}' WHERE id = '{$user['id']}' LIMIT 1",__LINE__,__FILE__);
+
+		$data = $lang->get_mail('pwremind2');
+		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
+		$from = array();
+		xmail($to, $from, $data['title'], $data['comment']);
+		
+		($code = $plugins->load('log_pwremind3_success')) ? eval($code) : null;
+		ok($lang->phrase('log_pwremind_changed'), "log.php?action=login".SID2URL_x);
+	}
+	else {
+		($code = $plugins->load('log_pwremind3_failed')) ? eval($code) : null;
+		error($lang->phrase('log_pwremind_wrong_code'), "log.php?action=pwremind".SID2URL_x);
+	}
+}
 else {
 	if ($my->vlogin) {
-    	error($lang->phrase('log_already_logged'));
-    }
-    $breadcrumb->Add($lang->phrase('log_title'));
-    echo $tpl->parse("header");
-    echo $tpl->parse("menu");
-    
-    $loc = htmlspecialchars($gpc->get('location', none));
-    if (empty($loc)) {
-        if (!empty($_SERVER['HTTP_REFERER'])) {
-            $url = parse_url($_SERVER['HTTP_REFERER']);
-            if (strpos($config['furl'], $url['host']) !== FALSE) {
-                $loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
-            }
-        }
-    }
-    
+		error($lang->phrase('log_already_logged'));
+	}
+	$breadcrumb->Add($lang->phrase('log_title'));
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
+	
+	$loc = htmlspecialchars($gpc->get('redirect', none));
+	if (empty($loc)) {
+		if (!empty($_SERVER['HTTP_REFERER'])) {
+			$url = parse_url($_SERVER['HTTP_REFERER']);
+			if (strpos($config['furl'], $url['host']) !== FALSE) {
+				$loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
+			}
+		}
+	}
+	($code = $plugins->load('log_login_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/login");
+	($code = $plugins->load('log_login_form_end')) ? eval($code) : null;
 	$slog->updatelogged();
 }
+
+($code = $plugins->load('log_end')) ? eval($code) : null;
 
 $zeitmessung = t2();
 echo $tpl->parse("footer");

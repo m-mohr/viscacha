@@ -35,18 +35,22 @@ $slog = new slog();
 $my = $slog->logged();
 $lang->init($my->language);
 $tpl = new tpl();
-if ($_GET['action'] != "addabo" && $_GET['action'] != "addfav" && $_GET['action'] != "copy") {
+if ($_GET['action'] != "addabo" && $_GET['action'] != "copy") {
 	$my->p = $slog->Permissions();
 }
 if (!$my->vlogin) {
-    errorLogin($lang->phrase('not_allowed'),'log.php');
+	errorLogin($lang->phrase('not_allowed'),'log.php');
 }
+
+include_once ("classes/function.profilefields.php");
 
 $breadcrumb->Add($lang->phrase('editprofile_title'), 'editprofile.php'.SID2URL_1);
 
+($code = $plugins->load('editprofile_start')) ? eval($code) : null;
+
 if ($_GET['action'] == "pw2") {
 
-    $error = array();
+	$error = array();
 	if ($_POST['type'] != $_POST['pwx']) {
 		$error[] = $lang->phrase('pw_comparison_failed');
 	}
@@ -59,42 +63,24 @@ if ($_GET['action'] == "pw2") {
 	if (strxlen($_POST['pwx']) < 3) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
+	($code = $plugins->load('editprofile_pw2_errorhandling')) ? eval($code) : null;
 	if (count($error) > 0) {
 		error($error,"editprofile.php?action=pw".SID2URL_x);
 	}
 	else {
-	    $db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '$my->id' LIMIT 1",__LINE__,__FILE__);
-	    ok($lang->phrase('editprofile_pw_success'), "log.php".SID2URL_1);
+		($code = $plugins->load('editprofile_pw2_query')) ? eval($code) : null;
+		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '$my->id' LIMIT 1",__LINE__,__FILE__);
+		ok($lang->phrase('editprofile_pw_success'), "log.php".SID2URL_1);
 	}
-
-}
-elseif ($_GET['action'] == "abos2") {
-	if (count($_POST['delete']) < 1) {
-		error($lang->phrase('no_data_selected'), "editprofile.php?action=abos".SID2URL_x);
-	}
-
-	$db->query ("DELETE FROM {$db->pre}abos WHERE mid = '$my->id' AND id IN(".implode(',',$_POST['delete']).")",__LINE__,__FILE__);
-	$anz = $db->affected_rows();
-	ok($lang->phrase('x_entries_deleted'), "editprofile.php?action=abos".SID2URL_x);
-
-}
-
-elseif ($_GET['action'] == "fav2") {
-	if (count($_POST['delete']) < 1) {
-		error($lang->phrase('no_data_selected'), "editprofile.php?action=fav".SID2URL_x);
-	}
-
-	$db->query ("DELETE FROM {$db->pre}fav WHERE mid = '$my->id' AND id IN(".implode(',',$_POST['delete']).")",__LINE__,__FILE__);
-	$anz = $db->affected_rows();
-	ok($lang->phrase('x_entries_deleted'), "editprofile.php?action=fav".SID2URL_x);
 
 }
 elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 	if (count($_POST['delete']) > 0) {
+		($code = $plugins->load('editprofile_attachments2_start')) ? eval($code) : null;
 		$result = $db->query ("SELECT file FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
-	    while ($row = $db->fetch_assoc($result)) {
-	        @unlink('uploads/topics/'.$row['file']);
-	    }
+		while ($row = $db->fetch_assoc($result)) {
+			@unlink('uploads/topics/'.$row['file']);
+		}
 		$db->query ("DELETE FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN (".implode(',',$_POST['delete']).")",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
 		ok($lang->phrase('editprofile_attachments_deleted'), "editprofile.php?action=attachments".SID2URL_x);
@@ -105,80 +91,92 @@ elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 
 }
 elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
-    $breadcrumb->Add($lang->phrase('editprofile_attachments'));
+	$breadcrumb->Add($lang->phrase('editprofile_attachments'));
 	echo $tpl->parse("header");
-    echo $tpl->parse("menu");
+	echo $tpl->parse("menu");
 
-    $result = $db->query("SELECT r.board, r.topic, u.id, u.tid, u.file, u.hits FROM {$db->pre}uploads AS u LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid WHERE u.mid = '$my->id' ORDER BY u.topic_id, u.tid",__LINE__,__FILE__);
+	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT r.board, r.topic, u.id, u.tid, u.file, u.hits 
+	FROM {$db->pre}uploads AS u 
+		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid 
+	WHERE u.mid = '$my->id' 
+	ORDER BY u.topic_id, u.tid
+	",__LINE__,__FILE__);
 
-    $all = array(0,0,0);
-    $cache = array();
-    while ($row = $db->fetch_assoc($result)) {
-    	$row['topic'] = $gpc->prepare($row['topic']);
-        $row['file'] = trim($row['file']);
-        $uppath = 'uploads/topics/'.$row['file'];
-        $fsize = filesize($uppath);
-        $all[0]++;
-        $all[1] += $fsize;
-        $all[2] += $row['hits'];
-        $row['hits'] = numbers($row['hits']);
-        $row['fsize'] = formatFilesize($fsize);
-        $cache[] = $row;
-    }
-    $all[1] = formatFilesize($all[1]);
-    $all[2] = numbers($all[2]);
-    echo $tpl->parse("editprofile/attachments");
+	$all = array(0,0,0);
+	$cache = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$row['topic'] = $gpc->prepare($row['topic']);
+		$row['file'] = trim($row['file']);
+		$uppath = 'uploads/topics/'.$row['file'];
+		$fsize = filesize($uppath);
+		$all[0]++;
+		$all[1] += $fsize;
+		$all[2] += $row['hits'];
+		$row['hits'] = numbers($row['hits']);
+		$row['fsize'] = formatFilesize($fsize);
+		($code = $plugins->load('editprofile_attachments_entry_prepared')) ? eval($code) : null;
+		$cache[] = $row;
+	}
+	$all[1] = formatFilesize($all[1]);
+	$all[2] = numbers($all[2]);
+	($code = $plugins->load('editprofile_attachments_prepared')) ? eval($code) : null;
+	echo $tpl->parse("editprofile/attachments");
+	($code = $plugins->load('editprofile_attachments_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "abos") {
-    $breadcrumb->Add($lang->phrase('editprofile_abos'));
+	$breadcrumb->Add($lang->phrase('editprofile_abos'));
 	echo $tpl->parse("header");
-    echo $tpl->parse("menu");
-
-    $result = $db->query("SELECT a.id, a.tid, t.topic, a.type, t.prefix FROM {$db->pre}abos AS a LEFT JOIN {$db->pre}topics AS t ON a.tid=t.id WHERE a.mid = '{$my->id}' ORDER BY a.id DESC",__LINE__,__FILE__);
-
-	$prefix = cache_prefix();
-
-    $cache = array();
-    while ($row = $db->fetch_assoc($result)) {
-    	if (!empty($row['prefix']) && isset($prefix[$row['board']][$row['prefix']])) {
-    		$row['prefix'] = '['.$prefix[$row['board']][$row['prefix']].']';
-    	}
-    	else {
-    		$row['prefix'] = '';
-    	}
-    	$row['topic'] = $gpc->prepare($row['topic']);
-	    if ($row['type'] == 'd') {
-	    	$row['period'] = $lang->phrase('editprofile_digest_d');
-	    }
-	    elseif ($row['type'] == 'w') {
-	    	$row['period'] = $lang->phrase('editprofile_digest_w');
-	    }
-	    else {
-	    	$row['period'] = $lang->phrase('editprofile_digest_s');
-	    }
-
-	    $cache[] = $row;
+	echo $tpl->parse("menu");
+	
+	$p = $_GET['page']-1;
+	
+	$sqlwhere = '';
+	if (!empty($_GET['type'])) {
+		if ($_GET['type'] == 's') {
+			$type = '';
+		}
+		else {
+			$type = $_GET['type'];
+		}
+		$sqlwhere = " AND type = '{$type}'";
 	}
 
-    echo $tpl->parse("editprofile/abos");
+	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.last_name, t.board, t.posts 
+	FROM {$db->pre}abos AS a 
+		LEFT JOIN {$db->pre}topics AS t ON a.tid=t.id 
+	WHERE a.mid = '{$my->id}' {$sqlwhere}
+	ORDER BY a.id DESC
+	",__LINE__,__FILE__);
+	
+	$prefix_obj = $scache->load('prefix');
+	$prefix = $prefix_obj->get();
+	$memberdata_obj = $scache->load('memberdata');
+	$memberdata = $memberdata_obj->get();
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
 
-}
-elseif ($_GET['action'] == "fav") {
-    $breadcrumb->Add($lang->phrase('editprofile_fav'));
-	echo $tpl->parse("header");
-    echo $tpl->parse("menu");
-
-	$prefix = cache_prefix();
-	$memberdata = cache_memberdata();
-    $result = $db->query("SELECT f.id, f.tid, t.topic, t.last, t.last_name, t.board, t.prefix FROM {$db->pre}fav AS f LEFT JOIN {$db->pre}topics AS t ON f.tid=t.id WHERE f.mid = '{$my->id}' ORDER BY f.id DESC",__LINE__,__FILE__);
-    $cache = array();
-
-    while ($row = $gpc->prepare($db->fetch_assoc($result))) {
-		$showprefix = '';
-		if (isset($prefix[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
-			$showprefix = $prefix[$row['board']][$row['prefix']];
+	$cache = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$info = $fc[$row['board']];
+		if ($info['topiczahl'] < 1) {
+			$info['topiczahl'] = $config['topiczahl'];
 		}
 
+		if (!empty($row['prefix']) && isset($prefix[$row['board']][$row['prefix']])) {
+			$row['prefix'] = '['.$prefix[$row['board']][$row['prefix']].']';
+		}
+		else {
+			$row['prefix'] = '';
+		}
+		$row['topic'] = $gpc->prepare($row['topic']);
+		if ($row['type'] != 'd' && $row['type'] != 'w' && $row['type'] != 'f') {
+			$row['type'] = 's';
+		}
+		
 		if (is_id($row['last_name'])) {
 			$row['last_name'] = $memberdata[$row['last_name']];
 		}
@@ -192,18 +190,76 @@ elseif ($_GET['action'] == "fav") {
 			$row['alt'] = $lang->phrase('forum_icon_new');
 			$row['src'] = $tpl->img('dir_open2');
 		}
-    	$row['last'] = str_date($lang->phrase('dformat1'),times($row['last']));
-    	$cache[] = $row;
-    }
-    echo $tpl->parse("editprofile/fav");
+
+		$row['last'] = str_date($lang->phrase('dformat1'),times($row['last']));
+
+		
+		if ($row['posts'] > $info['topiczahl']) {
+			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small');
+		}
+		else {
+			$row['topic_pages'] = '';
+		}
+
+		($code = $plugins->load('editprofile_abos_entry_prepared')) ? eval($code) : null;
+		$cache[] = $row;
+	}
+
+	$count = count($cache);
+	$pages = pages($count, $config['abozahl'], 'editprofile.php?action=abos&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
+	$cache = array_chunk($cache, $config['abozahl']);
+	if (!isset($cache[$p])) {
+		$count = 0;
+	}
+	
+	($code = $plugins->load('editprofile_abos_prepared')) ? eval($code) : null;
+	echo $tpl->parse("editprofile/abos");
+	($code = $plugins->load('editprofile_abos_end')) ? eval($code) : null;
+}
+elseif ($_GET['action'] == "abos2") {
+	$digest = $gpc->get('digest', arr_str);
+	
+	if (count($_POST['delete']) == 0 && count($digest) == 0) {
+		error($lang->phrase('no_data_selected'), "editprofile.php?action=abos".SID2URL_x);
+	}
+	
+	($code = $plugins->load('editprofile_abos2_start')) ? eval($code) : null;
+	
+	$anz = 0;
+	if (count($_POST['delete']) > 0) {
+		$delete = implode(',', $_POST['delete']);
+		$db->query ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})",__LINE__,__FILE__);
+		$anz = $db->affected_rows();
+	}
+	
+	$anz2 = 0;
+	if (count($digest) > 0) {
+		$update = array('s' => array(),'d' => array(),'w' => array(),'f' => array());
+		foreach ($digest as $id => $type) {
+			$update[$type][] = $id;
+		}
+		foreach ($update as $type => $ids) {
+			if (count($ids) > 0) {
+				$ids = implode(',', $ids);
+				$db->query("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})",__LINE__,__FILE__);
+				$anz2 += $db->affected_rows();
+			}
+		}
+	}
+	
+	($code = $plugins->load('editprofile_abos2_end')) ? eval($code) : null;
+	
+	ok($lang->phrase('x_entries_deleted_x_changed'), "editprofile.php?action=abos".SID2URL_x);
+
 }
 
 elseif ($_GET['action'] == "pw") {
 	$breadcrumb->Add($lang->phrase('editprofile_pw'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
+	($code = $plugins->load('editprofile_pw_start')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/pw");
-	$mymodules->load('editprofile_pw_bottom');
+	($code = $plugins->load('editprofile_pw_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "notice2") {
 
@@ -218,7 +274,9 @@ elseif ($_GET['action'] == "notice2") {
 		error($lang->phrase('notices_too_long'));
 	}
 	else {
-		$db->query("UPDATE {$db->pre}user SET notice = '".implode('[VSEP]',$notes)."' WHERE id = '".$my->id."' LIMIT 1",__LINE__,__FILE__);
+		$sqlnotes = implode('[VSEP]',$notes);
+		($code = $plugins->load('editprofile_notice2_query')) ? eval($code) : null;
+		$db->query("UPDATE {$db->pre}user SET notice = '{$sqlnotes}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
 		ok($lang->phrase('text_to_notice_success'), 'editprofile.php?action=notice'.SID2URL_x);
 	}
 
@@ -246,47 +304,112 @@ elseif ($_GET['action'] == "notice") {
 	$notes = count($notices);
 	$used_chars = numbers(strxlen(str_replace('[VSEP]', '', $my->notice)));
 	$chars = numbers($config['maxnoticelength']);
-	$mymodules->load('editprofile_notice_top');
+	
+	($code = $plugins->load('editprofile_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/notice");
+	($code = $plugins->load('editprofile_end')) ? eval($code) : null;
 }
-elseif ($_GET['action'] == "about2") {
-    if ($my->p['useabout'] == 0) {
-    	errorLogin($lang->phrase('not_allowed'), "editprofile.php");
-    }
-	if (strxlen($_POST['comment']) > $config['maxaboutlength']) {
-		$fid = save_error_data($_POST['comment']);
-		error($lang->phrase('about_too_long'), "editprofile.php?action=about&amp;fid=".$fid.SID2URL_x);
+elseif ($_GET['action'] == "signature") {
+	if (!empty($_POST['Submit'])) {
+		$error = array();
+		if (strxlen($_POST['signature']) > $config['maxsiglength']) {
+			$error[] = $lang->phrase('editprofile_signature_too_long');
+		}
+		($code = $plugins->load('editprofile_signature2_save')) ? eval($code) : null;
+		if (count($error) > 0) {
+			error($error, "editprofile.php?action=profile".SID2URL_x);
+		}
+		else {
+			$db->query("UPDATE {$db->pre}user SET signature = '{$_POST['signature']}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+			ok($lang->phrase('data_success'), "editprofile.php?action=signature".SID2URL_x);
+		}
 	}
 	else {
-	    $db->query("UPDATE {$db->pre}user SET about = '".$_POST['comment']."' WHERE id = '".$my->id."'");
-	    ok($lang->phrase('data_success'), "editprofile.php?action=about".SID2URL_x);
+		$breadcrumb->Add($lang->phrase('editprofile_signature'));
+		echo $tpl->parse("header");
+		echo $tpl->parse("menu");
+		BBProfile($bbcode);
+		$inner['bbhtml'] = $bbcode->getbbhtml();
+		$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
+		$chars = numbers($config['maxsiglength']);
+		if (empty($_POST['signature'])) {
+			$signature = $my->signature;
+			$preview = false;
+		}
+		else {
+			$signature = $_POST['signature'];
+			$preview = true;
+			BBProfile($bbcode, 'signature');
+			$parsedPreview = $bbcode->parse($signature);
+		}
+		($code = $plugins->load('editprofile_signature_start')) ? eval($code) : null;
+		echo $tpl->parse("editprofile/signature");
+		($code = $plugins->load('editprofile_signature_end')) ? eval($code) : null;
+	}
+}
+elseif ($_GET['action'] == "about2") {
+	if ($my->p['useabout'] == 0) {
+		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
+	}
+	$error = array();
+	if (strxlen($_POST['about']) > $config['maxaboutlength']) {
+		$error[] = $lang->phrase('about_too_long');
+	}
+	($code = $plugins->load('editprofile_about2_start')) ? eval($code) : null;
+	if (count($error) > 0 || !empty($_POST['Preview'])) {
+		$fid = save_error_data($_POST['about']);
+		if (!empty($_POST['Preview'])) {
+			viscacha_header("Location: editprofile.php?action=about&job=preview&fid=".$fid.SID2URL_JS_x);
+		}
+		else {
+			error($error, "editprofile.php?action=about&amp;fid=".$fid.SID2URL_x);
+		}
+	}
+	else {
+		($code = $plugins->load('editprofile_about2_query')) ? eval($code) : null;
+		$db->query("UPDATE {$db->pre}user SET about = '{$_POST['about']}' WHERE id = '{$my->id}'");
+		ok($lang->phrase('data_success'), "editprofile.php?action=about".SID2URL_x);
 	}
 
 }
 elseif ($_GET['action'] == "about") {
-    if ($my->p['useabout'] == 0) {
-    	errorLogin($lang->phrase('not_allowed'), "editprofile.php");
-    }
+	if ($my->p['useabout'] == 0) {
+		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
+	}
 	$breadcrumb->Add($lang->phrase('editprofile_about'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
+	($code = $plugins->load('editprofile_abos_Start')) ? eval($code) : null;
+	
+	BBProfile($bbcode);
+	$inner['bbhtml'] = $bbcode->getbbhtml();
+	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
+	
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
+		if ($_GET['job'] == 'preview') {
+			$preview = true;
+			$parsedPreview = $bbcode->parse($data);
+		}
+		else {
+			$preview = false;
+		}
 	}
 	else {
 		$data = $my->about;
+		$preview = false;
 	}
+	
 	$chars = numbers($config['maxaboutlength']);
-	$bbcode = initBBCodes();
-	$inner['bbhtml'] = $bbcode->getbbhtml();
-	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
-	$mymodules->load('editprofile_about_top');
+	
+	($code = $plugins->load('editprofile_abos_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/about");
+	($code = $plugins->load('editprofile_abos_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "pic2") {
 
-    $pic = $gpc->get('pic', none);
-    if ($my->p['usepic'] == 0) {
+	$pic = $gpc->get('pic', none);
+	if ($my->p['usepic'] == 0) {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
 	elseif (isset($_FILES) && is_array($_FILES['upload']) && !empty($_FILES['upload']['name'])) {
@@ -301,9 +424,7 @@ elseif ($_GET['action'] == "pic2") {
 			error($my_uploader->return_error(),'editprofile.php?action=pic');
 		}
 		else {
-			if (file_exists($my->pic)) {
-				@unlink($my->pic);
-			}
+			removeOldImages('uploads/pics/', $my->id);
 			$ext = $my_uploader->rename_file('uploads/pics/', $my_uploader->file['name'], $my->id);
 		}
 		$my->pic = 'uploads/pics/'.$my->id.$ext;
@@ -314,20 +435,21 @@ elseif ($_GET['action'] == "pic2") {
 	else {
 		removeOldImages('uploads/pics/', $my->id);
 	}
+	($code = $plugins->load('editprofile_pic2_query')) ? eval($code) : null;
 	$db->query("UPDATE {$db->pre}user SET pic = '{$my->pic}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
 	ok($lang->phrase('editprofile_pic_success'), "editprofile.php?action=pic".SID2URL_x);
 }
 elseif ($_GET['action'] == "pic") {
-    if ($my->p['usepic'] == 0) {
-    	errorLogin($lang->phrase('not_allowed'), "editprofile.php");
-    }
-    $breadcrumb->Add($lang->phrase('editprofile_pic'));
+	if ($my->p['usepic'] == 0) {
+		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
+	}
+	$breadcrumb->Add($lang->phrase('editprofile_pic'));
 	echo $tpl->parse("header");
-    echo $tpl->parse("menu");
-    $filetypes = str_replace("|", ", ", $config['avfiletypes']);
-    $filesize = formatFilesize($config['avfilesize']);
+	echo $tpl->parse("menu");
+	$filetypes = str_replace("|", ", ", $config['avfiletypes']);
+	$filesize = formatFilesize($config['avfilesize']);
 
-    $size = '';
+	$size = '';
 	if ($config['avwidth'] > 0) {
 		$size .= $lang->phrase('editprofile_pic_w1');
 	}
@@ -341,18 +463,50 @@ elseif ($_GET['action'] == "pic") {
 		$size .= $lang->phrase('editprofile_pic_h2');
 	}
 
-	$mymodules->load('editprofile_pic_top');
-    echo $tpl->parse("editprofile/pic");
+	($code = $plugins->load('editprofile_pic_prepared')) ? eval($code) : null;
+	echo $tpl->parse("editprofile/pic");
+}
+elseif ($_GET['action'] == "profile") {
+	$breadcrumb->Add($lang->phrase('editprofile_profile'));
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
+
+	($code = $plugins->load('editprofile_profile_start')) ? eval($code) : null;
+
+	$bday = explode('-',$my->birthday);
+	if (empty($bday[0])) {
+		$bday[0] = '0000';
+	}
+	if (empty($bday[1])) {
+		$bday[1] = '00';
+	}
+	if (empty($bday[2])) {
+		$bday[2] = '00';
+	}
+	$my->icq = iif(empty($my->icq), '', $my->icq);
+	$year = gmdate('Y');
+	$maxy = $year-6;
+	$miny = $year-100;
+	
+	$customfields = editprofile_customfields(1, $my->id);
+	
+	($code = $plugins->load('editprofile_profile_prepared')) ? eval($code) : null;
+	echo $tpl->parse("editprofile/profile");
+	($code = $plugins->load('editprofile_profile_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "profile2") {
 
 	$_POST['hp'] = trim($_POST['hp']);
 	if (strtolower(substr($_POST['hp'], 0, 4)) == 'www.') {
-		$_POST['hp'] = "http://".$_POST['hp'];
+		$_POST['hp'] = "http://{$_POST['hp']}";
 	}
-    $error = array();
-	if (check_mail($_POST['email']) == FALSE) {
+
+	$error = array();
+	if (check_mail($_POST['email']) == false) {
 		 $error[] = $lang->phrase('illegal_mail');
+	}
+	if ($my->mail != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
+		 $error[] = $lang->phrase('email_already_used');
 	}
 	if (strxlen($_POST['name']) > $config['maxnamelength'] && $config['changename_allowed'] == 1) {
 		$error[] = $lang->phrase('name_too_long');
@@ -363,9 +517,6 @@ elseif ($_GET['action'] == "profile2") {
 	if (strxlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
-	if (strxlen($_POST['signature']) > $config['maxsiglength']) {
-		$error[] = $lang->phrase('editprofile_signature_too_long');
-	}
 	if (strxlen($_POST['hp']) > 254) {
 		$error[] = $lang->phrase('editprofile_homepage_too_long');
 	}
@@ -373,7 +524,7 @@ elseif ($_GET['action'] == "profile2") {
 		$_POST['hp'] = '';
 	}
 	if (strxlen($_POST['location']) > 50) {
-		$error[] = $lang->phrase('editprofile_location_too_short');
+		$error[] = $lang->phrase('editprofile_location_too_long');
 	}
 	if ($_POST['gender'] != 'm' && $_POST['gender'] != 'w' && $_POST['gender'] != '') {
 		$error[] = $lang->phrase('editprofile_gender_incorrect');
@@ -390,34 +541,45 @@ elseif ($_GET['action'] == "profile2") {
 	if (strxlen($_POST['fullname']) > 128) {
 		$error[] = $lang->phrase('editprofile_fullname_incorrect');
 	}
+	
+	$error_custom = editprofile_customsave(1, $my->id);
+	$error = array_merge($error, $error_custom);
+	($code = $plugins->load('editprofile_profile2_errorhandling')) ? eval($code) : null;
 
 	if (count($error) > 0) {
+		($code = $plugins->load('editprofile_profile2_errordata')) ? eval($code) : null;
 		error($error, "editprofile.php?action=profile".SID2URL_x);
 	}
 	else {
-	    // Now we create the birthday...
-	    if (!$_POST['birthmonth'] && !$_POST['birthday'] && !$_POST['birthyear']) {
-	    	$bday = '0000-00-00';
-	    }
-	    else {
-	        $_POST['birthmonth'] = leading_zero($_POST['birthmonth']);
-	        $_POST['birthday'] = leading_zero($_POST['birthday']);
-	        $_POST['birthyear'] = leading_zero($_POST['birthyear'],4);
-	        $bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
-	    }
-	    $_POST['icq'] = str_replace('-', '', $_POST['icq']);
-	    if (!is_id($_POST['icq'])) {
-	    	$_POST['icq'] = 0;
-	    }
+		// Now we create the birthday...
+		if (!$_POST['birthmonth'] && !$_POST['birthday'] && !$_POST['birthyear']) {
+			$bday = '0000-00-00';
+		}
+		else {
+			$_POST['birthmonth'] = leading_zero($_POST['birthmonth']);
+			$_POST['birthday'] = leading_zero($_POST['birthday']);
+			$_POST['birthyear'] = leading_zero($_POST['birthyear'],4);
+			$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
+		}
+		$_POST['icq'] = str_replace('-', '', $_POST['icq']);
+		if (!is_id($_POST['icq'])) {
+			$_POST['icq'] = 0;
+		}
 
-	    if ($config['changename_allowed'] == 1) {
-	    	$changename = ", name = '{$_POST['name']}'";
-	    }
-	    else {
-	    	$changename = '';
-	    }
+		if ($config['changename_allowed'] == 1) {
+			$changename = ", name = '{$_POST['name']}'";
+		}
+		else {
+			$changename = '';
+		}
 
-		$db->query("UPDATE {$db->pre}user SET icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+//		if (strcasecmp(trim($_POST['email']), trim($my->mail)) != 0) {
+			// Hier kann beliebiger Code eingesetzt werden, der nach dem Ändern der E-Mail-Adresse ausgeführt wird
+//		}
+		
+		($code = $plugins->load('editprofile_profile2_query')) ? eval($code) : null;
+
+		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
 		ok($lang->phrase('data_success'), "editprofile.php?action=profile".SID2URL_x);
 	}
 
@@ -426,19 +588,29 @@ elseif ($_GET['action'] == "settings") {
 	$breadcrumb->Add($lang->phrase('editprofile_settings'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
-	$design = cache_loaddesign();
+
+	$loaddesign_obj = $scache->load('loaddesign');
+	$design = $loaddesign_obj->get();
 	$mydesign = $design[$my->template]['name'];
-	$language = cache_loadlanguage();
+	
+	$loadlanguage_obj = $scache->load('loadlanguage');
+	$language = $loadlanguage_obj->get();
 	$mylanguage = $language[$my->language]['language'];
-	$mymodules->load('editprofile_settings_top');
-    echo $tpl->parse("editprofile/settings");
+	
+	$customfields = editprofile_customfields(2, $my->id);
+	
+	($code = $plugins->load('editprofile_settings_prepared')) ? eval($code) : null;
+	echo $tpl->parse("editprofile/settings");
 }
 elseif ($_GET['action'] == "settings2") {
 
-	$cache = cache_loaddesign();
-	$cache2 = cache_loadlanguage();
+	$loaddesign_obj = $scache->load('loaddesign');
+	$cache = $loaddesign_obj->get();
 
-    $error = array();
+	$loadlanguage_obj = $scache->load('loadlanguage');
+	$cache2 = $loadlanguage_obj->get();
+
+	$error = array();
 	if (intval($_POST['location']) < -12 && intval($_POST['location']) > 12) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('timezone');
 	}
@@ -466,49 +638,54 @@ elseif ($_GET['action'] == "settings2") {
 	if ($_POST['opt_6'] < 0 && $_POST['opt_6'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_newsletter');
 	}
+	
+	$error_custom = editprofile_customsave(2, $my->id);
+	$error = array_merge($error, $error_custom);
+	
+	($code = $plugins->load('editprofile_settings2_errorhandling')) ? eval($code) : null;
+	
 	if (count($error) > 0) {
 		error($error,"editprofile.php?action=settings".SID2URL_x);
 	}
 	else {
+		($code = $plugins->load('editprofile_settings2_query')) ? eval($code) : null;
 		$db->query("UPDATE {$db->pre}user SET timezone = '".$_POST['location']."', opt_textarea = '".$_POST['opt_0']."', opt_pmnotify = '".$_POST['opt_1']."', opt_hidebad = '".$_POST['opt_2']."', opt_hidemail = '".$_POST['opt_3']."', template = '".$_POST['opt_4']."', language = '".$_POST['opt_5']."', opt_newsletter = '".$_POST['opt_6']."', opt_showsig = '".$_POST['opt_7']."' WHERE id = $my->id LIMIT 1",__LINE__,__FILE__);
 		ok($lang->phrase('data_success'), "editprofile.php?action=settings".SID2URL_x);
 	}
 
 }
-elseif ($_GET['action'] == "profile") {
-    $breadcrumb->Add($lang->phrase('editprofile_profile'));
-	echo $tpl->parse("header");
-    echo $tpl->parse("menu");
-
-    $bday = explode('-',$my->birthday);
-    if (empty($bday[0])) {
-    	$bday[0] = '0000';
-    }
-    if (empty($bday[1])) {
-    	$bday[1] = '00';
-    }
-    if (empty($bday[2])) {
-    	$bday[2] = '00';
-    }
-    $year = gmdate('Y');
-    $maxy = $year-6;
-    $miny = $year-100;
-    $mymodules->load('editprofile_profile_top');
-    echo $tpl->parse("editprofile/profile");
-}
 elseif ($_GET['action'] == "mylast") {
-    $breadcrumb->Add($lang->phrase('editprofile_mylast'));
+	$breadcrumb->Add($lang->phrase('editprofile_mylast'));
 	echo $tpl->parse("header");
-    echo $tpl->parse("menu");
+	echo $tpl->parse("menu");
 
 	$cache = array();
-    $result = $db->query("SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, r.id AS pid FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id WHERE r.name = '$my->id' GROUP BY r.topic_id ORDER BY r.date DESC LIMIT 0, ".$config['mylastzahl'],__LINE__,__FILE__);
-    $anz = $db->num_rows($result);
-    $prefix = cache_prefix();
+	
+	($code = $plugins->load('editprofile_mylast_query')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, r.id AS pid 
+	FROM {$db->pre}replies AS r 
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id 
+	WHERE r.name = '$my->id' 
+	GROUP BY r.topic_id 
+	ORDER BY r.date DESC 
+	LIMIT 0, {$config['mylastzahl']}
+	",__LINE__,__FILE__);
+	$anz = $db->num_rows($result);
+	
+	$prefix_obj = $scache->load('prefix');
+	$prefix = $prefix_obj->get();
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
 
-    while ($row = $db->fetch_assoc($result)) {
-    	$row['topic'] = $gpc->prepare($row['topic']);
-    	$row['name'] = $gpc->prepare($row['name']);
+	while ($row = $db->fetch_assoc($result)) {
+		$info = $fc[$row['board']];
+		if ($info['topiczahl'] < 1) {
+			$info['topiczahl'] = $config['topiczahl'];
+		}
+
+		$row['topic'] = $gpc->prepare($row['topic']);
+		$row['name'] = $gpc->prepare($row['name']);
 		if ((isset($my->mark['t'][$row['id']]) && $my->mark['t'][$row['id']] > $row['last']) || $row['last'] < $my->clv) {
 			$row['firstnew'] = 0;
 			$row['alt'] = $lang->phrase('forum_icon_old');
@@ -525,53 +702,52 @@ elseif ($_GET['action'] == "mylast") {
 		else {
 			$row['pre'] = '';
 		}
+		if ($row['posts'] > $info['topiczahl']) {
+			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small');
+		}
+		else {
+			$row['topic_pages'] = '';
+		}
 		$row['posts'] = numbers($row['posts']);
+		($code = $plugins->load('editprofile_mylast_entry_prepared')) ? eval($code) : null;
 		$cache[] = $row;
-    }
-    $mymodules->load('editprofile_mylast_top');
-    echo $tpl->parse("editprofile/mylast");
-    $mymodules->load('editprofile_mylast_bottom');
-}
-elseif ($_GET['action'] == "addfav") {
-	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id'],__LINE__,__FILE__);
-	$info = $db->fetch_assoc($result);
-	$my->p = $slog->Permissions($info['board']);
-
-	$fc = cache_cat_bid();
-	$last = $fc[$info['board']];
-	forum_opt($last['opt'], $last['optvalue'], $last['id']);
-
-	$result = $db->query('SELECT id FROM '.$db->pre.'fav WHERE tid = '.$info['id'].' AND mid = '.$my->id,__LINE__,__FILE__);
-	if ($db->num_rows($result) > 0) {
-		error($lang->phrase('addfav_error'));
 	}
-	else {
-		$db->query('INSERT INTO '.$db->pre.'fav (tid,mid) VALUES ("'.$_GET['id'].'","'.$my->id.'")',__LINE__,__FILE__);
-		ok($lang->phrase('data_success'));
-	}
+	
+	($code = $plugins->load('editprofile_mylast_prepared')) ? eval($code) : null;
+	echo $tpl->parse("editprofile/mylast");
+	($code = $plugins->load('editprofile_mylast_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "addabo") {
 	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id'],__LINE__,__FILE__);
 	$info = $db->fetch_assoc($result);
 	$my->p = $slog->Permissions($info['board']);
 
-	$fc = cache_cat_bid();
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
 	$last = $fc[$info['board']];
 	forum_opt($last['opt'], $last['optvalue'], $last['id']);
 
-	if ($_GET['temp'] == 0) {
+	if ($_GET['type'] == 0) {
 		$type = '';
 	}
-	elseif ($_GET['temp'] == 1) {
+	elseif ($_GET['type'] == 1) {
 		$type = 'd';
 	}
-	elseif ($_GET['temp'] == 7) {
+	elseif ($_GET['type'] == 7) {
 		$type = 'w';
 	}
+	elseif ($_GET['type'] == 9) {
+		$type = 'f';
+	}
 	else {
-		error($lang->phrase('query_string_error'));
+		$error = true;
+		($code = $plugins->load('editprofile_addabo_types')) ? eval($code) : null;
+		if ($error == true) {
+			error($lang->phrase('query_string_error'));
+		}
 	}
 
+	($code = $plugins->load('editprofile_addabo_prepared')) ? eval($code) : null;
 	$result = $db->query('SELECT id, type FROM '.$db->pre.'abos WHERE tid = '.$info['id'].' AND mid = '.$my->id,__LINE__,__FILE__);
 	if ($db->num_rows($result) > 0) {
 		error($lang->phrase('addabo_error'));
@@ -583,8 +759,15 @@ elseif ($_GET['action'] == "addabo") {
 }
 elseif ($_GET['action'] == "copy") {
 
-	$result = $db->query("SELECT board, id, topic_id, topic, comment, date, name, email, dosmileys FROM {$db->pre}replies WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
-    $row = $gpc->prepare($db->fetch_assoc($result));
+	($code = $plugins->load('editprofile_copy_start')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT board, id, topic_id, topic, comment, date, name, email, dosmileys, guest 
+	FROM {$db->pre}replies 
+	WHERE id = '{$_GET['id']}'
+	LIMIT 1
+	",__LINE__,__FILE__);
+	$row = $gpc->prepare($db->fetch_assoc($result));
+	
 	$error = array();
 	if ($db->num_rows($result) < 1) {
 		$error[] = $lang->phrase('query_string_error');
@@ -597,27 +780,29 @@ elseif ($_GET['action'] == "copy") {
 		errorLogin($error,'forum.php'.SID2URL_1);
 	}
 
-    $result = $db->query("SELECT status, prefix FROM {$db->pre}topics WHERE id = {$row['topic_id']} LIMIT 1");
+	$result = $db->query("SELECT status, prefix FROM {$db->pre}topics WHERE id = '{$row['topic_id']}' LIMIT 1");
 	$topic = $db->fetch_assoc($result);
 
-	$fc = cache_cat_bid();
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
 	$last = $fc[$row['board']];
 	forum_opt($last['opt'], $last['optvalue'], $last['id']);
 
-	$memberdata = cache_memberdata();
+	$memberdata_obj = $scache->load('memberdata');
+	$memberdata = $memberdata_obj->get();
 
-    if (empty($row['email']) && isset($memberdata[$row['name']])) {
-    	$row['name'] = $memberdata[$row['name']];
-    }
-    $row['date'] = gmdate($lang->phrase('dformat1'), times($row['date']));
+	if ($row['guest'] == 0 && isset($memberdata[$row['name']])) {
+		$row['name'] = $memberdata[$row['name']];
+	}
+	$row['date'] = gmdate($lang->phrase('dformat1'), times($row['date']));
 
-	$bbcode = initBBCodes();
+	BBProfile($bbcode);
 	$bbcode->setSmileys($row['dosmileys']);
 	$bbcode->setReplace($config['wordstatus']);
 	if ($topic['status'] == 2) {
 		$row['comment'] = $bbcode->ReplaceTextOnce($row['comment'], 'moved');
 	}
-    $text = $bbcode->parse($row['comment'],'plain');
+	$text = $bbcode->parse($row['comment'], 'plain');
 
 	if (!empty($my->notice)) {
 		$notes = explode('[VSEP]', $my->notice);
@@ -635,17 +820,21 @@ elseif ($_GET['action'] == "copy") {
 		error($lang->phrase('notices_too_long'));
 	}
 
-    $db->query("UPDATE {$db->pre}user SET notice = '".implode('[VSEP]',$notes)."' WHERE id = '".$my->id."'",__LINE__,__FILE__);
-    ok($lang->phrase('text_to_notice_success'));
+	($code = $plugins->load('editprofile_copy_savedata')) ? eval($code) : null;
+	$db->query("UPDATE {$db->pre}user SET notice = '".implode('[VSEP]',$notes)."' WHERE id = '".$my->id."'",__LINE__,__FILE__);
+	ok($lang->phrase('text_to_notice_success'));
 
 }
 else {
 	$breadcrumb->ResetUrl();
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
+	($code = $plugins->load('editprofile_index_start')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/index");
-    $mymodules->load('editprofile_index_bottom');
+	($code = $plugins->load('editprofile_index_end')) ? eval($code) : null;
 }
+
+($code = $plugins->load('editprofile_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

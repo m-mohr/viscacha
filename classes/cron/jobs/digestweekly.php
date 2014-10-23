@@ -1,11 +1,13 @@
 <?php
+global $scache;
 
 $i = 0;
 
 $lastdate = mktime(0, 0); // midnight today
 $lastdate -= 7 * 24 * 60 * 60; // last week midnight
 
-$memberdata = cache_memberdata();
+$memberdata_obj = $scache->load('memberdata');
+$memberdata = $memberdata_obj->get();
 
 $sql = '
 SELECT t.id, t.board, t.topic, t.last_name, t.name as gname, u.mail, u.name

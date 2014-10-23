@@ -6,7 +6,7 @@
 <?php } ?>
 </strong><br />
 <span class="stext">
-<?php echo $lang->phrase('uploads_filetype'); ?><a href="javascript:filetypeinfo('<?php echo $imginfo; ?>');"><img src="<?php echo $tpl->img("filetypes/$icon"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$imginfo; ?>" /> <?php echo get_extension($file['file']); ?></a><br />
+<?php echo $lang->phrase('uploads_filetype'); ?><a href="popup.php?action=filetypes&type=<?php echo $imginfo.SID2URL_x; ?>" target="filetypeinfo" onclick="filetypeinfo(this)"><img src="<?php echo $tpl->img("filetypes/$icon"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$imginfo; ?>" /> <?php echo get_extension($file['file']); ?></a><br />
 <?php echo $lang->phrase('uploads_hits').$file['hits']; ?><br />
 <?php echo $lang->phrase('uploads_size').$fsize; ?><br />
 <?php echo $lang->phrase('uploads_imgsize'); ?>

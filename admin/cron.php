@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "start.php") die('Error: Hacking Attempt');
+if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "cron.php") die('Error: Hacking Attempt');
 
 if ($_GET['job'] == 'upload') {
 	echo head();
@@ -8,11 +8,11 @@ if ($_GET['job'] == 'upload') {
 <table class="border" cellpadding="3" cellspacing="0" border="0">
 <tr><td class="obox">Cron Job File Upload</td></tr>
 <tr><td class="mbox">
-Um eine Datei anzufügen, klicken Sie auf die "Durchsuchen"-Schaltfläche und wählen Sie eine Datei aus.
-Klicken Sie dann auf "Senden", um den Vorgang abzuschließen.<br /><br />
-Erlaubte Dateitypen: .php<br />
-Maximale Dateigröße: 100 KB<br /><br />
-<strong>Datei hochladen:</strong>
+To attach a file, click on the &quot;browse&quot;-button and select a file.
+Then click on &quot;upload&quot; in order to complete the procedure.
+Allowed file types: .php
+Maximum file size: 100 KB<br /><br />
+<strong>Upload file:</strong>
 <br /><input type="file" name="upload_0" size="40" />
 </td></tr>
 <tr><td class="ubox" align="center"><input accesskey="s" type="submit" value="Upload" /></td></tr>
@@ -32,25 +32,24 @@ elseif ($_GET['job'] == 'add') {
   <tr> 
    <td class="mbox" colspan=2><span class='stext'>
 <?php if ($config['pccron'] == 1) { ?>
-<b>Status: Cron Jobs werden simuliert</b> [<a href="admin.php?action=settings&job=cron<?php echo SID2URL_x; ?>">Ändern</a>]<br>
-   Da normale "Cron Jobs", die die Aufgaben normalerweise ausführen, oft nicht zur Verfügung stehen, wurde in dieses Programm eine Simulation von Cron Jobs eingebaut. Dieses System arbeitet folgendermaßen: 
-   Bei jedem Seiten-Aufruf wird überprüft, ob in der Zeit seit dem letzten Cron Job einer fällig geworden wäre. 
-   Bei Bedarf wird der fällige Job ausgeführt.
+<b>Status: Cron Jobs are simulated</b> [<a href="admin.php?action=settings&job=cron<?php echo SID2URL_x; ?>">change</a>]<br>
+Because original Cron Jobs are often not availible, Viscacha can simulate Cron Jobs. This works as follows:<br />
+On every page call it will be checked if there should have been a Cron Job, the due will be done if necessary.
 <?php } else { ?>
-<b>Status: Original Cron Jobs aktiv</b> [<a href="admin.php?action=settings&job=cron<?php echo SID2URL_x; ?>">Ändern</a>]<br>
-Es werden normale "Cron Jobs" eingesetzt. Sie müssen, wenn nicht schon geschehen, für jeden Eintrag hier, einen eigenen Cron Job (vom System oder einem außenstehenden Dienst) starten!
+<b>Status: Original Cron Jobs activated</b> [<a href="admin.php?action=settings&job=cron<?php echo SID2URL_x; ?>">change</a>]<br>
+Normal Cron Jobs are used. You have to start an Cron Job for every entry (of the system or an external service), if not already done.
 <?php } ?>
    </span></td>
   </tr>
   <tr> 
-   <td class="mbox" width="50%"><font class="mtext">Datei:</font><br>
+   <td class="mbox" width="50%"><font class="mtext">File:</font><br>
 <span class="stext">
-Datei im Verzeichnis "<a target="_blank" href="admin.php?action=explorer&path=<?php echo urlencode('./classes/cron/jobs'); ?>">classes/cron/jobs</a>".<br />
-<strong><a href="admin.php?action=cron&job=upload" target="_blank">Neue Datei hochladen</a></strong></span></td>
+File in directory "<a target="_blank" href="admin.php?action=explorer&path=<?php echo urlencode('./classes/cron/jobs'); ?>">classes/cron/jobs</a>".<br />
+<strong><a href="admin.php?action=cron&job=upload" target="_blank">Upload new file</a></strong></span></td>
    <td class="mbox" width="50%"><input type="text" name="temp1" size="50"></td> 
   </tr>
   <tr> 
-   <td class="mbox" width="50%"><font class="mtext">Titel / Beschreibung:</font></td>
+   <td class="mbox" width="50%"><font class="mtext">Title / description:</font></td>
    <td class="mbox" width="50%"><input type="text" name="temp2" size="50"></td> 
   </tr>
   <tr> 
@@ -97,13 +96,13 @@ Datei im Verzeichnis "<a target="_blank" href="admin.php?action=explorer&path=<?
    <td class="mbox" width="50%">
 	<select size="1" name="weekday">
 	<option value="-1">*</option>
-	<option value="0">Sonntag</option>
-	<option value="1">Montag</option>
-	<option value="2">Dienstag</option>
-	<option value="3">Mittwoch</option>
-	<option value="4">Donnerstag</option>
-	<option value="5">Freitag</option>
-	<option value="6">Samstag</option>
+	<option value="0">Sunday</option>
+	<option value="1">Monday</option>
+	<option value="2">Tuesday</option>
+	<option value="3">Wednesday</option>
+	<option value="4">Thursday</option>
+	<option value="5">Friday</option>
+	<option value="6">Saturday</option>
 	</select>
    </td> 
   </tr>
@@ -177,16 +176,16 @@ elseif ($_GET['job'] == 'manage') {
 	<form name="form" method="post" action="admin.php?action=cron&job=delete<?php echo SID2URL_x; ?>">
 	 <table class="border">
 	  <tr> 
-	   <td class="obox" colspan="7">Aufgaben verwalten</td>
+	   <td class="obox" colspan="7">Manage Tasks</td>
 	  </tr>
 	  <tr> 
-	   <td class="ubox" width="5%"><font class="mtext">Löschen</font></td>
-	   <td class="ubox" width="55%"><font class="mtext">Datei</font></td>
+	   <td class="ubox" width="5%"><font class="mtext">Delete</font></td>
+	   <td class="ubox" width="55%"><font class="mtext">File</font></td>
 	   <td class="ubox" width="8%"><font class="mtext">Minute</font></td>
-	   <td class="ubox" width="8%"><font class="mtext">Stunde</font></td>
-	   <td class="ubox" width="8%"><font class="mtext">Tag</font></td>
-	   <td class="ubox" width="8%"><font class="mtext">Monat</font></td>
-	   <td class="ubox" width="8%"><font class="mtext">Wochentag</font></td>
+	   <td class="ubox" width="8%"><font class="mtext">Hour</font></td>
+	   <td class="ubox" width="8%"><font class="mtext">Day</font></td>
+	   <td class="ubox" width="8%"><font class="mtext">Month</font></td>
+	   <td class="ubox" width="8%"><font class="mtext">Weekday</font></td>
 	  </tr>
 	<?php
 	foreach ($cronjobs as $job) {
@@ -210,7 +209,7 @@ elseif ($_GET['job'] == 'manage') {
 		</tr>
 	<?php } ?>
 	  <tr> 
-	   <td class="ubox" width="100%" colspan=7 align="center"><input type="submit" name="Submit" value="Abschicken"></td> 
+	   <td class="ubox" width="100%" colspan=7 align="center"><input type="submit" name="Submit" value="Send"></td> 
 	  </tr>
 	 </table>
 	</form> 

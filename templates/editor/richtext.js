@@ -1,4 +1,4 @@
-// RTE REVAMPED VERSION: 2006/01/13
+// RTE REVAMPED VERSION: 2006/03/21
 // This code is public domain. Redistribution and use of this code, with or without modification, is permitted.
 // Visit http://fieldspar.com for the latest release.
 // Visit the support forums at http://www.kevinroth.com/forums/index.php?c=2
@@ -6,21 +6,16 @@
 // Fehler:
 // IE: Editor-Fenster-Style wird nicht geändert
 // Gecko: Höhe beim wechseln zwischen Modus bleibt nicht gleich
-
-
 // Constants
 var minWidth = 640;					// minumum width
 var wrapWidth = 1245; 			//width at which all icons will appear on one bar
-var maxchar = 64000;		// maximum number of characters per save
+var maxchar = 64000;        // maximum number of characters per save
 var lang = "en"; 						//xhtml language
-var encoding = "utf-8";			//xhtml encoding, english only use "iso-8859-1"
+var lang_direction = "ltr"; //language direction : ltr = left-to-right, rtl = right-to-left 
+var encoding = "utf-8"; 		//xhtml encoding
 var zeroBorder = "#c0c0c0"; //guideline color - see showGuidelines()
-var btnText = "submit";			//Button value for non-designMode() & fullsceen rte
-var resize_fullsrcreen = true;
-// (resize_fullsrcreen) limited in that: 1)won't auto wrap icons. 2)won't
-// shrink to less than (wrapWidth)px if screen was initized over (wrapWidth)px;
 
-var keep_absolute = true; // !!!Disabled - see line 456 for details!!!!!
+var keep_absolute = true; // !!!Disabled - see line 456 for details!!!!!  
 // By default IE will try to convery all hyperlinks to absolute paths. By
 // setting this value to "false" it will retain the relative path.
 
@@ -39,6 +34,7 @@ var originalHTMLDesign;
 //Init Variables & Attributes
 var ua = navigator.userAgent.toLowerCase();
 var isIE = ((ua.indexOf("msie") != -1) && (ua.indexOf("opera") == -1) && (ua.indexOf("webtv") == -1))? true:false;
+var isIE7 = ((isIE) && (ua.indexOf("msie 7.") != -1))? true:false;
 var	isGecko = (ua.indexOf("gecko") != -1)? true:false;
 var	isSafari = (ua.indexOf("safari") != -1)? true:false;
 var	isKonqueror = (ua.indexOf("konqueror") != -1)? true:false;
@@ -57,6 +53,27 @@ var isRichText = false;
 if(document.getElementById && document.designMode && !isSafari && !isKonqueror) isRichText = true;
 //for testing standard textarea, uncomment the following line
 //isRichText = false;
+
+replacements = new Array (
+   //convert all types of single quotes
+   new RegExp(String.fromCharCode(145),'g'), "'",
+   new RegExp(String.fromCharCode(146),'g'), "'",
+   new RegExp("'"), "&#39;",
+   //convert all types of double quotes
+   new RegExp(String.fromCharCode(147),'g'), "\"",
+   new RegExp(String.fromCharCode(148),'g'), "\"",
+   //new RegExp("\""), "&#34;",
+   //replace carriage returns & line feeds
+   new RegExp("[\r\n]",'g'), " "
+);
+
+function rteSafe(html) {
+   html = trim(html);
+   for (i=0; i<replacements.length; i = i+2) {
+       html = html.replace(replacements[i], replacements[i+1]);
+   }
+   return html;
+}
 
 function initRTE(imgPath, incPath, css, genXHTML){
 	// CM 05/04/05 check args for compatibility with old RTE implementations
@@ -81,7 +98,7 @@ function initRTE(imgPath, incPath, css, genXHTML){
   	}
 }
 
-function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscreen) {
+function writeRichText(rte, html, css, width, height, buttons, readOnly) {
 	if(isRichText){
 		currentRTE = rte;
 		if(allRTEs.length > 0) allRTEs += ";";
@@ -90,7 +107,6 @@ function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscr
 		html=replaceIt(html,'\'','&apos;');
 		// CM 05/04/05 a bit of juggling for compatibility with old RTE implementations
 		if (arguments.length == 6) {
-			fullscreen = false;
 			readOnly = buttons;
 			buttons = height;
 			height = width;
@@ -99,46 +115,15 @@ function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscr
 		}
 		var iconWrapWidth = wrapWidth;
 		if(readOnly) buttons = false;
-		if(fullscreen) {
-			readOnly = false; // fullscreen is not readOnly and must show buttons
-			buttons = true;
-			// resize rte on resize if the option resize_fullsrcreen = true.
-			if(resize_fullsrcreen) window.onresize = resizeRTE;
-			document.body.style.margin = "0px";
-			document.body.style.overflow = "hidden";
-	  		//adjust maximum table widths
-			findSize("");
-			width = obj_width;
-	  		if(width < iconWrapWidth) {
-				height = (obj_height - 83);
-	  		}
-	  		else{
-		  		height = (obj_height - 55);
-			}
-			if (width < minWidth){
-		  		document.body.style.overflow = "auto";
-		  		if(isIE){
-					height = obj_height-22;
-		  		}
-		  		else{
-					height = obj_height-24;
-				}
-		 		width = minWidth;
-			}
+		iconWrapWidth = iconWrapWidth-25;
+		//adjust minimum table widths
+		if (buttons && (width < minWidth)) width = minWidth;
+		if(isIE){
 			var tablewidth = width;
 		}
 		else{
-			fullscreen = false;
-			iconWrapWidth = iconWrapWidth-25;
-			//adjust minimum table widths
-			if (buttons && (width < minWidth)) width = minWidth;
-			if(isIE){
-				var tablewidth = width;
-			}
-			else{
-				var tablewidth = width + 4;
-		  	}
-	  	}
+			var tablewidth = width + 4;
+		 	}
 		var rte_css = "";
 		if(css.length > 0) {
 			rte_css = css;
@@ -146,7 +131,7 @@ function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscr
 		else{
 	  		rte_css = cssFile;
 		}
-		document.writeln('<span class="rteDiv">');
+		document.writeln('<span id="rteToolbar">');
 		if(buttons) {
 			document.writeln('<table class="rteBk" cellpadding="0" cellspacing="0" id="Buttons1_'+rte+'" width="' + tablewidth + '">');
 			document.writeln('<tbody><tr>');
@@ -194,7 +179,7 @@ function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscr
 			insertImg(lblSubscript,"subscript.gif","rteCommand('"+rte+"','subscript')");
 	  			insertSep();
 			insertImg(lblAlgnLeft,"left_just.gif","rteCommand('"+rte+"','justifyleft')");
-			insertImg(lblAlgnCenter,"centre.gif","rteCommand('"+rte+"','justifcenter')");
+			insertImg(lblAlgnCenter,"centre.gif","rteCommand('"+rte+"','justifycenter')");
 			insertImg(lblAlgnRight,"right_just.gif","rteCommand('"+rte+"','justifyright')");
 			insertImg(lblJustifyFull,"justifyfull.gif","rteCommand('"+rte+"','justifyfull')");
 				insertSep();
@@ -214,7 +199,7 @@ function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscr
 			insertImg(lblInsertTable,"insert_table.gif","dlgLaunch('"+rte+"','table')");
 			document.writeln('<td width="100%"></td></tr></tbody></table>');
 		}
-		document.writeln('<iframe id="'+rte+'" frameborder="0" style="border: 1px solid #d2d2d2; width: ' + (tablewidth - 2) + 'px; height: ' + height + 'px;" src="' + includesPath + 'blank.htm" onfocus="dlgCleanUp();"></iframe>');
+		document.writeln('<iframe id="'+rte+'" width="' + (tablewidth - 2) + 'px" height="' + height + 'px" frameborder=0 style="border: 1px solid #d2d2d2" src="' + includesPath + 'blank.htm" onfocus="dlgCleanUp();"></iframe>');
 		if(!readOnly){
 		  	document.writeln('<table id="vs'+rte+'" name="vs'+rte+'" class="rteBk" cellpadding=0 cellspacing=0 border=0 width="' + tablewidth + '"><tr>');
 			document.writeln('<td onclick="toggleHTMLSrc(\''+rte+'\', ' + buttons + ');" nowrap="nowrap"><img class="rteBar" src="'+imagesPath+'bar.gif" alt="" align=absmiddle><span id="imgSrc'+rte+'"><img src="'+imagesPath+'code.gif" alt="" title="" style="margin:1px;" align=absmiddle></span><span id="txtSrc'+rte+'" style="font-family:sans-serif;font-size:12px;color:#555555;CURSOR: default;">'+lblModeHTML+'</span></td>');
@@ -222,7 +207,7 @@ function writeRichText(rte, html, css, width, height, buttons, readOnly, fullscr
 		}
 		document.writeln('<iframe width="142" height="98" id="cp'+rte+'" src="' + includesPath + 'palette.htm" scrolling="no" frameborder=0 style="margin:0;border:0;visibility:hidden;position:absolute;border:1px solid #cdcdcd;top:-1000px;left:-1000px"></iframe>');
 		document.writeln('<input type="hidden" id="hdn'+rte+'" name="'+rte+'" value="" style="position: absolute;left:-1000px;top:-1000px;">');
-		if(!fullscreen) document.writeln('<input type="hidden" id="size'+rte+'" name="size'+rte+'" value="'+height+'" style="position: absolute;left:-1000px;top:-1000px;">');
+		document.writeln('<input type="hidden" id="size'+rte+'" name="size'+rte+'" value="'+height+'" style="position: absolute;left:-1000px;top:-1000px;">');
 		document.writeln('</span>');
 		document.getElementById('hdn'+rte).value = html;
 		enableDesignMode(rte, html, rte_css, readOnly);
@@ -242,7 +227,10 @@ function insertImg(name, image, command, id){
 }
 
 function enableDesignMode(rte, html, css, readOnly) {
-	var frameHtml = "<html id=\"" + rte + "\"><head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\n";
+	var frameHtml = "<html dir='" + lang_direction + "' lang='" + lang + "' id='" + rte + "'>\n<head>\n";
+  frameHtml += "<meta http-equiv='Content-Type' content='text/html; charset=" + encoding + "'>\n";
+  frameHtml += "<meta http-equiv='Content-Language' content='" + lang + "'>\n";
+	//to reference your stylesheet, set href property below to your stylesheet path and uncomment
 	if(css.length > 0){
 		frameHtml += "<link media=\"all\" type=\"text/css\" href=\"" + css + "\" rel=\"stylesheet\">\n";
 	}
@@ -324,6 +312,13 @@ function updateRTE(rte) {
 	parseRTE(rte);
 }
 
+function updateRTEs(){
+	var vRTEs = allRTEs.split(";");
+	for(var i=0; i<vRTEs.length; i++){
+		updateRTE(vRTEs[i]);
+	}
+}
+
 function parseRTE(rte) {
 	if (!isRichText) {
 		 return false;
@@ -371,15 +366,12 @@ function setHiddenVal(rte){
 	// fix to replace special characters added here:
   	oHdnField.value = replaceSpecialChars(oHdnField.value);
   	//if there is no content (other than formatting) set value to nothing
-	if(stripHTML(oHdnField.value.replace("&nbsp;", " ")) == "" && oHdnField.value.toLowerCase().search("<hr") == -1 && oHdnField.value.toLowerCase().search("<img") == -1) oHdnField.value = "";
+	if(stripHTML(oHdnField.value.replace("&nbsp;", " ")) == "" &&
+		oHdnField.value.toLowerCase().search("<hr") == -1 &&
+		oHdnField.value.toLowerCase().search("<img") == -1) oHdnField.value = "";
 }
 
-function updateRTEs(){
-	var vRTEs = allRTEs.split(";");
-	for(var i=0; i<vRTEs.length; i++){
-		updateRTE(vRTEs[i]);
-	}
-}
+
 
 function rteCommand(rte, command, option){
 	dlgCleanUp();
@@ -398,25 +390,25 @@ function rteCommand(rte, command, option){
 // MOD: Added function
 function setHTMLDesign(oRTE) {
 	if (!document.all) {
-	oRTE.body.style.fontFamily = 'monospace';
-	oRTE.body.style.backgroundColor = 'white';
-	oRTE.body.style.color = 'black';
-	oRTE.body.style.fontSize = '9pt';
-	oRTE.body.style.margin = '3px';
-	oRTE.body.style.textAlign = 'left';
-	oRTE.body.style.whiteSpace = 'pre';
+		oRTE.body.style.fontFamily = 'monospace';
+		oRTE.body.style.backgroundColor = 'white';
+		oRTE.body.style.color = 'black';
+		oRTE.body.style.fontSize = '9pt';
+		oRTE.body.style.margin = '3px';
+		oRTE.body.style.textAlign = 'left';
+		oRTE.body.style.whiteSpace = 'pre';
 	}
 }
 // MOD: Added function
 function unsetHTMLDesign(oRTE) {
 	if (!document.all) {
-	oRTE.body.style.fontFamily = originalHTMLDesign.fontFamily;
-	oRTE.body.style.backgroundColor = originalHTMLDesign.backgroundColor;
-	oRTE.body.style.color = originalHTMLDesign.color;
-	oRTE.body.style.fontSize = originalHTMLDesign.fontSize;
-	oRTE.body.style.margin = originalHTMLDesign.margin;
-	oRTE.body.style.textAlign = originalHTMLDesign.textAlign;
-	oRTE.body.style.whiteSpace = originalHTMLDesign.whiteSpace;
+		oRTE.body.style.fontFamily = originalHTMLDesign.fontFamily;
+		oRTE.body.style.backgroundColor = originalHTMLDesign.backgroundColor;
+		oRTE.body.style.color = originalHTMLDesign.color;
+		oRTE.body.style.fontSize = originalHTMLDesign.fontSize;
+		oRTE.body.style.margin = originalHTMLDesign.margin;
+		oRTE.body.style.textAlign = originalHTMLDesign.textAlign;
+		oRTE.body.style.whiteSpace = originalHTMLDesign.whiteSpace;
 	}
 }
 
@@ -559,8 +551,9 @@ function dlgColorPalette(rte, command) {
 	//get dialog position
 	var oDialog = document.getElementById('cp' + rte);
 	var buttonElement = document.getElementById(command+"_"+rte);
-	var iLeftPos = getOffsetLeft(buttonElement);
-	var iTopPos = getOffsetTop(buttonElement)+22;
+	var iLeftPos = buttonElement.offsetLeft+5; 
+  var iTopPos = buttonElement.offsetTop+53;
+  if (!document.getElementById('Buttons2_'+rte)) iTopPos = iTopPos-28;
 	oDialog.style.left = iLeftPos + "px";
 	oDialog.style.top = iTopPos + "px";
 	if((command == parent.command)&&(rte == currentRTE)){
@@ -892,24 +885,9 @@ function stripHTML(strU) {
 }
 
 function trim(inputString) {
-	if (typeof inputString != "string") return inputString;
-	var retValue = inputString;
-  	var ch = retValue.substring(0, 1);
-  	while(ch == " "){
-		retValue = retValue.substring(1, retValue.length);
-		ch = retValue.substring(0, 1);
-  	}
-  	ch = retValue.substring(retValue.length - 1, retValue.length);
-  	while(ch == " "){
-		retValue = retValue.substring(0, retValue.length - 1);
-		ch = retValue.substring(retValue.length - 1, retValue.length);
-  	}
-	// Note that there are two spaces in the string - look for multiple spaces within the string
-  	while (retValue.indexOf("  ") != -1) {
-		// Again, there are two spaces in each of the strings
-		retValue = retValue.substring(0, retValue.indexOf("  ")) + retValue.substring(retValue.indexOf("  ") + 1, retValue.length);
-  	}
-  	return retValue; // Return the trimmed string back to the user
+  if (typeof inputString != "string") return inputString;
+  inputString = inputString.replace(/^\s+|\s+$/g, "").replace(/\s{2,}/g, "");
+  return inputString;
 }
 
 function showGuidelines(rte) {
@@ -985,49 +963,6 @@ function findSize(obj) {
   	}
 }
 
-function resizeRTE() {
-  	document.body.style.overflow = "hidden";
-	var rte = currentRTE;
-  	var oRTE = document.getElementById(rte);
-  	var oBut1 = document.getElementById('Buttons1_'+rte);
-  	var oBut2;
-  	var oVS = document.getElementById('vs'+rte);
-  	findSize("");
-  	width = obj_width;
-  	if (width < minWidth){
-		document.body.style.overflow = "auto";
-		width = minWidth;
-	}
-  	var height = obj_height - 83;
-	if (document.getElementById("txtSrc"+rte).innerHTML == lblModeRichText) {
-		height = obj_height-28;
-		if (!document.getElementById('Buttons2_'+rte) && width < wrapWidth) {
-			document.body.style.overflow = "auto";
-			width = wrapWidth;
-		}
-		if (document.getElementById('Buttons2_'+rte)) document.getElementById('Buttons2_'+rte).style.width = width;
-  	}
-  	else {
-		if (document.getElementById('Buttons2_'+rte)) {
-			document.getElementById('Buttons2_'+rte).style.width = width;
-		}
-		else {
-			height = obj_height - 55;
-			if(width < wrapWidth){
-	 			document.body.style.overflow = "auto";
-				width = wrapWidth;
-			}
-		}
-  	}
-  	if (document.body.style.overflow == "auto" && isIE) height = height-18;
-  	if (document.body.style.overflow == "auto" && !isIE) height = height-24;
-  	oBut1.style.width = width;
-  	oVS.style.width = width;
-	oRTE.style.width = width-2;
-	oRTE.style.height = height;
-  	if(!document.all) oRTE.contentDocument.designMode = "on";
-}
-
 function replaceIt(string,text,by) {
   	// CM 19/10/04 custom replace function
   	var strLength = string.length, txtLength = text.length;
@@ -1050,7 +985,7 @@ function countWords(rte){
   	chars = chars.length;
   	chars = maxchar - chars;
   	str = str+" a ";  // word added to avoid error
-  	str = str.replace(/&nbsp;/gi,' ').replace(/([\n\r\t])/g,' ').replace(/(  +)/g,' ').replace(/&(.*);/g,' ').replace(/^\s*|\s*$/g,'');
+  str = trim(str.replace(/&nbsp;/gi,' ').replace(/([\n\r\t])/g,' ').replace(/&(.*);/g,' '));
   	var count = 0;
   	for (x=0;x<str.length;x++) {
 		if (str.charAt(x)==" " && str.charAt(x-1)!=" ") count++;

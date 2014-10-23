@@ -32,20 +32,21 @@
 		</td>
 		<td width="45%">
 			<strong><a href="showforum.php?id=<?php echo $forum['id'].SID2URL_x; ?>"><?php echo $forum['name']; ?></a></strong>
-			<?php if ($forum['desc']) echo "<br />".$forum['desc']; ?>
-			<span class='stext'>
+			<?php echo iif ($forum['desc'], "<br />{$forum['desc']}"); ?>
 			<?php if (count($forum['mod'])) { ?>
-			<br />
+			<br /><span class="stext">
 			<strong><?php echo $lang->phrase('forum_mods'); ?></strong> 
 			<?php foreach($forum['mod'] as $m) { ?>
 			<a href="profile.php?id=<?php echo $m['mid'].SID2URL_x; ?>"><?php echo $m['name']; ?></a><?php echo $m['sep']; ?>
+			</span>
 			<?php } } if (count($forum['sub'])) { ?>
-			<br /><strong>Unterforen:</strong>
+			<br /><span class="stext">
+			<strong><?php echo $lang->phrase('forum_subforums'); ?></strong>
 			<?php foreach ($forum['sub'] as $s) { ?>
 			<img<?php echo iif($s['new'], ' title="'.$lang->phrase('forum_options_markread').'" onmouseover="HandCursor(this)" onclick="ajax_markforumread('.$s['id'].',this,1)"'); ?> src="<?php echo $s['foldimg']; ?>" alt="<?php echo $s['name']; ?>" />&nbsp;
 			<a href="<?php echo iif($s['opt'] != 're', 'showforum.php?id='.$s['id'].SID2URL_x, $s['optvalue']); ?>"><?php echo $s['name']; ?></a>&nbsp;&nbsp;
-			<?php } } ?>
 			</span>
+			<?php } } ?>
 		</td>
 		<td width="18%">
 			<?php echo $forum['topics']; ?> <?php echo $lang->phrase('xtopics'); ?><br />

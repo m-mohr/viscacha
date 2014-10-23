@@ -36,6 +36,32 @@ class spellchecker {
 		}
 	}
 	
+	function add($word) {
+		$sqlwords = array();
+		if (is_string($word)) {
+			$word = addslashes($word);
+			$sqlwords[] = "('{$word}', '{$this->langcode}')";
+		}
+		if (is_array($word)) {
+			foreach ($word as $w) {
+				$w = addslashes($w);
+				$sqlwords[] = "('{$w}', '{$this->langcode}')";
+			}
+		}
+		if (count($sqlwords) > 0) {
+			$db->query("INSERT INTO {$db->pre}spellcheck (´word´, ´language´) VALUES ".implode(',', $sqlwords));
+			if ($db->affected_rows() > 0) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	
 	function get_words() {
 		if (count($this->dir_words) > 0) {
 			return TRUE;

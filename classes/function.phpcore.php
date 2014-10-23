@@ -12,18 +12,349 @@ file_get_contents, str_ireplace, str_split, version_compare, is_a, http_build_qu
 @set_magic_quotes_runtime(0);
 @ini_set('magic_quotes_gpc',0);
 
+/* Error Handling */
 if (isset($config['error_reporting']) && $config['error_reporting'] > 0) {
 	error_reporting($config['error_reporting']);
 }
+if (isset($config['error_handler']) && $config['error_handler'] == 1) {
+	set_error_handler('msg_handler');
+}
+
+/**
+* Error and message handler, call with trigger_error if required
+*/
+function msg_handler($errno, $errtext, $errfile, $errline) {
+	global $db, $config;
+	
+	$errdate = date("Y-m-d H:i:s (T)");
+
+	$errortype = array (
+		E_ERROR			=> "PHP Error",
+		E_WARNING		=> "PHP Warning",
+		E_NOTICE		=> "PHP Notice",
+		E_USER_ERROR	=> "User Error",
+		E_USER_WARNING	=> "User Warning",
+		E_USER_NOTICE	=> "User Notice"
+	);
+
+	if ($config['error_log'] == 1) {
+		switch ($errno) {
+			case E_WARNING:
+			case E_NOTICE:
+			case E_USER_WARNING:
+			case E_USER_NOTICE:
+			case E_USER_ERROR:
+			case E_ERROR:
+				$errlogfile = 'data/errlog_php.inc.php';
+				$new = array();
+				if (file_exists($errlogfile)) {
+					$lines = file($errlogfile);
+					foreach ($lines as $row) {
+						$row = trim($row);
+						if (!empty($row)) {
+							$new[] = $row;
+						}
+					}
+				}
+				else {
+					$new = array();
+				}
+				$errtext2 = str_replace(array("\r\n","\n","\r","\t"), " ", $errtext);
+				$sru = str_replace(array("\r\n","\n","\r","\t"), " ", $_SERVER['REQUEST_URI']);
+				$new[] = $errno."\t".$errtext2."\t".$errfile."\t".$errline."\t".$sru."\t".time()."\t".PHP_VERSION." (".PHP_OS.")";
+				file_put_contents($errlogfile, implode("\n", $new));
+			break;
+		}
+	}
+	
+	switch ($errno) {
+		case E_WARNING:
+		case E_NOTICE:
+		case E_USER_WARNING:
+		case E_USER_NOTICE:
+			echo "<br /><strong>".$errortype[$errno]."</strong>: ".$errtext." (File: <tt>$errfile</tt> on line <tt>$errline</tt>)";
+		break;
+		case E_USER_ERROR:
+		case E_ERROR:
+			if (isset($db)) {
+				$db->close();
+			}
+			if (function_exists('ob_clean')) {
+				@ob_clean();
+			}
+			?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<title>Viscacha <?php echo $config['version']; ?> &raquo; Error</title>
+		<style type="text/css">
+		<!--
+		body{
+			color: #000000;
+			background-color: #FAFAFA;
+			font-size: 12px;
+			line-height: 130%;
+			font-family: Sans-Serif;
+			margin-left: 10%;
+			margin-right: 10%;
+			border: 1px solid #aaaaaa;
+		}
+		p {
+			margin: 0px;
+			padding: 2px;
+			padding-left: 15px;
+			padding-right: 5px;
+		}
+		a {
+			color: #A80000;
+		}
+		a:hover {
+			color: #000000;
+		}
+		h1 {
+			text-align: center;
+			padding: 10px;
+			margin: 0px;
+			margin-bottom: 20px;
+			background-color: #eeeeee;
+			border-bottom: 1px solid #aaaaaa;
+		}
+		h3 {
+			padding: 0px;
+			margin: 0px;
+			padding-left: 5px;
+			padding-right: 5px;
+			margin-bottom: 7px;
+			margin-top: 20px;
+			color: #A80000;
+			border-bottom: 1px solid #EEE;
+		}
+		.code {
+			background: #FFFFFF;
+			border: 1px solid #dddddd;
+			margin-right: 5px;
+			margin-bottom: 2px;
+			margin-top: 2px;
+			margin-left: 15px;
+			padding: 2px;
+			font-family: Monospace;
+			list-style: none;
+		}
+		.lineone {
+			padding:0 5px;
+			margin:2px 0;
+			background:#F9F9F9;
+		}
+		.center {
+			text-align: center;
+		}
+		.linetwo {
+			padding:0 5px;
+			margin:2px 0;
+			background:#FCFCFC;
+		}
+		.mark {
+			padding:0 5px;
+			margin:2px 0;
+			background: #eedddd;
+			color: #880000;
+			font-weight: bold;
+		}
+		-->
+		</style>
+	</head>
+	<body>
+		<h1>General Error</h1>
+		<p class="center">
+			[<a href="<?php echo $config['furl']; ?>/index.php">Return to Index</a>]
+			<?php if (!empty($_SERVER['HTTP_REFERER'])) { ?>
+			&nbsp;&nbsp;[<a href="<?php echo $_SERVER['HTTP_REFERER']; ?>">Return to last Page</a>]
+			<?php } ?>
+		</p>
+		<h3>Error Message</h3>
+		<p><strong><?php echo $errortype[$errno]; ?></strong>: <?php echo $errtext; ?></p>
+		<h3>Error Details</h3>
+		<p>
+			File: <?php echo $errfile; ?><br />
+			Line: <?php echo $errline; ?><br />
+			Date: <?php echo $errdate; ?><br />
+		</p>
+		<h3>Code Snippet</h3>
+		<?php echo getErrorCodeSnippet($errfile, $errline); ?>
+		<h3>Backtrace</h3>
+		<?php echo get_backtrace(); ?>
+		<h3>Contact</h3>
+		<p>Please notify the board administrator: <a href="mailto:<?php echo $config['forenmail']; ?>"><?php echo $config['forenmail']; ?></a></p>
+		<h3>Copyright</h3>
+		<p>
+			<strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+			Copyright &copy; by MaMo Net
+		</p>
+	</body>
+</html>
+			<?php
+			exit;
+		break;
+	}
+}
+
+function get_backtrace() {
+	global $config;
+
+	if (function_exists('debug_backtrace')) {
+		$backtrace = debug_backtrace();
+	}
+	else {
+		$output = '<p>Backtrace is not available!</p>';
+		return $output;
+	}
+	$path = realpath($config['fpath']);
+
+	$output = '';
+	foreach ($backtrace as $number => $trace) {
+		// We skip the first one, because it only shows this file/function
+		if ($number == 0) {
+			continue;
+		}
+
+		if (isset($trace['file'])) {
+			// Strip the current directory from path
+			$trace['file'] = str_replace(array($path, '\\'), array('', '/'), $trace['file']);
+			$trace['file'] = substr($trace['file'], 1);
+		}
+		
+		$args = array();
+		if (isset($trace['args']) && is_array($trace['args'])) {
+			foreach ($trace['args'] as $argument) {
+				switch (gettype($argument)) {
+					case 'integer':
+					case 'double':
+						$args[] = $argument;
+					break;
+					
+					case 'string':
+						$argument = htmlspecialchars(substr($argument, 0, 64)) . ((strlen($argument) > 64) ? '...' : '');
+						$args[] = "'{$argument}'";
+					break;
+					
+					case 'array':
+						$args[] = 'Array(' . count($argument) . ')';
+					break;
+					
+					case 'object':
+						$args[] = 'Object(' . get_class($argument) . ')';
+					break;
+					
+					case 'resource':
+						$args[] = 'Resource(' . strstr($a, '#') . ')';
+					break;
+					
+					case 'boolean':
+						$args[] = ($argument) ? 'true' : 'false';
+					break;
+					
+					case 'NULL':
+						$args[] = 'NULL';
+					break;
+					
+					default:
+						$args[] = 'Unknown';
+				}
+			}
+		}
+		
+		$trace['file'] = (!isset($trace['file'])) ? 'N/A' : $trace['file'];
+		$trace['line'] = (!isset($trace['line'])) ? 'N/A' : $trace['line'];
+		$trace['class'] = (!isset($trace['class'])) ? '' : $trace['class'];
+		$trace['type'] = (!isset($trace['type'])) ? '' : $trace['type'];
+		
+		$output .= '<ul class="code">';
+		$output .= '<li class="linetwo"><b>File:</b> ' . htmlspecialchars($trace['file']) . '</li>';
+		$output .= '<li class="lineone"><b>Line:</b> ' . $trace['line'] . '</li>';
+		$output .= '<li class="linetwo"><b>Call:</b> ' . htmlspecialchars($trace['class'] . $trace['type'] . $trace['function']) . '(' . ((count($args)) ? implode(', ', $args) : '') . ')</li>';
+		$output .= '</ul>';
+	}
+	return $output;
+}
+
+
+function getErrorCodeSnippet($file, $line) {
+        $lines = file_exists($file) ? file($file) : null;
+        if(!is_array($lines)) {
+            return 'Could not load code snippet!';
+        }
+
+		$code    = '<ul class="code">';
+    	$total   = count($lines);
+
+		for($i = $line - 5; $i <= $line + 5; $i++) {
+    		if(($i >= 1) && ($i <= $total)) {
+                $codeline = @rtrim(htmlentities($lines[$i - 1]));
+                $codeline = str_replace("\t", '&nbsp;&nbsp;&nbsp;&nbsp;', $codeline);
+                $codeline = str_replace(' ',  '&nbsp;',                   $codeline);
+
+                $i = sprintf("%05d", $i);
+
+                $class = $i % 2 == 0 ? 'lineone' : 'linetwo';
+
+                if($i != $line) {
+                    $code .= "<li class=\"{$class}\"><span>{$i}</span> {$codeline}</li>\n";
+                }
+                else {
+                    $code .= "<li class=\"mark\"><span>{$i}</span> {$codeline}</li>\n";
+                }
+            }
+		}
+
+        $code .= "</ul>";
+
+		return $code;
+	}
 
 /* Fixed php functions */
 
-
-// You should use fixed_dirname instead of dirname
+// You should use viscacha_dirname instead of dirname
 // Written by Manuel Lemos
-function fixed_dirname($path) {
+function viscacha_dirname($path) {
 	$end=strrpos($path,"/");
 	return((gettype($end)=="integer" && $end>1) ? substr($path,0,$end) : "");
+}
+
+/**
+ * getDocRoot fixes a problem with Windows where PHP does not have $_SERVER['DOCUMENT_ROOT']
+ * built in. getDocRoot returns what $_SERVER['DOCUMENT_ROOT'] should have. It should work on
+ * other builds, such as Unix, but is best used with Windows. There are two return cases for
+ * Windows, one is the document root for the server's web files (c:/inetpub/wwwroot), the 
+ * other version is the first folder beyond that point (if documents are stored in user folders).
+ * 
+ * @author Allan Bogh - Buckwheat469@hotmail.com
+ * @version 1.0 - based on research on www.helicron.net/php
+ *
+ * @param $folderFix - This optional parameter tells the function to include the first folder in
+ *						the return (c:/inetpub/wwwroot/userfolder instead of c:/inetpub/wwwroot).
+ *						Set to true if folder should be returned.
+ * @return The document root string.
+ **/
+function getDocumentRoot(){
+	//sets up the localpath
+	$localpath = getenv("SCRIPT_NAME");
+ 	$localpath = substr($localpath,strpos($localpath,'/',1),strlen($localpath));
+	 
+	//realpath sometimes doesn't work, but gets the full path of the file
+	$absolutepath = realpath($localpath);
+	if((!isset($absolutepath) || $absolutepath=="") && isset($_SERVER['ORIG_PATH_TRANSLATED'])){
+		$absolutepath = $_SERVER['ORIG_PATH_TRANSLATED'];
+	}
+	
+	//checks if Windows is being used to replace the \ to /
+	if(isset($_SERVER['OS']) && (strpos($_SERVER['OS'],'Windows') > -1)){
+		$absolutepath = str_replace("\\","/",$absolutepath);
+	}
+	 
+	//prepares the document root string
+	$docroot = substr($absolutepath,0,strpos($absolutepath,$localpath));
+	return $docroot;
 }
 
 // Variable headers are not secure in php (HTTP response Splitting). Better use viscacha_header()
@@ -35,29 +366,28 @@ function viscacha_header($header) {
 	header($header);
 }
 
+// PHP has no comfortable solution?!
+function imagegreyscale(&$img) {
+	$x = imagesx($img);
+	$y = imagesy($img);
+
+	for($i=0; $i<$y; $i++) {
+		for($j=0; $j<$x; $j++) {
+	    	$pos = imagecolorat($img, $j, $i);  
+	    	$f = imagecolorsforindex($img, $pos);
+	    	$gst = $f['red']*0.15 + $f['green']*0.5 + $f['blue']*0.35;  
+	    	$col = imagecolorresolve($img, $gst, $gst, $gst);
+	    	imagesetpixel($img, $j, $i, $col);    
+	  	}
+	}
+}
+
 // PHP is stupid: No lcfirst()
 function lcfirst($p) {
 	return strtolower($p{0}).substr($p, 1);
 }
 
-
 /* Missing constants from PHP-Compat */
-
-/**
- * Replace constant DIRECTORY_SEPARATOR
- *
- * @category    PHP
- * @package     PHP_Compat
- * @link        http://php.net/reserved.constants.standard
- * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.1 $
- * @since       PHP 4.0.6
- */
-if (!defined('DIRECTORY_SEPARATOR')) {
-    define('DIRECTORY_SEPARATOR',
-        strtoupper(substr(PHP_OS, 0, 3) == 'WIN') ? '\\' : '/'
-    );
-}
 
 /**
  * Replace constant E_STRICT
@@ -268,7 +598,22 @@ if (!defined('MHASH_ADLER32')) {
     define('MHASH_ADLER32', 18);
 }
 
-/* Missing functions from PHP-Compat */
+/* Missing functions (from PHP-Compat) */
+
+/**
+ * Replace htmlspecialchars_decode()
+ *
+ * @link        http://php.net/function.htmlspecialchars_decode
+ * @author      Matthias Mohr
+ * @version     $Revision: 1.0 $
+ * @since       PHP 5.1.0
+ * @require     PHP 4.0.0 (trigger_error)
+ */
+if (!function_exists('htmlspecialchars_decode')) {
+	function htmlspecialchars_decode($str, $quote_style = ENT_COMPAT) {
+		return strtr($str, array_flip(get_html_translation_table(HTML_SPECIALCHARS, $quote_style)));
+	}
+}
 
 /**
  * Replace mhash()
@@ -279,7 +624,7 @@ if (!defined('MHASH_ADLER32')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.1 $
  * @since       PHP 4.1.0
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 (trigger_error)
  */
 if (!function_exists('mhash')) {
     function mhash($hashtype, $data, $key = '')    
@@ -433,7 +778,7 @@ function sha1($str, $raw_output=FALSE)
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.6 $
  * @since       PHP 4.3.0
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 (trigger_error)
  */
 if (!function_exists('str_shuffle')) {
     function str_shuffle($str)
@@ -465,13 +810,13 @@ if (!function_exists('str_shuffle')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.10 $
  * @since       PHP 4.2.0
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('array_change_key_case')) {
     function array_change_key_case($input, $case = CASE_LOWER)
     {
         if (!is_array($input)) {
-            user_error('array_change_key_case(): The argument should be an array',
+            trigger_error('array_change_key_case(): The argument should be an array',
                 E_USER_WARNING);
             return false;
         }
@@ -499,13 +844,13 @@ if (!function_exists('array_change_key_case')) {
  * @version     $Revision: 1.7 $
  * @since       PHP 4.3.0
  * @internal    Setting the charset will not do anything
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('html_entity_decode')) {
     function html_entity_decode($string, $quote_style = ENT_COMPAT, $charset = null)
     {
         if (!is_int($quote_style)) {
-            user_error('html_entity_decode() expects parameter 2 to be long, ' .
+            trigger_error('html_entity_decode() expects parameter 2 to be long, ' .
                 gettype($quote_style) . ' given', E_USER_WARNING);
             return;
         }
@@ -536,26 +881,26 @@ if (!function_exists('html_entity_decode')) {
  * @author      Thiemo Mättig (http://maettig.com)
  * @version     $Revision: 1.14 $
  * @since       PHP 4.2.0
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('array_chunk')) {
     function array_chunk($input, $size, $preserve_keys = false)
     {
         if (!is_array($input)) {
-            user_error('array_chunk() expects parameter 1 to be array, ' .
+            trigger_error('array_chunk() expects parameter 1 to be array, ' .
                 gettype($input) . ' given', E_USER_WARNING);
             return;
         }
 
         if (!is_numeric($size)) {
-            user_error('array_chunk() expects parameter 2 to be long, ' .
+            trigger_error('array_chunk() expects parameter 2 to be long, ' .
                 gettype($size) . ' given', E_USER_WARNING);
             return;
         }
 
         $size = (int)$size;
         if ($size <= 0) {
-            user_error('array_chunk() Size parameter expected to be greater than 0',
+            trigger_error('array_chunk() Size parameter expected to be greater than 0',
                 E_USER_WARNING);
             return;
         }
@@ -587,7 +932,7 @@ if (!function_exists('array_chunk')) {
  * @version     $Revision: 1.25 $
  * @internal    resource_context is not supported
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('file_put_contents')) {
     function file_put_contents($filename, $content, $flags = null, $resource_context = null)
@@ -599,7 +944,7 @@ if (!function_exists('file_put_contents')) {
 
         // If we don't have a string, throw an error
         if (!is_scalar($content)) {
-            user_error('file_put_contents() The 2nd parameter should be either a string or an array',
+            trigger_error('file_put_contents() The 2nd parameter should be either a string or an array',
                 E_USER_WARNING);
             return false;
         }
@@ -619,7 +964,7 @@ if (!function_exists('file_put_contents')) {
 
         // Open the file for writing
         if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
-            user_error('file_put_contents() failed to open stream: Permission denied',
+            trigger_error('file_put_contents() failed to open stream: Permission denied',
                 E_USER_WARNING);
             return false;
         }
@@ -638,7 +983,7 @@ if (!function_exists('file_put_contents')) {
             $errormsg = sprintf('file_put_contents() Failed to write %d bytes to %s',
                             $length,
                             $filename);
-            user_error($errormsg, E_USER_WARNING);
+            trigger_error($errormsg, E_USER_WARNING);
             return false;
         }
 
@@ -650,7 +995,7 @@ if (!function_exists('file_put_contents')) {
             $errormsg = sprintf('file_put_contents() Only %d of %d bytes written, possibly out of free disk space.',
                             $bytes,
                             $length);
-            user_error($errormsg, E_USER_WARNING);
+            trigger_error($errormsg, E_USER_WARNING);
             return false;
         }
 
@@ -669,13 +1014,13 @@ if (!function_exists('file_put_contents')) {
  * @version     $Revision: 1.21 $
  * @internal    resource_context is not supported
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('file_get_contents')) {
     function file_get_contents($filename, $incpath = false, $resource_context = null)
     {
         if (false === $fh = fopen($filename, 'rb', $incpath)) {
-            user_error('file_get_contents() failed to open stream: No such file or directory',
+            trigger_error('file_get_contents() failed to open stream: No such file or directory',
                 E_USER_WARNING);
             return false;
         }
@@ -704,24 +1049,24 @@ if (!function_exists('file_get_contents')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.13 $
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('stripos')) {
     function stripos($haystack, $needle, $offset = null)
     {
         if (!is_scalar($haystack)) {
-            user_error('stripos() expects parameter 1 to be string, ' .
+            trigger_error('stripos() expects parameter 1 to be string, ' .
                 gettype($haystack) . ' given', E_USER_WARNING);
             return false;
         }
 
         if (!is_scalar($needle)) {
-            user_error('stripos() needle is not a string or an integer.', E_USER_WARNING);
+            trigger_error('stripos() needle is not a string or an integer.', E_USER_WARNING);
             return false;
         }
 
         if (!is_int($offset) && !is_bool($offset) && !is_null($offset)) {
-            user_error('stripos() expects parameter 3 to be long, ' .
+            trigger_error('stripos() expects parameter 3 to be long, ' .
                 gettype($offset) . ' given', E_USER_WARNING);
             return false;
         }
@@ -756,7 +1101,7 @@ if (!function_exists('stripos')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.18 $
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  * @note        count not by returned by reference, to enable
  *              change '$count = null' to '&$count'
  */
@@ -765,7 +1110,7 @@ if (!function_exists('str_ireplace')) {
     {
         // Sanity check
         if (is_string($search) && is_array($replace)) {
-            user_error('Array to string conversion', E_USER_NOTICE);
+            trigger_error('Array to string conversion', E_USER_NOTICE);
             $replace = (string) $replace;
         }
 
@@ -848,20 +1193,20 @@ if (!function_exists('str_ireplace')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.15 $
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('str_split')) {
     function str_split($string, $split_length = 1)
     {
         if (!is_scalar($split_length)) {
-            user_error('str_split() expects parameter 2 to be long, ' .
+            trigger_error('str_split() expects parameter 2 to be long, ' .
                 gettype($split_length) . ' given', E_USER_WARNING);
             return false;
         }
 
         $split_length = (int) $split_length;
         if ($split_length < 1) {
-            user_error('str_split() The length of each segment must be greater than zero', E_USER_WARNING);
+            trigger_error('str_split() The length of each segment must be greater than zero', E_USER_WARNING);
             return false;
         }
         
@@ -886,168 +1231,6 @@ if (!function_exists('str_split')) {
 
             return $arr;
         }
-    }
-}
-
-
-/**
-/**
- * Replace version_compare()
- *
- * @category    PHP
- * @package     PHP_Compat
- * @link        http://php.net/function.version_compare
- * @author      Philippe Jausions <Philippe.Jausions@11abacus.com>
- * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.13 $
- * @since       PHP 4.1.0
- * @require     PHP 4.0.5 (user_error)
- */
-if (!function_exists('version_compare')) {
-    function version_compare($version1, $version2, $operator = '<')
-    {
-        // Check input
-        if (!is_scalar($version1)) {
-            user_error('version_compare() expects parameter 1 to be string, ' .
-                gettype($version1) . ' given', E_USER_WARNING);
-            return;
-        }
-
-        if (!is_scalar($version2)) {
-            user_error('version_compare() expects parameter 2 to be string, ' .
-                gettype($version2) . ' given', E_USER_WARNING);
-            return;
-        }
-
-        if (!is_scalar($operator)) {
-            user_error('version_compare() expects parameter 3 to be string, ' .
-                gettype($operator) . ' given', E_USER_WARNING);
-            return;
-        }
-
-        // Standardise versions
-        $v1 = explode('.',
-            str_replace('..', '.',
-                preg_replace('/([^0-9\.]+)/', '.$1.',
-                    str_replace(array('-', '_', '+'), '.',
-                        trim($version1)))));
-
-        $v2 = explode('.',
-            str_replace('..', '.',
-                preg_replace('/([^0-9\.]+)/', '.$1.',
-                    str_replace(array('-', '_', '+'), '.',
-                        trim($version2)))));
-
-        // Replace empty entries at the start of the array
-        while (empty($v1[0]) && array_shift($v1)) {}
-        while (empty($v2[0]) && array_shift($v2)) {}
-
-        // Release state order
-        // '#' stands for any number
-        $versions = array(
-            'dev'   => 0,
-            'alpha' => 1,
-            'a'     => 1,
-            'beta'  => 2,
-            'b'     => 2,
-            'RC'    => 3,
-            '#'     => 4,
-            'p'     => 5,
-            'pl'    => 5);
-
-        // Loop through each segment in the version string
-        $compare = 0;
-        for ($i = 0, $x = min(count($v1), count($v2)); $i < $x; $i++) {
-            if ($v1[$i] == $v2[$i]) {
-                continue;
-            }
-            $i1 = $v1[$i];
-            $i2 = $v2[$i];
-            if (is_numeric($i1) && is_numeric($i2)) {
-                $compare = ($i1 < $i2) ? -1 : 1;
-                break;
-            }
-
-            // We use the position of '#' in the versions list
-            // for numbers... (so take care of # in original string)
-            if ($i1 == '#') {
-                $i1 = '';
-            } elseif (is_numeric($i1)) {
-                $i1 = '#';
-            }
-
-            if ($i2 == '#') {
-                $i2 = '';
-            } elseif (is_numeric($i2)) {
-                $i2 = '#';
-            }
-
-            if (isset($versions[$i1]) && isset($versions[$i2])) {
-                $compare = ($versions[$i1] < $versions[$i2]) ? -1 : 1;
-            } elseif (isset($versions[$i1])) {
-                $compare = 1;
-            } elseif (isset($versions[$i2])) {
-                $compare = -1;
-            } else {
-                $compare = 0;
-            }
-
-            break;
-        }
-
-        // If previous loop didn't find anything, compare the "extra" segments
-        if ($compare == 0) {
-            if (count($v2) > count($v1)) {
-                if (isset($versions[$v2[$i]])) {
-                    $compare = ($versions[$v2[$i]] < 4) ? 1 : -1;
-                } else {
-                    $compare = -1;
-                }
-            } elseif (count($v2) < count($v1)) {
-                if (isset($versions[$v1[$i]])) {
-                    $compare = ($versions[$v1[$i]] < 4) ? -1 : 1;
-                } else {
-                    $compare = 1;
-                }
-            }
-        }
-
-        // Compare the versions
-        if (func_num_args() > 2) {
-            switch ($operator) {
-                case '>':
-                case 'gt':
-                    return (bool) ($compare > 0);
-                    break;
-                case '>=':
-                case 'ge':
-                    return (bool) ($compare >= 0);
-                    break;
-                case '<=':
-                case 'le':
-                    return (bool) ($compare <= 0);
-                    break;
-                case '==':
-                case '=':
-                case 'eq':
-                    return (bool) ($compare == 0);
-                    break;
-                case '<>':
-                case '!=':
-                case 'ne':
-                    return (bool) ($compare != 0);
-                    break;
-                case '':
-                case '<':
-                case 'lt':
-                    return (bool) ($compare < 0);
-                    break;
-                default:
-                    return;
-            }
-        }
-
-        return $compare;
     }
 }
 
@@ -1080,19 +1263,19 @@ if (!function_exists('array_fill')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.21 $
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('array_combine')) {
     function array_combine($keys, $values)
     {
         if (!is_array($keys)) {
-            user_error('array_combine() expects parameter 1 to be array, ' .
+            trigger_error('array_combine() expects parameter 1 to be array, ' .
                 gettype($keys) . ' given', E_USER_WARNING);
             return;
         }
 
         if (!is_array($values)) {
-            user_error('array_combine() expects parameter 2 to be array, ' .
+            trigger_error('array_combine() expects parameter 2 to be array, ' .
                 gettype($values) . ' given', E_USER_WARNING);
             return;
         }
@@ -1100,12 +1283,12 @@ if (!function_exists('array_combine')) {
         $key_count = count($keys);
         $value_count = count($values);
         if ($key_count !== $value_count) {
-            user_error('array_combine() Both parameters should have equal number of elements', E_USER_WARNING);
+            trigger_error('array_combine() Both parameters should have equal number of elements', E_USER_WARNING);
             return false;
         }
 
         if ($key_count === 0 || $value_count === 0) {
-            user_error('array_combine() Both parameters should have number of elements at least 0', E_USER_WARNING);
+            trigger_error('array_combine() Both parameters should have number of elements at least 0', E_USER_WARNING);
             return false;
         }
 
@@ -1130,7 +1313,7 @@ if (!function_exists('array_combine')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.16 $
  * @since       PHP 4.2.0
- * @require     PHP 4.0.0 (user_error) (is_subclass_of)
+ * @require     PHP 4.0.0 () (is_subclass_of)
  */
 //  Required for lib_diff.php
 if (!function_exists('is_a')) {
@@ -1158,7 +1341,7 @@ if (!function_exists('is_a')) {
  * @author      Aidan Lister <aidan@php.net>
  * @version     $Revision: 1.16 $
  * @since       PHP 5
- * @require     PHP 4.0.0 (user_error)
+ * @require     PHP 4.0.0 ()
  */
 if (!function_exists('http_build_query')) {
     function http_build_query($formdata, $numeric_prefix = null)
@@ -1170,7 +1353,7 @@ if (!function_exists('http_build_query')) {
 
         // Check we have an array to work with
         if (!is_array($formdata)) {
-            user_error('http_build_query() Parameter 1 expected to be Array or Object. Incorrect value given.',
+            trigger_error('http_build_query() Parameter 1 expected to be Array or Object. Incorrect value given.',
                 E_USER_WARNING);
             return false;
         }
@@ -1225,40 +1408,4 @@ if (!function_exists('http_build_query')) {
         return implode($separator, $tmp);
     }
 }
-
-/**
- * Replace array_key_exists()
- *
- * @category    PHP
- * @package     PHP_Compat
- * @link        http://php.net/function.array_key_exists
- * @author      Aidan Lister <aidan@php.net>
- * @version     $Revision: 1.7 $
- * @since       PHP 4.1.0
- * @require     PHP 4.0.0 (user_error)
- */
-if (!function_exists('array_key_exists')) {
-    function array_key_exists($key, $search)
-    {
-        if (!is_scalar($key)) {
-            user_error('array_key_exists() The first argument should be either a string or an integer',
-                E_USER_WARNING);
-            return false;
-        }
-
-        if (is_object($search)) {
-            $search = get_object_vars($search);
-        }
-
-        if (!is_array($search)) {
-            user_error('array_key_exists() The second argument should be either an array or an object',
-                E_USER_WARNING);
-            return false;
-        }
-
-        return in_array($key, array_keys($search));
-    }
-}
-
-
 ?>

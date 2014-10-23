@@ -1,0 +1,39 @@
+<form method="post" action="managetopic.php?action=pmerge2&amp;id=<?php echo $info['id'].SID2URL_x; ?>">
+<?php foreach ($ids as $id) { ?>
+<input type="hidden" name="ids[]" value="<?php echo $id; ?>" />
+<?php } ?>
+<div class="border">
+<h3><?php echo $lang->phrase('admin_merge_title'); ?></h3>
+<div class="bbody">
+<label for="author"><?php echo $lang->phrase('admin_merge_author'); ?></label>
+<div class="label" id="author">
+<?php foreach ($posts as $row) { if (isset($author[$row['id']])) { ?>
+<input type="radio" name="author" value="<?php echo $row['id']; ?>" /> <?php echo $row['uname']; ?> (ID: <?php echo $row['uid']; ?>)<br />
+<?php }} ?>
+</div>
+<br class="newinput" /><hr class="formsep" />
+<label for="topic"><?php echo $lang->phrase('title'); ?></label> 
+<div class="label" id="topic">
+<?php foreach ($posts as $row) { if (isset($topic[$row['id']])) { ?>
+<input type="radio" name="topic_id" value="<?php echo $row['id']; ?>" /> <?php echo $row['topic']; ?><br />
+<?php }} ?>
+</div>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $inner['smileys']; ?></label>
+<?php echo $inner['bbhtml']; ?>
+<br class="newinput" /><hr class="formsep" />
+<label for="comment"><?php echo $lang->phrase('post'); ?></label> 
+<textarea class="label" name="comment" id="comment" cols="50" rows="10"><?php echo implode("\n\n", $comment); ?></textarea>
+<br class="newinput" /><hr class="formsep" />
+<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label> 
+<div class="label">
+	<input type="checkbox" name="dosmileys" value="1" checked="checked" /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
+	<input type="checkbox" name="dowords" value="1" checked="checked" /> <?php echo $lang->phrase('post_settings_words'); ?>
+</div>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center">
+  <input type="submit" accesskey="s" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" />
+</div>
+</div>
+</form>

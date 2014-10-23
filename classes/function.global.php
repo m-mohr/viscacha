@@ -24,6 +24,8 @@
 
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.global.php") die('Error: Hacking Attempt');
 
+// Caching-Class
+require_once('classes/class.cache.php');
 // INI-File-Class
 include_once("classes/class.ini.php");
 // A class for Languages
@@ -32,13 +34,43 @@ require_once("classes/class.language.php");
 require_once("classes/class.plugins.php");
 // Gets a file with Output-functions
 require_once("classes/class.docoutput.php");
+// BB-Code Class
+include_once ("classes/class.bbcode.php");
+
+$scache = new CacheServer();
 $myini = new INI();
 $lang = new lang();
-$mymodules = new MyModules();
+$plugins = new PluginSystem();
+
 // Database functions
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['pconnect'], true, $config['dbprefix']);
-$db->pre = $db->prefix();
+
+// Construct base bb-code object
+$bbcode = new BBCode();
+
+function array_empty_trim($arr) {
+	$array = array();
+	foreach($arr as $key => $val) {
+		$trimmed = trim($val);
+		if (!empty($trimmed)) {
+			$array[$key] = $val;
+		}
+	}
+	return $array;
+}
+function send_nocache_header() {
+	if (!empty($_SERVER['SERVER_SOFTWARE']) && strstr($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
+		header ('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0');
+	}
+	else {
+		header ('Cache-Control: private, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0');
+	}
+	$now = gmdate('D, d M Y H:i:s').' GMT'; // rfc2616 - Section 14.21
+	header ('Expires: '.$now);
+	header ('Last-Modified: '.$now);
+	header ('Pragma: no-cache');
+}
 
 function doctypes() {
 	$data = file('data/documents.php');
@@ -112,6 +144,9 @@ function extract_dir($source, $realpath = true) {
 */
 function rmdirr($dirname) {
 	global $filesystem;
+	if (!file_exists($dirname)) {
+		return false;
+	}
 	if (is_file($dirname)) {
 		return $filesystem->unlink($dirname);
 	} 
@@ -179,16 +214,22 @@ function serverload($int = false) {
 		if(!$serverload) {
 			$load = @exec("uptime");
 			$load = split("load averages?: ", $load);
-			$serverload = @explode(",", $load[1]);
+			if (isset($load[1])) {
+				$serverload = @explode(",", $load[1]);
+			}
 		}
 	}
 	else {
 		$load = @exec("uptime");
 		$load = split("load averages?: ", $load);
-		$serverload = @explode(",", $load[1]);
+		if (isset($load[1])) {
+			$serverload = @explode(",", $load[1]);
+		}
 	}
-	$returnload = trim($serverload[0]);
-	if(!$returnload) {
+	if (isset($serverload[0])) {
+		$returnload = trim($serverload[0]);
+	}
+	if(empty($returnload)) {
 		$returnload = $unknown;
 	}
 	return $returnload;
@@ -289,6 +330,7 @@ function is_id ($x) {
 }
 
 function removeOldImages ($dir, $name) {
+	global $filesystem;
     $dir = realpath($dir);
     $dir_open = @opendir($dir);
     while (($dir_content = readdir($dir_open)) !== false) {
@@ -296,7 +338,7 @@ function removeOldImages ($dir, $name) {
             $ext = get_extension($dir_content);
             $fname = str_ireplace($ext, '', $dir_content);
             if ($fname == $name) {
-                @unlink($dir.'/'.$dir_content);
+                @$filesystem->unlink($dir.'/'.$dir_content);
             }
         }
     }
@@ -330,10 +372,10 @@ function secure_path($path) {
 
 function check_hp($hp) {
 	if (preg_match("~^https?://[a-zA-Z0-9\-\.@]+\.[a-zA-Z0-9]{1,7}(:[A-Za-z0-9]*)?/?([a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~]*)?$~i", $hp)) {
-		return TRUE;
+		return true;
 	}
 	else {
-		return FALSE;
+		return false;
 	}
 }
 function check_mail($email) {
@@ -457,44 +499,25 @@ function get_extension($url, $leading=FALSE) {
 	}
 }
 function UpdateBoardStats ($board) {
-	global $config, $db;
+	global $config, $db, $scache;
 	if ($config['updateboardstats'] == '1') {
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='$board'",__LINE__,__FILE__);
-		$count = $db->fetch_array ($result);
+		$count = $db->fetch_num ($result);
 
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='$board'",__LINE__,__FILE__);
-		$count2 = $db->fetch_array($result);
+		$count2 = $db->fetch_num($result);
 		
 		$replies = $count[0]-$count2[0];
 		$topics = $count2[0];
 
 		$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '$board' ORDER BY last DESC LIMIT 1",__LINE__,__FILE__);
-	    $last = $db->fetch_array($result);
+	    $last = $db->fetch_num($result);
 	    if (empty($last[0])) {
 			$last[0] = 0;
 		}
 		$db->query("UPDATE {$db->pre}cat SET topics = '".$topics."', replys = '".$replies."', last_topic = '".$last[0]."' WHERE id = '".$board."'",__LINE__,__FILE__);
-		$scache = new scache('cat_bid');
-		$scache->deletedata();
-	}
-}
-
-function BotDetection ($source, $bot, $type=FALSE) {
-	foreach ($source as $spider) {
-		if (stristr($bot, $spider['user_agent']) !== FALSE) {
-			if ($type == TRUE) {
-				return array($spider['name'], $spider['type']);
-			}
-			else {
-				return $spider['name'];
-			}
-		}
-	}
-	if ($type == TRUE) {
-		return array(false, false);
-	}
-	else {
-		return false;
+		$delobj = $scache->load('cat_bid');
+		$delobj->delete();
 	}
 }
 
@@ -505,42 +528,66 @@ function iif($if, $true, $false = '') {
 function getip($dots = 4) {
 	$ips = array();
 
-	if (@getenv("HTTP_CLIENT_IP")) {
-		$ips[] = getenv("HTTP_CLIENT_IP");
+	// $_SERVER is sometimes for a windows server which can't handle getenv()
+	if(@getenv("REMOTE_ADDR")) {
+		$ips[] = @getenv("REMOTE_ADDR");
+	}
+	if(isset($_SERVER["REMOTE_ADDR"])) {
+		$ips[] = $_SERVER["REMOTE_ADDR"];
 	}
 	if(@getenv("HTTP_X_FORWARDED_FOR")) {
 		$ips[] = getenv("HTTP_X_FORWARDED_FOR");
 	}
-	if(@getenv("REMOTE_ADDR")) {
-		$ips[] = getenv("REMOTE_ADDR");
-	}
-	// sometimes for a windows server which can't handle getenv()
-	if(isset($_SERVER["REMOTE_ADDR"])) {
-		$ips[] = $_SERVER["REMOTE_ADDR"];
-	}
 	if(isset($_SERVER["HTTP_X_FORWARDED_FOR"])) {
 		$ips[] = $_SERVER["HTTP_X_FORWARDED_FOR"];
+	}
+	if (@getenv("HTTP_CLIENT_IP")) {
+		$ips[] = getenv("HTTP_CLIENT_IP");
 	}
 	if (isset($_SERVER["HTTP_CLIENT_IP"])) {
 		$ips[] = $_SERVER["HTTP_CLIENT_IP"];
 	}
 
-   	$private_ips = array("/^0\./", "/^127\.0\.0\.1/", "/^192\.168\..*/", "/^172\.16\..*/", "/^10..*/", "/^224..*/", "/^240..*/");
+   	$private_ips = array("/^0\..+$/", "/^127\.0\.0\..+$/", "/^192\.168\..+$/", "/^172\.16\..+$/", "/^10..+$/", "/^224..+$/", "/^240..+$/", "/[^\d\.]+/");
 	$ips = array_unique($ips);
 
 	foreach ($ips as $ip) {
+		$found = false;
 		foreach ($private_ips as $pip) {
-			if (!preg_match($pip, $ip)) {
-				return ext_iptrim($ip, $dots);
+			if (preg_match($pip, trim($ip)) == 1) {
+				$found = true;
 			}
 		}
+		if ($found == false) {
+			return ext_iptrim(trim($ip), $dots);
+		}
 	}
-	if(empty($ips[0])) {
-		srand((double)microtime()*1000000);
-		$randval = rand(0,255);
-		$ips[0] = '0.'.$r.'.'.$r.'.'.$r;
+
+	$b = _EnvValToInt('HTTP_USER_AGENT');
+	$c = _EnvValToInt('HTTP_ACCEPT');
+	$d = _EnvValToInt('HTTP_ACCEPT_LANGUAGE');
+	$ip = "0.{$b}.{$c}.{$d}";
+	return ext_iptrim($ip, $dots);
+}
+
+function _EnvValToInt($x) {
+	$y = getenv($x);
+	if (empty($y)) {
+		if (isset($_SERVER[$y])) {
+			$y = $_SERVER[$y];
+		}
+		else {
+			$y = 7;
+		}
 	}
-	return ext_iptrim($ips[0], $dots);
+	$length = strlen($y)-1;
+	if ($length > 0) {
+		$i = ord($y{$length});
+	}
+	else {
+		$i = 5;
+	}
+	return $i;
 }
 
 function ext_iptrim ($text, $peaces) {
@@ -590,9 +637,17 @@ function CheckForumTree($tree, &$tree2, $board) {
 }
 
 function BoardSubs ($group = true) {
-	$tree = cache_forumtree();
-	$categories = cache_categories();
-	$boards = cache_cat_bid();
+	global $scache;
+	
+	$forumtree = $scache->load('forumtree');
+	$tree = $forumtree->get();
+	
+	$categories_obj = $scache->load('categories');
+	$categories = $categories_obj->get();
+	
+	$catbid = $scache->load('cat_bid');
+	$boards = $catbid->get();
+	
 	$tree2 = array();
 	$forums = SelectForums(array(), $tree, $categories, $boards, $group);
 	return implode("\n", $forums);
@@ -626,16 +681,24 @@ function SelectForums($html, $tree, $cat, $board, $group = true, $char = '&nbsp;
 
 // This function is simply for understanding the if-clauses better
 function check_forumperm($forum) {
-	global $my;
-	if ($forum['opt'] == 'pw') {
-		if (!isset($my->pwfaccess[$forum['id']]) || $forum['optvalue'] != $my->pwfaccess[$forum['id']]) {
-			return false;
-		}
-		else {
-			return true;
+	global $my, $scache;
+
+	$parent_forums = $scache->load('parent_forums');
+	$tree = $parent_forums->get();
+	
+	$catbid = $scache->load('cat_bid');
+	$forums = $catbid->get();
+
+	if (isset($tree[$forum['id']]) && is_array($tree[$forum['id']])) {
+		foreach ($tree[$forum['id']] as $id) {
+			if ($forums[$id]['opt'] == 'pw') {
+				if (!isset($my->pwfaccess[$id]) || $forums[$id]['optvalue'] != $my->pwfaccess[$id]) {
+					return false;
+				}
+			}
 		}
 	}
-	elseif ($my->p['forum'] == 0) {
+	if ($my->p['forum'] == 0) {
 		if (isset($my->pb[$forum['id']]) && $my->pb[$forum['id']]['forum'] == 1) {
 			return true;
 		}
@@ -671,7 +734,7 @@ Params:
 */
 
 function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachment = array()) {
-	global $config, $my, $lang;
+	global $config, $my, $lang, $bbcode;
 	
 	require_once("classes/mail/class.phpmailer.php");
 	require_once('classes/mail/extended.phpmailer.php');
@@ -719,7 +782,7 @@ function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachme
 	$i = 0;
 	foreach ($to as $email) {
 		if ($type == 'bb') {
-			$bbcode = initBBCodes();
+			BBProfile($bbcode);
 			$bbcode->setSmileys(0);
 			$bbcode->setReplace($config['wordstatus']);
 			$row->comment = ($row->comment);
@@ -784,8 +847,12 @@ function makecookie($name, $value = '', $expire = 31536000) {
 //	else {
 //		$secure = 0;
 //	}
-
-	$expire = time() + $expire;
+	if ($expire != null) {
+		$expire = time() + $expire;
+	}
+	else {
+		$expire = 0;
+	}
 	setcookie($name, $value, $expire);
 }
 ?>

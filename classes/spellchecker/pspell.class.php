@@ -36,11 +36,25 @@ class spellchecker {
 		else {
 			pspell_config_mode($link, PSPELL_NORMAL);
 		}
+		pspell_config_personal($link, "classes/spellchecker/dict/".$this->langcode.".pws");
+
 		$this->resid = @pspell_new_config($link);
 
 		if (!$this->resid) {
 			$this->errormsg = 'Could not open dictionary "'.$this->langcode.'"';
 		}
+	}
+
+	function add($word) {
+		if (is_string($word)) {
+			pspell_add_to_personal($this->resid, $word);
+		}
+		if (is_array($word)) {
+			foreach ($word as $w) {
+				pspell_add_to_personal($this->resid, $w);
+			}
+		}
+		return pspell_save_wordlist($this->resid);
 	}
 	
 	function check_text($text) {

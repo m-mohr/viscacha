@@ -1,14 +1,29 @@
+<?php if ($preview) { ?>
+<div class="border">
+  <h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_about_preview'); ?></h3>
+  <div class="bbody"><?php echo $parsedPreview; ?></div>
+</div>
+<br class="minibr" />
+<?php } ?>
 <form name="form2" method="post" action="editprofile.php?action=about2<?php echo SID2URL_x; ?>">
 <div class="border">
 <h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_about'); ?></h3>
 <div class="bbody">
 	<label><?php echo $inner['smileys']; ?></label>
 	<?php echo $inner['bbhtml']; ?>
+	<script type="text/javascript">
+	<!--
+	setTextfield('about');
+	-->
+	</script>
 	<br class="newinput" /><hr class="formsep" />
-	<label for="comment" class="stext"><?php echo $lang->phrase('editprofile_about_longdesc'); ?></label> 
-	<textarea class="label" name="comment" id="comment" rows="20" cols="65"><?php echo $data; ?></textarea>
+	<label for="about" class="stext"><?php echo $lang->phrase('editprofile_about_longdesc'); ?></label> 
+	<textarea class="label" name="about" id="about" rows="20" cols="65"><?php echo $data; ?></textarea>
 	<br class="newinput" /><br class="iefix_br" />
 </div>	 
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+<div class="bfoot center">
+ <input accesskey="s" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" /> 
+ <input accesskey="p" type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
+</div> 
 </div>
 </form>

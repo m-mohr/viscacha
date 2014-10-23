@@ -1,4 +1,36 @@
 <?php
+function array_stripslashes($array) {
+	if(is_array($array)) {
+		return array_map('stripslashes', $array); 
+	}
+	else {
+		return stripslashes($array);
+	}
+}
+function rmdirr($dirname) {
+	global $filesystem;
+	if (!file_exists($dirname)) {
+		return false;
+	}
+	if (is_file($dirname)) {
+		return $filesystem->unlink($dirname);
+	}
+	$dir = dir($dirname);
+	while (false !== $entry = $dir->read()) {
+		if ($entry == '.' || $entry == '..') {
+			continue;
+		}
+		if (is_dir("$dirname/$entry")) {
+			rmdirr("$dirname/$entry");
+		} 
+		else {
+			$filesystem->unlink("$dirname/$entry");
+		}
+	}  
+	$dir->close(); 
+	return $filesystem->rmdir($dirname);
+}
+
 // Variables
 @set_magic_quotes_runtime(0);
 @ini_set('magic_quotes_gpc',0);
@@ -48,15 +80,6 @@ if (version_compare(PHP_VERSION, '4.1.0', '<')) {
 		$_SESSION = &$HTTP_SESSION_VARS;
 	}
 	$_REQUEST = array_merge($_GET, $_POST, $_COOKIE);
-}
-
-function array_stripslashes($array) {
-	if(is_array($array)) {
-		return array_map('stripslashes', $array); 
-	}
-	else {
-		return stripslashes($array);
-	}
 }
 
 if (get_magic_quotes_gpc() == 1) {

@@ -1,6 +1,6 @@
 <div class="uploadbox">
 <strong>
-<a href="javascript:filetypeinfo('<?php echo $imginfo; ?>');"><img src="<?php echo $tpl->img("filetypes/$icon"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$info; ?>" /></a>&nbsp;
+<a href="popup.php?action=filetypes&type=<?php echo $imginfo.SID2URL_x; ?>" target="filetypeinfo" onclick="filetypeinfo(this)"><img src="<?php echo $tpl->img("filetypes/$icon"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$imginfo; ?>" /></a>&nbsp;
 <?php if ($my->p['downloadfiles'] == 0) { echo $file['file']; } else { ?>
 <a href="attachments.php?action=attachment&amp;id=<?php echo $file['id'].SID2URL_x; ?>"><?php echo $file['file']; ?></a>
 <?php } ?>

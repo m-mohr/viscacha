@@ -94,10 +94,13 @@ class RSSCache {
 			return 0;
 		}
 		
+        if ($filesize = filesize($cache_file) ) {
 		$data = fread( $fp, filesize($cache_file) );
 		$rss = $this->unserialize( $data );
 		return $rss;
-	}
+    	}
+    	return 0;
+    }
 /*=======================================================================*\
 	Function:	get_mtime
 	Purpose:	check a url for last modification in the cache

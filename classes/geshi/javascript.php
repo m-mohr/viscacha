@@ -4,10 +4,10 @@
  * --------------
  * Author: Ben Keen (ben.keen@gmail.com)
  * Copyright: (c) 2004 Ben Keen (ben.keen@gmail.com), Nigel McNie (http://qbnz.com/highlighter)
- * Release Version: 1.0.7.6
- * CVS Revision Version: $Revision: 1.6 $
+ * Release Version: 1.0.7.12
+ * CVS Revision Version: $Revision: 1.13.2.3 $
  * Date Started: 2004/06/20
- * Last Modified: $Date: 2005/11/20 07:47:40 $
+ * Last Modified: $Date: 2006/07/22 11:30:23 $
  *
  * JavaScript language file for GeSHi.
  *
@@ -42,7 +42,7 @@
  ************************************************************************************/
 
 $language_data = array (
-  'LANG_NAME' => 'JavaScript',
+  'LANG_NAME' => 'Javascript',
   'COMMENT_SINGLE' => array(1 => '//'),
   'COMMENT_MULTI' => array('/*' => '*/'),
   'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,

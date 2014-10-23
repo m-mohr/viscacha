@@ -1,25 +1,27 @@
 <div class="border">
 <div class="bfoot topfooter">
     <span class="right">
-<?php if($my->p['edit'] == 1 && $info['status'] == 0 && ($my->mp[4] == 1 || $my->id == $row->mid)) { ?>
-	 <a href="edit.php?id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('post_edit'); ?></a>
-<?php } if($my->p['postreplies'] == 1 && $info['status'] == 0) { ?>
-	 <a class="sep" title="<?php echo $lang->phrase('post_quote_desc'); ?>" href="javascript: multiquote(<?php echo $row->id; ?>)"><img src="<?php echo $tpl->img('no_mquote'); ?>" alt="" id="mq_<?php echo $row->id; ?>" /> <?php echo $lang->phrase('post_quote'); ?></a>
-<?php } if($my->vlogin) { ?>
-	 <a class="sep" title="<?php echo $lang->phrase('post_copy_desc'); ?>" href="editprofile.php?action=copy&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('copy'); ?>" alt="" /> <?php echo $lang->phrase('post_copy'); ?></a>
-<?php } ?>
+    <?php if($my->p['edit'] == 1 && $info['status'] == 0 && ($my->mp[4] == 1 || $my->id == $row->mid)) { ?>
+	    <a href="edit.php?id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('post_edit'); ?></a>
+    <?php } if($my->p['postreplies'] == 1 && $info['status'] == 0) { ?>
+	    <a class="sep" title="<?php echo $lang->phrase('post_quote_desc'); ?>" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>" onclick="multiquote(<?php echo $row->id; ?>); return false;"><img src="<?php echo $tpl->img('no_mquote'); ?>" alt="" id="mq_<?php echo $row->id; ?>" /> <?php echo $lang->phrase('post_quote'); ?></a>
+    <?php } if($my->vlogin) { ?>
+	    <a class="sep" title="<?php echo $lang->phrase('post_copy_desc'); ?>" href="editprofile.php?action=copy&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('copy'); ?>" alt="" /> <?php echo $lang->phrase('post_copy'); ?></a>
+    <?php } if ($my->mp[0] == 1) { ?>
+    	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
+    <?php } ?>
     </span>
     <img src="<?php echo $tpl->img('post_'.$new); ?>" alt="" /> <?php echo $row->date; ?>
-    <?php echo iif($firstnew == 1,'<a name="firstnew" id="firstnew">&nbsp;</a>'); ?>
-    <a name="p<?php echo $row->id; ?>" id="p<?php echo $row->id; ?>">&nbsp;</a>
+    <?php echo iif($firstnew == 1,'<a name="firstnew" id="firstnew"></a>'); ?>
+    <a name="p<?php echo $row->id; ?>" id="p<?php echo $row->id; ?>"></a>
 </div>
 <div class="inlineheader h3">
   <div class="viewmembername">
-    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif(!empty($row->mail), "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a><br />
+    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a><br />
     <span class='stext'><?php echo $row->level; ?></span>
   </div>
   <div class="viewmemberdetails stext">
-    <?php if (empty($row->mail)) { ?>
+    <?php if ($row->guest == 0) { ?>
        <?php echo $lang->phrase('post_info_registered_since').$row->regdate; ?><br />
        <?php echo $lang->phrase('post_info_location').$row->location; ?>
     <?php } ?>
@@ -27,35 +29,47 @@
   <br class="invclear" /><br class="iefix_br" />
 </div>
 <div class="bbody iefix_left">
-  <span class="right">
-   	<a href="javascript:self.scrollTo(0,0);"><img src="<?php echo $tpl->img('asc'); ?>" alt="" /></a>
-   	<a href="javascript:self.scrollTo(0,9999999999);"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /></a>
+   <?php if ($config['postrating'] == 1) { ?>
+    <span class="right">
+    	<?php echo iif(($ratingcounter >= $config['postrating_counter'] || $showrating), $lang->phrase('postrating_rating')); ?>
+        <?php if ($ratingcounter >= $config['postrating_counter']) { ?>
+        <img src="images.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>" alt="<?php echo $lang->phrase('postrating_rating').$row->rating; ?>" />
+        <?php } if ($showrating) { ?>
+    	<a href="popup.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>&amp;rating=1" target="postrating" onclick="postrating(this)"><img src="<?php echo $tpl->img('positive'); ?>" alt="" title="<?php echo $lang->phrase('postrating_rate_positive'); ?>" /></a>&nbsp;
+    	<a href="popup.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>&amp;rating=-1" target="postrating" onclick="postrating(this)"><img src="<?php echo $tpl->img('negative'); ?>" alt="" title="<?php echo $lang->phrase('postrating_rate_negative'); ?>" /></a>
+    	<?php } ?>
+    </span>
+  <?php } ?>
+  <span class='stext'>
+    <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="popup.php?action=showpost&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->topic; ?></a></strong>
   </span>
-  <span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="javascript: showpost('<?php echo $row->id; ?>');"><?php echo $row->topic; ?></a></strong></span>
   <hr />
-<?php 
-echo $row->comment;
-if (!empty($inner['image_box'])) {
-?>
-   <br /><br />
-   <strong><?php echo $lang->phrase('post_thumbnails'); ?></strong><br />
-<?php echo $inner['image_box']; ?>
-   <br class="uploadbox_br" />
-<?php } if (!empty($inner['upload_box'])) { ?>
-   <br class="uploadbox_br" />
-   <br />
-   <strong><?php echo $lang->phrase('post_uploads'); ?></strong><br />
-<?php echo $inner['upload_box']; ?>
-    <br class="uploadbox_br" />
-<?php } if ($bottom) { ?>
-   <hr />
-<?php if (!empty($row->fullname)) { ?>
-   <div class="fullname stext"><?php echo $row->fullname; ?></div>
-<?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
-   <div class="signature"><?php echo $row->signature; ?></div>
-<?php } } if (!empty($row->edit)) { ?>
-   <div class="textright stext"><?php echo $lang->phrase('post_editinfo'); ?></div>
-<?php } ?>
+  <?php echo $row->comment; ?>
+  <?php if (!empty($inner['image_box'])) { ?>
+  <br /><br />
+  <strong><?php echo $lang->phrase('post_thumbnails'); ?></strong><br />
+  <?php echo $inner['image_box']; ?>
+  <br class="uploadbox_br" />
+  <?php } if (!empty($inner['upload_box'])) { ?>
+  <br class="uploadbox_br" />
+  <br />
+  <strong><?php echo $lang->phrase('post_uploads'); ?></strong><br />
+  <?php echo $inner['upload_box']; ?>
+  <br class="uploadbox_br" />
+  <?php } if ($bottom) { ?>
+      <hr />
+      <?php if (!empty($row->fullname)) { ?>
+      <div class="fullname stext"><?php echo $row->fullname; ?></div>
+      <?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
+      <div class="signature"><?php echo $row->signature; ?></div>
+  <?php } } ?>
+      <div class="textright stext">
+      	<?php if (!empty($row->edit)) { echo $lang->phrase('post_editinfo1'); ?>
+      	<strong><a href="popup.php?action=edithistory&id=<?php echo $row->id.SID2URL_x; ?>" target="edithistory" onclick="edithistory(this)"><?php echo $anz; ?></a></strong>
+      	<?php echo $lang->phrase('post_editinfo2'); } ?>
+   		<a class="sep" href="javascript:self.scrollTo(0,0);"><img src="<?php echo $tpl->img('asc'); ?>" alt="" /></a>&nbsp;
+   		<a href="javascript:self.scrollTo(0,9999999999);"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /></a>
+      </div>
 </div>
 </div>
 <br class="minibr" />

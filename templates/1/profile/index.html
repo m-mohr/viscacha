@@ -36,12 +36,22 @@
 	  <em><?php echo $row->lastvisit; ?></em>
 	  <?php if ($config['showpostcounter']) { ?>
 	  <br />
+	  <?php if ($config['memberrating'] == 1 && $ratingcounter >= $config['memberrating_counter']) { ?>
+	  <h5><?php echo $lang->phrase('profile_rating'); ?></h5>
+	  <em><img src="images.php?action=memberrating&amp;id=<?php echo $row->id.SID2URL_x; ?>" alt="<?php echo $lang->phrase('postrating_rating').$row->rating; ?>" /></em>
+	  <br />
+	  <?php } ?>
 	  <h5><?php echo $lang->phrase('profile_posts'); ?></h5>
 	  <em><?php echo $anz[0].$lang->phrase('profile_posts_perday'); ?></em>
 	  <?php } if ($config['osi_profile'] == 1) { ?>
 	  <br />
 	  <h5><?php echo $lang->phrase('profile_osi'); ?></h5> 
 	  <?php echo iif($osi, '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online'), '<em>'.$lang->phrase('profile_offline')); ?></em>
+	  <?php } ?>
+	  <?php foreach ($customfields['2'] as $field) { ?>
+	  <br />
+	  <h5><?php echo $field['name']; ?>:</h5>
+	  <em><?php echo $field['value']; ?></em>
 	  <?php } ?>
 	  </td>
 	  <td valign="top">
@@ -52,10 +62,15 @@
 	  <em><?php echo $gender; ?></em>
 	  <br />
 	  <h5><?php echo $lang->phrase('profile_bday'); ?></h5>
-	  <em><?php echo iif( $show_bday, iif( $bday[0] > 0 , $lang->phrase('profile_bday_full') , $lang->phrase('profile_bday_short') ) , $lang->phrase('profile_na') ); ?></em>
+	  <em><?php echo iif($show_bday, iif( $bday[0] > 0 , $lang->phrase('profile_bday_full') , $lang->phrase('profile_bday_short') ) , $lang->phrase('profile_na') ); ?></em>
 	  <br />
 	  <h5><?php echo $lang->phrase('profile_location'); ?></h5>
 	  <em><?php echo iif($row->location,$row->location,'-'); ?></em>
+	  <?php foreach ($customfields['1'] as $field) { ?>
+	  <br />
+	  <h5><?php echo $field['name']; ?>:</h5>
+	  <em><?php echo $field['value']; ?></em>
+	  <?php } ?>
       </td>
 	</tr>
 	<tr>
@@ -64,9 +79,16 @@
 	</tr>
 	<tr class="tbody profiledata">
 	  <td valign="top">
-	  <ul>
-		<li><?php echo iif($row->opt_hidemail != 1, '<a href="profile.php?action=mail&amp;id='.$row->id.SID2URL_x.'">'.$lang->phrase('profile_mail_2').'</a>', $lang->phrase('profile_mail_1')); ?><br /></li>
-		<li><a href="pm.php?action=new&amp;name=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_pm_send'); ?></a></li>
+	  <ul class="hiddenl">
+		<li><strong><?php echo $lang->phrase('profile_mail'); ?>:</strong> 
+		<?php if($row->opt_hidemail == 2) { ?>
+		<a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_mail_2'); ?></a>
+		<?php } else { echo $lang->phrase('profile_mail_1'); } ?>
+		</li>
+		<li><strong><?php echo $lang->phrase('profile_pm'); ?>:</strong> <a href="pm.php?action=new&amp;name=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_pm_send'); ?></a></li>
+	  <?php foreach ($customfields['3'] as $field) { ?>
+	  <li><strong><?php echo $field['name']; ?>:</strong> <?php echo $field['value']; ?></li>
+	  <?php } ?>
       </ul>
       </td>
 	  <td valign="top">
@@ -77,7 +99,8 @@
     	echo iif($row->msn,'<a href="profile.php?action=ims&amp;type=msn&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /> '.$row->msn.'</a><br />');
     	echo iif($row->yahoo,'<a href="profile.php?action=ims&amp;type=yahoo&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('yahoo').'" alt="'.$lang->phrase('im_yahoo').'" /> '.$row->yahoo.'</a><br />');
     	echo iif($row->jabber,'<a href="profile.php?action=ims&amp;type=jabber&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('jabber').'" alt="'.$lang->phrase('im_jabber').'" /> '.$row->jabber.'</a>');
-    } 
+    	echo iif($row->skype,'<a href="profile.php?action=ims&amp;type=skype&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('skype').'" alt="'.$lang->phrase('im_skype').'" /> '.$row->skype.'</a>');
+	} 
     else {
         echo $lang->phrase('profile_no_im');
     }

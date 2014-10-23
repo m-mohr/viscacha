@@ -41,6 +41,26 @@ class spellchecker {
 		}
 	}
 	
+	function add($word) {
+		$wl = file($this->file);
+		$wl = array_map('trim', $wl);
+		if (is_string($word)) {
+			$wl[] = $word;
+		}
+		if (is_array($word)) {
+			$wl = array_merge($wl, $word);
+		}
+		$wl = implode("\n", $wl);
+   		if (!$handle = fopen($this->file, 'w')) {
+			return false;
+   		}
+   		if (fwrite($handle, $wl) === FALSE) {
+       		return false;
+   		}
+   		fclose($handle);
+   		return true;
+	}
+	
 	function lcfirst($p) {
 		return strtolower($p{0}).substr($p, 1);
 	}

@@ -2,7 +2,7 @@
 define('CHMOD_FILE', 'is_file');
 define('CHMOD_DIR', 'is_dir');
 
-function set_chmod($dir, $chmod, $type = 'is_file') {
+function set_chmod($dir, $chmod, $type = 'is_file', $stop = false) {
 	global $filesystem;
 	if (file_exists($dir) && $type($dir)) {
 		if (!check_chmod(decoct($chmod), get_chmod($dir))) {
@@ -10,8 +10,14 @@ function set_chmod($dir, $chmod, $type = 'is_file') {
 		}
 	}
 	else {
-		$filesystem->mkdir($dir, $chmod);
-		set_chmod($dir, $chmod, CHMOD_DIR);
+		if ($type == CHMOD_DIR && !$stop) {
+			$filesystem->mkdir($dir, $chmod);
+			set_chmod($dir, $chmod, CHMOD_DIR, true);
+		}
+		elseif (!$stop) {
+			$filesystem->file_put_contents($dir, '');
+			set_chmod($dir, $chmod, CHMOD_FILE, true);
+		}
 	}
 }
 function set_chmod_r($dir, $chmod, $type = 'is_file', $files = array()) {

@@ -4,13 +4,42 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "designs.ph
 require_once("admin/lib/class.servernavigator.php");
 $snav = new ServerNavigator();
 
+function export_template_list ($path, $d = 0) {
+   	if (substr($path , strlen($path)-1) != '/') {
+		$path .= '/';
+	}     
+   	$dirlist = array ();
+   	if ($handle = opendir($path)) {
+       	while (false !== ($file = readdir($handle))) {
+           	if ($file != '.' && $file != '..') {
+               	$file = $path . $file ;
+               	if (!is_dir($file)) {
+					$extension = get_extension($path);
+					if (stripos($extension, 'bak') === false) {
+						$dirlist[] = $file;;
+					}
+				}
+               	elseif ($d >= 0) {
+                   	$result = export_template_list ( $file . '/' , $d + 1 );
+                   	$dirlist = array_merge ( $dirlist , $result );
+               	}
+       		}
+       	}
+       	closedir($handle);
+   	}
+   	if ($d == 0) {
+		natcasesort($dirlist);
+	}
+   	return ($dirlist);
+}
+
 if ($job == 'design') {
 	echo head();
 	$result = $db->query('SELECT * FROM '.$db->pre.'designs ORDER BY name');
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="6"><span style="float: right;">[<a href="admin.php?action=designs&amp;job=design_add">Add new Design</a>]</span>Designs</td>
+   <td class="obox" colspan="6"><span style="float: right;">[<a href="admin.php?action=designs&amp;job=design_import">Import Design</a>] [<a href="admin.php?action=designs&amp;job=design_add">Add new Design</a>]</span>Designs</td>
   </tr>
   <tr>
    <td class="ubox" width="40%">Name</td>
@@ -34,7 +63,7 @@ if ($job == 'design') {
    <?php if ($row['publicuse'] == 1 && $config['templatedir'] != $row['id']) { ?>
    [<a href="admin.php?action=designs&amp;job=design_default&amp;id=<?php echo $row['id']; ?>">Set as default</a>]
    <?php } ?>
-   [<a href="forum.php?design=<?php echo $row['id']; ?>&amp;admin=1" target="_blank">View</a>]
+   [<a href="forum.php?design=<?php echo $row['id']; ?>&amp;admin=<?php echo $config['cryptkey'].SID2URL_x; ?>" target="_blank">View</a>]
    </td>
   </tr>
   <?php } ?>
@@ -53,10 +82,12 @@ elseif ($job == 'design_default') {
 		$c->getdata();
 		$c->updateconfig('templatedir', int, $id);
 		$c->savedata();
+		$delobj = $scache->load('loaddesign');
+		$delobj->delete();
 		ok('admin.php?action=designs&job=design');
 	}
 	else {
-		error('admin.php?action=designs&job=design', 'Das Design kann nicht als Default gesetzt werden, da es nicht öffentlich ist.');
+		error('admin.php?action=designs&job=design', 'You can not set this design as "default" because it is not yet published.');
 	}
 }
 elseif ($job == 'design_edit') {
@@ -99,14 +130,14 @@ elseif ($job == 'design_edit') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr> 
-   <td class="obox" colspan="6">Design ändern</td>
+   <td class="obox" colspan="6">>Edit Design</td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Name für das Design:</td>
+   <td class="mbox" width="40%">Name for this design:</td>
    <td class="mbox" width="60%"><input type="text" name="name" size="60" value="<?php echo $gpc->prepare($info['name']); ?>" /></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Template-Verzeichnis:</td>
+   <td class="mbox" width="40%">Directory to use for templates:</td>
    <td class="mbox" width="60%">
    <?php foreach ($templates as $dir) { ?>
    <input<?php echo iif($info['template'] == $dir, ' checked="checked"'); ?> type="radio" name="template" value="<?php echo $dir; ?>" /> <a href="admin.php?action=designs&job=templates_browse&id=<?php echo $dir; ?>" target="_blank"><?php echo $dir; ?></a><br />
@@ -114,7 +145,7 @@ elseif ($job == 'design_edit') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Stylesheet-Verzeichnis:</td>
+   <td class="mbox" width="40%">Directory to use for stylesheets:</td>
    <td class="mbox" width="60%">
    <?php foreach ($stylesheet as $dir) { ?>
    <input<?php echo iif($info['stylesheet'] == $dir, ' checked="checked"'); ?> type="radio" name="stylesheet" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./designs/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
@@ -122,20 +153,12 @@ elseif ($job == 'design_edit') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Images-Verzeichnis:</td>
+   <td class="mbox" width="40%">Directory to use for images:</td>
    <td class="mbox" width="60%">
-   <?php foreach ($templates as $dir) { ?>
+   <?php foreach ($images as $dir) { ?>
    <input<?php echo iif($info['images'] == $dir, ' checked="checked"'); ?> type="radio" name="images" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
    <?php } ?>
    </td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%">Pfad zu den Smileys:<br /><span class="stext">{folder} ist der Platzhalter für den Pfad zum Viscacha-Verzeichnis.<br />{folder} = <code><?php echo $config['fpath']; ?></code></span></td>
-   <td class="mbox" width="60%"><input type="text" name="smileypath" size="60" value="<?php echo $gpc->prepare($info['smileypath']); ?>" /></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%">URL zu den Smileys:<br /><span class="stext">{folder} ist der Platzhalter für die URL zum Viscacha-Verzeichnis.<br />{folder} = <code><?php echo $config['furl']; ?></code></span></td>
-   <td class="mbox" width="60%"><input type="text" name="smileyfolder" size="60" value="<?php echo $gpc->prepare($info['smileyfolder']); ?>" /></td>
   </tr>
   <tr>
    <td class="mbox" width="40%">Published:</td>
@@ -157,8 +180,6 @@ elseif ($job == 'design_edit2') {
 	$stylesheet = $gpc->get('stylesheet', int);
 	$images = $gpc->get('images', int);
 	$use = $gpc->get('publicuse', int);
-	$sfolder = $gpc->get('smileyfolder', str);
-	$spath = $gpc->get('smileypath', str);
 	$name = $gpc->get('name', str);
 	$error = '';
 	
@@ -175,10 +196,11 @@ elseif ($job == 'design_edit2') {
 			$use = 1;
 		}
 	}
-	
-	$db->query("UPDATE {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', smileyfolder = '{$sfolder}', smileypath = '{$spath}',name = '{$name}' WHERE id = '{$id}' LIMIT 1");
+	$delobj = $scache->load('loaddesign');
+	$delobj->delete();
+	$db->query("UPDATE {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}' WHERE id = '{$id}' LIMIT 1");
 
-	ok('admin.php?action=designs&job=design&id='.$id, 'Changes were successfully changed'.$error.'.');	
+	ok('admin.php?action=designs&job=design&id='.$id, 'Changes were successfully saved'.$error.'.');	
 }
 elseif ($job == 'design_delete') {
 	$id = $gpc->get('id', int);
@@ -186,44 +208,132 @@ elseif ($job == 'design_delete') {
 	$info = $db->fetch_assoc($result);
 	
 	$db->query("DELETE FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
-	$scache = new scache('load-designs');
-	$scache->deletedata();
+	$delobj = $scache->load('loaddesign');
+	$delobj->delete();
 
-	$idir = 'images/'.$info['images'];
-	rmdirr($idir);
-	$sdir = 'designs/'.$info['stylesheet'];
-	rmdirr($sdir);
-	$tdir = 'templates/'.$info['template'];
-	rmdirr($tdir);
-	@clearstatcache();
+// Do NOT removes data. That "feature" is terrible on account of loosing data!
 	
 	echo head();
-	if (file_exists($tdir) || is_dir($tdir) || file_exists($sdir) || is_dir($sdir) || file_exists($idir) || is_dir($idir)) {
-		error('admin.php?action=designs&amp;job=design', 'Design konne nicht gelöscht werden.');
-	}
-	else {
-		ok('admin.php?action=designs&amp;job=design', 'Design erfolgreich gelöscht.');
-	}
+	ok('admin.php?action=designs&job=design', 'Design erfolgreich gelöscht.');
 }
 elseif ($job == 'design_add') {
+	$id = $gpc->get('id', int);
+	
+	$dir = "templates/";
+	$templates = array();
+	$d = dir($dir);
+	while (false !== ($entry = $d->read())) {
+		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+			$templates[] = $entry;
+		}
+	}
+	$d->close();
+
+	$dir = "images/";
+	$images = array();
+	$d = dir($dir);
+	while (false !== ($entry = $d->read())) {
+		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+			$images[] = $entry;
+		}
+	}
+	$d->close();
+	
+	$dir = "designs/";
+	$stylesheet = array();
+	$d = dir($dir);
+	while (false !== ($entry = $d->read())) {
+		if (is_dir($dir.$entry) && preg_match('/^\d{1,}$/', $entry) && $entry != '.' && $entry != '..') {
+			$stylesheet[] = $entry;
+		}
+	}
+	$d->close();
+
 	echo head();
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_add2">
- <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import new Design</td></tr>
-  <tr><td class="mbox"><em>Entweder</em> Datei hochladen:<br /><span class="stext">Erlaubte Dateitypen: .zip - Maximale Dateigröße: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
-  <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>oder</em> Datei vom Server auswählen:<br /><span class="stext">Pfad ausgehend vom Viscacha-Hauptverzeichnis: <?php echo $config['fpath']; ?></span></td>
-  <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Datei nach dem importieren löschen:</td>
-  <td class="mbox"><input type="checkbox" name="delete" value="1" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr> 
+   <td class="obox" colspan="6">Add a new Design</td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Name for this design:</td>
+   <td class="mbox" width="60%"><input type="text" name="name" size="60" /></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Directory to use for templates:</td>
+   <td class="mbox" width="60%">
+   <?php foreach ($templates as $dir) { ?>
+   <input type="radio" name="template" value="<?php echo $dir; ?>" /> <a href="admin.php?action=designs&job=templates_browse&id=<?php echo $dir; ?>" target="_blank"><?php echo $dir; ?></a><br />
+   <?php } ?>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Directory to use for stylesheets:</td>
+   <td class="mbox" width="60%">
+   <?php foreach ($stylesheet as $dir) { ?>
+   <input type="radio" name="stylesheet" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./designs/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
+   <?php } ?>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Directory to use for images:</td>
+   <td class="mbox" width="60%">
+   <?php foreach ($images as $dir) { ?>
+   <input type="radio" name="images" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
+   <?php } ?>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Published:</td>
+   <td class="mbox" width="60%"><input type="checkbox" name="publicuse" value="1" /></td>
+  </tr>
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" value="Save" /></td>
+  </tr>
  </table>
 </form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'design_add2') {
+	echo head();
+
+	$template = $gpc->get('template', int);
+	$stylesheet = $gpc->get('stylesheet', int);
+	$images = $gpc->get('images', int);
+	$use = $gpc->get('publicuse', int);
+	$name = $gpc->get('name', str);
+	
+	if (empty($name)) {
+		$name = 'Design '.$id;
+	}
+	
+	$delobj = $scache->load('loaddesign');
+	$delobj->delete();
+	$db->query("INSERT INTO {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}'", __LINE__, __FILE__);
+
+	ok('admin.php?action=designs&job=design', 'Design was successfully added');	
+}
+elseif ($job == 'design_import') {
+	echo head();
+	?>
+<form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_import2">
+ <table class="border" cellpadding="4" cellspacing="0" border="0">
+  <tr><td class="obox" colspan="2">Import a new Design</td></tr>
+  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
+  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
+  <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
+  <tr><td class="mbox">Delete file after import:</td>
+  <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
+ </table>
+</form>
+	<?php
+	echo foot();
+}
+elseif ($job == 'design_import2') {
 
 	$dir = $gpc->get('dir', int);
 	$server = $gpc->get('server', none);
@@ -260,15 +370,15 @@ elseif ($job == 'design_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'Angegebene Datei ist keine ZIP-Datei.';
+			$inserterrors[] = 'The selected file is no ZIP-file.';
 		}
 	}
 	else {
-		$inserterrors[] = 'Keine gültige Datei angegeben.';
+		$inserterrors[] = 'No valid file selected.';
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
-		error('admin.php?action=designs&job=design_add', $inserterrors);
+		error('admin.php?action=designs&job=design_import', $inserterrors);
 	}
 	$tempdir = 'temp/'.md5(microtime()).'/';
 	$filesystem->mkdir($tempdir, 0777);
@@ -277,60 +387,141 @@ elseif ($job == 'design_add2') {
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
 		rmdirr($tempdir);
-		error('admin.php?action=designs&job=design_add', 'ZIP-Archiv konnte nicht gelesen werden order ist leer.');
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($file);
+		}
+		error('admin.php?action=designs&job=design_import', 'ZIP-archive could not be read or the folder is empty.');
 	}
 	else {
-		$tplid = 1;
-		while(is_dir('templates/'.$tplid)) {
-			$tplid++;
-			if ($tplid > 10000) {
-				error('admin.php?action=designs&job=design_add', 'Execution stopped: Buffer overflow (Templates)');
-			}
-		}
-		$tpldir = 'templates/'.$tplid;
-		$cssid = 1;
-		while(is_dir('designs/'.$cssid)) {
-			$cssid++;
-			if ($cssid > 10000) {
-				error('admin.php?action=designs&job=design_add', 'Execution stopped: Buffer overflow (Stylesheets)');
-			}
-		}
-		$cssdir = 'designs/'.$cssid;
-		$imgid = 1;
-		while(is_dir('images/'.$imgid)) {
-			$imgid++;
-			if ($imgid > 10000) {
-				error('admin.php?action=designs&job=design_add', 'Execution stopped: Buffer overflow (Images)');
-			}
-		}
-		$imgdir = 'images/'.$imgid;
-		
-		copyr($tempdir.'templates', $tpldir);
-		copyr($tempdir.'designs', $cssdir);
-		copyr($tempdir.'images', $imgdir);
+		$ini = $myini->read($tempdir.'design.ini');
 		
 		$result = $db->query("SELECT * FROM `{$db->pre}designs` WHERE id = '{$config['templatedir']}' LIMIT 1");
 		$row = $db->fetch_assoc($result);
-		$ini = $myini->read($tempdir.'design.ini');
 		
-		$db->query("INSERT INTO `{$db->pre}designs` (`template` , `stylesheet` , `images` , `smileyfolder` , `smileypath` , `name`) VALUES ('{$tplid}', '{$cssid}', '{$imgid}', '{$row['smileyfolder']}', '{$row['smileypath']}', '{$ini['name']}')");
+		if (!empty($ini['template'])) {
+			$tplid = 1;
+			while(is_dir('templates/'.$tplid)) {
+				$tplid++;
+				if ($tplid > 10000) {
+					error('admin.php?action=designs&job=design_import', 'Execution stopped: Buffer overflow (Templates)');
+				}
+			}
+			$tpldir = 'templates/'.$tplid;
+		}
+		else {
+			$tplid = $row['template'];
+		}
+		if (!empty($ini['stylesheet'])) {
+			$cssid = 1;
+			while(is_dir('designs/'.$cssid)) {
+				$cssid++;
+				if ($cssid > 10000) {
+					error('admin.php?action=designs&job=design_import', 'Execution stopped: Buffer overflow (Stylesheets)');
+				}
+			}
+			$cssdir = 'designs/'.$cssid;
+		}
+		else {
+			$tplid = $row['stylesheet'];
+		}
+		if (!empty($ini['images'])) {
+			$imgid = 1;
+			while(is_dir('images/'.$imgid)) {
+				$imgid++;
+				if ($imgid > 10000) {
+					error('admin.php?action=designs&job=design_import', 'Execution stopped: Buffer overflow (Images)');
+				}
+			}
+			$imgdir = 'images/'.$imgid;
+		}
+		else {
+			$tplid = $row['images'];
+		}
 		
+		if (!empty($ini['template'])) {
+			copyr($tempdir.'templates', $tpldir);
+		}
+		if (!empty($ini['stylesheet'])) {
+			copyr($tempdir.'designs', $cssdir);
+		}
+		if (!empty($ini['images'])) {
+			copyr($tempdir.'images', $imgdir);
+		}
+		
+		$db->query("INSERT INTO `{$db->pre}designs` (`template` , `stylesheet` , `images` , `name`) VALUES ('{$tplid}', '{$cssid}', '{$imgid}', '{$ini['name']}')");
+
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($file);
+		}
 		rmdirr($tempdir);
 	}
-	ok('admin.php?action=designs&job=design', 'Design "'.$ini['name'].'" erfolgreich importiert.');
+	$delobj = $scache->load('loaddesign');
+	$delobj->delete();
+	ok('admin.php?action=designs&job=design', 'Design "'.$ini['name'].'" successfully imported!');
 	
 }
 elseif ($job == 'design_export') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
+	echo head();
+	?>
+<form name="form2" method="post" action="admin.php?action=designs&job=design_export2&id=<?php echo $id; ?>">
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr> 
+   <td class="obox" colspan="6">Export Design</td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Export Templates:</td>
+   <td class="mbox" width="60%"><input type="checkbox" name="tpl" value="1" checked="checked" /></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Export Stylesheets:</td>
+   <td class="mbox" width="60%"><input type="checkbox" name="css" value="1" checked="checked" /></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="40%">Export Images:</td>
+   <td class="mbox" width="60%"><input type="checkbox" name="img" value="1" checked="checked" /></td>
+  </tr>
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" value="Export" /></td>
+  </tr>
+ </table>
+</form>
+	<?php
+	echo foot();
+}
+elseif ($job == 'design_export2') {
+	$id = $gpc->get('id', int);
+	$tpl = $gpc->get('tpl', int);
+	$img = $gpc->get('img', int);
+	$css = $gpc->get('css', int);
+	
+	$columns = array('id', 'name');
+	if ($tpl == 1) {
+		$columns[] = 'template';
+	}
+	if ($img == 1) {
+		$columns[] = 'images';
+	}
+	if ($css == 1) {
+		$columns[] = 'stylesheet';
+	}
+	
+	$result = $db->query("SELECT ".implode(',', $columns)." FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
 	
 	$file = convert2adress($info['name']).'.zip';
-	$dirs = array(
-		"templates/{$info['template']}/",
-		"images/{$info['images']}/",
-		"designs/{$info['stylesheet']}/"
-	);
+	$dirs = array();
+	if ($tpl == 1) {
+		$dirs[] = array('dir' => "templates/{$info['template']}/", 'func' => 'export_template_list');
+	}
+	if ($img == 1) {
+		$dirs[] = array('dir' => "images/{$info['images']}/", 'func' => '');
+	}
+	if ($css == 1) {
+		$dirs[] = array('dir' => "designs/{$info['stylesheet']}/", 'func' => '');
+	}
 	$tempdir = "temp/";
 	$error = false;
 	$settings = $tempdir.'design.ini';
@@ -345,7 +536,13 @@ elseif ($job == 'design_export') {
 	else {
 		foreach ($dirs as $dir) {
 			$archive = new PclZip($tempdir.$file);
-			$v_list = $archive->add($dir, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_ADD_PATH, extract_dir($dir, false));
+			if (!empty($dir['func']) && function_exists($dir['func'])) {
+				$list = $dir['func']($dir['dir']);
+				$v_list = $archive->add($list, PCLZIP_OPT_REMOVE_PATH, $dir['dir'], PCLZIP_OPT_ADD_PATH, extract_dir($dir['dir'], false));
+			}
+			else {
+				$v_list = $archive->add($dir['dir'], PCLZIP_OPT_REMOVE_PATH, $dir['dir'], PCLZIP_OPT_ADD_PATH, extract_dir($dir['dir'], false));
+			}
 			if ($v_list == 0) {
 				$error = true;
 				break;
@@ -354,15 +551,17 @@ elseif ($job == 'design_export') {
 	}
 	if ($error) {
 		echo head();
+		unset($archive);
 		$filesystem->unlink($tempdir.$file);
 		$filesystem->unlink($settings);
-		error('admin.php?action=designs&job=design', $archive->errorInfo(true));
+		error('admin.php?action=designs&job=export&id='.$id, $archive->errorInfo(true));
 	}
 	else {
 		viscacha_header('Content-Type: application/zip');
 		viscacha_header('Content-Disposition: attachment; filename="'.$file.'"');
 		viscacha_header('Content-Length: '.filesize($tempdir.$file));
 		readfile($tempdir.$file);
+		unset($archive);
 		$filesystem->unlink($tempdir.$file);
 		$filesystem->unlink($settings);
 	}
@@ -382,8 +581,8 @@ elseif ($job == 'ajax_publicuse') {
 	}
 	$use = invert($use['publicuse']);
 	$db->query("UPDATE {$db->pre}designs SET publicuse = '{$use}' WHERE id = '{$id}' LIMIT 1");
-	$scache = new scache('load-designs');
-	$scache->deletedata();
+	$delobj = $scache->load('loaddesign');
+	$delobj->delete();
 	die(strval($use));
 }
 elseif ($job == 'templates') {
@@ -426,12 +625,12 @@ elseif ($job == 'templates_add') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=templates_add2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
   <tr><td class="obox" colspan="2">Import new Templates</td></tr>
-  <tr><td class="mbox"><em>Entweder</em> Datei hochladen:<br /><span class="stext">Erlaubte Dateitypen: .zip - Maximale Dateigröße: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>oder</em> Datei vom Server auswählen:<br /><span class="stext">Pfad ausgehend vom Viscacha-Hauptverzeichnis: <?php echo $config['fpath']; ?></span></td>
+  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
   <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Datei nach dem importieren löschen:</td>
-  <td class="mbox"><input type="checkbox" name="delete" value="1" /></td></tr>
+  <tr><td class="mbox">Delete file after import:</td>
+  <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
   <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
  </table>
 </form>
@@ -475,11 +674,11 @@ elseif ($job == 'templates_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'Angegebene Datei ist keine ZIP-Datei.';
+			$inserterrors[] = 'The selected file is no ZIP-file.';
 		}
 	}
 	else {
-		$inserterrors[] = 'Keine gültige Datei angegeben.';
+		$inserterrors[] = 'No valid file selected.';
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -501,10 +700,18 @@ elseif ($job == 'templates_add2') {
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
 		rmdirr($tempdir);
-		error('admin.php?action=designs&job=templates_add', 'ZIP-Archiv konnte nicht gelesen werden order ist leer.');
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($file);
+		}
+		error('admin.php?action=designs&job=templates_add', 'ZIP-archive could not be read or the folder is empty.');
 	}
-	
-	ok('admin.php?action=designs&job=templates', 'Templates erfolgreich in das Verzeichnis '.$n.' importiert.');
+
+	unset($archive);
+	if ($del > 0) {
+		$filesystem->unlink($file);
+	}
+	ok('admin.php?action=designs&job=templates', 'Templates successfully imported into directory '.$n.' .');
 	
 }
 elseif ($job == 'templates_export') {
@@ -514,11 +721,15 @@ elseif ($job == 'templates_export') {
 	$dir = "templates/{$id}/";
 	$tempdir = "temp/";
 	
+	$list = export_template_list($dir);
+	
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
-	$v_list = $archive->create($dir, PCLZIP_OPT_REMOVE_PATH, $dir);
+	$v_list = $archive->create($list, PCLZIP_OPT_REMOVE_PATH, $dir);
 	if ($v_list == 0) {
 		echo head();
+		unset($archive);
+		$filesystem->unlink($tempdir.$file);
 		error('admin.php?action=designs&job=templates', $archive->errorInfo(true));
 	}
 	else {
@@ -526,6 +737,7 @@ elseif ($job == 'templates_export') {
 		viscacha_header('Content-Disposition: attachment; filename="'.$file.'"');
 		viscacha_header('Content-Length: '.filesize($tempdir.$file));
 		readfile($tempdir.$file);
+		unset($archive);
 		$filesystem->unlink($tempdir.$file);
 	}
 }
@@ -536,10 +748,10 @@ elseif ($job == 'templates_delete') {
 	rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
-		error('admin.php?action=designs&amp;job=templates', 'Verzeichnis konne nicht gelöscht werden.');
+		error('admin.php?action=designs&job=templates', 'Directory could not be deleted.');
 	}
 	else {
-		ok('admin.php?action=designs&amp;job=templates', 'Verzeichnis erfolgreich gelöscht.');
+		ok('admin.php?action=designs&job=templates', 'Directory successfully deleted.');
 	}
 }
 elseif ($job == 'templates_file_edit') {
@@ -872,10 +1084,10 @@ elseif ($job == 'templates_browse') {
    <td class="obox">Colors</td>
   </tr>
   <tr> 
-   <td class="mbox" style="color: black;">Template is Unchanged From the Default Style</td>
+   <td class="mbox" style="color: black;">Template is <em>unchanged</em> from the default style</td>
   </tr>
   <tr> 
-   <td class="mbox" style="color: green;">Template is Customized in this Style</td>
+   <td class="mbox" style="color: green;">Template is <em>customized</em> in this style</td>
   </tr>
  </table>
 	<?php
@@ -948,10 +1160,10 @@ elseif ($job == 'css_delete') {
 	rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
-		error('admin.php?action=designs&amp;job=css', 'Verzeichnis konne nicht gelöscht werden.');
+		error('admin.php?action=designs&job=css', 'Directory could not be deleted.');
 	}
 	else {
-		ok('admin.php?action=designs&amp;job=css', 'Verzeichnis erfolgreich gelöscht.');
+		ok('admin.php?action=designs&job=css', 'Directory successfully deleted.');
 	}
 }
 elseif ($job == 'css_add') {
@@ -964,12 +1176,12 @@ elseif ($job == 'css_add') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=css_add2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
   <tr><td class="obox" colspan="2">Import new Stylesheets</td></tr>
-  <tr><td class="mbox"><em>Entweder</em> Datei hochladen:<br /><span class="stext">Erlaubte Dateitypen: .zip - Maximale Dateigröße: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>oder</em> Datei vom Server auswählen:<br /><span class="stext">Pfad ausgehend vom Viscacha-Hauptverzeichnis: <?php echo $config['fpath']; ?></span></td>
+  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
   <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Datei nach dem importieren löschen:</td>
-  <td class="mbox"><input type="checkbox" name="delete" value="1" /></td></tr>
+  <tr><td class="mbox">Delete file after import:</td>
+  <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
   <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
  </table>
 </form>
@@ -1013,11 +1225,11 @@ elseif ($job == 'css_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'Angegebene Datei ist keine ZIP-Datei.';
+			$inserterrors[] = 'The selected file is no ZIP-file.';
 		}
 	}
 	else {
-		$inserterrors[] = 'Keine gültige Datei angegeben.';
+		$inserterrors[] = 'No valid file selected.';
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -1038,11 +1250,19 @@ elseif ($job == 'css_add2') {
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($file);
+		}
 		rmdirr($tempdir);
-		error('admin.php?action=designs&job=css_add', 'ZIP-Archiv konnte nicht gelesen werden order ist leer.');
+		error('admin.php?action=designs&job=css_add', 'ZIP-archive could not be read or the folder is empty.');
 	}
-	
-	ok('admin.php?action=designs&job=css', 'Stylesheets erfolgreich in das Verzeichnis '.$n.' importiert.');
+
+	unset($archive);
+	if ($del > 0) {
+		$filesystem->unlink($file);
+	}
+	ok('admin.php?action=designs&job=css', 'Stylesheets successfully imported into directory '.$n.'.');
 	
 }
 elseif ($job == 'css_export') {
@@ -1076,9 +1296,9 @@ elseif ($job == 'confirm_delete') {
 	echo head();
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4">
-	<tr><td class="obox">Löschen bestätigen</td></tr>
+	<tr><td class="obox">Delete the data</td></tr>
 	<tr><td class="mbox">
-	<p align="center">Wollen Sie Ihre Auwahl wirklich löschen?</p>
+	<p align="center">Would you really like to delete this data?</p>
 	<p align="center">
 	<a href="admin.php?action=designs&job=<?php echo $type; ?>_delete&id=<?php echo $id; ?>"><img border="0" align="middle" alt="Yes" src="admin/html/images/yes.gif"> Yes</a>
 	&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;
@@ -1130,10 +1350,10 @@ elseif ($job == 'images_delete') {
 	rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
-		error('admin.php?action=designs&amp;job=images', 'Verzeichnis konne nicht gelöscht werden.');
+		error('admin.php?action=designs&job=images', 'Directory could not be deleted.');
 	}
 	else {
-		ok('admin.php?action=designs&amp;job=images', 'Verzeichnis erfolgreich gelöscht.');
+		ok('admin.php?action=designs&job=images', 'Directory successfully deleted.');
 	}
 }
 elseif ($job == 'images_add') {
@@ -1142,12 +1362,12 @@ elseif ($job == 'images_add') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=images_add2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
   <tr><td class="obox" colspan="2">Import new Images</td></tr>
-  <tr><td class="mbox"><em>Entweder</em> Datei hochladen:<br /><span class="stext">Erlaubte Dateitypen: .zip - Maximale Dateigröße: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>oder</em> Datei vom Server auswählen:<br /><span class="stext">Pfad ausgehend vom Viscacha-Hauptverzeichnis: <?php echo $config['fpath']; ?></span></td>
+  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
   <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Datei nach dem importieren löschen:</td>
-  <td class="mbox"><input type="checkbox" name="delete" value="1" /></td></tr>
+  <tr><td class="mbox">Delete file after import:</td>
+  <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
   <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
  </table>
 </form>
@@ -1191,11 +1411,11 @@ elseif ($job == 'images_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'Angegebene Datei ist keine ZIP-Datei.';
+			$inserterrors[] = 'The selected file is no ZIP-file.';
 		}
 	}
 	else {
-		$inserterrors[] = 'Keine gültige Datei angegeben.';
+		$inserterrors[] = 'No valid file selected.';
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -1216,11 +1436,19 @@ elseif ($job == 'images_add2') {
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($file);
+		}
 		rmdirr($tempdir);
-		error('admin.php?action=designs&job=images_add', 'ZIP-Archiv konnte nicht gelesen werden order ist leer.');
+		error('admin.php?action=designs&job=images_add', 'ZIP-archive could not be read or the folder is empty.');
 	}
 	
-	ok('admin.php?action=designs&job=images', 'Bilder erfolgreich in das Verzeichnis '.$n.' importiert.');
+	unset($archive);
+	if ($del > 0) {
+		$filesystem->unlink($file);
+	}	
+	ok('admin.php?action=designs&job=images', 'Images successfully imported into directory '.$n.'.');
 	
 }
 elseif ($job == 'images_export') {
@@ -1235,6 +1463,10 @@ elseif ($job == 'images_export') {
 	$v_list = $archive->create($dir, PCLZIP_OPT_REMOVE_PATH, $dir);
 	if ($v_list == 0) {
 		echo head();
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($tempdir.$file);
+		}
 		error('admin.php?action=designs&job=images', $archive->errorInfo(true));
 	}
 	else {
@@ -1242,6 +1474,10 @@ elseif ($job == 'images_export') {
 		viscacha_header('Content-Disposition: attachment; filename="'.$file.'"');
 		viscacha_header('Content-Length: '.filesize($tempdir.$file));
 		readfile($tempdir.$file);
+		unset($archive);
+		if ($del > 0) {
+			$filesystem->unlink($tempdir.$file);
+		}
 		$filesystem->unlink($tempdir.$file);
 	}
 }

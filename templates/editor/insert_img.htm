@@ -10,8 +10,14 @@ legend { font-family: Tahoma, Arial, Helvetica, sans-serif; font-size: 14px; pad
 </STYLE>
 <script language="JavaScript" type="text/javascript"> 
 <!-- 
-if(document.all){ window.resizeTo(530, 220); }
-else { window.resizeTo(530, 215); }
+if(opener.isIE7) {
+  window.resizeTo(530, 230);
+} else if(document.all) {
+  window.resizeTo(530, 220);
+} else {
+	window.resizeTo(530, 215);
+}
+
 function AddLink() { 
    var oForm = document.linkForm;
    if (oForm.imgurl.value == '') {

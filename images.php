@@ -32,11 +32,24 @@ $zeitmessung1 = t1();
 
 $slog = new slog();
 $my = $slog->logged();
+$my->p = $slog->Permissions();
 $lang->init($my->language);
 
+function ImageHexColorAllocate(&$image, $string) {
+	sscanf($string, "%2x%2x%2x", $red, $green, $blue);
+	return ImageColorAllocate($image,$red,$green,$blue);
+}
+
+($code = $plugins->load('images_start')) ? eval($code) : null;
+
 if ($_GET['action'] == 'vote') {
-	$result = $db->query('SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM '.$db->pre.'topics WHERE id = '.$_GET['id'].' LIMIT 1',__LINE__,__FILE__);
-	$info = $gpc->prepare($db->fetch_assoc($result));
+	$result = $db->query('
+	SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix 
+	FROM '.$db->pre.'topics 
+	WHERE id = '.$_GET['id'].' 
+	LIMIT 1
+	',__LINE__,__FILE__);
+	$info = $db->fetch_assoc($result);
 
 	require_once('classes/class.charts.php');
 	$PG = new PowerGraphic();
@@ -67,6 +80,87 @@ if ($_GET['action'] == 'vote') {
 	
 	$PG->start();
 }
+elseif ($_GET['action'] == 'captcha') {
+	if ($_GET['type'] == 'register') {
+		$width = $config['botgfxtest_width'];
+		$height = $config['botgfxtest_height'];
+	}
+	if ($_GET['type'] == 'post') {
+		$width = $config['botgfxtest_posts_width'];
+		$height = $config['botgfxtest_posts_height'];
+	}
+	else {
+		$width = $gpc->get('width', int, 160);
+		$height = $gpc->get('height', int, 40);
+	}
+
+	include("classes/graphic/class.veriword.php");
+	$vword = new VeriWord();
+	$vword->set_filter($config['botgfxtest_filter']);
+	$vword->set_color($config['botgfxtest_colortext']);
+	$vword->set_size($width, $height, $config['botgfxtest_format'], $config['botgfxtest_quality']);
+	$vword->output_image($_GET['captcha']);
+}
+elseif ($_GET['action'] == 'postrating' || $_GET['action'] == 'memberrating' || $_GET['action'] == 'threadrating') {
+	$colors = array('FF0000', 'E44C00', 'E89A00', 'EBE700', '9EE800', '4DE400');
+
+	if ($_GET['action'] == 'memberrating' && ($config['postrating'] == 1 || $my->p['admin'] == 1)) {
+		$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE aid = '{$_GET['id']}'");
+		$width = 100;
+		$height = 8;
+	}
+	elseif ($_GET['action'] == 'postrating' && ($config['postrating'] == 1 || $my->p['admin'] == 1)) {
+		$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE pid = '{$_GET['id']}'");
+		$width = 50;
+		$height = 8;
+	}
+	elseif ($_GET['action'] == 'threadrating' && ($config['postrating'] == 1 || $my->p['admin'] == 1)) {
+		$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE tid = '{$_GET['id']}'");
+		$width = 50;
+		$height = 8;
+	}
+	else {
+		$error = true;
+		($code = $plugins->load('images_rating_error')) ? eval($code) : null;
+		if ($error == true) {
+			header("Content-type: image/png");
+			$image = imagecreate(1, 1);
+			$back = ImageColorAllocate($image,0,0,0);
+			imagecolortransparent($image, $back);
+			imagePNG($image);
+			imagedestroy($image);
+		}
+	}
+	($code = $plugins->load('images_rating_start')) ? eval($code) : null;
+	
+	$ratings = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$ratings[] = $row['rating'];
+	}
+	$ratingcounter = count($ratings);
+	if ($ratingcounter > 0) {
+		$rating = round((array_sum($ratings)/$ratingcounter+1)*($width/2));
+		$avg = array_sum($ratings)/$ratingcounter;
+	}
+	else {
+		$rating = $width/2;
+		$avg = 0;
+	}
+	$five = ceil(($avg+1)*2.5);
+	
+	header ("Content-type: image/png");
+	
+	$image = imagecreate($width+2, $height+2);
+	$back = ImageHexColorAllocate($image, 'ffffff');
+	$fill = ImageHexColorAllocate($image, $colors[$five]);
+	$border = ImageHexColorAllocate($image, '000000');
+	ImageFilledRectangle($image,1,1,$width,$height,$back);
+	ImageFilledRectangle($image,1,1,$rating,$height,$fill);
+	ImageRectangle($image,0,0,$width+1,$height+1,$border);
+	imagePNG($image);
+	imagedestroy($image);
+}
+($code = $plugins->load('images_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

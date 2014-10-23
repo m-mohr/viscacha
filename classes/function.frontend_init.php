@@ -61,6 +61,7 @@ if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals
 
 $inner = array();
 $htmlhead = '';
+$htmlonload = '';
 if (defined('SCRIPTNAME')) {
     $htmlbody = ' id="css_'.SCRIPTNAME.'"';
 }
@@ -86,14 +87,10 @@ $filesystem->set_wd($config['ftp_path']);
 @include_once("classes/function.chmod.php");
 // Permission and Logging Class
 require_once ("classes/class.permissions.php");
-// A simple caching class for Arrays etc.
-include_once ("classes/function.cache.php");
 // A class for Templates
 require_once ("classes/class.template.php");
 // Load Braedcrumb-Module
 include_once ("classes/class.breadcrumb.php");
-// BB-Code functions
-include_once ("classes/class.bbcode.php");
 // Global functions
 require_once ("classes/function.global.php");
 // Load Variables
@@ -139,6 +136,8 @@ else {
 	$gzbenchval = 'Off';
 }
 
+($code = $plugins->load('frontend_init')) ? eval($code) : null;
+
 $bannedip = file('data/bannedip.php');
 $bannedip = array_map('trim', $bannedip);
 if (count($bannedip) > 0) {
@@ -153,6 +152,7 @@ if (count($bannedip) > 0) {
 			include('data/banned.php');
 			$banned = ob_get_contents();
 			ob_end_clean();
+			($code = $plugins->load('frontend_init_banned')) ? eval($code) : null;
             echo $tpl->parse("banned");
             
             $phpdoc->Out();
@@ -162,7 +162,7 @@ if (count($bannedip) > 0) {
 	}
 }
 
-if ($config['foffline'] && DEFINED('TEMPSHOWLOG') == FALSE && SCRIPTNAME != 'external') {
+if ($config['foffline'] && defined('TEMPSHOWLOG') == false && SCRIPTNAME != 'external') {
 	$slog = new slog();
 	$my = $slog->logged();
 	$my->p = $slog->Permissions();
@@ -171,11 +171,9 @@ if ($config['foffline'] && DEFINED('TEMPSHOWLOG') == FALSE && SCRIPTNAME != 'ext
 		$lang->init($my->language);
 		$tpl = new tpl();
         
-        ob_start();
-		include('data/offline.php');
-		$offline = ob_get_contents();
-		ob_end_clean();
-        echo $tpl->parse("offline");
+		$offline = file_get_contents('data/offline.php');
+        ($code = $plugins->load('frontent_init_offline')) ? eval($code) : null;
+		echo $tpl->parse("offline");
         
         $phpdoc->Out();
 		$db->close();

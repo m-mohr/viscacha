@@ -46,10 +46,14 @@ $my->pb = $slog->GlobalPermissions();
 echo $tpl->parse("header");
 echo $tpl->parse("menu");
 
-$memberdata = cache_memberdata();
-$mymodules->load('forum_top');
+$memberdata_obj = $scache->load('memberdata');
+$memberdata = $memberdata_obj->get();
+
+($code = $plugins->load('forum_start')) ? eval($code) : null;
+
 BoardSelect();
-$mymodules->load('forum_bottom');
+
+($code = $plugins->load('forum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

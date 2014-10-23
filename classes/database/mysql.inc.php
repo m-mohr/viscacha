@@ -8,13 +8,14 @@ class DB {
 	var $persist;
 	var $open;
 	var $dbname;
-	var $dbprefix;
+	var $pre;
 	var $system;
 	var $escaper;
-	var $conn=NULL;
+	var $conn = NULL;
 	var $result = FALSE;
 	var $dbqd = array();
 	var $logerrors = TRUE;
+	var $freeResult;
 	// Backup
 	var $new_line;
 	var $commentdel;
@@ -27,8 +28,9 @@ class DB {
 	    $this->pwd = $pwd;
 	    $this->database = $dbname;
 	    $this->persist = $persist;
-	    $this->dbprefix = $dbprefix;
+	    $this->pre = $dbprefix;
 	    $this->system = 'mysql';
+	    $this->freeResult = false;
 		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
 		if (version_compare(PHP_VERSION, "4.3.0", ">=")) {
 			$this->escaper = 'mysql_real_escape_string';
@@ -39,11 +41,13 @@ class DB {
 		if($open) {
 		   $this->open();
 		}
-		define('DB_BOTH', MYSQL_BOTH);
-		define('DB_ASSOC', MYSQL_ASSOC);
-		define('DB_NUM', MYSQL_NUM);
 	}
 
+	/**
+	 * Retrieves the Database server version.
+	 *
+	 * @return	mixed	Returns the MySQL server version on success, or FALSE on failure.
+	 */
 	function version () {
 		return @mysql_get_server_info();
 	}
@@ -63,7 +67,7 @@ class DB {
 				      $this->commentdel.' Tables: '.implode(', ', $tables).$this->new_line;
 
 		// Keine Anfuehrungszeichen in mySQL-Namen
-		$this->query('SET SQL_QUOTE_SHOW_CREATE = 0',__LINE__,__FILE__);
+		$this->query('SET SQL_QUOTE_SHOW_CREATE = 1',__LINE__,__FILE__);
 	
 		// Werte & Struktur der Tabellen ermitteln
 		foreach ($tables as $mysql_table) {
@@ -75,7 +79,7 @@ class DB {
     		    $table_data .= $this->new_line. $this->commentdel.' Create: ' .$mysql_table . $this->new_line;
     		    
     		    $result = $this->query('SHOW CREATE TABLE ' .$mysql_table, __LINE__, __FILE__);
-    		    $show_results = $this->fetch_array($result, DB_NUM);
+    		    $show_results = $this->fetch_num($result);
     		    if (!$show_results) {
     			    return false;
     		    }
@@ -119,8 +123,8 @@ class DB {
 	    return $table_data;
     }
 
-	function multi_query($lines) {
-		$s = array('queries' => array(), 'ok' => 0);
+	function multi_query($lines, $die = true) {
+		$s = array('queries' => array(), 'ok' => 0, 'affected' => 0);
 		$lines = str_replace("\r", "\n", $lines);
 		$lines = explode("\n", $lines);
 		$lines = array_map("trim", $lines);
@@ -135,8 +139,9 @@ class DB {
 		$lines = explode(";\n", $line);
 		foreach ($lines as $h) {
 			if (strlen($h) > 10) {
-				$result = $this->query($h);
-				if ($result) {
+				unset($result);
+				$result = $this->query($h, __LINE__, __FILE__, $die);
+				if (is_resource($result)) {
 					if ($this->num_rows($result) > 0) {
 						$x = array();
 						while ($row = $this->fetch_assoc($result)) {
@@ -144,36 +149,20 @@ class DB {
 						}
 						$s['queries'][] = $x;
 					}
+				}
+				if ($result == true) {
+					$s['affected'] = $this->affected_rows();
+				}
+				if ($result) {
 					$s['ok']++;
 				}
 			}
 		}
 		return $s;
 	}
-
-	function getcfg($key) {
-		switch ($key) {
-		case 'host':
-		   return $this->host;
-		case 'user':
-		case 'name':
-		   return $this->user;
-		case 'password':
-		case 'pw':
-		   return $this->pwd;
-		case 'database':
-		case 'db':
-		   return $this->database;
-		case 'persist':
-		   return $this->persist;
-		case 'system':
-		case 'sql':
-		   return $this->system;
-		}
-	}
 	
 	function prefix() {
-		return $this->dbprefix;
+		return $this->pre;
 	}
 
 	function benchmark($type='array') {
@@ -192,16 +181,16 @@ class DB {
 		}
 	}
 	function open($host="",$user="",$pwd="",$dbname="")  {
-		if($host!="") {
+		if(!empty($host)) {
 			$this->host=$host;
 		}
-	 	if($user!="") {
+	 	if(!empty($user)) {
 	    	$this->user=$user;
 	    }
-	 	if($pwd!="") {
+	 	if(!empty($pwd)) {
 	    	$this->pwd=$pwd;
 	    }
-	 	if($dbname!="") {
+	 	if(!empty($dbname)) {
 	    	$this->database=$dbname;
 	    }
 		$this->connect();
@@ -212,13 +201,13 @@ class DB {
 		return mysql_affected_rows($this->conn);
 	}
 	function free_result($result = '') {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
-	    return (@mysql_free_result($result));
+	    return @mysql_free_result($result);
 	}
 	function close() {
-		if (!empty($this->result)) {
+		if (!empty($this->result) && $this->freeResult == true) {
 	    	$this->free_result();
 	    }
 		return mysql_close($this->conn);
@@ -231,13 +220,21 @@ class DB {
 			$func = 'mysql_connect';
 		}
 
-		$this->conn = @$func($this->host, $this->user, $this->pwd);
-		if(!$this->conn && $die == true) {
-			die('Could not connect to database! Pleasy try again later or check the database settings: host, username and password!');
+		ob_start();
+		$this->conn = $func($this->host, $this->user, $this->pwd);
+		ob_end_clean();
+		
+		if (!is_resource($this->conn)) {
+			if ($die == true) {
+				trigger_error('Could not connect to database! Pleasy try again later or check the database settings: host, username and password!<br /><strong>Database returned</strong>: '.mysql_error(), E_USER_ERROR);
+			}
+			else {
+				trigger_error('Could not connect to database!<br /><strong>Database returned</strong>: '.mysql_error(), E_USER_WARNING);
+			}
 		}
 	}
 	function select_db($dbname="") {
-		if($dbname=="") {
+		if(empty($dbname)) {
 			$dbname=$this->database;
 		}
 		return mysql_select_db($dbname,$this->conn);
@@ -260,16 +257,10 @@ class DB {
 			}
 			$errno = mysql_errno();
 			$errmsg = mysql_error();
-			$errcomment = str_replace("\n", " ", $errcomment);
-			$errcomment = str_replace("\r", " ", $errcomment);
-			$errcomment = str_replace("\t", "   ", $errcomment);
-			$errmsg = str_replace("\n", " ", $errmsg);
-			$errmsg = str_replace("\r", " ", $errmsg);
-			$errmsg = str_replace("\t", "   ", $errmsg);
-			$_SERVER['REQUEST_URI'] = str_replace("\n", " ", $_SERVER['REQUEST_URI']);
-			$_SERVER['REQUEST_URI'] = str_replace("\r", " ", $_SERVER['REQUEST_URI']);
-			$_SERVER['REQUEST_URI'] = str_replace("\t", "   ", $_SERVER['REQUEST_URI']);
-			$new[] = $errno."\t".$errmsg."\t".$errfile."\t".$errline."\t".$errcomment."\t".$_SERVER['REQUEST_URI']."\t".time()."\t".PHP_VERSION." (".PHP_OS.")";
+			$errcomment = str_replace(array("\r\n","\n","\r","\t"), " ", $errcomment);
+			$errmsg = str_replace(array("\r\n","\n","\r","\t"), " ", $errmsg);
+			$sru = str_replace(array("\r\n","\n","\r","\t"), " ", $_SERVER['REQUEST_URI']);
+			$new[] = $errno."\t".$errmsg."\t".$errfile."\t".$errline."\t".$errcomment."\t".$sru."\t".time()."\t".PHP_VERSION." (".PHP_OS.")";
 			file_put_contents($this->errlogfile, implode("\n", $new));
 		}
 	    return "$errno: $errmsg - File: $errfile on line $errline";
@@ -278,7 +269,7 @@ class DB {
 	   list($usec, $sec) = explode(" ", microtime());
 	   return ((float)$usec + (float)$sec);
 	}
-	function query($sql, $line = 0, $file = '', $unbuffered = FALSE) {
+	function query($sql, $line = 0, $file = '', $die = true, $unbuffered = false) {
 		global $config;
 
 		$zm1 = $this->benchmarktime();
@@ -289,8 +280,15 @@ class DB {
 		else {
 			$func = 'mysql_query';
 		}
+		
+		if ($die == true) {
+			$errfunc = E_USER_ERROR;
+		}
+		else {
+			$errfunc = E_USER_NOTICE;
+		}
 
-		$this->result = $func($sql, $this->conn) or die('Database error: '.$this->error($line, $file, $sql));
+		$this->result = $func($sql, $this->conn) or trigger_error('Database error: '.$this->error($line, $file, $sql), $errfunc);
 	    
 		$zm2 = $this->benchmarktime();
 		
@@ -300,8 +298,8 @@ class DB {
 	    
 	    return $this->result;
 	}
-	function num_rows($result='') {
-		if ($result == '') {
+	function num_rows($result = '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 	    return (@mysql_num_rows($result));
@@ -309,71 +307,71 @@ class DB {
     function insert_id() {
 	    return (@mysql_insert_id($this->conn));
 	}
-	function fetch_object($result='') {
-		if ($result == '') {
+	function fetch_object($result = '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
-	    return (@mysql_fetch_object($result));
+	    return @mysql_fetch_object($result);
 	}
-	function fetch_array($result='',$prefix=DB_BOTH) {
-		if ($result == '') {
+	function fetch_num($result='') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
-	    return (@mysql_fetch_array($result, $prefix));
+	    return @mysql_fetch_row($result);
 	}
 	function fetch_assoc($result='') {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
-	    return (@mysql_fetch_assoc($result));
+	    return @mysql_fetch_assoc($result);
 	}
 	function escape_string($value) {
 		$func = $this->escaper;
 		return $func($value);
 	}
 	function list_tables($result='') {
-		if ($result == '') {
+		if (empty($result)) {
 			$result = $this->database;
 		}
 		$result = $this->query('SHOW TABLES FROM '.$result,__LINE__,__FILE__);
 		$tables = array();
-		while ($row = $this->fetch_array($result)) {
+		while ($row = $this->fetch_num($result)) {
 			$tables[] = $row[0];
 		}
 		return $tables;
 	}
 	function num_fields($result='') {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_num_fields($result);
 	}
 	function field_flags($result='') {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_field_flags($result, $k);
 	}
 	function field_len($result='',$k) {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_field_len($result, $k);
 	}
 	function field_type($result='',$k) {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_field_type($result, $k);
 	}
 	function field_name($result='',$k) {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_field_name($result, $k);
 	}
 	function field_table($result='',$k) {
-		if ($result == '') {
+		if (empty($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_field_table($result, $k);

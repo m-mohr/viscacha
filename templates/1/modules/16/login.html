@@ -1,0 +1,13 @@
+<form method="post" action="log.php?action=login2<?php echo SID2URL_x; ?>">
+  <div class="border">
+	<h3><img id="img_cat_i0" name="collapse" src="<?php echo $tpl->img('minus'); ?>" alt="" /> <a href="log.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('login'); ?></a></h3>
+	<div id="part_cat_i0" class="bbody center">
+		<strong><?php echo $lang->phrase('login_name'); ?>&nbsp;</strong><input type="text" name="name" size="20" />
+		<strong class="sep"><?php echo $lang->phrase('login_password'); ?>&nbsp;</strong><input type="password" name="pw" size="20" />
+		<input class="sep" type="checkbox" name="remember" value="1" checked="checked" /> <?php echo $lang->phrase('login_rememberme'); ?>
+		<input class="sep" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
+		<input type="hidden" name="redirect" value="<?php echo $request_uri; ?>" />
+    </div>
+  </div>
+</form>
+<br class="minibr" />

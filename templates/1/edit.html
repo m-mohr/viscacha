@@ -41,7 +41,7 @@
 <hr class="formsep" />
 <label><?php echo $lang->phrase('attachments'); ?></label> 
 <div class="label">
-  <a href="attachments.php?type=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" target="_blank" onclick="adduploads(this); return false;"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+  <a href="attachments.php?type=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
   <span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
 </div>
 <br class="newinput" />
@@ -52,6 +52,6 @@
 <br class="newinput" />
 <?php } ?>
 </div>
-<div class="bfoot center"><input onclick="submit_flood(this)" accesskey="s" type="submit" name="Submit2" value="<?php echo $lang->phrase('submit_form'); ?>" /> <input type="submit" accesskey="p" name="Preview2" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
+<div class="bfoot center"><input onclick="submit_flood(this)" accesskey="s" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" /> <input type="submit" accesskey="p" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
 </div>
 </form>

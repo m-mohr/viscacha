@@ -44,7 +44,7 @@
 <a id="menu_help" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" style="cursor: help;" target="_blank"><img src="<?php echo $tpl->img('bbcodes/help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcodes_help'); ?></strong></a>
 <?php if ($config['spellcheck'] == 1) { ?>
 <script type="text/javascript" src="templates/spellChecker.js"></script>
-<a href="javascript:openSpellChecker('comment');"><img src="<?php echo $tpl->img('bbcodes/spellcheck'); ?>" alt="<?php echo $lang->phrase('spellcheck'); ?>" /></a>
+<a href="javascript:openSpellChecker(textfield);"><img src="<?php echo $tpl->img('bbcodes/spellcheck'); ?>" alt="<?php echo $lang->phrase('spellcheck'); ?>" /></a>
 <?php } ?>
 <br />
 <a href="javascript:InsertTags('[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>"><img src="<?php echo $tpl->img('bbcodes/b'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" /></a>
@@ -54,7 +54,7 @@
 <a href="javascript:InsertTags('[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>"><img src="<?php echo $tpl->img('bbcodes/hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" /></a>
 <?php } ?>
 <a href="javascript:InsertTags('[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>"><img src="<?php echo $tpl->img('bbcodes/img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" /></a>
-<a title="<?php echo $lang->phrase('bbcodes_url'); ?>" href="javascript:InsertTagsParams('[url={param1}]{param2}','[/url]','<?php echo $lang->phrase('bbcodes_url_prompt1'); ?>','<?php echo $lang->phrase('bbcodes_url_promtp2'); ?>');"><img src="<?php echo $tpl->img('bbcodes/url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" /></a>
+<a href="javascript:InsertTagsParams('[url={param1}]{param2}','[/url]','<?php echo $lang->phrase('bbcodes_url_prompt1'); ?>','<?php echo $lang->phrase('bbcodes_url_promtp2'); ?>');" title="<?php echo $lang->phrase('bbcodes_url'); ?>"><img src="<?php echo $tpl->img('bbcodes/url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" /></a>
 <a href="javascript:InsertTags('[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>"><img src="<?php echo $tpl->img('bbcodes/email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" /></a>
 <a href="javascript:InsertTags('[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>"><img src="<?php echo $tpl->img('bbcodes/quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" /></a>
 <a href="javascript:InsertTags('[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>"><img src="<?php echo $tpl->img('bbcodes/ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" /></a>
@@ -68,5 +68,7 @@
 <a title="<?php echo $lang->phrase('bbcodes_note'); ?>" href="javascript:InsertTagsParams('[note={param1}]{param2}','[/note]','<?php echo $lang->phrase('bbcodes_note_prompt1'); ?>','<?php echo $lang->phrase('bbcodes_note_prompt2'); ?>');"><img src="<?php echo $tpl->img('bbcodes/note'); ?>" alt="<?php echo $lang->phrase('bbcodes_note'); ?>" /></a>
 <a href="javascript:InsertTags('[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>"><img src="<?php echo $tpl->img('bbcodes/sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" /></a>
 <a href="javascript:InsertTags('[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>"><img src="<?php echo $tpl->img('bbcodes/sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" /></a>
-<?php } ?>
+<?php foreach ($cbb as $bb) { ?>
+<a href="javascript:<?php echo $bb['href']; ?>" title="<?php echo $bb['title']; ?>"><img src="<?php echo $bb['buttonimage']; ?>" alt="<?php echo $bb['title']; ?>" /></a>
+<?php } } ?>
 </div>

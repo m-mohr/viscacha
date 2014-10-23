@@ -9,11 +9,12 @@ td { font-family: tahoma, arial; font-size: 12px; vertical-align: middle; text-a
 </style>
 <script language="JavaScript" type="text/javascript">
 <!--
-if(document.all)
-{
+if(opener.isIE7) {
+  window.resizeTo(450, 190);
+} else if(document.all) {
   window.resizeTo(450, 180);
 } else {
-	window.resizeTo(450, 150);
+	window.resizeTo(450, 165);
 }
 function selectChar(ch) {
  window.opener.insertHTML(ch);

@@ -39,8 +39,10 @@ $tpl = new tpl();
 if ($config['spellcheck'] == 0) {
 	error('Spellcheck wurde deaktiviert!', 'self.close()');
 }
-
 $action = $gpc->get('action', str);
+
+($code = $plugins->load('spellcheck_start')) ? eval($code) : null;
+
 if ($action == "execute") {
 	include("classes/spellchecker/function.php");
 	echo $tpl->parse("spellcheck/execute");
@@ -54,6 +56,8 @@ elseif ($action == "controls") {
 elseif ($action == "blank") {
 	echo '';
 }
+
+($code = $plugins->load('spellcheck_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

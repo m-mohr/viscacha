@@ -15,6 +15,7 @@
   	<?php echo iif($row['firstnew'],'<a href="showtopic.php?action=firstnew&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('desc').'" alt="'.$lang->phrase('move_to_first_new_post').'" /></a>'); ?>
 	<?php echo $row['pre']; ?>
   <a<?php echo iif($row['firstnew'], ' style="font-weight: bold;"'); ?> href='showtopic.php?action=jumpto&amp;topic_id=<?php echo $row['pid']; ?>&amp;id=<?php echo $row['id'].SID2URL_x; ?>'><?php echo $row['topic']; ?></a>
+  <?php echo iif (!empty($row['topic_pages']), ' (<span class="stext" style="white-space: nowrap;">'.$row['topic_pages'].'</span>)'); ?>
   </td>
   <td width="10%"><?php echo $row['posts']; ?></td> 
 </tr>

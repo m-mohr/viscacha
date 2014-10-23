@@ -7,6 +7,7 @@
 		<a<?php echo iif($firstnew, ' style="font-weight: bold;"'); ?> href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'>
 			<?php echo iif($showprefix, '['.$prefix[$row->prefix].'] ').$row->topic; ?>
 		</a>
+		<?php echo iif (!empty($topic_pages), '<br /><span class="stext">'.$topic_pages.'</span>'); ?>
     </td>
 	<td width='20%' class='stext'>
 		<?php echo $rstart; ?><br />

@@ -37,6 +37,13 @@
     <a href="javascript:MsgrObj.AddContact(0,'<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_1'); ?></a><br />
     <a href="javascript:MsgrObj.InstantMessage('<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_2'); ?></a><br /><br />   
     <span class='stext'><?php echo $lang->phrase('im_requirements'); ?></span>
+<?php } elseif ($_GET['type'] == 'skype') { ?>
+    <a href="skype:<?php echo $row['skype']; ?>?userinfo"><?php echo $lang->phrase('im_skype_1'); ?></a><br />
+    <a href="skype:<?php echo $row['skype']; ?>?add"><?php echo $lang->phrase('im_skype_2'); ?></a><br />
+    <a href="skype:<?php echo $row['skype']; ?>?call"><?php echo $lang->phrase('im_skype_3'); ?></a><br />
+    <a href="skype:<?php echo $row['skype']; ?>?chat"><?php echo $lang->phrase('im_skype_4'); ?></a><br />
+    <a href="skype:<?php echo $row['skype']; ?>?voicemail"><?php echo $lang->phrase('im_skype_5'); ?></a><br /><br />
+    <span class='stext'><?php echo $lang->phrase('im_requirements'); ?></span>
 <?php } else { ?>
 <form action="profile.php?action=sendjabber&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" method="post">
 <label for="ta">

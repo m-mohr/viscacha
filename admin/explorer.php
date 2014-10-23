@@ -32,6 +32,22 @@ if ($job == 'upload') {
 		$dir = realpath('./admin/backup/');
 		$url = 'admin.php?action=db&job=restore';
 	}
+	elseif ($cfg == 'captcha_fonts') {
+		$ups = 1;
+		$filesize = 500; // 500KB
+		$filetypes = '.ttf';
+		$dir = realpath('./classes/fonts/');
+		$url = 'admin.php?action=misc&job=captcha_fonts';
+	}
+	elseif ($cfg == 'captcha_noises') {
+		$ups = 1;
+		$filesize = 200; // 200KB
+		$filetypes = '.jpg';
+		$dir = realpath('./classes/graphic/noises/');
+		$url = 'admin.php?action=misc&job=captcha_noises';
+		$imgwidth = 300;
+		$imgheight = 80;
+	}
 	else {
 		$ups = $uploadfields;
 		$filesize = ini_maxupload();
@@ -85,10 +101,25 @@ if ($job == 'upload') {
 	if ($success == 0) {
 	    $inserterrors[] = 'No file successfully uploaded!';
 	}
+	
 	if (count($inserterrors) > 0) {
 		error($url, $inserterrors);
 	}
 	else {
+		if ($cfg == 'captcha_fonts') {
+			$n = 1;
+			while(file_exists($dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf')) {
+				$n++;
+			}
+			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'], $dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf');
+		}
+		elseif ($cfg == 'captcha_noises') {
+			$n = 1;
+			while(file_exists($dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg')) {
+				$n++;
+			}
+			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'], $dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg');
+		}
 		ok($url, 'Upload ready!');
 	}
 }
@@ -103,7 +134,7 @@ elseif ($job == 'newdir') {
    <td class="obox" colspan="2">Create new directory</td>
   </tr>
   <tr> 
-   <td class="mbox">Name of new directory:</td>
+   <td class="mbox">Name for the new directory:</td>
    <td class="mbox"><input type="text" name="name" size="30"></td>
   </tr>
   <tr> 
@@ -156,7 +187,7 @@ elseif ($job == "chmod") {
   </tr>
   <tr> 
    <td class="mbox">CHMOD-Helper:
-   <noscript><br /><span class="stext">You can not use this Helper, until you enable JavaScript.</span></noscript>
+   <noscript><br /><span class="stext">You can not use this Helper, until JavaScript is enabled.</span></noscript>
    </td>
    <td class="mbox">
 	<table cellpadding="3" cellspacing="0" border="1">
@@ -316,11 +347,11 @@ elseif ($job == "edit") {
    <td class="obox" colspan="2"><b>Edit a File</b></td>
   </tr>
   <tr>
-   <td class="mbox" width="15%">Dateiinhalt:</td> 
+   <td class="mbox" width="15%">Content:</td> 
    <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo htmlspecialchars($content); ?></textarea></td> 
   </tr>
   <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
   </tr>
  </table>
 </form>
@@ -372,7 +403,7 @@ elseif ($job == "extract2") {
 	check_executable($dir);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
 	if (!preg_match('#\.(tar\.gz|tar|gz|zip)$#is', $file, $ext)) {
-		error($redirect, 'File is not an supported archive. (Failed at position: preg_match)');
+		error($redirect, 'The archive is currently not supported. (Failed at position: preg_match)');
 	}
 	unset($extension);
 	if (isset($ext[1])) {
@@ -390,7 +421,7 @@ elseif ($job == "extract2") {
 			$temp = realpath($temp);
 			include('classes/class.tar.php');
 			$tar = new tar();
-			$tar->new_tar(dirname($temp), basename($temp));
+			$tar->new_tar(viscacha_dirname($temp), basename($temp));
 			$tar->extract_files(realpath($dir));
 			$err = $tar->error;
 			$filesystem->unlink($temp);
@@ -402,7 +433,7 @@ elseif ($job == "extract2") {
 			include('classes/class.tar.php');
 			$tar = new tar();
 			$file = realpath($file);
-			$tar->new_tar(dirname($file), basename($file));
+			$tar->new_tar(viscacha_dirname($file), basename($file));
 			$tar->extract_files($dir);
 		}
 		elseif ($extension == 'gz') {

@@ -16,7 +16,6 @@ if ($config['check_filesystem'] == 1) {
 	check_executable_r('designs');
 	check_executable_r('docs');
 	check_executable_r('images');
-	check_executable_r('smilies');
 	check_executable_r('templates');
 	check_executable_r('components');
 	check_executable_r('language');
@@ -25,17 +24,71 @@ if ($config['check_filesystem'] == 1) {
 	check_executable('classes/fonts');
 	check_executable('classes/geshi');
 	check_executable('classes/graphic/noises');
+	check_writable_r('templates');
 }
 
 @ini_set('default_charset', '');
 header('Content-type: text/html; charset: iso-8859-1');
 
 $htmlhead = '';
-$months = array('January','February','March','April','May','June','July','August','September','October','November','December');
-$days = array('Sonntag','Montag','Dienstag','Mittwoch','Donenrstag','Freitag','Samstag');
 
-// A simple caching class for Arrays etc.
-include_once ("classes/function.cache.php");
+// Arrays for Dates
+$months = array('January','February','March','April','May','June','July','August','September','October','November','December');
+$days = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+
+// Arrays for Permissions
+$gls = array(
+'admin' => 'Is Administrator',
+'gmod' => 'Is Global Moderator',
+'guest' => 'Is Guest',
+'members' => 'Can view Memberlist',
+'profile' => 'Can view Profiles',
+'pdf' => 'Can view PDF-Files',
+'pm' => 'Can use PM',
+'wwo' => 'Can view Who is Online',
+'search' => 'Can use Search',
+'team' => 'Can view Teamlist',
+'usepic' => 'Can use (own) Avatar',
+'useabout' => 'Create (own) Personal Page',
+'usesignature' => 'Can use (own) Signature',
+'downloadfiles' => 'Can download Attachements',
+'forum' => 'Can view Forums',
+'posttopics' => 'Can start a new Thread',
+'postreplies' => 'Can write a reply',
+'addvotes' => 'Can start a Poll',
+'attachments' => 'Can add Attachements',
+'edit' => 'Can edit own Posts',
+'voting' => 'Can vote',
+'docs' => 'Can view Documents/Pages'
+);
+$glk = array_keys($gls);
+$glk_forums = array('downloadfiles','forum','posttopics','postreplies','addvotes','attachments','edit','voting');
+$gll = array(
+'admin' => 'The user ist he highest ranked Administrator in the forum. He may use this admincenter and has full control of the forum!',
+'gmod' => 'The user will automatically be moderator in all forums and can use all options and actions on topics.',
+'guest' => 'The users in this usergroup are (not registered) guests.',
+'members' => 'May view the memberlist and use eventually observably data.',
+'profile' => 'The user may view the profiles of the members and use eventually observably data.',
+'pdf' => 'The user may download particular topics as PDF-file.',
+'pm' => 'The user may use the Private Messaging (PM) System. He can send, receive, administer and archive private messages.',
+'wwo' => 'May view the where-is-who-online-list with the users residence.',
+'search' => 'May use the Search and view the results.',
+'team' => 'May view the teamlist with administrators, global moderators and moderators.',
+'usepic' => 'May upload his own picture for his profile (frequently named avatar) or indicate an URL to a picture.',
+'useabout' => 'May create a personal site in his user profile.',
+'usesignature' => 'The user may create his own signature.',
+'downloadfiles' => 'The user may view and download attached files.',
+'forum' => 'The user may generally view the forums and read them.',
+'posttopics' => 'New topics may be started.',
+'postreplies' => 'Answers to topics may be written.',
+'addvotes' => 'Polls may be created within topics.',
+'attachments' => 'The user may attach files to his post.',
+'edit' => 'The user may edit and delete his own posts.',
+'voting' => 'The user may participate in polls in topics.',
+'docs' => 'May view all documents &amp; pages.'
+);
+$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
+
 // Variables
 require_once ("classes/class.gpc.php");
 $gpc = new GPC();
@@ -49,51 +102,74 @@ require_once ("classes/class.permissions.php");
 include_once ("classes/class.template.php");
 // A class for Languages
 include_once ("classes/class.language.php");
-// BB-Code functions
-include_once ("classes/class.bbcode.php");
 // Global functions
 require_once ("classes/function.global.php");
 
-function wysiwyg($name, $wysiwyg = true, $preload = '<div class="border"><div class="h3">Title</div><div class="bbody">Content</div></div>', $inline = 1, $formid = 'form') {
-	global $my, $tpl;
-	$path = $tpl->altdir.'docs/'.$preload.'.html';
-	if (strpos($preload, '<') === false && file_exists($path)) {
-		$preload = file_get_contents($path);
+function isInvisibleHook($hook) {
+	switch ($hook) {
+		case 'uninstall':
+		case 'install':
+		case 'source':
+			return true;
+		break;
+		default:
+			return false;
+		break;
 	}
-	$textarea = <<<EOD
-<textarea id="{$name}" name="{$name}" rows="20" cols="110" class="texteditor">{$preload}</textarea>
-EOD;
-	if ($wysiwyg == true) {
-		$field = <<<EOD
-{$textarea}
-<link rel="stylesheet" type="text/css" href="templates/editor/rte.css" />
-<script language="JavaScript" type="text/javascript" src="templates/editor/lang/en.js"></script>
-<script language="JavaScript" type="text/javascript" src="templates/editor/richtext.js"></script>
-<script language="JavaScript" type="text/javascript" src="templates/editor/html2xhtml.js"></script>
-<script language="JavaScript" type="text/javascript">
-<!--
-window.onload = function() {
-	forms = FetchElement('{$formid}');
-	ta = FetchElement('{$name}');
-	forms.onsubmit = function() {
-   		updateRTE('rte'); 
-  		ta.value = forms.rte.value;
-  		forms.submit(); 
-	};
-	ta.style.display = 'none';
-};
-var lang = "en";
-var encoding = "iso-8859-1";
-initRTE("templates/editor/images/", "templates/editor/", "designs/{$my->cssid}/standard.css", false);
-writeRichText('rte', FetchElement('{$name}').value, '', 750, 350, true, false, false);
-//-->
-</script>
-EOD;
-		return $field;
+}
+
+function makeOSPath($array) {
+	$dir = implode(DIRECTORY_SEPARATOR, $array);
+	if (is_dir($dir)) {
+		$dir .= DIRECTORY_SEPARATOR;
 	}
-	else {
-		return $textarea;
+	return $dir;
+}
+
+function pluginSettingGroupUninstall($pluginid) {
+	global $db;
+	$result = $db->query("SELECT id, name FROM {$db->pre}settings_groups WHERE name = 'module_{$pluginid}' LIMIT 1");
+	$row = $db->fetch_assoc($result);
+	
+	$c = new manageconfig();
+	$c->getdata();
+	$result = $db->query("SELECT name FROM {$db->pre}settings WHERE sgroup = '{$row['id']}'");
+	while ($row2 = $db->fetch_assoc($result)) {
+		$c->delete(array($row['name'], $row2['name']));
 	}
+	$c->savedata();
+	
+	$db->query("DELETE FROM {$db->pre}settings WHERE sgroup = '{$row['id']}'", __LINE__, __FILE__);
+	$db->query("DELETE FROM {$db->pre}settings_groups WHERE id = '{$row['id']}'", __LINE__, __FILE__);
+}
+
+function getHookArray() {
+	$data = file('admin/data/hooks.txt');
+	$data = array_map('trim', $data);
+	$hooks = array();
+	$group = null;
+	foreach ($data as $line) {
+		if (empty($line)) {
+			continue;
+		}
+		if ($line{0} != '-') {
+			$hooks[$line] = array();
+			$group = $line;
+			continue;
+		}
+		if ($group != null && $line{0} == '-') {
+			$hooks[$group][] = substr($line, 1);
+		}
+	}
+	return $hooks;
+}
+
+function array2sqlsetlist($array, $seperator = ', ') {
+	$sqlarray = array();
+	foreach ($array as $key => $value) {
+		$sqlarray[] = "`{$key}` = '{$value}'";
+	}
+	return implode($seperator, $sqlarray);
 }
 
 function gzAbortNotLoaded() {
@@ -139,32 +215,20 @@ function get_webserver() {
 
 function get_remote($file) {
 	if (!preg_match('/^(http:\/\/)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $file, $url_ary)) {
-		return false;
+		return null;
 	}
-
-	$base_get = '/' . $url_ary[4];
-	$port = (!empty($url_ary[3])) ? $url_ary[3] : 80;
-
-	if (!($fsock = @fsockopen($url_ary[2], $port, $errno, $errstr, 5))) {
-		return false;
+	if (!class_exists('Snoopy')) {
+		include('classes/class.snoopy.php');
 	}
-
-	@fputs($fsock, "GET {$base_get} HTTP/1.1\r\n");
-	@fputs($fsock, "HOST: " . $url_ary[2] . "\r\n");
-	@fputs($fsock, "Connection: close\r\n\r\n");
-
-	$data = '';
-	while(!@feof($fsock)) {
-		$data .= @fread($fsock, 1024);
+	$snoopy = new Snoopy;
+	$snoopy->port = null;
+	$status = $snoopy->fetch($file);
+	if ($status == true) {
+		return $snoopy->results;
 	}
-	@fclose($fsock);
-		
-	list($header,$data) = explode("\r\n\r\n", $data, 2);
-	if (preg_match('#Location\: ([^\s]+)[\s]+#i', $header, $loc)) {
-		$data = get_remote($loc[1]);
+	else {
+		return null;
 	}
-
-	return $data;
 }
 
 function checkRemotePic($pic, $url_ary, $id) {
@@ -176,14 +240,14 @@ function checkRemotePic($pic, $url_ary, $id) {
 		$config['avheight'] = 2048;
 	}
 	if (empty($url_ary[4])) {
-		error("admin.php?action=members&job=edit&id=".$id, 'Keine gültige URL angegeben.');
+		error("admin.php?action=members&job=edit&id=".$id, 'No valid URL indicated.');
 	}
 
 	$base_get = '/' . $url_ary[4];
 	$port = (!empty($url_ary[3])) ? $url_ary[3] : 80;
 
 	if (!($fsock = @fsockopen($url_ary[2], $port, $errno, $errstr, 15))) {
-		error("admin.php?action=members&job=edit&id=".$id, "Konnte keine Verbindung zum Avatar-Server herstellen:<br />{errno}: {$errstr}");
+		error("admin.php?action=members&job=edit&id=".$id, "The server does not respond to your request:<br />{errno}: {$errstr}");
 	}
 
 	@fputs($fsock, "GET {$base_get} HTTP/1.1\r\n");
@@ -197,7 +261,7 @@ function checkRemotePic($pic, $url_ary, $id) {
 	@fclose($fsock);
 
 	if (!preg_match('#Content-Length\: ([0-9]+)[^ /][\s]+#i', $avatar_data, $file_data1) || !preg_match('#Content-Type\: image/[x\-]*([a-z]+)[\s]+#i', $avatar_data, $file_data2)) {
-		error("admin.php?action=members&job=edit&id=".$id, 'Es wurden keine gültige Rückgabe vom Avatar-Server empfangen.');
+		error("admin.php?action=members&job=edit&id=".$id, 'The server does not return a valid response!');
 	}
 		
 	list(,$avatar_data) = explode("\r\n\r\n", $avatar_data, 2);
@@ -216,8 +280,7 @@ function checkRemotePic($pic, $url_ary, $id) {
 		$filesystem->copy($origfile, $pic);
 	}
 	else {
-		error("admin.php?action=members&job=edit&id=".$id, 'Bild entspricht nicht den Vorgaben!');
-		$filesystem->unlink($origfile);
+		error("admin.php?action=members&job=edit&id=".$id, 'Image does not match the criteria!');
 	}
 	return $pic;
 }
@@ -303,19 +366,19 @@ function recur_dir($dir, $clevel = 0) {
 
 function formatFilesize($byte) {
     $string = 'Byte';
-    if($byte>1024) {
+    if($byte>=1024) {
         $byte/=1024;
         $string = 'KB';
     }
-    if($byte>1024) {
+    if($byte>=1024) {
         $byte/=1024;
         $string = 'MB';
     }
-    if($byte>1024) {
+    if($byte>=1024) {
         $byte/=1024;
         $string = 'GB';
     }
-    if($byte>1024) {
+    if($byte>=1024) {
         $byte/=1024;
         $string = 'TB';
     }
@@ -381,7 +444,7 @@ function head($onload = '') {
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-	<title><?php echo $config['fname']; ?>: Administrations Control Panel - powered by Viscacha</title>
+	<title><?php echo $config['fname']; ?>: Administration Control Panel - powered by Viscacha</title>
 	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 	<meta http-equiv="Pragma" content="no-cache" />
 	<meta http-equiv="Expires" content="-1" />
@@ -408,7 +471,7 @@ function foot() {
 	<br style="line-height: 8px;" />
 	<div class="stext center">[Load Time: <?php echo round($benchmark, 5); ?>] [Queries: <?php echo $db->benchmark('queries'); ?>]</div>
     <div id="copyright">
-        <strong><a href="http://www.mamo-net.de" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+        <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
         Copyright &copy; 2004-2006, MaMo Net
         <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
     </div>
@@ -457,7 +520,7 @@ function ok ($url, $msg = "Settings were saved successfully!") {
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout('location.href="<?php echo $url; ?>"', 3000);
+window.setTimeout('location.href="<?php echo $url; ?>"', 1000);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -482,10 +545,10 @@ function noki ($int, $js = '', $id = '') {
 		$id = ' id="'.$id.'"';
 	}
 	if ($int == 1 || $int == true) {
-		return '<img'.$js.$id.' class="valign" src="admin/html/images/yes.gif" border="0" alt="Yes" title="Click here to change setting!">';
+		return '<img'.$js.$id.' class="valign" src="admin/html/images/yes.gif" border="0" alt="Yes"'.iif(!empty($js), ' title="Click here to change setting!"', ' title="Yes"').' />';
 	}
 	else {
-		return '<img'.$js.$id.' class="valign" src="admin/html/images/no.gif" border="0" alt="No" title="Click here to change setting!">';
+		return '<img'.$js.$id.' class="valign" src="admin/html/images/no.gif" border="0" alt="No"'.iif(!empty($js), ' title="Click here to change setting!"', ' title="No"').' />';
 	}
 
 }

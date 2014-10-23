@@ -4,10 +4,10 @@
  * ----------
  * Author: Alan Juden (alan@judenware.org)
  * Copyright: (c) 2004 Alan Juden, Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.7.6
- * CVS Revision Version: $Revision: 1.7 $
+ * Release Version: 1.0.7.12
+ * CVS Revision Version: $Revision: 1.15.2.3 $
  * Date Started: 2004/07/10
- * Last Modified: $Date: 2005/11/20 07:47:40 $
+ * Last Modified: $Date: 2006/07/22 11:30:31 $
  *
  * Smarty template language file for GeSHi.
  *
@@ -50,7 +50,7 @@ $language_data = array (
 		1 => array(
 			'$smarty', 'now', 'const', 'capture', 'config', 'section', 'foreach', 'template', 'version', 'ldelim', 'rdelim',
 			'config_load', 'foreachelse', 'include', 'include_php', 'insert', 'if', 'elseif', 'else', 'php',
-			'sectionelse', 'clear_all_cache', 'clear_cache', 'is_cached', 'from', 'item'
+			'sectionelse', 'clear_all_cache', 'clear_cache', 'is_cached',
 			),
 		2 => array(
 			'capitalize', 'count_characters', 'cat', 'count_paragraphs', 'count_sentences', 'count_words', 'date_format',
@@ -83,7 +83,7 @@ $language_data = array (
 			),
 		6 => array(
 			'name', 'assign', 'file', 'scope', 'global', 'key', 'once', 'script',
-			'loop', 'start', 'step', 'max', 'show', 'values', 'value'
+			'loop', 'start', 'step', 'max', 'show', 'values', 'value', 'from', 'item'
 			),
 		7 => array(
 			'eq', 'neq', 'ne', 'lte', 'gte', 'ge', 'le', 'not', 'mod'
@@ -134,6 +134,7 @@ $language_data = array (
 			0 => 'color: #D36900;'
 			),
 		'SCRIPT' => array(
+            0 => ''
 			),
 		'REGEXPS' => array(
 			)

@@ -5,7 +5,16 @@ if (!empty($_REQUEST['text'])) {
 	if (!isset($_REQUEST['angle'])) {
 		$_REQUEST['angle'] = 0;
 	}
-	$img->prepare($_REQUEST['text'], $_REQUEST['angle'], 10, '../fonts/trebuchet.ttf');
+	if (!isset($_REQUEST['size'])) {
+		$_REQUEST['size'] = 10;
+	}
+	if (!empty($_REQUEST['file']) && @file_exists('../fonts/'.$_REQUEST['file'].'.ttf')) {
+		$file = $_REQUEST['file'];
+	}
+	else {
+		$file = 'trebuchet';
+	}
+	$img->prepare($_REQUEST['text'], $_REQUEST['angle'], $_REQUEST['size'], '../fonts/'.$file.'.ttf');
 	if (isset($_REQUEST['enc'])) {
 		$img->base64();
 	}

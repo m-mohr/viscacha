@@ -1,34 +1,131 @@
 <?php
 if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "db.php") die('Error: Hacking Attempt');
 
+function highlight_sql_query($sql) {
+	global $lang;
+	require_once('classes/class.geshi.php');
+	$path = 'classes/geshi';
+	$lang = 'mysql';
+	if (!file_exists($path.'/'.$lang.'.php')) {
+		$lang = 'sql';
+		if (!file_exists($path.'/'.$lang.'.php')) {
+			return null;
+		}
+	}
+	$geshi = new GeSHi($sql, $lang, $path);
+	$geshi->enable_classes(false);
+	$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
+	return $geshi->parse_code();
+}
+
+function exec_query_form ($query = '') {
+	global $db;
+	$tables = $db->list_tables();
+?>
+<form name="form" method="post" action="admin.php?action=db&job=query2">
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr> 
+   <td class="obox" colspan="2"><b>Execute Queries</b></td>
+  </tr>
+  <tr> 
+	<td class="mbox" width="90%">
+	<span style="float: right;">semicolon-separated list</span><strong>Queries:</strong>
+	<textarea name="query" id="query" rows="10" cols="90" class="texteditor" style="width: 100%; height: 200px;"><?php echo iif(!empty($query), $query); ?></textarea>
+	</td>
+	<td class="mbox" width="10%">
+	<strong>Tables:</strong>
+	<div style="overflow: scroll; height: 200px; width: 150px; border: 1px solid #336699; padding: 2px;">
+	<?php foreach ($tables as $table) { ?>
+	<a href="javascript:InsertTags('query', '`<?php echo $table; ?>`', '');"><?php echo $table; ?></a><br />
+	<?php } ?>
+	</div>
+	</td>
+  </tr>
+  <tr> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  </tr>
+ </table>
+</form>
+<br />
+<?php if (empty($query)) { ?>
+<form name="form" method="post" action="admin.php?action=db&amp;job=query2&amp;type=1" enctype="multipart/form-data">
+ <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+  <tr> 
+   <td class="obox"><b>Import SQL File</b></td>
+  </tr>
+  <tr>
+  	<td class="mbox">
+  	<input type="file" name="upload" size="80" /><br />
+  	<span class="stext">Allowed file types: .sql, .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span>
+  	</td>
+  </tr>
+  <tr> 
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  </tr>
+ </table>
+</form>
+<br />
+<?php
+	}
+}
+
 if ($job == 'optimize') {
 	echo head();
-	$result = $db->list_tables();
+	$tables = array();
+	$data_length = 0;
+	$index_length = 0;
+	$data_free = 0;
+	$result = $db->query("SHOW TABLE STATUS");
+	while($table = $db->fetch_assoc($result)) {
+		$table['Engine'] = (!empty($table['Type']) ? $table['Type'] : $table['Engine']);
+		$table['possible'] = (!in_array(strtolower($table['Engine']), array('heap', 'memory')));
+		$data_length += $table['Data_length'];
+		$index_length += $table['Index_length'];
+		$data_free += $table['Data_free'];
+		$tables[] = $table;
+	}
 	?>
 <form name="form" method="post" action="admin.php?action=db&job=optimize2">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="3">Repair &amp; Optimize</td>
+   <td class="obox" colspan="6">Repair &amp; Optimize</td>
   </tr>
   <tr> 
-   <td class="ubox" width="10%">Repair</td>
-   <td class="ubox" width="10%">Optimize</td>
-   <td class="ubox" width="80%">Database</td>
+   <td class="ubox" width="7%">Repair</td>
+   <td class="ubox" width="7%">Optimize</td>
+   <td class="ubox" width="47%">Database</td>
+   <td class="ubox" width="13%">Data Length</td>
+   <td class="ubox" width="13%">Index Length</td>
+   <td class="ubox" width="13%">Overhead</td>
   </tr>
   <tr>
-   <td class="mbox" width="10%"><input type="checkbox" onclick="check_all('repair[]')" name="repair_all"></td>
-   <td class="mbox" width="10%"><input type="checkbox" onclick="check_all('optimize[]')" name="optimize_all"></td>
-   <td class="mbox" width="80%"><strong>All tables</strong></td>
+   <td class="mbox"><input type="checkbox" onclick="check_all('repair[]')" name="repair_all"></td>
+   <td class="mbox"><input type="checkbox" onclick="check_all('optimize[]')" name="optimize_all"></td>
+   <td class="mbox"><strong>All</strong></td>
+   <td class="mbox"><strong><?php echo formatFilesize($data_length); ?></strong></td>
+   <td class="mbox"><strong><?php echo formatFilesize($index_length); ?></strong></td>
+   <td class="mbox"><strong><?php echo formatFilesize($data_free); ?></strong></td>
   </tr>
-	<?php foreach ($result as $row) { ?>
+	<?php foreach ($tables as $table) { ?>
 		<tr>
-		   <td class="mbox" width="10%"><input type="checkbox" name="repair[]" value="<?php echo $row; ?>"></td>
-		   <td class="mbox" width="10%"><input type="checkbox" name="optimize[]" value="<?php echo $row; ?>"></td>
-		   <td class="mbox" width="80%"><?php echo $row; ?></td>
+		   <td class="mbox">
+		   <?php if ($table['possible']) { ?>
+		   	<input type="checkbox" name="repair[]" value="<?php echo $table['Name']; ?>">
+		   <?php } else { echo '-'; } ?>
+		   </td>
+		   <td class="mbox">
+		   <?php if ($table['possible']) { ?>
+			<input<?php echo iif($table['Data_free'] > 0, ' checked="checked"'); ?> type="checkbox" name="optimize[]" value="<?php echo $table['Name']; ?>">
+		   <?php } else { echo '-'; } ?>
+		   </td>
+		   <td class="mbox"><?php echo $table['Name']; ?></td>
+		   <td class="mbox"><?php echo formatFilesize($table['Data_length']); ?></td>
+		   <td class="mbox"><?php echo formatFilesize($table['Index_length']); ?></td>
+		   <td class="mbox"><?php echo formatFilesize($table['Data_free']); ?></td>
 		</tr>
 	<?php } ?>
   <tr> 
-   <td class="ubox" width="100%" colspan="3" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+   <td class="ubox" colspan="6" align="center"><input type="submit" name="Submit" value="Submit"></td> 
   </tr>
  </table>
 </form> 
@@ -71,10 +168,10 @@ elseif ($job == 'backup') {
 	</select>
    </td>
    <td class="mbox" width="70%" valign="top">
-   <input type="checkbox" name="structure" value="1" checked="checked" /> <strong>Struktur exportieren</strong><br />
-   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="drop" value="1" checked="checked" /> Mit 'DROP TABLE IF EXISTS'<br /><br />
-   <input type="checkbox" name="data" value="1" checked="checked" /> <strong>Daten exportieren</strong>
-   <br /><br /><input type="checkbox" name="zip" value="1" /> <strong>Als ZIP-Datei speichern</strong>
+   <input type="checkbox" name="structure" value="1" checked="checked" /> <strong>Export structure</strong><br />
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="drop" value="1" checked="checked" /> Add 'DROP TABLE IF EXISTS'<br /><br />
+   <input type="checkbox" name="data" value="1" checked="checked" /> <strong>Export data</strong>
+   <br /><br /><input type="checkbox" name="zip" value="1" /> <strong>Save as ZIP file</strong>
    </td>
   </tr>
   <tr> 
@@ -86,8 +183,8 @@ elseif ($job == 'backup') {
 	echo foot();
 }
 elseif ($job == 'backup2') {
-	@ignore_user_abort(FALSE);
-	@set_time_limit(60);
+	@ignore_user_abort(false);
+	@set_time_limit(300);
 	$tables = $gpc->get('backup', arr_str);
 	$structure = $gpc->get('structure', int);
 	$data = $gpc->get('data', int);
@@ -97,7 +194,7 @@ elseif ($job == 'backup2') {
 	$db->backup_settings("\n","--");
 	$sqldata = $db->backup($tables, $structure, $data, $drop);
 	$ok = "Backup successfully created!";
-	if ($sqldata) {
+	if (!empty($sqldata) && strlen($sqldata) > 0) {
         // Speichern der Backup-Datei
         $file_path = "admin/backup/".date('d_m_Y-H_i_s');
         if ($zip == 1) {
@@ -129,13 +226,24 @@ elseif ($job == 'backup2') {
     	}
 	}
 	else {
-	    error('admin.php?action=db&job=backup','Backup was not created on account of no data!');
+	    error('admin.php?action=db&job=backup','Backup was not created on account of missing data!');
 	}
 }
 elseif ($job == 'restore') {
 	echo head();
 	$result = array();
 	$dir = "./admin/backup/";
+	
+	$mem_limit = @ini_get('memory_limit');
+	if (empty($mem_limit)) {
+		$mem_limit = @get_cfg_var('memory_limit');
+	}
+	$mem_limit = intval($mem_limit)*1024*1024;
+	$maxlimit = 2*1024*1024;
+	if ($mem_limit > $maxlimit) {
+		$maxlimit = $mem_limit;
+	}
+	
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
 		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {					  
@@ -145,42 +253,52 @@ elseif ($job == 'restore') {
 				$date = str_replace('.zip', '', $nfo['basename']);
 				$date = str_replace('.sql', '', $date);
 				
-		        if ($nfo['extension'] == 'zip') {
-					require_once('classes/class.zip.php');
-					$archive = new PclZip($dir.$file);
-					if (($list = $archive->listContent()) > 0) {
-						$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
-						$headers = explode("\n", $data[0]['content']);
-						unset($data);
-					}
-		        }
-		        elseif ($nfo['extension'] == 'sql') {
-		            $headers = file($dir.$file);
-		        }
-		        if (isset($headers) && is_array($headers)) {
-		            $header = array();
-		            foreach ($headers as $h) {
-		            	$comment = substr($h, 0, 2);
-		            	if ($comment == '--' || $comment == '//') {
-		            		$header[] = substr($h, 2);
-		            	}
-		            	else {
-		            		break;
-		            	}
-		            }
-		            $header = array_map('trim', $header);
-		            $header = implode("<br />\n", $header);
+				if (filesize($dir.$file) < $maxlimit) {
+			        if ($nfo['extension'] == 'zip') {
+						require_once('classes/class.zip.php');
+						$archive = new PclZip($dir.$file);
+						if (($list = $archive->listContent()) > 0) {
+							$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
+							$headers = preg_split("/\r\n|\r|\n/", $data[0]['content']);
+							unset($data);
+						}
+			        }
+			        elseif ($nfo['extension'] == 'sql') {
+						$fd = fopen($dir.$file, "r");
+						while (!feof($fd)) {
+							$headers[] = fgets($fd, 2048);
+						}
+						fclose ($fd);
+			        }
+			        if (isset($headers) && is_array($headers)) {
+			            $header = array();
+			            foreach ($headers as $h) {
+			            	$comment = substr($h, 0, 2);
+			            	if ($comment == '--' || $comment == '//') {
+			            		$header[] = substr($h, 2);
+			            	}
+			            	else {
+			            		break;
+			            	}
+			            }
+			            $header = array_map('trim', $header);
+			            $header = implode("<br />\n", $header);
+			        }
+			        else {
+			        	$header = 'Can not read information. This file is maybe damaged.';
+			        }
 		        }
 		        else {
-		        	$header = 'Can not read information. This file is maybe damaged.';
+		        	$header = 'File is too big for opening.';
 		        }
 				
 				$result[] = array(
-				'file' => $nfo['basename'],
-				'size' => filesize($dir.$file),
-				'date' => $date,
-				'header' => $header
+					'file' => $nfo['basename'],
+					'size' => filesize($dir.$file),
+					'date' => $date,
+					'header' => $header
 				);
+				unset($header, $buffer, $headers);
 			}
 		}
 	}
@@ -194,13 +312,13 @@ elseif ($job == 'restore') {
    <td class="ubox" width="5%">Restore</td>
    <td class="ubox" width="5%">Delete</td>
    <td class="ubox" width="80%">Information</td>
-   <td class="ubox" width="10%">Gr&ouml;&szlig;e</td>
+   <td class="ubox" width="10%">File Size</td>
   </tr>
 	<?php foreach ($result as $row) { ?>
 		<tr>
 		   <td class="mbox" width="5%" align="center"><input type="radio" name="file" value="<?php echo $row['file']; ?>"></td>
 		   <td class="mbox" width="5%" align="center"><input type="checkbox" name="delete[]" value="<?php echo $row['file']; ?>"></td>
-		   <td class="mbox stext" width="90%" rowspan="2"><?php echo $row['header']; ?></td>
+		   <td class="mbox stext" width="90%" rowspan="2">File: <b><?php echo $row['file']; ?></b><br /><?php echo $row['header']; ?></td>
 		   <td class="mbox stext" nowrap="nowrap" width="10%" rowspan="2"><?php echo FormatFilesize($row['size']); ?></td>
 		</tr>
         <tr>
@@ -215,12 +333,12 @@ elseif ($job == 'restore') {
 <form name="form" method="post" enctype="multipart/form-data" action="admin.php?action=explorer&job=upload&cfg=dbrestore">
  <table class="border">
   <tr> 
-   <td class="obox" colspan="4">Backup hochladen</td>
+   <td class="obox" colspan="4">Upload a Backup</td>
   </tr>
   <tr>
    <td class="mbox" width="50%">
-    Backupdatei (nur) hochladen:<br />
-    <span class="stext">Erlaubte Dateitypen: .sql, .zip - Maximale Dateigröße: <?php echo formatFilesize(ini_maxupload()); ?></span>
+    Upload a backup:<br />
+    <span class="stext">Allowed file types: .sql, .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span>
    </td>
    <td class="mbox" width="50%"><input type="file" name="upload_0" size="40" /></td>
   </tr>
@@ -277,7 +395,7 @@ elseif ($job == 'restore2') {
 	
 	error('admin.php?action=db&job=restore');
 }
-elseif($job == 'download') {
+elseif ($job == 'download') {
 	$dir = "./admin/backup/";
 	$file = $gpc->get('file', none);
 	$ext = get_extension($file, true);
@@ -302,7 +420,7 @@ elseif ($job == 'status') {
 	$result = $db->list_tables();
 
 	if (!empty($table)) {
-		$result11 = $db->query('SHOW TABLE STATUS FROM '.$db->getcfg('db').' LIKE "'.$table.'"',__LINE__,__FILE__);
+		$result11 = $db->query('SHOW TABLE STATUS FROM '.$db->database.' LIKE "'.$table.'"',__LINE__,__FILE__);
 		$result12 = $db->query('DESCRIBE '.$table);
 ?>
   <table class="border">
@@ -358,7 +476,7 @@ elseif ($job == 'status') {
    <td class="ubox" width="30%">Name</td>
    <td class="ubox" width="70%">Value</td>
   </tr>
-	<?php while ($row = $db->fetch_array($result2)) { ?>
+	<?php while ($row = $db->fetch_num($result2)) { ?>
 		<tr>
 		   <td class="mbox" width="30%"><?php echo $row[0]; ?></td>
            <td class="mbox" width="70%"><?php echo $row[1]; ?></td>
@@ -373,7 +491,7 @@ elseif ($job == 'status') {
    <td class="ubox" width="30%">Name</td>
    <td class="ubox" width="70%">Value</td>
   </tr>
-	<?php while ($row = $db->fetch_array($result1)) { ?>
+	<?php while ($row = $db->fetch_num($result1)) { ?>
 		<tr>
 		   <td class="mbox" width="30%"><?php echo $row[0]; ?></td>
            <td class="mbox" width="70%"><?php echo $row[1]; ?></td>
@@ -404,56 +522,110 @@ elseif ($job == 'status') {
 }
 elseif ($job == 'query') {
 	echo head();
-	$tables = $db->list_tables();
-	?>
-<form name="form" method="post" action="admin.php?action=db&job=query2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
-   <td class="obox" colspan="2"><b>Queries</b></td>
-  </tr>
-  <tr> 
-	<td class="mbox" width="90%">
-	<span style="float: right;">semicolon-separated list</span><strong>Queries:</strong>
-	<textarea name="query" id="query" rows="10" cols="90" class="texteditor" style="width: 100%; height: 200px;"></textarea>
-	</td>
-	<td class="mbox" width="10%">
-	<strong>Tables:</strong>
-	<div style="overflow: scroll; height: 200px; width: 150px; border: 1px solid #336699; padding: 2px;">
-	<?php foreach ($tables as $table) { ?>
-	<a href="javascript:InsertTags('query', '`<?php echo $table; ?>`', '');"><?php echo $table; ?></a><br />
-	<?php } ?>
-	</div>
-	</td>
-  </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
-  </tr>
- </table>
-</form>
-	<?php
+	exec_query_form();
 	echo foot();
 }
 elseif ($job == 'query2') {
-	$lines = $gpc->get('query', none);
-	$q = $db->multi_query($lines);
 	echo head();
-	echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$q['ok'].' Queries executed</td></tr></table>';
-	foreach ($q['queries'] as $num) {
-		if (count($num) > 0) {
-			$keys = array_keys($num[0]);
-			echo '<br><table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr>';
-			foreach ($keys as $field) {
-				echo '<td class="obox">'.$field.'</td>';
+
+	$type = $gpc->get('type', int);
+	if ($type == 1) {
+		$filetypes = array('.zip','.sql');
+		$dir = 'temp/';
+		$inserterrors = array();
+		require("classes/class.upload.php");
+	
+		if (empty($_FILES['upload']['name'])) {
+			$inserterrors[] = 'No file specified.';
+		}
+		
+		$my_uploader = new uploader();
+		$my_uploader->max_filesize(ini_maxupload());
+		if ($my_uploader->upload('upload', $filetypes)) {
+			$my_uploader->save_file($dir, 2);
+			$errstr = $my_uploader->return_error();
+			if (!empty($errstr)) {
+				array_push($inserterrors, $my_uploader->return_error());
 			}
-			echo "</tr>";
-			foreach ($num as $row) {
-				echo "<tr>";
-				foreach ($keys as $field) {
-					echo '<td class="mbox">'.htmlentities($row[$field]).'</td>';
+		}
+		else {
+			array_push($inserterrors, $my_uploader->return_error());
+		}
+		$file = $dir.DIRECTORY_SEPARATOR.$my_uploader->file['name'];
+		if (!file_exists($file)) {
+			$inserterrors[] = 'File ('.$file.') does not exist.';
+		}
+		
+		if (count($inserterrors) > 0) {
+			error('admin.php?action=db&job=query', $inserterrors);
+		}
+		else {
+			$ext = get_extension($file, true);
+			if (($ext == 'zip' || $ext == 'sql') && file_exists($file)) {
+				if ($ext == 'zip') {
+					require_once('classes/class.zip.php');
+					$archive = new PclZip($file);
+					if (($list = $archive->listContent()) == 0) {
+						error($archive->errorInfo(true));
+					}
+					$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
+					$lines = $data[0]['content'];
+					unset($data);
+				}
+				elseif ($ext == 'sql') {
+					$lines = file_get_contents($file);
 				}
 			}
-			echo '</table>';
 		}
+	}
+	else {
+		$lines = $gpc->get('query', none);
+	}
+	
+	$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $lines);
+	@exec_query_form($lines);
+	$hl = highlight_sql_query($sql);
+	
+	if (!empty($lines)) {
+
+		ob_start();
+		$q = $db->multi_query($sql, false);
+		$error = ob_get_contents();
+		$error = trim($error);
+		ob_end_clean();
+		if (!empty($error)) {
+			?>
+			 <table class="border" align="center">
+			  <tr><td class="obox">MySQL Error</td></tr>
+			  <tr><td class="mbox"><?php echo strip_tags($error); ?></td></tr>
+			 </table>
+			<?php
+		}
+		else {
+			echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$q['ok'].' Queries executed';
+			echo iif($q['affected'] > 0, ' - '.$q['affected'].' Rows affected');
+			echo '</td></tr>';
+			echo iif(!empty($hl), '<tr><td class="mbox">'.$hl.'</td></tr>');
+			echo '</table>';
+			foreach ($q['queries'] as $num) {
+				if (count($num) > 0) {
+					$keys = array_keys($num[0]);
+					echo '<br><table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr>';
+					foreach ($keys as $field) {
+						echo '<td class="obox">'.$field.'</td>';
+					}
+					echo "</tr>";
+					foreach ($num as $row) {
+						echo "<tr>";
+						foreach ($keys as $field) {
+							echo '<td class="mbox">'.nl2br(htmlentities($row[$field])).'</td>';
+						}
+					}
+					echo '</table>';
+				}
+			}
+		}
+	
 	}
 	echo foot();
 }

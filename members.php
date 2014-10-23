@@ -44,7 +44,7 @@ $breadcrumb->Add($lang->phrase('members'));
 echo $tpl->parse("header");
 echo $tpl->parse("menu");
 
-$mymodules->load('members_top');
+($code = $plugins->load('members_start')) ? eval($code) : null;
 
 $letter = $lang->phrase('members_all');
 $row = array('letter' => '');
@@ -55,9 +55,6 @@ while ($row = mysql_fetch_assoc($result)) {
 	$inner['index_letter'] .= $tpl->parse("members/index_letter");
 }
 
-$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user',__LINE__,__FILE__);
-$count = $db->fetch_array($result);
-$temp = pages($count[0], 'mlistenzahl', "members.php?sort=".$_GET['sort']."&amp;letter=".$_GET['letter']."&amp;order=".$_GET['order'].SID2URL_x."&amp;");
 
 if ($_GET['order'] == '1') {
 	$_GET['order'] = 'DESC';
@@ -74,27 +71,42 @@ else {
 }
 
 if (strlen($_GET['letter']) == 1) {
-	$where = ' WHERE LEFT(name,1) = "'.$_GET['letter'].'"';
+	$sqlwhere = ' WHERE LEFT(name,1) = "'.$_GET['letter'].'"';
 }
 else {
-	$where = '';
+	$sqlwhere = '';
 }
 
+($code = $plugins->load('members_queries')) ? eval($code) : null;
+
+$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user {$sqlwhere}",__LINE__,__FILE__);
+$count = $db->fetch_num($result);
+
+$temp = pages($count[0], $config['mlistenzahl'], "members.php?sort={$_GET['sort']}&amp;letter={$_GET['letter']}&amp;order={$_GET['order']}".SID2URL_x."&amp;", $_GET['page']);
 $start = $_GET['page']*$config['mlistenzahl'];
 $start = $start-$config['mlistenzahl'];
 
-$result = $db->query('SELECT id,name,mail,hp,location,fullname,regdate FROM '.$db->pre.'user'.$where.' ORDER BY '.$sort.' '.$_GET['order'].' LIMIT '.$start.','.$config['mlistenzahl'],__LINE__,__FILE__);
+$result = $db->query("
+SELECT id,name,mail,hp,location,fullname,regdate 
+FROM {$db->pre}user {$sqlwhere} 
+ORDER BY {$sort} {$_GET['order']} 
+LIMIT {$start},{$config['mlistenzahl']}
+",__LINE__,__FILE__);
+
 if ($db->num_rows() == 0) {
 	error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
 }
+
 $inner['index_bit'] = '';
 while ($row = $gpc->prepare($db->fetch_object($result))) { 
 	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
+	($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
 	$inner['index_bit'] .= $tpl->parse("members/index_bit");
-} 
-echo $tpl->parse("members/index");
+}
 
-$mymodules->load('members_bottom');
+($code = $plugins->load('members_prepared')) ? eval($code) : null;
+echo $tpl->parse("members/index");
+($code = $plugins->load('members_end')) ? eval($code) : null;
 
 $slog->updatelogged();
 $zeitmessung = t2();

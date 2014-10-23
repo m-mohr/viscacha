@@ -75,19 +75,22 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 function incDate(&$dateArr, $amount, $unit) {
 	GLOBAL $debug;
 	
-	if ($debug) echo sprintf("Increasing from %02d.%02d. %02d:%02d by %d %6s ",$dateArr['mday'],$dateArr['mon'],$dateArr['hours'],$dateArr['minutes'],$amount,$unit);
-	if ($unit=="mday") {
+	if ($debug) {
+		echo sprintf("Increasing from %02d.%02d. %02d:%02d by %d %6s ",$dateArr['mday'],$dateArr['mon'],$dateArr['hours'],$dateArr['minutes'],$amount,$unit);
+	}
+	
+	if ($unit == "mday") {
 		$dateArr["hours"] = 0;
 		$dateArr["minutes"] = 0;
 		$dateArr["seconds"] = 0;
 		$dateArr["mday"] += $amount;
 		$dateArr["wday"] += $amount % 7;
-		if ($dateArr["wday"]>6) {
-			$dateArr["wday"]-=7;
+		if ($dateArr["wday"] > 6) {
+			$dateArr["wday"] -= 7;
 		}
 
         // Start: Bug (13. month) fixed by MaMo-Net
-        if ($dateArr["mday"]==date("t")) { 
+        if ($dateArr["mday"] == date("t")) { 
             $dateArr["mon"]++; 
             if ($dateArr["mon"] > 12) {
             	$dateArr["mon"] = 1;
@@ -96,136 +99,62 @@ function incDate(&$dateArr, $amount, $unit) {
         }
         // End: Bug (13. month) fixed by MaMo-Net
 		
-	} elseif ($unit=="hour") {
-		if ($dateArr["hours"]==23) {
+	}
+	elseif ($unit == "hour") {
+		if ($dateArr["hours"] == 23) {
 			incDate($dateArr, 1, "mday");
-		} else {
+		}
+		else {
 			$dateArr["minutes"] = 0;
 			$dateArr["seconds"] = 0;
 			$dateArr["hours"]++;
 		}
-	} elseif ($unit=="minute") {
-		if ($dateArr["minutes"]==59) {
+	}
+	elseif ($unit=="minute") {
+		if ($dateArr["minutes"] == 59) {
 			incDate($dateArr, 1, "hour");
-		} else {
+		}
+		else {
 			$dateArr["seconds"] = 0;
 			$dateArr["minutes"]++;
 		}
 	}
-	if ($debug) echo sprintf("to %02d.%02d. %02d:%02d\n",$dateArr['mday'],$dateArr['mon'],$dateArr['hours'],$dateArr['minutes']);
+	if ($debug) {
+		echo sprintf("to %02d.%02d. %02d:%02d\n",$dateArr['mday'],$dateArr['mon'],$dateArr['hours'],$dateArr['minutes']);
+	}
 }
 
 function getLastScheduledRunTime($job) {
   GLOBAL $debug;
-
-//DL+ DEBUG - USE PHP CRON CLASS
-//COMPLETELY REPLACED IT BY THE PHP CRON CLASS BY MICK SEAR (see www.phpclasses.org)
-//---------
-  /*
-  $extjob = Array();
-  parseElement($job[PC_MINUTE], $extjob[PC_MINUTE], 60);
-  parseElement($job[PC_HOUR], $extjob[PC_HOUR], 24);
-  parseElement($job[PC_DOM], $extjob[PC_DOM], 31);
-  parseElement($job[PC_MONTH], $extjob[PC_MONTH], 12);
-  parseElement($job[PC_DOW], $extjob[PC_DOW], 7);
-  
-//DL+- ADD ARGUMENTS TO JOB CALL
-//$dateArr = getdate(getLastActualRunTime($job[PC_CMD]));
-  $dateArr = getdate(getLastActualRunTime($job));
-  $minutesAhead = 0;
-  while (
-    $minutesAhead<525600 AND 
-    (!$extjob[PC_MINUTE][$dateArr["minutes"]] OR 
-    !$extjob[PC_HOUR][$dateArr["hours"]] OR 
-    (!$extjob[PC_DOM][$dateArr["mday"]] OR !$extjob[PC_DOW][$dateArr["wday"]]) OR
-    !$extjob[PC_MONTH][$dateArr["mon"]])
-  ) {
-    if (!$extjob[PC_DOM][$dateArr["mday"]] OR !$extjob[PC_DOW][$dateArr["wday"]]) {
-      incDate($dateArr,1,"mday");
-      $minutesAhead+=1440;
-      continue;
-    }
-    if (!$extjob[PC_HOUR][$dateArr["hours"]]) {
-      incDate($dateArr,1,"hour");
-      $minutesAhead+=60;
-      continue;
-    }
-    if (!$extjob[PC_MINUTE][$dateArr["minutes"]]) {
-      incDate($dateArr,1,"minute");
-      $minutesAhead++;
-      continue;
-    }
-  }
-  
-  return mktime($dateArr["hours"],$dateArr["minutes"],0,$dateArr["mon"],$dateArr["mday"],$dateArr["year"]);
-  */
-
-  $cron_string = $job[PC_MINUTE].' '.$job[PC_HOUR].' '.$job[PC_DOM].' '.$job[PC_MONTH].' '.$job[PC_DOW];
-  
-  $cronPars = new CronParser();
-  
-  $cronPars->calcLastRan($cron_string);
-
-  if ($debug) {
-  	print_r($cronPars->getLastRan());
-  }
-
-  return $cronPars->getLastRanUnix();
-
-//DL- DEBUG - USE PHP CRON CLASS
+	$cron_string = $job[PC_MINUTE].' '.$job[PC_HOUR].' '.$job[PC_DOM].' '.$job[PC_MONTH].' '.$job[PC_DOW];
+	$cronPars = new CronParser();
+	$cronPars->calcLastRan($cron_string);
+	if ($debug) {
+		print_r($cronPars->getLastRan());
+	}
+	return $cronPars->getLastRanUnix();
 }
 
-//DL+ ADD ARGUMENTS TO JOB CALL
-/*
-function getJobFileName($jobname) {
-  GLOBAL $writeDir;
-  GLOBAL $debug;
-  $jobfile = $writeDir.urlencode($jobname).".job";
-  return $jobfile;
-}
-*/
 function getJobFileName($job) {
-  GLOBAL $writeDir;
-  GLOBAL $debug;
-  $jobArgHash = ( count($job[PC_ARGS])>1 ? '_'.md5(implode('', $job[PC_ARGS])) : '' );
-  $jobfile = $writeDir.urlencode($job[PC_CMD]).$jobArgHash.".job";
-  return $jobfile;
+	GLOBAL $writeDir, $debug;
+	$jobArgHash = ( count($job[PC_ARGS]) > 1 ? '_'.md5(implode('', $job[PC_ARGS])) : '' );
+	$jobfile = $writeDir.urlencode($job[PC_CMD]).$jobArgHash.".job";
+	return $jobfile;
 }
-//DL- ADD ARGUMENTS TO JOB CALL
 
-//DL+ ADD ARGUMENTS TO JOB CALL
-/*
-function getLastActualRunTime($jobname) {
-  GLOBAL $debug;
-  $jobfile = getJobFileName($jobname);
-  if (file_exists($jobfile)) {
-    return filemtime($jobfile);
-  }
-  return 0;
-}
-*/
 function getLastActualRunTime($job) {
-  GLOBAL $debug;
-  $jobfile = getJobFileName($job);
-  if (file_exists($jobfile)) {
-    return filemtime($jobfile);
-  }
-  return 0;
+	GLOBAL $debug;
+	$jobfile = getJobFileName($job);
+	if (file_exists($jobfile)) {
+    	return filemtime($jobfile);
+	}
+	return 0;
 }
-//DL- ADD ARGUMENTS TO JOB CALL
 
-//DL+ ADD ARGUMENTS TO JOB CALL
-/*
-function markLastRun($jobname, $lastRun) {
-  $jobfile = getJobFileName($jobname);
-  touch($jobfile);
-}
-*/
 function markLastRun($job, $lastRun) {
-  $jobfile = getJobFileName($job);
-  touch($jobfile);
+	$jobfile = getJobFileName($job);
+	touch($jobfile);
 }
-//DL- ADD ARGUMENTS TO JOB CALL
 
 function runJob($job) {
 	GLOBAL $debug, $sendLogToEmail, $resultsSummary, $jobdir, $config, $db;
@@ -234,15 +163,11 @@ function runJob($job) {
 	$lastActual = $job["lastActual"];
 	$lastScheduled = $job["lastScheduled"];
 	
-//DL+- DEBUG - CORRECT COMPARISON
-//	if ($lastScheduled<time()) {
 	if ($lastScheduled>$lastActual) {
 		logMessage("Running\t".$job[PC_CRONLINE]);
 		logMessage("  Last run:\t".date("r",$lastActual));
 		logMessage("  Last scheduled:\t".date("r",$lastScheduled));
-		//DL+ ADD ARGUMENTS TO JOB CALL
-		    $argv = $job[PC_ARGS];
-		//DL- ADD ARGUMENTS TO JOB CALL
+		$argv = $job[PC_ARGS];
 	
 		$benchmark = job_benchmark_start();
 	    if ($debug) {
@@ -255,9 +180,7 @@ function runJob($job) {
 	    }
 		$seconds = job_benchmark_end($benchmark);
 		logMessage("  Execution time:\t$seconds seconds");
-		
-	//DL+- ADD ARGUMENTS TO JOB CALL
-	//  markLastRun($job[PC_CMD], $lastScheduled);
+
 	    markLastRun($job, $lastScheduled);
 	    
 		logMessage("Completed\t".$job[PC_CRONLINE]);
@@ -299,7 +222,6 @@ function parseCronFile($cronTabFile) {
 				}
 				$jobs[$jobNumber][PC_CMD] = trim($job[PC_CMD]);
 				$jobs[$jobNumber][PC_COMMENT] = trim(substr($job[PC_COMMENT],1));
-				//DL+ ADD ARGUMENTS TO JOB CALL
 				$jobs[$jobNumber][PC_ARGS] = Array();
 				if (preg_match_all('~(("([^"]*)")|(\S+))\s*~i', $jobs[$jobNumber][PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
 					for($ii=0; $ii<count($jobArgs[1]); $ii++){
@@ -310,14 +232,9 @@ function parseCronFile($cronTabFile) {
 						$jobs[$jobNumber][PC_ARGS][$ii] = str_replace(Array('\r','\n'), Array("\r","\n"), $jobArg);
 				 	}
 				}
-				//DL- ADD ARGUMENTS TO JOB CALL
 				$jobs[$jobNumber][PC_CRONLINE] = $file[$i];
 			}
-			//DL+- DEBUG - LINE OBSOLETE
-			//    $jobfile = getJobFileName($jobs[$jobNumber][PC_CMD]);
-			
-		//DL+- ADD ARGUMENTS TO JOB CALL (line now obsolete)
-		//  $jobs[$jobNumber]["lastActual"] = getLastActualRunTime($jobs[$jobNumber][PC_CMD]);
+
 		    $jobs[$jobNumber]["lastActual"] = getLastActualRunTime($jobs[$jobNumber]);
 			$jobs[$jobNumber]["lastScheduled"] = getLastScheduledRunTime($jobs[$jobNumber]);
 		}

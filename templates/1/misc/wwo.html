@@ -1,5 +1,10 @@
 <div class="border">
 <h3><img src="<?php echo $tpl->img('wwo'); ?>" alt="" /> <?php echo $lang->phrase('wiw'); ?></h3>
+<div class="bfoot">
+<span class="right">[<a href="misc.php?action=wwo<?php echo iif($_GET['type'] == 0, '&amp;type=1').SID2URL_x; ?>"><?php echo $lang->phrase('wwo_'.iif($_GET['type'] == 1, 'stop', 'start').'_refresh'); ?></a>]</span>
+<?php echo $lang->phrase('wwo_next_refresh'); ?> <span id="countdown">-</span>
+<br clear="all" />
+</div>
 <div class="bbody"><?php echo $lang->phrase('active_usercounter'); ?></div>
 </div><br />
 <?php if ($wwo['r'] > 0) { ?>

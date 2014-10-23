@@ -1,0 +1,9 @@
+<div class="border">
+<h3><?php echo $lang->phrase('postrating_title'); ?></h3>
+<div class="bbody">
+	<?php if (empty($error)) { ?>
+	<a href="popup.php?action=postrating&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>&amp;rating=1"><?php echo $lang->phrase('postrating_rate_positive'); ?></a><br />
+	<a href="popup.php?action=postrating&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>&amp;rating=-1"><?php echo $lang->phrase('postrating_rate_negative'); ?></a>
+	<?php } else { echo $error; } ?>
+</div>
+</div>

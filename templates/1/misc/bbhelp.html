@@ -1,86 +1,90 @@
 <div class="border">
 <h3><?php echo $lang->phrase('bbhelp_title'); ?></h3>
 <div class="bbody">
-<strong>Was sind BB-Codes überhaupt?</strong><br />
-Mit BB-Codes können Sie Ihren, im Forum geschriebenen Text, formatierten. Es sind dafür nur Kürzel notwendig. Eine Übersicht über die Möglichkeiten die Ihnen BB-Codes in diesem Forum bieten, sehen Sie, in der nun folgenden Übersicht.
+<strong><?php echo $lang->phrase('what_are_bbcodes'); ?></strong><br />
+<?php echo $lang->phrase('what_are_bbcodes_answer'); ?>
 </div>
-<h3 class="inlineheader">Übersicht<a name="top"></a></h3>
+<h3 class="inlineheader"><?php echo $lang->phrase('bbcode_help_overview'); ?><a name="top"></a></h3>
 <div class="bbody">
 <ul>
-<li><strong><a href="#standard">Standard-BB-Codes</a>:</strong>
+<li><strong><a href="#standard"><?php echo $lang->phrase('standard_bbcodes'); ?></a>:</strong>
 	<ul>
     <li><a href="#b">[b]Text[/b]</a></li>
     <li><a href="#i">[i]Text[/i]</a></li>
     <li><a href="#u">[u]Text[/u]</a></li>
     <li><a href="#color">[color=#??????]Text[/color]</a></li>
-    <li><a href="#img">[img]Bildadresse[/img]</a></li>
-	<li><a href="#url">[url]Adresse[/url] und [url=Adresse]Linkname[/url]</a></li>
-	<li><a href="#email">[email]Emailadresse[/email]</a></li>
+    <li><a href="#img">[img]URL[/img]</a></li>
+	<li><a href="#url">[url]URL[/url] &amp; [url=URL]Text[/url]</a></li>
+	<li><a href="#email">[email]E-Mail[/email]</a></li>
 	<li><a href="#ot">[ot]Text[/ot]</a></li>
-	<li><a href="#quote">[quote]Zitat[/quote] und [quote=Quelle]Zitat[/quote]</a></li>
-	<li><a href="#list">[list]Listenpunkte[/list] und [list=??]Listenpunkte[/list]</a></li>
+	<li><a href="#quote">[quote]Zitat[/quote] &amp; [quote=Quelle]Zitat[/quote]</a></li>
+	<li><a href="#list">[list]Listenpunkte[/list] &amp; [list=??]Listenpunkte[/list]</a></li>
 	</ul>
 </li>
-<li><strong><a href="#extended">Erweiterte BB-Codes</a>:</strong>
+<li><strong><a href="#extended"><?php echo $lang->phrase('extended_bbcodes'); ?></a>:</strong>
 	<ul>
 	<li><a href="#size">[size=?]Text[/size]</a></li>
 	<li><a href="#h">[h=?]Text[/h]</a></li>
 	<li><a href="#align">[align=?]Ausgerichteter Text[/align]</a></li>
-	<li><a href="#code">[code]Syntax[/code]</a></li>
-	<li><a href="#note">[note=Erklärung]Wort[/note]</a></li>
-	<li><a href="#edit">[edit]Nachträgliche Anmerkung[/edit] und [edit name=Editor]Nachträgliche Anmerkung[/edit]</a></li>
-	<li><a href="#hide">[hide]unsichtbarer Text[/hide]</a></li>
-	<li><a href="#subsup">[sub]Text[/sub] und [sup]Text[/sup]</a></li>
+	<li><a href="#code">[code]Syntax[/code] &amp; [code=?]Syntax[/code]</a></li>
+	<li><a href="#note">[note=Erläuterung]Wort[/note]</a></li>
+	<li><a href="#edit">[edit]Nachträgliche Anmerkung des Autors[/edit] &amp; [edit=Editor]Nachträgliche Anmerkung von Editor[/edit]</a></li>
+	<li><a href="#hide">[hide]Versteckter Text[/hide]</a></li>
+	<li><a href="#subsup">[sub]Text[/sub] &amp; [sup]Text[/sup]</a></li>
 	<li><a href="#reader">[reader]</a></li>
-	<li><a href="#tabletab">[table]Text[/table] und [tab]</a></li>
+	<li><a href="#tabletab">[table]Tabellen-Daten[/table] &amp; [tab]</a></li>
 	<li><a href="#tt">[tt]Text[/tt]</a></li>
+	<?php foreach ($cbb as $bb) { ?>
+	<li><a href="#bb<?php echo $bb['id']; ?>"><?php echo $bb['title']; ?></a></li>
+	<?php } ?>
 	</ul>
 </li>
-<li><strong><a href="#smileys">Smileys</a></strong></li>
+<li><strong><a href="#smileys"><?php echo $lang->phrase('bbcode_help_smileys'); ?></a></strong></li>
 </ul>
 </div>
 </div>
 <br class="minibr" />
 <div class="border">
-<h3>Standard-BB-Codes<a name="standard"></a></h3>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[B]Text[/B]<a name="b"></a></div>
-<div class="bbody">Hiermit kann ein Text fett dargestellt werden.<br /><br />Aus [B]Text[/B] wird <strong>Text</strong></div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[I]Text[/I]<a name="i"></a></div>
-<div class="bbody">Hiermit kann ein Text kursiv dargestellt werden.<br /><br />Aus [I]Text[/I] wird <em>Text</em></div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[U]Text[/U]<a name="u"></a></div>
-<div class="bbody">Hiermit kann ein Text unterstrichen dargestellt werden.<br /><br />Aus [U]Text[/U] wird <u>Text</u></div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[COLOR=#??????]Text[/COLOR]<a name="color"></a></div>
-<div class="bbody">Hiermit kann ein Text farbig dargestellt werden.<br /><br />Aus [COLOR=#ff9900]Text[/COLOR] wird <span style="color: #ff9900">Text</span></div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[IMG]Bildadresse[/IMG]<a name="img"></a></div>
-<div class="bbody">Hiermit kann ein Bild eingefügt werden.<br /><br />Aus [IMG]<?php echo $tpl->img('user'); ?>[/IMG] wird <img alt="" src="<?php echo $tpl->img('user'); ?>" /></div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>1. [URL]Adresse[/URL] und 2. [URL=Adresse]Linkname[/URL]<a name="url"></a></div>
+<h3><?php echo $lang->phrase('standard_bbcodes'); ?><a name="standard"></a></h3>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[B]Text[/B]<a name="b"></a></div>
+<div class="bbody">Hiermit kann ein Text fett dargestellt werden.<br /><br />Aus [b]Text[/b] wird <strong>Text</strong></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[I]Text[/I]<a name="i"></a></div>
+<div class="bbody">Hiermit kann ein Text kursiv dargestellt werden.<br /><br />Aus [i]Text[/i] wird <em>Text</em></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[U]Text[/U]<a name="u"></a></div>
+<div class="bbody">Hiermit kann ein Text unterstrichen dargestellt werden.<br /><br />Aus [u]Text[/u] wird <u>Text</u></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[COLOR=#??????]Text[/COLOR]<a name="color"></a></div>
+<div class="bbody">Hiermit kann ein Text farbig dargestellt werden.<br /><br />Aus [color=#ff9900]Text[/color] wird <span style="color: #ff9900">Text</span></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[IMG]URL[/IMG]<a name="img"></a></div>
+<div class="bbody">Hiermit kann ein Bild eingefügt werden.<br /><br />Aus [img]<?php echo $tpl->img('user'); ?>[/img] wird <img alt="" src="<?php echo $tpl->img('user'); ?>" /></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>1. [URL]URL[/URL] &amp; 2. [URL=URL]Text[/URL]<a name="url"></a></div>
 <div class="bbody">
   1. Hiermit kann eine URL als klickbarer Link dargestellt werden.<br />
   2. Hiermit kann auch eine URL als klickbarer Link dargestellt werden, jedoch kann der Linkname selbst bestimmt werden.<br /><br />
-  1. Aus [URL]http://www.mamo-net.de[/URL] wird <a href="http://www.mamo-net.de/" target=_blank>http://www.mamo-net.de/</a><br />
-  2. Aus [URL=http://www.mamo-net.de]MaMo Net[/URL] wird <a href="http://www.mamo-net.de/" target=_blank>MaMo Net</a><br />  
+  1. Aus [url]http://www.mamo-net.de[/url] wird <a href="http://www.mamo-net.de/" target=_blank>http://www.mamo-net.de/</a><br />
+  2. Aus [url=http://www.mamo-net.de]MaMo Net[/url] wird <a href="http://www.mamo-net.de/" target=_blank>MaMo Net</a><br />  
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[EMAIL]Emailadresse[/EMAIL]<a name="email"></a></div>
-<div class="bbody">Hiermit kann eine Email-Adresse als klickbarer Link dargestellt werden. Die Emailadresse wird zum Schutz vor Emailsammlern verschlüsselt!<br /><br />Aus [EMAIL]user@provider.com[/EMAIL] wird <?php echo $bbcode->cb_mail("user","provider.com"); ?></div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[OT]Text[/OT]<a name="ot"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[email]Emailadresse[/email]<a name="email"></a></div>
+<div class="bbody">Hiermit kann eine Email-Adresse als klickbarer Link dargestellt werden. Die Emailadresse wird zum Schutz vor Emailsammlern nicht direkt als Text angezeigt!<br /><br />Aus [email]user@provider.com[/email] wird <?php echo $bbcode->cb_mail("user","provider.com"); ?></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[ot]Text[/ot]<a name="ot"></a></div>
 <div class="bbody">
   Hiermit kann man Text der nicht zum Thema passt (Off-Topic) markieren.<br /><br />
-  Aus [OT]Dieser Text passt nicht zum Thema.[/OT] wird <div class="bb_ot"><strong>Off-Topic:</strong><br /><span>Dieser Text passt nicht zum Thema.</span></div>
+  Aus [ot]Dieser Text passt nicht zum Thema.[/ot] wird <div class="bb_ot"><strong>Off-Topic:</strong><br /><span>Dieser Text passt nicht zum Thema.</span></div>
 </div>
 </div>
 <br class="minibr" />
 <div class="border">
-<h3>Erweiterte BB-Codes<a name="extended"></a></h3>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>1. [quote]Zitat[/quote] und 2. [quote=Quelle]Zitat[/quote]<a name="quote"></a></div>
+<h3><?php echo $lang->phrase('extended_bbcodes'); ?><a name="extended"></a></h3>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>1. [quote]Zitat[/quote] &amp; 2. [quote=Quelle]Zitat[/quote]<a name="quote"></a></div>
 <div class="bbody">
   1. Hiermit kann ein einfaches Zitat ohne Quellenangabe eingefügt werden.<br />
   2. Hiermit kann ein Zitat jedoch mit Quellenangabe eingefügt werden. Die Quellenangabe kann sowohl ein Link als auf ein Name sein.
   <br /><br />
-  1. Aus [QUOTE]Dieser Text wird zitiert.[/QUOTE] wird <br /><blockquote class="bb_quote"><strong>Zitat:</strong><br /><cite>Dieser Text wird zitiert.</cite></blockquote><br />
-  2. Aus [QUOTE=http://www.mamo-net.de]Viscacha ist cool![/QUOTE] wird <br /><blockquote class="bb_quote"><strong>Zitat von <a href="http://www.mamo-net.de" target="_blank">http://www.mamo-net.de</a>:</strong><br /><cite>Viscacha ist cool!</cite></blockquote>
+  1. Aus [quote]Dieser Text wird zitiert.[/quote] wird <br /><blockquote class="bb_quote"><strong>Zitat:</strong><br /><cite>Dieser Text wird zitiert.</cite></blockquote><br />
+  2. Aus [quote=http://www.mamo-net.de]Viscacha ist cool![/quote] wird <br /><blockquote class="bb_quote"><strong>Zitat von <a href="http://www.mamo-net.de" target="_blank">http://www.mamo-net.de</a>:</strong><br /><cite>Viscacha ist cool!</cite></blockquote>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>1. [list]Listenpunkte[/list] und 2. [list=??]Listenpunkte[/list]<a name="list"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>1. [list]Listenpunkte[/list] &amp; 2. [list=??]Listenpunkte[/list]<a name="list"></a></div>
 <div class="bbody">
+  Aufzählungszeichen können mittels [*] angefangen werden. Nach einem Zeilenumbruch kann alternativ auch ein Bindestrich (-) benutzt werden, gefolgt von einem Leerzeichen.<br /><br />
   1. Hiermit kann eine normale Liste eingefügt werden.<br />
   Aus [list][*]Punkt 1 [*]Punkt 2 [/list] wird <ul><li>Punkt 1 </li> <li>Punkt 2 </li></ul><br />
   2. Hiermit kann man eine erweitere Liste mit anderen Aufzählungszeichen eingefügt werden. Möglichkeiten für Aufzählungszeichen sind "a", "A", "I", "i" und "ol".<br />
@@ -90,14 +94,14 @@ Mit BB-Codes können Sie Ihren, im Forum geschriebenen Text, formatierten. Es sin
   Aus [list=I][*]Punkt 1 [*]Punkt 2 [/list] wird <ol type="I"><li>Punkt 1 </li> <li>Punkt 2 </li></ol>
   Aus [list=i][*]Punkt 1 [*]Punkt 2 [/list] wird <ol type="i"><li>Punkt 1 </li> <li>Punkt 2 </li></ol>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[SIZE=?]Text[/SIZE]<a name="size"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[size=?]Text[/size]<a name="size"></a></div>
 <div class="bbody">
   Hiermit kann ein Text vergrößert (large), verkleinert (small) oder erweitert (extended) werden.<br /><br />
-  Aus [SIZE=small]Text[/SIZE] wird <span style="font-size: 0.8em">Text</span><br />
-  Aus [SIZE=extended]Text[/SIZE] wird <span style="letter-spacing: 3px;">Text</span><br />
-  Aus [SIZE=large]Text[/SIZE] wird <span style="font-size: 1.3em">Text</span>
+  Aus [size=small]Text[/size] wird <span style="font-size: 0.8em">Text</span><br />
+  Aus [size=extended]Text[/size] wird <span style="letter-spacing: 3px;">Text</span><br />
+  Aus [size=large]Text[/size] wird <span style="font-size: 1.3em">Text</span>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[H=?]Überschrift[/H]<a name="h"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[h=?]Überschrift[/h]<a name="h"></a></div>
 <div class="bbody">
   Hiermit können Überschiften erzeugt werden. Mögliche Werte von Überschrift (Groß) bis Unterunterüberschrift (Klein): large, middle, small
   <br /><br />
@@ -105,25 +109,45 @@ Mit BB-Codes können Sie Ihren, im Forum geschriebenen Text, formatierten. Es sin
   Aus [h=middle]Unterüberschrift[/h] wird <h5 style="font-size: 13pt; margin: 0px; margin-top: 10px;">Unterüberschrift</h4>
   Aus [h=small]Unterunterüberschrift[/h] wird <h6 style="font-size: 12pt; margin: 0px; margin-top: 10px;">Unterunterüberschrift</h5>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[ALIGN=?]Ausgerichteter Text[/ALIGN]<a name="align"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[align=?]Ausgerichteter Text[/align]<a name="align"></a></div>
 <div class="bbody">
   Hiermit können Elemente wie Text, Grafiken usw. ausgerichtet werden. Mögliche Werte sind "right", "left", "center" und "justify".<br /><br />
-  Aus [ALIGN=right]rechtsbündiger Text[/ALIGN] wird <div style="text-align: right">rechtsbündiger Text</div><br />
-  Aus [ALIGN=center]zentrierter Text[/ALIGN] wird <div style="text-align: center">zentrierter Text</div><br />
-  Aus [ALIGN=left]linksbündiger Text[/ALIGN] wird <div style="text-align: left">linksbündiger Text</div><br />
-  Aus [ALIGN=justify]Die Entwicklung des Computers ...[/ALIGN] wird <p style="text-align: justify">Die Entwicklung des Computers begann während des 2.Weltkriegs (1939-1945) in Deutschland, England und den USA. In den 30er Jahren speicherten Lochstreifen Daten. 1937 konstruierte Konrad Zuse den ersten Computer, den Z1. Der Z3, der erste programmgesteuerte Rechner, folgte 1941. Zur gleichen Zeit wurden mehrere Spezialrechner (z.B. der Colosseum) für die Entzifferung militärischer Nachrichten entwickelt. Auch in den USA gab es mehrere Entwicklungen. Eine der bedeutendsten war der ENIAC. John von Neumann entwickelte ihn 1945 zum Universalrechner weiter. Diese Weiterentwicklung des ENIACs konnte man mit dem Computer im heutigen Sinne vergleichen. 1948 wurden die ersten Computer mit von-Neumann-Architektur in England vorgestellt (MADM, EDSAC). Die USA bestimmte die weitere Entwicklung.</p>
+  Aus [align=right]rechtsbündiger Text[/align] wird <div style="text-align: right">rechtsbündiger Text</div><br />
+  Aus [align=center]zentrierter Text[/align] wird <div style="text-align: center">zentrierter Text</div><br />
+  Aus [align=left]linksbündiger Text[/align] wird <div style="text-align: left">linksbündiger Text</div><br />
+  Aus [align=justify]Die Entwicklung des Computers ...[/align] wird <p style="text-align: justify">Die Entwicklung des Computers begann während des 2.Weltkriegs (1939-1945) in Deutschland, England und den USA. In den 30er Jahren speicherten Lochstreifen Daten. 1937 konstruierte Konrad Zuse den ersten Computer, den Z1. Der Z3, der erste programmgesteuerte Rechner, folgte 1941. Zur gleichen Zeit wurden mehrere Spezialrechner (z.B. der Colosseum) für die Entzifferung militärischer Nachrichten entwickelt. Auch in den USA gab es mehrere Entwicklungen. Eine der bedeutendsten war der ENIAC. John von Neumann entwickelte ihn 1945 zum Universalrechner weiter. Diese Weiterentwicklung des ENIACs konnte man mit dem Computer im heutigen Sinne vergleichen. 1948 wurden die ersten Computer mit von-Neumann-Architektur in England vorgestellt (MADM, EDSAC). Die USA bestimmte die weitere Entwicklung.</p>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[CODE]Syntax[/CODE]<a name="code"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[code]Syntax[/code] &amp; [code=?]Syntax[/code]<a name="code"></a></div>
 <div class="bbody">
-  Hiermit kann Quelltext eingefügt werden. Einzeiliger Code wird im Fließtext <code style="color: #880000;">Kastanienrot</code> markiert.<br /><br />Aus<br />[CODE]&lt;?php<br />echo phpinfo();<br />?&gt;[/CODE]<br />wird z.B. 
-  <blockquote class="bqleft"><span class="mtext"><strong>Quelltext:</strong></span><br /><div class="code" style="padding: 2px; overflow: scroll; width:600;"><table border="0" width="100%" cellspacing="1" cellpadding="1"><tr><td width="1%" valign="top" align="right" nowrap="nowrap"><code>1:<br />2:<br />3:<br /></code></td><td width="99%" valign="top" nowrap="nowrap"><code>&lt;?php<br />echo phpinfo();<br />?&gt;</code></td></tr></table></div></blockquote>
+  <strong>1. [code]Syntax[/code]</strong><br />
+  Hiermit kann Quelltext eingefügt werden, der nicht sprachspezifisch gehighlightet wird. Einzeiliger Code wird im Fließtext <code style="color: #880000;">Kastanienrot</code> markiert.<br /><br />
+  <strong>2. [code=?]Syntax[/code]</strong><br />
+  Hiermit kann Quelltext eingefügt werden der sprachspezifisch gehighlightet (eingefärbt) wird. Diese Einfärbung wird jedoch erst nach einem Klick auf "<?php echo $lang->phrase('bb_ext_sourcecode'); ?>" angezeigt. Im Beitrag wird der Code wie bei dem normalen Code-Tag angezeigt. Einzeiliger Code wird auch hier im Fließtext <code style="color: #880000;">Kastanienrot</code> markiert.<br />
+  Das Fragezeichen (?) im BB-Code muss durch die Sprachen-ID ersetzt werden. Folgende Sprachen stehen zur Verfügung:<br />
+  <table style="border: 1px dotted black">
+  <tr>
+    <th>Sprachen-ID</th>
+    <th>Name der Sprache</th>
+  </tr>
+  <?php foreach ($clang as $row) { ?>
+  <tr>
+    <td><input type="text" size="20" value="<?php echo $row['short']; ?>" /></td>
+    <td><?php echo $row['name']; ?></td>
+  </tr>
+  <?php } ?>
+  </table>
+  <br />
+  <strong>Beispiele:</strong><br />
+<code>[code]&lt;?php echo phpversion(); ?&gt;[/code]</code> wird zu <code class="bb_inlinecode">&lt;?php echo phpversion(); ?&gt;</code>.<br /><br />
+<code>[code]&lt;?php<br />echo phpversion();<br />?&gt;[/code]</code><br />wird zu<br /><strong class="bb_blockcode_header">Source Code:</strong><div class="bb_blockcode"><table><tr><td width="1%">1:&nbsp;<br />2:&nbsp;<br />3:&nbsp;</td><td width="99%">&lt;?php<br />echo phpversion();<br />?&gt;</td></tr></table></div><br />
+<code>[code=php]&lt;?php<br />echo phpversion();<br />?&gt;[/code]</code><br />wird zu<br /><?php echo $parsed_phpcode; ?>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[NOTE=Erklärung]Wort[/NOTE]<a name="note"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[note=Erläuterung]Wort[/note]<a name="note"></a></div>
 <div class="bbody">
   Hiermit kann eine kurze Erklärung zu einer Textstelle (Wort) eingefügt werden.<br /><br />
   Aus [note=Abkürzung für Hypertext Markup Language]HTML[/note] wird z.B. <acronym title='Abkürzung für Hypertext Markup Language'>HTML</acronym>.
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>1. [edit]Nachträgliche Anmerkung[/edit] und 2. [edit name=Editor]Nachträgliche Anmerkung[/edit]<a name="edit"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>1. [edit]Nachträgliche Anmerkung[/edit] &amp; 2. [edit name=Editor]Nachträgliche Anmerkung[/edit]<a name="edit"></a></div>
 <div class="bbody">
   1. Hiermit kann eine nachträgliche Bemerkung im Text merkiert werden. Eingesetzt werden sollte der Tag beim Editieren eines Beitrags.<br />
   2. Auch hiermit kann eine nachträgliche Bemerkung im Text merkiert werden, jedoch wird der Name des "Editors" zusätzlich angezeigt wird. Eingesetzt werden sollte der Tag (von Admins, Moderatoren etc.) beim Editieren eines fremden Beitrags.<br /><br />
@@ -131,21 +155,21 @@ Mit BB-Codes können Sie Ihren, im Forum geschriebenen Text, formatierten. Es sin
   Aus [edit]Blablabla[/edit] wird<br />
   <div class="bb_edit"><strong>Nachträgliche Anmerkung des Autors:</strong><br /><ins>Blablabla</ins></div>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[hide]unsichtbarer Text[/hide]<a name="hide"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[hide]unsichtbarer Text[/hide]<a name="hide"></a></div>
 <div class="bbody">Mit diesem Befehl kann man Text vorerst unsichtbar machen. Es ist gedacht für Bemerkungen für eine spätere Editierung oder Fortsetzung.</div>
-<div class="bfoot">1. [sub]Text[/sub] und 2. [sup]Text[/sup]<a name="subsup"></a></div>
+<div class="bfoot">1. [sub]Text[/sub] &amp; 2. [sup]Text[/sup]<a name="subsup"></a></div>
 <div class="bbody">
   1. Hiermit kann Text hochgestellt werden.<br />
   2. Hiermit kann Text tiefgestellt werden.<br /><br />
   1. Aus <code>km[sup]2[/sup]</code> wird zum Beispiel km<sup>2</sup><br />
   2. Aus <code>H[sub]2[/sub]O</code> wird zum Beispiel H<sub>2</sub>O
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[reader]<a name="reader"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[reader]<a name="reader"></a></div>
 <div class="bbody">
   Hiermit kann man jeden Nutzer persönlich ansprechen.<br /><br />
   Aus "Hi [reader]" wird z.B. "Hi <?php echo $my->name; ?>".
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[table]...[/table] und [tab]<a name="tabletab"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[table]...[/table] &amp; [tab]<a name="tabletab"></a></div>
 <div class="bbody">
   Hiermit kann man Tabellen erstellen. Mit [tab] kann man zusätzlich noch Text einrücken (Tabulator).
   <br /><br />
@@ -154,29 +178,33 @@ Mit BB-Codes können Sie Ihren, im Forum geschriebenen Text, formatierten. Es sin
 [table][b]#[tab]Homepage[tab]Traffic[/b]<br />
 1.[tab]MaMo Net[tab]500 MB<br />
 2.[tab]Smileyarchiv[tab]4 GB<br />
-3.[tab]Viscacha[tab]1000 KB
+3.[tab]Viscacha[tab]25 GB
 [/table]<br />
 <br />
 Ausgabe:<br />
 <tt class="bb_table"><strong>#&nbsp;&nbsp;&nbsp;Homepage&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Traffic</strong><br />
 1.&nbsp;&nbsp;MaMo Net&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;500 MB<br />
 2.&nbsp;&nbsp;Smileyarchiv&nbsp;&nbsp;&nbsp;&nbsp;4 GB<br />
-3.&nbsp;&nbsp;Viscacha&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1000 KB<br />
+3.&nbsp;&nbsp;Viscacha&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;25 GB<br />
 </tt>
 </div>
-<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="Nach oben" /></a>[tt]Text[/tt]<a name="tt"></a></div>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a>[tt]Text[/tt]<a name="tt"></a></div>
 <div class="bbody">Hiermit kann ein Text im Schreibmaschinenstil dargestellt werden.<br /><br />Aus [tt]Schreibmaschinenähnlicher Text[/tt] wird <tt>Schreibmaschinenähnlicher Text</tt></div>
+<?php foreach ($cbb as $bb) { ?>
+<div class="bfoot"><a href="#top" class="right"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('top_of_page'); ?>" /></a><?php echo $bb['title']; ?><a name="bb<?php echo $bb['id']; ?>"></a></div>
+<div class="bbody"><?php echo $bb['bbcodeexplanation']; ?><br /><br /><?php echo $bb['bbcodeexample']; ?><br />wird zu<br /><?php echo $bbcode->customBB($bb['bbcodeexample']); ?></div>
+<?php } ?>
 </div>
 <br class="minibr" />
 <div class="border">
-<h3>Smileys<a name="smileys"></a></h3>
+<h3><?php echo $lang->phrase('bbcode_help_smileys'); ?><a name="smileys"></a></h3>
 <div class="bbody">
-  Folgende Smileys stehen auf dem Board zur Verfügung:
-  <table>
+  <?php echo $lang->phrase('bbcode_help_smileys_desc'); ?>
+  <table cellspacing="4" cellpadding="1">
   <?php foreach ($smileys as $smiley) { ?>
   <tr>
     <td><img src="<?php echo $smiley['replace']; ?>" /></td>
-    <td><input type="text" size="8" value=" <?php echo $smiley['search']; ?> " /></td>
+    <td><input type="text" size="10" value=" <?php echo $smiley['search']; ?> " /></td>
     <td><?php echo $smiley['desc']; ?></td>
   </tr>
   <?php } ?>

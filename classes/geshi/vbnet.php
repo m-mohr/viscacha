@@ -4,10 +4,10 @@
  * ---------
  * Author: Alan Juden (alan@judenware.org)
  * Copyright: (c) 2004 Alan Juden, Nigel McNie (http://qbnz.com/highlighter)
- * Release Version: 1.0.7.6
- * CVS Revision Version: $Revision: 1.8 $
+ * Release Version: 1.0.7.12
+ * CVS Revision Version: $Revision: 1.15.2.2 $
  * Date Started: 2004/06/04
- * Last Modified: $Date: 2005/11/20 07:47:40 $
+ * Last Modified: $Date: 2006/07/22 11:30:31 $
  *
  * VB.NET language file for GeSHi.
  *
@@ -40,7 +40,7 @@
  ************************************************************************************/
 
  $language_data = array (
-	'LANG_NAME' => 'VB.Net',
+	'LANG_NAME' => 'vb.net',
 	'COMMENT_SINGLE' => array(1 => "'"),
 	'COMMENT_MULTI' => array(),
 	'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,

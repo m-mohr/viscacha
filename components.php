@@ -39,18 +39,10 @@ $my->p = $slog->Permissions();
 
 $cid = $gpc->get('cid', int);
 
-$scache = new scache('components');
-if ($scache->existsdata() == TRUE) {
-    $cache = $scache->importdata();
-}
-else {
-    $cresult = $db->query("SELECT id, file FROM {$db->pre}component WHERE active = '1'",__LINE__,__FILE__);
-    $cache = array();
-    while ($comp = $db->fetch_assoc($cresult)) {
-        $cache[$comp['id']] = $comp;
-    }
-    $scache->exportdata($cache);
-}
+$com = $scache->load('components');
+$cache = $com->get();
+
+($code = $plugins->load('components_start')) ? eval($code) : null;
 
 if (isset($cache[$cid])) {
 	DEFINE('COM_ID', $cache[$_GET['cid']]['id']);
@@ -72,6 +64,7 @@ if (isset($cache[$cid])) {
 	else {
 		define('COM_LANG_OLD_DIR', $lang->getdir(true));
         $lang->setdir(COM_LANG_OLD_DIR.DIRECTORY_SEPARATOR.COM_DIR);
+        ($code = $plugins->load('components_prepared')) ? eval($code) : null;
 	    if (COM_MODULE == 'frontpage') {
             include(COM_DIR.COM_FILE);
         }
@@ -80,6 +73,7 @@ if (isset($cache[$cid])) {
         }
         $lang->setdir(COM_LANG_OLD_DIR);
 	}
+	($code = $plugins->load('components_end')) ? eval($code) : null;
 }
 else {
 	error($lang->phrase('component_na'));

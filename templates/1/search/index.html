@@ -1,7 +1,7 @@
 <form name="form2" method="post" action="search.php?action=search<?php echo SID2URL_x; ?>">
 <div class="border">
 <div class="h3">
-  <a class="right" id="menu_activetopics" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('search_presets'); ?></a>
+  <a class="right" id="menu_activetopics" href="#activetopics"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('search_presets'); ?></a>
   <script type="text/javascript">RegisterMenu('activetopics');</script>
   <div class="popup" id="popup_activetopics">
 	<strong><?php echo $lang->phrase('search_active_topics'); ?></strong>
@@ -13,6 +13,7 @@
 	<li><a href="search.php?action=active&amp;type=days-14<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_14d'); ?></a></li>
 	<?php if ($my->vlogin) { ?>
 	<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
+	<li><a href="search.php?action=active&amp;type=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_fav'); ?></a></li>
 	<?php } if ($my->clv > 0) { ?>
 	<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 	<?php } ?>
@@ -34,8 +35,8 @@
 </div>
 <br class="newinput" /><br class="iefix_br" />
 </div>
-<h3 class="inlineheader"><img id="img_searchopt" name="collapse" src="<?php echo $tpl->img('minus'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('search_soptions'); ?></h3>
-<div class="bbody" id="part_searchopt" />
+<div class="h3"><img id="img_searchopt" name="collapse" src="<?php echo $tpl->img('minus'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('search_soptions'); ?></div>
+<div class="bbody" id="part_searchopt">
 <label for="boards"><?php echo $lang->phrase('search_boards'); ?></label>
 <select class="label" id="boards" name="boards[]" multiple="multiple" size="10">
  <option value="" selected="selected"><?php echo $lang->phrase('search_boards_all'); ?></option>
@@ -95,6 +96,24 @@
 </div>
 <br class="newinput" /><br class="iefix_br" />
 </div>
-<div class="bfoot center"><input type="submit" name="Submit3" onclick="submit_flood(this)" value="<?php echo $lang->phrase('submit_form'); ?>"></div>
+<div class="bfoot center"><input type="submit" name="Submit3" onclick="submit_flood(this)" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>
+<noscript>
+ <br class="minibr" />
+  <div class="popup_noscript">
+	<a name="activetopics"></a><strong><?php echo $lang->phrase('search_active_topics'); ?></strong>
+	<ul>
+	<li><a href="search.php?action=active&amp;type=days-1<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_24h'); ?></a></li>
+	<li><a href="search.php?action=active&amp;type=days-2<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_2d'); ?></a></li>
+	<li><a href="search.php?action=active&amp;type=days-3<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_3d'); ?></a></li>
+	<li><a href="search.php?action=active&amp;type=days-7<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_7d'); ?></a></li>
+	<li><a href="search.php?action=active&amp;type=days-14<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_14d'); ?></a></li>
+	<?php if ($my->vlogin) { ?>
+	<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
+	<?php } if ($my->clv > 0) { ?>
+	<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
+	<?php } ?>
+	</ul>
+  </div>
+</noscript>

@@ -184,7 +184,7 @@ class ServerNavigator
 		$total_size   = $this->formatSize($total_dir_size);
 		$print_spacer = (count($file_list) > 0  &&  count($dir_list) > 0)  ?  true  :  false;
 
-		$page_link			= $this->realPath(dirname($this->script_file) . '/' . $this->path);
+		$page_link			= $this->realPath(viscacha_dirname($this->script_file) . '/' . $this->path);
 		$rp = realpath($this->path);
 		$root = realpath('../'.$this->root);
 		$rp = str_replace($root, '', $rp);
@@ -200,14 +200,14 @@ class ServerNavigator
 		}
 
 		$newdir = $this->script_file . '&amp;path=' . urlencode(str_replace('/\\', '/', $this->path));
-		$newdir_html = '<span style="float: right;">[<a href="'.$newdir.'&job=newdir">Neues Verzeichnis erstellen</a>]</span>';
+		$newdir_html = '<span style="float: right;">[<a href="'.$newdir.'&job=newdir">Create new directory</a>]</span>';
 
 		$html = '	   <table cellpadding="4" cellspacing="0" class="border">';
 		$html .= "\n".'		 <tr>';
 		$html .= "\n".'		   <td class="obox">Filemanager</td>';
 		$html .= "\n".'		 </tr>';
 		$html .= "\n".'		 <tr>';
-		$html .= "\n".'		   <td class="ubox">Verzeichnis: ' . realpath('../'.$this->root) . $heading_path . '</td>';
+		$html .= "\n".'		   <td class="ubox">Directory: ' . realpath('../'.$this->root) . $heading_path . '</td>';
 		$html .= "\n".'		 </tr>';
 		$html .= "\n".'	   </table><br />';
 		$html .= "\n".'	   <table cellpadding="4" cellspacing="0" class="border">';
@@ -215,7 +215,7 @@ class ServerNavigator
 		
 		if (count($dir_list) > 0) {	
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="obox" colspan="5">'.$newdir_html.'Directories</td>';
+			$html .= "\n".'		   <td class="obox" colspan="5">'.$newdir_html.' Directories</td>';
 			$html .= "\n".'		 </tr>';
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="ubox" width="30%">Directory</td>';
@@ -326,7 +326,7 @@ class ServerNavigator
 		$path = urlencode($this->realPath($this->path));
 		$html = '<form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=explorer&job=upload&path='.$path.'">';
 		$html .= '<table cellpadding="4" cellspacing="0" class="border">';
-		$html .= '<tr><td class="obox" colspan="2">Dateien hochladen</td></tr>';
+		$html .= '<tr><td class="obox" colspan="2">Upload files</td></tr>';
 		
 		for ($i = 0; $i < $uploadfields; $i++) {
 			$html .= '<tr><td class="mbox">File '.($i+1).'</td><td class="mbox"><input type="file" name="upload_'.$i.'" size="80" /></td></tr>';
@@ -431,7 +431,7 @@ OOO;
 	function show()
 	{
 		$body  = $this->showContent(false);
-		$title = $this->realPath($_SERVER['HTTP_HOST'] . '/' . dirname($this->script_file) . '/' . $this->path);
+		$title = $this->realPath($_SERVER['HTTP_HOST'] . '/' . viscacha_dirname($this->script_file) . '/' . $this->path);
 		$title = preg_replace("/^.*?\\/?([^\\/]+)\\/?$/", "\\1", $title);
 
 		echo $body;

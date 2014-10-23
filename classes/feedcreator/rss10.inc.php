@@ -69,6 +69,18 @@ class RSS10 extends FeedCreator {
 			$feed.= "        <link>".htmlspecialchars($this->items[$i]->link)."</link>\n";
 			$feed.= "        <description>".htmlspecialchars($this->items[$i]->description)."</description>\n";
 			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "        ");
+
+			// added by Joseph LeBlanc, contact@jlleblanc.com
+
+			if (count($this->items[$i]->enclosures)) {
+				foreach($this->items[$i]->enclosures as $enc)
+				{
+					$feed.= "            <enclosure url=\"" . $enc['url'] . "\" length=\"" . $enc['length'] . "\" type=\"" . $enc['type'] . "\" />";
+				}
+			}
+
+			// end add, Joseph LeBlanc
+
 			$feed.= "    </item>\n";
 		}
 		$feed.= "</rdf:RDF>\n";

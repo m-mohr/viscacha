@@ -37,10 +37,13 @@ $lang->init($my->language);
 $tpl = new tpl();
 $my->p = $slog->Permissions();
 
+include_once ("classes/function.profilefields.php");
 
 if ($my->vlogin) {
 	error($lang->phrase('already_registered'));
 }
+
+($code = $plugins->load('register_start')) ? eval($code) : null;
 
 if ($_GET['action'] == "save") {
 	$error = array();
@@ -48,14 +51,14 @@ if ($_GET['action'] == "save") {
 		include("classes/graphic/class.veriword.php");
 		$vword = new VeriWord();
 	    if($_POST['letter']) {
-	        if ($vword->check_session($_POST['fid'], $_POST['letter']) == FALSE) {
+	        if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
 	        	$error[] = $lang->phrase('veriword_mistake');
 	        }
 	    }
 	    else {
 	        $error[] = $lang->phrase('veriword_failed');
 	    }
-	}       
+	}
     if ($config['acceptrules'] == 1 && $_POST['temp'] != 1) {
     	$error[] = $lang->phrase('you_had_to_accept_agb');
     }
@@ -80,48 +83,97 @@ if ($_GET['action'] == "save") {
 	if (strxlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
-	if (check_mail($_POST['email']) == FALSE) {
+	if (double_udata('mail', $_POST['email']) == false) {
+		 $error[] = $lang->phrase('email_already_used');
+	}
+	if (check_mail($_POST['email']) == false) {
 		$error[] = $lang->phrase('illegal_mail');
 	}
 	if ($_POST['pw'] != $_POST['pwx']) {
 		$error[] = $lang->phrase('pw_comparison_failed');
 	}
-	
+
+	// Custom profile fields
+	$upquery = array();
+	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
+	while($profilefield = $db->fetch_assoc($query)) {
+		$profilefield['type'] = $gpc->prepare($profilefield['type']);
+		$thing = explode("\n", $profilefield['type'], 2);
+		$type = $thing[0];
+		$field = "fid{$profilefield['fid']}";
+
+		$value = $gpc->get($field, none);
+
+		if((is_string($value) && strlen($value) == 0) || (is_array($value) && count($value) == 0)) {
+			$error[] = $lang->phrase('error_missingrequiredfield');
+		}
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+			$error[] = $lang->phrase('error_customfieldtoolong');
+		}
+		
+		if($type == "multiselect" || $type == "checkbox") {
+			$options = implode("\n", $value);
+		}
+		else {
+			$options = $value;
+		}
+		$options = $gpc->save_str($options);
+		$upquery[] = "`{$field}` = '{$options}'";
+	}
+
+	($code = $plugins->load('register_save_errorhandling')) ? eval($code) : null;
+
 	if (count($error) > 0) {
-		error($error,"register.php?name=".$_POST['name']."&amp;email=".$_POST['email'].SID2URL_x);
+		// ToDo: Save error data...
+		($code = $plugins->load('register_save_errordata')) ? eval($code) : null;
+		error($error,"register.php?name={$_POST['name']}&amp;email=".$_POST['email'].SID2URL_x);
 	}
 	else {
 	    $reg = time();
-	    $_POST['pwx'] = md5($_POST['pwx']);
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm) VALUES ('{$_POST['name']}', '{$_POST['pwx']}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}')",__LINE__,__FILE__); 
+	    $confirmcode = md5($config['cryptkey'].$reg);
+	    $pw_md5 = md5($_POST['pwx']);
+	    
+	    ($code = $plugins->load('register_save_queries')) ? eval($code) : null;
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}')",__LINE__,__FILE__); 
         $redirect = $db->insert_id();
-        $confirmcode = md5($config['cryptkey'].$reg);
-        
+
+		// Custom profile fields
+		if (count($upquery) > 0) {
+			$upquery[] = "`ufid` = '{$redirect}'";
+			$db->query("INSERT INTO {$db->pre}userfields SET ".implode(', ', $upquery));
+		}
+
         if ($config['confirm_registration'] != '11') {
 			$data = $lang->get_mail('register_'.$config['confirm_registration']);
 			$to = array('0' => array('name' => $_POST['name'], 'mail' => $_POST['email']));
 			$from = array();
 			xmail($to, $from, $data['title'], $data['comment']);
 		}
-		$scache = new scache('memberdata');
-		if ($scache->existsdata() == TRUE) {
-			$cache = $scache->deletedata();
-		}
+		
+		$com = $scache->load('memberdata');
+		$cache = $com->delete();
+		
+		($code = $plugins->load('register_save_end')) ? eval($code) : null;
+		
         ok($lang->phrase('register_confirm_'.$config['confirm_registration']), "log.php?action=login".SID2URL_x);
 	}
 
 }
 elseif ($_GET['action'] == 'confirm') {
 	
-	$result = $db->query("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND confirm != '01' AND confirm != '11' LIMIT 1",__LINE__,__FILE__);
-	$row = $db->fetch_assoc($result);
-	$row['name'] = $gpc->prepare($row['name']);
+	($code = $plugins->load('register_confirm_start')) ? eval($code) : null;
 	
+	$result = $db->query("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND confirm != '01' AND confirm != '11' LIMIT 1",__LINE__,__FILE__);
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('register_code_no_user'), "log.php?action=login".SID2URL_x);
 	}
 	
+	$row = $db->fetch_assoc($result);
+	$row['name'] = $gpc->prepare($row['name']);
 	$confirmcode = md5($config['cryptkey'].$row['regdate']);
+	
+	($code = $plugins->load('register_confirm_check')) ? eval($code) : null;
+	
 	if ($confirmcode == $_GET['fid']) {
 		if ($row['confirm'] == '00') {
 			$cn = '01';
@@ -129,6 +181,7 @@ elseif ($_GET['action'] == 'confirm') {
 		else {
 			$cn = '11';
 		}
+		($code = $plugins->load('register_confirm_query')) ? eval($code) : null;
 		$result = $db->query("UPDATE {$db->pre}user SET confirm = '{$cn}' WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
 		ok($lang->phrase('register_code_validated'), "log.php?action=login".SID2URL_x);
 	}
@@ -137,40 +190,29 @@ elseif ($_GET['action'] == 'confirm') {
 	}
 	
 }
-elseif ($_GET['action'] == 'veriword') {
-	include("classes/graphic/class.veriword.php");
-	$vword = new VeriWord();
-	if (isset($_GET['width'])) {
-	    $_GET['width'] = $gpc->save_int($_GET['width']);
-	}
-	else {
-	    $_GET['width'] = 150;
-	}
-	if (isset($_GET['height'])) {
-	    $_GET['height'] = $gpc->save_int($_GET['height']);
-	}
-	else {
-	    $_GET['height'] = 33;
-	}
-	$vword->set_filter($config['botgfxtest_filter']);
-	$vword->set_size($_GET['width'],$_GET['height']);
-	$vword->output_image($_GET['fid']);
-	exit;
-}
 else {
-	include("classes/graphic/class.veriword.php");
-	$vword = new VeriWord();
-	$veriid = $vword->set_veriword($config['register_text_verification']);
-	if ($config['register_text_verification'] == 1) {
-		$code = $vword->output_word($veriid);
+
+	($code = $plugins->load('register_form_start')) ? eval($code) : null;
+
+	if ($config['botgfxtest'] == 1) {
+		include("classes/graphic/class.veriword.php");
+		$vword = new VeriWord();
+		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
+		if ($config['botgfxtest_text_verification'] == 1) {
+			$code = $vword->output_word($veriid);
+		}
 	}
+	
 	$breadcrumb->Add($lang->phrase('register_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
-	$mymodules->load('register_top');
+
+	$customfields = addprofile_customfields();
 	$rules = $lang->get_words('rules');
+
+	($code = $plugins->load('register_form_prepared')) ? eval($code) : null;
 	echo $tpl->parse("register");
-	$mymodules->load('register_bottom');
+	($code = $plugins->load('register_form_end')) ? eval($code) : null;
 }
 
 $slog->updatelogged();

@@ -4,11 +4,12 @@
 		<?php echo iif($row->vquestion," <img class='right' src='".$tpl->img('vote')."' alt='".$lang->phrase('vote_titlevote')." $row->vquestion' />"); ?>
 		<?php echo iif($firstnew,'<a href="showtopic.php?action=firstnew&amp;id='.$row->id.SID2URL_x.'&amp;q='.$qhighlight.'"><img src="'.$tpl->img('desc').'" alt="'.$lang->phrase('move_to_first_new_post').'" /></a>'); ?>
 		<?php echo $pref; ?>
-		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>&amp;q=<?php echo $qhighlight; ?>'><?php echo iif($showprefix, '['.$showprefix.'] ').$row->topic; ?></a><br />
-		<span class="stext"><?php echo $lang->phrase('result_board'); ?> <a href="showforum.php?id=<?php echo $row->board.SID2URL_x; ?>" target="_blank"><?php echo $forums[$row->board]['name']; ?></a></span></td>
+		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>&amp;q=<?php echo $qhighlight; ?>'><?php echo iif($showprefix, '['.$showprefix.'] ').$row->topic; ?></a>
+		<?php echo iif (!empty($topic_pages), '<br /><span class="stext">'.$topic_pages.'</span>'); ?>
+		<br /><span class="stext"><?php echo $lang->phrase('result_board'); ?> <a href="showforum.php?id=<?php echo $row->board.SID2URL_x; ?>" target="_blank"><?php echo $forums[$row->board]['name']; ?></a></span></td>
 	<td><span class='stext'>
 		<?php echo $rstart; ?><br />
-		von <?php echo iif($row->mid,"<a href='profile.php?id=".$row->mid.SID2URL_x."'>".$row->name."</a>",$row->name); ?>
+		<?php echo $lang->phrase('written_by'); ?> <?php echo iif($row->mid,"<a href='profile.php?id=".$row->mid.SID2URL_x."'>".$row->name."</a>",$row->name); ?>
 	</span></td>
 	<td class="center"><?php echo numbers($row->posts); ?></td>
 	<td class='textright'><span class='stext'>

@@ -14,7 +14,7 @@
 	  <td class="tbody center" colspan="6"><?php echo $inner['index_letter']; ?></td>
 	</tr>
 	<tr class="tfoot"> 
-	  <td><?php echo $lang->phrase('th_name'); ?></span>
+	  <td><?php echo $lang->phrase('th_name'); ?>
 	  	<a href="members.php?order=0&amp;letter=<?php echo $_GET['letter']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
 	  	<a href="members.php?order=1&amp;page=<?php echo $_GET['page']; ?>&amp;letter=<?php echo $_GET['letter'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
 	  </td>
@@ -25,7 +25,7 @@
 	  	<a href="members.php?sort=location&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=0&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
 	  	<a href="members.php?sort=location&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=1&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
 	  </td>
-	  <td><?php echo $lang->phrase('th_registered_since'); ?></span>
+	  <td><?php echo $lang->phrase('th_registered_since'); ?>
 	  	<a href="members.php?sort=regdate&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=0&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
 	  	<a href="members.php?sort=regdate&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=1&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
 	  </td>

@@ -3,12 +3,13 @@
 <span class="right"><?php echo $time; ?></span>
 <?php if ($row->mid >= 1) { ?>
     <a href='profile.php?id=<?php echo $row->mid; ?>'><?php echo $row->name; ?></a>
-<?php } elseif ($bot == 1) {
-    echo $botdetect;
-} else { ?>
-    Gast <?php echo $wwo['g'] ?>
-<?php } ?>
-<?php echo iif($my->p['admin'] == 1,'<br /><span class="stext">'.$lang->phrase('wiw_ip').' <a href="http://www.ripe.net/perl/whois?form_type=simple&amp;do_search=Search&amp;searchtext='.$row->ip.'" target="_blank">'.$row->ip.'</a><br />'.$lang->phrase('wiw_useragent').' '.$row->remoteaddr.'</span>'); ?>
+<?php } elseif ($row->is_bot > 0) {
+    echo $bot['name'];
+} else {
+    echo $lang->phrase('wiw_guest');
+}
+echo iif($my->p['admin'] == 1,'<br /><span class="stext">'.$lang->phrase('wiw_ip').' <a href="http://www.ripe.net/perl/whois?form_type=simple&amp;do_search=Search&amp;searchtext='.$row->ip.'" target="_blank">'.$row->ip.'</a><br />'.$lang->phrase('wiw_useragent').' '.$row->remoteaddr.'</span>');
+?>
 </td>
 <td width="55%"><?php echo $loc; ?></td>
 </tr>
