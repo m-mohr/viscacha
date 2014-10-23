@@ -1,6 +1,8 @@
 Special Hooks
 -install
 -uninstall
+-update_init
+-update_finish
 -source
 -navigation
 

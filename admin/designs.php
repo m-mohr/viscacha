@@ -510,13 +510,13 @@ elseif ($job == 'design_import2') {
 		}
 
 		if (!empty($ini['template'])) {
-			copyr($tempdir.'templates', $tpldir);
+			mover($tempdir.'templates', $tpldir);
 		}
 		if (!empty($ini['stylesheet'])) {
-			copyr($tempdir.'designs', $cssdir);
+			mover($tempdir.'designs', $cssdir);
 		}
 		if (!empty($ini['images'])) {
-			copyr($tempdir.'images', $imgdir);
+			mover($tempdir.'images', $imgdir);
 		}
 
 		$db->query("INSERT INTO `{$db->pre}designs` (`template` , `stylesheet` , `images` , `name`) VALUES ('{$tplid}', '{$cssid}', '{$imgid}', '{$ini['name']}')");

@@ -190,19 +190,19 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		if (strxlen($_POST['name']) < $config['minnamelength']) {
 			$error[] = $lang->phrase('name_too_short');
 		}
-		if (strxlen($_POST['email']) > 200) {
+		if (strlen($_POST['email']) > 200) {
 			$error[] = $lang->phrase('email_too_long');
 		}
 		if (strxlen($_POST['signature']) > $config['maxsiglength']) {
 			$error[] = $lang->phrase('editprofile_signature_too_long');
 		}
-		if (strxlen($_POST['hp']) > 254) {
+		if (strlen($_POST['hp']) > 255) {
 			$error[] = $lang->phrase('editprofile_homepage_too_long');
 		}
 		if (!check_hp($_POST['hp'])) {
 			$_POST['hp'] = '';
 		}
-		if (strxlen($_POST['location']) > 50) {
+		if (strlen($_POST['location']) > 50) {
 			$error[] = $lang->phrase('editprofile_location_too_long');
 		}
 		if ($_POST['gender'] != 'm' && $_POST['gender'] != 'w' && $_POST['gender'] != '') {
@@ -217,7 +217,7 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		if (($_POST['birthyear'] < gmdate('Y')-120 || $_POST['birthyear'] > gmdate('Y')) && $_POST['birthyear'] != 0 ) {
 			$error[] = $lang->phrase('editprofile_birthyear_incorrect');
 		}
-		if (strxlen($_POST['fullname']) > 128) {
+		if (strlen($_POST['fullname']) > 128) {
 			$error[] = $lang->phrase('editprofile_fullname_incorrect');
 		}
 		if (intval($_POST['temp']) < -12 && intval($_POST['temp']) > 12) {
@@ -294,7 +294,7 @@ if ($my->vlogin && $my->p['admin'] == 1) {
     			$_POST['icq'] = 0;
 		    }
 
-            if (!empty($_POST['pw']) && strlen($_POST['pw']) >= $config['minpwlength']) {
+            if (!empty($_POST['pw']) && strxlen($_POST['pw']) >= $config['minpwlength']) {
                 $md5 = md5($_POST['pw']);
 				$update_sql = ", pw = '{$md5}' ";
             }

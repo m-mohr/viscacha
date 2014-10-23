@@ -87,7 +87,7 @@ if ($_GET['action'] == "save") {
 	if (strxlen($_POST['pw']) < $config['minpwlength']) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
-	if (strxlen($_POST['email']) > 200) {
+	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
 	if (check_mail($_POST['email']) == false) {
@@ -111,7 +111,7 @@ if ($_GET['action'] == "save") {
 		if((is_string($value) && strlen($value) == 0) || (is_array($value) && count($value) == 0)) {
 			$error[] = $lang->phrase('error_missingrequiredfield');
 		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase('error_customfieldtoolong');
 		}
 

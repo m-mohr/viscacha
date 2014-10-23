@@ -10,7 +10,7 @@ if (isset($config['error_reporting']) && $config['error_reporting'] > 0) {
 	error_reporting($config['error_reporting']);
 }
 if (isset($config['error_handler']) && $config['error_handler'] == 1) {
-	require_once(realpath(__FILE__).'/function.errorhandling.php');
+	require_once(realpath(__FILE__).'/function.errorhandler.php');
 	set_error_handler('msg_handler');
 }
 
@@ -102,6 +102,26 @@ function getDocumentRoot(){
 // if function for templates
 function iif($if, $true, $false = '') {
 	return ($if ? $true : $false);
+}
+// extracts the top directory
+function extract_dir($source, $realpath = true) {
+	if ($realpath) {
+		$source = realpath($source);
+	}
+	else {
+		$source = rtrim($source, '/\\');
+	}
+	$pos = strrpos($source, '/');
+	if ($pos === false) {
+		$pos = strrpos($source, '\\');
+	}
+	if ($pos > 0) {
+		$dest = substr($source, 0, $pos+1);
+	}
+	else {
+		$dest = '';
+	}
+	return $dest;
 }
 
 /* Missing constants from PHP-Compat */

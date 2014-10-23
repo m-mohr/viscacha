@@ -714,7 +714,7 @@ elseif ($_GET['action'] == "markasread") {
 	if (empty($loc)) {
 		$loc = 'javascript:history.back(-1);';
 	}
-	$slog->mark_read();
+	$slog->setAllRead();
 	ok($lang->phrase('marked_as_read'), $loc);
 }
 elseif ($_GET['action'] == "markforumasread") {
@@ -723,13 +723,7 @@ elseif ($_GET['action'] == "markforumasread") {
 	if (!is_id($board) || $my->p['forum'] == 0) {
 		errorLogin();
 	}
-
-	$result = $db->query('SELECT id FROM '.$db->pre.'topics WHERE board = '.$board.' AND last > '.$my->clv,__LINE__,__FILE__);
-	while ($row = $db->fetch_assoc($result)) {
-		$my->mark['t'][$row['id']] = time();
-	}
-
-	$my->mark['f'][$board] = time();
+	$slog->setForumRead($board);
 	$slog->updatelogged();
 	ok($lang->phrase('marked_as_read'), 'showforum.php?id='.$board);
 

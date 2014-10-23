@@ -1,8 +1,8 @@
 <mail>
-	<title>{@config->fname}: New post in topic "{@row->topic}"</title>
+	<title>{@config->fname}: New post in topic &quot;{@row->topic}&quot;</title>
 	<comment>Hello {@row->name}
 
-You have subscribed the topic "{@row->topic}".
+You have subscribed the topic &quot;{@row->topic}&quot;.
 There is a new post for this topic. The post is from {$pname}.
 
 Here you can view the topic: 

@@ -1,146 +1,170 @@
-<?php
-include('../data/config.inc.php');
-if (!class_exists('filesystem')) {
-	require_once('../classes/class.filesystem.php');
-	$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-	$filesystem->set_wd($config['ftp_path']);
-}
-?>
 <div class="bbody">
-<?php
-define('CHEX', 777);
-define('CHWR', 666);
-require('lib/function.chmod.php');
-$chmod = array(
-array('path' => 'data', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'data/cron', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'feeds', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
-array('path' => 'docs', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/cron/jobs', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/feedcreator', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/fonts', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/geshi', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'classes/graphic/noises', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'admin/backup', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'admin/data', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
-array('path' => 'designs', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'images', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'language', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'cache', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'temp', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'uploads', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
-array('path' => 'admin/data', 'chmod' => CHWR, 'recursive' => true, 'req' => false),
-array('path' => '.htaccess', 'chmod' => CHWR, 'recursive' => false, 'req' => false),
-array('path' => 'data', 'chmod' => CHWR, 'recursive' => true, 'req' => true),
-array('path' => 'feeds', 'chmod' => CHWR, 'recursive' => true, 'req' => false),
-array('path' => 'language', 'chmod' => CHWR, 'recursive' => true, 'req' => false)
-);
-$path = 'docs';
-$dh = opendir('../'.$path);
-while ($file = readdir($dh)) {
-	if($file != '.' && $file != '..') {
-		$fullpath = $path.'/'.$file;
-		if(is_file('../'.$fullpath)) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHWR, 'recursive' => false, 'req' => false);
-		}
-	}
-}
-closedir($dh);
-$path = 'templates';
-$dh = opendir('../'.$path);
-while ($file = readdir($dh)) {
-	if($file != '.' && $file != '..') {
-		$fullpath = $path.'/'.$file;
-		if(is_dir('../'.$fullpath) && intval($file) == $file) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHEX, 'recursive' => false, 'req' => false);
-		}
-	}
-}
-closedir($dh);
-
-?>
-<p>Some directories and files needs special permissions (CHMOD) to be writable und executable.
-This permissions will be checked and the result will be shown below.</p>
-<p>The following states can appear:<br />
-<strong class="hl_true">OK</strong>: The permissions are set correctly.<br />
-<strong class="hl_null">Failure*</strong>: The permissions are not correct, but these files are only required for changing a couple of things at the Admin Control Panel. You need not to change them until you edit these files.<br />
-<strong class="hl_false">Failure</strong>: The permissions are not correct and you have to set them manually (per FTP). You can not continue this setup until this permissions are set correctly.<br />
-</p>
-<table class="tables">
-<tr>
-	<td width="70%"><strong>File / Directory (<?php echo realpath('../'); ?>)</strong></td>
-	<td width="10%"><strong>Required</strong></td>
-	<td width="10%"><strong>Given</strong></td>
-	<td width="10%"><strong>State</strong></td>
-</tr>
-<?php
-$files = array();
-foreach ($chmod as $dat) {
-	$path = '../'.$dat['path'];
-	if ($dat['recursive']) {
-		$filenames = array();
-		if ($dat['chmod'] == CHEX) {
-			$filenames = set_chmod_r($path, 0777, CHMOD_DIR);
-		}
-		elseif ($dat['chmod'] == CHWR) {
-			$filenames = set_chmod_r($path, 0666, CHMOD_FILE);
-		}
-		foreach ($filenames as $f) {
-			$f = str_replace('../', '', $f);
-			$files[] = array('path' => $f, 'chmod' => $dat['chmod'], 'recursive' => false, 'req' => $dat['req']);
-		}
-	}
-	else {
-		if ($dat['chmod'] == CHEX) {
-			set_chmod($path, 0777, CHMOD_DIR);
-		}
-		elseif ($dat['chmod'] == CHWR) {
-			set_chmod($path, 0666, CHMOD_FILE);
-		}
-		$files[] = $dat;
-	}
-}
-@clearstatcache();
-sort($files);
-$failure = false;
-foreach ($files as $arr) {
-	$filesys_path = '../'.$arr['path'];
-	$path = realpath($filesys_path);
-	if (empty($path)) {
-		$path = $arr['path'];
-	}
-	$chmod = get_chmod($filesys_path);
-	if (check_chmod($arr['chmod'], $chmod)) {
-		$status = '<strong class="hl_true">OK</strong>';
-		$int_status = true;
-	}
-	elseif ($arr['req'] == false) {
-		$status = '<strong class="hl_null">Failure*</strong>';
-		$int_status = null;
-	}
-	else {
-		$status = '<strong class="hl_false">Failure</strong>';
-		$int_status = false;
-		$failure = true;
-	}
-	if ($arr['req'] == true || $int_status != true) {
-?>
-<tr>
-	<td><?php echo $arr['path']; ?></td>
-	<td><?php echo $arr['chmod']; ?></td>
-	<td><?php echo substr($chmod, 1, 3); ?></td>
-	<td><?php echo $status; ?></td>
-</tr>
-<?php
-	}
-}
-?>
-</table>
-</div>
-<div class="bfoot center">
-<?php if (!$failure) { ?>
-<input type="submit" value="Continue" />
+<p>
+Before we start the automatic update, you have to read the manual update instructions.
+Please follow the steps and do the tasks.
+More Information:
+<?php if (file_exists('../_docs/readme.txt')) { ?>
+<a href="../_docs/readme.txt" target="_blank">_docs/readme.txt</a>
 <?php } else { ?>
-<a class="submit" href="index.php?step=<?php echo $step; ?>">Reload page</a>
+_docs/readme.txt
 <?php } ?>
+</p>
+<p>
+<strong>Update instructions:</strong><br />
+<textarea class="codearea">First make a complete backup of your (old) data!
+
+1. Upload (and overwrite) the following files (* = an ID):
+ - addreply.php
+ - ajax.php
+ - editprofile.php
+ - external.php
+ - images.php
+ - manageforum.php
+ - managemembers.php
+ - managetopic.php
+ - misc.php
+ - newtopic.php
+ - pdf.php
+ - popup.php
+ - profile.php
+ - register.php
+ - search.php
+ - showforum.php
+ - showtopic.php
+
+ - admin/html/admin.js
+ - admin/html/editor.js
+
+ - admin/lib/class.servernavigator.php
+ - admin/lib/function.language.php
+ - admin/lib/function.viscacha_backend.php
+
+ - admin/bbcodes.php
+ - admin/cms.php
+ - admin/db.php
+ - admin/designs.php
+ - admin/forums.php
+ - admin/language.php
+ - admin/members.php
+ - admin/misc.php
+ - admin/packages.php
+ - admin/posts.php
+ - admin/settings.php
+ - admin/spider.php
+ - admin/start.php
+
+ - classes/cache/index_moderators.inc.php
+ - classes/cache/package_browser.inc.php
+
+ - classes/database/class.db_driver.php
+ - classes/database/mysql.inc.php
+ - classes/database/mysqli.inc.php
+
+ - classes/feedcreator/atom10.inc.php
+ - classes/feedcreator/googlesitemap.inc.php
+ - classes/feedcreator/html.inc.php
+ - classes/feedcreator/javascript.inc.php
+ - classes/feedcreator/klipfolio.inc.php
+ - classes/feedcreator/klipfood.inc.php
+ - classes/feedcreator/opml.inc.php
+ - classes/feedcreator/pie01.inc.php
+ - classes/feedcreator/rss091.inc.php
+ - classes/feedcreator/rss10.inc.php
+ - classes/feedcreator/rss20.inc.php
+ - classes/feedcreator/xbel.inc.php
+ 
+ - classes/ftp/class.ftp.php
+
+ - classes/graphic/class.thumbnail.php
+ - classes/graphic/class.veriword.php
+
+ - classes/mail/class.phpmailer.php
+
+ - classes/magpie_rss/rss_fetch.inc.php
+
+ - classes/class.bbcode.php
+ - classes/class.breadcrumb.php
+ - classes/class.cache.php
+ - classes/class.convertroman.php
+ - classes/class.feedcreator.php
+ - classes/class.filesystem.php
+ - classes/class.gpc.php
+ - classes/class.language.php
+ - classes/class.permissions.php
+ - classes/class.plugins.php
+ - classes/class.template.php
+ - classes/class.upload.php
+ - classes/class.zip.php
+ - classes/function.flood.php
+ - classes/function.frontend_init.php
+ - classes/function.global.php
+ - classes/function.phpcore.php
+ - classes/function.profilefields.php
+ - classes/function.viscacha_frontend.php
+
+ - Delete the whole directory "classes/fpdf" on the server!
+ - (Re)Upload the whole directory "classes/fpdf" from your hard disk.
+
+
+2. Upload all files from the directory "language/*/mails/" (* = an ID) from your
+   local PC.
+       Note: Files from the directory language/1/ are German, files from the
+             directory language/2/ are English. Upload only the files from the
+             language you need into the correct directory.
+
+
+3. Upload (and overwrite) the following files (* = an ID):
+       Note: Files from the directory language/1/ are German, files from the
+             directory language/2/ are English. Upload only the files from the
+             language you need into the correct directory.
+ - language/*/admin/bbcodes.lng.php
+ - language/*/admin/db.lng.php
+ - language/*/admin/designs.lng.php
+ - language/*/admin/explorer.lng.php
+ - language/*/admin/forums.lng.php
+ - language/*/admin/javascript.lng.php
+ - language/*/admin/language.lng.php
+ - language/*/admin/members.lng.php
+ - language/*/admin/misc.lng.php
+ - language/*/admin/packages.lng.php
+ - language/*/admin/settings.lng.php
+ - language/*/admin/start.lng.php
+
+ - language/*/mails/admin_confirmed.php
+ - language/*/mails/digest_d.php
+ - language/*/mails/digest_s.php
+ - language/*/mails/digest_w.php
+ - language/*/mails/mass_topic_moved.php
+ - language/*/mails/new_member.php
+ - language/*/mails/new_reply.php
+ - language/*/mails/new_topic.php
+ - language/*/mails/newpm.php
+ - language/*/mails/pwremind.php
+ - language/*/mails/pwremind2.php
+ - language/*/mails/register_00.php
+ - language/*/mails/register_01.php
+ - language/*/mails/register_10.php
+ - language/*/mails/report_post.php
+ - language/*/mails/topic_moved.php
+
+ - language/*/classes.lng.php
+
+
+4. Delete the following files (* = an ID):
+ - language/*/phpmailer.class.lng.php
+ - language/*/thumbnail.class.lng.php
+
+
+5. Upload the following files from the directory "templates" (* = an ID):
+ - templates/1/admin/topic/status.html
+ - templates/1/newtopic/index.html
+ - templates/lang2js.php
+ - templates/menu.js
+
+
+Finally upload the install/ directory and execute the update script.
+After you the update is ready and you are back in your Admin Control Panel
+again, please check for Updates of your installed Packages!</textarea>
+</p>
 </div>
+<div class="bfoot center"><input type="submit" value="Continue" /></div>

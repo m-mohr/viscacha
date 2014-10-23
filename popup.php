@@ -52,7 +52,7 @@ if ($_GET['action'] == "hlcode") {
 	}
 	$sourcecode = $codeObj->get();
 
-	$sourcecode['source'] = html_entity_decode($sourcecode['source'], ENT_QUOTES, $config['asia_charset']);
+	$sourcecode['source'] = $gpc->plain_str($sourcecode['source'], false);
 
 	($code = $plugins->load('popup_hlcode_start')) ? eval($code) : null;
 
@@ -68,7 +68,7 @@ if ($_GET['action'] == "hlcode") {
 	else {
 		require_once('classes/class.geshi.php');
 		$geshi = new GeSHi($sourcecode['source'], strtolower($sourcecode['language']), 'classes/geshi');
-		$geshi->set_encoding($lang->phrase('charset'));
+		$geshi->set_encoding($lang->charset());
 		// Use classes for colouring
 		$geshi->enable_classes();
 		// Output in a div instead in a pre-element

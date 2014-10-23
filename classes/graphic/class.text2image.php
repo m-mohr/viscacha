@@ -26,8 +26,7 @@ class text2image {
 	}
 
 	function prepare($text, $angle=0, $size=10, $font='classes/fonts/trebuchet.ttf') {
-		$this->text = rawurldecode($text); // Line breaks with [nl]
-
+		$this->text = $text; // Line breaks with [nl]
 		$this->angle = $angle+0;
 		$this->size = $size+0;
 		$this->font = $font;

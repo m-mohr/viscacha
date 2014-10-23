@@ -205,49 +205,189 @@ elseif ($job == 'backup2') {
 	$data = $gpc->get('data', int);
 	$drop = $gpc->get('drop', int);
 	$zip = $gpc->get('zip', int);
-	$db->backup_settings();
-	$sqldata = $db->backup($tables, $structure, $data, $drop);
-	$ok = $lang->phrase('admin_db_backup_successfully_created');
-	if (!empty($sqldata) && strlen($sqldata) > 0) {
-        // Speichern der Backup-Datei
-        $file_path = "admin/backup/".gmdate('d_m_Y-H_i_s');
-        if ($zip == 1) {
-        	$filesystem->file_put_contents($file_path.'.sql', $sqldata);
+	$name = gmdate('d_m_Y-H_i_s');
 
-			require_once('classes/class.zip.php');
-			$archive = new PclZip($file_path.".zip");
-			$v_list = $archive->create($file_path.'.sql',PCLZIP_OPT_REMOVE_PATH, "admin/backup");
+	$temp = array('zip' => $zip, 'drop' => $drop, 'steps' => 0);
+	foreach ($tables as $table) {
+		$result = $db->query("SELECT COUNT(*) FROM `{$table}`");
+		$count = $db->fetch_num($result);
+		$offset = iif($data == 1, 0, -1);
+		while ($offset < $count[0]) {
+			$temp[] = array(
+				'table' => $table,
+				'offset' => $offset,
+				'structure' => ($offset == 0 && $structure == 1)
+			);
+			$temp['steps']++;
+			$offset += $db->std_limit;
+		}
+	}
+	$x = new CacheItem('backup_'.$name);
+	$x->set($temp);
+	$x->export();
 
-            if ($v_list == 0) {
-            	$ok = $lang->phrase('admin_db_zip_error_saved_txt').'<br />'.$lang->phrase('admin_db_error').' '.$archive->errorInfo(true);
-        		$file_path .= '.sql';
-        	}
-        	else {
-        		$filesystem->unlink($file_path.".sql");
-        		$file_path .= '.zip';
-        	}
-        }
-        else {
-        	$file_path .= '.sql';
-            $filesystem->file_put_contents($file_path, $sqldata);
-        }
+    // Header
+    $table_data = $db->commentdel.' Viscacha '.$db->system.'-Backup'.$db->new_line.
+			      $db->commentdel.' Host: '.$db->host.$db->new_line.
+			      $db->commentdel.' Database: '.$db->database.$db->new_line.
+			      $db->commentdel.' Created: '.gmdate('D, d M Y H:i:s').' GMT'.$db->new_line.
+			      $db->commentdel.' Tables: '.implode(', ', $tables).$db->new_line;
+	$tfile = "admin/backup/{$name}.sql.tmp";
+	$filesystem->file_put_contents($tfile, $table_data);
+	$filesystem->chmod($tfile, 0666);
 
-        if (file_exists($file_path)) {
-            ok('admin.php?action=db&job=restore',$ok);
-        }
-    	else {
-    	    error('admin.php?action=db&job=backup',$lang->phrase('admin_db_backup_missing_permissions'));
-    	}
+	$pubsteps = $temp['steps']+3;
+	$pubstep = 2;
+	$url = 'admin.php?action=db&job=backup3&name='.$name;
+
+	$htmlhead .= '<meta http-equiv="refresh" content="2; url='.$url.'">';
+	echo head();
+	?>
+	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	  <tr>
+	   <td class="obox"><?php echo $lang->phrase('admin_db_backup_tables_steps'); ?></td>
+	  </tr>
+	  <tr>
+	   <td class="mbox">
+	   	<div style="width: 600px; border: 1px solid black; background-color: white;"><div style="width: 1px; background-color: steelblue;">&nbsp;</div></div>
+	   	<?php echo $lang->phrase('admin_db_progress'); ?> 0%<br /><br />
+	   	<?php echo $lang->phrase('admin_db_backup_prepared'); ?>
+	   </td>
+	  </tr>
+	  <tr>
+	  	<td class="ubox" align="center"><a href="<?php echo $url; ?>"><?php echo $lang->phrase('admin_db_click_if_no_redirection'); ?></a></td>
+	  </tr>
+	 </table>
+	<?php
+	echo foot();
+}
+elseif ($job == 'backup3') {
+	$name = $gpc->get('name', none);
+	$step = $gpc->get('step', int);
+	$page = $step+1;
+
+	$x = new CacheItem('backup_'.$name);
+	$x->import();
+	$temp = $x->get();
+
+	if (!isset($temp[$step])) {
+		echo head();
+		error('admin.php?action=db&job=backup');
+		$filesystem->unlink($tfile);
+		$x->delete();
+	}
+
+	$tfile = "admin/backup/{$name}.sql.tmp";
+
+	$fp = fopen($tfile, 'a');
+	if (is_resource($fp)) {
+		$data = '';
+		if ($temp[$step]['structure'] == true) {
+			$data .= $db->new_line.$db->getStructure($temp[$step]['table'], $temp['drop']).$db->new_line;
+		}
+		if ($temp[$step]['offset'] >= 0) {
+			$data .= $db->new_line.$db->getData($temp[$step]['table'], $temp[$step]['offset']).$db->new_line;
+		}
+
+		fwrite($fp, $data);
+		fclose($fp);
+
+		$steps = $temp['steps'];
+		$pubsteps = $steps+3;
+		$pubstep = $step+3;
+		$percent = (100/($steps+1))*$page;
+		if (isset($temp[$page])) {
+			$url = 'admin.php?action=db&amp;job=backup3&amp;name='.$name.'&amp;step='.$page;
+		}
+		else {
+			$url = 'admin.php?action=db&amp;job=backup4&amp;name='.$name;
+		}
+
+		$htmlhead .= '<meta http-equiv="refresh" content="1; url='.$url.'">';
+		echo head();
+		?>
+		 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+		  <tr>
+		   <td class="obox"><?php echo $lang->phrase('admin_db_backup_tables_steps'); ?></td>
+		  </tr>
+		  <tr>
+		   <td class="mbox">
+		   	<div style="width: 600px; border: 1px solid black; background-color: white;"><div style="width: <?php echo ceil($percent)*6; ?>px; background-color: steelblue;">&nbsp;</div></div>
+		   <?php echo $lang->phrase('admin_db_progress').round($percent, 1); ?>%<br /><br />
+		   <?php echo $lang->phrase('admin_db_backup_table_x').' '.$temp[$step]['table'].' {'.$temp[$step]['offset'].', '.($temp[$step]['offset']+$db->std_limit).'}'; ?>
+		   </td>
+		  </tr>
+		  <tr>
+		  	<td class="ubox" align="center"><a href="<?php echo $url; ?>"><?php echo $lang->phrase('admin_db_click_if_no_redirection'); ?></a></td>
+		  </tr>
+		 </table>
+		<?php
+		echo foot();
 	}
 	else {
-	    error('admin.php?action=db&job=backup',$lang->phrase('admin_db_backup_missing_data'));
+		error('admin.php?action=db&job=backup', $lang->phrase('admin_db_backup_missing_permissions'));
+		$filesystem->unlink($tfile);
+		$x->delete();
 	}
-}
-elseif ($job == 'restore') {
-	echo head();
-	$result = array();
-	$dir = "./admin/backup/";
 
+}
+elseif ($job == 'backup4') {
+	$name = $gpc->get('name', none);
+
+	$x = new CacheItem('backup_'.$name);
+	$x->import();
+	$temp = $x->get();
+	$x->delete();
+
+    // Speichern der Backup-Datei
+	$tfile = "admin/backup/{$name}.sql.tmp";
+	$file = "admin/backup/{$name}.sql";
+	$filesystem->rename($tfile, $file);
+
+	$ok = $lang->phrase('admin_db_backup_successfully_created');
+    if (!empty($temp['zip'])) {
+    	$zipfile = "admin/backup/{$name}.zip";
+		require_once('classes/class.zip.php');
+		$archive = new PclZip($zipfile);
+		$v_list = $archive->create($file, PCLZIP_OPT_REMOVE_PATH, dirname($file));
+
+        if ($v_list == 0) {
+        	$ok = $lang->phrase('admin_db_zip_error_saved_txt').'<br />'.$lang->phrase('admin_db_error').' '.$archive->errorInfo(true);
+    	}
+    	else {
+    		$filesystem->unlink($file);
+    		$file = $zipfile;
+    	}
+    }
+
+	$x->delete();
+
+	$pubstep = $pubsteps = $temp['steps']+3;
+
+	echo head();
+	?>
+	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+	  <tr>
+	   <td class="obox"><?php echo $lang->phrase('admin_db_backup_tables_steps'); ?></td>
+	  </tr>
+	  <tr>
+	   <td class="mbox">
+	   	<div style="width: 600px; border: 1px solid black; background-color: white;"><div style="width: 600px; background-color: steelblue;">&nbsp;</div></div>
+	    <?php echo $lang->phrase('admin_db_progress'); ?> 100%<br /><br />
+	    <?php echo $ok; ?>
+	   </td>
+	  </tr>
+	  <tr>
+	  	<td class="mbox" align="center">
+	  		<a class="button" href="admin.php?action=db&amp;job=download&amp;file=<?php echo basename($file); ?>"><?php echo $lang->phrase('admin_db_download'); ?></a>
+	  		<a class="button" href="admin.php?action=db&amp;job=restore"><?php echo $lang->phrase('admin_db_back_to_restore'); ?></a>
+	  	</td>
+	  </tr>
+	 </table>
+	<?php
+	echo foot();
+}
+elseif ($job == 'restore_info') {
 	$mem_limit = @ini_get('memory_limit');
 	if (empty($mem_limit)) {
 		$mem_limit = @get_cfg_var('memory_limit');
@@ -258,6 +398,55 @@ elseif ($job == 'restore') {
 		$maxlimit = $mem_limit;
 	}
 
+	$dir = "./admin/backup/";
+	$file = $gpc->get('file', none);
+
+	if (filesize($dir.$file) < $maxlimit) {
+		$nfo = pathinfo($dir.$file);
+        if ($nfo['extension'] == 'zip') {
+			require_once('classes/class.zip.php');
+			$archive = new PclZip($dir.$file);
+			if (($list = $archive->listContent()) > 0) {
+				$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
+				$headers = preg_split("/\r\n|\r|\n/", $data[0]['content']);
+				unset($data);
+			}
+        }
+        elseif ($nfo['extension'] == 'sql') {
+			$fd = fopen($dir.$file, "r");
+			while (!feof($fd)) {
+				$headers[] = fgets($fd, 2048);
+			}
+			fclose ($fd);
+        }
+        if (isset($headers) && is_array($headers)) {
+            $header = array();
+            foreach ($headers as $h) {
+            	$comment = substr($h, 0, 2);
+            	if ($comment == '--' || $comment == '//') {
+            		$header[] = substr($h, 2);
+            	}
+            	else {
+            		break;
+            	}
+            }
+            $header = array_map('trim', $header);
+            $header = implode("<br />\n", $header);
+        }
+        else {
+        	$header = $lang->phrase('admin_db_file_damaged');
+        }
+    }
+    else {
+    	$header = $lang->phrase('admin_db_file_too_large');
+    }
+    echo $header;
+}
+elseif ($job == 'restore') {
+	echo head();
+	$result = array();
+	$dir = "./admin/backup/";
+
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
 		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {
@@ -267,52 +456,11 @@ elseif ($job == 'restore') {
 				$date = str_replace('.zip', '', $nfo['basename']);
 				$date = str_replace('.sql', '', $date);
 
-				if (filesize($dir.$file) < $maxlimit) {
-			        if ($nfo['extension'] == 'zip') {
-						require_once('classes/class.zip.php');
-						$archive = new PclZip($dir.$file);
-						if (($list = $archive->listContent()) > 0) {
-							$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
-							$headers = preg_split("/\r\n|\r|\n/", $data[0]['content']);
-							unset($data);
-						}
-			        }
-			        elseif ($nfo['extension'] == 'sql') {
-						$fd = fopen($dir.$file, "r");
-						while (!feof($fd)) {
-							$headers[] = fgets($fd, 2048);
-						}
-						fclose ($fd);
-			        }
-			        if (isset($headers) && is_array($headers)) {
-			            $header = array();
-			            foreach ($headers as $h) {
-			            	$comment = substr($h, 0, 2);
-			            	if ($comment == '--' || $comment == '//') {
-			            		$header[] = substr($h, 2);
-			            	}
-			            	else {
-			            		break;
-			            	}
-			            }
-			            $header = array_map('trim', $header);
-			            $header = implode("<br />\n", $header);
-			        }
-			        else {
-			        	$header = $lang->phrase('admin_db_file_damaged');
-			        }
-		        }
-		        else {
-		        	$header = $lang->phrase('admin_db_file_too_large');
-		        }
-
 				$result[] = array(
 					'file' => $nfo['basename'],
 					'size' => filesize($dir.$file),
-					'date' => $date,
-					'header' => $header
+					'date' => $date
 				);
-				unset($header, $buffer, $headers);
 			}
 		}
 	}
@@ -333,11 +481,15 @@ elseif ($job == 'restore') {
    <td class="ubox" width="80%"><?php echo $lang->phrase('admin_db_information'); ?></td>
    <td class="ubox" width="10%"><?php echo $lang->phrase('admin_db_file_size'); ?></td>
   </tr>
-	<?php foreach ($result as $row) { ?>
+	<?php foreach ($result as $i => $row) { ?>
 		<tr>
 		   <td class="mbox" width="5%" align="center"><input type="radio" name="file" value="<?php echo $row['file']; ?>"></td>
 		   <td class="mbox" width="5%" align="center"><input type="checkbox" name="delete[]" value="<?php echo $row['file']; ?>"></td>
-		   <td class="mbox stext" width="90%" rowspan="2">File: <b><?php echo $row['file']; ?></b><br /><?php echo $row['header']; ?></td>
+		   <td class="mbox stext" valign="top" width="90%" rowspan="2">
+		   	<a class="button right" href="javascript:ajax_backupinfo('<?php echo $row['file']; ?>', 'res_<?php echo $i; ?>');"><?php echo $lang->phrase('admin_db_load_restore_info'); ?></a>
+		   	<?php echo $lang->phrase('admin_db_file_x'); ?> <b><?php echo $row['file']; ?></b><br />
+		   	<div id="res_<?php echo $i; ?>">---</div>
+		   </td>
 		   <td class="mbox stext" nowrap="nowrap" width="10%" rowspan="2"><?php echo FormatFilesize($row['size']); ?></td>
 		</tr>
         <tr>
@@ -629,7 +781,6 @@ elseif ($job == 'query2') {
 
 	$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $lines);
 	@exec_query_form($lines);
-	$hl = highlight_sql_query($sql);
 
 	if (!empty($lines)) {
 
@@ -647,6 +798,9 @@ elseif ($job == 'query2') {
 			<?php
 		}
 		else {
+			if (count($q['queries']) <= 20) { // To avoid reaching max exec. time
+				$hl = highlight_sql_query($sql);
+			}
 			echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$lang->phrase('admin_db_queries_extd');
 			echo iif($q['affected'] > 0, ' - '.$lang->phrase('admin_db_rows_affected'));
 			echo '</td></tr>';

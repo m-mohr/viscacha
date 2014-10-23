@@ -362,7 +362,7 @@ function init () {
     }
 
     if ( !defined('MAGPIE_OUTPUT_ENCODING') ) {
-        define('MAGPIE_OUTPUT_ENCODING', $lang->phrase('charset'));
+        define('MAGPIE_OUTPUT_ENCODING', $lang->charset());
     }
 
     if ( !defined('MAGPIE_INPUT_ENCODING') ) {

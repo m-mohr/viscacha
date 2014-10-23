@@ -10,8 +10,8 @@ CREATE TABLE `{:=DBPREFIX=:}session` (
   `mark` longtext NOT NULL,
   `sid` varchar(128) NOT NULL default '',
   `is_bot` mediumint(6) unsigned NOT NULL default '0',
-  `pwfaccess` tinytext NOT NULL,
-  `settings` tinytext NOT NULL,
+  `pwfaccess` text NOT NULL,
+  `settings` text NOT NULL,
   KEY `mid` (`mid`),
   KEY `sid` (`sid`)
 ) TYPE=MyISAM;

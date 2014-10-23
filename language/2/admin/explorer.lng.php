@@ -22,6 +22,7 @@ $lang['admin_explorer_create_new_directory'] = 'Create new directory';
 $lang['admin_explorer_delete_x'] = 'Delete {$name}';
 $lang['admin_explorer_directories'] = 'Directories';
 $lang['admin_explorer_directory'] = 'Directory';
+$lang['admin_explorer_directory_x'] = 'Directory: ';
 $lang['admin_explorer_edit_a_file'] = 'Edit a File';
 $lang['admin_explorer_edit_content'] = 'Content:';
 $lang['admin_explorer_extract_an_compressed_archive'] = 'Extract an compressed archive';

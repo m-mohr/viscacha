@@ -132,7 +132,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 					$pref .= $lang->phrase('forum_moved');
 				}
 				else {
-					if (empty($row->mark) && !empty($info['auto_status'])) {
+					if ($row->mark === null && !empty($info['auto_status'])) {
 						$row->mark = $info['auto_status'];
 					}
 					if ($row->mark == 'n') {

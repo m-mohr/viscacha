@@ -1,6 +1,6 @@
 CREATE TABLE `{:=DBPREFIX=:}forums` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
-  `name` varchar(200) NOT NULL default '',
+  `name` text NOT NULL,
   `description` text NOT NULL,
   `topics` int(10) unsigned NOT NULL default '0',
   `replies` int(10) unsigned NOT NULL default '0',
@@ -20,7 +20,7 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `topic_notification` text NOT NULL,
   `active_topic` enum('0','1') NOT NULL default '1',
   `message_active` enum('0','1','2') NOT NULL default '0',
-  `message_title` varchar(255) NOT NULL default '',
+  `message_title` text NOT NULL,
   `message_text` text NOT NULL,
   PRIMARY KEY  (`id`)
 ) TYPE=MyISAM AUTO_INCREMENT=1 ;

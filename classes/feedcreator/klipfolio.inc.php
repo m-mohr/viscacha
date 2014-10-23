@@ -18,8 +18,8 @@ class KLIPFOLIO extends FeedCreator {
 		$feed .= '<klip>'."\n";
 
 		$feed .= '	<owner>'."\n";
-		$feed .= '		<author>'.FeedCreator::iTrunc(htmlspecialchars($this->editor),100).'</author>'."\n";
-		$feed .= '		<copyright>'.FeedCreator::iTrunc(htmlspecialchars($this->copyright),100).'</copyright>'."\n";
+		$feed .= '		<author>'.FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->editor),100).'</author>'."\n";
+		$feed .= '		<copyright>'.FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->copyright),100).'</copyright>'."\n";
 		if (!empty($this->editorEmail)) {
 			$feed .= '		<email>'.$this->editorEmail.'</email>'."\n";
 		}
@@ -27,12 +27,12 @@ class KLIPFOLIO extends FeedCreator {
 		$feed .= '	</owner>'."\n";
 
 		$feed .= '	<identity>'."\n";
-		$feed .= '		<title>'.FeedCreator::iTrunc(htmlspecialchars($this->title),100).'</title>'."\n";
+		$feed .= '		<title>'.FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->title),100).'</title>'."\n";
 		$feed .= '		<uniqueid>'.md5($config['cryptkey']).'</uniqueid>'."\n";
 		$feed .= '		<version>1.0</version>'."\n";
-		$feed .= '		<lastmodified>'.htmlspecialchars($now->v0001()).'</lastmodified>'."\n";
+		$feed .= '		<lastmodified>'.FeedCreator::htmlspecialchars($now->v0001()).'</lastmodified>'."\n";
 		$feed .= '		<description>'.$this->getDescription().'</description>'."\n";
-		$feed .= '		<keywords>Viscacha '.htmlspecialchars($this->title).'</keywords>'."\n";
+		$feed .= '		<keywords>Viscacha '.FeedCreator::htmlspecialchars($this->title).'</keywords>'."\n";
 		$feed .= '	</identity>'."\n";
 
 		$feed .= '	<locations>'."\n";
@@ -45,11 +45,11 @@ class KLIPFOLIO extends FeedCreator {
 		$feed .= '	</locations>'."\n";
 
 		$feed .= '	<setup>'."\n";
-		$feed .= '		<refresh>'.htmlspecialchars($this->ttl).'</refresh>'."\n";
+		$feed .= '		<refresh>'.FeedCreator::htmlspecialchars($this->ttl).'</refresh>'."\n";
 		if (!check_hp($_SERVER['HTTP_REFERER'])) {
 			$_SERVER['HTTP_REFERER'] = $this->link;
 		}
-		$feed .= '		<referer>'.htmlspecialchars($_SERVER['HTTP_REFERER']).'</referer>'."\n";
+		$feed .= '		<referer>'.FeedCreator::htmlspecialchars($_SERVER['HTTP_REFERER']).'</referer>'."\n";
 		$feed .= '		<country>'.$this->language.'</country>'."\n";
 		$feed .= '		<language>'.$this->language.'</language>'."\n";
 		$feed .= '	</setup>'."\n";

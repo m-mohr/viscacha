@@ -31,8 +31,7 @@ class DB extends DB_Driver { // MySQLi
 	var $system;
 	var $fieldType;
 
-	function DB($host="localhost",$user="root",$pwd="",$dbname="",$persist=0,$open=false, $dbprefix='') {
-	    $this->persist = 0;
+	function DB($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '', $open = true) {
 	    $this->system = 'mysqli';
 		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
 		parent::DB_Driver($host, $user, $pwd, $dbname, $dbprefix, $open);
@@ -64,6 +63,10 @@ class DB extends DB_Driver { // MySQLi
 			254 => "char",
 			255 => "geometry"
 		);
+	}
+
+	function setPersistence($persistence = false) {
+		$this->persistence = false;
 	}
 
 	function version () {
@@ -98,14 +101,7 @@ class DB extends DB_Driver { // MySQLi
 		$this->conn = mysqli_connect($this->host, $this->user, $this->pwd);
 		ob_end_clean();
 
-		if (!$this->hasConnection($this->conn)) {
-			if ($die == true) {
-				trigger_error('Could not connect to database! Pleasy try again later or check the database settings: host, username and password!<br /><strong>Database returned</strong>: '.mysqli_connect_error(), E_USER_ERROR);
-			}
-			else {
-				trigger_error('Could not connect to database!<br /><strong>Database returned</strong>: '.mysqli_connect_error(), E_USER_WARNING);
-			}
-		}
+		$this->quitOnError($die);
 	}
 
 	function hasConnection(){
@@ -156,6 +152,13 @@ class DB extends DB_Driver { // MySQLi
 
     function insert_id() {
 	    return @mysqli_insert_id($this->conn);
+	}
+
+	function data_seek($result = null, $pos = 0) {
+		if (!is_object($result)) {
+	    	$result = $this->result;
+	    }
+	    return @mysqli_data_seek($result, $pos);
 	}
 
 	function fetch_object($result = null) {

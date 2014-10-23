@@ -3,6 +3,9 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
+// A class for Languages
+require_once("classes/class.language.php");
+$lang = new lang();
 // Filesystem
 require_once("classes/class.filesystem.php");
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
@@ -60,12 +63,12 @@ require_once ("classes/function.global.php");
 
 $benchmark = benchmarktime();
 
-$job = $gpc->get('job', str);
-
 $slog = new slog();
 $my = $slog->logged();
 $lang->initAdmin($my->language);
 $my->p = $slog->Permissions();
+
+$job = $gpc->get('job', str);
 
 if (!isset($my->settings['admin_interface'])) {
 	$my->settings['admin_interface'] = $admconfig['nav_interface'];
@@ -152,6 +155,48 @@ function navLang($key, $show_key = true) {
 	}
 }
 
+function getLangCodesByDir($dir) {
+	$d = dir($dir);
+	$codes = array();
+	while (false !== ($entry = $d->read())) {
+		if (preg_match('~^(\w{2})_?(\w{0,2})$~i', $entry, $code) && is_dir("{$dir}/{$entry}")) {
+			if (!isset($codes[$code[1]])) {
+				$codes[$code[1]] = array();
+			}
+			if (isset($code[2])) {
+				$codes[$code[1]][] = $code[2];
+			}
+			else {
+				if (!in_array('', $codes[$code[1]])) {
+					$codes[$code[1]][] = '';
+				}
+			}
+		}
+	}
+	$d->close();
+	return $codes;
+}
+
+function getLangCodesByKeys($keys) {
+	$codes = array();
+	foreach ($keys as $entry) {
+		if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+			if (!isset($codes[$code[1]])) {
+				$codes[$code[1]] = array();
+			}
+			if (isset($code[2])) {
+				$codes[$code[1]][] = $code[2];
+			}
+			else {
+				if (!in_array('', $codes[$code[1]])) {
+					$codes[$code[1]][] = '';
+				}
+			}
+		}
+	}
+	return $codes;
+}
+
 function nl2whitespace($str){
 	return preg_replace("~(\r\n|\n|\r)~", " ", $str);
 }
@@ -184,6 +229,8 @@ function AdminLogInForm() {
 function isInvisibleHook($hook) {
 	switch ($hook) {
 		case 'uninstall':
+		case 'update_init':
+		case 'update_finish':
 		case 'install':
 		case 'source':
 			return true;
@@ -412,7 +459,7 @@ function pages ($anzposts, $uri, $teiler=50) {
 }
 
 function head($onload = '') {
-	global $htmlhead, $config;
+	global $htmlhead, $config, $my;
 	?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -425,6 +472,7 @@ function head($onload = '') {
 	<link rel="stylesheet" type="text/css" href="admin/html/standard.css">
 	<link rel="up" href="javascript:self.scrollTo(0,0);">
 	<link rel="copyright" href="http://www.viscacha.org">
+	<script src="templates/lang2js.php?id=<?php echo $my->language; ?>&amp;admin=1" type="text/javascript"></script>
 	<script type="text/javascript">
 	<!--
 		var sidx = '<?php echo SID2URL_JS_x; ?>';
@@ -432,6 +480,7 @@ function head($onload = '') {
 	-->
 	</script>
 	<script src="admin/html/admin.js" language="Javascript" type="text/javascript"></script>
+	<script src="templates/menu.js" language="Javascript" type="text/javascript"></script>
 	<?php echo $htmlhead; ?>
 </head>
 <body<?php echo iif(!empty($onload), ' '.$onload); ?>>
@@ -456,15 +505,17 @@ function foot() {
 	<?php
 }
 
-function error ($errorurl, $errormsg = null) {
-	global $config, $my, $db, $lang;
+function error ($errorurl, $errormsg = null, $time = null) {
+	global $config, $my, $db, $lang, $slog;
 	if ($errormsg == null) {
 		$errormsg = array($lang->phrase('admin_an_unexpected_error_occured'));
 	}
 	else if (!is_array($errormsg)) {
 	    $errormsg = array($errormsg);
 	}
-	$time = 7500 + count($errormsg)*2500;
+	if (!is_int($time)) {
+		$time = 7500 + count($errormsg)*2500;
+	}
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
@@ -489,12 +540,13 @@ window.setTimeout('<?php echo JS_URL($errorurl); ?>', <?php echo $time; ?>);
 </table>
 	<?php
 	echo foot();
+	$slog->updatelogged();
 	$db->close();
 	exit;
 }
 
 function ok ($url, $msg = null, $time = 1500) {
-	global $config, $my, $db, $lang;
+	global $config, $my, $db, $lang, $slog;
 	if ($msg == null) {
 		$msg = $lang->phrase('admin_settings_successfully_saved');
 	}
@@ -517,6 +569,7 @@ window.setTimeout('<?php echo JS_URL($url); ?>', <?php echo $time; ?>);
 </table>
 	<?php
 	echo foot();
+	$slog->updatelogged();
 	$db->close();
 	exit;
 }

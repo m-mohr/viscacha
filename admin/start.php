@@ -22,6 +22,11 @@ elseif (empty($job) || $job == 'start') {
 		$tasks[] = '<span style="color: red;">'.$lang->phrase('admin_task_remove_installdir1').' <strong><a href="admin.php?action=explorer&amp;path='.rawurlencode('./install/').'&amp;job=delete&amp;type=dir">'.$lang->phrase('admin_task_remove_installdir2').'</a></strong></span>';
 	}
 
+	// Checked for Package Updated after Viscacha Update?
+	if ($admconfig['checked_package_updates'] != 1) {
+		$tasks[] = '<span style="color: red;">'.$lang->phrase('admin_checked_package_updates').' <strong><a href="admin.php?action=packages&amp;job=package_updates">'.$lang->phrase('admin_checked_package_updates_link').'</a></strong></span>';
+	}
+
 	// Offline-check
 	if ($config['foffline'] == 1) {
 		$tasks[] = '<span style="color: red;">'.$lang->phrase('admin_task_currently_offline1').' <a href="admin.php?action=settings&amp;job=sitestatus">'.$lang->phrase('admin_task_currently_offline2').'</a></span>';
@@ -69,7 +74,7 @@ elseif (empty($job) || $job == 'start') {
 		}
 		$tasks[] = $x1.' <a href="admin.php?action=db&job=backup">'.$lang->phrase('admin_task_backup_recommended').'</a>';
 	}
-	// Version Check
+	// Viscacha Version Check
 	$cache = $scache->load('version_check');
 	$age = time();
 	if ($cache->exists()) {

@@ -14,25 +14,24 @@ class lang {
 
 	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
 	function lang($js = false, $level = E_USER_ERROR) {
-		$this->js = $js;
 		$this->file = '';
 		$this->vars = array();
 		$this->benchmark = array('all' => 0, 'ok' => 0, 'error' => 0);
 		$this->lngarray = array();
 		$this->cache = array();
 		$this->assign = array();
+		$this->js = $js;
+
 		if ($this->js > 0) {
 			$dir = $this->js;
+			if (!$this->setdir($dir)) {
+				die('alert("Language-Directory not found!");');
+			}
 		}
 		else {
 			global $config;
 			$dir = $config['langdir'];
-		}
-		if (!$this->setdir($dir)) {
-			if ($this->js > 0) {
-				die('alert("Language-Directory not found!");');
-			}
-			else {
+			if (!$this->setdir($dir)) {
 				trigger_error('Language-Directory not found!', $level);
 			}
 		}
@@ -49,7 +48,7 @@ class lang {
 
 		@ini_set('default_charset', '');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset='.$this->phrase('charset'));
+			viscacha_header('Content-type: text/html; charset='.$this->charset());
 		}
 
 		global $slog;
@@ -66,6 +65,13 @@ class lang {
 	}
 
 	function initAdmin($dir = null) {
+		global $admconfig, $my;
+		if (!empty($my->settings['default_language'])) {
+			$dir = $my->settings['default_language'];
+		}
+		elseif (is_id($admconfig['default_language'])) {
+			$dir = $admconfig['default_language'];
+		}
 		if ($dir != null) {
 			$this->setdir($dir);
 		}
@@ -76,18 +82,19 @@ class lang {
 
 		@ini_set('default_charset', '');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset='.$this->phrase('charset'));
+			viscacha_header('Content-type: text/html; charset='.$this->charset());
 		}
 	}
 
-	function javascript() {
-		$file = $this->dir.DIRECTORY_SEPARATOR.'javascript.lng.php';
+	function javascript($file = 'javascript') {
+		$file = $this->dir.DIRECTORY_SEPARATOR.$file.'.lng.php';
 		require($file);
 		echo 'var lng = new Array();'."\n";
 		foreach ($lang as $k => $l) {
 			$l = str_replace("'", "\\'", $l);
-			echo "lng['$k'] = '$l';\n";
+			echo "lng['{$k}'] = '{$l}';\n";
 		}
+		return $lang;
 	}
 
 	function return_array($group = '') {
@@ -101,7 +108,18 @@ class lang {
 		}
 	}
 
+	function charset() {
+		if (empty($this->lngarray['charset'])) {
+			global $config;
+			return $config['asia_charset'];
+		}
+		else {
+			return $this->lngarray['charset'];
+		}
+	}
+
 	function get_mail($file,$ext='php') {
+		global $gpc;
 		$this->benchmark['all']++;
 		$this->file = $this->dir.DIRECTORY_SEPARATOR.'mails/'.$file.'.'.$ext;
 		if (file_exists($this->file) == false) {
@@ -113,7 +131,10 @@ class lang {
         preg_match("|<title>(.+?)</title>.*?<comment>(.+?)</comment>|is", $content, $matches);
 		$matches[1] = $this->parse_pvar($matches[1]);
 		$matches[2] = $this->parse_pvar($matches[2]);
-        return array('title' => $matches[1], 'comment' => $matches[2]);
+        return array(
+        		'title' => $gpc->plain_str($matches[1]),
+        		'comment' => $gpc->plain_str($matches[2])
+        	   );
 	}
 	function get_text($file,$ext='php') {
 		$this->benchmark['all']++;

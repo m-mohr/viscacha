@@ -1,12 +1,26 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
+$lang['admin_character_set_incomming_data_converted_info'] = 'Information: ISO-8895-15 is the same character set as ISO-8895-1, however completed with the Euro-character as well as French and Finnish characters.';
+$lang['admin_charset_big5'] = 'Traditional Chinese, mainly used in Taiwan';
+$lang['admin_charset_big5hkscs'] = 'Big5 with Hong Kong extensions, Traditional Chinese.';
+$lang['admin_charset_cp866'] = 'DOS-specific Cyrillic charset (PHP >= 4.3.2)';
+$lang['admin_charset_cp1251'] = 'Windows-specific Cyrillic charset (PHP >= 4.3.2)';
+$lang['admin_charset_cp1252'] = 'Windows specific charset for Western European';
+$lang['admin_charset_eucjp'] = 'Japanese (EUC-JP)';
+$lang['admin_charset_gb2312'] = 'Simplified Chinese, national standard character set';
+$lang['admin_charset_iso88591'] = 'Western European, Latin-1';
+$lang['admin_charset_iso889515'] = 'Western European, Latin-9';
+$lang['admin_charset_koi8r'] = 'Russian (PHP >= 4.3.2)';
+$lang['admin_charset_shiftjis'] = 'Japanese (Shift JIS)';
+$lang['admin_charset_utf8'] = 'ASCII compatible multi-byte 8-bit Unicode';
 $lang['admin_lang_action'] = 'Action';
 $lang['admin_lang_add'] = 'Add';
 $lang['admin_lang_add_new_langfile'] = 'Add new Language File';
 $lang['admin_lang_add_new_mail_file'] = 'Add new Mail File';
 $lang['admin_lang_add_new_phrase'] = 'Add new Phrase';
 $lang['admin_lang_add_new_rules'] = 'Add new rule(s):';
+$lang['admin_lang_add_x'] = 'Add';
 $lang['admin_lang_admin_control_panel'] = 'Admin Control Panel:';
 $lang['admin_lang_allowed_file_types'] = 'Allowed file types: .zip - Maximum file size: 1 MB';
 $lang['admin_lang_bbcode_phrases'] = 'Phrases for the BB-Code FAQ and for the BB-Code Interface.';
@@ -20,6 +34,7 @@ $lang['admin_lang_cannot_unpublish_until_defined_other'] = 'You can not unpublis
 $lang['admin_lang_cannot_unpublish_until_defined_other_lang'] = 'You can not unpublish this language until you have defined another default language.';
 $lang['admin_lang_changes_successful'] = 'Changes were successfully made';
 $lang['admin_lang_charset'] = 'Charset:';
+$lang['admin_lang_classes_phrases'] = 'Phrases used by some classes';
 $lang['admin_lang_code'] = 'Code';
 $lang['admin_lang_compatible_with'] = 'Compatible with version:';
 $lang['admin_lang_component'] = 'Component:';
@@ -110,12 +125,11 @@ $lang['admin_lang_last_activity_format'] = 'Format for last activity (for Who-is
 $lang['admin_lang_last_activity_format_info'] = 'Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a>';
 $lang['admin_lang_leave_blank_create_new_lang'] = 'Selecting a language here will cause the imported language to overwrite an existing language. Leave blank to create a new language.';
 $lang['admin_lang_ltr'] = 'ltr: From left to right';
-$lang['admin_lang_mailer_phrases'] = 'Phrases used by the email class';
-$lang['admin_lang_mails'] = 'E-mails';
-$lang['admin_lang_mail_contains_new_pw'] = 'E-mail containing new password (Step 2)';
 $lang['admin_lang_mailfile_help1'] = 'When inserting a custom mail, you may also specify the translations into whatever languages you have installed.';
 $lang['admin_lang_mailfile_help2'] = 'If you do leave a translation box (text or title) blank, it will inherit the text or title from the box above.';
 $lang['admin_lang_mailfile_text'] = 'Hello,'."\r\n\r\n".'You can compose your text here...'."\r\n\r\n".'Yours sincerely,'."\r\n".'Your {@config->fname} Team'."\r\n".'{@config->furl}';
+$lang['admin_lang_mails'] = 'E-mails';
+$lang['admin_lang_mail_contains_new_pw'] = 'E-mail containing new password (Step 2)';
 $lang['admin_lang_main_dir_langfiles'] = '(Main directory for language files)';
 $lang['admin_lang_message'] = 'Message:';
 $lang['admin_lang_name_new_langpack'] = 'Name for the new languagepack:';
@@ -175,7 +189,6 @@ $lang['admin_lang_terms_of_behaviour'] = 'Terms of behaviour';
 $lang['admin_lang_text'] = 'Text:';
 $lang['admin_lang_text_templates'] = 'Text Templates:';
 $lang['admin_lang_thousand_seperator'] = 'Thousand seperator:';
-$lang['admin_lang_thumbnail_phrases'] = 'Phrases used by the thumbnail class';
 $lang['admin_lang_title'] = 'Title:';
 $lang['admin_lang_today_yesterday_format'] = 'Format, that is used after "Today" and "Yesterday":';
 $lang['admin_lang_today_yesterday_format_info'] = 'Only if it is activated above! For contribitions, last visit etc. Abbreviation according to the PHP-function: date(). Further information: <a target="_blank" href="http://www.php.net/manual-lookup.php?function=date">PHP: date()</a>';

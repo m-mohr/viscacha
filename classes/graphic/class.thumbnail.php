@@ -10,7 +10,7 @@ function thumbnail () {
     ImageTypes();
 
 	$lang = new lang();
-    $lang->group("thumbnail.class");
+    $lang->group("classes");
     $this->lang = $lang->return_array();
 
     $this->path = '';

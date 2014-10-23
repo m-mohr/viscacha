@@ -35,6 +35,28 @@ acronym {
 	border-bottom: 1px dotted #8B8060;
 	cursor: help;
 }
+.tooltip {
+	left: -1000px;
+	top: -1000px;
+	visibility: hidden;
+	position: absolute;
+	max-width: 300px;
+	max-height: 300px;
+	overflow: auto;
+	border: 1px solid #336699;
+	background-color: #ffffff;
+	font-size: 8pt;
+}
+.tooltip_header {
+	display: block;
+	background-color: #E1E8EF;
+	color: #24486C;
+	padding: 3px;
+	border-bottom: 1px solid #839FBC;
+}
+.tooltip_body {
+	padding: 3px;
+}
 img {
 	vertical-align: middle;
 	border: 0px;

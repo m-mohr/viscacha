@@ -263,7 +263,7 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
 
 	$row = $gpc->prepare($db->fetch_assoc($result));
-	if ($row[$_GET['type']] == NULL || $row[$_GET['type']] == '') {
+	if (empty($row[$_GET['type']])) {
 		$error[] = $lang->phrase('im_no_data');
 	}
 
@@ -326,7 +326,7 @@ elseif ($is_member) {
 	echo $tpl->parse("menu");
 
 	if ($db->num_rows($result) == 1) {
-		$row = $gpc->prepare($db->fetch_object($result));
+		$row = $slog->cleanUserData($db->fetch_object($result));
 
 		$days2 = null;
 		if ($config['showpostcounter'] == 1) {
@@ -342,8 +342,13 @@ elseif ($is_member) {
 		$row->p = $slog->Permissions(0,$row->groups, true);
 		$row->level = $slog->getStatus($row->groups);
 
-		$row->regdate = gmdate($lang->phrase('dformat2'),times($row->regdate));
-		$row->lastvisit = str_date($lang->phrase('dformat1'),times($row->lastvisit));
+		$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
+		if ($row->lastvisit > 0) {
+			$row->lastvisit = str_date($lang->phrase('dformat1'), times($row->lastvisit));
+		}
+		else {
+			$row->lastvisit = $lang->phrase('profile_never');
+		}
 
 		$vcard = ($config['vcard_dl'] == 1 && ((!$my->vlogin && $config['vcard_dl_guests'] == 1) || $my->vlogin));
 

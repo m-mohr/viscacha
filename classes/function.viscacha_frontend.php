@@ -53,7 +53,7 @@ function getRedirectURL($standard = true) {
 		$parts = explode('?', $file, 2);
 		$file = $parts[0];
 	}
-	if (empty($loc) || !file_exists($file) || $file == 'log.php') {
+	if (empty($loc) || !file_exists($file) || $file == 'log.php' || $file == 'register.php') {
 		if ($standard == true) {
 			$loc = 'index.php';
  		}
@@ -418,7 +418,7 @@ function SubStats($rtopics, $rreplys, $rid, $cat_cache,$bids=array()) {
 
 
 function BoardSelect($board = 0) {
-	global $config, $my, $tpl, $db, $gpc, $lang, $scache, $plugins;
+	global $config, $my, $tpl, $db, $gpc, $lang, $scache, $plugins, $slog;
 
 	$found = false;
 	$sub_cache = $forum_cache = $last_cache = $forums = $cat = array();
@@ -513,7 +513,7 @@ function BoardSelect($board = 0) {
     				$forum['l_topic'] = false;
     			}
     			else {
-    				if ((isset($my->mark['f'][$forum['id']]) && $my->mark['f'][$forum['id']] > $forum['l_date']) || $forum['l_date'] < $my->clv || $forum['topics'] < 1) {
+    				if ($slog->isForumRead($forum['id'], $forum['l_date']) || $forum['topics'] < 1) {
     					$forum['foldimg'] = $tpl->img('cat_open');
     				}
     				else {
@@ -522,7 +522,7 @@ function BoardSelect($board = 0) {
     				}
 		    		if (!empty($forum['l_topic'])) {
 		    			if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
-		    				$forum['l_topic'] = substr($forum['l_topic'], 0, $config['lasttopic_chars']);
+		    				$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
 		    				$forum['l_topic'] .= "...";
 		    			}
 		    			$forum['l_topic'] = $gpc->prepare($forum['l_topic']);
@@ -567,7 +567,7 @@ function BoardSelect($board = 0) {
 								}
 			    			}
 			    			else {
-			    				if ((isset($my->mark['f'][$sub_cache[$forum['id']][$i]['id']]) && $my->mark['f'][$sub_cache[$forum['id']][$i]['id']] > $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['l_date'] < $my->clv || $sub_cache[$forum['id']][$i]['topics'] < 1) {
+			    				if ($slog->isForumRead($sub_cache[$forum['id']][$i]['id'], $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['topics'] < 1) {
 			    					$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_open');
 			    				}
 			    				else {

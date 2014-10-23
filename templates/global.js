@@ -240,6 +240,9 @@ function ajax_markforumread(id, img, small) {
 				img.src = lng['ajax_markforumread'];
 			}
 		}
+		else {
+			// ToDo: Error (0=No Permission)
+		}
 	};
 	myConn.connect("ajax.php", "GET", "action=markforumread&id="+id+sidx+ieRand(), fnWhenDone);
 }

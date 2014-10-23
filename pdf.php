@@ -31,7 +31,6 @@ include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
 // PDF powered by FPDF (www.fpdf.org)
-define('FPDF_FONTPATH','classes/fpdf/font/');
 include('classes/fpdf/class.php');
 include('classes/fpdf/extension.php');
 
@@ -87,10 +86,10 @@ $start = $start-$last['topiczahl'];
 // Some speed optimisation
 $speeder = $info['posts']+1;
 if ($speeder > $last['topiczahl']) {
-	$searchsql = " LIMIT ".$start.",".$last['topiczahl'];
+	$searchsql = " LIMIT {$start},{$last['topiczahl']}";
 }
 else {
-	$searchsql = " LIMIT ".$speeder;
+	$searchsql = " LIMIT {$speeder}";
 }
 
 BBProfile($bbcode);
@@ -98,13 +97,13 @@ BBProfile($bbcode);
 $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
 $pdf = new PDF();
-$pdftitle = html_entity_decode($config['fname'].": ".$prefix.$info['topic']);
+$pdftitle = $prefix.$info['topic'];
 $pdf->SetCompression($config['pdfcompress']);
 $pdf->AliasNbPages('[Pages]');
 $pdf->SetCreator('Viscacha '.$config['version']);
 $pdf->SetAuthor($config['fname']);
-$pdf->SetSubject($prefix.$info['topic']);
-$pdf->SetTitle($prefix.$info['topic']);
+$pdf->SetSubject($pdftitle);
+$pdf->SetTitle($pdftitle);
 $pdf->AddPage();
 
 ($code = $plugins->load('pdf_start')) ? eval($code) : null;
@@ -123,7 +122,6 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 	FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id
 	WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id",__LINE__,__FILE__);
 	while ($row = $db->fetch_assoc($vresult)) {
-		$row['answer'] = $gpc->prepare($row['answer']);
 		$cachev[] = $row;
 		$votes += $row['votes'];
 		if (!isset($aids[$row['id']])) {
@@ -170,10 +168,12 @@ $result = $db->query("
 SELECT r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, r.email as gmail, r.guest
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}user AS u ON r.name=u.id
-WHERE r.topic_id = '{$info['id']}' {$searchsql}
+WHERE r.topic_id = '{$info['id']}'
+ORDER BY r.date ASC
+{$searchsql}
 ",__LINE__,__FILE__);
 
-while ($row = $db->fetch_object($result)) { // no $gpc->prepare for pdf
+while ($row = $db->fetch_object($result)) {
 	$inner['upload_box'] = '';
 
 	if ($row->guest == 0) {
@@ -194,12 +194,11 @@ while ($row = $db->fetch_object($result)) { // no $gpc->prepare for pdf
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}
-	$row->comment = html_entity_decode($bbcode->parse($row->comment, 'pdf'), ENT_QUOTES, $config['asia_charset']);
+	$row->comment = $bbcode->parse($row->comment, 'pdf');
 	$row->date = gmdate($lang->phrase('dformat1'), times($row->date));
-	$row->topic = html_entity_decode($row->topic, ENT_QUOTES, $config['asia_charset']);
 
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
-		$row->comment .= '<br><hr><b>'.$lang->phrase('pdf_attachments').'</b><br>';
+		$row->comment .= '<br><hr><b>'.$gpc->save_str($lang->phrase('pdf_attachments')).'</b>';
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
 
@@ -209,13 +208,13 @@ while ($row = $db->fetch_object($result)) { // no $gpc->prepare for pdf
 
 			($code = $plugins->load('pdf_attachments_prepared')) ? eval($code) : null;
 			// Ausgabe
-			$row->comment .= '<a href="'.$config['furl'].'/misc.php?action=attachment&id='.$file['id'].'">'.$file['file'].'</a> '.$lang->phrase('pdf_attachments_filesize').'<br>';
+			$row->comment .= '<br><a href="'.$config['furl'].'/misc.php?action=attachment&id='.$file['id'].'">'.$file['file'].'</a> '.$gpc->save_str($lang->phrase('pdf_attachments_filesize'));
 		}
 	}
 
 	($code = $plugins->load('pdf_entry_prepared')) ? eval($code) : null;
 	$pdf->Bookmark($row->topic, 0, -1);
-	$pdf->PrintTopic($row->topic, $lang->phrase('pdf_postinfo'), $row->comment);
+	$pdf->PrintTopic($row->topic, $pdf->unhtmlentities($lang->phrase('pdf_postinfo')), $row->comment);
 }
 
 ($code = $plugins->load('pdf_prepared')) ? eval($code) : null;

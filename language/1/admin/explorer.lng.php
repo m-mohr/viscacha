@@ -22,6 +22,7 @@ $lang['admin_explorer_create_new_directory'] = 'Neues Verzeichnis erstellen';
 $lang['admin_explorer_delete_x'] = 'Löschen';
 $lang['admin_explorer_directories'] = 'Verzeichnisse';
 $lang['admin_explorer_directory'] = 'Verzeichnis';
+$lang['admin_explorer_directory_x'] = 'Verzeichnis: ';
 $lang['admin_explorer_edit_a_file'] = 'Eine Datei ändern';
 $lang['admin_explorer_edit_content'] = 'Inhalt:';
 $lang['admin_explorer_extract_an_compressed_archive'] = 'Ein komprimiertes Archiv entpacken';

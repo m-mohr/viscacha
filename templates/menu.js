@@ -67,8 +67,8 @@ function GetCookie(n) {
 function KillCookie(n) {
 	document.cookie = n+'=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
 }
-// ============================
-var MenuTimeout = 1000;
+// === Not compatible with opera? ===
+var MenuTimeout = 500;
 var active = 0;
 var MenuCountHide = 0;
 function GetLeft(l) {
@@ -83,16 +83,18 @@ function TryHideMenu(menu,CountHide) {
 	if (CountHide != MenuCountHide) {
 		return;
 	}
-	HideMenu(menu);
+	Hide(menu);
 }
-function MenuEvent(active) {
+function MenuEvent() {
 	var elementevent = FetchElement("popup_"+active);
-	elementevent.onmouseover = function() {
-        	MenuCountHide++;
-	}
-	elementevent.onmouseout = function() {
-		setTimeout("TryHideMenu('" + active + "', " + MenuCountHide + ")", MenuTimeout);
-	}
+	elementevent.onmouseover = elemMouseOver;
+	elementevent.onmouseout = elemMouseOut;
+}
+function elemMouseOver() {
+	MenuCountHide++;
+}
+function elemMouseOut() {
+	setTimeout("TryHideMenu('" + active + "', " + MenuCountHide + ")", MenuTimeout);
 }
 function ShowMenu(id) {
 	if(active != 0) {
@@ -100,7 +102,7 @@ function ShowMenu(id) {
 			HideMenu(active);
     	}
 		else {
-			HideMenu(active);
+			Hide(active);
 			ShowMenu(id);
 		}
 	}
@@ -128,7 +130,7 @@ function ShowMenu(id) {
 			elementmenu.style.overflow = 'auto';
 		}
 		active = id;
-		MenuEvent(active);
+		MenuEvent();
 	}
 }
 function HideMenu(menu) {
@@ -148,10 +150,14 @@ function Click() {
 	return false;
 }
 function Swap() {
-	id = this.id.replace("menu_","")
+	id = this.id.replace("menu_","");
+	elemMouseOver();
 	if (active != 0 && active != id) {
 		HideMenu(active);
 		ShowMenu(id);
+	}
+	else {
+		this.onmouseout = elemMouseOut;
 	}
 }
 function Hide() {
@@ -171,4 +177,39 @@ function RegisterMenu(id) {
 }
 function Link() {
 	return false;
+}
+
+
+function RegisterTooltip(id) {
+	id = "tooltip_"+id
+	var buttonregister = FetchElement("menu_"+id);
+	if(buttonregister) {
+		buttonregister.onmouseover = ShowTooltip;
+		window.onresize = Hide;
+
+		if (typeof buttonregister.title != 'undefined' && buttonregister.title.length > 0) {
+			element = FetchElement("header_"+id);
+			if (typeof element != 'undefined' && element != null) {
+				element.innerHTML = buttonregister.title;
+				element.className = 'tooltip_header';
+			}
+			buttonregister.title = '';
+		}
+
+		if (active != 0 && active != id) {
+			HideMenu(active);
+		}
+		ShowMenu(id);
+	}
+}
+function ShowTooltip() {
+	id = this.id.replace("menu_","");
+	elemMouseOver();
+	if (active != 0 && active != id) {
+		HideMenu(active);
+	}
+	else {
+		this.onmouseout = elemMouseOut;
+	}
+	ShowMenu(id);
 }

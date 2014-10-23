@@ -354,75 +354,41 @@ class uploader {
 			return false;
 		}
 
-		global $lang;
+		$lang = new lang();
+		$lang->group("classes");
 
-		if (is_object($lang) && method_exists($lang, 'group_is_loaded') == true && $lang->group_is_loaded('global') == true) {
-			switch($this->error) {
-				case UPLOAD_ERR_FILE_INDEX:
-					$message = $lang->phrase('upload_error_noupload');
-				break;
-				case UPLOAD_ERR_FILE_SIZE:
-					$lang->assign('mfs', formatFilesize($this->max_filesize));
-					$message = $lang->phrase('upload_error_maxfilesize');
-				break;
-				case UPLOAD_ERR_IMAGE_WIDTH:
-				case UPLOAD_ERR_IMAGE_HEIGHT:
-					$lang->assign('mih', $this->max_image_height > 0 ? numbers($this->max_image_height) : $lang->phrase('upload_unspecified'));
-					$lang->assign('miw', $this->max_image_width > 0 ? numbers($this->max_image_width) : $lang->phrase('upload_unspecified'));
-					$message = $lang->phrase('upload_error_maximagesize');
-				break;
-				case UPLOAD_ERR_FILE_TYPE:
-					$lang->assign('aft', implode($lang->phrase('listspacer'), $this->file_types));
-					$message = $lang->phrase('upload_error_wrongfiletype');
-				break;
-				case UPLOAD_ERR_COPY:
-					$message = $lang->phrase('upload_error_noaccess');
-				break;
-				case UPLOAD_ERR_FILE_EXISTS:
-					$message = $lang->phrase('upload_error_fileexists');
-				break;
-				default:
-					$message = $lang->phrase('upload_error_default');
-			}
-			if (!empty($this->file['name'])) {
-				return "{$this->file['name']}: {$message}";
-			}
-			else {
-				return $message;
-			}
+		switch($this->error) {
+			case UPLOAD_ERR_FILE_INDEX:
+				$message = $lang->phrase('upload_error_noupload');
+			break;
+			case UPLOAD_ERR_FILE_SIZE:
+				$lang->assign('mfs', formatFilesize($this->max_filesize));
+				$message = $lang->phrase('upload_error_maxfilesize');
+			break;
+			case UPLOAD_ERR_IMAGE_WIDTH:
+			case UPLOAD_ERR_IMAGE_HEIGHT:
+				$lang->assign('mih', $this->max_image_height > 0 ? numbers($this->max_image_height) : $lang->phrase('upload_unspecified'));
+				$lang->assign('miw', $this->max_image_width > 0 ? numbers($this->max_image_width) : $lang->phrase('upload_unspecified'));
+				$message = $lang->phrase('upload_error_maximagesize');
+			break;
+			case UPLOAD_ERR_FILE_TYPE:
+				$lang->assign('aft', implode($lang->phrase('listspacer'), $this->file_types));
+				$message = $lang->phrase('upload_error_wrongfiletype');
+			break;
+			case UPLOAD_ERR_COPY:
+				$message = $lang->phrase('upload_error_noaccess');
+			break;
+			case UPLOAD_ERR_FILE_EXISTS:
+				$message = $lang->phrase('upload_error_fileexists');
+			break;
+			default:
+				$message = $lang->phrase('upload_error_default');
 		}
-		else{
-			switch($this->error) {
-				case UPLOAD_ERR_FILE_INDEX:
-					$message = 'No file has been uploaded.';
-				break;
-				case UPLOAD_ERR_FILE_SIZE:
-					$message = 'Max. filesize reached. The file is not allowed to be bigger than '.formatFilesize($this->max_filesize).'.';
-				break;
-				case UPLOAD_ERR_IMAGE_WIDTH:
-				case UPLOAD_ERR_IMAGE_HEIGHT:
-					$mih = $this->max_image_height > 0 ? numbers($this->max_image_height) : 'any';
-					$miw = $this->max_image_width > 0 ? numbers($this->max_image_width) : 'any';
-					$message = "Max. imagesize reached. Image is not allowed to be greater than {$miw} x {$mih} pixels.";
-				break;
-				case UPLOAD_ERR_FILE_TYPE:
-					$message = 'Only '.implode(', ', $this->file_types).' files are allowed to be uploaded.';
-				break;
-				case UPLOAD_ERR_COPY:
-					$message = 'Access denied. Could not copy file.';
-				break;
-				case UPLOAD_ERR_FILE_EXISTS:
-					$message = 'File already exists.';
-				break;
-				default:
-					$message = 'An unknown error occured while uploading.';
-			}
-			if (!empty($this->file['name'])) {
-				return "{$this->file['name']}: {$message}";
-			}
-			else {
-				return $message;
-			}
+		if (!empty($this->file['name'])) {
+			return "{$this->file['name']}: {$message}";
+		}
+		else {
+			return $message;
 		}
 	}
 

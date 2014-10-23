@@ -2,17 +2,20 @@
 <div class="border">
 <h3><?php echo $lang->phrase('admin_topics_status'); ?></h3>
 <div class="bbody center">
-	<select size="1" name="temp">
-		<option value="0" selected="selected"><?php echo $lang->phrase('ats_choose'); ?></option>
-		<?php if (!empty($info['mark'])) { ?>
-		<option value="9"><?php echo $lang->phrase('ats_select9'); ?></option>
+		<select size="1" name="temp">
+		<option<?php echo iif(empty($last['auto_status']),
+						' value="0"'.iif(empty($info['mark']), ' selected="selected"'),
+						' value="9"'.iif($info['mark'] === '', ' selected="selected"')
+					); ?>><?php echo $lang->phrase('ats_choose'); ?></option>
+		<?php if (!empty($last['auto_status'])) { ?>
+		<option value="0"<?php echo iif($info['mark'] === null,' selected="selected"'); ?>><?php echo $lang->phrase('ats_choose_standard_'.$last['auto_status']); ?></option>
 		<?php } if ($my->mp[0] == 1 && $my->mp[1] == 1) { ?>
-		<option value="1"<?php echo iif($info['mark'] == 'g','  selected="selected"'); ?>><?php echo $lang->phrase('ats_select1'); ?></option>
-		<option value="2"<?php echo iif($info['mark'] == 'b','  selected="selected"'); ?>><?php echo $lang->phrase('ats_select2'); ?></option>
+		<option value="1"<?php echo iif($info['mark'] == 'g',' selected="selected"'); ?>><?php echo $lang->phrase('ats_select1'); ?></option>
+		<option value="2"<?php echo iif($info['mark'] == 'b',' selected="selected"'); ?>><?php echo $lang->phrase('ats_select2'); ?></option>
 		<?php } if ($my->mp[0] == 1 && $my->mp[3] == 1) { ?>
-		<option value="3"<?php echo iif($info['mark'] == 'a','  selected="selected"'); ?>><?php echo $lang->phrase('ats_select3'); ?></option>
+		<option value="3"<?php echo iif($info['mark'] == 'a',' selected="selected"'); ?>><?php echo $lang->phrase('ats_select3'); ?></option>
 		<?php } if ($my->mp[0] == 1 && $my->mp[2] == 1) { ?>
-		<option value="4"<?php echo iif($info['mark'] == 'n','  selected="selected"'); ?>><?php echo $lang->phrase('ats_select4'); ?></option>
+		<option value="4"<?php echo iif($info['mark'] == 'n',' selected="selected"'); ?>><?php echo $lang->phrase('ats_select4'); ?></option>
 		<?php } ?>
 	</select>
 </div>

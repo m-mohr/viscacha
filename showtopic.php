@@ -69,7 +69,7 @@ if ($last['topiczahl'] < 1) {
 }
 
 $q = urldecode($gpc->get('q', str));
-if (strlen($q) > 2) {
+if (strxlen($q) > 2) {
 	$qUrl = '&q='.urlencode($q);
 }
 else {
@@ -432,21 +432,7 @@ else {
 ($code = $plugins->load('showtopic_prepared')) ? eval($code) : null;
 echo $tpl->parse("showtopic/index");
 
-$my->mark['t'][$info['id']] = time();
-
-// Erstelle ein Array mit schon gelesenen Beiträgen
-$keys = array();
-while (list($key, $val) = each ($my->mark['t'])) {
-   $keys[] = $key;
-}
-$inkeys = implode(",",$keys);
-foreach ($topforums as $tf) {
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE board = "'.$tf.'" AND last > "'.$my->clv.'" AND id NOT IN('.$inkeys.')',__LINE__,__FILE__);
-	$row = $db->fetch_num($result);
-	if ($row[0] == 0) {
-		$my->mark['f'][$tf] = time();
-	}
-}
+$slog->setTopicRead($info['id'], $topforums);
 
 ($code = $plugins->load('showtopic_end')) ? eval($code) : null;
 

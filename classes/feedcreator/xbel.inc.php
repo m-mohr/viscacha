@@ -7,7 +7,7 @@
 + * @author Kimmo Suominen <kim@tac.nyc.ny.us>
 + */
 class XBEL extends FeedCreator {
-	
+
 	function createFeed() {
 		$feed = "<?xml version=\"1.0\" encoding=\"".$this->encoding."\"?>\n";
 		$feed.= "<!DOCTYPE xbel PUBLIC\n";
@@ -16,15 +16,15 @@ class XBEL extends FeedCreator {
 		$feed.= $this->_createGeneratorComment();
 		$feed.= '<xbel version="1.0"';
 		$now = new FeedDate();
-		$feed.= ' added="'.htmlspecialchars($now->iso8601()).'"';
+		$feed.= ' added="'.FeedCreator::htmlspecialchars($now->iso8601()).'"';
 		if ($this->language!="") {
 			$feed.= " xml:lang=\"".$this->language."\"";
 		}
 		$feed.= ">\n";
 		if ($this->title != "") {
 			$feed.= "  <folder>\n";
-			$feed.= "    <title>".htmlspecialchars($this->title)."</title>\n";
-			$feed.= "    <desc>".htmlspecialchars($this->description)."</desc>\n";
+			$feed.= "    <title>".FeedCreator::htmlspecialchars($this->title)."</title>\n";
+			$feed.= "    <desc>".FeedCreator::htmlspecialchars($this->description)."</desc>\n";
 		}
 		$feed.= $this->_createAdditionalElements($this->additionalElements, "    ");
 		$ocat = '';
@@ -36,7 +36,7 @@ class XBEL extends FeedCreator {
 				$ocat = $this->items[$i]->category;
 				if ($ocat != '') {
 					$feed.= "    <folder>\n";
-					$feed.= "      <title>".htmlspecialchars(strip_tags($ocat))."</title>\n";
+					$feed.= "      <title>".FeedCreator::htmlspecialchars(strip_tags($ocat))."</title>\n";
 				}
 			}
 			if (preg_match('/^-+$/', $this->items[$i]->title)) {
@@ -44,17 +44,17 @@ class XBEL extends FeedCreator {
 				continue;
 			}
 			$feed.= '      <bookmark';
-			$feed.= ' href="'.htmlspecialchars($this->items[$i]->link).'"';
+			$feed.= ' href="'.FeedCreator::htmlspecialchars($this->items[$i]->link).'"';
 			if ($this->items[$i]->date == "") {
 				$itemDate = $now;
 			} else {
 				$itemDate = new FeedDate($this->items[$i]->date);
 			}
-			$feed.= ' added="'.htmlspecialchars($itemDate->iso8601()).'"';
+			$feed.= ' added="'.FeedCreator::htmlspecialchars($itemDate->iso8601()).'"';
 			$feed.= ">\n";
-			$feed.= "        <title>".htmlspecialchars(strip_tags($this->items[$i]->title))."</title>\n";
+			$feed.= "        <title>".FeedCreator::htmlspecialchars(strip_tags($this->items[$i]->title))."</title>\n";
 			if ($this->items[$i]->description!="") {
-				$feed.= "        <desc>".htmlspecialchars($this->items[$i]->description)."</desc>\n";
+				$feed.= "        <desc>".FeedCreator::htmlspecialchars($this->items[$i]->description)."</desc>\n";
 			}
 			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "        ");
 			$feed.= "      </bookmark>\n";

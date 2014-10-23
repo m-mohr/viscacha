@@ -43,13 +43,16 @@ function dir_array($dir, $chop = false) {
 
 function return_array($group, $id) {
 	$file = "language/{$id}/{$group}.lng.php";
+	return arrayFromFile($file);
+}
+function arrayFromFile($file, $varname = 'lang') {
 	if (file_exists($file)) {
 		include($file);
 	}
-	if (!isset($lang) || !is_array($lang)) {
-		$lang = array();
+	if (!isset($$varname) || !is_array($$varname)) {
+		$$varname = array();
 	}
-	return $lang;
+	return $$varname;
 }
 
 function createParentDir($parentfile, $path) {

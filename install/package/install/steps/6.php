@@ -14,6 +14,8 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('fpath',str);
 	$c->updateconfig('forenmail',str);
 	$c->updateconfig('cookie_prefix',str);
+	$c->updateconfig('langdir', int);
+	$langdir = $c->data['langdir'];
 	if (empty($c->data['cryptkey']) == true) {
 		$c->updateconfig('cryptkey',str,md5(microtime()));
 	}
@@ -23,6 +25,11 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 		$c->updateconfig('pccron_sendlog_email',str,$c->data['forenmail']);
 	}
 	$c->savedata();
+
+	$c->getdata('../admin/data/config.inc.php', 'admconfig');
+	$c->updateconfig('default_language', int, 0);
+	$c->savedata();
+
 ?>
 <div class="bfoot center">Basic Settings saved!</div>
 <?php

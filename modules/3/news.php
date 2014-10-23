@@ -9,7 +9,7 @@ FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id
 	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
-WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark = '')) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
+WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark IS NULL)) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
 ORDER BY r.date DESC
 LIMIT 0,{$config['viscacha_news_boxes']['items']}"
 ,__LINE__,__FILE__);
@@ -30,21 +30,21 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 	$row['read_more'] = false;
 	$pos = stripos($row['comment'], $cutat);
 	if ($pos !== false) {
-		$row['comment'] = substr($row['comment'], 0, $pos);
+		$row['comment'] = subxstr($row['comment'], 0, $pos);
 		$row['comment'] = rtrim($row['comment'], "\r\n").$lang->phrase('dot_more');
 		$row['read_more'] = true;
 	}
 	else {
 		// IntelliCut - Start
 		$stack = array();
-		if (strlen($row['comment']) > $teaserlength) {
+		if (strxlen($row['comment']) > $teaserlength) {
 			$culance = $teaserlength*0.1;
 			$teaserlength -= $culance;
 			$maxlength = $teaserlength+(2*$culance);
 			if ($intelliCut && preg_match("/[\.!\?]+[\s\r\n]+/", $row['comment'], $matches, PREG_OFFSET_CAPTURE, $teaserlength)) {
 				$pos = $matches[0][1];
 				if ($maxlength > $pos) {
-					$row['comment'] = substr($row['comment'], 0, $pos+2);
+					$row['comment'] = subxstr($row['comment'], 0, $pos+2);
 					$row['comment'] = rtrim($row['comment'], "\r\n").$lang->phrase('dot_more');
 					$row['read_more'] = true;
 				}
@@ -57,7 +57,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 						$pos = $newpos;
 					}
 				}
-				$row['comment'] = substr($row['comment'], 0, $pos).$lang->phrase('dot_more');
+				$row['comment'] = subxstr($row['comment'], 0, $pos).$lang->phrase('dot_more');
 				$row['read_more'] = true;
 			}
 			$token = preg_split('/(\[[^\/\r\n\[\]]+?\]|\[\/[^\/\s\r\n\[\]]+?\])/', $row['comment'], -1, PREG_SPLIT_DELIM_CAPTURE);

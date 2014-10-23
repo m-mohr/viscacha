@@ -121,7 +121,10 @@
 <hr class="formsep" />
 <label for="close"><?php echo $lang->phrase('admin_addpost_status'); ?></label>
 <select class="label" size="1" name="status" id="status">
-	<option value="0" selected="selected"><?php echo $lang->phrase('ats_choose').iif(!empty($last['auto_status']), $lang->phrase('ats_choose_standard_'.$last['auto_status'])); ?></option>
+	<option<?php echo iif(empty($last['auto_status']), ' value="0" selected="selected"', ' value="9"'); ?>><?php echo $lang->phrase('ats_choose'); ?></option>
+	<?php if (!empty($last['auto_status'])) { ?>
+	<option value="0" selected="selected"><?php echo $lang->phrase('ats_choose_standard_'.$last['auto_status']); ?></option>
+	<?php } ?>
 	<?php if ($my->mp[0] == 1 && $my->mp[3] == 1) { ?>
 	<option value="1"><?php echo $lang->phrase('ats_select3'); ?></option>
 	<?php } if ($my->mp[0] == 1 && $my->mp[2] == 1) { ?>

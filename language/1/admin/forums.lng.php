@@ -26,6 +26,7 @@ $lang['admin_forum_cat_not_found'] = 'Kategorie nicht gefunden!';
 $lang['admin_forum_copy_permissions'] = 'Kopiere Rechte von:';
 $lang['admin_forum_count_posts_user_post'] = 'Zähle in diesem Forum geschriebene Beiträge zum Benutzer-Beitragszähler hinzu:';
 $lang['admin_forum_day'] = 'Tag:';
+$lang['admin_forum_default'] = 'Standard';
 $lang['admin_forum_default_value'] = '0 = Benutze Standardwert';
 $lang['admin_forum_delete'] = 'Löschen';
 $lang['admin_forum_delete_all_subforums'] = 'Bevor Sie diese Kategorie löschen können, müssen Sie alle Unterforen löschen.';

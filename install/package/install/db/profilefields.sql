@@ -1,6 +1,6 @@
 CREATE TABLE `{:=DBPREFIX=:}profilefields` (
   `fid` smallint(5) unsigned NOT NULL auto_increment,
-  `name` varchar(100) NOT NULL default '',
+  `name` varchar(200) NOT NULL default '',
   `description` text NOT NULL,
   `disporder` smallint(5) unsigned NOT NULL default '0',
   `type` text NOT NULL,

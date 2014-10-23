@@ -1,11 +1,11 @@
 <mail>
-	<title>{@config->fname}: Thema "{@old->topic}" wurde verschoben</title>
+	<title>{@config->fname}: Thema &quot;{@old->topic}&quot; wurde verschoben</title>
 	<comment>Hallo {@old->name},
 
-das von Ihnen gestartete Thema "{@old->topic}" wurde soeben verschoben. Sie finden es nun unter: 
+das von Ihnen gestartete Thema &quot;{@old->topic}&quot; wurde soeben verschoben. Sie finden es nun unter: 
 {@config->furl}/showtopic.php?id={$id}
 
-Mit freundlichen Grüßen,
+Mit freundlichen Gr&uuml;&szlig;en,
 Ihr {@config->fname} Team
 {@config->furl}</comment>
 </mail>

@@ -773,7 +773,7 @@ elseif ($job == 'forum_add') {
    <td class="mbox"><?php echo $lang->phrase('admin_forum_copy_permissions'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_info_permissions_copy'); ?> (<em><?php echo $lang->phrase('admin_forum_experimental'); ?></em>)</span></td>
    <td class="mbox">
 	<select name="copypermissions" size="1">
-   	 <option value="0" selected="selected">Default</option>
+   	 <option value="0" selected="selected"><?php echo $lang->phrase('admin_forum_default'); ?></option>
    	 <?php echo SelectBoardStructure('copypermissions', ADMIN_SELECT_FORUMS, null, true); ?>
    	</select>
    </td>
@@ -1034,7 +1034,7 @@ elseif ($job == 'rights') {
 	echo head();
 	$id = $gpc->get('id', int);
 	if ($id == 0) {
-		error('admin.pgp?action=forums&job=manage', 'Forum not found');
+		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
 	$result = $db->query("SELECT f.*, g.name, g.title, g.guest, g.core FROM {$db->pre}fgroups AS f LEFT JOIN {$db->pre}groups AS g ON g.id = f.gid WHERE f.bid = '{$id}' ORDER BY f.gid", __LINE__, __FILE__);
 	$cache = array();
@@ -1119,7 +1119,7 @@ elseif ($job == 'rights_add') {
 	echo head();
 	$id = $gpc->get('id', int);
 	if ($id == 0) {
-		error('admin.pgp?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
+		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
 	$result = $db->query("SELECT id, name FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC", __LINE__, __FILE__);
 	$result2 = $db->query("SELECT gid FROM {$db->pre}fgroups WHERE bid = '{$id}'", __LINE__, __FILE__);
@@ -1217,7 +1217,7 @@ elseif ($job == 'rights_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
 	if (!is_id($id)) {
-		error('admin.pgp?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
+		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
 	$did = $gpc->get('delete', arr_int);
 	if (count($did) > 0) {
@@ -1345,7 +1345,7 @@ elseif ($job == 'cat_edit') {
 
 	$result = $db->query("SELECT id, name, description, parent FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 	if ($db->num_rows($result) == 0) {
-		error('admin.pgp?action=forums&job=manage', $lang->phrase('admin_forum_cat_not_found'));
+		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_cat_not_found'));
 	}
 	$row = $gpc->prepare($db->fetch_assoc($result));
 	?>

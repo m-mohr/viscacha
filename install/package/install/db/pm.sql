@@ -1,6 +1,6 @@
 CREATE TABLE `{:=DBPREFIX=:}pm` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `topic` varchar(255) NOT NULL default '',
+  `topic` text NOT NULL,
   `pm_from` mediumint(7) unsigned NOT NULL default '0',
   `pm_to` mediumint(7) unsigned NOT NULL default '0',
   `comment` mediumtext NOT NULL,

@@ -15,6 +15,9 @@
 #popup_bbsmileys {
 	overflow: scroll;
 }
+* html .tooltip {
+	width: 300px;
+}
 * html .border {
 	width: 100%;
 }

@@ -174,9 +174,9 @@ class FeedHtmlField {
 			$result = "<![CDATA[".$this->rawFieldContent."]]>";
 		} else {
 			if ($this->truncSize and is_int($this->truncSize)) {
-				$result = FeedCreator::iTrunc(htmlspecialchars($this->rawFieldContent),$this->truncSize);
+				$result = FeedCreator::iTrunc(FeedCreator::htmlspecialchars($this->rawFieldContent),$this->truncSize);
 			} else {
-				$result = htmlspecialchars($this->rawFieldContent);
+				$result = FeedCreator::htmlspecialchars($this->rawFieldContent);
 			}
 		}
 		return $result;
@@ -375,32 +375,35 @@ class FeedCreator extends HtmlDescribable {
 	 * @return string    the truncated string
 	 */
 	function iTrunc($string, $length) {
-		if (strlen($string)<=$length) {
+		if (strxlen($string)<=$length) {
 			return $string;
 		}
 
 		$pos = strrpos($string,".");
-		if ($pos>=$length-4) {
+		if ($pos !== false && $pos >= $length-4) {
 			$string = substr($string,0,$length-4);
 			$pos = strrpos($string,".");
 		}
-		if ($pos>=$length*0.4) {
+		if ($pos !== false && $pos >= $length*0.4) {
 			return substr($string,0,$pos+1)." ...";
 		}
 
 		$pos = strrpos($string," ");
-		if ($pos>=$length-4) {
+		if ($pos !== false && $pos >= $length-4) {
 			$string = substr($string,0,$length-4);
 			$pos = strrpos($string," ");
 		}
-		if ($pos>=$length*0.4) {
+		if ($pos !== false && $pos >= $length*0.4) {
 			return substr($string,0,$pos)." ...";
 		}
 
-		return substr($string,0,$length-4)." ...";
-
+		return subxstr($string,0,$length-4)." ...";
 	}
 
+	function htmlspecialchars($content) {
+		$content = str_replace(array('<', '>', '"'), array('&lt;', '&gt;', '&quot;'), $content);
+		return $content;
+	}
 
 	/**
 	 * Creates a comment indicating the generator of this feed.
@@ -517,16 +520,9 @@ class FeedCreator extends HtmlDescribable {
 		if ($filename=="") {
 			$filename = $this->_generateFilename();
 		}
-		$feedFile = @fopen($filename, "w");
-		if (is_resource($feedFile)) {
-			fputs($feedFile,$this->createFeed());
-			fclose($feedFile);
-			$filesystem->chmod($filename, 0666);
-			$this->_redirect($filename, $displayContents);
-		}
-		else {
-			trigger_error('Error creating feed file, please check write permissions.', E_USER_ERROR);
-		}
+		$filesystem->file_put_contents($filename, $this->createFeed());
+		$filesystem->chmod($filename, 0666);
+		$this->_redirect($filename, $displayContents);
 	}
 
 }
@@ -546,7 +542,7 @@ class FeedDate {
 	 */
 	function FeedDate($dateString="") {
 		if ($dateString=="") {
-			$dateString = dateSpec(SPEC_RFC2822);
+			$dateString = dateSpec(SPEC_RFC822);
 		}
 
 		if (intval($dateString) == $dateString) {

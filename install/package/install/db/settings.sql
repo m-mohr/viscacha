@@ -1,6 +1,6 @@
 CREATE TABLE `{:=DBPREFIX=:}settings` (
   `name` varchar(120) NOT NULL default '',
-  `title` varchar(150) NOT NULL default '',
+  `title` varchar(255) NOT NULL default '',
   `description` text NOT NULL,
   `type` enum('text','textarea','select','checkbox') NOT NULL default 'text',
   `optionscode` text NOT NULL ,
@@ -9,7 +9,7 @@ CREATE TABLE `{:=DBPREFIX=:}settings` (
   UNIQUE KEY `title` (`title`,`sgroup`)
 ) TYPE=MyISAM;
 
-INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `optionscode`, `value`, `sgroup`) VALUES 
+INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `optionscode`, `value`, `sgroup`) VALUES
 ('relatednum', 'Maximum number of similar topics', 'The maximum number of related topics that will be shown per topic.', 'text', '', '5', 1),
 ('hide_empty', 'Hide empty box', 'Hide the box if no related topic is found', 'checkbox', '', '1', 1),
 ('items', 'Number of news', 'Number of news shown on the frontpage', 'text', '', '5', 2),

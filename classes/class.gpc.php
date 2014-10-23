@@ -26,7 +26,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class GPC {
 
-    function GPC() {
+	var $prepare_original;
+	var $prepare_entity;
+
+	function GPC() {
 		if (!defined('str')) {
 			define('str', 2);
 		}
@@ -45,176 +48,173 @@ class GPC {
 		if (!defined('arr_none')) {
 			define('arr_none', 3);
 		}
-    }
+		$this->prepare_original = array('"', "'", '<', '>');
+		$this->prepare_entity = array('&quot;', '&#039;', '&lt;', '&gt;');
+		$this->php523 = version_compare(PHP_VERSION, '5.2.3', '>=');
+	}
 
-    function get($index, $type = none, $standard = NULL) {
-        if (isset($_REQUEST[$index])) {
-            if ($type == str || $type == arr_str) {
+	function get($index, $type = none, $standard = NULL) {
+		if (isset($_REQUEST[$index])) {
+			if ($type == str || $type == arr_str) {
 				if ($type == str) {
 					$_REQUEST[$index] = trim($_REQUEST[$index]);
 				}
-                $var = $this->save_str($_REQUEST[$index]);
-            }
-            elseif ($type == int || $type == arr_int) {
-                $var = $this->save_int($_REQUEST[$index]);
-            }
-            else {
-                $var = $_REQUEST[$index];
-            }
-        }
-        else {
-        	if ($standard == NULL) {
-            	if ($type == str) {
-            	    $var = '';
-            	}
-            	elseif ($type == int) {
-            	    $var = 0;
-            	}
-            	elseif ($type == arr_int || $type == arr_str || $type == arr_none) {
-            	    $var = array();
-            	}
-            	else {
-            	    $var = NULL;
-            	}
-            }
-            else {
-            	$var = $standard;
-            }
-        }
+				$var = $this->save_str($_REQUEST[$index]);
+			}
+			elseif ($type == int || $type == arr_int) {
+				$var = $this->save_int($_REQUEST[$index]);
+			}
+			else {
+				$var = $this->secure_null($_REQUEST[$index]);
+			}
+		}
+		else {
+			if ($standard === null) {
+				if ($type == str) {
+					$var = '';
+				}
+				elseif ($type == int) {
+					$var = 0;
+				}
+				elseif ($type == arr_int || $type == arr_str || $type == arr_none) {
+					$var = array();
+				}
+				else {
+					$var = null;
+				}
+			}
+			else {
+				$var = $standard;
+			}
+		}
 
-        return $var;
-    }
+		return $var;
+	}
 
-    function prepare($var) {
-    	global $config;
-    	if (is_numeric($var) || empty($var)) {
-    		// Do nothing to save time
-    	}
-    	elseif (is_array($var)) {
-    		$cnt = count($var);
-    		$keys = array_keys($var);
+	function prepare($var) {
+		global $config;
+		if (is_numeric($var) || empty($var)) {
+			// Do nothing to save time
+		}
+		elseif (is_array($var)) {
+			$cnt = count($var);
+			$keys = array_keys($var);
 
-    		for ($i = 0; $i < $cnt; $i++) {
-    			$key = $keys[$i];
-    			$var[$key] = $this->prepare($var[$key]);
-    		}
-    	}
-    	elseif (is_object($var)) {
-    		$ovar = get_object_vars($var);
-    		$cnt = count($ovar);
-    		$keys = array_keys($ovar);
+			for ($i = 0; $i < $cnt; $i++) {
+				$key = $keys[$i];
+				$var[$key] = $this->prepare($var[$key]);
+			}
+		}
+		elseif (is_object($var)) {
+			$ovar = get_object_vars($var);
+			$cnt = count($ovar);
+			$keys = array_keys($ovar);
 
-    		for ($i = 0; $i < $cnt; $i++) {
-    			$key = $keys[$i];
-    			$var->$key = $this->prepare($ovar[$key]);
-    		}
-    	}
-    	elseif (is_string($var)) {
-    		if ($config['asia'] == 0) {
-    			$var = htmlspecialchars($var, ENT_QUOTES);
-    		}
-    		else {
-        		$var = str_replace('"', '&quot;', $var);
-        		$var = str_replace("'", '&#039;', $var);
-        		$var = str_replace('>', '&gt;', $var);
-        		$var = str_replace('<', '&lt;', $var);
-    		}
-    	}
-    	return $var;
-    }
+			for ($i = 0; $i < $cnt; $i++) {
+				$key = $keys[$i];
+				$var->$key = $this->prepare($ovar[$key]);
+			}
+		}
+		elseif (is_string($var)) {
+			$var = str_replace($this->prepare_original, $this->prepare_entity, $var);
+		}
+		return $var;
+	}
 
 	function save_str($var){
-    	global $db, $config;
-    	if (is_numeric($var) || empty($var)) {
-    		// Do nothing to save time
-    	}
-    	elseif (is_array($var)) {
-    		$cnt = count($var);
-    		$keys = array_keys($var);
+		global $db, $config, $lang;
+		if (is_numeric($var) || empty($var)) {
+			// Do nothing to save time
+		}
+		elseif (is_array($var)) {
+			$cnt = count($var);
+			$keys = array_keys($var);
 
-    		for ($i = 0; $i < $cnt; $i++){
-    			$key = $keys[$i];
-    			$var[$key] = $this->save_str($var[$key]);
-    		}
-    	}
-    	elseif (is_string($var)){
-    		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
-    		$var = $this->secure_null($var);
-    		if ($config['asia'] == 1) {
-    			$var = htmlentities($var, ENT_QUOTES, $config['asia_charset']);
-    			$var = str_replace('&amp;#', '&#', $var);
-				$var = htmlspecialchars_decode($var);
-    		}
+			for ($i = 0; $i < $cnt; $i++){
+				$key = $keys[$i];
+				$var[$key] = $this->save_str($var[$key]);
+			}
+		}
+		elseif (is_string($var)){
+			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
+			$var = $this->secure_null($var);
+			if ($this->php523) {
+				$var = htmlentities($var, ENT_QUOTES, $lang->charset(), false);
+			}
+			else {
+				$var = htmlentities($var, ENT_QUOTES, $lang->charset());
+				$var = str_replace('&amp;#', '&#', $var);
+			}
 			if (is_object($db)) {
-    			$var = $db->escape_string($var);
-    		}
-    		else {
-    			$var = addslashes($var);
-    		}
-    	}
-    	return $var;
-    }
+				$var = $db->escape_string($var);
+			}
+			else {
+				$var = addslashes($var);
+			}
+		}
+		return $var;
+	}
 
-    function save_int($var){
-    	global $db, $config;
-    	if (is_array($var)) {
-    		$cnt = count($var);
-    		$keys = array_keys($var);
+	function save_int($var){
+		global $db, $config;
+		if (is_array($var)) {
+			$cnt = count($var);
+			$keys = array_keys($var);
 
-    		for ($i = 0; $i < $cnt; $i++){
-    			$key = $keys[$i];
-    			$var[$key] = $this->save_int($var[$key]);
-    		}
-    	}
-    	else {
-    		$var = intval(trim($var));
-    	}
-    	return $var;
-    }
+			for ($i = 0; $i < $cnt; $i++){
+				$key = $keys[$i];
+				$var[$key] = $this->save_int($var[$key]);
+			}
+		}
+		else {
+			$var = intval(trim($var));
+		}
+		return $var;
+	}
 
-    function unescape($var) {
-    	if (is_numeric($var) || empty($var)) {
-    		// Do nothing to save time
-    	}
-    	elseif (is_array($var)) {
-    		$cnt = count($var);
-    		$keys = array_keys($var);
+	function unescape($var) {
+		if (is_numeric($var) || empty($var)) {
+			// Do nothing to save time
+		}
+		elseif (is_array($var)) {
+			$cnt = count($var);
+			$keys = array_keys($var);
 
-    		for ($i = 0; $i < $cnt; $i++) {
-    			$key = $keys[$i];
-    			$var[$key] = $this->unescape($var[$key]);
-    		}
-    	}
-    	elseif (is_object($var)) {
-    		$ovar = get_object_vars($var);
-    		$cnt = count($ovar);
-    		$keys = array_keys($ovar);
+			for ($i = 0; $i < $cnt; $i++) {
+				$key = $keys[$i];
+				$var[$key] = $this->unescape($var[$key]);
+			}
+		}
+		elseif (is_object($var)) {
+			$ovar = get_object_vars($var);
+			$cnt = count($ovar);
+			$keys = array_keys($ovar);
 
-    		for ($i = 0; $i < $cnt; $i++) {
-    			$key = $keys[$i];
-    			$var->$key = $this->unescape($ovar[$key]);
-    		}
-    	}
-    	elseif (is_string($var)) {
-    	    $var = str_replace('\\n', "\n", $var);
-    	    $var = str_replace('\\\\', '\\', $var);
-    	    $var = str_replace("\\'", "'", $var);
-    	    $var = str_replace('\\"', '"', $var);
-    	    $var = str_replace('\\r', "\r", $var);
-    	}
-    	return $var;
-    }
+			for ($i = 0; $i < $cnt; $i++) {
+				$key = $keys[$i];
+				$var->$key = $this->unescape($ovar[$key]);
+			}
+		}
+		elseif (is_string($var)) {
+			$var = str_replace('\\n', "\n", $var);
+			$var = str_replace('\\\\', '\\', $var);
+			$var = str_replace("\\'", "'", $var);
+			$var = str_replace('\\"', '"', $var);
+			$var = str_replace('\\r', "\r", $var);
+		}
+		return $var;
+	}
 
 	function secure_null($data) {
-    	if (is_array($data)) {
-    		$cnt = count($data);
-    		$keys = array_keys($data);
+		if (is_array($data)) {
+			$cnt = count($data);
+			$keys = array_keys($data);
 
-    		for ($i = 0; $i < $cnt; $i++){
-    			$key = $keys[$i];
-    			$data[$key] = $this->secure_null($data[$key]);
-    		}
-    	}
+			for ($i = 0; $i < $cnt; $i++){
+				$key = $keys[$i];
+				$data[$key] = $this->secure_null($data[$key]);
+			}
+		}
 		else {
 			$data = str_replace("\0", '', $data);
 		}
@@ -223,39 +223,71 @@ class GPC {
 
 	function stripslashes($array) {
 		if (is_numeric($array) || empty($array)) {
-    		return $array;
-    	}
-    	elseif(is_array($array)) {
-			return array_map(array(&$this, 'stripslashes'), $array);
+			return $array;
+		}
+		elseif(is_array($array)) {
+			return array_map(array(&$this, 'stripslashes'), $array); // Durchsucht nur 1-dimensionale Arrays
 		}
 		else {
 			return stripslashes($array);
 		}
 	}
 
-	function plain_str($var) {
-    	global $db, $config;
-    	if ($config['asia'] == 1) {
-	    	if (is_numeric($var) || empty($var)) {
-    			// Do nothing to save time
-    		}
-    		elseif (is_array($var)) {
-	    		$cnt = count($var);
-	    		$keys = array_keys($var);
+	// from php.net
+	// ToDo: Remove in 0.8 RC5
+	function html_entity_decode($string, $mode = ENT_COMPAT) {
+	    static $trans_tbl;
 
-	    		for ($i = 0; $i < $cnt; $i++){
-	    			$key = $keys[$i];
-	    			$var[$key] = $this->save_str($var[$key]);
-	    		}
-	    	}
-	    	elseif (is_string($var)){
-	    		$var = html_entity_decode($var, ENT_QUOTES, $config['asia_charset']);
-	    	}
-    	}
-    	return $var;
+	    // replace numeric entities
+	    $string = preg_replace('~&#x([0-9a-f]+);~ei', 'code2utf(hexdec("\\1"))', $string);
+	    $string = preg_replace('~&#0*([0-9]+);~e', 'code2utf(\\1)', $string);
+
+	    // replace literal entities
+	    if (!isset($trans_tbl)) {
+	        $trans_tbl = array();
+
+	        foreach (get_html_translation_table(HTML_ENTITIES, $mode) as $val=>$key) {
+	            $trans_tbl[$key] = utf8_encode($val);
+	        }
+	    }
+
+	    return strtr($string, $trans_tbl);
+	}
+
+	function plain_str($var, $utf = true) {
+		global $db, $config, $lang;
+		if (is_numeric($var) || empty($var)) {
+			// Do nothing to save time
+		}
+		elseif (is_array($var)) {
+			$cnt = count($var);
+			$keys = array_keys($var);
+
+			for ($i = 0; $i < $cnt; $i++){
+				$key = $keys[$i];
+				$var[$key] = $this->plain_str($var[$key], $utf);
+			}
+		}
+		elseif (is_string($var)){
+			if ($utf == true) {
+				$var = $this->html_entity_decode($var, ENT_QUOTES); // Todo: Make PHP5 only: html_entity_decode($var, ENT_QUOTES, 'UTF-8');
+			}
+			else {
+				$var = html_entity_decode($var, ENT_QUOTES, $lang->charset());
+			}
+		}
+		return $var;
 	}
 
 }
 
-
+// Returns the utf string corresponding to the unicode value (from php.net, courtesy - romans@void.lv)
+// ToDo: Remove in 0.8 RC5
+function code2utf($num) {
+    if ($num < 128) return chr($num);
+    if ($num < 2048) return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
+    if ($num < 65536) return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+    if ($num < 2097152) return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
+    return '';
+}
 ?>

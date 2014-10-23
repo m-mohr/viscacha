@@ -103,7 +103,7 @@ function ResizeImg(img,maxwidth) {
 		var oheight = img.height;
 		img.width = maxwidth;
 		img.height = Math.round(oheight/(owidth/maxwidth));
-		img.title = 'This is a thumbnail. Click to enlarge the image!';
+		img.title = lng['imgtitle'];
 
 		try {
 			img.style.cursor = "pointer";
@@ -238,11 +238,22 @@ function ajax() {
   return this;
 }
 
+function ajax_backupinfo(file, id) {
+	inline = FetchElement(id);
+	inline.innerHTML = lng['ajax4'];
+	var myConn = new ajax();
+	if (!myConn) {alert(lng['ajax0']);}
+	var fnWhenDone = function (oXML) {
+    	inline.innerHTML = oXML.responseText;
+	};
+	myConn.connect("admin.php", "GET", "action=db&job=restore_info&file="+file+sidx, fnWhenDone);
+}
+
 function ajax_searchmember(field, ins) {
 	inline = FetchElement(ins);
 	if (field.value.length > 2) {
 		var myConn = new ajax();
-		if (!myConn) {alert('No connection');}
+		if (!myConn) {alert(lng['ajax0']);}
 		var fnWhenDone = function (oXML) {
 		    suggest = oXML.responseText;
 		    if (suggest.length > 3) {
@@ -253,25 +264,25 @@ function ajax_searchmember(field, ins) {
 		    	inline.innerHTML = names.join(', ');
 		    }
 		    else {
-		    	inline.innerHTML = 'None';
+		    	inline.innerHTML = lng['ajax3'];
 		    }
 		};
 		myConn.connect("ajax.php", "GET", "action=searchmember&name="+field.value+sidx+ieRand(), fnWhenDone);
 	}
 	else {
-		inline.innerHTML = 'None (Name is too short)';
+		inline.innerHTML = lng['ajax2'];
 	}
 }
 function ajax_smIns(name, form, sugg) {
 	inline = FetchElement(form);
 	inline.value = name;
 	inline2 = FetchElement(sugg);
-	inline2.innerHTML = 'Name successfully inserted...';
+	inline2.innerHTML = lng['ajax1'];
 }
 
 function ajax_noki(img, params) {
 	var myConn = new ajax();
-	if (!myConn) {alert('Could not initalize AJAX. Make sure you are using an AJAX compatible browser.');}
+	if (!myConn) {alert(lng['ajax0']);}
 	var fnWhenDone = function (oXML) {
 	    if (oXML.responseText == '1' || oXML.responseText == '0') {
 	    	img.src = noki(oXML.responseText);

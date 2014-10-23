@@ -1,6 +1,6 @@
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $lang->phrase('charset'); ?>">
+<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $lang->charset(); ?>">
 <script type="text/javascript">
 <!--
 	var sidx = '<?php echo SID2URL_JS_x; ?>';
@@ -45,7 +45,7 @@ function postWords() {
 	var bodyDoc = window.frames[0].document;
 	bodyDoc.open();
 	bodyDoc.write('<html>');
-	bodyDoc.write('<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $lang->phrase('charset'); ?>" />');
+	bodyDoc.write('<meta http-equiv="Content-Type" content="text/html; charset=<?php echo $lang->charset(); ?>" />');
 	bodyDoc.write('<link rel="stylesheet" type="text/css" href="designs/<?php echo $my->cssid; ?>/standard.css" />');
 	if (opener) {
 		var speller = opener.speller;

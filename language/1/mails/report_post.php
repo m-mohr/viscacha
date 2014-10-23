@@ -7,10 +7,10 @@ der Beitrag mit dem Titel {@info->title} wurde von {%my->name} gemeldet. Die fol
 {$message}
 ----------------------------------------------------------------------
 
-Sie können den Beitrag hier finden:
+Sie k&ouml;nnen den Beitrag hier finden:
 {@config->furl}/showtopic.php?action=jumpto&id={@last->id}&topic_id={@info->id}
 
-Mit freundlichen Grüßen,
+Mit freundlichen Gr&uuml;&szlig;en,
 Ihr {@config->fname} Team
 {@config->furl}</comment>
 </mail>

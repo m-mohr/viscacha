@@ -602,7 +602,7 @@ class PHPMailer
      */
     function SetLanguage() {
     	global $lang;
-    	$lang->group("phpmailer.class");
+    	$lang->group("classes");
         $this->language = $lang->return_array();
         return true;
     }

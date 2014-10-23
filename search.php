@@ -152,7 +152,7 @@ if ($_GET['action'] == "search") {
 		$sql_where .= "r.name = '{$rname}' ";
 	}
 
-	if (strlen($_POST['name']) >= $config['searchminlength']) {
+	if (strxlen($_POST['name']) >= $config['searchminlength']) {
 		$used[] = $_POST['name'];
 	}
 	else {
@@ -320,7 +320,7 @@ elseif ($_GET['action'] == "result") {
 			$pref .= $lang->phrase('forum_moved');
 		}
 		else {
-			if (empty($row->mark) && !empty($info['auto_status'])) {
+			if ($row->mark === null && !empty($info['auto_status'])) {
 				$row->mark = $info['auto_status'];
 			}
 			if ($row->mark == 'n') {
@@ -340,7 +340,7 @@ elseif ($_GET['action'] == "result") {
 			}
 		}
 
-		if ((isset($my->mark['t'][$row->id]) && $my->mark['t'][$row->id] > $row->last) || $row->last < $my->clv) {
+		if ($slog->isTopicRead($row->id, $row->last)) {
 	 		$firstnew = 0;
 			if ($row->status == 1 || $row->status == 2) {
 			   	$alt = $lang->phrase('forum_icon_closed');
@@ -430,10 +430,6 @@ elseif ($_GET['action'] == "active") {
 		$timestamp = time()-60*60*$type[2];
 	}
 	else { // $_GET['type'] == 'lastvisit'
-		if ($my->clv < 1) {
-		    $count = 0;
-	        echo $tpl->parse("search/active");
-	    }
 		$timestamp = $my->clv;
 	}
 
@@ -503,7 +499,7 @@ elseif ($_GET['action'] == "active") {
 					$pref .= $lang->phrase('forum_moved');
 				}
 				else {
-					if (empty($row->mark) && !empty($info['auto_status'])) {
+					if ($row->mark === null && !empty($info['auto_status'])) {
 						$row->mark = $info['auto_status'];
 					}
 					if ($row->mark == 'n') {
@@ -523,7 +519,7 @@ elseif ($_GET['action'] == "active") {
 					}
 				}
 
-    			if ((isset($my->mark['t'][$row->id]) && $my->mark['t'][$row->id] > $row->last) || $row->last < $my->clv) {
+    			if ($slog->isTopicRead($row->id, $row->last)) {
     		 		$firstnew = 0;
     				if ($row->status == 1 || $row->status == 2) {
     				   	$alt = $lang->phrase('forum_icon_closed');

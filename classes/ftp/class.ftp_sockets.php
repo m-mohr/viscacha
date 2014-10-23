@@ -60,6 +60,7 @@ class ftp extends ftp_base {
 			if($tmp===false) {
 				$go=$result=false;
 				$this->PushError($fnction,'Read failed', socket_strerror(socket_last_error($this->_ftp_control_sock)));
+				$regs = array(0,0);
 			} else {
 				$this->_message.=$tmp;
 				$go = !preg_match("/^([0-9]{3})(-.+\\1)? [^".CRLF."]+".CRLF."$/Us", $this->_message, $regs);

@@ -1,7 +1,7 @@
 CREATE TABLE `{:=DBPREFIX=:}filetypes` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `extension` varchar(200) NOT NULL default '',
-  `program` tinytext NOT NULL,
+  `program` text NOT NULL,
   `desctxt` text NOT NULL,
   `icon` varchar(100) NOT NULL default '',
   `mimetype` varchar(100) NOT NULL default 'application/octet-stream',

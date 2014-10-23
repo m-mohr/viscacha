@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
@@ -50,9 +50,9 @@ if ($action == 'openclosethread') {
     $row = $db->fetch_assoc($result);
     $my->p = $slog->Permissions($row['board']);
     $my->mp = $slog->ModPermissions($row['board']);
-    
+
     $request = 1;
-    
+
     if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) {
 	    if ($row['status'] == 0) {
 	    	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
@@ -76,11 +76,10 @@ if ($action == 'openclosethread') {
 elseif ($action == 'markforumread') {
 	$board = $gpc->get('id', int);
 	$my->p = $slog->Permissions($board);
-	$result = $db->query('SELECT id FROM '.$db->pre.'topics WHERE board = '.$board.' AND last > '.$my->clv,__LINE__,__FILE__);
-	while ($row = $db->fetch_assoc($result)) {
-		$my->mark['t'][$row['id']] = time();
+	if (!is_id($board) || $my->p['forum'] == 0) {
+		echo '0';
 	}
-	$my->mark['f'][$board] = time();
+	$slog->setForumRead($board);
 	$slog->updatelogged();
 	echo '1';
 }

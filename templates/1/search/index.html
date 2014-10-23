@@ -14,9 +14,8 @@
 	<?php if ($my->vlogin) { ?>
 	<li><a tabindex="4006" href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
 	<li><a tabindex="4007" href="search.php?action=active&amp;type=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_fav'); ?></a></li>
-	<?php } if ($my->clv > 0) { ?>
-	<li><a tabindex="4008" href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 	<?php } ?>
+	<li><a tabindex="4008" href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 	</ul>
   </div>
   <img src="<?php echo $tpl->img('suchen'); ?>" alt="" /> <?php echo $lang->phrase('search'); ?>
@@ -111,9 +110,8 @@
 	<li><a href="search.php?action=active&amp;type=days-14<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_14d'); ?></a></li>
 	<?php if ($my->vlogin) { ?>
 	<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
-	<?php } if ($my->clv > 0) { ?>
-	<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 	<?php } ?>
+	<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 	</ul>
   </div>
 </noscript>

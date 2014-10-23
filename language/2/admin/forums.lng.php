@@ -26,6 +26,7 @@ $lang['admin_forum_cat_not_found'] = 'Category not found!';
 $lang['admin_forum_copy_permissions'] = 'Copy permissions from:';
 $lang['admin_forum_count_posts_user_post'] = 'Count posts made in this forum towards user post counts:';
 $lang['admin_forum_day'] = 'Day:';
+$lang['admin_forum_default'] = 'Default';
 $lang['admin_forum_default_value'] = '0 = Use default value';
 $lang['admin_forum_delete'] = 'Delete';
 $lang['admin_forum_delete_all_subforums'] = 'Until you can delete this category, you have to delete all forums this category contains.';

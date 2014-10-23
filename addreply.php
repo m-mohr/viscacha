@@ -130,7 +130,7 @@ if ($_GET['action'] == "save") {
 		if (strxlen($_POST['name']) < $config['minnamelength']) {
 			$error[] = $lang->phrase('name_too_short');
 		}
-		if (strxlen($_POST['email']) > 200) {
+		if (strlen($_POST['email']) > 200) {
 			$error[] = $lang->phrase('email_too_long');
 		}
 		$pname = $_POST['name'];
@@ -152,7 +152,7 @@ if ($_GET['action'] == "save") {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	// Add some chars for reply title prefix
-	$maxlength = $config['maxtitlelength'] + strlen(html_entity_decode($lang->phrase('reply_prefix')));
+	$maxlength = $config['maxtitlelength'] + strxlen($lang->phrase('reply_prefix'));
 	if (strxlen($_POST['topic']) > $maxlength) {
 		$error[] = $lang->phrase('title_too_long');
 	}

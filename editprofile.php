@@ -58,7 +58,7 @@ if ($_GET['action'] == "pw2") {
 	if ($my->pw != md5($_POST['pw'])) {
 		$error[] = $lang->phrase('old_pw_incorrect');
 	}
-	if (strxlen($_POST['pwx']) > 200) {
+	if (strlen($_POST['pwx']) > 200) {
 		$error[] = $lang->phrase('pw_too_long');
 	}
 	if (strxlen($_POST['pwx']) < 3) {
@@ -182,7 +182,7 @@ elseif ($_GET['action'] == "abos") {
 		if (is_id($row['last_name'])) {
 			$row['last_name'] = $memberdata[$row['last_name']];
 		}
-		if ((isset($my->mark['t'][$row['tid']]) && $my->mark['t'][$row['tid']] > $row['last']) || $row['last'] < $my->clv) {
+		if ($slog->isTopicRead($row['tid'], $row['last'])) {
 			$row['firstnew'] = 0;
 			$row['alt'] = $lang->phrase('forum_icon_old');
 			$row['src'] = $tpl->img('dir_open');
@@ -267,7 +267,7 @@ elseif ($_GET['action'] == "notice2") {
 
 	$notes = array();
 	foreach ($_POST['notice'] as $note) {
-		if (!empty($note) && strlen($note) > 2) {
+		if (!empty($note) && strxlen($note) > 2) {
 			$notes[] = str_replace('[VSEP]','&#91;VSEP&#93;',$note);
 		}
 	}
@@ -566,16 +566,16 @@ elseif ($_GET['action'] == "profile2") {
 	if (strxlen($_POST['name']) < $config['minnamelength'] && $config['changename_allowed'] == 1) {
 		$error[] = $lang->phrase('name_too_short');
 	}
-	if (strxlen($_POST['email']) > 200) {
+	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
-	if (strxlen($_POST['hp']) > 254) {
+	if (strlen($_POST['hp']) > 255) {
 		$error[] = $lang->phrase('editprofile_homepage_too_long');
 	}
 	if (!check_hp($_POST['hp'])) {
 		$_POST['hp'] = '';
 	}
-	if (strxlen($_POST['location']) > 50) {
+	if (strlen($_POST['location']) > 50) {
 		$error[] = $lang->phrase('editprofile_location_too_long');
 	}
 	if ($_POST['gender'] != 'm' && $_POST['gender'] != 'w' && $_POST['gender'] != '') {
@@ -590,7 +590,7 @@ elseif ($_GET['action'] == "profile2") {
 	if (($_POST['birthyear'] < gmdate('Y')-120 || $_POST['birthyear'] > gmdate('Y')) && $_POST['birthyear'] != 0 ) {
 		$error[] = $lang->phrase('editprofile_birthyear_incorrect');
 	}
-	if (strxlen($_POST['fullname']) > 128) {
+	if (strlen($_POST['fullname']) > 128) {
 		$error[] = $lang->phrase('editprofile_fullname_incorrect');
 	}
 
@@ -793,7 +793,7 @@ elseif ($_GET['action'] == "mylast") {
 		$row['topic'] = $gpc->prepare($row['topic']);
 		$row['name'] = $gpc->prepare($row['name']);
 
-		if ((isset($my->mark['t'][$row['id']]) && $my->mark['t'][$row['id']] > $row['last']) || $row['last'] < $my->clv) {
+		if ($slog->isTopicRead($row['id'], $row['last'])) {
 	 		$row['firstnew'] = 0;
 			if ($row['status'] == 1 || $row['status'] == 2) {
 			   	$row['alt'] = $lang->phrase('forum_icon_closed');

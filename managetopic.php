@@ -209,17 +209,17 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		echo $tpl->parse("admin/topic/status");
 	}
 	elseif ($action == "status2") {
-		$input = '';
-		$notallowed = FALSE;
+		$input = null;
+		$notallowed = false;
 		if ($my->mp[0] == 1 && $my->mp[1] == 0 && $my->mp[2] == 0 && $my->mp[3] == 0) {
-			$notallowed = TRUE;
+			$notallowed = true;
 		}
 		if ($_POST['temp'] == '1') {
 			if ($my->mp[1] == 1) {
 				$input = 'g';
 			}
 			else {
-				$notallowed = TRUE;
+				$notallowed = true;
 			}
 		}
 		if ($_POST['temp'] == '2') {
@@ -227,7 +227,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				$input = 'b';
 			}
 			else {
-				$notallowed = TRUE;
+				$notallowed = true;
 			}
 		}
 		if ($_POST['temp'] == '3') {
@@ -235,7 +235,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				$input = 'a';
 			}
 			else {
-				$notallowed = TRUE;
+				$notallowed = true;
 			}
 		}
 		if ($_POST['temp'] == '4') {
@@ -243,13 +243,16 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				$input = 'n';
 			}
 			else {
-				$notallowed = TRUE;
+				$notallowed = true;
 			}
+		}
+		if ($_POST['temp'] == '9') {
+			$input = '';
 		}
 		if ($notallowed) {
 			errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
-		$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$info['id']}'",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}topics SET mark = ".iif($input === null, 'null', "'{$input}'")." WHERE id = '{$info['id']}'",__LINE__,__FILE__);
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}

@@ -14,27 +14,32 @@ class cache_package_browser extends CacheItem {
 		 	1 => array(
 			 		'name' => $lang->phrase('admin_pb_type1_name'),
 			 		'name2' => $lang->phrase('admin_pb_type1_name2'),
-			 		'import' => 'admin.php?action=packages&job=package_import&file='
+			 		'import' => 'admin.php?action=packages&job=package_import&file=',
+			 		'update' => 'admin.php?action=packages&job=package_update&file='
 		 		),
 		 	2 => array(
 			 		'name' => $lang->phrase('admin_pb_type2_name'),
 			 		'name2' => $lang->phrase('admin_pb_type2_name2'),
-					'import' => 'admin.php?action=designs&job=design_import&file='
+					'import' => 'admin.php?action=designs&job=design_import&file=',
+					'update' => null
 		 		),
 		 	3 => array(
 			 		'name' => $lang->phrase('admin_pb_type3_name'),
 			 		'name2' => $lang->phrase('admin_pb_type3_name2'),
-					'import' => 'admin.php?action=bbcodes&job=smileys_import&file='
+					'import' => 'admin.php?action=bbcodes&job=smileys_import&file=',
+					'update' => null
 		 		),
 		 	4 => array(
 			 		'name' => $lang->phrase('admin_pb_type4_name'),
 			 		'name2' => $lang->phrase('admin_pb_type4_name2'),
-					'import' => 'admin.php?action=language&job=import&file='
+					'import' => 'admin.php?action=language&job=import&file=',
+					'update' => null
 		 		),
 		 	5 => array(
 			 		'name' => $lang->phrase('admin_pb_type5_name'),
 			 		'name2' => $lang->phrase('admin_pb_type5_name2'),
-					'import' => 'admin.php?action=bbcodes&job=custombb_import&file='
+					'import' => 'admin.php?action=bbcodes&job=custombb_import&file=',
+					'update' => null
 		 		),
 		);
 	}
@@ -106,8 +111,13 @@ class cache_package_browser extends CacheItem {
 		}
 	}
 
-	function types() {
-		return $this->types;
+	function types($type = null) {
+		if ($type != null && isset($this->types[$type])) {
+			return $this->types[$type];
+		}
+		else {
+			return $this->types;
+		}
 	}
 
 	function getOne($type = IMPTYPE_PACKAGE, $id) {

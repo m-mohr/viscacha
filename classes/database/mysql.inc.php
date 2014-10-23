@@ -28,12 +28,10 @@ include_once(dirname(__FILE__)."/class.db_driver.php");
 
 class DB extends DB_Driver { // MySQL
 
-	var $persist;
 	var $escaper;
 	var $system;
 
-	function DB($host="localhost",$user="root",$pwd="",$dbname="",$persist=0,$open=false, $dbprefix='') {
-	    $this->persist = $persist;
+	function DB($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '', $open = true) {
 	    $this->system = 'mysql';
 		if (version_compare(PHP_VERSION, "4.3.0", ">=") && viscacha_function_exists('mysql_real_escape_string') == true) {
 			$this->escaper = 'mysql_real_escape_string';
@@ -43,7 +41,7 @@ class DB extends DB_Driver { // MySQL
 		}
 		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
 		parent::DB_Driver($host, $user, $pwd, $dbname, $dbprefix, $open);
-		$this->freeResult = ($persist == 1);
+		$this->freeResult = ($this->persistence == 1);
 	}
 
 	function version () {
@@ -74,7 +72,7 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function connect($die = true) {
-		if ($this->persist == 1) {
+		if ($this->persistence == 1) {
 			$func = 'mysql_pconnect';
 		}
 		else {
@@ -85,14 +83,7 @@ class DB extends DB_Driver { // MySQL
 		$this->conn = $func($this->host, $this->user, $this->pwd);
 		ob_end_clean();
 
-		if (!$this->hasConnection($this->conn)) {
-			if ($die == true) {
-				trigger_error('Could not connect to database! Pleasy try again later or check the database settings: host, username and password!<br /><strong>Database returned</strong>: '.$this->errstr(), E_USER_ERROR);
-			}
-			else {
-				trigger_error('Could not connect to database!<br /><strong>Database returned</strong>: '.$this->errstr(), E_USER_WARNING);
-			}
-		}
+		$this->quitOnError($die);
 	}
 
 	function hasConnection(){
@@ -142,6 +133,13 @@ class DB extends DB_Driver { // MySQL
 	}
     function insert_id() {
 	    return @mysql_insert_id($this->conn);
+	}
+
+	function data_seek($result = null, $pos = 0) {
+		if (!is_resource($result)) {
+	    	$result = $this->result;
+	    }
+	    return @mysql_data_seek($result, $pos);
 	}
 
 	function fetch_object($result = null) {

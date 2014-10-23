@@ -566,7 +566,7 @@ elseif ($job == 'nav_active') {
 elseif ($job == 'nav_addplugin') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY ordering, id", __LINE__, __FILE__);
+	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY position, ordering, id", __LINE__, __FILE__);
 	$plugs = $db->query("SELECT id, name FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering", __LINE__, __FILE__);
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
 	$pos = parseNavPosSetting();
@@ -602,8 +602,11 @@ elseif ($job == 'nav_addplugin') {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
-	   		unset($pos[$last]);
+	   		if (!isset($pos[$last])) {
+	   			$pos[$last] = $row['position'];
+	   		}
+		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'">'.navLang($row['name']).'</option>';
 	}
@@ -731,7 +734,6 @@ elseif ($job == 'nav_add') {
    </select>
    </td>
   </tr>
-  </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_cms_nav_sort_in'); ?></td>
    <td class="mbox" width="50%">
@@ -768,18 +770,24 @@ elseif ($job == 'nav_add2') {
 	if (empty($title)) {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
+
+	$pos = $db->fetch_num($db->query("SELECT position FROM {$db->pre}menu WHERE id = '{$sub}' LIMIT 1", __LINE__, __FILE__));
+	if (empty($pos[0])) {
+		$pos = array('left');
+	}
+
 	if ($sort == 1) {
-		$sortx = $db->fetch_num($db->query("SELECT MAX(ordering), position FROM {$db->pre}menu WHERE sub = '{$sub}' GROUP BY ordering LIMIT 1", __LINE__, __FILE__));
-		$sort = $sortx[0]+1;
+		$sort = $db->fetch_num($db->query("SELECT MAX(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1", __LINE__, __FILE__));
+		$sort = $sort[0]+1;
 	}
 	elseif ($sort == 0) {
-		$sortx = $db->fetch_num($db->query("SELECT MIN(ordering), position FROM {$db->pre}menu WHERE sub = '{$sub}' GROUP BY ordering LIMIT 1", __LINE__, __FILE__));
-		$sort = $sortx[0]-1;
+		$sort = $db->fetch_num($db->query("SELECT MIN(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1", __LINE__, __FILE__));
+		$sort = $sort[0]-1;
 	}
 	else {
 		$sort = 0;
-		$sortx = array(0, 'left');
 	}
+
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
 	$count = $db->fetch_num($result);
 	if (count($groups) == $count[0]) {
@@ -788,7 +796,7 @@ elseif ($job == 'nav_add2') {
 	else {
 		$groups = implode(',', $groups);
 	}
-	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, link, param, sub, position) VALUES ('{$title}','{$groups}','{$sort}','{$url}','{$target}','{$sub}','{$sortx[1]}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, link, param, sub, position) VALUES ('{$title}','{$groups}','{$sort}','{$url}','{$target}','{$sub}','{$pos[0]}')", __LINE__, __FILE__);
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_link_successfully_added'));
@@ -867,6 +875,7 @@ elseif ($job == 'nav_addbox2') {
 		);
 	}
 	else {
+		$sort = $gpc->save_int($sort);
 		$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
 		$sort = $db->fetch_assoc($result);
 	}

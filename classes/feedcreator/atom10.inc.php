@@ -7,7 +7,7 @@
  * for the feed or an author for every single feed item.
  *
  * Some elements have not been implemented yet. These are (incomplete list):
- * author URL, item author's email and URL, item contents, alternate links, 
+ * author URL, item author's email and URL, item contents, alternate links,
  * other link content types than text/html. Some of them may be created with
  * AtomCreator10::additionalElements.
  *
@@ -16,7 +16,7 @@
  * @author Mohammad Hafiz Ismail (mypapit@gmail.com)
  */
  class ATOM10 extends FeedCreator {
- 
+
 	function ATOM10() {
 		$this->contentType = "application/atom+xml";
 	}
@@ -29,13 +29,13 @@
 		if (!empty($this->language)) {
 			$feed.= " xml:lang=\"".$this->language."\"";
 		}
-		$feed.= ">\n"; 
-		$feed.= "    <title>".htmlspecialchars($this->title)."</title>\n";
-		$feed.= "    <subtitle>".htmlspecialchars($this->description)."</subtitle>\n";
-		$feed.= "    <link rel=\"alternate\" type=\"text/html\" href=\"".htmlspecialchars($this->link)."\"/>\n";
-		$feed.= "    <id>".htmlspecialchars($this->link)."</id>\n";
+		$feed.= ">\n";
+		$feed.= "    <title>".FeedCreator::htmlspecialchars($this->title)."</title>\n";
+		$feed.= "    <subtitle>".FeedCreator::htmlspecialchars($this->description)."</subtitle>\n";
+		$feed.= "    <link rel=\"alternate\" type=\"text/html\" href=\"".FeedCreator::htmlspecialchars($this->link)."\"/>\n";
+		$feed.= "    <id>".FeedCreator::htmlspecialchars($this->link)."</id>\n";
 		$now = new FeedDate();
-		$feed.= "    <updated>".htmlspecialchars($now->iso8601())."</updated>\n";
+		$feed.= "    <updated>".FeedCreator::htmlspecialchars($now->iso8601())."</updated>\n";
 		if (!empty($this->editor)) {
 			$feed.= "    <author>\n";
 			$feed.= "        <name>".$this->editor."</name>\n";
@@ -49,23 +49,23 @@
 		$feed.= $this->_createAdditionalElements($this->additionalElements, "    ");
 		for ($i=0;$i<count($this->items);$i++) {
 			$feed.= "    <entry>\n";
-			$feed.= "        <title>".htmlspecialchars(strip_tags($this->items[$i]->title))."</title>\n";
-			$feed.= "        <link rel=\"alternate\" type=\"text/html\" href=\"".htmlspecialchars($this->items[$i]->link)."\"/>\n";
+			$feed.= "        <title>".FeedCreator::htmlspecialchars(strip_tags($this->items[$i]->title))."</title>\n";
+			$feed.= "        <link rel=\"alternate\" type=\"text/html\" href=\"".FeedCreator::htmlspecialchars($this->items[$i]->link)."\"/>\n";
 			if ($this->items[$i]->date=="") {
 				$this->items[$i]->date = time();
 			}
 			$itemDate = new FeedDate($this->items[$i]->date);
-			$feed.= "        <published>".htmlspecialchars($itemDate->iso8601())."</published>\n";
-			$feed.= "        <updated>".htmlspecialchars($itemDate->iso8601())."</updated>\n";
-			$feed.= "        <id>".htmlspecialchars($this->items[$i]->link)."</id>\n";
+			$feed.= "        <published>".FeedCreator::htmlspecialchars($itemDate->iso8601())."</published>\n";
+			$feed.= "        <updated>".FeedCreator::htmlspecialchars($itemDate->iso8601())."</updated>\n";
+			$feed.= "        <id>".FeedCreator::htmlspecialchars($this->items[$i]->link)."</id>\n";
 			$feed.= $this->_createAdditionalElements($this->items[$i]->additionalElements, "        ");
 			if (!empty($this->items[$i]->author)) {
 				$feed.= "        <author>\n";
-				$feed.= "            <name>".htmlspecialchars($this->items[$i]->author)."</name>\n";
+				$feed.= "            <name>".FeedCreator::htmlspecialchars($this->items[$i]->author)."</name>\n";
 				$feed.= "        </author>\n";
 			}
 			if (!empty($this->items[$i]->description)) {
-				$feed.= "        <summary type=\"html\">".htmlspecialchars($this->items[$i]->description)."</summary>\n";
+				$feed.= "        <summary type=\"html\">".FeedCreator::htmlspecialchars($this->items[$i]->description)."</summary>\n";
 			}
 			if (!empty($this->items[$i]->enclosure)) {
 			$feed.="        <link rel=\"enclosure\" href=\"". $this->items[$i]->enclosure->url ."\" type=\"". $this->items[$i]->enclosure->type."\"  length=\"". $this->items[$i]->enclosure->length . "\" />\n";

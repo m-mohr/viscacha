@@ -1,12 +1,12 @@
 <mail>
-	<title>{@config->fname}: Neues Thema im Forum "{@last->name}"</title>
+	<title>{@config->fname}: Neues Thema im Forum &quot;{@last->name}&quot;</title>
 	<comment>Hallo,
 
-soeben wurde ein neues Thema gestartet. Das Thema hat den Titel "{@_POST->topic}" und ist im Forum "{@last->name}" erstellt worden.
+soeben wurde ein neues Thema gestartet. Das Thema hat den Titel &quot;{@_POST->topic}&quot; und ist im Forum &quot;{@last->name}&quot; erstellt worden.
 Sie finden das neue Thema hier:
 {@config->furl}/showtopic.php?id={$tredirect}
 
-Mit freundlichen Grüßen,
+Mit freundlichen Gr&uuml;&szlig;en,
 Ihr {@config->fname} Team
 {@config->furl}</comment>
 </mail>

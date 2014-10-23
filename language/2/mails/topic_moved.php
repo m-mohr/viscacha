@@ -1,8 +1,8 @@
 <mail>
-	<title>{@config->fname}: Topic "{@old->topic}" has been moved</title>
+	<title>{@config->fname}: Topic &quot;{@old->topic}&quot; has been moved</title>
 	<comment>Dear {@old->name},
 
-your topic "{@old->topic}" has just been moved. You can now find it here:
+your topic &quot;{@old->topic}&quot; has just been moved. You can now find it here:
 {@config->furl}/showtopic.php?id={@info->id}
 
 Best regards,

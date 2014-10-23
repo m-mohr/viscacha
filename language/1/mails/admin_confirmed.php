@@ -4,7 +4,7 @@
 
 Ihr Benutzeraccount wurde soeben vom Administrator freigeschaltet.
 
-Mit freundlichen Grüßen,
+Mit freundlichen Gr&uuml;&szlig;en,
 Ihr {@config->fname} Team
 {@config->furl}</comment>
 </mail>

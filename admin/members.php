@@ -933,7 +933,7 @@ elseif ($job == 'manage') {
 		  <a href="admin.php?action=members&amp;job=manage&amp;sort=regdate&amp;letter=<?php echo $letter; ?>&amp;order=1&amp;page=<?php echo $page; ?>"><img src="admin/html/images/desc.gif" border=0 alt="<?php echo $lang->phrase('admin_member_desc'); ?>"></a></td>
 		</tr>
 	<?php
-	while ($row = $gpc->prepare($db->fetch_object($result))) {
+	while ($row = $slog->cleanUserData($db->fetch_object($result))) {
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = 'Never';
@@ -1016,7 +1016,7 @@ elseif ($job == 'memberrating') {
 		  <td class="obox"><?php echo $lang->phrase('admin_member_reg_date'); ?></td>
 		</tr>
 	<?php
-	while ($row = $gpc->prepare($db->fetch_object($result))) {
+	while ($row = $slog->cleanUserData($db->fetch_object($result))) {
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = $lang->phrase('admin_member_never');
@@ -1203,7 +1203,7 @@ elseif ($job == 'register2') {
 	if (strxlen($_POST['pw']) < $config['minpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_short');
 	}
-	if (strxlen($_POST['email']) > 200) {
+	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('admin_member_mail_too_long');
 	}
 	if (check_mail($_POST['email']) == false) {
@@ -1227,7 +1227,7 @@ elseif ($job == 'register2') {
 		if((is_string($value) && strlen($value) == 0) || (is_array($value) && count($value) == 0)) {
 			$error[] = $lang->phrase('admin_member_no_value_for_required_field');
 		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase('admin_member_to_many_chars_for_required_fields');
 		}
 
@@ -1574,7 +1574,7 @@ elseif ($job == 'edit2') {
 	if (strxlen($query['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_too_less_chars');
 	}
-	if (strxlen($query['email']) > 200) {
+	if (strlen($query['email']) > 200) {
 		$error[] = $lang->phrase('admin_member_email_too_many_chars');
 	}
 	if ($user['mail'] != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
@@ -1583,13 +1583,13 @@ elseif ($job == 'edit2') {
 	if (strxlen($query['signature']) > $config['maxsiglength']) {
 		$error[] = $lang->phrase('admin_member_signature_too_many_chars');
 	}
-	if (strxlen($query['hp']) > 254) {
+	if (strlen($query['hp']) > 255) {
 		$error[] = $lang->phrase('admin_member_hp_too_many_chars');
 	}
 	if (!check_hp($query['hp'])) {
 		$query['hp'] = '';
 	}
-	if (strxlen($query['location']) > 50) {
+	if (strlen($query['location']) > 50) {
 		$error[] = $lang->phrase('admin_member_location_too_many_chars');
 	}
 	if ($query['gender'] != 'm' && $query['gender'] != 'w' && $query['gender'] != '') {
@@ -1604,7 +1604,7 @@ elseif ($job == 'edit2') {
 	if (($query['birthyear'] < gmdate('Y')-120 || $query['birthyear'] > gmdate('Y')) && $query['birthyear'] != 0 ) {
 		$error[] = $lang->phrase('admin_member_year_not_valid');
 	}
-	if (strxlen($query['fullname']) > 128) {
+	if (strlen($query['fullname']) > 128) {
 		$error[] = $lang->phrase('admin_member_fullname_too_many_chars');
 	}
 	if (intval($query['temp']) < -12 && intval($query['temp']) > 12) {

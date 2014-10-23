@@ -28,8 +28,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 require_once('classes/class.cache.php');
 // INI-File-Class
 include_once("classes/class.ini.php");
-// A class for Languages
-require_once("classes/class.language.php");
 // Gets modules
 require_once("classes/class.plugins.php");
 // Gets a file with Output-functions
@@ -38,12 +36,12 @@ require_once("classes/class.docoutput.php");
 include_once ("classes/class.bbcode.php");
 
 $scache = new CacheServer();
-$lang = new lang();
 $plugins = new PluginSystem();
 
 // Database functions
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
-$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['pconnect'], true, $config['dbprefix']);
+$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
+$db->setPersistence($config['pconnect']);
 
 // Construct base bb-code object
 $bbcode = new BBCode();
@@ -299,26 +297,6 @@ function invert ($int) {
 	return $int;
 }
 
-function extract_dir($source, $realpath = true) {
-	if ($realpath) {
-		$source = realpath($source);
-	}
-	else {
-		$source = rtrim($source, '/\\');
-	}
-	$pos = strrpos($source, '/');
-	if ($pos === false) {
-		$pos = strrpos($source, '\\');
-	}
-	if ($pos > 0) {
-		$dest = substr($source, 0, $pos+1);
-	}
-	else {
-		$dest = '';
-	}
-	return $dest;
-}
-
 /*	Delete a file, or a folder and its contents
 *	@author      Aidan Lister <aidan@php.net>
 *	@version     1.0.0
@@ -364,20 +342,45 @@ function copyr($source, $dest) {
         return $filesystem->copy($source, $dest);
     }
     if (!is_dir($dest)) {
-        $filesystem->mkdir($dest, 0777);
+        if (!$filesystem->mkdir($dest, 0777)) {
+        	return false;
+        }
     }
     $dir = dir($source);
+    if (!is_object($dir)) {
+    	return false;
+    }
+    $ret = true;
     while (false !== $entry = $dir->read()) {
         if ($entry == '.' || $entry == '..') {
             continue;
         }
         if ($dest !== "{$source}/{$entry}") {
-            copyr("{$source}/{$entry}", "{$dest}/{$entry}");
+            $ret2 = copyr("{$source}/{$entry}", "{$dest}/{$entry}");
+            if ($ret2 == false) {
+            	$ret = false;
+            }
         }
     }
-
     $dir->close();
-    return true;
+    return $ret;
+}
+
+function mover($source, $dest) {
+	global $filesystem;
+    if (!is_dir($dest)) {
+        $filesystem->mkdir($dest, 0777);
+    }
+	if ($filesystem->rename($source, $dest)) {
+		return true;
+	}
+	else {
+		if (copyr($source, $dest)) {
+			rmdirr($source);
+			return true;
+		}
+		return false;
+	}
 }
 
 function serverload($int = false) {
@@ -589,8 +592,58 @@ function benchmarktime() {
 }
 
 function strxlen($string) {
-	$string = preg_replace('~&#([0-9]+);~', '-', $string);
+	$string = preg_replace('~&(#[0-9]+|#x[0-9a-f]+|[a-z]{1}[0-9a-z]+);~i', '-', $string);
 	return strlen($string);
+}
+
+function subxstr($str, $start, $length = null) {
+	if ($length === 0) {
+		return ""; //stop wasting our time ;)
+	}
+
+	//check if we can simply use the built-in functions
+	if (strpos($str, '&') === false) { //No entities. Use built-in functions
+		if ($length === null) {
+			return substr($str, $start);
+		}
+		else {
+			return substr($str, $start, $length);
+		}
+	}
+
+	// create our array of characters and html entities
+	$chars = preg_split('/(&(#[0-9]+|#x[0-9a-f]+|[a-z]{1}[0-9a-z]+);)|/', $str, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_OFFSET_CAPTURE);
+	$html_length = count($chars);
+
+	// check if we can predict the return value and save some processing time
+	if ($html_length === 0 || $start >= $html_length || (isset($length) && $length <= -$html_length)) {
+     	return "";
+     }
+
+	//calculate start position
+	if ($start >= 0) {
+		$real_start = $chars[$start][1];
+	}
+	else { //start'th character from the end of string
+		$start = max($start,-$html_length);
+		$real_start = $chars[$html_length+$start][1];
+	}
+
+	if (!isset($length)) { // no $length argument passed, return all remaining characters
+		return substr($str, $real_start);
+	}
+	else if ($length > 0) { // copy $length chars
+		if ($start+$length >= $html_length) { // return all remaining characters
+			return substr($str, $real_start);
+		}
+		else { //return $length characters
+			return substr($str, $real_start, $chars[max($start,0)+$length][1] - $real_start);
+		}
+	}
+	else { //negative $length. Omit $length characters from end
+		return substr($str, $real_start, $chars[$html_length+$length][1] - $real_start);
+	}
+
 }
 
 function random_word($laenge=8) {
@@ -661,7 +714,6 @@ function str_date($format, $time=FALSE) {
 	return $returndate;
 }
 
-define('SPEC_RFC2822', 'rfc2822');
 define('SPEC_RFC822' , 'rfc822');
 define('SPEC_ISO8601', 'iso8601');
 define('SPEC_UNIX'   , 'unix');
@@ -670,7 +722,6 @@ define('SPEC_UNIX'   , 'unix');
  * Returns a date formatted in a standardized format.
  *
  * Possible formats:
- * - rfc2822 / SPEC_RFC2822
  * - rfc822 / SPEC_RFC822
  * - iso8601 / SPEC_ISO8601
  * - unix / SPEC_UNIX (default)
@@ -684,7 +735,7 @@ function dateSpec($format, $timestamp = null) {
 	if ($timestamp == null) {
 		$timestamp = time();
 	}
-	if (is_int($timestamp) == false) {
+	if (is_numeric($timestamp) == false) {
 		trigger_error('dateSpec(): Second argument has to be an integer or null.', E_USER_NOTICE);
 	}
 	$timestamp = times($timestamp);
@@ -697,8 +748,6 @@ function dateSpec($format, $timestamp = null) {
 		case SPEC_ISO8601:
 		   	return (string) gmdate('Y-m-d\TH:i:s ', $timestamp).$tz[0].$tz[1].':'.$tz[2];
 		case SPEC_RFC822:
-			return (string) gmdate("D, d M y H:i:s ", $timestamp).implode('', $tz);
-		case SPEC_RFC2822:
 			return (string) gmdate("D, d M Y H:i:s ", $timestamp).implode('', $tz);
 		default:
 			return (int) $timestamp;
@@ -947,6 +996,8 @@ function check_forumperm($forum) {
 }
 
 /*
+Sends a plain-text E-Mail.
+
 Params:
 	(array/string)	$to		= Absender
 					$to[]['name'] = Empfängername (opt)
@@ -956,21 +1007,16 @@ Params:
 					$from['mail'] = Absenderemail (opt)
 	(string)		$topic 		= Titel
 	(string)		$comment 	= Inhalt
-	(int)			$html 		= HTML-Modus (0/1)
-	(array)			$attachment = Empfänger (opt)
-					$attachment[]['file'] = Anhang der verschickt werden soll
-					$attachment[]['name'] = Dateiname für dei zu verschickende Datei
-					$attachment[]['type'] = [path|string] (opt)
 */
 
-function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachment = array()) {
+function xmail ($to, $from = array(), $topic, $comment) {
 	global $config, $my, $lang, $bbcode;
 
 	require_once("classes/mail/class.phpmailer.php");
 	require_once('classes/mail/extended.phpmailer.php');
 
 	$mail = new PHPMailer();
-	$mail->CharSet = $lang->phrase('charset');
+	$mail->CharSet = 'UTF-8';
 
 	// Added Check_mail for better security
 	// Now it is not possible to add various headers to the mail
@@ -1011,38 +1057,14 @@ function xmail ($to, $from = array(), $topic, $comment, $type='plain', $attachme
 	}
 	$i = 0;
 	foreach ($to as $email) {
-		if ($type == 'bb') {
-			BBProfile($bbcode);
-			$bbcode->setSmileys(0);
-			$bbcode->setReplace($config['wordstatus']);
-			$row->comment = ($row->comment);
-			$mail->IsHTML(TRUE);
-	    	$mail->Body    = $bbcode->parse($comment);
-	    	$mail->AltBody = $bbcode->parse($comment, 'plain');
-		}
-		elseif ($type == 'html') {
-			$mail->IsHTML(TRUE);
-	    	$mail->Body    = $comment;
-	    	$mail->AltBody = html_entity_decode(strip_tags($comment));
-	    }
-	    else {
-	    	$mail->Body    = html_entity_decode($comment);
-	    }
+		$mail->IsHTML(false);
+	    $mail->Body = $comment;
 
 	    if (isset($email['name'])) {
 	    	$mail->AddAddress($email['mail'], $email['name']);
 	    }
 	    else {
 	    	$mail->AddAddress($email['mail']);
-	    }
-
-	    foreach ($attachment as $file) {
-	    	if ($file['type'] == 'string') {
-	    		$mail->AddStringAttachment($file['file'], $file['name']);
-	    	}
-	    	else {
-	    		$mail->AddAttachment($file['file'], $file['name']);
-	    	}
 	    }
 
 		if ($mail->Send()) {

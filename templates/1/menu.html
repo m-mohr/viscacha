@@ -33,9 +33,8 @@
 		<?php if ($my->vlogin) { ?>
 		<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
 		<li><a href="search.php?action=active&amp;type=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_fav'); ?></a></li>
-		<?php } if ($my->clv > 0) { ?>
-		<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 		<?php } ?>
+		<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 		</ul>
 		<?php if ($config['syndication'] == 1) { ?>
 		<strong><?php echo $lang->phrase('choose_newsfeed'); ?></strong>

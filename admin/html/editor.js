@@ -82,7 +82,7 @@ function InsertTags(aTag, eTag, parentWindow, param2) {
         if (insText.length == 0) {
           range.move('character', -eTag.length);
         } else {
-          range.moveStart('character', aTag.length + insText.length + eTag.length);      
+          range.moveStart('character', aTag.length + insText.length + eTag.length);
         }
         range.select();
     }
@@ -141,7 +141,7 @@ function bbcolor(bgc) {
 }
 
 function popup_code() {
-	window.open("admin.php?action=cms&job=doc_code","","width=300,height=600,resizable=yes,scrollbars=yes,status=yes");   
+	window.open("admin.php?action=cms&job=doc_code","","width=300,height=600,resizable=yes,scrollbars=yes,status=yes");
 }
 
 function list(type) {
@@ -202,7 +202,7 @@ function InsertTagsParams(front, end, txt, txt2) {
 	}
 }
 
-function SuchenUndErsetzen(QuellText, SuchText, ErsatzText) {   
+function SuchenUndErsetzen(QuellText, SuchText, ErsatzText) {
 // (c) Ralf Pfeifer, http://www.arstechnica.de/computer/JavaScript/JS11_01.html
 	if ((QuellText == null) || (SuchText == null))			 { return null; }
 	if ((QuellText.length == 0) || (SuchText.length == 0))   { return QuellText; }
@@ -215,104 +215,4 @@ function SuchenUndErsetzen(QuellText, SuchText, ErsatzText) {
 		Pos = QuellText.indexOf(SuchText, Pos + LaengeErsatzText);
 	}
 	return QuellText;
-}
-
-
-var MenuTimeout = 1000;
-var active = 0;
-var MenuCountHide = 0;
-function GetLeft(l) {
-	if (l.offsetParent) return (l.offsetLeft + GetLeft(l.offsetParent));
-	else return (l.offsetLeft);
-}
-function GetTop(l) {
-	if (l.offsetParent) return (l.offsetTop + GetTop(l.offsetParent));
-	else return (l.offsetTop);
-}
-function TryHideMenu(menu,CountHide) {
-	if (CountHide != MenuCountHide) {
-		return;
-	}
-	HideMenu(menu);
-}
-function MenuEvent(active) {
-	var elementevent = FetchElement("popup_"+active);
-	elementevent.onmouseover = function() {
-        	MenuCountHide++;
-	}
-	elementevent.onmouseout = function() {
-		setTimeout("TryHideMenu('" + active + "', " + MenuCountHide + ")", MenuTimeout);
-	}
-}
-function ShowMenu(id) {
-	if(active != 0) {
-		if (id == active) {
-			HideMenu(active);
-    	}
-		else {
-			HideMenu(active);
-			ShowMenu(id);
-		}
-	}
-	else {
-		var elementbutton = FetchElement("menu_"+id);
-		var buttonleft = GetLeft(elementbutton);
-		var buttontop = GetTop(elementbutton);
-		var buttonwidth = elementbutton.offsetWidth;
-		var buttonheight = elementbutton.offsetHeight;
-		var elementmenu = FetchElement("popup_"+id);
-		var menuwidth = elementmenu.offsetWidth;
-		if((buttonleft+menuwidth) >= document.body.clientWidth) {
-			var posx = buttonleft + buttonwidth - menuwidth;
-		}
-		else {
-			var posx = buttonleft;
-		}
-		var posy = buttontop + buttonheight;
-	
-		elementmenu.style.zIndex = 1;
-		elementmenu.style.left = posx+'px';
-		elementmenu.style.top = posy+'px';
-		elementmenu.style.visibility = 'visible';
-		active = id;
-		MenuEvent(active);
-	}
-}
-function HideMenu(menu) {
-	var elementhide = FetchElement("popup_"+menu);
-	elementhide.style.zIndex = -1;
-	elementhide.style.left = '-1000px';
-	elementhide.style.top = '-1000px';
-	elementhide.style.visibility = 'hidden';
-	active = 0;
-}
-function Click() {
-	id = this.id.replace("menu_","");
-	ShowMenu(id);
-	return false;
-}
-function Swap() {
-	id = this.id.replace("menu_","")
-	if (active != 0 && active != id) {
-		HideMenu(active);
-		ShowMenu(id);
-	}
-}
-function Hide() {
-    if (active != 0) {
-		HideMenu(active);
-	}
-}
-function RegisterMenu(id) {
-	var buttonregister = FetchElement("menu_"+id);
-	if(buttonregister) {
-		HandCursor(buttonregister);
-		buttonregister.unselectable = true;
-		buttonregister.onclick = Click;
-		buttonregister.onmouseover = Swap;
-		window.onresize = Hide;
-	}
-}
-function Link() {
-	return false;
 }

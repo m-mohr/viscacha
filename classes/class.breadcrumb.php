@@ -10,12 +10,6 @@ class breadcrumb {
     }
 
     function Add($title, $url = NULL) {
-		global $config;
-		$title = html_entity_decode($title, ENT_QUOTES, $config['asia_charset']);
-		$title = str_replace ("'", '&#039;', $title );
-		$title = str_replace ('"', '&quot;', $title );
-		$title = str_replace ('<', '&lt;', $title );
-		$title = str_replace ( '>', '&gt;', $title );
     	$this->content[] = array(
     	    'title' => $title,
     	    'url' => $url
@@ -39,8 +33,10 @@ class breadcrumb {
     }
 
     function OutputHTML($seperator = ' > ') {
+    	global $gpc;
         $cache = array();
         foreach ($this->content as $key => $row) {
+        	$row['title'] = $gpc->prepare($row['title']);
             if (!empty($row['url'])) {
                 $cache[$key] = '<a href="'.$row['url'].'">'.$row['title'].'</a>';
             }
@@ -54,15 +50,18 @@ class breadcrumb {
     function OutputPLAIN($seperator = ' > ') {
         $cache = array();
         foreach ($this->content as $key => $row) {
+        	$row['title'] = htmlspecialchars_decode($row['title']);
             $cache[$key] = strip_tags($row['title']);
+            $row['title'] = htmlspecialchars($row['title']);
         }
         return implode($seperator, $cache);
     }
 
     function OutputPRINT($seperator = ' > ') {
-    	global $config;
+    	global $config, $gpc;
         $cache = array();
         foreach ($this->content as $key => $row) {
+        	$row['title'] = $gpc->prepare($row['title']);
         	if (!empty($row['url'])) {
             	$cache[$key] = "{$row['title']} (<a href=\"{$config['furl']}/{$row['url']}\">{$config['furl']}/{$row['url']}</a>)";
             }

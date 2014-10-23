@@ -71,7 +71,7 @@ if ($_GET['action'] == 'vote') {
 	while ($row = $db->fetch_assoc($result)) {
 		$votes += $row['votes'];
 
-		$PG->x[$i] = html_entity_decode($row['answer'], ENT_QUOTES, $config['asia_charset']);
+		$PG->x[$i] = $gpc->plain_str($row['answer'], false);
 		$PG->y[$i] = $row['votes'];
 
 		$i++;
@@ -107,6 +107,9 @@ elseif ($_GET['action'] == 'textimage') {
 	require('classes/graphic/class.text2image.php');
 
 	$img = new text2image();
+	if (empty($_GET['text'])) {
+		$_GET['text'] = '-';
+	}
 	if (empty($_GET['angle'])) {
 		$_GET['angle'] = 0;
 	}

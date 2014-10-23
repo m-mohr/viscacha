@@ -128,23 +128,19 @@ class tpl {
         return $this->contents;
 	}
 
-	function setdir($dirv=NULL) {
-		global $my;
-
-		if ($dirv == NULL) {
+	function setdir($dirv = null) {
+		if ($dirv == null) {
+			global $my;
 			$dirv = $my->templateid;
 		}
 
-		$dir = "./templates/$dirv/";
+		$dir = "./templates/{$dirv}/";
 		if (is_dir($dir)) {
 			$this->dir = $dir;
 			return true;
 		}
-		elseif (is_dir($dir)) {
-			$this->dir = $this->altdir;
-			return true;
-		}
 		else {
+			$this->dir = $this->altdir;
 			return false;
 		}
 	}

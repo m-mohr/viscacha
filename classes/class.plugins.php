@@ -38,6 +38,7 @@ class PluginSystem {
 		$this->pos = array();
 		$this->sqlcache = null;
 		$this->menu = null;
+		$this->plugdir = 'modules/';
 	}
 
 	function load($pos) {
@@ -49,6 +50,17 @@ class PluginSystem {
 		else {
 			return '';
 		}
+	}
+
+	function update_init($id, $dir) {
+		$old = $this->plugdir;
+		$this->plugdir = $dir;
+		return $this->_setup('update_init', $id);
+		$this->plugdir = $old;
+	}
+
+	function update_finish($id) {
+		return $this->_setup('update_finish', $id);
 	}
 
 	function uninstall($id) {
@@ -108,18 +120,18 @@ class PluginSystem {
 
 	function _setup($hook, $id) {
 		$source = '';
-		$inifile = 'modules/'.$id.'/plugin.ini';
+		$inifile = $this->plugdir.$id.'/plugin.ini';
 		if (file_exists($inifile) == true) {
 			$myini = new INI();
 			$ini = $myini->read($inifile);
 		    if (isset($ini['php'][$hook])) {
 		    	$file = $ini['php'][$hook];
-			  	$sourcefile = 'modules/'.$id.'/'.$file;
+			  	$sourcefile = $this->plugdir.$id.'/'.$file;
 			  	if (file_exists($sourcefile)) {
 				   	$source = file_get_contents($sourcefile);
 	    		}
 				else {
-					trigger_error('Setup for package not found! File '.$sourcefile.' could not be loaded while executing '.$hook.'.', E_USER_WARNING);
+					trigger_error('Setup/Update for package not found! File '.$sourcefile.' could not be loaded while executing '.$hook.'.', E_USER_WARNING);
 				}
 	    	}
 		}
@@ -196,13 +208,13 @@ class PluginSystem {
 	    	$code[$position] = '';
 	    	foreach ($mods as $id => $plugin) {
 	    		if (!isset($cfgdata[$plugin])) {
-		    		$inifile = 'modules/'.$plugin.'/plugin.ini';
+		    		$inifile = $this->plugdir.$plugin.'/plugin.ini';
 		    		$cfgdata[$plugin] = $myini->read($inifile);
 	    		}
 	    		if (isset($cfgdata[$plugin]['php'])) {
 		    		foreach ($cfgdata[$plugin]['php'] as $phpposition => $phpfile) {
 		    			if ($position == $phpposition) {
-				    		$sourcefile = 'modules/'.$plugin.'/'.$phpfile;
+				    		$sourcefile = $this->plugdir.$plugin.'/'.$phpfile;
 				    		if (file_exists($sourcefile)) {
 					    		$source = file_get_contents($sourcefile);
 					    		if (!isset($code[$position][$id])) {

@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
@@ -72,10 +72,10 @@ $subforums = BoardSelect($board);
 
 $filter = $gpc->get('sort', int);
 if ($filter == 2) {
-	$marksql = ' AND mark = "a" '.iif($info['auto_status'] == 'a', 'AND mark = "" ');
+	$marksql = ' AND mark = "a" '.iif($info['auto_status'] == 'a', 'AND mark IS NULL ');
 }
 elseif ($filter == 3) {
-	$marksql = ' AND mark = "n" '.iif($info['auto_status'] == 'n', 'AND mark = "" ');
+	$marksql = ' AND mark = "n" '.iif($info['auto_status'] == 'n', 'AND mark IS NULL ');
 }
 elseif ($filter == 4) {
 	$marksql = ' AND mark = "g" ';
@@ -123,16 +123,16 @@ $inner['index_bit'] = '';
 if ($info['topics'] > 0) {
 	$start = $_GET['page']*$info['forumzahl'];
 	$start = $start-$info['forumzahl'];
-	
+
 	($code = $plugins->load('showforum_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name 
-	FROM {$db->pre}topics 
+	SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
+	FROM {$db->pre}topics
 	WHERE board = '{$board}' {$marksql}
-	ORDER BY sticky DESC, last DESC 
+	ORDER BY sticky DESC, last DESC
 	LIMIT {$start}, {$info['forumzahl']}
 	",__LINE__,__FILE__);
-	
+
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($board);
 	$memberdata_obj = $scache->load('memberdata');
@@ -140,7 +140,7 @@ if ($info['topics'] > 0) {
 
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$pref = '';
-		
+
 		$showprefix = false;
 		if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
 			$showprefix = true;
@@ -149,9 +149,9 @@ if ($info['topics'] > 0) {
 		else {
 			$prefix = '';
 		}
-		
+
 		$last = $fc[$row->board];
-		
+
 		if(is_id($row->name) && isset($memberdata[$row->name])) {
 			$row->mid = $row->name;
 			$row->name = $memberdata[$row->name];
@@ -159,11 +159,11 @@ if ($info['topics'] > 0) {
 		else {
 			$row->mid = FALSE;
 		}
-		
+
 		if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
 			$row->last_name = $memberdata[$row->last_name];
 		}
-		
+
 		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
 
@@ -171,11 +171,11 @@ if ($info['topics'] > 0) {
 			$pref .= $lang->phrase('forum_moved');
 		}
 		else {
-			if (empty($row->mark) && !empty($info['auto_status'])) {
+			if ($row->mark === null && !empty($info['auto_status'])) {
 				$row->mark = $info['auto_status'];
 			}
 			if ($row->mark == 'n') {
-				$pref .= $lang->phrase('forum_mark_n'); 
+				$pref .= $lang->phrase('forum_mark_n');
 			}
 			elseif ($row->mark == 'a') {
 				$pref .= $lang->phrase('forum_mark_a');
@@ -191,7 +191,7 @@ if ($info['topics'] > 0) {
 			}
 		}
 
-		if ((isset($my->mark['t'][$row->id]) && $my->mark['t'][$row->id] > $row->last) || $row->last < $my->clv) {
+		if ($slog->isTopicRead($row->id, $row->last)) {
 	 		$firstnew = 0;
 			if ($row->status == 1 || $row->status == 2) {
 			   	$alt = $lang->phrase('forum_icon_closed');
@@ -217,16 +217,16 @@ if ($info['topics'] > 0) {
 		if ($last['topiczahl'] < 1) {
 			$last['topiczahl'] = $config['topiczahl'];
 		}
-	
+
 		if ($row->posts > $last['topiczahl']) {
 			$topic_pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small');
 		}
 		else {
 			$topic_pages = '';
 		}
-		
+
 		($code = $plugins->load('showforum_entry_prepared')) ? eval($code) : null;
-		
+
 		$inner['index_bit'] .= $tpl->parse("showforum/index_bit");
 	}
 }
@@ -243,5 +243,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();		
+$db->close();
 ?>

@@ -1,5 +1,6 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+// Changed some file operations to filesystem-class. Changes are labeled with "Mod: filesystem".
 
 // --------------------------------------------------------------------------------
 // PhpConcept Library - Zip Module 2.6
@@ -3600,6 +3601,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
             return $v_result;
           }
 
+/*
           // ----- Opening destination file
           if (($v_dest_file = @fopen($p_entry['filename'], 'wb')) == 0) {
 
@@ -3615,6 +3617,14 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
           // ----- Closing the destination file
           @fclose($v_dest_file);
+*/
+		  // Mod: filesystem
+		  global $filesystem;
+		  if (!$filesystem->file_put_contents($p_entry['filename'], $v_file_content)) {
+            $p_entry['status'] = "write_error";
+            return $v_result;
+		  }
+		  unset($v_file_content);
 
           // ----- Change the file mtime
           @touch($p_entry['filename'], $p_entry['mtime']);
@@ -3624,7 +3634,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
         if (isset($p_options[PCLZIP_OPT_SET_CHMOD])) {
 
           // ----- Change the mode of the file
-          @chmod($p_entry['filename'], $p_options[PCLZIP_OPT_SET_CHMOD]);
+          // @chmod($p_entry['filename'], $p_options[PCLZIP_OPT_SET_CHMOD]);
+          // Mod: filesystem
+          global $filesystem;
+          $filesystem->chmod($p_entry['filename'], $p_options[PCLZIP_OPT_SET_CHMOD]);
         }
 
       }
@@ -4589,7 +4602,10 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     }
 
     // ----- Create the directory
-    if (!@mkdir($p_dir, 0777))
+    // if (!@mkdir($p_dir, 0777))
+    // Mod: filesystem
+    global $filesystem;
+    if (!$filesystem->mkdir($p_dir, 0777))
     {
       // ----- Error log
       PclZip::privErrorLog(PCLZIP_ERR_DIR_CREATE_FAIL, "Unable to create directory '$p_dir'");
@@ -5211,13 +5227,20 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
     $v_result = 1;
 
     // ----- Try to rename the files
-    if (!@rename($p_src, $p_dest)) {
+    // if (!@rename($p_src, $p_dest)) {
+    // Mod: filesystem
+    global $filesystem;
+    if (!$filesystem->rename($p_src, $p_dest)) {
 
       // ----- Try to copy & unlink the src
-      if (!@copy($p_src, $p_dest)) {
+      // if (!@copy($p_src, $p_dest)) {
+      // Mod: filesystem
+      if (!$filesystem->copy($p_src, $p_dest)) {
         $v_result = 0;
       }
-      else if (!@unlink($p_src)) {
+      //else if (!@unlink($p_src)) {
+      // Mod: filesystem
+      else if (!$filesystem->unlink($p_src)) {
         $v_result = 0;
       }
     }

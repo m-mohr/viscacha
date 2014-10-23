@@ -1,8 +1,8 @@
 <mail>
-	<title>{@config->fname}: New post for topic "{@row->topic}"</title>
+	<title>{@config->fname}: New post for topic &quot;{@row->topic}&quot;</title>
 	<comment>Hello {@row->name}
 
-You subscribed the topic "{@row->topic}".
+You subscribed the topic &quot;{@row->topic}&quot;.
 New posts have been made. The last entry is from {@row->last_name}.
 
 You can view the topic here:
