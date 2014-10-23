@@ -1067,7 +1067,7 @@ elseif ($job == 'phrase') {
 	echo foot();
 }
 elseif ($job == 'phrase_file_find') {
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	echo head();
 ?>
 <form name="form" method="get" action="admin.php">
@@ -1099,7 +1099,7 @@ elseif ($job == 'phrase_file_find') {
 }
 elseif ($job == 'phrase_file') {
 	echo head();
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$group = substr($encfile, 0, strlen($encfile)-8);
 	$page = $gpc->get('page', int, 1);
@@ -1221,7 +1221,7 @@ elseif ($job == 'phrase_file') {
 }
 elseif ($job == 'phrase_copy') {
 	$language = $gpc->get('id', int);
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	echo head();
@@ -1253,7 +1253,7 @@ elseif ($job == 'phrase_copy') {
 }
 elseif ($job == 'phrase_copy2') {
 	$dest = $gpc->get('id', int);
-	$file = base64_decode($gpc->get('file', none));
+	$file = base64_decode($gpc->get('file', path));
 	$source = $gpc->get('dir', int);
 	echo head();
 	createParentDir($file, 'language/'.$dest);
@@ -1277,7 +1277,7 @@ elseif ($job == 'phrase_file_edit') {
 	echo head();
 
 	$phrase = $gpc->get('phrase', none);
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$basefile = substr($encfile, 0, strlen($encfile)-8);
 
@@ -1336,7 +1336,7 @@ elseif ($job == 'phrase_file_edit') {
 elseif ($job == 'phrase_file_edit2') {
 	echo head();
 
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
@@ -1361,7 +1361,7 @@ elseif ($job == 'phrase_file_edit2') {
 }
 elseif ($job == 'phrase_file_copy') {
 	$language = $gpc->get('id', int);
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$phrase = $gpc->get('phrase', str);
 	$result = $db->query("SELECT * FROM {$db->pre}language WHERE id != '{$language}' ORDER BY language");
@@ -1399,7 +1399,7 @@ elseif ($job == 'phrase_file_copy2') {
 	echo head();
 	$dest = $gpc->get('id', int);
 	$source = $gpc->get('dir', int);
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$phrase = $gpc->get('phrase', str);
 	$destpath = 'language/'.$dest.'/'.$encfile;
@@ -1436,7 +1436,7 @@ elseif ($job == 'phrase_delete') {
 elseif ($job == 'phrase_file_delete') {
 	echo head();
 	$delete = $gpc->get('delete', arr_str);
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$encfile = base64_decode($file);
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	$c = new manageconfig();
@@ -1487,8 +1487,8 @@ elseif ($job == 'phrase_add_lngfile') {
 	echo foot();
 }
 elseif ($job == 'phrase_add_lngfile2') {
-	$dir = base64_decode($gpc->get('dir', none));
-	$file = $gpc->get('file', none);
+	$dir = base64_decode($gpc->get('dir', path));
+	$file = $gpc->get('file', path);
 	$c = new manageconfig();
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	while($row = $db->fetch_assoc($result)) {
@@ -1582,10 +1582,10 @@ elseif ($job == 'phrase_add_mailfile2') {
 }
 elseif ($job == 'phrase_add') {
 	echo head();
-	$file = base64_decode($gpc->get('file', none));
+	$file = base64_decode($gpc->get('file', path));
 	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_add2&file=<?php echo $gpc->get('file', none); ?>">
+<form name="form" method="post" action="admin.php?action=language&job=phrase_add2&file=<?php echo $gpc->get('file', path); ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
    <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager'); ?> &raquo; <?php echo $file; ?> &raquo; <?php echo $lang->phrase('admin_lang_add_new_phrase'); ?></td>
@@ -1629,7 +1629,7 @@ elseif ($job == 'phrase_add2') {
 	echo head();
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
-	$file = base64_decode($gpc->get('file', none));
+	$file = base64_decode($gpc->get('file', path));
 	$language = $gpc->get('langt', arr_none);
 
 	$c = new manageconfig();

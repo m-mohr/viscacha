@@ -1234,7 +1234,7 @@ elseif ($job == 'doc_select_image') {
 	 ********************************************************************/
 	$leadon = realpath(EDITOR_IMAGEDIR).DIRECTORY_SEPARATOR;
 	$leadon = str_replace('\\', '/', $leadon);
-	$dir = $gpc->get('dir', none);
+	$dir = $gpc->get('dir', path);
 	$dotdotdir = false;
 	$dirok = false;
 	if(!empty($dir)) {
@@ -1356,8 +1356,8 @@ elseif ($job == 'doc_insert_image') {
 	if (!empty($_FILES['file']['name'])) {
 		$path = $leadon;
 
-		$qdir = $gpc->get('dir', none);
-		$ndir = $gpc->get('newdir', none);
+		$qdir = $gpc->get('dir', path);
+		$ndir = $gpc->get('newdir', path);
 		if($qdir == '#') {
 			if (!preg_match('/[^\w\d\-\.]/i', $qdir) || empty($ndir)) {
 				$error = $lang->phrase('admin_wysiwyg_folder_restrictions');

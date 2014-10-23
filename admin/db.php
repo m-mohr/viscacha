@@ -421,7 +421,7 @@ elseif ($job == 'restore_info') {
 	$sqllimit = $mem_limit / 1.5;
 
 	$dir = "./admin/backup/";
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 
 	$nfo = pathinfo($dir.$file);
     if (strtolower($nfo['extension']) == 'zip') {
@@ -631,7 +631,7 @@ elseif ($job == 'restore2') {
 }
 elseif ($job == 'download') {
 	$dir = "./admin/backup/";
-	$file = $gpc->get('file', none);
+	$file = $gpc->get('file', path);
 	$ext = get_extension($file);
 	if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
 		if ($ext == 'sql') {

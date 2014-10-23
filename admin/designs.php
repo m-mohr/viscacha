@@ -834,9 +834,9 @@ elseif ($job == 'templates_file_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
 	$readonly = $gpc->get('readonly', int);
-	$sub = rawurldecode($gpc->get('dir', none));
+	$sub = rawurldecode($gpc->get('dir', path));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
-	$file = rawurldecode($gpc->get('file', none));
+	$file = rawurldecode($gpc->get('file', path));
 	if ((!file_exists($path.'/'.$file) || empty($file)) && !$readonly) {
 		$result = $db->query('SELECT template FROM '.$db->pre.'designs WHERE id = "'.$config['templatedir'].'" LIMIT 1');
 		$design = $db->fetch_assoc($result);
@@ -877,9 +877,9 @@ elseif ($job == 'templates_file_edit') {
 elseif ($job == 'templates_file_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$sub = rawurldecode($gpc->get('dir', none));
+	$sub = rawurldecode($gpc->get('dir', path));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
-	$file = rawurldecode($gpc->get('file', none));
+	$file = rawurldecode($gpc->get('file', path));
 	$filesystem->unlink($path.'/'.$file);
 	$extension = get_extension($file);
 	if (stripos($extension, 'bak') !== false) {
@@ -890,9 +890,9 @@ elseif ($job == 'templates_file_delete') {
 elseif ($job == 'templates_file_edit2') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$sub = rawurldecode($gpc->get('dir', none));
+	$sub = rawurldecode($gpc->get('dir', path));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
-	$file = rawurldecode($gpc->get('file', none));
+	$file = rawurldecode($gpc->get('file', path));
 	$backup = $gpc->get('backup', int);
 	$content = $gpc->get('template', none);
 	if ($backup == 1) {
@@ -917,9 +917,9 @@ elseif ($job == 'templates_file_edit2') {
 elseif ($job == 'templates_file_revert') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$sub = rawurldecode($gpc->get('dir', none));
+	$sub = rawurldecode($gpc->get('dir', path));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
-	$file = rawurldecode($gpc->get('file', none));
+	$file = rawurldecode($gpc->get('file', path));
 	$default = $gpc->get('default', int);
 	if ($default == 1) {
 		$filesystem->unlink($path.'/'.$file);
@@ -938,9 +938,9 @@ elseif ($job == 'templates_file_history') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$sub = rawurldecode($gpc->get('dir', none));
+	$sub = rawurldecode($gpc->get('dir', path));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
-	$file = rawurldecode($gpc->get('file', none));
+	$file = rawurldecode($gpc->get('file', path));
 
 	$result = $db->query('SELECT template FROM '.$db->pre.'designs WHERE id = "'.$config['templatedir'].'" LIMIT 1');
 	$design = $db->fetch_assoc($result);
@@ -1026,8 +1026,8 @@ elseif ($job == 'templates_file_compare') {
 	echo head();
 	include('classes/diff/class.diff.php');
 	include('classes/diff/function.diff.php');
-	$old = $gpc->get('old', none);
-	$new = $gpc->get('new', none);
+	$old = $gpc->get('old', path);
+	$new = $gpc->get('new', path);
 	if (empty($old) || empty($new)) {
 		error('javascript:history.back(-1);',$lang->phrase('admin_design_choose_an_old_and_new_version'));
 	}
@@ -1084,7 +1084,7 @@ elseif ($job == 'templates_file_compare') {
 elseif ($job == 'templates_browse') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$sub = rawurldecode($gpc->get('dir', none));
+	$sub = rawurldecode($gpc->get('dir', path));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
 
 	$result = $db->query('SELECT template FROM '.$db->pre.'designs WHERE id = "'.$config['templatedir'].'" LIMIT 1');

@@ -42,7 +42,7 @@ class ServerNavigator
 		$this->use_image_icons		= (bool)$use_image_icons;
 		$this->show_subfolders_size = (bool)$show_subfolders_size;
 		$this->script_file			= $this->realPath('admin.php').'?action=explorer';
-		$this->path = $gpc->get('path', none);
+		$this->path = $gpc->get('path', path);
 		if (empty($this->path)) {
 			$this->path = './';
 		}

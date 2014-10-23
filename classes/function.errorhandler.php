@@ -80,7 +80,7 @@ function log_handler($errno, $errtext, $errfile, $errline) {
 	}
 
 	$errlogfile = 'data/errlog_php.inc.php';
-	if (file_exists($errlogfile) == false) {
+	if (isset($config) && file_exists($errlogfile) == false) {
 		$errlogfile = $config['fpath'].'/'.$errlogfile;
 	}
 

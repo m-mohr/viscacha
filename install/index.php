@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 
 chdir('../');
 
-define('VISCACHA_VERSION', '0.8.1');
+define('VISCACHA_VERSION', '0.8.1.1');
 define('VISCACHA_CORE', '1');
 define('SCRIPTNAME', 'install');
 define('SCRIPT_LOCKED', file_exists('./locked.txt'));
@@ -16,7 +16,8 @@ if (!SCRIPT_LOCKED) {
 
 	$old_versions = array();
 	if (file_exists("install/package/update/steps.inc.php")) {
-		$old_versions['update'] = '0.8';
+		$old_versions['update'] = '0.8.1';
+		$old_versions['update_0.8'] = '0.8';
 	}
 
 	$packages = array();
@@ -43,7 +44,7 @@ if (!SCRIPT_LOCKED) {
 	else {
 		$packages[] = array(
 			'title' => 'Update',
-			'description' => 'For an update you need to download the Update-Package for Viscacha 0.8 RC7!'
+			'description' => 'For an update you need to download the Update-Package!'
 		);
 	}
 

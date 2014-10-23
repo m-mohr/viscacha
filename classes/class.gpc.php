@@ -54,6 +54,9 @@ class GPC {
 		if (!defined('html_enc')) {
 			define('html_enc', 7);
 		}
+		if (!defined('path')) {
+			define('path', 8);
+		}
 		$this->prepare_original = array('"', "'", '<', '>');
 		$this->prepare_entity = array('&quot;', '&#039;', '&lt;', '&gt;');
 		$this->php523 = version_compare(PHP_VERSION, '5.2.3', '>=');
@@ -73,6 +76,9 @@ class GPC {
 				if ($type == arr_str && !is_array($var)) {
 					$var = array($var);
 				}
+			}
+			else if ($type == path) {
+				$var = convert2path(trim($value));
 			}
 			elseif ($type == int || $type == arr_int) {
 				if ($type == int && ($value === '' || $value === null)) {
@@ -107,7 +113,7 @@ class GPC {
 		}
 		else {
 			if ($standard === null) {
-				if ($type == str || $type == db_esc || $type == html_enc) {
+				if ($type == str || $type == db_esc || $type == html_enc || $type == path) {
 					$var = '';
 				}
 				elseif ($type == int) {
@@ -165,9 +171,9 @@ class GPC {
 		elseif (is_array($var)) {
 			$cnt = count($var);
 			$keys = array_keys($var);
-
 			for ($i = 0; $i < $cnt; $i++){
-				$key = $keys[$i];
+				$key = $this->save_int($keys[$i]);
+				if (!isset($var[$key]) || $key != $keys[$i]) { die('Error: Hacking Attempt (GPC::save_str)'); }
 				$var[$key] = $this->save_str($var[$key], $db_esc);
 			}
 		}
@@ -197,9 +203,9 @@ class GPC {
 		if (is_array($var)) {
 			$cnt = count($var);
 			$keys = array_keys($var);
-
 			for ($i = 0; $i < $cnt; $i++){
-				$key = $keys[$i];
+				$key = $this->save_int($keys[$i]);
+				if (!isset($var[$key]) || $key != $keys[$i]) { die('Error: Hacking Attempt (GPC::save_int)'); }
 				$var[$key] = $this->save_int($var[$key]);
 			}
 		}

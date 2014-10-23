@@ -407,6 +407,17 @@ function serverload($int = false) {
 	return $returnload;
 }
 
+function convert2path($path, $returnEmptyOnInvalid = false) {
+	$newPath = str_replace (array('\\', '/', '<', '>', ':', '?', '*', '"', "\0", "\r", "\n", "\t"), '_', $path);
+	// Replace multiple delimiter chars with only one char
+	$newPath = preg_replace('/_+/', '_', $newPath);
+
+	if ($returnEmptyOnInvalid && $path != $newPath) {
+		return "";
+	}
+	return $newPath;
+}
+
 function convert2adress($url, $toLower = true, $spacer = '-') {
 	if ($toLower == true) {
 		$url = strtolower($url);

@@ -531,7 +531,9 @@ class BBCode {
 			// Apply tabs finally
 			$text = str_ireplace('[tab]', "&nbsp; &nbsp;&nbsp;", $text); // One normal whitespace to avoid really long lines
 
-			$text = $this->parseSmileys($text);
+			if ($this->profile['useSmileys']) {
+				$text = $this->parseSmileys($text);
+			}
 			$text = $this->wordwrap($text);
 		}
 		$text = str_ireplace('[reader]', $this->reader, $text);

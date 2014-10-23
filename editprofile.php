@@ -837,7 +837,7 @@ elseif ($_GET['action'] == "mylast") {
 elseif ($_GET['action'] == "addabo") {
 	$result = $db->query("SELECT id, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
 	if ($db->num_rows($result) != 1) {
-
+		error($lang->phrase('no_id_given'));
 	}
 	$info = $db->fetch_assoc($result);
 	$my->p = $slog->Permissions($info['board']);
@@ -881,6 +881,9 @@ elseif ($_GET['action'] == "addabo") {
 elseif ($_GET['action'] == "removeabo") {
 	($code = $plugins->load('editprofile_removeabo_start')) ? eval($code) : null;
 	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
+	if ($db->num_rows($result) != 1) {
+		error($lang->phrase('no_id_given'));
+	}
 	$info = $db->fetch_assoc($result);
 	$my->p = $slog->Permissions($info['board']);
 

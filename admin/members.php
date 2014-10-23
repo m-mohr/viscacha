@@ -1117,7 +1117,8 @@ elseif ($job == 'manage') {
 		  <a href="admin.php?action=members&amp;job=manage&amp;sort=regdate&amp;letter=<?php echo $letter; ?>&amp;order=1&amp;page=<?php echo $page; ?>"><img src="admin/html/images/desc.gif" border=0 alt="<?php echo $lang->phrase('admin_member_desc'); ?>"></a></td>
 		</tr>
 	<?php
-	while ($row = $slog->cleanUserData($db->fetch_object($result))) {
+	while ($row = $db->fetch_object($result)) {
+		$row = $slog->cleanUserData($row);
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = 'Never';
@@ -1185,7 +1186,8 @@ elseif ($job == 'memberrating') {
 		  <td class="obox"><?php echo $lang->phrase('admin_member_reg_date'); ?></td>
 		</tr>
 	<?php
-	while ($row = $slog->cleanUserData($db->fetch_object($result))) {
+	while ($row = $db->fetch_object($result)) {
+		$row = $slog->cleanUserData($row);
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = $lang->phrase('admin_member_never');

@@ -23,7 +23,7 @@ if ($job == 'delete_install') {
 if ($job == 'upload') {
 
 	$cfg = $gpc->get('cfg', str);
-	$path = $gpc->get('path', none);
+	$path = $gpc->get('path', path);
 
 	if ($cfg == 'cron') {
 		$ups = 1;
@@ -136,7 +136,7 @@ if ($job == 'upload') {
 	}
 }
 elseif ($job == 'newdir') {
-	$path = urldecode($gpc->get('path', none));
+	$path = urldecode($gpc->get('path', path));
 	echo head();
 	?>
 <form name="form" method="post" action="admin.php?action=explorer&job=newdir2">
@@ -172,7 +172,7 @@ elseif ($job == 'newdir') {
 elseif ($job == "newdir2") {
 	$chmod = $gpc->get('chmod', int);
 	$name = $gpc->get('name', str, 'New Directory');
-	$path = urldecode($gpc->get('path', none));
+	$path = urldecode($gpc->get('path', path));
 	$new = $path.$name.'/';
 	echo head();
 	if ($filesystem->mkdir($new, chmod_str2oct($chmod))) {
@@ -183,7 +183,7 @@ elseif ($job == "newdir2") {
 	}
 }
 elseif ($job == "chmod") {
-	$path = $gpc->get('path', none);
+	$path = $gpc->get('path', path);
 	$chmod = get_chmod($path);
 	echo head(' onload="octalchange()"');
 	?>
@@ -240,7 +240,7 @@ elseif ($job == "chmod") {
 }
 elseif ($job == "chmod2") {
 	echo head();
-	$path = $gpc->get('path', none);
+	$path = $gpc->get('path', path);
 	$chmod = $gpc->get('chmod', int);
 	$repath = urlencode(extract_dir($path, false));
 	if ($filesystem->chmod($path, chmod_str2oct($chmod))) {
@@ -251,7 +251,7 @@ elseif ($job == "chmod2") {
 	}
 }
 elseif ($job == "rename") {
-	$path = urldecode($gpc->get('path', none));
+	$path = urldecode($gpc->get('path', path));
 	$type = $gpc->get('type', str);
 	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
@@ -278,7 +278,7 @@ elseif ($job == "rename") {
 elseif ($job == "rename2") {
 	echo head();
 	$type = $gpc->get('type', str);
-	$source = urldecode($gpc->get('path', none));
+	$source = urldecode($gpc->get('path', path));
 	$newname = $gpc->get('name', str);
 	if (empty($newname)) {
 		error('admin.php?action=explorer&job=rename&path='.urlencode($source), $lang->phrase('admin_explorer_no_new_name_specified'));
@@ -308,7 +308,7 @@ elseif ($job == "rename2") {
 	}
 }
 elseif ($job == "delete") {
-	$path = urldecode($gpc->get('path', none));
+	$path = urldecode($gpc->get('path', path));
 	$type = $gpc->get('type', str);
 	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
@@ -332,7 +332,7 @@ elseif ($job == "delete") {
 	echo foot();
 }
 elseif ($job == "delete2") {
-	$path = urldecode($gpc->get('path', none));
+	$path = urldecode($gpc->get('path', path));
 	$type = $gpc->get('type', str);
 	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
@@ -348,7 +348,7 @@ elseif ($job == "delete2") {
 }
 elseif ($job == "edit") {
 	echo head();
-	$file = urldecode($gpc->get('path', none));
+	$file = urldecode($gpc->get('path', path));
 
 	set_chmod($file, 0666, CHMOD_FILE);
 	@clearstatcache();
@@ -377,7 +377,7 @@ elseif ($job == "edit") {
 }
 elseif ($job == "edit2") {
 	echo head();
-	$file = urldecode($gpc->get('path', none));
+	$file = urldecode($gpc->get('path', path));
 	if (!$ServerNavigator->checkEdit($file)) {
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_is_not_editable'));
 	}
@@ -387,7 +387,7 @@ elseif ($job == "edit2") {
 }
 elseif ($job == "extract") {
 	echo head();
-	$file = urldecode($gpc->get('path', none));
+	$file = urldecode($gpc->get('path', path));
 	if (!$ServerNavigator->checkExtract($file)) {
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_format_is_not_supported'));
 	}
@@ -415,8 +415,8 @@ elseif ($job == "extract") {
 }
 elseif ($job == "extract2") {
 	echo head();
-	$file = $gpc->get('path', none);
-	$dir = $gpc->get('to', none);
+	$file = $gpc->get('path', path);
+	$dir = $gpc->get('to', path);
 
 	set_chmod($dir, 0777, CHMOD_EX);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
