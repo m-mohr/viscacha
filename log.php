@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -56,9 +56,9 @@ if ($_GET['action'] == "login2") {
 	else {
 		$remember = false;
 	}
-	
+
 	($code = $plugins->load('log_login2')) ? eval($code) : null;
-	
+
 	$log_status = $slog->sid_login($remember);
 	if (!$log_status) {
 		error($lang->phrase('log_wrong_data'), "log.php?action=login&amp;redirect=".rawurlencode($loc).SID2URL_x);
@@ -101,11 +101,11 @@ elseif ($_GET['action'] == "pwremind2") {
 		error($lang->phrase('flood_control'),'log.php?action=login'.SID2URL_x);
 	}
 	set_flood();
-	
+
 	($code = $plugins->load('log_pwremind2_start')) ? eval($code) : null;
 
 	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' LIMIT 1",__LINE__,__FILE__);
-	
+
 	$user = $db->fetch_assoc($result);
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
@@ -115,14 +115,15 @@ elseif ($_GET['action'] == "pwremind2") {
 		$confirmcode = md5($config['cryptkey'].$user['pw']);
 
 		($code = $plugins->load('log_pwremind2_prepare')) ? eval($code) : null;
-		
+
+		$user = $gpc->plain_str($user);
 		$data = $lang->get_mail('pwremind');
 		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
 		$from = array();
 		xmail($to, $from, $data['title'], $data['comment']);
 
 		($code = $plugins->load('log_pwremind2_end')) ? eval($code) : null;
-		
+
 		ok($lang->phrase('log_pwremind_success'), "log.php?action=login".SID2URL_x);
 	}
 	$slog->updatelogged();
@@ -137,19 +138,20 @@ elseif ($_GET['action'] == "pwremind3") {
 
 	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
 	$user = $db->fetch_assoc($result);
-	
+
 	$confirmcode = md5($config['cryptkey'].$user['pw']);
 	if ($confirmcode == $_GET['fid']) {
-	
+
 		$pw = random_word();
 		$md5 = md5($pw);
 		$db->query("UPDATE {$db->pre}user SET pw = '{$md5}' WHERE id = '{$user['id']}' LIMIT 1",__LINE__,__FILE__);
 
+		$user = $gpc->plain_str($user);
 		$data = $lang->get_mail('pwremind2');
 		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
 		$from = array();
 		xmail($to, $from, $data['title'], $data['comment']);
-		
+
 		($code = $plugins->load('log_pwremind3_success')) ? eval($code) : null;
 		ok($lang->phrase('log_pwremind_changed'), "log.php?action=login".SID2URL_x);
 	}
@@ -183,5 +185,5 @@ else {
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();	
+$db->close();
 ?>

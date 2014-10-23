@@ -1,39 +1,41 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+// BF: MultiLangAdmin
+$lang->group("admin/db");
+
 function highlight_sql_query($sql) {
-	global $lang;
 	require_once('classes/class.geshi.php');
 	$path = 'classes/geshi';
-	$lang = 'mysql';
-	if (!file_exists($path.'/'.$lang.'.php')) {
-		$lang = 'sql';
-		if (!file_exists($path.'/'.$lang.'.php')) {
+	$language = 'mysql';
+	if (!file_exists($path.'/'.$language.'.php')) {
+		$language = 'sql';
+		if (!file_exists($path.'/'.$language.'.php')) {
 			return null;
 		}
 	}
-	$geshi = new GeSHi($sql, $lang, $path);
+	$geshi = new GeSHi($sql, $language, $path);
 	$geshi->enable_classes(false);
 	$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
 	return $geshi->parse_code();
 }
 
 function exec_query_form ($query = '') {
-	global $db;
+	global $db, $lang;
 	$tables = $db->list_tables();
 ?>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="2"><b>Execute Queries</b></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_execute_queries'); ?></td>
   </tr>
   <tr>
 	<td class="mbox" width="90%">
-	<span style="float: right;">semicolon-separated list</span><strong>Queries:</strong>
+	<span style="float: right;"><?php echo $lang->phrase('admin_db_semicolon_sep_list'); ?></span><strong><?php echo $lang->phrase('admin_db_queries'); ?></strong>
 	<textarea name="query" id="query" rows="10" cols="90" class="texteditor" style="width: 100%; height: 200px;"><?php echo iif(!empty($query), $query); ?></textarea>
 	</td>
 	<td class="mbox" width="10%">
-	<strong>Tables:</strong>
+	<strong><?php echo $lang->phrase('admin_db_tables'); ?></strong>
 	<div style="overflow: scroll; height: 200px; width: 150px; border: 1px solid #336699; padding: 2px;">
 	<?php foreach ($tables as $table) { ?>
 	<a href="javascript:InsertTags('query', '`<?php echo $table; ?>`', '');"><?php echo $table; ?></a><br />
@@ -42,25 +44,25 @@ function exec_query_form ($query = '') {
 	</td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_submit'); ?>"></td>
   </tr>
  </table>
 </form>
 <br />
-<?php if (empty($query)) { ?>
+<?php if (empty($query)) { $maxfilesize = formatFilesize(ini_maxupload()); ?>
 <form name="form" method="post" action="admin.php?action=db&amp;job=query2&amp;type=1" enctype="multipart/form-data">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox"><b>Import SQL File</b></td>
+   <td class="obox"><b><?php echo $lang->phrase('admin_db_import_sql_file'); ?></b></td>
   </tr>
   <tr>
   	<td class="mbox">
   	<input type="file" name="upload" size="80" /><br />
-  	<span class="stext">Allowed file types: .sql, .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span>
+  	<span class="stext"><?php echo $lang->phrase('admin_db_allowed_filetypes_max_filesize'); ?></span>
   	</td>
   </tr>
   <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Submit"></td>
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_submit'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -90,20 +92,22 @@ if ($job == 'optimize') {
 <form name="form" method="post" action="admin.php?action=db&job=optimize2">
  <table class="border">
   <tr>
-   <td class="obox" colspan="6">Repair &amp; Optimize</td>
+   <td class="obox" colspan="6"><?php echo $lang->phrase('admin_db_repair_and_optimize'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="7%">Repair</td>
-   <td class="ubox" width="7%">Optimize</td>
-   <td class="ubox" width="47%">Database</td>
-   <td class="ubox" width="13%">Data Length</td>
-   <td class="ubox" width="13%">Index Length</td>
-   <td class="ubox" width="13%">Overhead</td>
+   <td class="ubox" width="7%"><?php echo $lang->phrase('admin_db_repair'); ?></td>
+   <td class="ubox" width="7%"><?php echo $lang->phrase('admin_db_optimize'); ?></td>
+   <td class="ubox" width="47%"><?php echo $lang->phrase('admin_db_database'); ?></td>
+   <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_data_length'); ?></td>
+   <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_index_length'); ?></td>
+   <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_overhead'); ?></td>
   </tr>
   <tr>
    <td class="mbox"><input type="checkbox" onclick="check_all('repair[]')" name="repair_all"></td>
    <td class="mbox"><input type="checkbox" onclick="check_all('optimize[]')" name="optimize_all"></td>
-   <td class="mbox"><strong>All</strong></td>
+   <td class="mbox"><strong><?php echo $lang->phrase('admin_db_all'); ?></strong></td><?php
+   	$data_length = formatFilesize($data_length);
+   ?>
    <td class="mbox"><strong><?php echo formatFilesize($data_length); ?></strong></td>
    <td class="mbox"><strong><?php echo formatFilesize($index_length); ?></strong></td>
    <td class="mbox"><strong><?php echo formatFilesize($data_free); ?></strong></td>
@@ -127,7 +131,7 @@ if ($job == 'optimize') {
 		</tr>
 	<?php } ?>
   <tr>
-   <td class="ubox" colspan="6" align="center"><input type="submit" name="Submit" value="Submit"></td>
+   <td class="ubox" colspan="6" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_submit'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -146,7 +150,7 @@ elseif ($job == 'optimize2') {
 		$db->query("OPTIMIZE TABLE ".implode(', ', $opt),__LINE__,__FILE__);
 	}
 
-	ok('admin.php?action=db&job=optimize', 'Tables repaired and/or optimized!');
+	ok('admin.php?action=db&job=optimize', $lang->phrase('admin_db_tables_repaired_optimized'));
 }
 elseif ($job == 'backup') {
 	echo head();
@@ -157,14 +161,14 @@ elseif ($job == 'backup') {
   <tr>
    <td class="obox" colspan="5">
 	<span style="float: right;">
-	<a class="button" href="admin.php?action=db&amp;job=restore">Restore</a>
+	<a class="button" href="admin.php?action=db&amp;job=restore"><?php echo $lang->phrase('admin_db_restore'); ?></a>
 	</span>
-	Backup Tables
+	<?php echo $lang->phrase('admin_db_backup_tables'); ?>
 	</td>
   </tr>
   <tr>
-   <td class="ubox" width="30%">Export</td>
-   <td class="ubox" width="70%">Options</td>
+   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_export'); ?></td>
+   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_options'); ?></td>
   </tr>
   <tr>
     <td class="mbox" width="30%" valign="top">
@@ -175,14 +179,14 @@ elseif ($job == 'backup') {
 	</select>
    </td>
    <td class="mbox" width="70%" valign="top">
-   <input type="checkbox" name="structure" value="1" checked="checked" /> <strong>Export structure</strong><br />
-   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="drop" value="1" checked="checked" /> Add 'DROP TABLE IF EXISTS'<br /><br />
-   <input type="checkbox" name="data" value="1" checked="checked" /> <strong>Export data</strong>
-   <br /><br /><input type="checkbox" name="zip" value="1" /> <strong>Save as ZIP file</strong>
+   <input type="checkbox" name="structure" value="1" checked="checked" /> <strong><?php echo $lang->phrase('admin_db_export_structure'); ?></strong><br />
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="drop" value="1" checked="checked" /> <?php echo $lang->phrase('admin_db_add_drop_table'); ?><br /><br />
+   <input type="checkbox" name="data" value="1" checked="checked" /> <strong><?php echo $lang->phrase('admin_db_export_data'); ?></strong>
+   <br /><br /><input type="checkbox" name="zip" value="1" /> <strong><?php echo $lang->phrase('admin_db_save_as_zip'); ?></strong>
    </td>
   </tr>
   <tr>
-   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
+   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_submit'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -192,15 +196,18 @@ elseif ($job == 'backup') {
 elseif ($job == 'backup2') {
 	@ignore_user_abort(false);
 	@set_time_limit(300);
+	echo head();
 	$tables = $gpc->get('backup', arr_str);
+	if (count($tables) == 0) {
+		error('admin.php?action=db&job=backup', $lang->phrase('admin_db_not_table_specified'));
+	}
 	$structure = $gpc->get('structure', int);
 	$data = $gpc->get('data', int);
 	$drop = $gpc->get('drop', int);
 	$zip = $gpc->get('zip', int);
-	echo head();
 	$db->backup_settings();
 	$sqldata = $db->backup($tables, $structure, $data, $drop);
-	$ok = "Backup successfully created!";
+	$ok = $lang->phrase('admin_db_backup_successfully_created');
 	if (!empty($sqldata) && strlen($sqldata) > 0) {
         // Speichern der Backup-Datei
         $file_path = "admin/backup/".gmdate('d_m_Y-H_i_s');
@@ -212,7 +219,7 @@ elseif ($job == 'backup2') {
 			$v_list = $archive->create($file_path.'.sql',PCLZIP_OPT_REMOVE_PATH, "admin/backup");
 
             if ($v_list == 0) {
-            	$ok = "Could not create ZIP-File. Saved backup as normal textfile.<br />Error: ".$archive->errorInfo(true);
+            	$ok = $lang->phrase('admin_db_zip_error_saved_txt').'<br />'.$lang->phrase('admin_db_error').' '.$archive->errorInfo(true);
         		$file_path .= '.sql';
         	}
         	else {
@@ -229,11 +236,11 @@ elseif ($job == 'backup2') {
             ok('admin.php?action=db&job=restore',$ok);
         }
     	else {
-    	    error('admin.php?action=db&job=backup','Backup was not created on account of missing permissions!');
+    	    error('admin.php?action=db&job=backup',$lang->phrase('admin_db_backup_missing_permissions'));
     	}
 	}
 	else {
-	    error('admin.php?action=db&job=backup','Backup was not created on account of missing data!');
+	    error('admin.php?action=db&job=backup',$lang->phrase('admin_db_backup_missing_data'));
 	}
 }
 elseif ($job == 'restore') {
@@ -292,11 +299,11 @@ elseif ($job == 'restore') {
 			            $header = implode("<br />\n", $header);
 			        }
 			        else {
-			        	$header = 'Can not read information. This file is maybe damaged.';
+			        	$header = $lang->phrase('admin_db_file_damaged');
 			        }
 		        }
 		        else {
-		        	$header = 'File is too big for opening.';
+		        	$header = $lang->phrase('admin_db_file_too_large');
 		        }
 
 				$result[] = array(
@@ -315,16 +322,16 @@ elseif ($job == 'restore') {
   <tr>
    <td class="obox" colspan="4">
 	<span style="float: right;">
-	<a class="button" href="admin.php?action=db&amp;job=restore">Backup</a>
+	<a class="button" href="admin.php?action=db&amp;job=backup"><?php echo $lang->phrase('admin_db_backup'); ?></a>
 	</span>
-	Restore Database
+	<?php echo $lang->phrase('admin_db_restore_database'); ?>
    </td>
   </tr>
   <tr>
-   <td class="ubox" width="5%">Restore</td>
-   <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
-   <td class="ubox" width="80%">Information</td>
-   <td class="ubox" width="10%">File Size</td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_db_restore'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_db_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_db_all'); ?></span></td>
+   <td class="ubox" width="80%"><?php echo $lang->phrase('admin_db_information'); ?></td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_db_file_size'); ?></td>
   </tr>
 	<?php foreach ($result as $row) { ?>
 		<tr>
@@ -334,28 +341,28 @@ elseif ($job == 'restore') {
 		   <td class="mbox stext" nowrap="nowrap" width="10%" rowspan="2"><?php echo FormatFilesize($row['size']); ?></td>
 		</tr>
         <tr>
-           <td class="mbox" colspan="2" align="center"><a href="admin.php?action=db&amp;job=download&amp;file=<?php echo $row['file']; ?>">Download</a></td>
+           <td class="mbox" colspan="2" align="center"><a href="admin.php?action=db&amp;job=download&amp;file=<?php echo $row['file']; ?>"><?php echo $lang->phrase('admin_db_download'); ?></a></td>
         </tr>
 	<?php } ?>
   <tr>
-   <td class="ubox" width="100%" colspan="4" align="center"><input type="submit" name="Submit" value="Submit"></td>
+   <td class="ubox" width="100%" colspan="4" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_submit'); ?>"></td>
   </tr>
  </table>
 </form><br />
 <form name="form" method="post" enctype="multipart/form-data" action="admin.php?action=explorer&job=upload&cfg=dbrestore">
  <table class="border">
   <tr>
-   <td class="obox" colspan="4">Upload a Backup</td>
+   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_db_upload_backup'); ?></td>
   </tr>
   <tr>
    <td class="mbox" width="50%">
-    Upload a backup:<br />
-    <span class="stext">Allowed file types: .sql, .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span>
+    <?php echo $lang->phrase('admin_db_upload_backup'); ?><br /><?php $maxfilesize = formatFilesize(ini_maxupload()); ?>
+    <span class="stext"><?php echo $lang->phrase('admin_db_allowed_filetypes_max_filesize'); ?></span>
    </td>
    <td class="mbox" width="50%"><input type="file" name="upload_0" size="40" /></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Upload"></td>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_upload'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -378,7 +385,7 @@ elseif ($job == 'restore2') {
 				$d++;
 			}
 		}
-		ok('admin.php?action=db&job=restore', $d.' backups deleted');
+		ok('admin.php?action=db&job=restore', $lang->phrase('admin_db_num_backups_deleted'));
 	}
 
 	$ext = get_extension($file);
@@ -416,10 +423,10 @@ elseif ($job == 'restore2') {
 				closedir($dh);
 			}
 
-			ok('admin.php?action=db&job=restore', $q['ok'].' queries successfully executed.');
+			ok('admin.php?action=db&job=restore', $lang->phrase('admin_db_num_queries_seccesfully_extd'));
 		}
 		else {
-			error('admin.php?action=db&job=restore', 'Can not read information. This file is maybe damaged.');
+			error('admin.php?action=db&job=restore', $lang->phrase('admin_db_file_damaged'));
 		}
 	}
 
@@ -436,12 +443,13 @@ elseif ($job == 'download') {
 		else {
 		    viscacha_header('Content-Type: application/zip');
 		}
+		viscacha_header('Content-Length: '.filesize($dir.$file));
 		viscacha_header('Content-Disposition: attachment; filename="'.$file.'"');
 		readfile($dir.$file);
 	}
 	else {
 		echo head();
-		error('admin.php?action=db&job=restore', 'File not found');
+		error('admin.php?action=db&job=restore', $lang->phrase('admin_db_file_not_found'));
 	}
 }
 elseif ($job == 'status') {
@@ -456,11 +464,11 @@ elseif ($job == 'status') {
 ?>
   <table class="border">
   <tr>
-   <td class="obox" colspan="2">Table Information: <?php echo $table; ?></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_table_information'); ?> <?php echo $table; ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="30%">Name</td>
-   <td class="ubox" width="70%">Value</td>
+   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_name'); ?></td>
+   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_value'); ?></td>
   </tr>
 	<?php
 		while ($data = $db->fetch_assoc($result11)) {
@@ -472,7 +480,7 @@ elseif ($job == 'status') {
 		</tr>
 	<?php }} ?>
       <tr>
-       <td class="ubox" colspan="2">Field Information</td>
+       <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_db_field_information'); ?></td>
       </tr>
 		<tr>
 		   <td class="mbox" colspan="2">
@@ -501,11 +509,11 @@ elseif ($job == 'status') {
  ?>
  <table class="border">
   <tr>
-   <td class="obox" colspan="2">Server Variables<a name="sv">&nbsp;</a></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_server_variables'); ?><a name="sv">&nbsp;</a></td>
   </tr>
   <tr>
-   <td class="ubox" width="30%">Name</td>
-   <td class="ubox" width="70%">Value</td>
+   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_name'); ?></td>
+   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_value'); ?></td>
   </tr>
 	<?php while ($row = $db->fetch_num($result2)) { ?>
 		<tr>
@@ -516,11 +524,11 @@ elseif ($job == 'status') {
  </table><br />
  <table class="border">
   <tr>
-   <td class="obox" colspan="2">Server Status Information<a name="ssi">&nbsp;</a></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_server_stat_information'); ?><a name="ssi">&nbsp;</a></td>
   </tr>
   <tr>
-   <td class="ubox" width="30%">Name</td>
-   <td class="ubox" width="70%">Value</td>
+   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_name'); ?></td>
+   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_value'); ?></td>
   </tr>
 	<?php while ($row = $db->fetch_num($result1)) { ?>
 		<tr>
@@ -535,17 +543,17 @@ elseif ($job == 'status') {
 	?>
 	  <table class="border">
 	  <tr>
-	   <td class="obox">Table of Contents</td>
+	   <td class="obox"><?php echo $lang->phrase('admin_db_table_of_contents'); ?></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox">
-	   <strong>Server Information</strong>:<br />
+	   <strong><?php echo $lang->phrase('admin_db_server_information'); ?></strong>:<br />
 	   <ul>
-		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#sv">Server Variables</a></li>
-		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#ssi">Server Status Information</a></li>
+		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#sv"><?php echo $lang->phrase('admin_db_server_variables'); ?></a></li>
+		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#ssi"><?php echo $lang->phrase('admin_db_server_stat_information'); ?></a></li>
 	   </ul>
 	   <br />
-	   <strong>Table Information</strong>:<br />
+	   <strong><?php echo $lang->phrase('admin_db_table_information'); ?></strong>:<br />
 	   <ul>
 		<?php foreach ($result as $row) { ?>
 		<li><a href="admin.php?action=db&amp;job=status&amp;table=<?php echo $row; ?>"><?php echo $row; ?></a></li>
@@ -574,7 +582,7 @@ elseif ($job == 'query2') {
 		require("classes/class.upload.php");
 
 		if (empty($_FILES['upload']['name'])) {
-			$inserterrors[] = 'No file specified.';
+			$inserterrors[] = $lang->phrase('admin_db_no_file_specified');
 		}
 
 		$my_uploader = new uploader();
@@ -585,7 +593,7 @@ elseif ($job == 'query2') {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
 				if (!file_exists($file)) {
-					$inserterrors[] = 'File ('.$file.') does not exist.';
+					$inserterrors[] = $lang->phrase('admin_db_file_doesnt_exist');
 				}
 			}
 		}
@@ -633,14 +641,14 @@ elseif ($job == 'query2') {
 		if (!empty($error)) {
 			?>
 			 <table class="border" align="center">
-			  <tr><td class="obox">MySQL Error</td></tr>
+			  <tr><td class="obox"><?php echo $lang->phrase('admin_db_sql_error'); ?></td></tr>
 			  <tr><td class="mbox"><?php echo strip_tags($error); ?></td></tr>
 			 </table>
 			<?php
 		}
 		else {
-			echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$q['ok'].' Queries executed';
-			echo iif($q['affected'] > 0, ' - '.$q['affected'].' Rows affected');
+			echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$lang->phrase('admin_db_queries_extd');
+			echo iif($q['affected'] > 0, ' - '.$lang->phrase('admin_db_rows_affected'));
 			echo '</td></tr>';
 			echo iif(!empty($hl), '<tr><td class="mbox">'.$hl.'</td></tr>');
 			echo '</table>';
@@ -666,5 +674,4 @@ elseif ($job == 'query2') {
 	}
 	echo foot();
 }
-
 ?>

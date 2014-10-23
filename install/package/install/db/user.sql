@@ -21,7 +21,7 @@ CREATE TABLE `{:=DBPREFIX=:}user` (
   `msn` varchar(128) NOT NULL default '',
   `jabber` varchar(128) NOT NULL default '',
   `skype` varchar(128) NOT NULL default '',
-  `timezone` varchar(5) default NULL default '',
+  `timezone` varchar(5) default '',
   `groups` varchar(128) NOT NULL default '',
   `opt_textarea` tinyint(1) unsigned NOT NULL default '0',
   `opt_pmnotify` enum('0','1') NOT NULL default '1',

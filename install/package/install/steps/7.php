@@ -8,6 +8,9 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	if (isset($_REQUEST['host'])) {
 		$config['host'] = trim($_REQUEST['host']);
 	}
+	else {
+		$config['host'] = 'localhost';
+	}
 	if (isset($_REQUEST['dbuser'])) {
 		$config['dbuser'] = trim($_REQUEST['dbuser']);
 	}
@@ -17,14 +20,23 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	if (isset($_REQUEST['database'])) {
 		$config['database'] = trim($_REQUEST['database']);
 	}
-	if (isset($_REQUEST['pconnect'])) {
+	if (isset($_REQUEST['pconnect']) && isset($_REQUEST['dbsystem']) && $_REQUEST['dbsystem'] == 'mysql') {
 		$config['pconnect'] = $_REQUEST['pconnect'];
+	}
+	else {
+		$config['pconnect'] = 0;
 	}
 	if (isset($_REQUEST['dbprefix'])) {
 		$config['dbprefix'] = trim($_REQUEST['dbprefix']);
 	}
+	else {
+		$config['dbprefix'] = '';
+	}
 	if (isset($_REQUEST['dbsystem'])) {
 		$config['dbsystem'] = $_REQUEST['dbsystem'];
+	}
+	else {
+		$config['dbsystem'] = 'mysql';
 	}
 	$c = new manageconfig();
 	$c->getdata('../data/config.inc.php');
@@ -36,16 +48,30 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbprefix',str);
 	$c->updateconfig('dbsystem',str);
 	$c->savedata();
+
+	$errlog = '../data/errlog_'.$config['dbsystem'].'.inc.php';
+	if (!file_exists($errlog)) {
+		$filesystem->file_put_contents($errlog, '');
+		$filesystem->chmod($errlog, 0666);
+	}
 ?>
 <div class="bfoot center">Database Settings saved!</div>
 <?php
 }
 require('../data/config.inc.php');
+$prefix = preg_replace("/\W+/i", '', $config['dbprefix']);
+if ($prefix != $config['dbprefix']) {
+	?>
+<div class="bbody">The prefix is not valid!</div>
+<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
+	<?php
+}
+else {
 require_once('../classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['pconnect'], false, $config['dbprefix']);
 $db->pre = $db->prefix();
 $db->connect(false);
-if (!is_resource($db->conn)) {
+if (!$db->hasConnection()) {
 	?>
 <div class="bbody">Could not connect to database! Pleasy try again later or check the database settings!</div>
 <div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
@@ -54,7 +80,7 @@ if (!is_resource($db->conn)) {
 else {
 	if (!$db->select_db()) {
 		?>
-<div class="bbody">Could not find database <em><?php echo $db->getcfg('database'); ?></em>! Please create a new database with this name or choose another database!</div>
+<div class="bbody">Could not find database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
 <div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
 		<?php
 	}
@@ -129,6 +155,7 @@ else {
 <div class="bfoot center"><input type="submit" value="Continue" /></div>
 	<?php
 	}
+}
 }
 $db->close();
 ?>

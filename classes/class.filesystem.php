@@ -90,25 +90,26 @@ class filesystem {
 		if (is_array($data)) {
 			$data = implode("\n", $data);
 		}
-		if (file_put_contents($file, $data) == false) {
-			if ($this->init()) {
-				$fp = tmpfile();
-				if (!is_resource($fp)) {
-					return false;
+		$this->chmod($file, 0666);
+
+		if (@file_put_contents($file, $data) == false) {
+			$ret = false;
+			$fp = @tmpfile();
+			if (is_resource($fp) == true) {
+				if ($this->init()) {
+					fwrite($fp, $data);
+					fseek($fp, 0);
+					$this->ftp->chmod(dirname($file), 0777);
+					$ret = $this->ftp->put($fp, $file);
 				}
-				fwrite($fp, $data);
-				fseek($fp, 0);
-				if ($this->ftp->put($fp, $file) == false) {
-					return false;
-				}
-				if (is_resource($fp)) {
+				else {
 					fclose($fp);
 				}
-				return true;
 			}
-			else {
-				return false;
+			if ($ret == false) {
+				trigger_error("filesystem::file_put_contents({$file}): failed to open stream: Permission denied", E_USER_WARNING);
 			}
+			return $ret;
 		}
 		else {
 			return true;
@@ -124,12 +125,28 @@ class filesystem {
 			$this->mkdir($dir, 0777);
 			$dir = dirname($dir);
 		}
-		return copy($src, $dest);
+		$ret = @copy($src, $dest);
+		if ($ret == false) {
+            $fp = @fopen($file, "r");
+            if (is_resource($fp)) {
+            	if ($this->init()) {
+					$this->ftp->chmod(dirname($file), 0777);
+            		$ret = $this->ftp->put($fp, str_replace(' ', '_', $dest));
+            	}
+            	fclose($fp);
+            }
+		}
+		if ($ret == false) {
+			trigger_error("filesystem::copy({$src}, {$dest}): failed to open stream: Permission denied", E_USER_WARNING);
+		}
+		return $ret;
 	}
 
 	function mkdir($file, $chmod = 0755) {
 		if (file_exists($file)) {
-			$this->ftp->chmod($file, $chmod);
+			if ($this->init()) {
+				$this->ftp->chmod($file, $chmod);
+			}
 		}
 		if (!@mkdir($file, $chmod)) {
 			if ($this->init()) {

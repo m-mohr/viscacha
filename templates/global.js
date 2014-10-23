@@ -77,7 +77,7 @@ function ReloadCountdown(iv) {
 	}
 	else {
 		countdown = FetchElement('countdown');
-		countdown.innerHTML = iv;
+		countdown.firstChild.nodeValue = iv;
 		iv = iv - 1;
 		setTimeout("ReloadCountdown("+iv+")", 1000);
 	}
@@ -138,6 +138,19 @@ function ResizeImg(img,maxwidth) {
 	}
 }
 
+function openImageWindow(img, imgwidth, imgheight) {
+    var width = screen.width-30;
+    if (width > imgwidth) {
+        width = imgwidth+30;
+    }
+    var height = screen.height-50;
+    if (height > imgheight) {
+        height = imgheight+30;
+    }
+    window.open(img.href,"","scrollbars=yes,status=no,toolbar=no,location=yes,directories=no,resizable=no,menubar=no,width="+width+",height="+height);
+    return false;
+}
+
 /*
 XHConn - Simple XMLHTTP interface - bfults@gmail.com - 2005-04-08
 Code licensed under Creative Commons Attribution-ShareAlike License
@@ -185,8 +198,7 @@ function ajax() {
 }
 
 function ieRand() {
-	var IE = document.all? 1:0;
-	if (IE) {
+	if (document.all && !window.opera) {
 		return '&rndcache='+Math.floor(Math.random()*1000000);
 	}
 	else {
@@ -267,7 +279,7 @@ function ajax_searchmember(name) {
 			if (suggest.length > 3) {
 				names = oXML.responseText.split(",");
 				for (var i=0;i<names.length;i++) {
-					names[i] = '<a href="javascript:ajax_smIns(\''+names[i]+'\');">'+names[i]+'</a>';
+					names[i] = '<a tabindex="1'+i+'" href="javascript:ajax_smIns(\''+names[i]+'\');">'+names[i]+'</a>';
 				}
 				inline.innerHTML = lng['ajax7']+names.join(', ');
 			}

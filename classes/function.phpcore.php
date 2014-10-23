@@ -1,16 +1,7 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-/*
-This is a file with functions that emulate the needed php-functions for backward compatibility.
-The following functions are emulated:
-mhash, sha1, str_shuffle, array_change_key_case, html_entity_decode, array_chunk, file_put_contents,
-file_get_contents, str_ireplace, str_split, version_compare, is_a, http_build_query, array_key_exists
-*/
-
-
-/* Viscacha related */
-
+/* Viscacha related ini settings */
 @set_magic_quotes_runtime(0);
 @ini_set('magic_quotes_gpc',0);
 
@@ -19,314 +10,60 @@ if (isset($config['error_reporting']) && $config['error_reporting'] > 0) {
 	error_reporting($config['error_reporting']);
 }
 if (isset($config['error_handler']) && $config['error_handler'] == 1) {
+	require_once(realpath(__FILE__).'/function.errorhandling.php');
 	set_error_handler('msg_handler');
 }
 
-function iif($if, $true, $false = '') {
-	return ($if ? $true : $false);
-}
-
-/**
-* Error and message handler, call with trigger_error if required
-*/
-function msg_handler($errno, $errtext, $errfile, $errline) {
-	global $db, $config;
-
-	$errdate = date("Y-m-d H:i:s (T)");
-
-	$errortype = array (
-		E_ERROR			=> "PHP Error",
-		E_WARNING		=> "PHP Warning",
-		E_NOTICE		=> "PHP Notice",
-		E_USER_ERROR	=> "User Error",
-		E_USER_WARNING	=> "User Warning",
-		E_USER_NOTICE	=> "User Notice"
-	);
-
-	if ($config['error_log'] == 1) {
-		switch ($errno) {
-			case E_WARNING:
-			case E_NOTICE:
-			case E_USER_WARNING:
-			case E_USER_NOTICE:
-			case E_USER_ERROR:
-			case E_ERROR:
-				$errlogfile = 'data/errlog_php.inc.php';
-				$new = array();
-				if (file_exists($errlogfile)) {
-					$lines = file($errlogfile);
-					foreach ($lines as $row) {
-						$row = trim($row);
-						if (!empty($row)) {
-							$new[] = $row;
-						}
-					}
-				}
-				else {
-					$new = array();
-				}
-				$errtext2 = str_replace(array("\r\n","\n","\r","\t"), " ", $errtext);
-				$sru = str_replace(array("\r\n","\n","\r","\t"), " ", $_SERVER['REQUEST_URI']);
-				$new[] = $errno."\t".$errtext2."\t".$errfile."\t".$errline."\t".$sru."\t".time()."\t".PHP_VERSION." (".PHP_OS.")";
-				file_put_contents($errlogfile, implode("\n", $new));
-			break;
-		}
-	}
-
-	switch ($errno) {
-		case E_WARNING:
-		case E_NOTICE:
-		case E_USER_WARNING:
-		case E_USER_NOTICE:
-			echo "<br /><strong>".$errortype[$errno]."</strong>: ".$errtext." (File: <tt>".$errfile."</tt> on line <tt>".$errline."</tt>)";
-		break;
-		case E_USER_ERROR:
-		case E_ERROR:
-			if (isset($db)) {
-				$db->close();
-			}
-			if (function_exists('ob_clean')) {
-				@ob_clean();
-			}
-			?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-		<title>Viscacha <?php echo $config['version']; ?> &raquo; Error</title>
-		<style type="text/css">
-		<!--
-		body{
-			color: #000000;
-			background-color: #FAFAFA;
-			font-size: 12px;
-			line-height: 130%;
-			font-family: Sans-Serif;
-			margin-left: 10%;
-			margin-right: 10%;
-			border: 1px solid #aaaaaa;
-		}
-		p {
-			margin: 0px;
-			padding: 2px;
-			padding-left: 15px;
-			padding-right: 5px;
-		}
-		a {
-			color: #A80000;
-		}
-		a:hover {
-			color: #000000;
-		}
-		h1 {
-			text-align: center;
-			padding: 10px;
-			margin: 0px;
-			margin-bottom: 20px;
-			background-color: #eeeeee;
-			border-bottom: 1px solid #aaaaaa;
-		}
-		h3 {
-			padding: 0px;
-			margin: 0px;
-			padding-left: 5px;
-			padding-right: 5px;
-			margin-bottom: 7px;
-			margin-top: 20px;
-			color: #A80000;
-			border-bottom: 1px solid #EEE;
-		}
-		.code {
-			background: #FFFFFF;
-			border: 1px solid #dddddd;
-			margin-right: 5px;
-			margin-bottom: 2px;
-			margin-top: 2px;
-			margin-left: 15px;
-			padding: 2px;
-			font-family: Monospace;
-			list-style: none;
-		}
-		.lineone {
-			padding:0 5px;
-			margin:2px 0;
-			background:#F9F9F9;
-		}
-		.center {
-			text-align: center;
-		}
-		.linetwo {
-			padding:0 5px;
-			margin:2px 0;
-			background:#FCFCFC;
-		}
-		.mark {
-			padding:0 5px;
-			margin:2px 0;
-			background: #eedddd;
-			color: #880000;
-			font-weight: bold;
-		}
-		-->
-		</style>
-	</head>
-	<body>
-		<h1>General Error</h1>
-		<p class="center">
-			[<a href="<?php echo $config['furl']; ?>/index.php">Return to Index</a>]
-			<?php if (check_hp($_SERVER['HTTP_REFERER'])) { ?>
-			&nbsp;&nbsp;[<a href="<?php echo htmlspecialchars($_SERVER['HTTP_REFERER']); ?>">Return to last Page</a>]
-			<?php } ?>
-		</p>
-		<h3>Error Message</h3>
-		<p><strong><?php echo $errortype[$errno]; ?></strong>: <?php echo $errtext; ?></p>
-		<h3>Error Details</h3>
-		<p>
-			File: <?php echo $errfile; ?><br />
-			Line: <?php echo $errline; ?><br />
-			Date: <?php echo $errdate; ?><br />
-		</p>
-		<h3>Code Snippet</h3>
-		<?php echo getErrorCodeSnippet($errfile, $errline); ?>
-		<h3>Backtrace</h3>
-		<?php echo get_backtrace(); ?>
-		<h3>Contact</h3>
-		<p>Please notify the board administrator: <a href="mailto:<?php echo $config['forenmail']; ?>"><?php echo $config['forenmail']; ?></a></p>
-		<h3>Copyright</h3>
-		<p>
-			<strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
-			Copyright &copy; by MaMo Net
-		</p>
-	</body>
-</html>
-			<?php
-			exit;
-		break;
-	}
-}
-
-function get_backtrace() {
-	global $config;
-
-	if (function_exists('debug_backtrace')) {
-		$backtrace = debug_backtrace();
-	}
-	else {
-		$output = '<p>Backtrace is not available!</p>';
-		return $output;
-	}
-	$path = realpath($config['fpath']);
-
-	$output = '';
-	foreach ($backtrace as $number => $trace) {
-		// We skip the first one, because it only shows this file/function
-		if ($number == 0) {
-			continue;
-		}
-
-		if (isset($trace['file'])) {
-			// Strip the current directory from path
-			$trace['file'] = str_replace(array($path, '\\'), array('', '/'), $trace['file']);
-			$trace['file'] = substr($trace['file'], 1);
-		}
-
-		$args = array();
-		if (isset($trace['args']) && is_array($trace['args'])) {
-			foreach ($trace['args'] as $argument) {
-				switch (gettype($argument)) {
-					case 'integer':
-					case 'double':
-						$args[] = $argument;
-					break;
-
-					case 'string':
-						$argument = htmlspecialchars(substr($argument, 0, 64)) . ((strlen($argument) > 64) ? '...' : '');
-						$args[] = "'{$argument}'";
-					break;
-
-					case 'array':
-						$args[] = 'Array(' . count($argument) . ')';
-					break;
-
-					case 'object':
-						$args[] = 'Object(' . get_class($argument) . ')';
-					break;
-
-					case 'resource':
-						$args[] = 'Resource(' . strstr($a, '#') . ')';
-					break;
-
-					case 'boolean':
-						$args[] = ($argument) ? 'true' : 'false';
-					break;
-
-					case 'NULL':
-						$args[] = 'NULL';
-					break;
-
-					default:
-						$args[] = 'Unknown';
-				}
-			}
-		}
-
-		$trace['file'] = (!isset($trace['file'])) ? 'N/A' : $trace['file'];
-		$trace['line'] = (!isset($trace['line'])) ? 'N/A' : $trace['line'];
-		$trace['class'] = (!isset($trace['class'])) ? '' : $trace['class'];
-		$trace['type'] = (!isset($trace['type'])) ? '' : $trace['type'];
-
-		$output .= '<ul class="code">';
-		$output .= '<li class="linetwo"><b>File:</b> ' . htmlspecialchars($trace['file']) . '</li>';
-		$output .= '<li class="lineone"><b>Line:</b> ' . $trace['line'] . '</li>';
-		$output .= '<li class="linetwo"><b>Call:</b> ' . htmlspecialchars($trace['class'] . $trace['type'] . $trace['function']) . '(' . ((count($args)) ? implode(', ', $args) : '') . ')</li>';
-		$output .= '</ul>';
-	}
-	return $output;
-}
-
-
-function getErrorCodeSnippet($file, $line) {
-        $lines = file_exists($file) ? file($file) : null;
-        if(!is_array($lines)) {
-            return 'Could not load code snippet!';
-        }
-
-		$code    = '<ul class="code">';
-    	$total   = count($lines);
-
-		for($i = $line - 5; $i <= $line + 5; $i++) {
-    		if(($i >= 1) && ($i <= $total)) {
-                $codeline = @rtrim(htmlentities($lines[$i - 1]));
-                $codeline = str_replace("\t", '&nbsp;&nbsp;&nbsp;&nbsp;', $codeline);
-                $codeline = str_replace(' ',  '&nbsp;',                   $codeline);
-
-                $i = sprintf("%05d", $i);
-
-                $class = $i % 2 == 0 ? 'lineone' : 'linetwo';
-
-                if($i != $line) {
-                    $code .= "<li class=\"{$class}\"><span>{$i}</span> {$codeline}</li>\n";
-                }
-                else {
-                    $code .= "<li class=\"mark\"><span>{$i}</span> {$codeline}</li>\n";
-                }
-            }
-		}
-
-        $code .= "</ul>";
-
-		return $code;
-	}
-
 /* Fixed php functions */
-
 // You should use viscacha_dirname instead of dirname
 // Written by Manuel Lemos
 function viscacha_dirname($path) {
 	$end=strrpos($path,"/");
 	return((gettype($end)=="integer" && $end>1) ? substr($path,0,$end) : "");
 }
+// Fixes problems with suhosin blacklist
+function viscacha_function_exists($func) {
+	if (extension_loaded('suhosin')) {
+		$suhosin = @ini_get("suhosin.executor.func.blacklist");
+		if (empty($suhosin) == false) {
+			$suhosin = explode(',', $suhosin);
+			$suhosin = array_map('trim', $suhosin);
+			$suhosin = array_map('strtolower', $suhosin);
+			return (function_exists($func) == true && array_search($func, $suhosin) === false);
+		}
+	}
+	return function_exists($func);
+}
+// Variable headers are not secure in php (HTTP response Splitting).
+// Better use viscacha_header() instead of header().
+// viscacha_header() removes \r, \n, \0
+function viscacha_header($header) {
+	$header = str_replace("\n", '', $header);
+	$header = str_replace("\r", '', $header);
+	$header = str_replace("\0", '', $header);
+	header($header);
+}
 
+/* Some other important functions */
+// Function to determine which OS is used
+function isWindows() {
+	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+		return true;
+	}
+	elseif (isset($_SERVER['OS']) && strpos(strtolower($_SERVER['OS']), 'Windows') !== false) {
+		return true;
+	}
+	elseif (viscacha_function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
+
+	}
+	else {
+		return false;
+	}
+}
+function isMac() {
+	$mac = strtoupper(substr(PHP_OS, 0, 3));
+	return ($mac == 'MAC' || $mac == 'DAR');
+}
 /**
  * getDocRoot fixes a problem with Windows where PHP does not have $_SERVER['DOCUMENT_ROOT']
  * built in. getDocRoot returns what $_SERVER['DOCUMENT_ROOT'] should have. It should work on
@@ -354,7 +91,7 @@ function getDocumentRoot(){
 	}
 
 	//checks if Windows is being used to replace the \ to /
-	if(isset($_SERVER['OS']) && (strpos($_SERVER['OS'],'Windows') > -1)){
+	if(isWindows() == true){
 		$absolutepath = str_replace("\\","/",$absolutepath);
 	}
 
@@ -362,35 +99,9 @@ function getDocumentRoot(){
 	$docroot = substr($absolutepath,0,strpos($absolutepath,$localpath));
 	return $docroot;
 }
-
-// Variable headers are not secure in php (HTTP response Splitting). Better use viscacha_header()
-// viscacha_header() removes \r, \n, \0
-function viscacha_header($header) {
-	$header = str_replace("\n", '', $header);
-	$header = str_replace("\r", '', $header);
-	$header = str_replace("\0", '', $header);
-	header($header);
-}
-
-// PHP has no comfortable solution?!
-function imagegreyscale(&$img) {
-	$x = imagesx($img);
-	$y = imagesy($img);
-
-	for($i=0; $i<$y; $i++) {
-		for($j=0; $j<$x; $j++) {
-	    	$pos = imagecolorat($img, $j, $i);
-	    	$f = imagecolorsforindex($img, $pos);
-	    	$gst = $f['red']*0.15 + $f['green']*0.5 + $f['blue']*0.35;
-	    	$col = imagecolorresolve($img, $gst, $gst, $gst);
-	    	imagesetpixel($img, $j, $i, $col);
-	  	}
-	}
-}
-
-// PHP is stupid: No lcfirst()
-function lcfirst($p) {
-	return strtolower($p{0}).substr($p, 1);
+// if function for templates
+function iif($if, $true, $false = '') {
+	return ($if ? $true : $false);
 }
 
 /* Missing constants from PHP-Compat */
@@ -421,7 +132,7 @@ if (!defined('E_STRICT')) {
  */
 if (!defined('PATH_SEPARATOR')) {
     define('PATH_SEPARATOR',
-        strtoupper(substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':'
+        isWindows() ? ';' : ':'
      );
 }
 
@@ -436,21 +147,15 @@ if (!defined('PATH_SEPARATOR')) {
  * @since       PHP 5.0.2
  */
 if (!defined('PHP_EOL')) {
-    switch (strtoupper(substr(PHP_OS, 0, 3))) {
-        // Windows
-        case 'WIN':
-            define('PHP_EOL', "\r\n");
-            break;
-
-        // Mac
-        case 'DAR':
-            define('PHP_EOL', "\r");
-            break;
-
-        // Unix
-        default:
-            define('PHP_EOL', "\n");
-    }
+	if (isWindows() == true) {
+		define('PHP_EOL', "\r\n");
+	}
+	elseif (isMac() == true) {
+		define('PHP_EOL', "\r");
+	}
+	else {
+		define('PHP_EOL', "\n");
+	}
 }
 
 /**
@@ -672,7 +377,7 @@ if (!defined('IMAGETYPE_XBM')) {
     define('IMAGETYPE_XBM', 16);
 }
 
-/* Missing functions (from PHP-Compat) */
+/* Missing functions */
 
 /**
  * Replace image_type_to_mime_type()
@@ -684,7 +389,7 @@ if (!defined('IMAGETYPE_XBM')) {
  * @since       PHP 4.3.0
  * @require     PHP 4.0.0 (user_error)
  */
-if (!function_exists('image_type_to_mime_type')) {
+if (!viscacha_function_exists('image_type_to_mime_type')) {
     function image_type_to_mime_type($imagetype) {
         switch ($imagetype):
             case IMAGETYPE_GIF:
@@ -744,7 +449,7 @@ if (!function_exists('image_type_to_mime_type')) {
  * getmxrr() returns true or false and provides a
  * list of MX hosts in order of preference.
  */
-if(!function_exists('checkdnsrr')) {
+if(!viscacha_function_exists('checkdnsrr')) {
 	function checkdnsrr($host, $type = 'MX') {
 	   if(!empty($host)) {
 	       @exec("nslookup -querytype=$type $host", $output);
@@ -768,7 +473,7 @@ if(!function_exists('checkdnsrr')) {
  * @author		Matthias Mohr
  * @require     PHP 4.0.0 (trigger_error)
  */
-if(!function_exists('image_type_to_extension')) {
+if(!viscacha_function_exists('image_type_to_extension')) {
 	function image_type_to_extension($imagetype, $include_dot = true) {
 		if(empty($imagetype)) {
 			return false;
@@ -816,7 +521,7 @@ if(!function_exists('image_type_to_extension')) {
  * @since       PHP 5
  * @require     PHP 4.0.6 (is_callable)
  */
-if (!function_exists('array_walk_recursive')) {
+if (!viscacha_function_exists('array_walk_recursive')) {
     function array_walk_recursive(&$input, $funcname)
     {
         if (!is_callable($funcname)) {
@@ -858,7 +563,7 @@ if (!function_exists('array_walk_recursive')) {
  * @since       PHP 5.1.0
  * @require     PHP 4.0.0 (trigger_error)
  */
-if (!function_exists('htmlspecialchars_decode')) {
+if (!viscacha_function_exists('htmlspecialchars_decode')) {
 	function htmlspecialchars_decode($str, $quote_style = ENT_COMPAT) {
 		return strtr($str, array_flip(get_html_translation_table(HTML_SPECIALCHARS, $quote_style)));
 	}
@@ -875,7 +580,7 @@ if (!function_exists('htmlspecialchars_decode')) {
  * @since       PHP 4.1.0
  * @require     PHP 4.0.0 (trigger_error)
  */
-if (!function_exists('mhash')) {
+if (!viscacha_function_exists('mhash')) {
     function mhash($hashtype, $data, $key = '')
     {
         switch ($hashtype) {
@@ -911,7 +616,7 @@ if (!function_exists('mhash')) {
 ** because I feel more comfortable with this
 */
 
-if (!function_exists('sha1')) {
+if (!viscacha_function_exists('sha1')) {
 function sha1_str2blks_SHA1($str) {
    $strlen_str = strlen($str);
 
@@ -1029,7 +734,7 @@ function sha1($str, $raw_output=FALSE)
  * @since       PHP 4.3.0
  * @require     PHP 4.0.0 (trigger_error)
  */
-if (!function_exists('str_shuffle')) {
+if (!viscacha_function_exists('str_shuffle')) {
     function str_shuffle($str)
     {
         // Init
@@ -1061,7 +766,7 @@ if (!function_exists('str_shuffle')) {
  * @since       PHP 4.2.0
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('array_change_key_case')) {
+if (!viscacha_function_exists('array_change_key_case')) {
     function array_change_key_case($input, $case = CASE_LOWER)
     {
         if (!is_array($input)) {
@@ -1095,7 +800,7 @@ if (!function_exists('array_change_key_case')) {
  * @internal    Setting the charset will not do anything
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('html_entity_decode')) {
+if (!viscacha_function_exists('html_entity_decode')) {
     function html_entity_decode($string, $quote_style = ENT_COMPAT, $charset = null)
     {
         if (!is_int($quote_style)) {
@@ -1132,7 +837,7 @@ if (!function_exists('html_entity_decode')) {
  * @since       PHP 4.2.0
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('array_chunk')) {
+if (!viscacha_function_exists('array_chunk')) {
     function array_chunk($input, $size, $preserve_keys = false)
     {
         if (!is_array($input)) {
@@ -1183,7 +888,7 @@ if (!function_exists('array_chunk')) {
  * @since       PHP 5
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('file_put_contents')) {
+if (!viscacha_function_exists('file_put_contents')) {
     function file_put_contents($filename, $content, $flags = null, $resource_context = null)
     {
         // If $content is an array, convert it to a string
@@ -1213,8 +918,7 @@ if (!function_exists('file_put_contents')) {
 
         // Open the file for writing
         if (($fh = @fopen($filename, $mode, $use_inc_path)) === false) {
-            trigger_error('file_put_contents() failed to open stream: Permission denied',
-                E_USER_WARNING);
+            // trigger_error('file_put_contents() failed to open stream: Permission denied', E_USER_WARNING);
             return false;
         }
 
@@ -1265,7 +969,7 @@ if (!function_exists('file_put_contents')) {
  * @since       PHP 5
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('file_get_contents')) {
+if (!viscacha_function_exists('file_get_contents')) {
     function file_get_contents($filename, $incpath = false, $resource_context = null)
     {
         if (false === $fh = fopen($filename, 'rb', $incpath)) {
@@ -1300,7 +1004,7 @@ if (!function_exists('file_get_contents')) {
  * @since       PHP 5
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('stripos')) {
+if (!viscacha_function_exists('stripos')) {
     function stripos($haystack, $needle, $offset = null)
     {
         if (!is_scalar($haystack)) {
@@ -1354,7 +1058,7 @@ if (!function_exists('stripos')) {
  * @note        count not by returned by reference, to enable
  *              change '$count = null' to '&$count'
  */
-if (!function_exists('str_ireplace')) {
+if (!viscacha_function_exists('str_ireplace')) {
     function str_ireplace($search, $replace, $subject, $count = null)
     {
         // Sanity check
@@ -1444,7 +1148,7 @@ if (!function_exists('str_ireplace')) {
  * @since       PHP 5
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('str_split')) {
+if (!viscacha_function_exists('str_split')) {
     function str_split($string, $split_length = 1)
     {
         if (!is_scalar($split_length)) {
@@ -1493,7 +1197,7 @@ if (!function_exists('str_split')) {
  * @since       PHP 5.0.2
  * @require     PHP 4.0.0 (user_error)
  */
-if (!function_exists('array_intersect_key')) {
+if (!viscacha_function_exists('array_intersect_key')) {
     function array_intersect_key() {
         $args = func_get_args();
         if (count($args) < 2) {
@@ -1533,11 +1237,10 @@ if (!function_exists('array_intersect_key')) {
  * @category    PHP
  * @link        http://php.net/function.array_fill
  * @author      Matthias Mohr <webmaster@mamo-net.de>
- * @version     $Revision: 1.0 $
  * @since       PHP 4.2.0
  * @require     PHP 3
  */
-if (!function_exists('array_fill')) {
+if (!viscacha_function_exists('array_fill')) {
     function array_fill($iStart, $iLen, $vValue) {
        $aResult = array();
        for ($iCount = $iStart; $iCount < $iLen + $iStart; $iCount++) {
@@ -1558,7 +1261,7 @@ if (!function_exists('array_fill')) {
  * @since       PHP 5
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('array_combine')) {
+if (!viscacha_function_exists('array_combine')) {
     function array_combine($keys, $values)
     {
         if (!is_array($keys)) {
@@ -1609,7 +1312,7 @@ if (!function_exists('array_combine')) {
  * @require     PHP 4.0.0 () (is_subclass_of)
  */
 //  Required for lib_diff.php
-if (!function_exists('is_a')) {
+if (!viscacha_function_exists('is_a')) {
     function is_a($object, $class)
     {
         if (!is_object($object)) {
@@ -1636,7 +1339,7 @@ if (!function_exists('is_a')) {
  * @since       PHP 5
  * @require     PHP 4.0.0 ()
  */
-if (!function_exists('http_build_query')) {
+if (!viscacha_function_exists('http_build_query')) {
     function http_build_query($formdata, $numeric_prefix = null)
     {
         // If $formdata is an object, convert it to an array

@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -151,7 +151,9 @@ if ($_GET['action'] == "save") {
 	if (strxlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
-	if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
+	// Add some chars for reply title prefix
+	$maxlength = $config['maxtitlelength'] + strlen(html_entity_decode($lang->phrase('reply_prefix')));
+	if (strxlen($_POST['topic']) > $maxlength) {
 		$error[] = $lang->phrase('title_too_long');
 	}
 	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
@@ -263,6 +265,7 @@ if ($_GET['action'] == "save") {
 		',__LINE__,__FILE__);
 		while ($row = $db->fetch_assoc($result)) {
 			$lang->setdir($row['language']);
+			$row = $gpc->plain_str($row);
 			$data = $lang->get_mail('digest_s');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 			$from = array();
@@ -312,6 +315,9 @@ else {
 			}
 			$bbcode->setReplace($data['dowords']);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
+		}
+		if (isset($data['human']) == false) {
+			$data['human'] = null;
 		}
 	}
 	else {
@@ -366,7 +372,7 @@ else {
 		}
 	}
 
-	if ($config['botgfxtest_posts'] == 1 && $data['human'] == null) {
+	if ($config['botgfxtest_posts'] == 1 && is_null($data['human']) == true) {
 		include("classes/graphic/class.veriword.php");
 		$vword = new VeriWord();
 		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
@@ -375,9 +381,12 @@ else {
 		}
 	}
 
-	if ($my->vlogin) {
-		$result = $db->query('SELECT id FROM '.$db->pre.'abos WHERE mid = '.$my->id.' AND tid = '.$_GET['id'],__LINE__,__FILE__);
-		$abox = $db->fetch_object($result);
+	if ($my->vlogin && is_id($_GET['id'])) {
+		$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$_GET['id']}'",__LINE__,__FILE__);
+		$abox = $db->fetch_assoc($result);
+	}
+	else {
+		$abox = array('id' => null);
 	}
 
 	$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);

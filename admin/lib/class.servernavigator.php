@@ -20,22 +20,25 @@ class ServerNavigator
 
 	var $root;				   // (string)  Path to root
 	var $path;				   // (string)  Path to showed dir
-	
+
 	var $icon;				   // (array) 	Array with cached data
 
 	var $plain;
 	var $extract;
 
 	function ServerNavigator($use_image_icons = true, $show_subfolders_size = false) {
-		global $gpc;
-		
+		global $gpc, $lang;
+
+		// MM: MultiLangAdmin
+		$lang->group("admin/explorer");
+
 		$this->plain 				= array(
 			'txt','php','php3','php4','php5','phtml','shtml','html','htm','css','js','pl','cgi','inc','asp','bat','cfm',
 			'pm','log','xml','ini','csv','dat','sql','htc','htaccess','htusers','inf','tex','tsv','xsl','xslt','klip',
 			'food','mbox','phps','py','lua','cfg','sh','c','p','cpp'
 		);
 		$this->extract 				= array('zip', 'tar', 'gz');
-	
+
 		$this->use_image_icons		= (bool)$use_image_icons;
 		$this->show_subfolders_size = (bool)$show_subfolders_size;
 		$this->script_file			= $this->realPath('admin.php').'?action=explorer';
@@ -56,7 +59,7 @@ class ServerNavigator
 		}
 
 	}
-	
+
 	function ext() {
 		global $db;
 		if (count($this->icon) == 0) {
@@ -100,7 +103,7 @@ class ServerNavigator
 		$extension = preg_replace("/^.*?\\.(\w{1,8})$/", "\\1", $file);
 		return in_array($extension, $this->extract);
 	}
-	
+
 	function checkEdit($file) {
 		$extension = preg_replace("/^.*?\\.(\w{1,8})$/", "\\1", $file);
 		return in_array($extension, $this->plain);
@@ -109,14 +112,13 @@ class ServerNavigator
 
 	function showContent($print = true)
 	{
-
+		global $lang;
 		$dir_list = $file_list = $subdir_size_list = array();
 		$total_dir_size = 0;
 
 		if (($dir_handle = opendir($this->path)) === false)
 		{
-			$this->error("Could NOT open dir: " . realpath($this->path));
-			return false;
+			error('admin.php?action=explorer', $lang->phrase('admin_explorer_could_not_open_dir') . realpath($this->path));
 		}
 
 
@@ -198,29 +200,29 @@ class ServerNavigator
 		}
 
 		$newdir = $this->script_file . '&amp;path=' . urlencode(str_replace('/\\', '/', $this->path));
-		$newdir_html = '<span style="float: right;"><a class="button" href="'.$newdir.'&job=newdir">Create new directory</a></span>';
+		$newdir_html = '<span style="float: right;"><a class="button" href="'.$newdir.'&job=newdir">'.$lang->phrase('admin_explorer_create_new_directory').'</a></span>';
 
 		$html = '	   <table cellpadding="4" cellspacing="0" class="border">';
 		$html .= "\n".'		 <tr>';
-		$html .= "\n".'		   <td class="obox">'.iif(count($dir_list) == 0, $newdir_html).'Filemanager</td>';
+		$html .= "\n".'		   <td class="obox">'.iif(count($dir_list) == 0, $newdir_html).$lang->phrase('admin_explorer_filemanager').'</td>';
 		$html .= "\n".'		 </tr>';
 		$html .= "\n".'		 <tr>';
-		$html .= "\n".'		   <td class="ubox">Directory: ' . realpath('../'.$this->root) . $heading_path . '</td>';
+		$html .= "\n".'		   <td class="ubox">'. $lang->phrase('admin_explorer_directory') . realpath('../'.$this->root) . $heading_path . '</td>';
 		$html .= "\n".'		 </tr>';
 		$html .= "\n".'	   </table><br />';
 		$html .= "\n".'	   <table cellpadding="4" cellspacing="0" class="border">';
 
-		
-		if (count($dir_list) > 0) {	
+
+		if (count($dir_list) > 0) {
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="obox" colspan="5">'.$newdir_html.'Directories</td>';
+			$html .= "\n".'		   <td class="obox" colspan="5">'.$newdir_html.$lang->phrase('admin_explorer_directories').'</td>';
 			$html .= "\n".'		 </tr>';
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="ubox" width="30%">Directory</td>';
-			$html .= "\n".'		   <td class="ubox" width="9%">Size</td>';
-			$html .= "\n".'		   <td class="ubox" width="20%">Created on</td>';
-			$html .= "\n".'		   <td class="ubox" width="8%">CHMOD</td>';
-			$html .= "\n".'		   <td class="ubox" width="33%">Action</td>';
+			$html .= "\n".'		   <td class="ubox" width="30%">'.$lang->phrase('admin_explorer_directory').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="9%">'.$lang->phrase('admin_explorer_size').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="20%">'.$lang->phrase('admin_explorer_created_on').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="8%">'.$lang->phrase('admin_explorer_chmod').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="33%">'.$lang->phrase('admin_explorer_action').'</td>';
 			$html .= "\n".'		 </tr>';
 		}
 
@@ -248,7 +250,7 @@ class ServerNavigator
 			$html .= "\n".'			 ' . $chmod;
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			<a class="button" href="'.$link.'&job=chmod&type=dir">CHMOD</a> <a class="button" href="'.$link.'&job=rename&type=dir">Rename</a> <a class="button" href="'.$link.'&job=delete&type=dir">Delete</a>';
+			$html .= "\n".'			<a class="button" href="'.$link.'&job=chmod&type=dir">'.$lang->phrase('admin_explorer_file_chmod').'</a> <a class="button" href="'.$link.'&job=rename&type=dir">'.$lang->phrase('admin_explorer_file_rename').'</a> <a class="button" href="'.$link.'&job=delete&type=dir">'.$lang->phrase('admin_explorer_file_delete').'</a>';
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		 </tr>';
 		}
@@ -260,17 +262,19 @@ class ServerNavigator
 			$html .= "\n".'   <table cellpadding="4" cellspacing="0" class="border">';
 		}
 
-		if (count($file_list) > 0) {	
+		if (count($file_list) > 0) {
+			$lang->assign('total_files', $total_files);
+			$lang->assign('total_size', $total_size);
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="obox" colspan="6">Files</td>';
+			$html .= "\n".'		   <td class="obox" colspan="6">'.$lang->phrase('admin_explorer_files').'</td>';
 			$html .= "\n".'		 </tr>';
 			$html .= "\n".'		 <tr>';
-			$html .= "\n".'		   <td class="ubox" width="30%">Total: '.$total_files.' files ('.$total_size.')</td>';
-			$html .= "\n".'		   <td class="ubox" width="7%">Size</td>';
-			$html .= "\n".'		   <td class="ubox" width="12%">Last modified</td>';
-			$html .= "\n".'		   <td class="ubox" width="12%">Created in</td>';
-			$html .= "\n".'		   <td class="ubox" width="7%">CHMOD</td>';
-			$html .= "\n".'		   <td class="ubox" width="33%">Action</td>';			
+			$html .= "\n".'		   <td class="ubox" width="30%">'.$lang->phrase('admin_explorer_toal_files').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="7%">'.$lang->phrase('admin_explorer_size').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="12%">'.$lang->phrase('admin_explorer_last_modified').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="12%">'.$lang->phrase('admin_explorer_created_on').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="7%">'.$lang->phrase('admin_explorer_chmod').'</td>';
+			$html .= "\n".'		   <td class="ubox" width="33%">'.$lang->phrase('admin_explorer_action').'</td>';
 			$html .= "\n".'		 </tr>';
 		}
 
@@ -283,7 +287,7 @@ class ServerNavigator
 			$link = $this->script_file . $path_url;
 
 			$icon = $this->icons($extension);
-			
+
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="mbox">';
 			$html .= "\n".'			 <a href="' . str_replace('/\\', '/', $this->path) . $file . '">' . $icon . $file . '</a>';
@@ -301,8 +305,8 @@ class ServerNavigator
 			$html .= "\n".'			 ' . get_chmod($this->path . $file);
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 <a class="button" href="'.$link.'&job=chmod">CHMOD</a> <a class="button" href="'.$link.'&job=rename">Rename</a> <a class="button" href="'.$link.'&job=delete">Delete</a>';
-			$html .= iif(in_array($extension, $this->extract), ' <a class="button" href="'.$link.'&job=extract">Extract</a>').iif(in_array($extension, $this->plain), ' <a class="button" href="'.$link.'&job=edit">Edit</a>');
+			$html .= "\n".'			 <a class="button" href="'.$link.'&job=chmod">'.$lang->phrase('admin_explorer_file_chmod').'</a> <a class="button" href="'.$link.'&job=rename">'.$lang->phrase('admin_explorer_file_rename').'</a> <a class="button" href="'.$link.'&job=delete">'.$lang->phrase('admin_explorer_file_delete').'</a>';
+			$html .= iif(in_array($extension, $this->extract), ' <a class="button" href="'.$link.'&job=extract">'.$lang->phrase('admin_explorer_file_extract').'</a>').iif(in_array($extension, $this->plain), ' <a class="button" href="'.$link.'&job=edit">'.$lang->phrase('admin_explorer_file_edit').'</a>');
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		 </tr>';
 
@@ -311,7 +315,7 @@ class ServerNavigator
 		$html .= "\n".'	   </table>';
 
 
-		
+
 		if ($print) {
 			echo $html;
 		}
@@ -319,17 +323,18 @@ class ServerNavigator
 			return $html;
 		}
 	}
-	
+
 	function uploadForm($uploadfields, $print = true) {
+		global $lang;
 		$path = urlencode($this->realPath($this->path));
 		$html = '<form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=explorer&job=upload&path='.$path.'">';
 		$html .= '<table cellpadding="4" cellspacing="0" class="border">';
-		$html .= '<tr><td class="obox" colspan="2">Upload files</td></tr>';
-		
+		$html .= '<tr><td class="obox" colspan="2">'.$lang->phrase('admin_explorer_upload_files').'</td></tr>';
+
 		for ($i = 0; $i < $uploadfields; $i++) {
 			$html .= '<tr><td class="mbox">File '.($i+1).'</td><td class="mbox"><input type="file" name="upload_'.$i.'" size="80" /></td></tr>';
 		}
-		$html .= '<tr><td class="ubox" colspan="2" align="center"><input type="submit" value="Upload" /></td></tr></table></form>';
+		$html .= '<tr><td class="ubox" colspan="2" align="center"><input type="submit" value="'.$lang->phrase('admin_form_upload').'" /></td></tr></table></form>';
 
 		if ($print) {
 			echo $html;
@@ -405,27 +410,6 @@ class ServerNavigator
 		return $size . ' ' . $measure;
 	}
 
-	function error($message, $print = true)
-	{
-$error = <<<OOO
-<table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr>
-	<td class="obox">An error occured:</td>
-  </tr>
-  <tr>
-	<td class="mbox">{$message}</td>
-  </tr>
-</table>
-OOO;
-		if ($print) {
-			echo $error;
-		} else {
-			return $error;
-		}
-	}
-
-
-
 	function show()
 	{
 		$body  = $this->showContent(false);
@@ -433,7 +417,7 @@ OOO;
 		$title = preg_replace("/^.*?\\/?([^\\/]+)\\/?$/", "\\1", $title);
 
 		echo $body;
-		
+
 	}
 
 	// Configuration

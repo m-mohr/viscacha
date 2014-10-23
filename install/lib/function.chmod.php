@@ -43,9 +43,14 @@ function set_chmod_r($dir, $chmod, $type = 'is_file', $files = array()) {
 }
 
 function get_chmod($file) {
-	$perms = fileperms($file);
-	$info = substr(sprintf('%o', $perms), -4);
-	return $info;
+	if (!file_exists($file)) {
+		return '0000';
+	}
+	else {
+		$perms = fileperms($file);
+		$info = substr(sprintf('%o', $perms), -4);
+		return $info;
+	}
 }
 
 function check_chmod($min, $given) {

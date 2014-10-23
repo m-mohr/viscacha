@@ -33,7 +33,7 @@ while ($row = $db->fetch_assoc($result)) {
 	if (isset($memberdata[$row['last_name']])) {
 		$row['last_name'] = $memberdata[$row['last_name']];
 	}
-
+	$row = $gpc->plain_str($row);
 	$lang->setdir($row['language']);
 	$data = $lang->get_mail('digest_w');
 	$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));

@@ -248,18 +248,18 @@ class Jabber
 		{
 			// yes, now check for auth method availability in descending order (best to worst)
 
-			if (!function_exists('mhash'))
+			if (!viscacha_function_exists('mhash'))
 			{
 				$this->AddToLog("ATTENTION: SendAuth() - mhash() is not available; screw 0k and digest method, we need to go with plaintext auth");
 			}
 
 			// auth_0k
-			if (function_exists('mhash') && isset($packet['iq']['#']['query'][0]['#']['sequence'][0]["#"]) && isset($packet['iq']['#']['query'][0]['#']['token'][0]["#"]))
+			if (viscacha_function_exists('mhash') && isset($packet['iq']['#']['query'][0]['#']['sequence'][0]["#"]) && isset($packet['iq']['#']['query'][0]['#']['token'][0]["#"]))
 			{
 				return $this->_sendauth_0k($packet['iq']['#']['query'][0]['#']['token'][0]["#"], $packet['iq']['#']['query'][0]['#']['sequence'][0]["#"]);
 			}
 			// digest
-			elseif (function_exists('mhash') && isset($packet['iq']['#']['query'][0]['#']['digest']))
+			elseif (viscacha_function_exists('mhash') && isset($packet['iq']['#']['query'][0]['#']['digest']))
 			{
 				return $this->_sendauth_digest();
 			}
@@ -705,7 +705,7 @@ class Jabber
 
 		if ($funcmeth != '')
 		{
-			if (function_exists($funcmeth))
+			if (viscacha_function_exists($funcmeth))
 			{
 				call_user_func($funcmeth, $packet);
 			}
@@ -1003,7 +1003,7 @@ class Jabber
 	function _sendauth_digest()
 	{
 		// MOD: Added this
-		if (function_exists('mhash')) {
+		if (viscacha_function_exists('mhash')) {
 			$mh = bin2hex(mhash(MHASH_SHA1, $this->stream_id . $this->password));
 		}
 		else {
@@ -1112,7 +1112,7 @@ class Jabber
 
 	function _starttls()
 	{
-		if (!function_exists("stream_socket_enable_crypto"))
+		if (!viscacha_function_exists("stream_socket_enable_crypto"))
 		{
 			$this->AddToLog("WARNING: TLS is not available");
 			return TRUE;
@@ -1993,7 +1993,7 @@ class CJP_StandardConnector
 
 	function OpenSocket($server, $port)
 	{
-		if (function_exists("dns_get_record"))
+		if (viscacha_function_exists("dns_get_record"))
 		{
 			$record = dns_get_record("_xmpp-client._tcp.$server", DNS_SRV);
 			if (!empty($record))

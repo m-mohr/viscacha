@@ -3,16 +3,16 @@
   <h3><img src="<?php echo $tpl->img('password'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_pw'); ?></h3>
   <div class="bbody">
   <label for="pw"><?php echo $lang->phrase('editprofile_pw_old'); ?></label>
-  <input type="password" class="label" id="pw" name="pw" size="40" /> 
+  <input type="password" tabindex="1" class="label" id="pw" name="pw" size="40" />
 	<br class="newinput" /><hr class="formsep" />
   <label for="type"><?php echo $lang->phrase('editprofile_pw_new'); ?><br />
-  <span class="stext"><?php echo $lang->phrase('minmax_password'); ?></span></label> 
-  <input type="password" class="label" id="type" name="type" size="40" /> 
+  <span class="stext"><?php echo $lang->phrase('minmax_password'); ?></span></label>
+  <input type="password" tabindex="2" class="label" id="type" name="type" size="40" />
 	<br class="newinput" /><hr class="formsep" />
   <label for="pwx"><?php echo $lang->phrase('editprofile_pw_new_repeat'); ?></label>
-  <input type="password" class="label" id="pwx" name="pwx" size="40" /> 
+  <input type="password" tabindex="3" class="label" id="pwx" name="pwx" size="40" />
 	<br class="newinput" /><br class="iefix_br" />
   </div>
-  <div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+  <div class="bfoot center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>

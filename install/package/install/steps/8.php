@@ -15,10 +15,10 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$db->errlogfile = '../'.$db->errlogfile;
 	$db->pre = $db->prefix();
 	$db->connect(false);
-	if (!is_resource($db->conn)) {
+	if (!$db->hasConnection()) {
 		?>
 	<div class="bbody">Could not connect to database! Pleasy try again later or check the database settings!</div>
-	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-2; ?>">Go back</a> <a class="submit" href="index.php?step=<?php echo $step; ?>">Refresh</a></div>
+	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-2; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
 		<?php
 	}
 	else {

@@ -1,0 +1,13 @@
+<div class="border">
+  <h3><img id="img_cat_i1" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo iif($my->p['wwo'] == 1, '<a href="misc.php?action=wwo'.SID2URL_x.'">'.$lang->phrase('wiw').'</a>', $lang->phrase('wiw')); ?></h3>
+ <div class="bbody" id="part_cat_i1">
+   <?php echo $lang->phrase('active_usercounter'); ?><br />
+   <span class="stext"><?php echo $lang->phrase('active_members'); ?>
+   <?php echo iif (count($wwo['list']) == 0, $lang->phrase('no_members_online')); ?>
+   <?php foreach ($wwo['list'] as $row) { ?>
+   <a href="profile.php?id=<?php echo $row['mid'].SID2URL_x; ?>"><?php echo $row['name']; ?></a><?php echo $row['sep']; ?>
+   <?php } ?>
+   </span>
+ </div>
+</div>
+<br class="minibr" />

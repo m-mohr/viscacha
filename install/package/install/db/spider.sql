@@ -9,9 +9,10 @@ CREATE TABLE `{:=DBPREFIX=:}spider` (
   `pending_ip` text NOT NULL,
   `bot_ip` text NOT NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM;
+) TYPE=MyISAM  AUTO_INCREMENT=62 ;
 
-INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `name`, `user_agent`, `type`, `last_visit`, `bot_visits`, `pending_agent`, `pending_ip`, `bot_ip`) VALUES 
+
+INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `name`, `user_agent`, `type`, `last_visit`, `bot_visits`, `pending_agent`, `pending_ip`, `bot_ip`) VALUES
 (39, 'W3C (x)HTML-Validator', 'W3C_Validator', 'v', '', 0, '', '', ''),
 (9, 'Google', 'Googlebot|BackRub|Googlebot-Image', 'b', '', 0, '', '', ''),
 (10, 'Google AdSense', 'Mediapartners-Google', 'b', '', 0, '', '', ''),

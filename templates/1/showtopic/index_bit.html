@@ -5,7 +5,7 @@
 	    <a href="edit.php?id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('post_edit'); ?></a>
     <?php } if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0') { ?>
 	    <a class="sep" id="menu_mquote_<?php echo $row->id; ?>" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>">
-		<img src="<?php echo $tpl->img('no_mquote'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" id="mq_<?php echo $row->id; ?>" /> 
+		<img src="<?php echo $tpl->img('no_mquote'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" id="mq_<?php echo $row->id; ?>" />
 		<?php echo $lang->phrase('post_quote'); ?>
 		</a>
 		<script type="text/javascript">RegisterMenu('mquote_<?php echo $row->id; ?>');</script>
@@ -18,7 +18,11 @@
 		</div>
     <?php } if($my->vlogin) { ?>
 	    <a class="sep" title="<?php echo $lang->phrase('post_copy_desc'); ?>" href="editprofile.php?action=copy&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('copy'); ?>" alt="" /> <?php echo $lang->phrase('post_copy'); ?></a>
-    <?php } if ($my->mp[0] == 1) { ?>
+	<?php if(empty($row->report)) { ?>
+	    <a class="sep" href="misc.php?action=report_post&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('post_report'); ?></a>
+	<?php } } if ($my->mp[0] == 1) { if(!empty($row->report)) { ?>
+		<a class="sep" href="managetopic.php?action=reports&amp;topic_id=<?php echo $row->id; ?>&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('post_reported'); ?></a>
+	<?php } ?>
     	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
     <?php } ?>
     </span>

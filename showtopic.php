@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -279,7 +279,7 @@ $sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS 
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
-	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname,
+	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report,
 	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
 	f.* {$sql_select}
 FROM {$db->pre}replies AS r
@@ -421,10 +421,12 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	$inner['index_bit'] .= $tpl->parse("showtopic/index_bit");
 }
 
-$abox['id'] = null;
-if ($my->vlogin) {
-	$result = $db->query('SELECT id FROM '.$db->pre.'abos WHERE mid = '.$my->id.' AND tid = '.$info['id'],__LINE__,__FILE__);
+if ($my->vlogin && is_id($info['id'])) {
+	$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'",__LINE__,__FILE__);
 	$abox = $db->fetch_assoc($result);
+}
+else {
+	$abox = array('id' => null);
 }
 
 ($code = $plugins->load('showtopic_prepared')) ? eval($code) : null;

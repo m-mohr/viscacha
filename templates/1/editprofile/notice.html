@@ -7,15 +7,15 @@
 <strong><?php echo $lang->phrase('existing_notices'); ?></strong><br />
 <?php for ($i = 0; $i < $notes; $i++) { ?>
 	<div id="notice_<?php echo $i; ?>">
-	<textarea name="notice[]" rows="<?php echo $notices[$i]['rows']; ?>" cols="85"><?php echo $notices[$i]['text']; ?></textarea><br />
-	<span class="stext">[<a href="javascript:deletenotice(<?php echo $i; ?>);"><?php echo $lang->phrase('notice_delete'); ?></a>] [<?php echo $notices[$i]['length'].$lang->phrase('notice_chars'); ?>]</span>
+	<textarea name="notice[]" rows="<?php echo $notices[$i]['rows']; ?>" tabindex="<?php echo 2*($i+1); ?>" cols="85"><?php echo $notices[$i]['text']; ?></textarea><br />
+	<span class="stext">[<a tabindex="<?php echo 2*($i+1)+1; ?>" href="javascript:deletenotice(<?php echo $i; ?>);"><?php echo $lang->phrase('notice_delete'); ?></a>] [<?php echo $notices[$i]['length'].$lang->phrase('notice_chars'); ?>]</span>
 	<?php echo iif($i != $notes-1, '<hr class="formsep" />'); ?>
 	</div>
 <?php } if ($notes == 0) { echo $lang->phrase('no_existing_notices'); } ?>
 <hr />
 <strong><?php echo $lang->phrase('new_notice'); ?></strong><br />
-<textarea name="notice[]" rows="7" cols="85"></textarea>
+<textarea name="notice[]" rows="7" cols="85" tabindex="<?php echo ($i+1)*2; ?>"></textarea>
 </div>
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" tabindex="<?php echo ($i+1)*2+1; ?>" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>

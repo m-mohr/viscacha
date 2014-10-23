@@ -98,7 +98,7 @@ class MagpieRSS {
     {
         # if PHP xml isn't compiled in, die
         #
-        if (!function_exists('xml_parser_create')) {
+        if (!viscacha_function_exists('xml_parser_create')) {
             $this->error( "Failed to load PHP's XML Extension. " .
                           "http://www.php.net/manual/en/ref.xml.php",
                            E_USER_ERROR );
@@ -459,7 +459,10 @@ class MagpieRSS {
             list($parser, $source) = $this->php4_create_parser($source, $in_enc, $detect);
         }
         if ($out_enc) {
-            $this->encoding = $out_enc;
+            $this->encoding = strtoupper($out_enc);
+            if ($this->encoding != 'UTF-8' && $this->encoding != 'US-ASCII' && $this->encoding != 'ISO-8859-1') {
+            	$this->encoding = 'ISO-8859-1';
+            }
             xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, $out_enc);
         }
 
@@ -525,7 +528,7 @@ class MagpieRSS {
         // cast the XML to a known encoding
         // @see http://php.net/iconv
 
-        if (function_exists('iconv'))  {
+        if (viscacha_function_exists('iconv'))  {
             $encoded_source = iconv($in_enc,'UTF-8', $source);
             if ($encoded_source) {
                 return array(xml_parser_create('UTF-8'), $encoded_source);
@@ -534,7 +537,7 @@ class MagpieRSS {
 
         // iconv didn't work, try mb_convert_encoding
         // @see http://php.net/mbstring
-        if(function_exists('mb_convert_encoding')) {
+        if(viscacha_function_exists('mb_convert_encoding')) {
             $encoded_source = mb_convert_encoding($source, 'UTF-8', $in_enc );
             if ($encoded_source) {
                 return array(xml_parser_create('UTF-8'), $encoded_source);

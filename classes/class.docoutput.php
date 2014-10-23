@@ -49,7 +49,7 @@ function ConstructLink($matches) {
 }
 
 function CanGZIP() {
-	if (headers_sent() || connection_aborted() || !extension_loaded("zlib") || !function_exists('gzcompress')){
+	if (headers_sent() || connection_aborted() || !extension_loaded("zlib") || !viscacha_function_exists('gzcompress')){
 		return false;
 	}
 	if (isset($_SERVER['HTTP_ACCEPT_ENCODING']) && strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'x-gzip') !== false) {

@@ -1,7 +1,7 @@
 * html body {
 	text-align: center;
 }
-* html #container, #window, #blank {
+* html #container, * html #window {
 	text-align: left;
 }
 * html #content {
@@ -11,6 +11,9 @@
 	float: right;
 	margin-left: -170px;
 	margin-right: 1px;
+}
+#popup_bbsmileys {
+	overflow: scroll;
 }
 * html .border {
 	width: 100%;
@@ -32,5 +35,8 @@
 	border: 0px;
 }
 * html .iefix_br {
-  line-height: 2px;
+	line-height: 2px;
+}
+* html #popup_bbsmileys {
+	height: 200px;
 }

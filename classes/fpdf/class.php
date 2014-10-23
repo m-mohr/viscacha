@@ -238,7 +238,7 @@ function SetDisplayMode($zoom,$layout='continuous')
 function SetCompression($compress)
 {
 	//Set page compression
-	if(function_exists('gzcompress'))
+	if(viscacha_function_exists('gzcompress'))
 		$this->compress=$compress;
 	else
 		$this->compress=false;

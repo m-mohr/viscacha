@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 
-define('VISCACHA_VERSION', '0.8 RC2');
-define('VISCACHA_VERSION_OLD', '0.8 RC1');
+define('VISCACHA_VERSION', '0.8 RC3');
+define('VISCACHA_VERSION_OLD', '0.8 RC2');
 define('VISCACHA_CORE', '1');
 define('SCRIPTNAME', 'install');
 
@@ -59,7 +59,7 @@ if (!$locked) {
 	<link rel="stylesheet" type="text/css" href="designs/ie.css" />
 	<![endif]-->
 	<link rel="up" href="javascript:self.scrollTo(0,0);" />
-	<link rel="copyright" href="http://www.mamo-net.de" />
+	<link rel="copyright" href="http://www.viscacha.org" />
 </head>
 <body>
 <div id="container">

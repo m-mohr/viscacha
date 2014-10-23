@@ -1,7 +1,14 @@
 <?php
-$path = '/';
-if (isset($_SERVER['DOCUMENT_ROOT'])) {
-	$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']).DIRECTORY_SEPARATOR, '', realpath('../'));
+include('../data/config.inc.php');
+if (empty($config['ftp_path']) == false) {
+	$path = $config['ftp_path'];
+
+}
+else {
+	$path = '/';
+	if (isset($_SERVER['DOCUMENT_ROOT'])) {
+		$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']).DIRECTORY_SEPARATOR, '', realpath('../'));
+	}
 }
 
 ?>
@@ -21,23 +28,24 @@ if ($sm == '1' || strtolower($sm) == 'on' || $sm == true) { ?>
 	<table class="tables">
 	 <tr>
 	  <td class="mbox" width="50%">FTP-Server:<br /><span class="stext">You can leave it empty for disabling FTP.</span></td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_server" value="" size="50" /></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_server" value="<?php echo $config['ftp_server']; ?>" size="50" /></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%">FTP-Port:</td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_port" value="21" size="4" /></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_port" value="<?php echo $config['ftp_port']; ?>" size="4" /></td>
 	 </tr>
 	 <tr>
-	  <td class="mbox" width="50%">FTP-Startpfad:<br /><span class="stext">Pfad von dem aus das FTP-Programm arbeiten soll. Dieser Pfad soltle ausgehen vom normalen Start-FTP-Pfad relativ zu ihrem Viscacha-Verzeichnis zeigen. Wenn der FTP-Account direkt auf das Viscacha-Verzeichnis zeigt, reicht ein "/" unter *nix-Systemen.</span></td>
+	  <td class="mbox" width="50%">Path to the Viscacha directory beginning from FTP-Root:<br />
+	  <span class="stext">This path should be the path starting from your FTP root folder pointing to the Viscacha directory. If the ftp account points directly to the Viscacha directory, it should be "/" on *nix-based systems.</span></td>
 	  <td class="mbox" width="50%"><input type="text" name="ftp_path" value="<?php echo $path; ?>" size="50" /></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%">FTP-Account-Username:</td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_user" value="" size="50" /></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_user" value="<?php echo $config['ftp_user']; ?>" size="50" /></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%">FTP-Account-Password:</td>
-	  <td class="mbox" width="50%"><input type="password" name="ftp_pw" value="" size="50" /></td>
+	  <td class="mbox" width="50%"><input type="password" name="ftp_pw" value="<?php echo $config['ftp_pw']; ?>" size="50" /></td>
 	 </tr>
 	</table>
 </div>

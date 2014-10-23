@@ -19,7 +19,7 @@
 	<br class="newinput" /><hr class="formsep" />
 	<label for="about" class="stext"><?php echo $lang->phrase('editprofile_about_longdesc'); ?></label>
 	<div class="label">
-		<textarea class="label_inner" name="about" id="about" cols="65" rows="18"><?php echo $data; ?></textarea>
+		<textarea class="label_inner" name="about" id="about" cols="65" rows="18" tabindex="1"><?php echo $data; ?></textarea>
 		<div class="stext">
 			<span class="textright right">
 				[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
@@ -31,8 +31,8 @@
 	<br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center">
- <input accesskey="s" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
- <input accesskey="p" type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
+ <input accesskey="s" type="submit" name="Submit" tabindex="2" value="<?php echo $lang->phrase('submit_form'); ?>" />
+ <input accesskey="p" type="submit" name="Preview" tabindex="3" value="<?php echo $lang->phrase('preview_form'); ?>" />
 </div>
 </div>
 </form>

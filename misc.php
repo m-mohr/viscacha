@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ $lang->init($my->language);
 $tpl = new tpl();
 
 if ($_GET['action'] == "boardin") {
-	
+
 	$board = $gpc->get('board', int);
 
 	$catbid = $scache->load('cat_bid');
@@ -66,25 +66,128 @@ if ($_GET['action'] == "boardin") {
 	}
 
 }
+elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
+	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
+	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, r.topic AS title, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+	$info = $gpc->prepare($db->fetch_assoc($result));
+
+	$my->p = $slog->Permissions($info['board']);
+
+	$error = array();
+	if ($db->num_rows($result) < 1) {
+		$error[] = $lang->phrase('query_string_error');
+	}
+	if ($my->p['forum'] == 0) {
+		$error[] = $lang->phrase('not_allowed');
+	}
+	if (count($error) > 0) {
+		errorLogin($error, "showtopic.php?id={$info['topic_id']}".SID2URL_x);
+	}
+
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
+	$last = $fc[$info['board']];
+
+	$prefix = '';
+	if ($info['prefix'] > 0) {
+		$prefix_obj = $scache->load('prefix');
+		$prefix_arr = $prefix_obj->get($info['board']);
+		if (isset($prefix_arr[$info['prefix']])) {
+			$prefix = $prefix_arr[$info['prefix']]['value'];
+			$prefix = $lang->phrase('showtopic_prefix_title');
+		}
+	}
+
+	$topforums = get_headboards($fc, $last, TRUE);
+	$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$last['id']}".SID2URL_x);
+	if ($info['tstart'] == '0') {
+		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&id={$last['id']}&topic_id={$info['id']}".SID2URL_x);
+	}
+	$breadcrumb->Add($lang->phrase('report_post'));
+
+	forum_opt($last);
+
+	if (empty($info['report']) == false) {
+		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&id={$last['id']}&topic_id={$info['id']}".SID2URL_x);
+	}
+
+	if ($_GET['action'] == "report_post2") {
+		$error = array();
+		if (flood_protect() == false) {
+			$error[] = $lang->phrase('flood_control');
+		}
+		if (strxlen($_POST['comment']) < $config['minpostlength']) {
+			$error[] = $lang->phrase('comment_too_short');
+		}
+		if (count($error) > 0) {
+			error($error,"misc.php?action=report_post&id={$info['id']}".SID2URL_x);
+		}
+		else {
+			set_flood();
+			$message = $_POST['comment'];
+			// Update the report
+			$db->query("UPDATE {$db->pre}replies SET report = '{$message}' WHERE id = '{$info['id']}' LIMIT 1", __LINE__, __FILE__);
+			// Get administrators and global moderators
+			$groups = $scache->load('groups');
+			$team = $groups->team();
+			$cache = array();
+			$t = array_merge($team['admin'], $team['gmod']);
+			foreach ($t as $row) {
+				$cache[] = "FIND_IN_SET($row,groups)";
+			}
+			$cache = implode(' OR ',$cache);
+			$result = $db->query("SELECT id, name, mail, language FROM {$db->pre}user WHERE {$cache}",__LINE__,__FILE__);
+			$cache = array();
+			while ($row = $db->fetch_assoc($result)) {
+				$cache[$row['id']] = $row;
+			}
+			// Get moderators
+			$result = $db->query("SELECT u.id, u.name, u.mail, u.language FROM {$db->pre}moderators AS m LEFT JOIN {$db->pre}user AS u ON u.id = m.mid WHERE m.bid = '{$info['board']}'", __LINE__, __FILE__);
+			while ($row = $db->fetch_assoc($result)) {
+				// If ID exists already in array then overwrite it
+				$cache[$row['id']] = $row;
+			}
+			// E-mail them all
+			$lang_dir = $lang->getdir(true);
+			foreach ($cache as $row) {
+				$lang->setdir($row['language']);
+				$row = $gpc->plain_str($row);
+				$data = $lang->get_mail('report_post');
+				$to = array(array('name' => $row['name'], 'mail' => $row['mail']));
+				xmail($to, array(), $data['title'], $data['comment']);
+			}
+			$lang->setdir($lang_dir);
+
+			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&id={$last['id']}&topic_id={$info['id']}".SID2URL_x);
+		}
+	}
+	else {
+		echo $tpl->parse("header");
+		echo $tpl->parse("menu");
+		echo $tpl->parse("misc/report_post");
+	}
+}
 elseif ($_GET['action'] == "wwo") {
 
 	$my->p = $slog->Permissions();
 	if ($my->p['wwo'] == 0) {
 		errorLogin();
 	}
-	
+
 	if ($_GET['type'] == 1) {
 		$htmlonload .= "ReloadCountdown(60);";
 	}
 	$breadcrumb->Add($lang->phrase('wwo_detail_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
-	
-	$wwo = array();
-	$wwo['i']=0; 
-	$wwo['r']=0; 
-	$wwo['g']=0; 
-	$wwo['b']=0;
+
+	$wwo = array(
+		'i' => 0,
+		'r' => 0,
+		'g' => 0,
+		'b' => 0
+	);
 	$inner['wwo_bit_bot'] = '';
 	$inner['wwo_bit_member'] = '';
 	$inner['wwo_bit_guest'] = '';
@@ -106,11 +209,11 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
 	$result=$db->query("
-	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent, is_bot 
-	FROM {$db->pre}session 
+	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent, is_bot
+	FROM {$db->pre}session
 	ORDER BY active DESC
 	",__LINE__,__FILE__);
-	
+
 	while ($row = $db->fetch_object($result)) {
 		$row->user_agent = strip_tags($row->user_agent);
 		$row->wiw_action = $gpc->prepare($row->wiw_action);
@@ -123,21 +226,27 @@ elseif ($_GET['action'] == "wwo") {
 		else {
 			$row->name = $lang->phrase('fallback_no_username');
 		}
-		
+
 		switch (strtolower($row->wiw_script)) {
-		case 'members':
 		case 'managetopic':
 		case 'managemembers':
 		case 'manageforum':
 		case 'forum':
 		case 'edit':
 		case 'team':
-		case 'spellcheck':
 		case 'portal':
 		case 'register':
 		case 'editprofile':
 		case 'components':
 			$loc = $lang->phrase('wwo_'.$row->wiw_script);
+			break;
+		case 'members':
+			if ($row->wiw_action == 'team') {
+				$loc = $lang->phrase('wwo_team');
+			}
+			else {
+				$loc = $lang->phrase('wwo_members');
+			}
 			break;
 		case 'log':
 			if ($row->wiw_action == 'pwremind' || $row->wiw_action == 'pwremind2') {
@@ -278,6 +387,16 @@ elseif ($_GET['action'] == "wwo") {
 			case 'error':
 				$loc = $lang->phrase('wwo_misc_'.$row->wiw_action);
 				break;
+			case 'spellcheck_execute':
+			case 'spellcheck_frames':
+			case 'spellcheck_controls':
+			case 'spellcheck_blank':
+				$loc = $lang->phrase('wwo_misc_spellcheck');
+				break;
+			case 'report_post':
+			case 'report_post2':
+				$loc = $lang->phrase('wwo_misc_report_post');
+				break;
 			case 'board_rules':
 				$id = $row->wiw_id;
 				if (isset($cat_cache[$id]['name'])) {
@@ -300,7 +419,7 @@ elseif ($_GET['action'] == "wwo") {
 				$loc = $lang->phrase('wwo_default');
 			}
 		}
-		
+
 		($code = $plugins->load('misc_wwo_entry')) ? eval($code) : null;
 
 		if ($row->mid >= 1) {
@@ -328,14 +447,14 @@ elseif ($_GET['action'] == "vote") {
 	($code = $plugins->load('misc_vote_start')) ? eval($code) : null;
 
 	$result = $db->query("
-	SELECT v.id 
-	FROM {$db->pre}vote AS v 
-		LEFT JOIN {$db->pre}votes AS r ON v.id=r.aid 
-	WHERE v.tid = '{$_GET['id']}' AND r.mid = '".$my->id."' 
+	SELECT v.id
+	FROM {$db->pre}vote AS v
+		LEFT JOIN {$db->pre}votes AS r ON v.id=r.aid
+	WHERE v.tid = '{$_GET['id']}' AND r.mid = '".$my->id."'
 	LIMIT 1
 	",__LINE__,__FILE__);
 
-	if ($db->num_rows() > 0) {
+	if ($db->num_rows($result) > 0) {
 		$allow = FALSE;
 	}
 	$result = $db->query("SELECT board FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
@@ -368,15 +487,16 @@ elseif ($_GET['action'] == "vote") {
 }
 elseif ($_GET['action'] == "bbhelp") {
 	$my->p = $slog->Permissions();
+	$lang->group("bbcodes");
 	BBProfile($bbcode);
 	$bbcode->setAuthor($my->id);
-	
+
 	$smileys = $bbcode->getSmileys();
 	$cbb = $bbcode->getCustomBB();
 	foreach ($cbb as $key => $bb) {
 		$cbb[$key]['syntax'] = '['.$bb['bbcodetag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['bbcodetag'].']';
 	}
-	
+
 	$codelang = $scache->load('syntaxhighlight');
 	$clang = $codelang->get();
 	$code_hl = array();
@@ -384,12 +504,12 @@ elseif ($_GET['action'] == "bbhelp") {
 		$code_hl[] = "{$l['short']} ({$l['name']})";
 	}
 	$code_hl = implode(', ', $code_hl);
-	
+
 	$code = '&lt;?php phpinfo(); ?&gt;';
 	$phpcode = '&lt;?php'."\n".'echo phpversion();'."\n".'?&gt;';
-	
+
 	$lorem_ipsum = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.';
-	
+
 	$sbb = array(
 		array(
 			'tag' => 'b',
@@ -536,18 +656,18 @@ elseif ($_GET['action'] == "bbhelp") {
 		),
 		array(
 			'tag' => 'table',
-			'params' => 1,
+			'params' => 2,
 			'example' => array(
-				'[table]'."\n".
-				'[b]#[tab]Name[tab]Number[/b]'."\n".
-				'1.[tab]Otto[tab]4'."\n".
-				'2.[tab]Sara Kristina[tab]13'."\n".
-				'3.[tab]Matthias[tab]8'."\n".
+				'[table=head;50%]'."\n".
+				'#[tab]Name[tab]Age'."\n".
+				'1.[tab]Otto[tab]13'."\n".
+				'2.[tab]Katharina[tab]16'."\n".
+				'3.[tab]Matthias[tab]19'."\n".
 				'[/table]'
 			)
 		)
 	);
-	
+
 	foreach (array('sbb', 'ebb') as $string) {
 		foreach (${$string} as $key => $arr) {
 			if ($arr['params'] == -1) {
@@ -568,7 +688,7 @@ elseif ($_GET['action'] == "bbhelp") {
 			if (!isset($arr['example'])) {
 				${$string}[$key]['example'] = array();
 				foreach (${$string}[$key]['syntax'] as $syntax) {
-					${$string}[$key]['example'][] = str_replace('{param}', $lang->phrase('bbcodes_example_text'), 
+					${$string}[$key]['example'][] = str_replace('{param}', $lang->phrase('bbcodes_example_text'),
 												str_replace('{option}', $lang->phrase('bbcodes_example_text2'), $syntax)
 											  );
 				}
@@ -608,7 +728,7 @@ elseif ($_GET['action'] == "markforumasread") {
 	while ($row = $db->fetch_assoc($result)) {
 		$my->mark['t'][$row['id']] = time();
 	}
-	
+
 	$my->mark['f'][$board] = time();
 	$slog->updatelogged();
 	ok($lang->phrase('marked_as_read'), 'showforum.php?id='.$board);
@@ -628,7 +748,7 @@ elseif ($_GET['action'] == "board_rules") {
 	$my->p = $slog->Permissions($_GET['id']);
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
-	
+
 	if (!isset($fc[$_GET['id']])) {
 		error($lang->phrase('query_string_error'));
 	}
@@ -636,18 +756,18 @@ elseif ($_GET['action'] == "board_rules") {
 	if ($info['message_active'] == '0') {
 		error($lang->phrase('no_board_rules_specified'));
 	}
-	
+
 	($code = $plugins->load('misc_board_rules_start')) ? eval($code) : null;
-	
+
 	$topforums = get_headboards($fc, $info);
 	$breadcrumb->Add($info['name'], "showforum.php?id=".$info['id'].SID2URL_x);
 	$breadcrumb->Add($lang->phrase('board_rules'));
-	
+
 	forum_opt($info);
-	
+
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
-	
+
 	($code = $plugins->load('misc_board_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/board_rules");
 	($code = $plugins->load('misc_board_rules_end')) ? eval($code) : null;
@@ -662,6 +782,28 @@ elseif ($_GET['action'] == "error") {
 	$breadcrumb->Add($lang->phrase('htaccess_error_'.$_GET['id']));
 	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
+}
+elseif ($_GET['action'] == "spellcheck_execute") {
+	if ($config['spellcheck'] == 0) {
+		error($lang->phrase('spellcheck_disabled'), 'self.close()');
+	}
+	include("classes/spellchecker/function.php");
+	echo $tpl->parse("spellcheck/execute");
+}
+elseif ($_GET['action'] == "spellcheck_frames") {
+	if ($config['spellcheck'] == 0) {
+		error($lang->phrase('spellcheck_disabled'), 'self.close()');
+	}
+	echo $tpl->parse("spellcheck/frames");
+}
+elseif ($_GET['action'] == "spellcheck_controls") {
+	if ($config['spellcheck'] == 0) {
+		error($lang->phrase('spellcheck_disabled'), 'self.close()');
+	}
+	echo $tpl->parse("spellcheck/controls");
+}
+elseif ($_GET['action'] == "spellcheck_blank") {
+	echo '';
 }
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;

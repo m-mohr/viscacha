@@ -208,7 +208,7 @@ class Snoopy
 			case "https":
 				if(!$this->curl_path)
 					return false;
-				if(function_exists("is_executable"))
+				if(viscacha_function_exists("is_executable"))
 				    if (!is_executable($this->curl_path))
 				        return false;
 				$this->host = $URI_PARTS["host"];
@@ -367,7 +367,7 @@ class Snoopy
 			case "https":
 				if(!$this->curl_path)
 					return false;
-				if(function_exists("is_executable"))
+				if(viscacha_function_exists("is_executable"))
 				    if (!is_executable($this->curl_path))
 				        return false;
 				$this->host = $URI_PARTS["host"];
@@ -809,7 +809,7 @@ class Snoopy
 		if($this->use_gzip) {
 			// make sure PHP was built with --with-zlib
 			// and we can handle gzipp'ed data
-			if ( function_exists('gzinflate') ) {
+			if ( viscacha_function_exists('gzinflate') ) {
 			   $headers .= "Accept-encoding: gzip\r\n";
 			}
 			else {

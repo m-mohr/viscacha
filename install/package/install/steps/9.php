@@ -1,26 +1,27 @@
 <?php
 $error = array();
+include('../data/config.inc.php');
+require_once('../classes/class.filesystem.php');
+$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+$config['ftp_path'] = $config['ftp_path'].'/install';
+$filesystem->set_wd($config['ftp_path']);
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
-	include('../data/config.inc.php');
-	require_once('../classes/class.filesystem.php');
-	$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-	$filesystem->set_wd($config['ftp_path']);
 	require_once('../classes/database/'.$config['dbsystem'].'.inc.php');
 	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['pconnect'], false, $config['dbprefix']);
 	$db->errlogfile = '../'.$db->errlogfile;
 	$db->pre = $db->prefix();
 	$db->connect(false);
-	if (!is_resource($db->conn)) {
+	if (!$db->hasConnection()) {
 		?>
 	<div class="bbody">Could not connect to database! Pleasy try again later or check the database settings!</div>
-	<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-2; ?>">Go back</a> <a class="submit" href="index.php?step=<?php echo $step; ?>">Refresh</a></div>
+	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-2; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
 		<?php
 	}
 	else {
 		if (!$db->select_db()) {
 			?>
 	<div class="bbody">Could not find database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
-	<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-2; ?>">Go back</a> <a class="submit" href="index.php?step=<?php echo $step; ?>">Refresh</a></div>
+	<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-2; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
 			<?php
 		}
 		else {
@@ -38,25 +39,30 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			}
 
 			if (strlen($_REQUEST['name']) > 50) {
-				$error[] = 'Name ist zu lang (max. 50 Zeichen)';
+				$error[] = 'Name is too long (max. 50 chars)';
 			}
 			if (strlen($_REQUEST['name']) < 3) {
-				$error[] = 'Name ist zu kurz (min. 3 Zeichen)';
+				$error[] = 'Name is too short (min. 3 chars)';
 			}
 			if (strlen($_REQUEST['pw']) > 64) {
-				$error[] = 'Passwort ist zu lang (max. 64 Zeichen)';
+				$error[] = 'Password is too long (max. 64 chars)';
 			}
 			if (strlen($_REQUEST['pw']) < 4) {
-				$error[] = 'Passwort ist zu kurz (min. 4 Zeichen)';
+				$error[] = 'Passwort is too short (min. 4 chars)';
 			}
 			if (strlen($_REQUEST['email']) > 200) {
-				$error[] = 'E-Mail-Adresse zu lang (max. 200 Zeichen)';
+				$error[] = 'Email address is too long (max. 200 chars)';
 			}
 			if (strlen($_REQUEST['email']) < 7 || strpos($_REQUEST['email'], '@') === false) {
-				$error[] = 'Keine gültige E-Mail-Adresse angegeben';
+				$error[] = 'The specified email address is not valid';
 			}
 			if ($_REQUEST['pw'] != $_REQUEST['pwx']) {
-				$error[] = 'Passwörter stimmen nicht überein';
+				$error[] = 'The specified passwords are not exactly the same';
+			}
+
+			$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_REQUEST['name'].'" LIMIT 1',__LINE__,__FILE__);
+			if ($db->num_rows($result) > 0) {
+				$error[] = 'The specified user name is already in use';
 			}
 
 			if (count($error) > 0) {
@@ -68,7 +74,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				<?php } ?>
 			</ul>
 		</div>
-		<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-1; ?>">Go back</a></div>
+		<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
 				<?php
 			}
 			else {
@@ -82,6 +88,19 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 		}
 	}
 }
+
+// Cache löschen
+$cachedir = 'cache/';
+if ($dh = @opendir($dir)) {
+	while (($file = readdir($dh)) !== false) {
+		if (strpos($file, '.inc.php') !== false) {
+			$fileTrim = str_replace('.inc.php', '', $file);
+			$filesystem->unlink($cachedir.$file);
+		}
+    }
+	closedir($dh);
+}
+
 if (count($error) == 0) {
 	$lf = './locked.txt';
 	$filesystem->file_put_contents($lf, '');

@@ -1,3 +1,10 @@
+<?php if (count($cats) == 0 && $board == 0) { ?>
+  <div class="border">
+   <h3><?php echo $lang->phrase('re_error_title'); ?></h3>
+   <div class="bbody"><?php echo $lang->phrase('error_no_forums_found'); ?></div>
+  </div>
+  <br class="minibr" />
+<?php } else { foreach ($cats as $cat) { ?>
   <table class="tables">
     <thead>
 	<tr>
@@ -14,10 +21,7 @@
 		<td width="18%"><?php echo $lang->phrase('contentcounter'); ?></td>
 		<td width="34%"><?php echo $lang->phrase('last_post'); ?></td>
 	</tr>
-    <?php
-    foreach ($forums as $forum) {
-    if ($forum['opt'] == 're') {
-    ?>
+    <?php foreach ($cat['forums'] as $forum) { if ($forum['opt'] == 're') { ?>
 	<tr class="tbody">
 		<td width="3%" class="center"><img src="<?php echo $tpl->img('cat_redirect'); ?>" alt="<?php echo $forum['name']; ?>" /></td>
 		<td width="97%" colspan="3">
@@ -71,3 +75,4 @@
 	<?php } } ?>
 	</tbody>
   </table>
+<?php } } ?>

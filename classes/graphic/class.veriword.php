@@ -53,19 +53,19 @@ class VeriWord {
 		$lang->group("thumbnail.class");
 		$this->lang = $lang->return_array();
 
-		if (function_exists('imagejpeg') && IMG_JPEG) {
+		if (viscacha_function_exists('imagejpeg') && IMG_JPEG) {
 			define('IMAGEJPEG', true);
 		}
 		else {
 			define('IMAGEJPEG', false);
 		}
-		if (function_exists('imagegif') && IMG_GIF) {
+		if (viscacha_function_exists('imagegif') && IMG_GIF) {
 			define('IMAGEGIF', true);
 		}
 		else {
 			define('IMAGEGIF', false);
 		}
-		if (function_exists('imagepng') && IMG_PNG) {
+		if (viscacha_function_exists('imagepng') && IMG_PNG) {
 			define('IMAGEPNG', true);
 		}
 		else {
@@ -124,7 +124,7 @@ class VeriWord {
 	}
 
 	function set_session() {
-
+		global $filesystem;
 		$fid = md5(microtime());
 		$floods = array();
 		$word = &$this->word;
@@ -148,7 +148,7 @@ class VeriWord {
 		}
 		$save[] = $fid."\t".time()."\t".$word;
 
-		file_put_contents($this->sess_file, implode("\n",$save));
+		$filesystem->file_put_contents($this->sess_file, implode("\n",$save));
 
 		return $fid;
 	}

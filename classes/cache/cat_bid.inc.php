@@ -20,14 +20,14 @@ class cache_cat_bid extends CacheItem {
 				$emails = preg_split('/[\r\n]+/', $row['topic_notification'], -1, PREG_SPLIT_NO_EMPTY);
 				$row['topic_notification'] = array();
 				foreach ($emails as $email) {
-					if(check_mail($email)) {
+					if(check_mail($email, true)) {
 						$row['topic_notification'][] = $email;
 					}
 				}
 				$emails = preg_split('/[\r\n]+/', $row['reply_notification'], -1, PREG_SPLIT_NO_EMPTY);
 				$row['reply_notification'] = array();
 				foreach ($emails as $email) {
-					if(check_mail($email)) {
+					if(check_mail($email, true)) {
 						$row['reply_notification'][] = $email;
 					}
 				}

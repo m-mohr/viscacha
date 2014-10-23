@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -47,17 +47,14 @@ class BBCode {
 	    	'bbcode' => 0
 	    );
 		$this->smileys = null;
-		$this->bbcodes = array();
-		$this->custombb = array();
+		$this->bbcodes = null;
+		$this->custombb = null;
 		$this->profile = '';
 		$this->cfg = array();
 		$this->reader = '';
 		$this->noparse = array();
 		$this->pid = 0;
 		$this->author = -1;
-
-		$this->cache_bbcode();
-		$this->cache_custombb();
 
 		if (!class_exists('ConvertRoman')) {
 			include('classes/class.convertroman.php');
@@ -108,7 +105,7 @@ class BBCode {
 	    return $list;
 	}
 	function code_trim ($code) {
-		$code = preg_replace('/^([\s\t]*(\r\n|\r|\n))?(.+?)((\r\n|\r|\n)[\s\t]*)?$/s', '\3', $code);
+		$code = preg_replace('/^([\s\t]*\n+)?(.+?)(\n+[\s\t]*)?$/s', '\2', $code);
 		return $code;
 	}
 	function code_prepare($code, $inline = false) {
@@ -128,7 +125,7 @@ class BBCode {
 		$pid = $this->noparse_id();
 		list(,$code,$nl) = $matches;
 
-	    $rows = preg_split('/(\r\n|\r|\n)/',$code);
+	    $rows = explode("\n",$code);
 	    $code = $this->code_prepare($code, (count($rows) <= 1));
 
 	    if (count($rows) > 1) {
@@ -157,7 +154,7 @@ class BBCode {
 		list(, $sclang, $code, $nl) = $matches;
 
 
-	    $rows = preg_split('/(\r\n|\r|\n)/',$code);
+	    $rows = explode("\n",$code);
 
 	    if (count($rows) > 1) {
 	    	$code = $code2 = $this->code_prepare($code);
@@ -196,7 +193,7 @@ class BBCode {
 	function cb_mail ($email) {
 		global $lang;
 		list(,$email) = $email;
-		$html = '<img alt="'.$lang->phrase('bbcodes_email').'" src="classes/graphic/text2image.php?text='.base64_encode($email).'&amp;enc=1" border="0" />';
+		$html = '<img alt="'.$lang->phrase('bbcodes_email').'" src="images.php?action=textimage&amp;text='.base64_encode($email).'&amp;enc=1" border="0" />';
 	   	return $html;
 	}
 	function cb_header ($matches) {
@@ -348,7 +345,7 @@ class BBCode {
 		$pid = $this->noparse_id();
 
 		list(,,$code,$nl) = $matches;
-	    $rows = preg_split('/(\r\n|\r|\n)/',$code);
+	    $rows = explode("\n",$code);
 		$code = $this->code_prepare($code);
 
 	    if (count($rows) > 1) {
@@ -447,7 +444,7 @@ class BBCode {
 		$pid = $this->noparse_id();
 
 		list(,,$code) = $matches;
-	    $rows = preg_split('/(\r\n|\r|\n)/',$code);
+	    $rows = explode("\n",$code);
 		$code = $this->code_prepare($code);
 
 	    if (count($rows) > 1) {
@@ -467,6 +464,7 @@ class BBCode {
 	    return '<!PID:'.$pid.'>';
 	}
 	function strip_bbcodes ($text) {
+		$this->cache_bbcode();
 		$text = preg_replace('/(\r\n|\r|\n)/', "\n", $text);
 		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text);
 		$text = preg_replace("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", "\\3", $text);
@@ -524,6 +522,7 @@ class BBCode {
 	function parse ($text, $type = 'html') {
 		global $lang, $my;
 		$thiszm1=benchmarktime();
+		$this->cache_bbcode();
 		$this->noparse = array();
 		$text = preg_replace('/(\r\n|\r|\n)/', "\n", $text);
 		if ($type != 'pdf') {
@@ -628,7 +627,7 @@ class BBCode {
 			$text = preg_replace('/\[sup\](.+?)\[\/sup\]/is', "<sup>\\1</sup>", $text);
 
 			$text = str_ireplace('[tab]', "\t", $text);
-			$text = preg_replace_callback('/\[table\](.+?)\[\/table\]\n?/is', array(&$this, 'cb_table'), $text);
+			$text = preg_replace_callback('/\[table(=[^\]]+)?\](.+?)\[\/table\]\n?/is', array(&$this, 'cb_plain_table'), $text);
 
 			$text = $this->tab2space($text);
 			$text = $this->parseSmileys($text);
@@ -692,8 +691,8 @@ class BBCode {
 			$text = preg_replace('/\n?(\[hr\]){1,}\n?/is', "<hr />", $text);
 
 			$text = preg_replace('/\[tt\](.+?)\[\/tt\]/is', "<tt>\\1</tt>", $text);
+			$text = preg_replace_callback('/\[table(=(\d+\%;head|head;\d+\%|\d+\%|head))?\]\n*(.+?)\n*\[\/table\]\n?/is', array(&$this, 'cb_table'), $text);
 			$text = str_ireplace('[tab]', "\t", $text);
-			$text = preg_replace_callback('/\[table\](.+?)\[\/table\]\n?/is', array(&$this, 'cb_table'), $text);
 
 			$text = $this->tab2space($text);
 			$text = $this->parseSmileys($text);
@@ -714,6 +713,7 @@ class BBCode {
 	}
 
 	function nl2br ($text, $type = 'html') {
+		$text = str_ireplace('[br]', "\n", $text);
 		if ($type == 'plain') {
 			$text = str_replace("\n", " \n", $text); // Evtl. Leerzeichen oder nur Zeilenumbruch...
 		}
@@ -721,8 +721,10 @@ class BBCode {
 			$text = str_replace("\n", "<br>\n", $text);
 		}
 		else {
-			$text = nl2br($text);
+			$text = str_replace("\n", "<br />\n", $text);
 		}
+		// Conver \r from custom bb-codes back to \n
+		$text = str_replace("\r", "\n", $text);
 		return $text;
 	}
 	function parseDoc ($text) {
@@ -746,9 +748,106 @@ class BBCode {
 			return $topic;
 		}
 	}
-	function cb_table ($text, $tag = 'tt') {
+	function cb_table($data) {
+		list(,,$args,$code) = $data;
+		$table_content = array();
+		$table_head = array();
+		$table_rows = array();
+		$table_cols = array();
+		$bbcode_table = array(
+			'width' => null,
+			'head' => array(),
+			'table' => array()
+		);
+		if (preg_match('~((\d+)\%)~', $args, $matches)) {
+			if ($matches[2] <= 100) {
+				$bbcode_table['width'] = $matches[1];
+			}
+		}
+		$args = explode(';', strtolower($args));
+		if (array_search('head', $args) === false) {
+			$bbcode_table['head']['enabled'] = false;
+		}
+		else {
+			$bbcode_table['head']['enabled'] = true;
+		}
+
+		do {
+			$code = preg_replace("#(\n\n)#", "\n\n", $code);
+		} while (preg_match("#\n\n#", $code));
+
+		$table_content = explode("\n",$code);
+		$bbcode_table['table']['rows'] = count($table_content);
+		for($i=0;$i<$bbcode_table['table']['rows'];$i++){
+			// Testing for old style behaviour
+			if (stripos($table_content[$i], '[tab]') === false) {
+				$table_content[$i] = explode('|',$table_content[$i]);
+			}
+			else {
+				$table_content[$i] = preg_split('~\[tab\]~i',$table_content[$i]);
+			}
+		}
+		$bbcode_table['table']['cols'] = count($table_content[0]);
+
+		if($bbcode_table['table']['rows']+$bbcode_table['table']['cols']==2) {
+			return $code;
+		}
+
+		$bbcode_table['head']['enabled'] = ($bbcode_table['head']['enabled'] && $bbcode_table['table']['rows']>1) ? true : false;
+
+		if($bbcode_table['head']['enabled'] == true){
+			for($i=0;$i<($bbcode_table['table']['cols']);$i++){
+				if(empty($table_content[0][$i])){
+					$table_head[$i] = '&nbsp;';
+				}
+				else{
+					$table_head[$i] = $table_content[0][$i];
+				}
+			}
+			for($i=1;$i<$bbcode_table['table']['rows'];$i++){
+				$table_content[($i-1)] = $table_content[$i];
+			}
+			$bbcode_table['table']['rows']--;
+		}
+		$table_rows = array();
+		for($i=0;$i<$bbcode_table['table']['rows'];$i++){
+			for($j=0;$j<$bbcode_table['table']['cols'];$j++){
+				if(empty($table_content[$i][$j])){
+					$table_rows[$i][$j] = '&nbsp;';
+
+				}
+				else{
+					$table_rows[$i][$j] = $table_content[$i][$j];
+				}
+			}
+		}
+
+		$style = ' style="width:'.floor(100/$bbcode_table['table']['cols']).'%;"';
+
+		if($bbcode_table['head']['enabled'] == true){
+			$table_head = '<tr><th'.$style.'>'.implode('</th><th'.$style.'>',$table_head).'</th></tr>';
+		}
+		else{
+			$table_head = '';
+		}
+
+		for($i=0;$i<$bbcode_table['table']['rows'];$i++){
+			$table_rows[$i] = '<td'.iif($bbcode_table['head']['enabled'], $style).'>'.implode('</td><td'.iif($bbcode_table['head']['enabled'], $style).'>', $table_rows[$i]).'</td>';
+			$table_rows[$i] = '<tr>'.$table_rows[$i].'</tr>';
+		}
+
+		$table_rows = implode('',$table_rows);
+		$table_html = '<table class="bb_table"';
+		if ($bbcode_table['width'] != null){
+			$table_html .= ' style="width:'.$bbcode_table['width'].';"';
+		}
+		$table_html .= '>'.$table_head.$table_rows.'</table>';
+
+		return $table_html;
+	}
+	function cb_plain_table ($text, $tag = 'tt') {
 		$length = array();
-		$lines = explode("\n", $text[1]);
+		$lines = explode("\n", $text[2]);
 		$char = chr(7);
 		foreach ($lines as $line) {
 			if (empty($line)) {
@@ -836,6 +935,7 @@ class BBCode {
 		return $this->smileys;
 	}
 	function getCustomBB () {
+		$this->cache_bbcode();
 		return $this->custombb;
 	}
 	function existsProfile($name) {
@@ -953,6 +1053,7 @@ class BBCode {
 	}
 	function dict($text, $type = 'html') {
 		if ($this->profile['useDict'] == 1) {
+			$this->cache_bbcode();
 			foreach ($this->bbcodes['word'] as $word) {
 				$ws = $word['search'];
 			    $wr = $word['replace'];
@@ -1002,6 +1103,7 @@ class BBCode {
 		return $text;
 	}
 	function censor ($text) {
+		$this->cache_bbcode();
 	    if ($this->profile['useCensor'] == 2) {
 	    	foreach ($this->bbcodes['censor'] as $word) {
 	            $letters = str_split($word['search']);
@@ -1021,6 +1123,7 @@ class BBCode {
 		return $text;
 	}
 	function replace ($text) {
+		$this->cache_bbcode();
 		if (isset($this->profile['useReplace']) && $this->profile['useReplace'] == 1) {
 			foreach ($this->bbcodes['replace'] as $word) {
             	$text = str_ireplace($word['search'], $word['replace'], $text);
@@ -1029,6 +1132,7 @@ class BBCode {
 		return $text;
 	}
 	function customBB ($text, $type='html') {
+		$this->getCustomBB();
 		foreach ($this->custombb as $re) {
 			// Paramter for Opening Tag
 			$param = ($re['twoparams'] ? '=([^\]\'\"]*?)' : '');
@@ -1060,13 +1164,16 @@ class BBCode {
 	}
 	function cache_bbcode () {
 		global $scache;
-		$cache = $scache->load('bbcode');
-		$this->bbcodes = $cache->get();
-	}
-	function cache_custombb () {
-		global $scache;
-		$cache = $scache->load('custombb');
-		$this->custombb = $cache->get();
+		if ($this->bbcodes == null) {
+			$cache = $scache->load('bbcode');
+			$this->bbcodes = $cache->get();
+			$scache->unload('bbcode');
+		}
+		if ($this->custombb == null) {
+			$cache = $scache->load('custombb');
+			$this->custombb = $cache->get();
+			$scache->unload('custombb');
+		}
 	}
 	function cache_smileys () {
 		if ($this->smileys == null) {
@@ -1089,12 +1196,20 @@ class BBCode {
 			}
 		}
 		$smileys[1] = array_chunk($smileys[1], $perrow);
-		$tpl->globalvars(compact("smileys"));
+
+		end($smileys[1]);
+		$last = current($smileys[1]);
+		$lastKey = key($smileys[1]);
+		reset($smileys[1]);
+		$colspan = $perrow - count($last);
+
+		$tpl->globalvars(compact("smileys", "colspan", "lastKey"));
 		return $tpl->parse("main/smileys");
 	}
 	function getbbhtml ($file = "main/bbhtml") {
-	    global $tpl;
-	    $cbb = $this->custombb;
+	    global $tpl, $lang;
+	    $lang->group("bbcodes");
+	    $cbb = $this->getCustomBB();
 	    foreach ($cbb as $key => $bb) {
 	    	if (empty($bb['buttonimage'])) {
 	    		unset($cbb[$key]);
@@ -1132,7 +1247,9 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			$bbcode->setWordwrap($config['wordwrap'], $config['maxwordlength'], $config['maxwordlengthchar'], $config['asia']);
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);
-			$bbcode->setName($my->name);
+			if (isset($my->name)) {
+				$bbcode->setName($my->name);
+			}
 			$bbcode->setSmileyDir($config['smileyurl']);
 			$bbcode->setSmileys(1);
 			$bbcode->setReplace($config['wordstatus']);
@@ -1162,7 +1279,9 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			$bbcode->setWordwrap($config['wordwrap'], $config['maxwordlength'], $config['maxwordlengthchar'], $config['asia']);
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);
-			$bbcode->setName($my->name);
+			if (isset($my->name)) {
+				$bbcode->setName($my->name);
+			}
 			$bbcode->setSmileyDir($config['smileyurl']);
 		}
 	}

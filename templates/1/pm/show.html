@@ -27,11 +27,13 @@
 <span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?><strong><?php echo $row['topic']; ?></strong></span>
 <hr />
 <?php echo $row['comment']; ?>
-<br class="iefix_left" /><hr />
-<?php if (!empty($row['fullname'])) { ?>
-   <span class="fullname stext"><?php echo $row['fullname']; ?></span>
-<?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
-   <br /><?php echo $row['signature']; ?>
-<?php } ?>
+<br class="iefix_left" />
+<?php if ($bottom) { ?>
+  <hr />
+  <?php if (!empty($row['fullname']) && $config['fullname_posts'] == 1) { ?>
+  <div class="fullname stext"><?php echo $row['fullname']; ?></div>
+  <?php } if (!empty($row['signature']) && $my->opt_showsig == 1) { ?>
+  <div class="signature"><?php echo $row['signature']; ?></div>
+<?php } } ?>
 </div>
 </div>

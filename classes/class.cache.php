@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 	You should have received a copy of the GNU General Public License
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-	
+
 	-- Caching Suite v2.0 --
 	This class is part of Viscacha.
 */
@@ -32,25 +32,21 @@ class CacheItem {
 	var $name;
 	var $file;
 	var $data;
-	
+	var $max_age;
+
 	function CacheItem ($filename, $cachedir = "cache/") {
 		$this->name = $filename;
 		$this->file = $cachedir.$filename.".inc.php";
 		$this->data = null;
+		$this->max_age = null;
 	}
-	
+
 	function export() {
-	
+		global $filesystem;
 	    $ser_data = serialize($this->data);
-	    if (file_put_contents($this->file,$ser_data) > 0) {
-	        return true;
-	    }
-	    else {
-	        return false;
-	    }
-	
+	    return $filesystem->file_put_contents($this->file, $ser_data);
 	}
-	
+
 	function import() {
 		if (file_exists($this->file)) {
 	        $data = file_get_contents($this->file);
@@ -60,19 +56,22 @@ class CacheItem {
 	    else {
 	        return false;
 	    }
-	
+
 	}
-	
+
 	function expired($max_age) {
-		if ($this->age() > $max_age) {
-			$this->delete();
-			return false;
+		if ($max_age == null) {
+			$max_age = $this->max_age;
 		}
-		else {
+		if ($this->age() >= $max_age) {
+			$this->delete();
 			return true;
 		}
+		else {
+			return false;
+		}
 	}
-	
+
 	function age() {
 		if (file_exists($this->file)) {
 			$age = time()-filemtime($this->file);
@@ -82,11 +81,14 @@ class CacheItem {
 			return -1;
 		}
 	}
-	
+
 	function exists($max_age = null) {
+		if ($max_age == null) {
+			$max_age = $this->max_age;
+		}
 	    if (file_exists($this->file) && filesize($this->file) > 0) {
 			if ($max_age != null) {
-				return !($this->expired($max_age));
+				return !$this->expired($max_age);
 			}
 	        return true;
 	    }
@@ -94,32 +96,33 @@ class CacheItem {
 	        return false;
 	    }
 	}
-	
+
 	function delete() {
 		global $filesystem;
-	    if (file_exists($this->file)) {
-	    	if ($filesystem->unlink($this->file)) {
-	        	return true;
-	       	}
-	    }
+    	if ($filesystem->unlink($this->file)) {
+        	return true;
+       	}
 	    return false;
 	}
-	
+
 	function load() {
 		// Will be implemented in sub-class
 	}
-	
+
 	function rebuildable() {
 		return true;
 	}
 
 	function get($max_age = null) {
+		if ($max_age == null) {
+			$max_age = $this->max_age;
+		}
 		if ($this->data == null || ($max_age != null && $this->expired($max_age))) {
 			$this->load();
 		}
 		return $this->data;
 	}
-	
+
 	function set($data) {
 		$this->data = $data;
 	}
@@ -135,7 +138,7 @@ class CacheServer {
 		$this->cachedir = $cachedir;
 		$this->data = array();
 	}
-	
+
 	function load($name, $sourcedir = 'classes/cache/') {
 		$class = "cache_{$name}";
 		$file = $sourcedir.$name.'.inc.php';
@@ -152,7 +155,7 @@ class CacheServer {
 		$this->data[$name] = $object;
 		return $object;
 	}
-	
+
 	function unload($name) {
 		unset($this->data[$name]);
 	}

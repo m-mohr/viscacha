@@ -45,13 +45,6 @@ hr {
 	border-bottom: 1px #839FBC solid;
 }
 
-.hiddenl ul {
-	margin: 0px;
-	padding: 0px;
-	list-style-type: none;
-	list-style-image: none;
-}
-
 .stext {
 	font-size: 8pt;
 	font-weight: normal;
@@ -111,8 +104,8 @@ h1 a, h1 a:hover {
 
 /* Offline und Banned-Seite */
 #blank {
-	width: 765px;
-	margin: auto;
+	width: 100%;
+	margin-top: 1em;
 }
 
 /* Inhalt */
@@ -133,9 +126,6 @@ h1 a, h1 a:hover {
 .bbody ul, .tbody ul {
 	list-style-image: url(standard/list.gif);
 }
-.bbody ol, .tbody ol {
-	list-style-image: none;
-}
 .bfoot {
 	background-color: #E1E8EF;
 	font-size: 8pt;
@@ -147,7 +137,7 @@ h1 a, h1 a:hover {
 	border: 1px solid #839FBC;
 	background-color: #ffffff;
 }
-#content h3 img, #window h3 img, .tables th img, .h3 img {
+#blank h3 img, #content h3 img, #window h3 img, .tables th img, .h3 img {
 	vertical-align: middle;
 }
 .inlineheader {
@@ -229,19 +219,10 @@ h1 a, h1 a:hover {
 	border-bottom: 1px solid #839FBC;
 }
 
-.newsfeed_box {
-	font-size: 8pt;
-}
-.newsfeed_box_multi {
-	overflow:hidden;
-	width:145px;
-	height:5em;
-}
-
-#content h3, .outline {
+#blank h3, #content h3, .outline {
 	border: 1px solid #839FBC;
 }
-#content .border h3 {
+#blank .border h3, #content .border h3 {
 	border-width: 0px;
 }
 .h3 {
@@ -447,12 +428,11 @@ label, .labeldiv {
 }
 
 .popup {
-	z-index: 10;
-	left: 0px;
+	left: -1000px;
+	top: -1000px;
 	visibility: hidden;
 	width: 200px;
 	position: absolute;
-	top: 0px;
 	border: 1px solid #336699;
 	border-top: 0px solid;
 	text-align: left;
@@ -523,17 +503,17 @@ label, .labeldiv {
 	width: 140px;
 }
 #popup_bbsmileys {
-	height: 200px;
+	max-height: 200px;
 	width: 255px;
-	overflow: auto;
 }
 .tables_bbsmileys {
-	width: 250px;
+	width: 100%;
 	border-collapse: collapse;
-	margin-bottom: 5px;
+	margin-bottom: 0px;
 }
 .tables_bbsmileys td {
 	border: 1px solid #839FBC;
+	border-width: 1px 0px 0px 1px;
 	padding: 3px;
 }
 .bbsmileys {
@@ -590,13 +570,22 @@ label, .labeldiv {
 	border-bottom: 1px solid #336699;
 }
 .bb_table {
-	border: 1px dotted #BCCADA;
-	overflow: auto;
 	display: block;
-	padding: 1px;
-	margin-top: 5px;
-	margin-bottom: 5px;
+	border-collapse: collapse;
+	margin: 2px;
 }
+.bb_table td, .bb_table th {
+	border: 1px solid #839FBC;
+	padding: 3px;
+	background-image: none;
+}
+.bb_table th {
+	background-color: #E1E8EF;
+	color: #24486C;
+	text-align: center;
+	font-size: 9pt;
+}
+
 .bb_inlinecode {
 	color: #880000;
 	white-space: normal;

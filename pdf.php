@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -42,9 +42,9 @@ $tpl = new tpl();
 
 ($code = $plugins->load('pdf_topic_query')) ? eval($code) : null;
 $result = $db->query('
-SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix 
-FROM '.$db->pre.'topics 
-WHERE id = "'.$_GET['id'].'" 
+SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix
+FROM '.$db->pre.'topics
+WHERE id = "'.$_GET['id'].'"
 LIMIT 1
 ',__LINE__,__FILE__);
 $info = $gpc->prepare($db->fetch_assoc($result));
@@ -92,7 +92,7 @@ if ($speeder > $last['topiczahl']) {
 else {
 	$searchsql = " LIMIT ".$speeder;
 }
-	
+
 BBProfile($bbcode);
 
 $memberdata_obj = $scache->load('memberdata');
@@ -113,14 +113,14 @@ $inner['body'] = '';
 // prepare for vote
 if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 	$votes = 0;
-	
+
 	$inner['head'] = $lang->phrase('pdf_vote').$info['vquestion'];
-	
+
 	$cachev = array();
 	$aids = array();
 	$vresult = $db->query("
 	SELECT COUNT(r.id) as votes, v.id, v.answer
-	FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id 
+	FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id
 	WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id",__LINE__,__FILE__);
 	while ($row = $db->fetch_assoc($vresult)) {
 		$row['answer'] = $gpc->prepare($row['answer']);
@@ -138,7 +138,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 			$voter[$row['aid']] = array();
 		}
 	}
-	
+
 	foreach ($cachev as $key => $row) {
 		if ($votes > 0) {
 			$row['percent'] = $row['votes'] / $votes * 100;
@@ -168,13 +168,13 @@ if ($config['tpcallow'] == 1) {
 ($code = $plugins->load('pdf_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, r.email as gmail, r.guest
-FROM {$db->pre}replies AS r 
-	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
+FROM {$db->pre}replies AS r
+	LEFT JOIN {$db->pre}user AS u ON r.name=u.id
 WHERE r.topic_id = '{$info['id']}' {$searchsql}
 ",__LINE__,__FILE__);
 
 while ($row = $db->fetch_object($result)) { // no $gpc->prepare for pdf
-	$inner['upload_box'] = '';	
+	$inner['upload_box'] = '';
 
 	if ($row->guest == 0) {
 		$row->mail = '';
@@ -194,25 +194,25 @@ while ($row = $db->fetch_object($result)) { // no $gpc->prepare for pdf
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}
-	$row->comment = html_entity_decode($bbcode->parse($row->comment, 'pdf'), ENT_QUOTES);
+	$row->comment = html_entity_decode($bbcode->parse($row->comment, 'pdf'), ENT_QUOTES, $config['asia_charset']);
 	$row->date = gmdate($lang->phrase('dformat1'), times($row->date));
-	$row->topic = html_entity_decode($row->topic, ENT_QUOTES);
+	$row->topic = html_entity_decode($row->topic, ENT_QUOTES, $config['asia_charset']);
 
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		$row->comment .= '<br><hr><b>'.$lang->phrase('pdf_attachments').'</b><br>';
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
-			
+
 			// Dateigroesse
 			$fsize = filesize($uppath);
 			$fsize = formatFilesize($fsize);
-			
+
 			($code = $plugins->load('pdf_attachments_prepared')) ? eval($code) : null;
 			// Ausgabe
 			$row->comment .= '<a href="'.$config['furl'].'/misc.php?action=attachment&id='.$file['id'].'">'.$file['file'].'</a> '.$lang->phrase('pdf_attachments_filesize').'<br>';
 		}
 	}
-	
+
 	($code = $plugins->load('pdf_entry_prepared')) ? eval($code) : null;
 	$pdf->Bookmark($row->topic, 0, -1);
 	$pdf->PrintTopic($row->topic, $lang->phrase('pdf_postinfo'), $row->comment);

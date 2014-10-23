@@ -2,7 +2,7 @@
  <tr>
   <th colspan="<?php echo $colspan; ?>">
   <?php if ($my->p['team'] == 1) { ?>
-   <span class="right">[<a href="team.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('team'); ?></a>]</span>
+   <span class="right">[<a href="members.php?action=team<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('team'); ?></a>]</span>
   <?php } ?>
    <img src="<?php echo $tpl->img('members'); ?>" alt="" /> <?php echo $lang->phrase('members'); ?>
   </th>

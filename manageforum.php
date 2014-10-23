@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -251,6 +251,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);
 			}
 			if ($_POST['temp2'] == 1) {
+				$old = $gpc->plain_str($old);
 				if ($old['guest'] == 0) {
 					$old['email'] = $old['uemail'];
 					$old['name'] = $old['uname'];

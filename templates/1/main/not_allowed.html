@@ -12,14 +12,14 @@
 <form method="post" action="log.php?action=login2<?php echo SID2URL_x; ?>">
 <div class="bbody">
 	<label for="name"><?php echo $lang->phrase('login_name'); ?></label>
-	<input type="text" name="name" id="name" class="label" size="15" />
+	<input type="text" name="name" tabindex="1" id="name" class="label" size="15" />
 	<br class="newinput" /><hr class="formsep" />
 	<label for="pw"><?php echo $lang->phrase('login_password'); ?></label>
-	<input type="password" name="pw" id="pw" class="label" size="15" />
+	<input type="password" name="pw" tabindex="2" id="pw" class="label" size="15" />
 	<input type="hidden" name="location" value="<?php echo $errorurl; ?>" />
 	<br class="newinput" /><br class="iefix_br" />
 </div>
-<div class="bfoot center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input accesskey="s" tabindex="3" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </form>
 <?php } else { ?>
 <div class="bbody">

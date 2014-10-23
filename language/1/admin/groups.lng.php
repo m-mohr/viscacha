@@ -1,0 +1,44 @@
+<?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+$lang = array();
+$lang['admin_groups_add'] = 'Hinzufügen';
+$lang['admin_groups_add_a_new_usergroup_settings'] = 'Eine neue Benutzergruppe hinzufügen - Einstellungen';
+$lang['admin_groups_add_a_new_usergroup_settings_and_permissions'] = 'Eine neue Benutzergruppe hinzufügen - Einstellungen und Zugriffsrechte';
+$lang['admin_groups_add_new_usergroup'] = 'Eine Benutzergruppe hinzufügen';
+$lang['admin_groups_also_copy_forum_rights'] = 'Kopiere Forenrechte';
+$lang['admin_groups_copy_forum_rights_description'] = 'Benutze die Zugriffsrechte der oben angegebenen Gruppe auch für diese Gruppe.';
+$lang['admin_groups_copy_permissions_of_another_group'] = 'Kopiere die Zugriffsrechte von einer anderen Gruppe:';
+$lang['admin_groups_core'] = 'Core';
+$lang['admin_groups_delete'] = 'Löschen';
+$lang['admin_groups_edit'] = 'Ändern';
+$lang['admin_groups_edit_an_usergroup_settings'] = 'Benutzergruppe ändern - Einstellungen';
+$lang['admin_groups_edit_an_usergroup_settings_and_permissions'] = 'Benutzergruppe ändern - Einstellungen und Zugriffsrechte';
+$lang['admin_groups_floodcheck_description'] = 'Zeit die gewartet werden muss, bevor, nach dem Abesenden eines Formulars, ein anderes Formular abgesendet werden kann. Dies ist nützlich um Spam und doppelte Einträge zu vermeiden.';
+$lang['admin_groups_floodcheck_img'] = 'Flood-Sperre (Sek.)';
+$lang['admin_groups_floodcheck_in_sec'] = 'Flood-Sperre (in Sek.)';
+$lang['admin_groups_form_delete'] = 'Löschen';
+$lang['admin_groups_form_edit'] = 'Ändern';
+$lang['admin_groups_group'] = 'Gruppe:';
+$lang['admin_groups_group_add_successful'] = 'Benutzergruppe wurde erfolgreich hinzugefügt';
+$lang['admin_groups_group_add_successful_with_permission_copy_error'] = 'Benutzergruppe erfolgreich hinzugefügt, jedoch ist ein Fehler beim Kopieren der Forenrechte aufgetreten.';
+$lang['admin_groups_group_permissions_warning'] = 'Wenn Sie hier eine Benutzergruppe angeben werden die unten angegebenen Daten ignoriert.';
+$lang['admin_groups_id'] = 'ID';
+$lang['admin_groups_id_or_key_invalid'] = 'Die ID oder der Key ist nicht gültig.';
+$lang['admin_groups_insert_values_from_another_group'] = 'Benutze die Werte von einer anderen Benutzergruppe:';
+$lang['admin_groups_insert_values_from_another_group_description'] = 'Sie können die Checkboxen unten mit den Daten einer anderen Gruppe füllen. Diese dienen dann als (veränderbare) Basis für die neue Gruppe.';
+$lang['admin_groups_internal_name_for_the_group'] = 'Interner Name für die Gruppe:';
+$lang['admin_groups_internal_name_for_the_group_description'] = 'Der interne Name der Gruppe ist im Forum nicht sichtbar.';
+$lang['admin_groups_name'] = 'Name';
+$lang['admin_groups_no_valid_id_given'] = 'Keine gültige ID angegeben.';
+$lang['admin_groups_public_title'] = 'Öffentlicher Titel:';
+$lang['admin_groups_public_title_description'] = 'Öffentlicher Titel für die Benutzer im Forum.';
+$lang['admin_groups_public_title_for_users_in_the_forum'] = 'Öffentlicher Titel für die Benutzer im Forum';
+$lang['admin_groups_public_title_head'] = 'Öffentlicher Titel';
+$lang['admin_groups_set_data_by_hand'] = '- Daten von Hand setzen (manuell)-';
+$lang['admin_groups_set_no_checkbox'] = '- Keine Checkboxen setzen -';
+$lang['admin_groups_set_settings_of_this_group_manually'] = 'Einstellungen dieser Gruppe manuell vornehmen.';
+$lang['admin_groups_the_group_couldnt_be_added'] = 'Die Benutzergruppe konnte nicht hinzugefügt werden.';
+$lang['admin_groups_the_group_couldnt_be_updated'] = 'Die Benutzergruppe konnte nicht geändert werden.';
+$lang['admin_groups_usergroup_manager'] = 'Benutzergruppen-Verwaltung';
+$lang['admin_groups_x_groups_deleted'] = '{$anz} Benutzergruppen gelöscht';
+?>

@@ -6,7 +6,7 @@ class cache_version_check extends CacheItem {
 			$this->import();
 		}
 		else {
-			if (function_exists('xml_parser_create')) {
+			if (viscacha_function_exists('xml_parser_create')) {
 				$rssnews = get_remote('http://version.viscacha.org/news/rss');
 				include('classes/magpie_rss/rss_fetch.inc.php');
 				$rss = new MagpieRSS($rssnews);

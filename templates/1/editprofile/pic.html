@@ -6,7 +6,7 @@
 <?php if (file_exists($my->pic)) { ?>
 <img src="<?php echo $my->pic; ?>" border="0" alt="" />
 <hr class="formsep" />
-<input type="checkbox" name="temp" id="delete_pic" value="1" /> <label class="plainlabel" for="delete_pic"><?php echo $lang->phrase('editprofile_pic_delete'); ?></label> <input class="sep" type="submit" value="<?php echo $lang->phrase('delete_form'); ?>" />
+<input type="checkbox" name="temp" tabindex="1" id="delete_pic" value="1" /> <label class="plainlabel" for="delete_pic"><?php echo $lang->phrase('editprofile_pic_delete'); ?></label> <input class="sep" type="submit" value="<?php echo $lang->phrase('delete_form'); ?>" />
 <?php } else { echo $lang->phrase('editprofile_pic_empty'); } ?>
 </div>
 </form>
@@ -14,10 +14,10 @@
 <form name="form2" method="post" action="editprofile.php?action=pic2<?php echo SID2URL_x; ?>" enctype="multipart/form-data">
 <div class="bbody">
   <label class="plainlabel" for="pic"><strong><?php echo $lang->phrase('editprofile_pic_url'); ?></strong></label><br />
-  <input type="text" name="pic" id="pic" size="60" value="" />
+  <input type="text" name="pic" tabindex="2" id="pic" size="60" value="" />
   <hr class="formsep" />
   <label class="plainlabel" for="upload"><strong><?php echo $lang->phrase('editprofile_pic_upload'); ?></strong></label><br />
-  <input type="file" name="upload" id="upload" size="60" value="" />
+  <input type="file" name="upload" tabindex="3" id="upload" size="60" value="" />
   <hr class="formsep" />
   <span class="stext">
     <strong><?php echo $lang->phrase('editprofile_pic_settings'); ?></strong>
@@ -26,6 +26,6 @@
 	<?php echo $lang->phrase('editprofile_pic_restricitons'); ?>
   </span>
 </div>
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </form>
 </div>

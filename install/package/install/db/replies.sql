@@ -12,6 +12,7 @@ CREATE TABLE `{:=DBPREFIX=:}replies` (
   `ip` varchar(20) NOT NULL default '',
   `date` int(10) unsigned NOT NULL default '0',
   `edit` text NOT NULL,
+  `report` tinytext NOT NULL,
   `tstart` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `topic_id` (`topic_id`),

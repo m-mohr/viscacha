@@ -1,0 +1,18 @@
+<br />
+<div class="border">
+<h3><?php echo $lang->phrase('last_posts_reply'); ?></h3>
+<?php if ($info['posts'] > $num) { ?>
+	<div class="bfoot"><?php echo $lang->phrase('last_posts_info_reply'); ?></div>
+<?php } ?>
+</div>
+<?php foreach ($data as $row) { ?>
+<br class="minibr" />
+<div class="border">
+<div class="bfoot topfooter"><strong><?php echo $row->name; ?></strong> (<?php echo $row->date; ?>):</div>
+<div class="bbody">
+	<span class="stext"><?php echo $lang->phrase('subject'); ?> <strong><a href="popup.php?action=showpost&id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->topic; ?></a></strong></span>
+	<hr />
+	<?php echo $row->comment; ?>
+</div>
+</div>
+<?php } ?>

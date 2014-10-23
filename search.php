@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -56,8 +56,9 @@ if ($_GET['action'] == "search") {
 	}
 	$boards = array();
 	if (isset($_POST['boards']) && is_array($_POST['boards'])) {
+		$_POST['boards'] = array_map('trim', $_POST['boards']);
 		foreach ($_POST['boards'] as $b) {
-			if (is_id(trim($b))) {
+			if (is_id($b) == true) {
 				$boards[] = $b;
 			}
 		}
@@ -78,10 +79,7 @@ if ($_GET['action'] == "search") {
 		else {
 			$sw2 = $sw;
 		}
-		if (!is_array($sw2)) {
-
-		}
-		$sw2 = str_replace('*','',$sw2);
+		$sw2 = str_replace('*', '', $sw2);
 		if (in_array(strtolower($sw2), $ignorewords) || strxlen($sw2) < $config['searchminlength']) {
 			$ignored[] = $sw2;
 		}
@@ -92,7 +90,7 @@ if ($_GET['action'] == "search") {
 
 	if (strxlen($_POST['name']) >= $config['searchminlength']) {
 		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name="'.$_POST['name'].'"');
-		if ($db->num_rows() == 1) {
+		if ($db->num_rows($result) == 1) {
 			$name = $db->fetch_assoc($result);
 			$rname = $name['id'];
 		}
@@ -141,7 +139,7 @@ if ($_GET['action'] == "search") {
 		}
 	}
 
-	$sql_where = $slog->sqlinboards('r.board', 1)." ";
+	$sql_where = $slog->sqlinboards('r.board', 1, $boards)." ";
 
 	if (count($used) > 0) {
 		$sql_where .= "({$sql_where_like}) ";

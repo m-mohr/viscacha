@@ -9,21 +9,22 @@
 <link rel="stylesheet" type="text/css" href="designs/<?php echo $my->cssid; ?>/ie.css" />
 <![endif]-->
 <link rel="up" href="javascript:self.scrollTo(0,0);" />
-<link rel="copyright" href="http://www.mamo-net.de" />
+<link rel="copyright" href="http://www.viscacha.org" />
+<?php echo $htmlhead; ?>
 </head>
 
 <body<?php echo $htmlbody; ?>>
-<div id="blank">
-    <h1><?php echo $config['fname']; ?></h1>
-    <br class="minibr" />
+<div id="container">
+    <h1><a href="index.php"><?php echo $config['fname']; ?></a></h1>
+    <div id="blank">
 	<div class="border">
         <h3><?php echo $lang->phrase('offline_head'); ?></h3>
         <div class="bbody">
         <?php echo $offline; ?>
         </div>
-        <div class="bfoot center"><a href="admin.php"><?php echo $lang->phrase('offline_adminlogin'); ?></a></div>
+        <div class="bfoot center"><a href="admin.php" rel="nofollow"><?php echo $lang->phrase('offline_adminlogin'); ?></a></div>
 	</div>
-	<br />
+	</div>
 </div>
 <div id="copyright">
     <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />

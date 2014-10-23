@@ -1,6 +1,9 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+// MB: MultiLangAdmin
+$lang->group("admin/bbcodes");
+
 ($code = $plugins->load('admin_bbcodes_jobs')) ? eval($code) : null;
 
 if ($job == 'smileys_delete') {
@@ -19,10 +22,10 @@ if ($job == 'smileys_delete') {
 		$anz = $db->affected_rows();
 	}
 	else {
-		$anz = 'No';
+		$anz = $lang->phrase('admin_bbc_no');
 	}
 	echo head();
-	ok('admin.php?action=bbcodes&job=smileys', $anz.' entries were deleted successfully!');
+	ok('admin.php?action=bbcodes&job=smileys', $lang->phrase('admin_bbc_entries_deleted'));
 }
 elseif ($job == 'smileys_edit') {
 	$editid = $gpc->get('id', arr_int);
@@ -32,40 +35,41 @@ elseif ($job == 'smileys_edit') {
 	}
 	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $editid).')',__LINE__,__FILE__);
 	echo head();
+	$num_smileys = count($editid);
 	?>
 <form name="form" method="post" enctype="multipart/form-data" action="admin.php?action=bbcodes&job=smileys_edit2">
  <table class="border">
   <tr>
-   <td class="obox">Edit <?php echo count($editid); ?> Smileys</td>
+   <td class="obox"><?php echo $lang->phrase('admin_bbc_edit_smileys'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Send"></td>
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_send'); ?>"></td>
   </tr>
  </table><br />
  <?php while($row = $db->fetch_assoc($result)) { ?>
  <input type="hidden" name="id[]" value="<?php echo $row['id']; ?>">
  <table class="border">
   <tr>
-   <td class="mbox" width="50%">Code:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_code'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="search_<?php echo $row['id']; ?>" size="50" value="<?php echo $row['search']; ?>"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Image:<br><span class="stext">URL or relative path to the image.<br />{folder} is a placeholder for the adress to the smiley directory.</span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_image'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_image_desc'); ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="replace_<?php echo $row['id']; ?>" size="50" value="<?php echo $row['replace']; ?>"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Description:<br><span class="stext">Optional</span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_description'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_optional'); ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="desc_<?php echo $row['id']; ?>" size="50" value="<?php echo $row['desc']; ?>"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Show directly:<br><span class="stext">Indicates whether the smiley is directly placed next to the BB codes or only in the popup menu.</span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_show_directly'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_show_directly_desc'); ?></span></td>
    <td class="mbox" width="50%"><input type="checkbox" name="show_<?php echo $row['id']; ?>" value="1"<?php echo iif($row['show'] == 1, ' checked="checked"'); ?>></td>
   </tr>
  </table><br />
  <?php } ?>
  <table class="border">
   <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Send"></td>
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_send'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -83,29 +87,30 @@ elseif ($job == 'smileys_edit2') {
 	}
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
-	ok('admin.php?action=bbcodes&job=smileys', count($id).' Smileys wurden editiert.');
+	ok('admin.php?action=bbcodes&job=smileys', count($id).$lang->phrase('admin_bbc_smileys_edited'));
 }
 elseif ($job == 'smileys_import') {
 	echo head();
+	$file = $gpc->get('file', str);
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=bbcodes&job=smileys_import2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import Smileypack</td></tr>
-  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: 2 MB</span></td>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_bbc_import_smileypack'); ?></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_either_upload'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_bbc_allowed_file_types'); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
-  <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Format of imported Smileypack:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_or_select'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_bbc_path_from_vc_root'); ?> <?php echo $config['fpath']; ?></span></td>
+  <td class="mbox"><input type="text" name="server" value="<?php echo $file; ?>" size="50" /></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_smileypack_format'); ?></td>
   <td class="mbox"><select name="format">
-  <option value="viscacha_ini" selected="selected">Viscacha (Standard)</option>
-  <option value="phpbb2">phpBB 2</option>
-  <option value="none">No format</option>
+  <option value="viscacha_ini" selected="selected"><?php echo $lang->phrase('admin_bbc_vc_format'); ?></option>
+  <option value="phpbb2"><?php echo $lang->phrase('admin_bbc_phpbb2_format'); ?></option>
+  <option value="none"><?php echo $lang->phrase('admin_bbc_no_format'); ?></option>
   </select></td></tr>
-  <tr><td class="mbox">Delete all existing smileys before import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_delete_before_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="truncate" value="1" /></td></tr>
-  <tr><td class="mbox">Delete file after import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_delete_file_after_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Import" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_bbc_import'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -141,7 +146,7 @@ elseif ($job == 'smileys_import2') {
 		}
 		$file = $dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename');
 		if (!file_exists($file)) {
-			$inserterrors[] = 'File ('.$file.') does not exist.';
+			$inserterrors[] = $lang->phrase('admin_bbc_file_not_existing');
 		}
 	}
 	elseif (file_exists($server)) {
@@ -150,11 +155,11 @@ elseif ($job == 'smileys_import2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'The selected file is no ZIP-file.';
+			$inserterrors[] = $lang->phrase('admin_bbc_no_zip_file');
 		}
 	}
 	else {
-		$inserterrors[] = 'No valid file selected.';
+		$inserterrors[] = $lang->phrase('admin_bbc_no_valid_file');
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -173,7 +178,7 @@ elseif ($job == 'smileys_import2') {
 			$filesystem->unlink($file);
 		}
 		rmdirr($tempdir);
-		error('admin.php?action=bbcodes&job=smileys_import', 'ZIP-archive could not be read or the folder is empty.');
+		error('admin.php?action=bbcodes&job=smileys_import', $lang->phrase('admin_bbc_zip_invalid'));
 	}
 
 	// Parse format
@@ -214,8 +219,9 @@ elseif ($job == 'smileys_import2') {
 		break;
 		default: // viscacha_ini
 			if (!file_exists($tempdir.'/smileys.ini')) {
-				error('admin.php?action=bbcodes&job=smileys_import', 'smileys.ini is missing');
+				error('admin.php?action=bbcodes&job=smileys_import', $lang->phrase('admin_bbc_smileys_ini_missing'));
 			}
+			$myini = new INI();
 			$package = $myini->read($tempdir.'/smileys.ini');
 		break;
 	}
@@ -277,7 +283,7 @@ elseif ($job == 'smileys_import2') {
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
 
-	ok('admin.php?action=bbcodes&job=smileys', $anz.' Smileys successfully imported.');
+	ok('admin.php?action=bbcodes&job=smileys', $lang->phrase('admin_bbc_successfully_imported'));
 }
 elseif ($job == 'smileys_export') {
 	$smileys = $gpc->get('id', arr_int);
@@ -308,6 +314,7 @@ elseif ($job == 'smileys_export') {
 		}
 	}
 
+	$myini = new INI();
 	$myini->write($smilieconfig, $filedata);
 	$files[] = $smilieconfig;
 	$files = array_unique($files);
@@ -335,19 +342,26 @@ elseif ($job == 'smileys_export') {
 elseif ($job == 'smileys') {
 	echo head();
 	$result = $db->query("SELECT * FROM {$db->pre}smileys AS s ORDER BY s.show DESC");
+	$res_num_rows = $db->num_rows($result);
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes">
  <table class="border">
   <tr>
-   <td class="obox" colspan="6"><span style="float: right;"><a class="button" href="admin.php?action=bbcodes&amp;job=smileys_import">Import Smileypack</a></span>Manage Smileys (<?php echo $db->num_rows($result); ?> Smileys)</td>
+   <td class="obox" colspan="6">
+   	<span class="right">
+   		<a class="button" href="admin.php?action=packages&amp;job=browser&amp;type=<?php echo IMPTYPE_SMILEYPACK; ?>"><?php echo $lang->phrase('admin_bbc_browse_smileypacks'); ?></a>
+   		<a class="button" href="admin.php?action=bbcodes&amp;job=smileys_import"><?php echo $lang->phrase('admin_bbc_import_smileypack'); ?></a>
+   	</span>
+   	<?php echo $lang->phrase('admin_bbc_manage_smileys'); ?>
+   </td>
   </tr>
   <tr class="ubox">
-   <td width="5%">Choose<br /><span class="stext"><input type="checkbox" onclick="check_all('id[]');" name="all" value="1" /> All</span></td>
-   <td width="10%">Code</td>
-   <td width="30%">URL</td>
-   <td width="15%">Images</td>
-   <td width="5%">Show directly</td>
-   <td width="35%">Description</td>
+   <td width="5%"><?php echo $lang->phrase('admin_bbc_choose_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('id[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_bbc_choose_all2'); ?></span></td>
+   <td width="10%"><?php echo $lang->phrase('admin_bbc_code'); ?></td>
+   <td width="30%"><?php echo $lang->phrase('admin_bbc_url'); ?></td>
+   <td width="15%"><?php echo $lang->phrase('admin_bbc_images'); ?></td>
+   <td width="5%"><?php echo $lang->phrase('admin_bbc_show_directly'); ?></td>
+   <td width="35%"><?php echo $lang->phrase('admin_bbc_description'); ?></td>
   </tr>
 <?php
 	while ($row = $db->fetch_assoc($result)) {
@@ -365,11 +379,11 @@ elseif ($job == 'smileys') {
   <tr>
    <td class="ubox" colspan="6" align="center">
    Selected Smileys: <select name="job">
-    <option value="smileys_edit" selected="selected">Edit</option>
-    <option value="smileys_export">Export</option>
-   	<option value="smileys_delete">Delete</option>
+    <option value="smileys_edit" selected="selected"><?php echo $lang->phrase('admin_bbc_edit'); ?></option>
+    <option value="smileys_export"><?php echo $lang->phrase('admin_bbc_export'); ?></option>
+   	<option value="smileys_delete"><?php echo $lang->phrase('admin_bbc_delete'); ?></option>
    </select>&nbsp;&nbsp;&nbsp;&nbsp;
-   <input type="submit" value="Go">
+   <input type="submit" value="<?php echo $lang->phrase('admin_bbc_go'); ?>">
    </td>
   </tr>
  </table>
@@ -378,28 +392,28 @@ elseif ($job == 'smileys') {
 <form name="form" method="post" enctype="multipart/form-data" action="admin.php?action=bbcodes&amp;job=smileys_add">
  <table class="border">
   <tr>
-   <td class="obox" colspan="2"><span style="float: right;"><a class="button" href="admin.php?action=bbcodes&amp;job=smileys_import">Import Smileypack</a></span>Add Smiley</td>
+   <td class="obox" colspan="2"><span style="float: right;"><a class="button" href="admin.php?action=bbcodes&amp;job=smileys_import"><?php echo $lang->phrase('admin_bbc_import_smileypack'); ?></a></span><?php echo $lang->phrase('admin_bbc_add_smiley'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Code:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_code'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="code" size="50"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Image:<br><span class="stext">URL or relative path to the image. Only when you do not upload an image.<br />{folder} = <?php echo $config['smileypath']; ?> and <?php echo $config['smileyurl']; ?></span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_image'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_image_no_upload_desc'); ?><br />{folder} = <?php echo $config['smileypath'].$lang->phrase('admin_bbc_and').$config['smileyurl']; ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="img" size="50"></td>
   </tr>
-   <td class="mbox" width="50%">Upload an image<br><span class="stext">Allowed file types: .gif, .jpg, .jpeg, .png, .jpe, .bmp<br />Maximum file size: 200 KB</span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_upload_image'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_image_upload_desc'); ?></span></td>
    <td class="mbox" width="50%"><input type="file" name="upload" size="40" /></td>
   <tr>
-   <td class="mbox" width="50%">Description:<br><span class="stext">Optional</span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_description'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_optional'); ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="desc" size="50"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Show directly:<br><span class="stext">Indicates whether the smiley is directly placed next to the BB codes or only in the popup menu.</span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_show_directly'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_show_directly_desc'); ?></span></td>
    <td class="mbox" width="50%"><input type="checkbox" name="show" value="1"></td>
   </tr>
   <tr>
-   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="Add"></td>
+   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_add'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -448,13 +462,13 @@ elseif ($job == 'smileys_add') {
 	}
 
 	if (strlen($gpc->get('code', str)) < 2) {
-		$error[] = 'Code is too short';
+		$error[] = $lang->phrase('admin_bbc_code_too_short');
 	}
 	if (empty($has_upload) && empty($img)) {
-		$error[] = 'Path of image is too short';
+		$error[] = $lang->phrase('admin_bbc_path_too_short');
 	}
 	if (strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
-		$error[] = 'Wrong specification(s)';
+		$error[] = $lang->phrase('admin_bbc_wrong_spec');
 	}
 	if (count($error) > 0) {
 	    error('admin.php?action=bbcodes&job=smileys', $error);
@@ -476,7 +490,7 @@ elseif ($job == 'smileys_add') {
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
 
-	ok('admin.php?action=bbcodes&job=smileys', 'Smiley successfully added');
+	ok('admin.php?action=bbcodes&job=smileys', $lang->phrase('admin_bbc_successfully_added'));
 }
 elseif ($job == 'word') {
 	echo head();
@@ -485,13 +499,13 @@ elseif ($job == 'word') {
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=word">
  <table class="border">
   <tr>
-   <td class="obox" colspan="4">Manage Glossary</b></td>
+   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_bbc_manage_glossary'); ?></b></td>
   </tr>
   <tr>
-   <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
-   <td class="ubox" width="15%">Abbreviation</td>
-   <td class="ubox" width="30%">Phrase</td>
-   <td class="ubox" width="50%">Description</td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_bbc_delete_all2'); ?></span></td>
+   <td class="ubox" width="15%"><?php echo $lang->phrase('admin_bbc_abbr'); ?></td>
+   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_bbc_phrase'); ?></td>
+   <td class="ubox" width="50%"><?php echo $lang->phrase('admin_bbc_description'); ?></td>
   </tr>
 <?php while ($row = $db->fetch_assoc($result)) { ?>
   <tr>
@@ -502,7 +516,7 @@ elseif ($job == 'word') {
   </tr>
 <?php } ?>
   <tr>
-   <td class="ubox" width="100%" colspan="4" align="center"><input type="submit" name="Submit" value="Delete"></td>
+   <td class="ubox" width="100%" colspan="4" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_delete'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -510,22 +524,22 @@ elseif ($job == 'word') {
 <form name="form" method="post" action="admin.php?action=bbcodes&job=add&tp=word">
  <table class="border">
   <tr>
-   <td class="obox" colspan="2">Add Word</b></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_bbc_add_word'); ?></b></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Abbreviation:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_abbr'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="temp1" size="50"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Phrase:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_phrase'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="temp2" size="50"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Description:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_description'); ?></td>
    <td class="mbox" width="50%"><textarea name="temp3" cols="50" rows="3"></textarea></td>
   </tr>
   <tr>
-   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="Add"></td>
+   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_add'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -539,12 +553,12 @@ elseif ($job == 'censor') {
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=censor">
  <table class="border">
   <tr>
-   <td class="obox" colspan="3">Manage Censorship</b></td>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_bbc_manage_censorship'); ?></b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
-   <td class="ubox" width="45%">Word</td>
-   <td class="ubox" width="45%">Censored Word</td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?></td>
+   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_word'); ?></td>
+   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_censored_word'); ?></td>
   </tr>
 <?php while ($row = $db->fetch_assoc($result)) { ?>
   <tr>
@@ -554,7 +568,7 @@ elseif ($job == 'censor') {
   </tr>
 <?php } ?>
   <tr>
-   <td class="ubox" width="100%" colspan=3 align="center"><input type="submit" name="Submit" value="Delete"></td>
+   <td class="ubox" width="100%" colspan=3 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_delete'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -562,18 +576,18 @@ elseif ($job == 'censor') {
 <form name="form" method="post" action="admin.php?action=bbcodes&job=add&tp=censor">
  <table class="border">
   <tr>
-   <td class="obox" colspan=2>Add Word</b></td>
+   <td class="obox" colspan=2><?php echo $lang->phrase('admin_bbc_add_word'); ?></b></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Word:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_word'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="temp1" size="50"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Censored Word:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_censored_word'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="temp2" size="50"></td>
   </tr>
   <tr>
-   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="Add"></td>
+   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_add'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -587,12 +601,12 @@ elseif ($job == 'replace') {
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=replace">
  <table class="border">
   <tr>
-   <td class="obox" colspan="3">Manage Vocabulary</b></td>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_bbc_manage_vocab'); ?></b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
-   <td class="ubox" width="45%">Word</td>
-   <td class="ubox" width="45%">Replacement</td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?></td>
+   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_word'); ?></td>
+   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_replacement'); ?></td>
   </tr>
 <?php while ($row = $db->fetch_assoc($result)) { ?>
   <tr>
@@ -602,7 +616,7 @@ elseif ($job == 'replace') {
   </tr>
 <?php } ?>
   <tr>
-   <td class="ubox" width="100%" colspan=3 align="center"><input type="submit" name="Submit" value="Delete"></td>
+   <td class="ubox" width="100%" colspan=3 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_delete'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -611,18 +625,18 @@ elseif ($job == 'replace') {
 <input name="tp" value="replace" type="hidden">
  <table class="border">
   <tr>
-   <td class="obox" colspan=2>Add Word</b></td>
+   <td class="obox" colspan=2><?php echo $lang->phrase('admin_bbc_add_word'); ?></b></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Word:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_word'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="temp1" size="50"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%">Replacement:</td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_replacement'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="temp2" size="50"></td>
   </tr>
   <tr>
-   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="Add"></td>
+   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_add'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -635,16 +649,16 @@ elseif ($job == 'add') {
 
 	$error = array();
 	if ($type != 'word' && $type != 'censor' && $type != 'replace') {
-		$error[] = "No valid type given";
+		$error[] = $lang->phrase('admin_bbc_no_valid_type');
 	}
 	if (strlen($gpc->get('temp1', str)) < 2) {
-		$error[] = "Word is too short";
+		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
 	if (strlen($gpc->get('temp2', str)) < 2) {
-		$error[] = "Replacement/Censored Word/Phrase is too short";
+		$error[] = $lang->phrase('admin_bbc_something_else_too_short');
 	}
 	if (strlen($gpc->get('temp3', str)) < 2 && $type == 'word') {
-		$error[] = "Description is too short";
+		$error[] = $lang->phrase('admin_bbc_desc_too_short');
 	}
 	if (count($error) > 0) {
 		error('admin.php?action=bbcodes&job='.$type, $error);
@@ -655,20 +669,20 @@ elseif ($job == 'add') {
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
 
-	ok('admin.php?action=bbcodes&job='.$type, 'Data successfully added!');
+	ok('admin.php?action=bbcodes&job='.$type, $lang->phrase('admin_bbc_data_successfully_added'));
 }
 elseif ($job == 'del') {
 	echo head();
 	$delete = $gpc->get('delete', arr_int);
 	$type = $gpc->get('tp', str);
 	if (count($delete) == 0) {
-		error('admin.php?action=bbcodes&job='.$type, 'You did not enter a valid selection.');
+		error('admin.php?action=bbcodes&job='.$type, $lang->phrase('admin_bbc_no_valid_selection'));
 	}
 	$db->query('DELETE FROM '.$db->pre.'textparser WHERE id IN ('.implode(',',$delete).')',__LINE__,__FILE__);
 	$anz = $db->affected_rows();
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
-	ok('admin.php?action=bbcodes&job='.$type, $anz.' entries were deleted successfully!');
+	ok('admin.php?action=bbcodes&job='.$type, $lang->phrase('admin_bbc_entries_successfully_deleted'));
 }
 elseif ($job == 'codefiles') {
 	echo head();
@@ -685,16 +699,17 @@ elseif ($job == 'codefiles') {
 	}
 	$d->close();
 	asort($clang);
+	$num_langs = count($clang);
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del_codefiles">
  <table class="border">
   <tr>
-   <td class="obox" colspan="3">Syntax Highlighting Manager (<?php echo count($clang); ?> Languages)</b></td>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_bbc_syntax_highlighting_manager'); ?></b></td>
   </tr>
   <tr>
-   <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
-   <td class="ubox" width="45%">Language</td>
-   <td class="ubox" width="45%">File</td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_bbc_delete_all2'); ?></span></td>
+   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_language'); ?></td>
+   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_file'); ?></td>
   </tr>
 <?php foreach ($clang as $row) { ?>
   <tr>
@@ -704,24 +719,22 @@ elseif ($job == 'codefiles') {
   </tr>
 <?php } ?>
   <tr>
-   <td class="ubox" width="100%" colspan="3" align="center"><input type="submit" name="Submit" value="Delete"></td>
+   <td class="ubox" width="100%" colspan="3" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_delete'); ?>"></td>
   </tr>
  </table>
 </form>
 <br>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=explorer&job=upload&cfg=codefiles">
 <table class="border">
-<tr><td class="obox">Add Syntax Highlighting Files</td></tr>
-<tr><td class="ubox">GeSHi is used a syntax highlighter. You can use all compatible language files you can get from <a href="http://qbnz.com/highlighter/" target="_blank">http://qbnz.com/highlighter/</a>. Just download GeSHi and upload the language files you want. To create your own language files just read the GeSHi documentation on how to create them.</td></tr>
+<tr><td class="obox"><?php echo $lang->phrase('admin_bbc_add_highlighting_files'); ?></td></tr>
+<tr><td class="ubox"><?php echo $lang->phrase('admin_bbc_geshi_desc'); ?></td></tr>
 <tr><td class="mbox">
-To attach a file, click on the &quot;browse&quot;-button and select a file.
-Then click on &quot;upload&quot; in order to complete the procedure.<br /><br />
-Allowed file types: .php<br />
-Maximum file size: 200 KB<br /><br />
-<strong>Upload file:</strong>
+<?php echo $lang->phrase('admin_bbc_upload_info'); ?><br /><br />
+<?php echo $lang->phrase('admin_bbc_upload_info2'); ?><br /><br />
+<strong><?php echo $lang->phrase('admin_bbc_upload_file'); ?></strong>
 <br /><input type="file" name="upload_0" size="40" />
 </td></tr>
-<tr><td class="ubox" align="center"><input accesskey="s" type="submit" value="Upload" /></td></tr>
+<tr><td class="ubox" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_bbc_upload'); ?>" /></td></tr>
 </table>
 </form>
 	<?php
@@ -738,7 +751,7 @@ elseif ($job == 'del_codefiles') {
 	}
 	$delobj = $scache->load('syntaxhighlight');
 	$delobj->delete();
-    ok('admin.php?action=bbcodes&job=codefiles', 'Files successfully deleted!');
+    ok('admin.php?action=bbcodes&job=codefiles', $lang->phrase('admin_bbc_files_successfully_deleted'));
 }
 elseif ($job == 'custombb_export') {
 	$id = $gpc->get('id', int);
@@ -786,17 +799,18 @@ elseif ($job == 'custombb_export') {
 }
 elseif ($job == 'custombb_import') {
 	echo head();
+	$file = $gpc->get('file', str);
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=bbcodes&job=custombb_import2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import a new Design</td></tr>
-  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .bbc - Maximum file size: <?php echo formatFilesize(1024*250); ?></span></td>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_bbc_import_design'); ?></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_either_upload'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_bbc_design_allowed_file_types'); ?> <?php echo formatFilesize(1024*250); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
-  <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Delete file after import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_or_select'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_bbc_path_from_vc_root'); ?> <?php echo $config['fpath']; ?></span></td>
+  <td class="mbox"><input type="text" name="server" value="<?php echo $file; ?>" size="50" /></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_bbc_delete_file_after_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Import" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_bbc_import'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -811,7 +825,6 @@ elseif ($job == 'custombb_import2') {
 
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
-		$filetypes = array('bbc');
 		$dir = 'temp/';
 
 		$insertuploads = array();
@@ -819,13 +832,13 @@ elseif ($job == 'custombb_import2') {
 
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(1024*250);
-		$my_uploader->file_types($filetypes);
+		$my_uploader->file_types(array('bbc'));
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
 				if (!file_exists($file)) {
-					$inserterrors[] = 'File ('.$file.') does not exist.';
+					$inserterrors[] = $lang->phrase('admin_bbc_file_not_existing');
 				}
 			}
 		}
@@ -839,11 +852,11 @@ elseif ($job == 'custombb_import2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'The selected file is no BBC-file.';
+			$inserterrors[] = $lang->phrase('admin_bbc_no_bbc_file');
 		}
 	}
 	else {
-		$inserterrors[] = 'No valid file selected.';
+		$inserterrors[] = $lang->phrase('admin_bbc_no_valid_file');
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -851,31 +864,34 @@ elseif ($job == 'custombb_import2') {
 	}
 
 	$content = file_get_contents($file);
-	extract(unserialize($content));
+	$bb = unserialize($content);
 
-	if (empty($bbcodetag) || empty($bbcodereplacement) || empty($bbcodeexample)) {
-		error('admin.php?action=bbcodes&job=custombb_import', 'File not valid!');
+	if (empty($bb['bbcodetag']) || empty($bb['bbcodereplacement']) || empty($bb['bbcodeexample'])) {
+		error('admin.php?action=bbcodes&job=custombb_import', $lang->phrase('admin_bbc_bbc_corrupt'));
 	}
 
-	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$bbcodetag}' AND twoparams = '{$twoparams}'", __LINE__, __FILE__);
+	$bb = array_map(array($db, 'escape_string'), $bb);
+
+	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$bb['bbcodetag']}' AND twoparams = '{$bb['twoparams']}'", __LINE__, __FILE__);
 	if ($db->num_rows($result) > 0) {
-		error('admin.php?action=bbcodes&job=custombb_import', 'There is already a BB-Code named &quot;'.$bbcodetag.'&quot;. You may not create duplicate names.');
+		$bbcodetag = $bb['bbcodetag'];
+		error('admin.php?action=bbcodes&job=custombb_import', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
 
-	if (empty($button)) {
-		$buttonimage = '';
+	if (empty($bb['button'])) {
+		$bb['buttonimage'] = '';
 	}
 	else {
-		$name = basename($buttonimage);
-		$buttonimage = "images/{$name}";
-		if (!file_exists($buttonimage)) {
-			$filesystem->file_put_contents($buttonimage, base64_decode($button));
+		$name = basename($bb['buttonimage']);
+		$bb['buttonimage'] = "images/{$name}";
+		if (!file_exists($bb['buttonimage'])) {
+			$filesystem->file_put_contents($bb['buttonimage'], base64_decode($bb['button']));
 		}
 	}
 
 	$db->query("
 	INSERT INTO {$db->pre}bbcode (bbcodetag, bbcodereplacement, bbcodeexample, bbcodeexplanation, twoparams, title, buttonimage)
-	VALUES ('{$bbcodetag}','{$bbcodereplacement}','{$bbcodeexample}','{$bbcodeexplanation}','{$twoparams}','{$title}','{$buttonimage}')
+	VALUES ('{$bb['bbcodetag']}','{$bb['bbcodereplacement']}','{$bb['bbcodeexample']}','{$bb['bbcodeexplanation']}','{$bb['twoparams']}','{$bb['title']}','{$bb['buttonimage']}')
 	", __LINE__, __FILE__);
 
 	if ($del > 0) {
@@ -885,7 +901,7 @@ elseif ($job == 'custombb_import2') {
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
 
-	ok('admin.php?action=bbcodes&job=custombb', 'BB-Code ('.$title.') successfully imported!');
+	ok('admin.php?action=bbcodes&job=custombb', $lang->phrase('admin_bbc_bbc_successfully_imported'));
 }
 elseif ($job == 'custombb_add') {
 	echo head();
@@ -893,47 +909,47 @@ elseif ($job == 'custombb_add') {
 	<form action="admin.php?action=bbcodes&job=custombb_add2" name="form2" method="post">
 	<table align="center" class="border">
 	<tr>
-		<td class="obox" align="center" colspan="2"><b>Add new BB Code</b></td>
+		<td class="obox" align="center" colspan="2"><b><?php echo $lang->phrase('admin_bbc_bbc_add'); ?></b></td>
 	</tr>
 	<tr>
-		<td class="mbox" width="50%">Title</td>
+		<td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_title'); ?></td>
 		<td class="mbox" width="50%"><input type="text" name="title" value="" size="60" /></td>
 	</tr>
 	<tr>
-		<td class="mbox">Tag<br />
-		<span class="stext">This is the text for the BB code, which goes inside the square brackets.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_tag'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_tag_desc'); ?></span></td>
 		<td class="mbox"><input type="text" name="bbcodetag" value="" size="60" /></td>
 	</tr>
 	<tr>
-		<td class="mbox">Replacement<br />
-		<span class="stext">This is the HTML code for the BB code replacement. Make sure that you include '{param}' (without the quotes) to insert the text between the opening and closing BB code tags, and '{option}' for the parameter within the BB code tag. You can only use {option} if 'Use Option' is set to yes.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_replacement'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_replacement_desc'); ?></span></td>
 		<td class="mbox"><textarea name="bbcodereplacement" rows="6" cols="60" wrap="virtual"></textarea></td>
 	</tr>
 	<tr>
-		<td class="mbox">Example<br />
-		<span class="stext">This is a sample piece of BB code to use as an example for this particular BB code.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_example'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_example_desc'); ?></span></td>
 		<td class="mbox"><input type="text" name="bbcodeexample" value="" size="60" /></td>
 	</tr>
 	<tr>
-		<td class="mbox">Description<br />
-		<span class="stext">This is a piece of text to describe the BB code tag. This can include HTML tags if you wish.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_description'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_description_desc'); ?></span></td>
 		<td class="mbox"><textarea name="bbcodeexplanation" rows="8" cols="60" wrap="virtual"></textarea></td>
 	</tr>
 	<tr>
-		<td class="mbox">Use {option}<br />
-		<span class="stext">Setting this option to yes will allow you to create a [tag=option][/tag] style tag, rather than just a [tag][/tag] style tag.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_use_option'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_use_option_desc'); ?></span></td>
 		<td class="mbox">
-			<input type="radio" name="twoparams" value="1" />Yes<br />
-			<input type="radio" name="twoparams" value="0" checked="checked" />No
+			<input type="radio" name="twoparams" value="1" /><?php echo $lang->phrase('admin_bbc_yes'); ?><br />
+			<input type="radio" name="twoparams" value="0" checked="checked" /$lang->phrase('admin_bbc_no')
 		</td>
 	</tr>
 	<tr>
-		<td class="mbox">Button Image<br />
-		<span class="stext">Optional - If you would like this bbcode to appear as a clickable button on the message editor toolbar, enter the URL of an image 21 x 20 pixels in size that will act as the button to insert this bbcode.</span>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_button_image'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_button_image_desc'); ?></span>
 		</td>
 		<td class="mbox"><input type="text" name="buttonimage" value="" size="60" /></td>
 	</tr>
-	<tr><td class="ubox" colspan="2" align="center"><input type="submit" value="Save" /></td></tr>
+	<tr><td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_bbc_save'); ?>" /></td></tr>
 	</table>
 	</form>
 	<?php
@@ -957,12 +973,13 @@ elseif ($job == 'custombb_add2') {
 	echo head();
 
 	if (!$query['bbcodetag'] OR !$query['bbcodereplacement'] OR !$query['bbcodeexample']) {
-		error('admin.php?action=bbcodes&job=custombb_add', 'Please complete all required fields');
+		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
 	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'", __LINE__, __FILE__);
 	if ($db->num_rows($result) > 0) {
-		error('admin.php?action=bbcodes&job=custombb_add', 'There is already a BB Code named &quot;'.$query['bbcodetag'].'&quot;. You may not create duplicate names.');
+		$bbcodetag = $query['bbcodetag'];
+		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
 
 	$db->query("
@@ -986,50 +1003,50 @@ elseif ($job == 'custombb_edit') {
 	<form action="admin.php?action=bbcodes&job=custombb_edit2&amp;id=<?php echo $bbcode['id']; ?>" name="form2" method="post">
 	<table align="center" class="border">
 	<tr>
-		<td class="obox" align="center" colspan="2"><b>Edit a BB Code</b></td>
+		<td class="obox" align="center" colspan="2"><b><?php echo $lang->phrase('admin_bbc_edit_bbcode'); ?></b></td>
 	</tr>
 	<tr>
-		<td class="mbox" width="50%">Title</td>
+		<td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_title'); ?></td>
 		<td class="mbox" width="50%"><input type="text" name="title" value="<?php echo $bbcode['title']; ?>" size="60" /></td>
 	</tr>
 	<tr>
-		<td class="mbox">Tag<br />
-		<span class="stext">This is the text for the BB code, which goes inside the square brackets.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_tag'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_tag_desc'); ?></span></td>
 		<td class="mbox">
 		 <input type="text" name="bbcodetag" value="<?php echo $bbcode['bbcodetag']; ?>" size="60" />
 		 <input type="hidden" name="bbcodetag_old" value="<?php echo $bbcode['bbcodetag']; ?>" />
 		</td>
 	</tr>
 	<tr>
-		<td class="mbox">Replacement<br />
-		<span class="stext">This is the HTML code for the BB code replacement. Make sure that you include '{param}' (without the quotes) to insert the text between the opening and closing BB code tags, and '{option}' for the parameter within the BB code tag. You can only use {option} if 'Use Option' is set to yes.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_replacement'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_replacement_desc'); ?></span></td>
 		<td class="mbox"><textarea name="bbcodereplacement" rows="6" cols="60" wrap="virtual"><?php echo $bbcode['bbcodereplacement']; ?></textarea></td>
 	</tr>
 	<tr>
-		<td class="mbox">Example<br />
-		<span class="stext">This is a sample piece of BB code to use as an example for this particular BB code.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_example'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_example_desc'); ?></span></td>
 		<td class="mbox"><input type="text" name="bbcodeexample" value="<?php echo $bbcode['bbcodeexample']; ?>" size="60" /></td>
 	</tr>
 	<tr>
-		<td class="mbox">Description<br />
-		<span class="stext">This is a piece of text to describe the BB code tag. This can include HTML tags if you wish.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_description'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_description_desc'); ?></span></td>
 		<td class="mbox"><textarea name="bbcodeexplanation" rows="8" cols="60" wrap="virtual"><?php echo $bbcode['bbcodeexplanation']; ?></textarea></td>
 	</tr>
 	<tr>
-		<td class="mbox">Use {option}<br />
-		<span class="stext">Setting this option to yes will allow you to create a [tag=option][/tag] style tag, rather than just a [tag][/tag] style tag.</span></td>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_use_option'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_use_option_desc'); ?></span></td>
 		<td class="mbox">
 			<input type="radio" name="twoparams" value="1"<?php echo iif($bbcode['twoparams'], ' checked="checked"'); ?> />Yes<br />
 			<input type="radio" name="twoparams" value="0"<?php echo iif(!$bbcode['twoparams'], ' checked="checked"'); ?> />No
 		</td>
 	</tr>
 	<tr>
-		<td class="mbox">Button Image<br />
-		<span class="stext">Optional - If you would like this bbcode to appear as a clickable button on the message editor toolbar, enter the URL of an image 21 x 20 pixels in size that will act as the button to insert this bbcode.</span>
+		<td class="mbox"><?php echo $lang->phrase('admin_bbc_button_image'); ?><br />
+		<span class="stext"><?php echo $lang->phrase('admin_bbc_button_image_desc'); ?></span>
 		</td>
 		<td class="mbox"><input type="text" name="buttonimage" value="<?php echo $bbcode['buttonimage']; ?>" size="60" /></td>
 	</tr>
-	<tr><td class="ubox" colspan="2" align="center"><input type="submit" value="Save" /></td></tr>
+	<tr><td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_bbc_save'); ?>" /></td></tr>
 	</table>
 	</form>
 	<?php
@@ -1055,13 +1072,14 @@ elseif ($job == 'custombb_edit2') {
 	echo head();
 
 	if (!$query['bbcodetag'] OR !$query['bbcodereplacement'] OR !$query['bbcodeexample']) {
-		error('admin.php?action=bbcodes&job=custombb_add', 'Please complete all required fields');
+		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
 	if (strtolower($query['bbcodetag']) != strtolower($query['bbcodetag_old'])) {
 		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}' AND ", __LINE__, __FILE__);
 		if ($db->num_rows($result) > 0) {
-			error('admin.php?action=bbcodes&job=custombb_add', 'There is already a BB Code named &quot;'.$query['bbcodetag'].'&quot;. You may not create duplicate names.');
+			$bbcodetag = $query['bbcodetag'];
+			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 		}
 	}
 
@@ -1079,17 +1097,17 @@ elseif ($job == 'custombb_delete') {
 	$image = $db->fetch_assoc($result);
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	<tr><td class="obox">Delete Custom BB Code</td></tr>
+	<tr><td class="obox"><?php echo $lang->phrase('admin_bbc_delete_custom_bbc'); ?></td></tr>
 	<tr><td class="mbox">
-	<p align="center">Do you really want to delete this custom BB code?</p>
+	<p align="center"><?php echo $lang->phrase('admin_bbc_delete_bbc_question'); ?></p>
 	<p align="center">
 	<?php if (@file_exists($image['buttonimage']) && !preg_match('/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/(.*)$/', $image['buttonimage'])) { ?>
-	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>&amp;img=1"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> Yes, inclusive image</a><br />
-	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> Yes, but not the image</a><br />
+	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>&amp;img=1"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_including_image'); ?></a><br />
+	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_without_image'); ?></a><br />
 	<?php } else { ?>
-	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> Yes</a><br />
+	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_yes'); ?></a><br />
 	<?php } ?>
-	<br /><a href="admin.php?action=bbcodes&amp;job=custombb"><img border="0" align="absmiddle" alt="" src="admin/html/images/no.gif"> No</a>
+	<br /><a href="admin.php?action=bbcodes&amp;job=custombb"><img border="0" align="absmiddle" alt="" src="admin/html/images/no.gif"> <?php echo $lang->phrase('admin_bbc_no'); ?></a>
 	</p>
 	</td></tr>
 	</table>
@@ -1110,7 +1128,7 @@ elseif ($job == 'custombb_delete2'){
 	$db->query("DELETE FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
-	ok('admin.php?action=bbcodes&job=custombb', 'Custom BB Code successfully deleted');
+	ok('admin.php?action=bbcodes&job=custombb', $lang->phrase('admin_bbc_bbc_successfully_deleted'));
 }
 elseif ($job == 'custombb_test') {
 	echo head();
@@ -1120,8 +1138,6 @@ elseif ($job == 'custombb_test') {
 	$parsed_test = null;
 	if (!empty($test)) {
 		file_put_contents($file, $test);
-		$lang = new lang(false, E_USER_WARNING);
-		$lang->init();
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
 		$bbcode->setReplace(0);
@@ -1136,20 +1152,20 @@ elseif ($job == 'custombb_test') {
 	if (!empty($parsed_test)) {
 ?>
 <table align="center" class="border">
-  	<tr><td class="obox">Parsing Results</td></tr>
+  	<tr><td class="obox"><?php echo $lang->phrase('admin_bbc_parsing_results'); ?></td></tr>
   	<tr><td class="ubox">
-  		<strong>Benchmark:</strong><br />
-  		Smileys: <?php echo $smileys_time; ?> seconds<br />
-  		BB-Codes: <?php echo $bbcode_time; ?> seconds<br />
+  		<strong><?php echo $lang->phrase('admin_bbc_benchmark'); ?></strong><br />
+  	$lang->phrase('admin_bbc_smileys')<?php echo $smileys_time; ?> <?php echo $lang->phrase('admin_bbc_seconds'); ?><br />
+  	$lang->phrase('admin_bbc_bbcs')<?php echo $bbcode_time; ?> <?php echo $lang->phrase('admin_bbc_seconds'); ?><br />
   	</td></tr>
   	<tr><td class="mbox"><?php echo $parsed_test; ?></td></tr>
 </table>
 <br /><?php } ?>
 <form action="admin.php?action=bbcodes&job=custombb_test" name="form2" method="post">
 	<table align="center" class="border">
-  		<tr><td class="obox">Test your custom BB Codes</td></tr>
+  		<tr><td class="obox"><?php echo $lang->phrase('admin_bbc_test_custom_bbc'); ?></td></tr>
 		<tr><td class="mbox" align="center"><textarea name="test" rows="10" cols="120"><?php echo $test; ?></textarea></td></tr>
-		<tr><td class="ubox" align="center"><input type="submit" value="Test" /></td></tr>
+		<tr><td class="ubox" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_bbc_test'); ?>" /></td></tr>
 	</table>
 </form>
 	<?php
@@ -1161,17 +1177,18 @@ elseif ($job == 'custombb') {
 	?>
 	<table align="center" class="border">
 	<tr>
-		<td class="obox" colspan="4"><span style="float: right;">
-		<a class="button" href="admin.php?action=bbcodes&job=custombb_add">Add new BB Code</a>
-		<a class="button" href="admin.php?action=bbcodes&job=custombb_import">Import BB Code</a>
-		<a class="button" href="admin.php?action=bbcodes&job=custombb_test">Test BB Codes</a>
-		</span>Custom BB Code Manager</td>
+		<td class="obox" colspan="4"><span class="right">
+		<a class="button" href="admin.php?action=bbcodes&job=custombb_add"><?php echo $lang->phrase('admin_bbc_bbc_add'); ?></a>
+		<a class="button" href="admin.php?action=packages&amp;job=browser&amp;type=<?php echo IMPTYPE_BBCODE; ?>"><?php echo $lang->phrase('admin_bbc_browse_bbc'); ?></a>
+		<a class="button" href="admin.php?action=bbcodes&job=custombb_import"><?php echo $lang->phrase('admin_bbc_bbc_import'); ?></a>
+		<a class="button" href="admin.php?action=bbcodes&job=custombb_test"><?php echo $lang->phrase('admin_bbc_test_bbc'); ?></a>
+		</span><?php echo $lang->phrase('admin_bbc_custom_bbc_manager'); ?></td>
 	</tr>
 	<tr>
-		<td class="ubox" width="30%">Title</td>
-		<td class="ubox" width="35%">BB Code</td>
-		<td class="ubox" width="10%">Button Image</td>
-		<td class="ubox" width="25%">Action</td>
+		<td class="ubox" width="30%"><?php echo $lang->phrase('admin_bbc_title'); ?></td>
+		<td class="ubox" width="35%"><?php echo $lang->phrase('admin_bbc_bbc'); ?></td>
+		<td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_button_image'); ?></td>
+		<td class="ubox" width="25%"><?php echo $lang->phrase('admin_bbc_action'); ?></td>
 	</tr>
 	<?php
 	while ($bbcode = $db->fetch_assoc($result)) {
@@ -1187,9 +1204,9 @@ elseif ($job == 'custombb') {
 			<td class="mbox"><code>[<?php echo $bbcode['bbcodetag'].iif($bbcode['twoparams'], '={option}'); ?>]{param}[/<?php echo $bbcode['bbcodetag']; ?>]</code></td>
 			<td class="mbox" align="center"><?php echo $src; ?></td>
 			<td class="mbox">
-			<a class="button" href="admin.php?action=bbcodes&job=custombb_edit&id=<?php echo $bbcode['id']; ?>">Edit</a>
-			<a class="button" href="admin.php?action=bbcodes&job=custombb_export&id=<?php echo $bbcode['id']; ?>">Export</a>
-			<a class="button" href="admin.php?action=bbcodes&job=custombb_delete&id=<?php echo $bbcode['id']; ?>">Delete</a>
+			<a class="button" href="admin.php?action=bbcodes&job=custombb_edit&id=<?php echo $bbcode['id']; ?>"><?php echo $lang->phrase('admin_bbc_edit'); ?></a>
+			<a class="button" href="admin.php?action=bbcodes&job=custombb_export&id=<?php echo $bbcode['id']; ?>"><?php echo $lang->phrase('admin_bbc_export'); ?></a>
+			<a class="button" href="admin.php?action=bbcodes&job=custombb_delete&id=<?php echo $bbcode['id']; ?>"><?php echo $lang->phrase('admin_bbc_delete'); ?></a>
 			</td>
 		</tr>
 		<?

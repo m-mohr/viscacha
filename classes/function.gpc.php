@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -83,7 +83,7 @@ $http_svars = array(
 	'HTTP_ACCEPT_ENCODING',
 	'DOCUMENT_ROOT'
 );
-if (function_exists('getallheaders')) {
+if (viscacha_function_exists('getallheaders')) {
 	$ref = @getallheaders();
 }
 else {

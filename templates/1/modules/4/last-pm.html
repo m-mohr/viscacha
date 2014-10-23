@@ -1,0 +1,10 @@
+<br />
+<div class="border">
+<h3><?php echo $lang->phrase('last_private_message'); ?></h3>
+<div class="bfoot"><strong><?php echo $row['name']; ?></strong> (<?php echo $row['date']; ?>):</div>
+<div class="bbody">
+	<span class="stext"><?php echo $lang->phrase('subject'); ?> <strong><?php echo $row['topic']; ?></strong></span>
+	<hr />
+	<?php echo $row['comment']; ?>
+</div>
+</div>

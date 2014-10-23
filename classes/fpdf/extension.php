@@ -80,7 +80,17 @@ function PrintVote ($head, $body, $foot) {
 	$this->WriteHTML($body);
 	$this->Ln(2);
 	$this->SetDrawColor(0);
-	$this->Line($this->GetX(), $this->GetY(), $this->GetX()+180, $this->GetY());
+	if(!empty($attr['WIDTH'])) {
+		$Width = $attr['WIDTH'];
+	}
+	else {
+		$Width = $this->w - $this->lMargin-$this->rMargin;
+	}
+	$this->Ln(5);
+	$x = $this->GetX();
+	$y = $this->GetY();
+	$this->SetLineWidth(0.2);
+	$this->Line($x,$y,$x+$Width,$y);
 	$this->Ln(4);
 }
 
@@ -94,7 +104,17 @@ function PrintTopic ($title,$postinfo,$comment) {
 	$this->WriteHTML($comment);
 	$this->Ln(6);
 	$this->SetDrawColor(0);
-	$this->Line($this->GetX(), $this->GetY(), $this->GetX()+180, $this->GetY());
+	if(!empty($attr['WIDTH'])) {
+		$Width = $attr['WIDTH'];
+	}
+	else {
+		$Width = $this->w - $this->lMargin-$this->rMargin;
+	}
+	$this->Ln(5);
+	$x = $this->GetX();
+	$y = $this->GetY();
+	$this->SetLineWidth(0.2);
+	$this->Line($x,$y,$x+$Width,$y);
 	$this->Ln(4);
 }
 
@@ -110,7 +130,6 @@ function WriteHTML($html) {
 	{
 		if($i%2==0)
 		{
-			$e = html_entity_decode($e);
 			if($this->HREF)
 				$this->PutLink($this->HREF,$e);
 			elseif($this->COLOR)

@@ -119,8 +119,9 @@ if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$
 	if (!empty($row->hp)) {
 		$vCard->setURLWork($row->hp);
 	}
-	if (!empty($row->birthday) && $row->birthday != '0000-00-00') {
-		if (substr($row->birthday, 0, 4) == '1000') {
+	if ($row->birthday != '0000-00-00' && $row->birthday != '1000-00-00') {
+		$y = substr($row->birthday, 0, 4);
+		if ($y == '1000' || $y == '0000') {
 			$row->birthday = date("Y").substr($row->birthday, 4);
 		}
 		$bday = str_replace('-', '', $row->birthday);
@@ -373,14 +374,14 @@ elseif ($is_member) {
 			$gender = $lang->phrase('gender_na');
 		}
 		$bday = explode('-',$row->birthday);
-		if ($row->birthday != NULL && $row->birthday != '0000-00-00') {
+		if (count($bday) == 3 && $row->birthday != '0000-00-00' && $row->birthday != '1000-00-00') {
 			if ($bday[0] > 1000) {
 				$bday_age = getAge($bday);
 			}
-			$show_bday = TRUE;
+			$show_bday = true;
 		}
 		else {
-			$show_bday = FALSE;
+			$show_bday = false;
 		}
 		if (isset($bday[1]) && $bday[1] > 0 && $bday[1] < 13) {
 			$bday[1] = $lang->phrase('months_'.intval($bday[1]));

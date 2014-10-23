@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -319,7 +319,7 @@ elseif ($_GET['action'] == "signature") {
 		}
 		($code = $plugins->load('editprofile_signature2_save')) ? eval($code) : null;
 		if (count($error) > 0) {
-			error($error, "editprofile.php?action=profile".SID2URL_x);
+			error($error, "editprofile.php?action=signature".SID2URL_x);
 		}
 		else {
 			$db->query("UPDATE {$db->pre}user SET signature = '{$_POST['signature']}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
@@ -526,7 +526,7 @@ elseif ($_GET['action'] == "profile") {
 	($code = $plugins->load('editprofile_profile_start')) ? eval($code) : null;
 
 	$bday = explode('-',$my->birthday);
-	if (empty($bday[0])) {
+	if (empty($bday[0]) || $bday[0] <= 1000) {
 		$bday[0] = '0000';
 	}
 	if (empty($bday[1])) {
@@ -604,15 +604,19 @@ elseif ($_GET['action'] == "profile2") {
 	}
 	else {
 		// Now we create the birthday...
-		if (!$_POST['birthmonth'] && !$_POST['birthday'] && !$_POST['birthyear']) {
-			$bday = '0000-00-00';
+		if (empty($_POST['birthmonth']) || empty($_POST['birthday'])) {
+			$_POST['birthmonth'] = 0;
+			$_POST['birthday'] = 0;
+			$_POST['birthyear'] = 0;
 		}
-		else {
-			$_POST['birthmonth'] = leading_zero($_POST['birthmonth']);
-			$_POST['birthday'] = leading_zero($_POST['birthday']);
-			$_POST['birthyear'] = leading_zero($_POST['birthyear'],4);
-			$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
+		if (empty($_POST['birthyear'])) {
+			$_POST['birthyear'] = 1000;
 		}
+		$_POST['birthmonth'] = leading_zero($_POST['birthmonth']);
+		$_POST['birthday'] = leading_zero($_POST['birthday']);
+		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
+		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
+
 		$_POST['icq'] = str_replace('-', '', $_POST['icq']);
 		if (!is_id($_POST['icq'])) {
 			$_POST['icq'] = 0;
@@ -625,10 +629,6 @@ elseif ($_GET['action'] == "profile2") {
 			$changename = '';
 		}
 
-//		if (strcasecmp(trim($_POST['email']), trim($my->mail)) != 0) {
-			// Hier kann beliebiger Code eingesetzt werden, der nach dem Ändern der E-Mail-Adresse ausgeführt wird
-//		}
-
 		($code = $plugins->load('editprofile_profile2_query')) ? eval($code) : null;
 
 		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
@@ -637,6 +637,8 @@ elseif ($_GET['action'] == "profile2") {
 
 }
 elseif ($_GET['action'] == "settings") {
+	$lang->group("timezones");
+
 	$breadcrumb->Add($lang->phrase('editprofile_settings'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
@@ -766,7 +768,7 @@ elseif ($_GET['action'] == "mylast") {
 
 	($code = $plugins->load('editprofile_mylast_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, r.id AS pid
+	SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, t.status, r.id AS pid
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
@@ -790,16 +792,30 @@ elseif ($_GET['action'] == "mylast") {
 
 		$row['topic'] = $gpc->prepare($row['topic']);
 		$row['name'] = $gpc->prepare($row['name']);
+
 		if ((isset($my->mark['t'][$row['id']]) && $my->mark['t'][$row['id']] > $row['last']) || $row['last'] < $my->clv) {
-			$row['firstnew'] = 0;
-			$row['alt'] = $lang->phrase('forum_icon_old');
-			$row['src'] = $tpl->img('dir_open');
+	 		$row['firstnew'] = 0;
+			if ($row['status'] == 1 || $row['status'] == 2) {
+			   	$row['alt'] = $lang->phrase('forum_icon_closed');
+				$row['src'] = $tpl->img('dir_closed');
+			}
+			else {
+			   	$row['alt'] = $lang->phrase('forum_icon_old');
+			   	$row['src'] = $tpl->img('dir_open');
+	 		}
 	 	}
 	  	else {
-			$row['firstnew'] = 1;
-			$row['alt'] = $lang->phrase('forum_icon_new');
-			$row['src'] = $tpl->img('dir_open2');
+	  		$row['firstnew'] = 1;
+			if ($row['status'] == 1 || $row['status'] == 2) {
+				$row['alt'] = $lang->phrase('forum_icon_closed');
+				$row['src'] = $tpl->img('dir_closed2');
+			}
+			else {
+				$row['alt'] = $lang->phrase('forum_icon_new');
+				$row['src'] = $tpl->img('dir_open2');
+			}
 		}
+
 		if (isset($prefix_arr[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
 			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
 			$row['pre'] = $lang->phrase('showtopic_prefix_title');

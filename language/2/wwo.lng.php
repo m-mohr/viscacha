@@ -22,6 +22,7 @@ $lang['wwo_misc'] = 'is not a transparent person ... ;)';
 $lang['wwo_misc_bbhelp'] = 'is reading the bb-code help';
 $lang['wwo_misc_board_rules'] = 'is reading the <a href="misc.php?action=board_rules&id={$id}">forum rules</a> in the forum <a href="showforum.php?id={$id}">{$title}</a>';
 $lang['wwo_misc_error'] = 'has opened an invalid page';
+$lang['wwo_misc_report_post'] = 'is reporting a post to the administration';
 $lang['wwo_misc_rules'] = 'is reading the <a href="misc.php?action=rules">guidelines</a>';
 $lang['wwo_misc_wwo'] = 'is viewing the who is online list';
 $lang['wwo_newtopic'] = 'is writing a new post';
@@ -45,5 +46,5 @@ $lang['wwo_search_active'] = 'is viewing the currently active topics';
 $lang['wwo_showforum'] = 'is viewing the following board: <a href="showforum.php?id={$id}">{$title}</a>';
 $lang['wwo_showtopic'] = 'is reading the following post: <a href="showtopic.php?id={$id}">{$title}</a>';
 $lang['wwo_spellcheck'] = 'is trying to correct mistakes with the spell-check';
-$lang['wwo_team'] = 'is viewing the <a href="team.php">team overview</a>';
+$lang['wwo_team'] = 'is viewing the <a href="members.php?action=team">team overview</a>';
 ?>

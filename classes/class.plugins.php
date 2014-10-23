@@ -6,7 +6,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ class PluginSystem {
 	function load($pos) {
 		$group = $this->_group($pos);
 		$this->_load_group($pos);
-		if (isset($this->cache[$group][$pos])) {
+		if (isset($this->cache[$group][$pos]) && is_array($this->cache[$group][$pos])) {
 			return implode("\r\n", $this->cache[$group][$pos]);
 		}
 		else {
@@ -59,7 +59,7 @@ class PluginSystem {
 		return $this->_setup('install', $id);
 	}
 
-	function navigation() {
+	function navigation($position = 'left') {
 		global $tpl;
 
 		$group = 'navigation';
@@ -68,8 +68,8 @@ class PluginSystem {
 
 		$code = '';
 
-		if (isset($this->menu[0])) {
-			foreach ($this->menu[0] as $row) {
+		if (isset($this->menu[$position][0])) {
+			foreach ($this->menu[$position][0] as $row) {
 				if ($row['module'] > 0) {
 					if (isset($this->cache[$group]['navigation'][$row['module']]) && $this->_check_permissions($row['groups'])) {
 						$code .= $this->cache[$group]['navigation'][$row['module']];
@@ -77,9 +77,15 @@ class PluginSystem {
 				}
 				else {
 					if ($this->_check_permissions($row['groups'])) {
-						$navigation = $this->_prepare_navigation($row['id']);
+						$navigation = $this->_prepare_navigation($position, $row['id']);
+						$row['name'] = navLang($row['name']);
 						$tpl->globalvars(compact("row","navigation"));
-						$html = $tpl->parse("modules/navigation");
+						if ($tpl->exists("modules/navigation_".$position)) {
+							$html = $tpl->parse("modules/navigation_".$position);
+						}
+						else {
+							$html = $tpl->parse("modules/navigation");
+						}
 						$code .= " ?".">{$html}<"."?php \r\n";
 					}
 				}
@@ -90,28 +96,33 @@ class PluginSystem {
 
 	function countPlugins($pos){
 		global $db;
-		$result = $db->query("SELECT COUNT(*) as num FROM {$db->pre}plugins WHERE position = '{$pos}' AND active = '1'");
+		$result = $db->query("
+	    SELECT COUNT(*) AS num
+    	FROM {$db->pre}plugins AS m
+    		LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
+    	WHERE m.position = '{$pos}' AND p.active = '1' AND m.active = '1'
+    	", __LINE__, __FILE__);
 		$info = $db->fetch_assoc($result);
 		return $info['num'];
 	}
 
 	function _setup($hook, $id) {
-		global $myini;
-
 		$source = '';
-		$inifile = 'modules/'.$id.'/config.ini';
-		$ini = $myini->read($inifile);
-	    if (isset($ini['php'][$hook])) {
-	    	$file = $ini['php'][$hook];
-		  	$sourcefile = 'modules/'.$id.'/'.$file;
-		  	if (file_exists($sourcefile)) {
-			   	$source = file_get_contents($sourcefile);
-    		}
-			else {
-				trigger_error('Setup for Plugin not found! File '.$sourcefile.' could not be loaded while executing '.$hook.'.', E_USER_WARNING);
-			}
-    	}
-
+		$inifile = 'modules/'.$id.'/plugin.ini';
+		if (file_exists($inifile) == true) {
+			$myini = new INI();
+			$ini = $myini->read($inifile);
+		    if (isset($ini['php'][$hook])) {
+		    	$file = $ini['php'][$hook];
+			  	$sourcefile = 'modules/'.$id.'/'.$file;
+			  	if (file_exists($sourcefile)) {
+				   	$source = file_get_contents($sourcefile);
+	    		}
+				else {
+					trigger_error('Setup for package not found! File '.$sourcefile.' could not be loaded while executing '.$hook.'.', E_USER_WARNING);
+				}
+	    	}
+		}
 		return $source;
 	}
 
@@ -123,15 +134,16 @@ class PluginSystem {
 		}
 	}
 
-	function _prepare_navigation($id) {
-		if (!isset($this->menu[$id])) {
+	function _prepare_navigation($position, $id) {
+		if (!isset($this->menu[$position][$id])) {
 			return array();
 		}
 		else {
 			$navigation = array();
-			foreach ($this->menu[$id] as $row) {
+			foreach ($this->menu[$position][$id] as $row) {
 				if ($this->_check_permissions($row['groups'])) {
-					$row['navigation'] = $this->_prepare_navigation($row['id']);
+					$row['navigation'] = $this->_prepare_navigation($position, $row['id']);
+					$row['name'] = navLang($row['name']);
 					$navigation[] = $row;
 				}
 			}
@@ -154,14 +166,20 @@ class PluginSystem {
 	}
 
 	function _build_code($pos) {
-		global $myini, $db;
+		global $db, $filesystem;
 		$group = $this->_group($pos);
 		$file = 'cache/modules/'.$group.'.php';
 
 		if ($this->sqlcache == null) {
 			$this->sqlcache = array();
 			$this->sqlcache[$group] = array();
-	        $result = $db->query("SELECT id, module, position FROM {$db->pre}plugins WHERE active = '1' ORDER BY ordering",__LINE__,__FILE__);
+	        $result = $db->query("
+	        	SELECT m.id, m.module, m.position
+	        	FROM {$db->pre}plugins AS m
+	        		LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
+	        	WHERE p.active = '1' AND m.active = '1'
+	        	ORDER BY m.ordering
+	        ",__LINE__,__FILE__);
 	        while ($row = $db->fetch_assoc($result)) {
 	        	$row['group'] = $this->_group($row['position']);
 	            $this->sqlcache[$row['group']][$row['position']][$row['id']] = $row['module'];
@@ -171,13 +189,14 @@ class PluginSystem {
 	    	$this->sqlcache[$group] = array();
 	    }
 
+	    $myini = new INI();
 	    $cfgdata = array();
 	    $code = array();
 	    foreach ($this->sqlcache[$group] as $position => $mods) {
 	    	$code[$position] = '';
 	    	foreach ($mods as $id => $plugin) {
 	    		if (!isset($cfgdata[$plugin])) {
-		    		$inifile = 'modules/'.$plugin.'/config.ini';
+		    		$inifile = 'modules/'.$plugin.'/plugin.ini';
 		    		$cfgdata[$plugin] = $myini->read($inifile);
 	    		}
 	    		if (isset($cfgdata[$plugin]['php'])) {
@@ -198,7 +217,7 @@ class PluginSystem {
 	    }
 
 		$save = serialize($code);
-		$save = file_put_contents($file, $save);
+		$filesystem->file_put_contents($file, $save);
 
 		return $code;
 	}

@@ -1,6 +1,9 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+// PK: MultiLangAdmin
+$lang->group("admin/cron");
+
 ($code = $plugins->load('admin_cron_jobs')) ? eval($code) : null;
 
 if ($job == 'add') {
@@ -17,128 +20,126 @@ if ($job == 'add') {
 	?>
 <form name="form" method="post" action="admin.php?action=cron&amp;job=add2<?php echo SID2URL_x; ?>" enctype="multipart/form-data">
  <table class="border">
-  <tr> 
-   <td class="obox" colspan="2">Add a new task</td>
+  <tr>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_add_a_new_task'); ?></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="mbox" colspan="2">
-	<b>Status: Simulated Cron Jobs <?php echo iif ($config['pccron'] == 1, 'enabled', 'disabled'); ?></b>
+	<b><?php echo $lang->phrase('admin_cron_status'); ?> <?php echo iif ($config['pccron'] == 1, $lang->phrase('admin_status_enabled'), $lang->phrase('admin_status_disabled')); ?></b>
    </td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2">Specify a file and enter a title</td>
+  <tr>
+   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_specify_a_file'); ?></td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%">Title / Description:</td>
-   <td class="mbox" width="50%"><input type="text" name="title" size="50" /></td> 
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_title_description'); ?></td>
+   <td class="mbox" width="50%"><input type="text" name="title" size="50" /></td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%"><em>Either</em> enter a filename:<br /><span class="stext">Specify a file in the directory "classes/cron/jobs/".</span>
-   </td>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enter_a_filename'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_enter_a_filename2'); ?></span></td>
    <td class="mbox" width="50%">
 	<select name="filename">
-	 <option value="">-- Please choose a file --</option>
+	 <option value=""><?php echo $lang->phrase('admin_option_choose_a_file'); ?></option>
 	 <?php foreach ($files as $file) { ?>
 	 <option value="<?php echo $file; ?>"><?php echo $file; ?></option>
 	 <?php } ?>
 	</select>
-   </td> 
-  </tr>
-  <tr> 
-   <td class="mbox" width="50%"><em>or</em> upload a file:<br /><span class"stext">Allowed file types: .php<br />Maximum file size: 100 KB</span>
    </td>
-   <td class="mbox" width="50%"><input type="file" name="upload" size="50" /></td> 
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2">Time to execute</td>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_upload_a_file'); ?><br /><span class"stext"><?php echo $lang->phrase('admin_upload_a_file2'); ?></span></td>
+   <td class="mbox" width="50%"><input type="file" name="upload" size="50" /></td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%">Minute:</td>
+  <tr>
+   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_time_to_execute'); ?></td>
+  </tr>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_minute'); ?></td>
    <td class="mbox" width="50%">
 	<select size="1" name="minute">
-	<option value="-1">Every Minute (*)</option>
-	<option value="-5">Every Five Minutes (*/5)</option>
-	<option value="-10">Every Ten Minutes (*/10)</option>
-	<option value="-15">Every Fifteen Minutes (*/15)</option>
-	<option value="-30">Every Thirty Minutes (*/30)</option>
-	<?php 
+	<option value="-1"><?php echo $lang->phrase('admin_every_minute'); ?></option>
+	<option value="-5"><?php echo $lang->phrase('admin_every_5_minutes'); ?></option>
+	<option value="-10"><?php echo $lang->phrase('admin_every_10_minutes'); ?></option>
+	<option value="-15"><?php echo $lang->phrase('admin_every_15_minutes'); ?></option>
+	<option value="-30"><?php echo $lang->phrase('admin_every_30_minutes'); ?></option>
+	<?php
 	for ($i=0; $i<60; $i++) {
 		echo "<option value=\"{$i}\">{$i}</option>\n";
 	}
 	?>
 	</select>
-   </td> 
+   </td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%">Hour:</td>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_hour'); ?></td>
    <td class="mbox" width="50%">
 	<select size="1" name="hour">
-	<option value="-1">Every Hour (*)</option>
-	<option value="-2">Every Two Hours (*/2)</option>
-	<option value="-3">Every Three Hours (*/3)</option>
-	<option value="-4">Every Four Hours (*/4)</option>
-	<option value="-6">Every Six Hours (*/6)</option>
-	<option value="-12">Every Twelwe Hours (*/12)</option>
-	<?php 
+	<option value="-1"><?php echo $lang->phrase('admin_every_hour'); ?></option>
+	<option value="-2"><?php echo $lang->phrase('admin_every_2_hours'); ?></option>
+	<option value="-3"><?php echo $lang->phrase('admin_every_3_hours'); ?></option>
+	<option value="-4"><?php echo $lang->phrase('admin_every_4_hours'); ?></option>
+	<option value="-6"><?php echo $lang->phrase('admin_every_6_hours'); ?></option>
+	<option value="-12"><?php echo $lang->phrase('admin_every_12_hours'); ?></option>
+	<?php
 	for ($i=0; $i<24; $i++) {
 		echo "<option value=\"{$i}\">{$i}</option>\n";
 	}
 	?>
 	</select>
-   </td> 
+   </td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%">Day:</td>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_day'); ?></td>
    <td class="mbox" width="50%">
 	<select size="1" name="day">
-	<option value="-1">Every Day (*)</option>
-	<option value="-2">Every Two Days (*/2)</option>
-	<option value="-14">Every Fourteen Days (*/14)</option>
-	<?php 
+	<option value="-1"><?php echo $lang->phrase('admin_every_day'); ?></option>
+	<option value="-2"><?php echo $lang->phrase('admin_every_2_days'); ?></option>
+	<option value="-14"><?php echo $lang->phrase('admin_every_14_days'); ?></option>
+	<?php
 	for ($i=1; $i<=31; $i++) {
 		echo "<option value=\"{$i}\">{$i}</option>\n";
 	}
 	?>
 	</select>
-   </td> 
+   </td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%">Weekday:</td>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_weekday'); ?></td>
    <td class="mbox" width="50%">
 	<select size="1" name="weekday">
-	<option value="-1">Every Weekday (*)</option>
+	<option value="-1"><?php echo $lang->phrase('admin_every_weekday'); ?></option>
 	<?php
 	foreach ($days as $id => $name) {
 		echo "<option value=\"{$id}\">{$name}</option>\n";
 	}
 	?>
 	</select>
-   </td> 
+   </td>
   </tr>
-  <tr> 
-   <td class="mbox" width="50%">Month:</td>
+  <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_month'); ?></td>
    <td class="mbox" width="50%">
 	<select size="1" name="month">
-	<option value="-1">Every Month (*)</option>
-	<?php 
+	<option value="-1"><?php echo $lang->phrase('admin_every_month'); ?></option>
+	<?php
 	for ($i=1; $i<=12; $i++) {
 		echo "<option value=\"{$i}\">".$months[$i-1]."</option>\n";
 	}
 	?>
 	</select>
-   </td> 
+   </td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Add" /></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_button_add'); ?>" /></td>
   </tr>
  </table>
-</form> 
+</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'add2') {
 	echo head();
-	
+
 	$title = $gpc->get('title', none);
 	$filename = $gpc->get('filename', str);
 	$minute = $gpc->get('minute', int);
@@ -149,15 +150,15 @@ elseif ($job == 'add2') {
 
 	$inserterrors = array();
 	if ((empty($filename) || !file_exists('classes/cron/jobs/'.$filename)) && empty($_FILES['upload']['name'])) {
-		$inserterrors[] = 'No file specified. Either upload a file or specify a file in the select-box.';
+		$inserterrors[] = $lang->phrase('admin_err_no_file_specified');
 	}
 	if (empty($title)) {
-		$inserterrors[] = 'You have not specified a title.';
+		$inserterrors[] = $lang->phrase('admin_err_no_title_specified');
 	}
 
 	if (count($inserterrors) == 0 && !empty($_FILES['upload']['name'])) {
 		require("classes/class.upload.php");
-		 
+
 		$dir = realpath('./classes/cron/jobs/');
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(100*1024);
@@ -173,10 +174,10 @@ elseif ($job == 'add2') {
 			$filename = $my_uploader->fileinfo('filename');
 		}
 		if (empty($filename) || !file_exists('classes/cron/jobs/'.$filename)) {
-			$inserterrors[] = 'File could not be uploaded.';
+			$inserterrors[] = $lang->phrase('admin_err_upload_failed');
 		}
 	}
-	
+
 	if (count($inserterrors) > 0) {
 		error('admin.php?action=cron&job=add', $inserterrors);
 	}
@@ -211,18 +212,18 @@ elseif ($job == 'add2') {
 		if ($weekday < 0 || $weekday > 6) {
 			$weekday = '*';
 		}
-		
+
 		$line = "{$minute}\t{$hour}\t{$day}\t{$month}\t{$weekday}\t{$filename}\t#{$title}";
 		$cronjobs = file('data/cron/crontab.inc.php');
 		$cronjobs = array_map("rtrim", $cronjobs);
 		foreach ($cronjobs as $cron) {
 			if ($cron == $line) {
-				error('admin.php?action=cron&job=manage', 'This entry already exists.');
+				error('admin.php?action=cron&job=manage', $lang->phrase('admin_err_entry_already_exists'));
 			}
 		}
 		$cronjobs[] = $line;
 		$filesystem->file_put_contents('data/cron/crontab.inc.php', implode("\n",$cronjobs));
-		ok('admin.php?action=cron&job=manage', 'Cron Job successfully added');
+		ok('admin.php?action=cron&job=manage', $lang->phrase('admin_job_successfully_added'));
 	}
 }
 elseif ($job == 'manage') {
@@ -231,34 +232,34 @@ elseif ($job == 'manage') {
 	?>
 	<form name="form" method="post" action="admin.php?action=cron&job=delete<?php echo SID2URL_x; ?>">
 	 <table class="border">
-	  <tr> 
+	  <tr>
 	   <td class="obox" colspan="7">
 	    <span style="float: right;">
-		<a class="button" href="admin.php?action=cron&job=add">Add new Task</a>
-		<a class="button" href="admin.php?action=slog&job=l_cron">Tasks Log File</a>
+		<a class="button" href="admin.php?action=cron&job=add"><?php echo $lang->phrase('admin_add_new_task'); ?></a>
+		<a class="button" href="admin.php?action=slog&job=l_cron"><?php echo $lang->phrase('admin_tasks_logfile'); ?></a>
 		</span>
-	   	Manage Tasks
+	   	<?php echo $lang->phrase('admin_manage_tasks'); ?>
 	   </td>
 	  </tr>
-	  <tr> 
+	  <tr>
 	   <td class="mbox" colspan="7">
-		<?php if ($config['pccron'] == 1) { ?>
-		<b>Status: Simulated Cron Jobs enabled</b>&nbsp;&nbsp;&nbsp;<a class="button" href="admin.php?action=settings&amp;job=cron<?php echo SID2URL_x; ?>">Change</a><br>
-		Because Cron Jobs are often not availible, Viscacha can simulate Cron Jobs. This works as follows: On every page call, it will be checked if there should have been a Cron Job executed. If the time limit of a Cron Job is exceeded, it will be executed in the background.
-		<?php } else { ?>
-		<b>Status: Simulated Cron Jobs disabled</b>&nbsp;&nbsp;&nbsp;<a class="button" href="admin.php?action=settings&amp;job=cron<?php echo SID2URL_x; ?>">Change</a><br>
-		Cron Jobs are not simuleted by Viscacha. You have to set up a Cron Job that starts the installed Cron Jobs automatically.
-		<?php } ?>
+	   <b>
+		<?php echo $lang->phrase('admin_cron_status').iif ($config['pccron'] == 1, $lang->phrase('admin_status_enabled'), $lang->phrase('admin_status_disabled')); ?>
+		</b>
+		&nbsp;&nbsp;&nbsp;<a class="button" href="admin.php?action=settings&amp;job=cron"><?php echo $lang->phrase('admin_cron_change'); ?></a><br />
+		<?php
+			echo iif($config['pccron'] == 1, $lang->phrase('admin_status_enabled_info'), $lang->phrase('admin_status_disabled_info'));
+		?>
 	   </td>
 	  </tr>
-	  <tr> 
-	   <td class="ubox" width="5%">Delete</td>
-	   <td class="ubox" width="55%">File</td>
-	   <td class="ubox" width="8%">Minute(s)</td>
-	   <td class="ubox" width="8%">Hour(s)</td>
-	   <td class="ubox" width="8%">Day(s)</td>
-	   <td class="ubox" width="8%">Month</td>
-	   <td class="ubox" width="8%">Weekday</td>
+	  <tr>
+	   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_th_delete'); ?></td>
+	   <td class="ubox" width="55%"><?php echo $lang->phrase('admin_th_file'); ?></td>
+	   <td class="ubox" width="8%"><?php echo $lang->phrase('admin_th_minutes'); ?></td>
+	   <td class="ubox" width="8%"><?php echo $lang->phrase('admin_th_hours'); ?></td>
+	   <td class="ubox" width="8%"><?php echo $lang->phrase('admin_th_days'); ?></td>
+	   <td class="ubox" width="8%"><?php echo $lang->phrase('admin_th_month'); ?></td>
+	   <td class="ubox" width="8%"><?php echo $lang->phrase('admin_th_weekday'); ?></td>
 	  </tr>
 	<?php
 	foreach ($cronjobs as $job) {
@@ -266,10 +267,11 @@ elseif ($job == 'manage') {
 		$row = explode("\t", $job, 7);
 		for($i = 0; $i <= 4; $i++) {
 			if ($row[$i] == '*') {
-				$row[$i] = 'Every';
+				$row[$i] = $lang->phrase('admin_every');
 			}
 			elseif (substr($row[$i], 0, 2) == '*/') {
-				$row[$i] = 'Every '.substr($row[$i], 2);
+				$what = substr($row[$i], 2);
+				$row[$i] = $lang->phrase('admin_every_x');
 			}
 			else {
 				$row[$i] = intval($row[$i]);
@@ -279,21 +281,21 @@ elseif ($job == 'manage') {
 			$row[6] = substr($row[6], 1);
 		}
 		?>
-		<tr> 
+		<tr>
 		   <td class="mbox" width="5%"><input type="checkbox" name="delete[]" value="<?php echo md5($job); ?>"></td>
 		   <td class="mbox" width="55%"><?php echo $row[5]; ?><br /><span class="stext"><?php echo $row[6]; ?></span></td>
 		   <td class="mbox" width="8%"><?php echo $row[0]; ?></td>
-		   <td class="mbox" width="8%"><?php echo $row[1]; ?></td> 
-		   <td class="mbox" width="8%"><?php echo $row[2]; ?></td> 
-		   <td class="mbox" width="8%"><?php echo $row[3]; ?></td> 
-		   <td class="mbox" width="8%"><?php echo $row[4]; ?></td> 
+		   <td class="mbox" width="8%"><?php echo $row[1]; ?></td>
+		   <td class="mbox" width="8%"><?php echo $row[2]; ?></td>
+		   <td class="mbox" width="8%"><?php echo $row[3]; ?></td>
+		   <td class="mbox" width="8%"><?php echo $row[4]; ?></td>
 		</tr>
 	<?php } ?>
-	  <tr> 
-	   <td class="ubox" width="100%" colspan="7" align="center"><input type="submit" name="Submit" value="Send" /></td> 
+	  <tr>
+	   <td class="ubox" width="100%" colspan="7" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_button_send'); ?>" /></td>
 	  </tr>
 	 </table>
-	</form> 
+	</form>
 	<?php
 	echo foot();
 }
@@ -315,10 +317,10 @@ elseif ($job == 'delete') {
 		}
 		$filesystem->file_put_contents('data/cron/crontab.inc.php', implode("\n",$jobs));
 		$anz = count($cronjobs) - count($jobs);
-		ok('admin.php?action=cron&job=manage'.SID2URL_x, $anz.' cron jobs deleted.');
+		ok('admin.php?action=cron&job=manage', $lang->phrase('admin_cron_jobs_deleted'));
 	}
 	else {
-		error('admin.php?action=cron&job=manage'.SID2URL_x);
+		error('admin.php?action=cron&job=manage');
 	}
 }
 ?>

@@ -10,7 +10,7 @@ class tpl {
 	var $oldvars;
 	var $benchmark;
 	var $sent;
-	var $imgdir = FALSE;
+	var $imgdir;
 	var $stdimgdir;
 
 
@@ -33,6 +33,9 @@ class tpl {
 		if (!empty($my->imagesid) && $my->imagesid != $cache[$config['templatedir']]['images']) {
 			$this->imgdir = './images/'.$cache[$my->template]['images'].'/';
 		}
+		else {
+			$this->imgdir = false;
+		}
 		$this->stdimgdir = './images/'.$cache[$config['templatedir']]['images'].'/';
 
 		$this->contents = '';
@@ -48,10 +51,10 @@ class tpl {
 	function img ($name) {
 		$gif = '.gif';
 		$png = '.png';
-		if (file_exists($this->imgdir.$name.$gif) && $this->imgdir) {
+		if ($this->imgdir != false && file_exists($this->imgdir.$name.$gif)) {
 			return $this->imgdir.$name.$gif;
 		}
-		elseif (file_exists($this->imgdir.$name.$png) && $this->imgdir) {
+		elseif ($this->imgdir != false && file_exists($this->imgdir.$name.$png)) {
 			return $this->imgdir.$name.$png;
 		}
 		elseif (file_exists($this->stdimgdir.$name.$gif)) {
@@ -70,7 +73,17 @@ class tpl {
         $this->vars = $vars;
     }
 
-	function parse($thisfile,$thisext='html') {
+    function exists($thisfile, $thisext='html') {
+		$thisext = '.'.$thisext;
+		if (file_exists($this->dir.$thisfile.$thisext) || file_exists($this->altdir.$thisfile.$thisext)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+    }
+
+	function parse($thisfile, $thisext='html') {
 
     	$thiszm1=benchmarktime();
 		$this->benchmark['all']++;

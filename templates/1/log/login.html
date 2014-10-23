@@ -9,17 +9,17 @@
 	<br class="newinput" /><hr class="formsep" />
 	<label for="pw">
 	<?php echo $lang->phrase('login_password'); ?><br />
-	<span class="stext"><a href="log.php?action=pwremind<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('login_lost_password'); ?></a></span>
+	<span class="stext"><a tabindex="5" href="log.php?action=pwremind<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('login_lost_password'); ?></a></span>
 	</label>
 	<input tabindex="2" id="pw" class="label" type="password" name="pw" size="40" />
 	<br class="newinput" /><hr class="formsep" />
 	<label for="remember"><?php echo $lang->phrase('login_rememberme'); ?></label>
-	<div class="label center"><input type="checkbox" id="remember" name="remember" value="1" checked="checked" /></div>
+	<div class="label center"><input type="checkbox" tabindex="3" id="remember" name="remember" value="1" checked="checked" /></div>
 	<br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center">
 	 <input type="hidden" name="redirect" value="<?php echo $loc; ?>" />
-	 <input tabindex="3" type="submit" accesskey="s" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" />
+	 <input tabindex="4" type="submit" accesskey="s" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" />
 </div>
 </div>
 </form>
@@ -29,11 +29,11 @@
 <div class="bbody">
 <p><?php echo $lang->phrase('why_register_desc'); ?></p>
 <p class="center">
-[<a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a>]
+[<a tabindex="6" href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a>]
 <?php if ($config['disableregistration'] == 0) { ?>
- &nbsp; [<a href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('login_registered'); ?></a>]
+ &nbsp; [<a tabindex="7" href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('login_registered'); ?></a>]
 <?php } ?>
- &nbsp; [<a href="register.php?action=resend<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('register_resend_title'); ?></a>]
+ &nbsp; [<a tabindex="8" href="register.php?action=resend<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('register_resend_title'); ?></a>]
 </p>
 </div>
 </div>

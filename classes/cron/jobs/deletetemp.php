@@ -20,7 +20,7 @@ function unlink_dir($dir) {
 		if (is_subdir($dir.$entry)) {
 			unlink_dir($dir.$entry);
 		}
-		if (file_exists($dir.$entry) && is_file($dir.$entry) && filemtime($dir.$entry) < time()-60*60) {
+		if ($entry != '.htaccess' && $entry != 'index.htm' && file_exists($dir.$entry) && is_file($dir.$entry) && filemtime($dir.$entry) < time()-60*60) {
 			$filesystem->unlink($dir.$entry);
 		}
 	}

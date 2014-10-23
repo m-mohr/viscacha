@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -45,9 +45,9 @@ function ImageHexColorAllocate(&$image, $string) {
 
 if ($_GET['action'] == 'vote') {
 	$result = $db->query('
-	SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix 
-	FROM '.$db->pre.'topics 
-	WHERE id = '.$_GET['id'].' 
+	SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix
+	FROM '.$db->pre.'topics
+	WHERE id = '.$_GET['id'].'
 	LIMIT 1
 	',__LINE__,__FILE__);
 	$info = $db->fetch_assoc($result);
@@ -70,15 +70,15 @@ if ($_GET['action'] == 'vote') {
 	$result = $db->query("SELECT COUNT(r.id) as votes, v.id, v.answer FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id",__LINE__,__FILE__);
 	while ($row = $db->fetch_assoc($result)) {
 		$votes += $row['votes'];
-		
-		$PG->x[$i] = $row['answer'];
+
+		$PG->x[$i] = html_entity_decode($row['answer'], ENT_QUOTES, $config['asia_charset']);
 		$PG->y[$i] = $row['votes'];
-		
+
 		$i++;
 	}
-	
+
 	$PG->credits   = $lang->phrase('vote_counter').$votes;
-	
+
 	$PG->start();
 }
 elseif ($_GET['action'] == 'captcha') {
@@ -102,6 +102,35 @@ elseif ($_GET['action'] == 'captcha') {
 	$vword->set_size($width, $height, $config['botgfxtest_format'], $config['botgfxtest_quality']);
 	send_nocache_header();
 	$vword->output_image($_GET['captcha']);
+}
+elseif ($_GET['action'] == 'textimage') {
+	require('classes/graphic/class.text2image.php');
+
+	$img = new text2image();
+	if (empty($_GET['angle'])) {
+		$_GET['angle'] = 0;
+	}
+	if (empty($_GET['size']) || $_GET['size'] < 6) {
+		$_GET['size'] = 10;
+	}
+	if (!empty($_GET['bg']) && strlen($_GET['bg']) > 2) {
+		$bg = $_GET['bg'];
+	}
+	else {
+		$bg = 'ffffff';
+	}
+	if (!empty($_GET['fg']) && strlen($_GET['fg']) > 2) {
+		$fg = $_GET['fg'];
+	}
+	else {
+		$fg = '000000';
+	}
+	$img->prepare($_GET['text'], $_GET['angle'], $_GET['size'], 'classes/fonts/trebuchet.ttf');
+	if (!empty($_REQUEST['enc'])) {
+		$img->base64();
+	}
+	$img->build(4, $bg, $fg);
+	$img->output();
 }
 elseif ($_GET['action'] == 'postrating' || $_GET['action'] == 'memberrating' || $_GET['action'] == 'threadrating') {
 	$colors = array('FF0000', 'E44C00', 'E89A00', 'EBE700', '9EE800', '4DE400');
@@ -134,7 +163,7 @@ elseif ($_GET['action'] == 'postrating' || $_GET['action'] == 'memberrating' || 
 		}
 	}
 	($code = $plugins->load('images_rating_start')) ? eval($code) : null;
-	
+
 	$ratings = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$ratings[] = $row['rating'];
@@ -149,9 +178,9 @@ elseif ($_GET['action'] == 'postrating' || $_GET['action'] == 'memberrating' || 
 		$avg = 0;
 	}
 	$five = ceil(($avg+1)*2.5);
-	
+
 	header ("Content-type: image/png");
-	
+
 	$image = imagecreate($width+2, $height+2);
 	$back = ImageHexColorAllocate($image, 'ffffff');
 	$fill = ImageHexColorAllocate($image, $colors[$five]);

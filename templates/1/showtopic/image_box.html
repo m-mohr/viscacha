@@ -1,6 +1,6 @@
 <div class="uploadbox"><strong>
 <?php if ($my->p['downloadfiles'] == 0) { echo $file['file']; } else { ?>
-<a href="attachments.php?action=attachment&amp;id=<?php echo $file['id'].SID2URL_x; ?>">
+<a href="attachments.php?action=attachment&amp;id=<?php echo $file['id'].SID2URL_x; ?>" target="_blank" onclick="return openImageWindow(this, <?php echo $imagesize[0]; ?>, <?php echo $imagesize[1]; ?>);">
 <img src="attachments.php?action=thumbnail&amp;id=<?php echo $file['id'].SID2URL_x; ?>" alt="" />
 </a>
 <?php } ?>

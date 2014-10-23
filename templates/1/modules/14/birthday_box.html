@@ -1,8 +1,0 @@
-<div class="navigation_cat">
-<h3><?php echo $lang->phrase('birthdaybox_module'); ?></h3>
-<ul class="nav">
-    <?php foreach ($data as $row) { ?>
-    	<li><a href="profile.php?id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $row['name']; ?></a><?php echo iif($row['birthday'][0] > 1900, " ({$row['age']})"); ?></li>
-    <?php } ?>
-</ul>
-</div>

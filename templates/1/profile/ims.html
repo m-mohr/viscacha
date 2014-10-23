@@ -13,11 +13,11 @@
 	<?php echo $lang->phrase('im_msgtext'); ?><br /><br />
 	<span class="stext"><?php echo $lang->phrase('im_msgtext_info'); ?></span>
 </label>
-<textarea id="body" class="label" name="body" cols="60" rows="6"></textarea>
+<textarea tabindex="1" id="body" class="label" name="body" cols="60" rows="6"></textarea>
 <br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center">
-   <input type="submit" accesskey="s" name="Send" value="<?php echo $lang->phrase('submit_form'); ?>" />
+   <input type="submit" tabindex="2" accesskey="s" name="Send" value="<?php echo $lang->phrase('submit_form'); ?>" />
    <input type="hidden" name="to" value="<?php echo $row['icq']; ?>" />
    <input type="hidden" name="from" value="<?php echo $my->name; ?>" />
    <input type="hidden" name="fromemail" value="<?php echo $my->mail; ?>" />
@@ -38,7 +38,7 @@
 <div class="bbody">
 	<object classid="clsid:B69003B3-C55E-4B48-836C-BC5946FC3B28" codetype="application/x-oleobject" id="MsgrObj" width="0" height="0"></object>
 	<a href="javascript:MsgrObj.AddContact(0,'<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_1'); ?></a><br />
-	<a href="javascript:MsgrObj.InstantMessage('<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_2'); ?></a><br /><br />   
+	<a href="javascript:MsgrObj.InstantMessage('<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_2'); ?></a><br /><br />
 	<span class='stext'><?php echo $lang->phrase('im_requirements'); ?></span>
 </div>
 <?php } elseif ($_GET['type'] == 'skype') { ?>
@@ -57,11 +57,11 @@
 	<?php echo $lang->phrase('im_msgtext'); ?><br /><br />
 	<span class="stext"><?php echo $lang->phrase('im_msgtext_info'); ?></span>
 </label>
-<textarea id="ta" class="label" name="comment" cols="60" rows="6"></textarea>
+<textarea id="ta" class="label" tabindex="1" name="comment" cols="60" rows="6"></textarea>
 <br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center">
-	<input type="submit" accesskey="s" name="Send" value="<?php echo $lang->phrase('submit_form'); ?>" />
+	<input type="submit" tabindex="2" accesskey="s" name="Send" value="<?php echo $lang->phrase('submit_form'); ?>" />
 </div>
 </form>
 <?php } ?>

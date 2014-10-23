@@ -9,12 +9,11 @@ CREATE TABLE `{:=DBPREFIX=:}settings` (
   UNIQUE KEY `title` (`title`,`sgroup`)
 ) TYPE=MyISAM;
 
-INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `optionscode`, `value`, `sgroup`) VALUES ('relatednum', 'Number of smiliar topics', 'Maximum number of topics found as similar topics', 'text', '', '5', 1),
+INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `optionscode`, `value`, `sgroup`) VALUES 
+('relatednum', 'Maximum number of similar topics', 'The maximum number of related topics that will be shown per topic.', 'text', '', '5', 1),
+('hide_empty', 'Hide empty box', 'Hide the box if no related topic is found', 'checkbox', '', '1', 1),
 ('items', 'Number of news', 'Number of news shown on the frontpage', 'text', '', '5', 2),
-('teaserlength', 'Shortening news', 'Maximal characters shown in the preview of the article.', 'text', '', '300', 2),
-('feed', 'ID of Newsfeed', 'ID of Newsfeed to show. Look up ID here: <a href="admin.php?action=cms&job=feed" target="_blank">Newsfeed Syndication</a>', 'text', '', '1', 3),
-('title', 'Title for Newsfeed', '', 'text', '', 'Ticker', 3),
-('text', 'Text to show', 'You can enter the message here. You can use HTML.', 'textarea', '', '', 4),
-('title', 'Title to show', 'You can enter the title here. You can use HTML.', 'text', '', '', 4),
-('topicnum', 'Topics to show', 'Number of new topics which are supposed to be listed maximally.', 'text', '', '10', 5),
-('repliesnum', 'Number of replies', 'Maximum number of newest replies shown after the form.', 'text', '', '5', 6);
+('teaserlength', 'Cut news after', 'Determine after how many chars the news are shortened (only if no code to cut the text is specified).', 'text', '', '300', 2),
+('cutat', 'Code to cut after', 'You can cut the preview (teaser) manually by placing the specified code in the text. All text after this code will be removed from the preview.', 'select', 'teaser=[teaser]', 'teaser', 2),
+('repliesnum', 'Number of replies', 'Maximum number of (newest) replies that will be shown after the form for new replies to topics (Addreply).', 'text', '', '5', 3),
+('topicnum', 'Topics to show', 'Number of new topics which are supposed to be listed maximally.', 'text', '', '10', 4);

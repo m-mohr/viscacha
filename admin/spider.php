@@ -1,6 +1,9 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+// FS: MultiLangAdmin
+$lang->group("admin/spider");
+
 ($code = $plugins->load('admin_spider_jobs')) ? eval($code) : null;
 
 // This bases on a phpBB Mod
@@ -15,8 +18,8 @@ echo head();
 
 if ($job == 'ignore_pending' || $job == 'add_pending') {
 
-	$pending_number = $gpc->get('pending', int); 
-	$pending_data = $gpc->get('data', str); 
+	$pending_number = $gpc->get('pending', int);
+	$pending_data = $gpc->get('data', str);
 
 	$result = $db->query("SELECT pending_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
 
@@ -34,7 +37,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 	$result = $db->query("UPDATE {$db->pre}spider SET pending_{$pending_data} = '{$pending}' WHERE id = '{$id}'", __LINE__, __FILE__);
 
 	if ($action == "add_pending") {
-	
+
 		$result = $db->query("SELECT bot_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
 		$row = $db->fetch_assoc($result);
 
@@ -97,12 +100,13 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 		$pending = implode("|", array_empty_trim($pending_array));
 
 		$db->query("UPDATE {$db->pre}spider SET bot_{$pending_data} = '{$pending}' WHERE id = '{$id}'", __LINE__, __FILE__);
-		
+
 		$delobj = $scache->load('spiders');
 		$delobj->delete();
 	}
-	
-	ok("admin.php?action=spider&job=pending", "Bot information successfully ".iif($job == 'add_pending', "added", "ignored").".");
+
+	$jobname = iif($job == 'add_pending', "added", "ignored");
+	ok("admin.php?action=spider&job=pending", $lang->phrase('admin_spider_bot_information_sucessfully_x'));
 	echo foot();
 }
 elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
@@ -125,7 +129,7 @@ elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
 
 		$new_ip_data = array_chunk($pending_ip_array, 2);
 		$new_agent_data = array_chunk($pending_agent_array, 2);
-		
+
 		$bot_ip_array = explode('|', $row['bot_ip']);
 		$bot_agent_array = explode('|', $row['user_agent']);
 
@@ -155,13 +159,13 @@ elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
 			foreach ($new_agent_data as $new_key => $new_value) {
 				$added = false;
 				foreach ($bot_agent_array as $key => $value) {
-					
+
 					$smaller_string = ( ( strlen($value) > strlen($new_value[0]) ) ? $new_value[0] : $value);
 					$larger_string = ( ( strlen($value) < strlen($new_value[0]) ) ? $new_value[0] : $value);
 					if (strlen($smaller_string) <= 6) {
 						continue;
 					}
-					
+
 					for ( $limit = strlen($smaller_string); $limit > 6; $limit-- ) {
 						$count = (strlen($smaller_string)-$limit)+1;
 						for ($loop2 = 0; $loop2 < $count; $loop2++) {
@@ -182,12 +186,12 @@ elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
 		$bot_agent = implode("|", array_empty_trim($bot_agent_array));
 
 		$db->query("UPDATE {$db->pre}spider SET user_agent = '{$bot_agent}', bot_ip = '{$bot_ip}' WHERE id = '{$id}'", __LINE__, __FILE__);
-		
+
 		$delobj = $scache->load('spiders');
 		$delobj->delete();
 	}
-	
-	ok("admin.php?action=spider&job=pending", "Bot information successfully ".iif($job == 'add_all_pending', "added", "ignored").".");
+
+	ok("admin.php?action=spider&job=pending", $lang->phrase('admin_spider_bot_information_sucessfully_x'));
 	echo foot();
 }
 elseif ($job == 'delete') {
@@ -196,16 +200,16 @@ elseif ($job == 'delete') {
 		$id = ($id > 0) ? " = {$id}" : ' IN (' . implode(', ', $mark) . ')';
 		$db->query("DELETE FROM {$db->pre}spider WHERE id {$id}", __LINE__, __FILE__);
 		if ($db->affected_rows() == 0) {
-			error("admin.php?action=spider&job=manage", "No entries deleted.");
+			error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_no_entries_deleted'));
 		}
 		else {
 			$delobj = $scache->load('spiders');
 			$delobj->delete();
-			ok("admin.php?action=spider&job=manage", "Bot data successfully deleted.");
+			ok("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_bot_data_successfully_deleted'));
 		}
 	}
 	else {
-		error("admin.php?action=spider&job=manage", "No data chosen.");
+		error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_no_data_chosen'));
 	}
 }
 elseif ($job == 'reset') {
@@ -214,14 +218,14 @@ elseif ($job == 'reset') {
 		$id = ($id > 0) ? " = {$id}" : ' IN (' . implode(', ', $mark) . ')';
 		$db->query("UPDATE {$db->pre}spider SET last_visit = '', bot_visits = '0' WHERE id {$id}", __LINE__, __FILE__);
 		if ($db->affected_rows() == 0) {
-			error("admin.php?action=spider&job=manage", "No entries reset.");
+			error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_no_entries_reset'));
 		}
 		else {
-			ok("admin.php?action=spider&job=manage", "Bot data successfully reset.");
+			ok("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_bot_data_successfully_reset'));
 		}
 	}
 	else {
-		error("admin.php?action=spider&job=manage", "No data chosen.");
+		error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_no_data_chosen'));
 	}
 }
 elseif ($job == 'add2' || $job == 'edit2') {
@@ -229,12 +233,12 @@ elseif ($job == 'add2' || $job == 'edit2') {
 	$bot_ip = trim($bot_ip);
 	$bot_agent = $gpc->get('bot_agent', str);
 	if ( empty($bot_ip) && empty($bot_agent) ) {
-		$bot_errors[] = "You have not supplied a vaild user agent or ip.";
+		$bot_errors[] = $lang->phrase('admin_spider_invalid_user_agent_or_ip');
 	}
 	$type = $gpc->get('type', str);
 	$bot_name = $gpc->get('bot_name', str);
 	if ( empty($bot_name) ) {
-		$bot_errors[] = "You have not supplied a bot name.";
+		$bot_errors[] = $lang->phrase('admin_spider_missing_bot_name');
 	}
 
 	if (count($bot_errors) > 0) {
@@ -270,7 +274,7 @@ elseif ($job == 'add2' || $job == 'edit2') {
 		else {
 			$delobj = $scache->load('spiders');
 			$delobj->delete();
-			ok("admin.php?action=spider&job=manage", "Bot settings successfully changed.");
+			ok("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_bot_settings_successfuly_changed'));
 		}
 	}
 }
@@ -281,7 +285,7 @@ elseif ($job == 'add' || $job == 'edit') {
 			$row = $db->fetch_assoc($result);
 		}
 		else {
-			error("admin.php?action=spider&job=manage", "Couldn't obtain bot data.");
+			error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_couldnt_obtain_bot_data'));
 		}
 	}
 	else {
@@ -291,47 +295,47 @@ elseif ($job == 'add' || $job == 'edit') {
 	<form action="admin.php?action=spider&amp;job=<?php echo $job; ?>2<?php echo iif($id > 0, '&amp;id='.$id); ?>" method="post">
 	<table border="0" align="center" class="border">
 		<tr>
-			<td class="obox" colspan="2"><?php echo iif($action == 'add', 'Add', 'Edit'); ?> Bots</th>
+			<td class="obox" colspan="2"><?php echo iif($action == $lang->phrase('admin_spider_add_lowercase'), $lang->phrase('admin_spider_add'), '<mla=edit>Edit</edit>'); ?> Bots</th>
 		</tr>
 		<tr>
-			<td class="ubox" colspan="2">Here you can either add or modify an existing bot entry. You are able to supply either a matching user agent or a range of ip's to use.</th>
+			<td class="ubox" colspan="2"><?php echo $lang->phrase('admin_spider_add_edit_description'); ?></th>
 		</tr>
 		<tr>
-			<td class="mbox" width="40%">Name:<br /><span class="stext">This name is shown on the "who is online"-page.</span></td>
+			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_name'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_spider_name_description'); ?></span></td>
 			<td class="mbox"><input type="text" name="bot_name" size="50"<?php echo iif($job == 'edit', ' value="'.$row['name'].'"'); ?> /></td>
 		</tr>
 		<tr>
-			<td class="mbox" width="40%">User Agent:<br /><span class="stext">A matching user agent. Partial matches are allowed. Seperate agents with a single '|'.</span></td>
+			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_user_agent'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_spider_user_agent_description'); ?></span></td>
 			<td class="mbox"><input type="text" name="bot_agent" size="50"<?php echo iif($job == 'edit', ' value="'.$row['user_agent'].'"'); ?> /></td>
 		</tr>
 		<tr>
-			<td class="mbox" width="40%">IP Adress:<br /><span class="stext">Partial matches are allowed. Seperate IP addresses with a single '|'.</span></td>
+			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_ip_adress'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_spider_ip_adress_description'); ?></span></td>
 			<td class="mbox"><input type="text" name="bot_ip" size="50"<?php echo iif($job == 'edit', ' value="'.$row['bot_ip'].'"'); ?> /></td>
 		</tr>
 		<tr>
-			<td class="mbox" width="40%">Type:<br /><span class="stext">Mail Collectors/Spam Bots will be banned.</span></td>
+			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_type'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_spider_type_description'); ?></span></td>
 			<td class="mbox">
-				<input type="radio" name="type" value="b"<?php echo iif(($job == 'edit' && $row['type'] == 'b'), ' checked="checked"'); ?> /> Search engine<br />
-   				<input type="radio" name="type" value="e"<?php echo iif(($job == 'edit' && $row['type'] == 'e'), ' checked="checked"'); ?> /> Mail collector/Spam Bot<br />
-   				<input type="radio" name="type" value="v"<?php echo iif(($job == 'edit' && $row['type'] == 'v'), ' checked="checked"'); ?> /> Validator
+				<input type="radio" name="type" value="b"<?php echo iif(($job == 'edit' && $row['type'] == 'b'), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_spider_search_engine'); ?><br />
+   				<input type="radio" name="type" value="e"<?php echo iif(($job == 'edit' && $row['type'] == 'e'), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_spider_mail_collector_or_spam_bot'); ?><br />
+   				<input type="radio" name="type" value="v"<?php echo iif(($job == 'edit' && $row['type'] == 'v'), ' checked="checked"'); ?> />$lang->phrase('admin_spider_validator')
    			</td>
 		</tr>
 		<?php if ($job == 'edit') { ?>
 		<tr>
-			<td class="mbox" width="40%">Visits:</td>
+			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_visits'); ?></td>
 			<td class="mbox"><input type="text" name="visits" size="10" value="<?php echo $row['bot_visits']; ?>" /></td>
 		</tr>
 		<tr>
-			<td class="mbox" width="40%">Reset Last Visits:<br /><span class="stext"></span></td>
+			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_reset_last_visits'); ?><br /><span class="stext"></span></td>
 			<td class="mbox">
-			<input type="radio" name="reset_lastvisit" value="0" checked="checked" />Keep the "Last Vists". Don't change them!<br />
-			<input type="radio" name="reset_lastvisit" value="1" />The "Last Visits" will be deleted except for the really last visit.<br />
-			<input type="radio" name="reset_lastvisit" value="2" />The "Last Visits" will be completely deleted.
+			<input type="radio" name="reset_lastvisit" value="0" checked="checked" /><?php echo $lang->phrase('admin_spider_keep_last_visits'); ?><br />
+			<input type="radio" name="reset_lastvisit" value="1" /><?php echo $lang->phrase('admin_spider_last_visits_will_be_deleted_with_exception'); ?><br />
+			<input type="radio" name="reset_lastvisit" value="2" /><?php echo $lang->phrase('admin_spider_last_visits_will_be_deleted_completely'); ?>
 			</td>
 		</tr>
 		<?php } ?>
 		<tr>
-			<td class="ubox" colspan="2" align="center"><input type="submit" name="submit" value="Submit" /></td>
+			<td class="ubox" colspan="2" align="center"><input type="submit" name="submit" value="<?php echo $lang->phrase('admin_spider_submit'); ?>" /></td>
 		</tr>
 	</table>
 	</form>
@@ -343,17 +347,17 @@ elseif ($job == 'pending') {
 	$pending_bots = 0;
 	?>
 	<table border="0" align="center" class="border">
-	<tr><td class="obox">Pending Bots</td></tr>
+	<tr><td class="obox"><?php echo $lang->phrase('admin_spider_pending_bots'); ?></td></tr>
 	<tr><td class="mbox">
 	<?php if ($config['spider_pendinglist'] == 0) { ?>
-	<p><strong>This function is currently disabled. You can turn it on in your <a href="admin.php?action=settings&amp;job=spiders">Viscacha Settings</a>!</strong></p>
+	<p><strong><?php echo $lang->phrase('admin_spider_pending_function_currently_disabled'); ?></strong></p>
 	<?php } ?>
-	<p>Listed below are users that matched some but not all of your bot criteria. In other words the user only matched either the user agent or ip. The mismatched data is the highlighted next to the bot name. You can choose to either add this info which will then appear as part of that bots criteria or ignore it.</p>
+	<p><?php echo $lang->phrase('admin_spider_pending_bots_description'); ?></p>
 	<?php
 	while ($row = $db->fetch_assoc($result)) {
 		$pending_agent_array = array();
 		$pending_ip_array = array();
-		
+
 		if ( !empty( $row['pending_agent'] ) ) {
 			$pending_agent_array = explode('|', $row['pending_agent']);
 			if (count($pending_agent_array) > 0) {
@@ -368,25 +372,25 @@ elseif ($job == 'pending') {
 		}
 		natsort($pending_agent_array);
 		natsort($pending_ip_array);
-		
+
 		if (count($pending_agent_array) > 0 || count($pending_ip_array) > 0) {
 			?>
 			<table border="0" align="center" class="border">
 			<tr><td class="obox" colspan="3">
 				<span style="float: right;">
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=ignore_all_pending">Ignore All</a>
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=add_all_pending">Add All</a>
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=ignore_all_pending"><?php echo $lang->phrase('admin_spider_ignore_all'); ?></a>
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=add_all_pending"><?php echo $lang->phrase('admin_spider_add_all'); ?></a>
 				</span>
 				<?php echo $row['name']; ?>
 			</td></tr>
 			<tr class="ubox">
-				<td nowrap="nowrap">IP Adress</td>
-				<td nowrap="nowrap">User Agent</td>
-				<td nowrap="nowrap">Actions</td>
+				<td nowrap="nowrap"><?php echo $lang->phrase('admin_spider_ip_adress_title'); ?></td>
+				<td nowrap="nowrap"><?php echo $lang->phrase('admin_spider_user_agent_title'); ?></td>
+				<td nowrap="nowrap"><?php echo $lang->phrase('admin_spider_actions_title'); ?></td>
 			</tr>
 			<?php
 		}
-		
+
 		if (count($pending_agent_array) > 0) {
 			for ($loop = 0; $loop < count($pending_agent_array); $loop+=2) {
 			?>
@@ -394,26 +398,26 @@ elseif ($job == 'pending') {
 				<td class="mbox" width="15%" align="center" nowrap="nowrap"><?php echo $pending_agent_array[$loop+1]; ?></td>
 				<td class="mbox" width="25%" align="center" nowrap="nowrap"><b><?php echo $pending_agent_array[$loop]; ?></b></td>
 				<td class="mbox" width="20%" align="center">
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;pending=<?php echo ($loop/2)+1; ?>&amp;data=agent&amp;job=ignore_pending">Ignore</a> 
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;pending=<?php echo ($loop/2)+1; ?>&amp;data=agent&amp;job=add_pending">Add</a>
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;pending=<?php echo ($loop/2)+1; ?>&amp;data=agent&amp;job=ignore_pending"><?php echo $lang->phrase('admin_spider_ignore'); ?></a>
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;pending=<?php echo ($loop/2)+1; ?>&amp;data=agent&amp;job=add_pending"><?php echo $lang->phrase('admin_spider_add'); ?></a>
 				</td>
 			</tr>
 			<?php
 			}
 		}
-	
+
 		if (count($pending_ip_array) > 0) {
 			for ($loop = 0; $loop < count($pending_ip_array); $loop+=2) {
 			?>
 			<tr>
 				<td class="mbox" width="15%" align="center" nowrap="nowrap"><b><?php echo $pending_ip_array[$loop]; ?></b></td>
 				<td class="mbox" width="25%" align="center" nowrap="nowrap"><?php echo $pending_ip_array[$loop+1]; ?></td>
-				<td class="mbox" width="20%" align="center"><a class="button" href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=ignore_pending">Ignore</a>&nbsp;<a class="button" href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=add_pending">Add</a></td>
+				<td class="mbox" width="20%" align="center"><a class="button" href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=ignore_pending">Ignore</a>&nbsp;<a class="button" href="admin.php?action=spider&id=<?php echo $row['id']; ?>&pending=<?php echo ($loop/2)+1; ?>&data=ip&job=add_pending"><?php echo $lang->phrase('admin_spider_add'); ?></a></td>
 			</tr>
 			<?php
 			}
 		}
-		
+
 		if (count($pending_agent_array) > 0 || count($pending_ip_array) > 0) {
 			?>
 			</table><br class="minibr" />
@@ -422,7 +426,7 @@ elseif ($job == 'pending') {
 	}
 	if ($pending_bots == 0 && $config['spider_pendinglist'] == 1) {
 	?>
-		<p align="center"><b>Sorry there are currently no pending bots in the database</b></p>
+		<p align="center"><b><?php echo $lang->phrase('admin_spider_no_pending_bots'); ?></b></p>
 	<?php } ?>
 	</td></tr>
 	</table>
@@ -434,15 +438,15 @@ elseif (empty($job) || $job == 'manage') {
 	<table border="0" align="center" class="border">
 	<tr><td class="obox">
 	<span style="float: right;">
-	<a class="button" href="admin.php?action=spider&amp;job=add" target="Main">Add new Robot</a>
-	<a class="button" href="admin.php?action=spider&amp;job=pending" target="Main">Pending Robots</a>
+	<a class="button" href="admin.php?action=spider&amp;job=add" target="Main"><?php echo $lang->phrase('admin_spider_add_new_robot'); ?></a>
+	<a class="button" href="admin.php?action=spider&amp;job=pending" target="Main"><?php echo $lang->phrase('admin_spider_pending_robots'); ?></a>
 	</span>
-	Manage Bots
+	<?php echo $lang->phrase('admin_spider_manage_bots'); ?>
 	</td></tr>
 	<tr><td class="mbox">
-	<p>Bots (also known as crawlers or spiders) are automated agents most commonly used to index information on the internet. Very few of these bots support sessions and can therefore fail to index your site correctly. Here you can define the assigning of session ids to these bots to solve this problem.</p>
+	<p><?php echo $lang->phrase('admin_spider_bots_description'); ?></p>
 	<?php if ($config['spider_logvisits'] == 0) { ?>
-	<p><em>The logging of visits and last visits is currently disabled, but old data may be shown. You can turn it on in your <a href="admin.php?action=settings&amp;job=spiders">Viscacha Settings</a>!</em></p>
+	<p><em><?php echo $lang->phrase('admin_spider_bots_note'); ?></em></p>
 	<?php } ?>
 	<form action="admin.php?action=spider" method="post">
 	<table border="0" align="center" class="border">
@@ -451,17 +455,17 @@ elseif (empty($job) || $job == 'manage') {
 	if ($db->num_rows($result) > 0) {
 		$category = '';
 		while ($row = $db->fetch_assoc($result)) {
-			
+
 			if ($row['type'] != $category) {
 				$category = $row['type'];
 				if ($row['type'] == 'v') {
-					$row['type'] = 'Validator';
+					$row['type'] = $lang->phrase('admin_spider_validator');
 				}
 				elseif ($row['type'] == 'e') {
-					$row['type'] = 'Mail Collector/Spam Bot';
+					$row['type'] = $lang->phrase('admin_spider_mail_collector_or_spam_bot');
 				}
 				else {
-					$row['type'] = 'Search engine';
+					$row['type'] = $lang->phrase('admin_spider_search_engine');
 				}
 				if (!empty($category)) {
 				?>
@@ -473,19 +477,19 @@ elseif (empty($job) || $job == 'manage') {
 					<td class="obox" colspan="6"><?php echo $row['type']; ?></td>
 				</tr>
 				<tr>
-					<td class="ubox" nowrap="nowrap">Name</td>
-					<td class="ubox" nowrap="nowrap">User Agents (Count)</td>
-					<td class="ubox" nowrap="nowrap">Visits</td>
-					<td class="ubox" nowrap="nowrap">Last Visit</td>
-					<td class="ubox" nowrap="nowrap">Actions</td>
-					<td class="ubox" nowrap="nowrap">Mark<br /><span class="stext"><input type="checkbox" onclick="check_all('mark[]');" name="all" value="1" /> All</span></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_name_title'); ?></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_user_agents_count_title'); ?></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_visits_title'); ?></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_last_visit_title'); ?></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_actions_title'); ?></td>
+					<td class="ubox" nowrap="nowrap"><?php echo $lang->phrase('admin_spider_mark_title'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all('mark[]');" name="all" value="1" /> <?php echo $lang->phrase('admin_spider_all_title'); ?></span></td>
 				</tr>
 				<?php
 			}
 
 			$useragents = explode('|', $row['user_agent']);
 			if (empty($useragents[0])) {
-				$useragent = 'Not specified!';
+				$useragent = $lang->phrase('admin_spider_not_specified');
 			}
 			else {
 				$useragent = "<select style=\"width: 90%;\">";
@@ -494,10 +498,10 @@ elseif (empty($job) || $job == 'manage') {
 				}
 				$useragent .= "</select> (".count($useragents).")";
 			}
-			
+
 			$last_visits = explode('|', $row['last_visit']);
 			if (empty($last_visits[0])) {
-				$last_visit = 'Never';
+				$last_visit = $lang->phrase('admin_spider_last_visit_never');
 			}
 			else {
 				$last_visit = "<select>";
@@ -507,19 +511,19 @@ elseif (empty($job) || $job == 'manage') {
 				}
 				$last_visit .= "</select>";
 			}
-			
+
 			?>
 			<tr>
 				<td class="mbox" width="25%"><?php echo $row['name']; ?></td>
-				<td class="mbox" width="25%" nowrap="nowrap"><?php echo $useragent; ?></td>
+				<td class="mbox" width="20%" nowrap="nowrap"><?php echo $useragent; ?></td>
 				<td class="mbox" width="10%" align="center" nowrap="nowrap"><?php echo $row['bot_visits']; ?></td>
 				<td class="mbox" width="15%" align="center"><?php echo $last_visit; ?></td>
-				<td class="mbox" width="20%" align="center">
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=edit">Edit</a>&nbsp;
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=reset">Reset</a>&nbsp;
-					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=delete">Delete</a>
+				<td class="mbox" width="25%" align="center">
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=edit"><?php echo $lang->phrase('admin_spider_edit'); ?></a>&nbsp;
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=reset"><?php echo $lang->phrase('admin_spider_reset'); ?></a>&nbsp;
+					<a class="button" href="admin.php?action=spider&amp;id=<?php echo $row['id']; ?>&amp;job=delete"><?php echo $lang->phrase('admin_spider_delete'); ?></a>
 				</td>
-				<td class="mbox" width="5%" align="center"><input type="checkbox" name="mark[]" value="<?php echo $row['id']; ?>" /></td>	
+				<td class="mbox" width="5%" align="center"><input type="checkbox" name="mark[]" value="<?php echo $row['id']; ?>" /></td>
 			</tr>
 			<?php
 		}
@@ -530,16 +534,16 @@ elseif (empty($job) || $job == 'manage') {
 			<tr class="ubox">
 				<td align="right">
 				<select name="job">
-				<option value="reset">Reset</option>
-				<option value="delete">Delete</option>
-				</select> selected entries! <input type="submit" name="submit" value="Go" /></td>
+				<option value="reset"><?php echo $lang->phrase('admin_spider_select_reset'); ?></option>
+				<option value="delete"><?php echo $lang->phrase('admin_spider_select_delete'); ?></option>
+				</select><?php echo $lang->phrase('admin_spider_selected_entries'); ?> <input type="submit" name="submit" value="<?php echo $lang->phrase('admin_spider_form_go'); ?>" /></td>
 			</tr>
 		<?php
 	}
 	else {
 		?>
 		<tr>
-			<td class="mbox" align="center" colspan="6"><p align="center"><b>Sorry there are currently no bots in the database!</b></p></td>
+			<td class="mbox" align="center" colspan="6"><b><?php echo $lang->phrase('admin_spider_no_bots_in_database'); ?></b></td>
 		</tr>
 		<?php
 	}

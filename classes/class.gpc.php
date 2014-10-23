@@ -6,7 +6,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -87,7 +87,10 @@ class GPC {
 
     function prepare($var) {
     	global $config;
-    	if (is_array($var)) {
+    	if (is_numeric($var) || empty($var)) {
+    		// Do nothing to save time
+    	}
+    	elseif (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
 
@@ -122,7 +125,10 @@ class GPC {
 
 	function save_str($var){
     	global $db, $config;
-    	if (is_array($var)) {
+    	if (is_numeric($var) || empty($var)) {
+    		// Do nothing to save time
+    	}
+    	elseif (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
 
@@ -135,7 +141,6 @@ class GPC {
     		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
     		$var = $this->secure_null($var);
     		if ($config['asia'] == 1) {
-    			//$var = preg_replace('/[^\x26\x09\x0A\x0D\x20-\x7F]/e', '"&#".ord("$0").";"', $var);
     			$var = htmlentities($var, ENT_QUOTES, $config['asia_charset']);
     			$var = str_replace('&amp;#', '&#', $var);
 				$var = htmlspecialchars_decode($var);
@@ -164,12 +169,14 @@ class GPC {
     	else {
     		$var = intval(trim($var));
     	}
-
     	return $var;
     }
 
     function unescape($var) {
-    	if (is_array($var)) {
+    	if (is_numeric($var) || empty($var)) {
+    		// Do nothing to save time
+    	}
+    	elseif (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
 
@@ -215,12 +222,37 @@ class GPC {
 	}
 
 	function stripslashes($array) {
-		if(is_array($array)) {
+		if (is_numeric($array) || empty($array)) {
+    		return $array;
+    	}
+    	elseif(is_array($array)) {
 			return array_map(array(&$this, 'stripslashes'), $array);
 		}
 		else {
 			return stripslashes($array);
 		}
+	}
+
+	function plain_str($var) {
+    	global $db, $config;
+    	if ($config['asia'] == 1) {
+	    	if (is_numeric($var) || empty($var)) {
+    			// Do nothing to save time
+    		}
+    		elseif (is_array($var)) {
+	    		$cnt = count($var);
+	    		$keys = array_keys($var);
+
+	    		for ($i = 0; $i < $cnt; $i++){
+	    			$key = $keys[$i];
+	    			$var[$key] = $this->save_str($var[$key]);
+	    		}
+	    	}
+	    	elseif (is_string($var)){
+	    		$var = html_entity_decode($var, ENT_QUOTES, $config['asia_charset']);
+	    	}
+    	}
+    	return $var;
 	}
 
 }

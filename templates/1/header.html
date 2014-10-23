@@ -11,7 +11,7 @@
 <link rel="index" href="index.php" />
 <link rel="search" href="search.php" />
 <link rel="up" href="javascript:self.scrollTo(0,0);" />
-<link rel="copyright" href="http://www.mamo-net.de" />
+<link rel="copyright" href="http://www.viscacha.org" />
 <link rel="alternate" type="application/rss+xml" title="RSS Feed" href="external.php?type=RSS" />
 <script src="templates/lang2js.php?id=<?php echo $my->language; ?>" type="text/javascript"></script>
 <script type="text/javascript">
@@ -50,6 +50,6 @@
 </script>
 <div id="container">
     <h1><a href="index.php"><?php echo $config['fname']; ?></a></h1>
-    <div id="navigation"><?php ($code = $plugins->navigation()) ? eval($code) : null; ?></div>
+    <div id="navigation"><?php ($code = $plugins->navigation('left')) ? eval($code) : null; ?></div>
     <div class="breadcrumb"><?php echo $breadcrumb->outputHTML(' &raquo; '); ?></div>
 	<div id="content">

@@ -34,8 +34,8 @@ function init_spell( spellerWindow ) {
 function encodeForPost( str ) {
 	var s = new String( str );
 	s = encodeURIComponent( s );
-	// additionally encode single quotes to evade any PHP 
-	// magic_quotes_gpc setting (it inserts escape characters and 
+	// additionally encode single quotes to evade any PHP
+	// magic_quotes_gpc setting (it inserts escape characters and
 	// therefore skews the btye positions of misspelled words)
 	return s.replace( /\'/g, '%27' );
 }
@@ -51,7 +51,7 @@ function postWords() {
 		var speller = opener.speller;
 		bodyDoc.write('<body onload="document.forms[0].submit();"><div id="window">');
 		bodyDoc.write('<div class="border"><h3><?php echo $lang->phrase('spellcheck'); ?></h3><div class="bbody"><?php echo $lang->phrase('spellcheck_in_progress'); ?></div></div>');
-		bodyDoc.write('<form action="spellcheck.php?action=execute<?php echo SID2URL_x; ?>" method="post">');
+		bodyDoc.write('<form action="misc.php?action=spellcheck_execute<?php echo SID2URL_x; ?>" method="post">');
 		for( var i = 0; i < speller.textInputs.length; i++ ) {
 			bodyDoc.write('<input type="hidden" name="textinputs[]" value="'+encodeForPost(speller.textInputs[i].value)+'" />');
 		}
@@ -69,7 +69,7 @@ function postWords() {
 <title>Spellcheck</title>
 </head>
 <frameset rows="*,201" onLoad="postWords();" framespacing="0" border="1" frameborder="0">
-<frame src="spellcheck.php?action=blank<?php echo SID2URL_x; ?>" marginwidth="0" marginheight="0" scrolling="auto" noresize="noresize" />
-<frame src="spellcheck.php?action=controls<?php echo SID2URL_x; ?>" marginwidth="0" marginheight="0" scrolling="auto" noresize="noresize" />
+<frame src="misc.php?action=spellcheck_blank<?php echo SID2URL_x; ?>" marginwidth="0" marginheight="0" scrolling="auto" noresize="noresize" />
+<frame src="misc.php?action=spellcheck_controls<?php echo SID2URL_x; ?>" marginwidth="0" marginheight="0" scrolling="auto" noresize="noresize" />
 </frameset>
 </html>

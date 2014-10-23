@@ -53,12 +53,12 @@
   </td>
   <?php } if ($im) { ?>
   <td class="center">&nbsp;<?php
-    echo iif(!empty($row->icq),'<a href="profile.php?action=ims&amp;type=icq&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('icq').'" alt="'.$lang->phrase('im_icq').'" /></a>&nbsp;');
-    echo iif(!empty($row->aol),'<a href="profile.php?action=ims&amp;type=aol&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('aol').'" alt="'.$lang->phrase('im_aol').'" /></a>&nbsp;');
-    echo iif(!empty($row->msn),'<a href="profile.php?action=ims&amp;type=msn&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /></a>&nbsp;');
-    echo iif(!empty($row->yahoo),'<a href="profile.php?action=ims&amp;type=yahoo&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('yahoo').'" alt="'.$lang->phrase('im_yahoo').'" /></a>&nbsp;');
-    echo iif(!empty($row->jabber),'<a href="profile.php?action=ims&amp;type=jabber&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('jabber').'" alt="'.$lang->phrase('im_jabber').'" /></a>&nbsp;');
-    echo iif(!empty($row->skype),'<a href="profile.php?action=ims&amp;type=skype&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('skype').'" alt="'.$lang->phrase('im_skype').'" /></a>&nbsp;');
+    echo iif(!empty($row['icq']),'<a href="profile.php?action=ims&amp;type=icq&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('icq').'" alt="'.$lang->phrase('im_icq').'" /></a>&nbsp;');
+    echo iif(!empty($row['aol']),'<a href="profile.php?action=ims&amp;type=aol&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('aol').'" alt="'.$lang->phrase('im_aol').'" /></a>&nbsp;');
+    echo iif(!empty($row['msn']),'<a href="profile.php?action=ims&amp;type=msn&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /></a>&nbsp;');
+    echo iif(!empty($row['yahoo']),'<a href="profile.php?action=ims&amp;type=yahoo&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('yahoo').'" alt="'.$lang->phrase('im_yahoo').'" /></a>&nbsp;');
+    echo iif(!empty($row['jabber']),'<a href="profile.php?action=ims&amp;type=jabber&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('jabber').'" alt="'.$lang->phrase('im_jabber').'" /></a>&nbsp;');
+    echo iif(!empty($row['skype']),'<a href="profile.php?action=ims&amp;type=skype&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('skype').'" alt="'.$lang->phrase('im_skype').'" /></a>&nbsp;');
    ?></td>
   <?php } ?>
  </tr>

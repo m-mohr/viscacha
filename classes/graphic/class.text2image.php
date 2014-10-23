@@ -95,7 +95,7 @@ class text2image {
 		}
 		$this->img = imagecreate($width+$margin,$height+$margin);
 		// Only PHP-Version 4.3.2 or higher
-		if (function_exists('imageantialias')) {
+		if (viscacha_function_exists('imageantialias')) {
 			imageantialias($this->img, true);
 		}
 		$bgc = $this->imagecolorallocate($bg);
@@ -106,11 +106,11 @@ class text2image {
 	}
 
 	function output($format = 'png') {
-		if (($format == 'jpeg' || $format == 'jpe' || $format == 'jpeg') && function_exists('imagejpeg')) {
+		if (($format == 'jpeg' || $format == 'jpe' || $format == 'jpeg') && viscacha_function_exists('imagejpeg')) {
 			header("Content-Type: image/jpeg");
 			imagejpeg($this->img, '', 90);
 		}
-		elseif ($format == 'gif' && function_exists('imagegif')) {
+		elseif ($format == 'gif' && viscacha_function_exists('imagegif')) {
 			header("Content-Type: image/gif");
 			imagegif($this->img);
 		}

@@ -1,1 +1,0 @@
-pluginSettingGroupUninstall($pluginid);

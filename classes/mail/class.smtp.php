@@ -127,7 +127,7 @@ class SMTP
         $announce = $this->get_lines();
 
         # set the timeout  of any socket functions at 1/10 of a second
-        //if(function_exists("socket_set_timeout"))
+        //if(viscacha_function_exists("socket_set_timeout"))
         //   socket_set_timeout($this->smtp_conn, 0, 100000);
 
         if($this->do_debug >= 2) {

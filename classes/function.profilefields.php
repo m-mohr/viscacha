@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ function admin_customsave($uid) {
 		$field = "fid{$profilefield['fid']}";
 
 		$value = $gpc->get($field, none);
-		
+
 		if(($type == "multiselect" || $type == "checkbox") && is_array($value)) {
 			$options = implode("\n", $value);
 		}
@@ -48,7 +48,7 @@ function admin_customsave($uid) {
 
 	if (count($upquery) > 0) {
 		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
-		if($db->num_rows() == 0) {
+		if($db->num_rows($query) == 0) {
 			$db->query("INSERT INTO {$db->pre}userfields (ufid) VALUES ('{$uid}')");
 		}
 		$db->query("UPDATE {$db->pre}userfields SET ".implode(', ', $upquery)." WHERE ufid = '{$uid}' LIMIT 1");
@@ -250,7 +250,7 @@ function editprofile_customsave($editable, $uid) {
 		if($profilefield['maxlength'] > 0 && ((is_string($value) && strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase('error_customfieldtoolong');
 		}
-		
+
 		if(($type == "multiselect" || $type == "checkbox") && is_array($value)) {
 			if (is_array($value)) {
 				$options = implode("\n", $value);
@@ -268,7 +268,7 @@ function editprofile_customsave($editable, $uid) {
 
 	if (count($error) == 0 && count($upquery) > 0) {
 		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
-		if($db->num_rows() == 0) {
+		if($db->num_rows($query) == 0) {
 			$db->query("INSERT INTO {$db->pre}userfields (ufid) VALUES ('{$uid}')");
 		}
 		$db->query("UPDATE {$db->pre}userfields SET ".implode(', ', $upquery)." WHERE ufid = '{$uid}' LIMIT 1");

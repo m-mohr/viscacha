@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -38,18 +38,6 @@ if (empty($config['dbpw']) || empty($config['dbuser'])) {
 }
 
 include ("admin/lib/function.viscacha_backend.php");
-
-$benchmark = benchmarktime();
-
-$job = $gpc->get('job', str);
-
-$slog = new slog();
-$my = $slog->logged();
-$my->p = $slog->Permissions();
-
-if (!isset($my->settings['admin_interface'])) {
-	$my->settings['admin_interface'] = $admconfig['nav_interface'];
-}
 
 ($code = $plugins->load('admin_start')) ? eval($code) : null;
 
@@ -106,6 +94,9 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'designs') {
 		include('admin/designs.php');
 	}
+	elseif ($action == 'packages') {
+		include('admin/packages.php');
+	}
 	elseif ($action == 'profilefield') {
 		include('admin/profilefield.php');
 	}
@@ -115,7 +106,7 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'logout') {
 		$slog->sid_logout();
 		echo head();
-		ok('admin.php', 'You have successfully logged off!');
+		ok('admin.php', $lang->phrase('admin_successfully_logged_off'));
 	}
 	elseif ($action == 'locate') {
 		$url = $gpc->get('url', none);
@@ -132,7 +123,7 @@ if ($my->p['admin'] == 1) {
 			else {
 				$url = 'javascript:history.back(-1);';
 			}
-			error($url, 'Please choose a valid option!');
+			error($url, $lang->phrase('admin_choose_valid_location_option'));
 		}
 	}
 	else {
@@ -144,7 +135,7 @@ if ($my->p['admin'] == 1) {
 			($code = $plugins->load('admin_include')) ? eval($code) : null;
 			if ($error == true) {
 				echo head();
-				error('admin.php?action=index'.SID2URL_x, 'The page you have requested does not exist.');
+				error('admin.php?action=index'.SID2URL_x, $lang->phrase('admin_requested_page_doesnot_exist'));
 			}
 		}
 	}
@@ -153,18 +144,18 @@ else {
 	($code = $plugins->load('admin_notallowed')) ? eval($code) : null;
 	if ($my->p['admin'] == 0 && $my->vlogin) {
 		echo head();
-		error('index.php'.SID2URL_1, 'You are not allowed to view this page!');
+		error('index.php'.SID2URL_1, $lang->phrase('admin_not_allowed_to_view_this_page'));
 	}
-	
+
 	$addr = rawurldecode($gpc->get('addr', none));
 	if ($action == "login2") {
 		$log_status = $slog->sid_login(true);
 		echo head();
 		if ($log_status == false) {
-			error('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), 'You have entered an incorrect user name or password!');
+			error('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), $lang->phrase('admin_incorrect_username_or_password_entered'));
 		}
 		else {
-			ok('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), 'You have successfully logged in!');
+			ok('admin.php'.iif(!empty($addr), '?addr='.rawurlencode($addr)), $lang->phrase('admin_successfully_logged_in'));
 		}
 	}
 	else {
@@ -177,5 +168,5 @@ else {
 ($code = $plugins->load('admin_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$db->close();	
+$db->close();
 ?>

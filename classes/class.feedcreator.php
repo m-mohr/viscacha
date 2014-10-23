@@ -525,7 +525,7 @@ class FeedCreator extends HtmlDescribable {
 			$this->_redirect($filename, $displayContents);
 		}
 		else {
-			trigger_error('Error creating feed file, please check write permissions.', E_WARNING);
+			trigger_error('Error creating feed file, please check write permissions.', E_USER_ERROR);
 		}
 	}
 
@@ -545,11 +545,12 @@ class FeedDate {
 	 * @param mixed $dateString optional the date this FeedDate will represent. If not specified, the current date and time is used.
 	 */
 	function FeedDate($dateString="") {
-		if ($dateString=="") $dateString = dateSpec(SPEC_RFC2822);
+		if ($dateString=="") {
+			$dateString = dateSpec(SPEC_RFC2822);
+		}
 
-		// MOD: changed is_integer to is_numeric
-		if (is_numeric($dateString)) {
-			$this->unix = $dateString;
+		if (intval($dateString) == $dateString) {
+			$this->unix = intval($dateString);
 			return;
 		}
 		if (preg_match("~(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun),\\s+)?(\\d{1,2})\\s+([a-zA-Z]{3})\\s+(\\d{4})\\s+(\\d{2}):(\\d{2}):(\\d{2})\\s+(.*)~",$dateString,$matches)) {

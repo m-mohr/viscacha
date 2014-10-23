@@ -5,32 +5,32 @@
 <div class="bbody">
     <label for="temp"><?php echo $lang->phrase('add_vote_replies'); ?><br /><span class="stext"><?php echo $lang->phrase('add_vote_replies_desc'); ?></span></label>
     <div class="label">
-    <input type="text" size="3" id="temp" name="temp" value="<?php echo $temp; ?>" />
-    <input type="submit" name="Update" value="<?php echo $lang->phrase('refresh_form'); ?>" />
+    <input type="text" tabindex="1" size="3" id="temp" name="temp" value="<?php echo $temp; ?>" />
+    <input type="submit" tabindex="2" name="Update" value="<?php echo $lang->phrase('refresh_form'); ?>" />
     </div>
     <br class="newinput" />
 </div>
 <?php if (count($error) == 0) { ?>
-<div class="bfoot"><?php echo $lang->phrase('title_vote_question_replies'); ?></div>  
+<div class="bfoot"><?php echo $lang->phrase('title_vote_question_replies'); ?></div>
 <div class="bbody">
     <label for="question"><?php echo $lang->phrase('add_vote_question'); ?></label>
-    <input type="text" size="40" id="question" class="label" name="question" value="<?php echo $data['question']; ?>" />
+    <input type="text" size="40" tabindex="3" id="question" class="label" name="question" value="<?php echo $data['question']; ?>" />
     <br class="newinput" /><br class="iefix_br" />
 </div>
-<div class="bfoot"><?php echo $lang->phrase('title_vote_replies'); ?></div>		  
+<div class="bfoot"><?php echo $lang->phrase('title_vote_replies'); ?></div>
 <div class="bbody">
-    <?php 
-    for ($i = 1; $i <= $temp; $i++) { 
+    <?php
+    for ($i = 1; $i <= $temp; $i++) {
         echo iif($i > 1, '<hr class="formsep" />');
         $lang->assign('i', $i);
     ?>
     <label for="notice_<?php echo $i; ?>"><?php echo $lang->phrase('add_vote_reply'); ?></label>
-    <input type="text" size="40" id="notice_<?php echo $i; ?>" class="label" name="notice[<?php echo $i; ?>]" value="<?php echo $data[$i]; ?>" />
+    <input type="text" size="40" tabindex="1<?php echo $i; ?>" id="notice_<?php echo $i; ?>" class="label" name="notice[<?php echo $i; ?>]" value="<?php echo $data[$i]; ?>" />
     <br class="newinput" />
     <?php } ?>
     <br class="iefix_br" />
 </div>
-<div class="bfoot center"><input type="submit" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input type="submit" tabindex="200" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </form>
 <?php } ?>
 </div>

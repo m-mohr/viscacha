@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -51,8 +51,8 @@ if ($_GET['action'] == "hlcode") {
 		error($lang->phrase('query_string_error'), 'javascript:parent.close();');
 	}
 	$sourcecode = $codeObj->get();
-	
-	$sourcecode['source'] = html_entity_decode($sourcecode['source'], ENT_QUOTES);
+
+	$sourcecode['source'] = html_entity_decode($sourcecode['source'], ENT_QUOTES, $config['asia_charset']);
 
 	($code = $plugins->load('popup_hlcode_start')) ? eval($code) : null;
 
@@ -74,29 +74,29 @@ if ($_GET['action'] == "hlcode") {
 		// Output in a div instead in a pre-element
 		$geshi->set_header_type(GESHI_HEADER_DIV);
 		// Linenumbers on  - each 5th element is bold
-		$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5); 
+		$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
 		$lang_name = $geshi->get_language_name();
-		
+
 		// Print Stylesheet
 		$htmlhead .= '<style type="text/css"><!-- '.$geshi->get_stylesheet().' --></style>';
 		echo $tpl->parse("popup/header");
-		
+
 		($code = $plugins->load('popup_hlcode_initialized')) ? eval($code) : null;
-		
+
 		$sourcecode['hl'] = $geshi->parse_code();
 		echo $tpl->parse("popup/hlcode");
-		
+
 		($code = $plugins->load('popup_hlcode_end')) ? eval($code) : null;
 	}
 }
 elseif ($_GET['action'] == "filetypes") {
 
 	($code = $plugins->load('popup_filetypes_query')) ? eval($code) : null;
-	
+
 	if (empty($_GET['type'])) {
 		error($lang->phrase('query_string_error'), 'javascript:self.close();');
 	}
-	
+
 	$result = $db->query("SELECT * FROM {$db->pre}filetypes WHERE extension LIKE '%{$_GET['type']}%'",__LINE__,__FILE__);
 	$nr = $db->num_rows($result);
 
@@ -114,7 +114,7 @@ elseif ($_GET['action'] == "filetypes") {
 elseif ($_GET['action'] == "code") {
 	$codelang = $scache->load('syntaxhighlight');
 	$clang = $codelang->get();
-	($code = $plugins->load('popup_code_start')) ? eval($code) : null;	
+	($code = $plugins->load('popup_code_start')) ? eval($code) : null;
 	echo $tpl->parse("popup/header");
 	echo $tpl->parse("popup/code");
 	($code = $plugins->load('popup_code_end')) ? eval($code) : null;
@@ -126,26 +126,26 @@ elseif ($_GET['action'] == "showpost") {
 	$sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
 	($code = $plugins->load('popup_showpost_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT 
-		t.status, t.prefix, 
-		r.topic_id, r.board, r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, r.name as gname, r.email as gmail, r.guest, 
-		u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
+	SELECT
+		t.status, t.prefix,
+		r.topic_id, r.board, r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, r.name as gname, r.email as gmail, r.guest,
+		u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
 		f.* {$sql_select}
-	FROM {$db->pre}replies AS r 
-		LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
-		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id 
-		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}user AS u ON r.name=u.id
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
 		{$sql_join}
-	WHERE r.id = '{$_GET['id']}' 
+	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
 	",__LINE__,__FILE__);
 
 	$found = $db->num_rows($result);
 	if ($found == 1) {
 		$row = $gpc->prepare($db->fetch_object($result));
-	
+
 		$my->p = $slog->Permissions($row->board);
-	
+
 		if (empty($row->topic_id)) {
 			$row->topic_id = $row->id;
 		}
@@ -160,19 +160,19 @@ elseif ($_GET['action'] == "showpost") {
 	if (count($error) > 0) {
 		errorLogin($error,'javascript:self.close();');
 	}
-	
+
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 	$last = $fc[$row->board];
-	
+
 	forum_opt($last);
-	
+
 	($code = $plugins->load('popup_showpost_start')) ? eval($code) : null;
 	if ($config['tpcallow'] == 1) {
 		$uploads = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE tid = ".$_GET['id'],__LINE__,__FILE__);
 	}
 	$inner['upload_box'] = '';
-	
+
 	if ($row->guest == 0) {
 		$row->mail = '';
 		$row->name = $row->uname;
@@ -184,7 +184,7 @@ elseif ($_GET['action'] == "showpost") {
 		$row->groups = GROUP_GUEST;
 	}
 	$new = iif($row->date > $my->clv, 'new', 'old');
-	
+
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);
 	if ($config['wordstatus'] == 0) {
@@ -196,7 +196,7 @@ elseif ($_GET['action'] == "showpost") {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}
 	$row->comment = $bbcode->parse($row->comment);
-	
+
 	if ($my->opt_showsig == 1) {
 		BBProfile($bbcode, 'signature');
 		$row->signature = $bbcode->parse($row->signature);
@@ -237,7 +237,7 @@ elseif ($_GET['action'] == "showpost") {
 		BBProfile($bbcode);
 		$why = iif(empty($lastdata[2]), $lang->phrase('post_editinfo_na'), $bbcode->wordwrap($lastdata[2]));
 	}
-	
+
 	($code = $plugins->load('popup_showpost_prepared')) ? eval($code) : null;
 	echo $tpl->parse("popup/showpost");
 	($code = $plugins->load('popup_showpost_end')) ? eval($code) : null;
@@ -248,13 +248,13 @@ elseif ($_GET['action'] == "edithistory") {
 
 	($code = $plugins->load('popup_edithistory_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.ip, r.topic_id, r.board, r.edit, r.id, r.topic, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest 
-	FROM {$db->pre}replies AS r 
-		LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
-	WHERE r.id = '{$_GET['id']}' 
+	SELECT r.ip, r.topic_id, r.board, r.edit, r.id, r.topic, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}user AS u ON r.name=u.id
+	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
 	",__LINE__,__FILE__);
-	
+
 	$found = $db->num_rows($result);
 	if ($found == 1) {
 		$row = $gpc->prepare($db->fetch_assoc($result));
@@ -270,15 +270,15 @@ elseif ($_GET['action'] == "edithistory") {
 	if (count($error) > 0) {
 		errorLogin($error,'javascript:self.close();');
 	}
-	
+
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 	$last = $fc[$row['board']];
-	
+
 	forum_opt($last);
-	
+
 	($code = $plugins->load('popup_edithistory_start')) ? eval($code) : null;
-	
+
 	if ($row['guest'] == 0) {
 		$row['mail'] = '';
 		$row['name'] = $row['uname'];
@@ -289,9 +289,9 @@ elseif ($_GET['action'] == "edithistory") {
 		$row['mid'] = 0;
 		$row['groups'] = GROUP_GUEST;
 	}
-	
+
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
-	
+
 	$edit = array();
 	if (!empty($row['edit'])) {
 		$edits = explode("\n", $row['edit']);
@@ -322,17 +322,17 @@ elseif ($_GET['action'] == "postrating") {
 	($code = $plugins->load('popup_postrating_start')) ? eval($code) : null;
 
 	if ($my->vlogin) {
-		
+
 		$result = $db->query("SELECT * FROM {$db->pre}replies WHERE id = '{$_GET['id']}'", __LINE__, __FILE__);
 		$post = $db->fetch_assoc($result);
 
 		if ($post['name'] == $my->id) {
 			$error = $lang->phrase('postrating_you_posted');
 		}
-		
+
 		$result = $db->query("
-		SELECT mid, pid, tid, rating 
-		FROM {$db->pre}postratings 
+		SELECT mid, pid, tid, rating
+		FROM {$db->pre}postratings
 		WHERE mid = '{$my->id}' AND pid = '{$_GET['id']}'
 		", __LINE__, __FILE__);
 		$rating = $db->fetch_assoc($result);
@@ -348,7 +348,7 @@ elseif ($_GET['action'] == "postrating") {
 				else {
 					$aid = 0;
 				}
-				
+
 				$db->query("INSERT INTO {$db->pre}postratings SET aid = '{$aid}', mid = '{$my->id}', pid = '{$_GET['id']}', tid = '{$topic['topic_id']}', rating = '{$rtg}'", __LINE__, __FILE__);
 				$rating = array(
 					'rating' => $rtg,
@@ -357,8 +357,8 @@ elseif ($_GET['action'] == "postrating") {
 					'mid' => $my->id
 				);
 			}
-		
-			if ($db->affected_rows() != 1) { 
+
+			if ($db->affected_rows() != 1) {
 				$error = $lang->phrase('unknown_error');
 			}
 			elseif ($rating['rating'] == 1) {

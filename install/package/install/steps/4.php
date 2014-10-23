@@ -49,25 +49,33 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 				<?php
 			}
 			else {
-				$ftp->chdir('install');
-				$ftp->chmod('../data/config.inc.php', 0666);
-				$ftp->cdup();
-				$ftp->quit();
-				require_once('../classes/class.filesystem.php');
-				$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
-				$filesystem->set_wd($config['ftp_path']);
-				include('../classes/class.phpconfig.php');
-				$c = new manageconfig();
-				$c->getdata('../data/config.inc.php');
-				$c->updateconfig('ftp_server',str);
-				$c->updateconfig('ftp_user',str);
-				$c->updateconfig('ftp_pw',str);
-				$c->updateconfig('ftp_path',str);
-				$c->updateconfig('ftp_port',int);
-				$c->savedata();
-				?></pre></div>
-				<div class="bfoot center">FTP Settings saved!<br />Connection: OK!</div>
-				<?php
+				if (!$ftp->chdir('install')) {
+					$ftp->quit();
+					?></pre></div>
+		<div class="bbody">Directory "install" does not exist. Please check the path.</div>
+		<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
+					<?php
+				}
+				else {
+					$ftp->chmod('../data/config.inc.php', 0666);
+					$ftp->cdup();
+					$ftp->quit();
+					require_once('../classes/class.filesystem.php');
+					$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+					$filesystem->set_wd($config['ftp_path']);
+					include('../classes/class.phpconfig.php');
+					$c = new manageconfig();
+					$c->getdata('../data/config.inc.php');
+					$c->updateconfig('ftp_server',str);
+					$c->updateconfig('ftp_user',str);
+					$c->updateconfig('ftp_pw',str);
+					$c->updateconfig('ftp_path',str);
+					$c->updateconfig('ftp_port',int);
+					$c->savedata();
+					?></pre></div>
+					<div class="bfoot center">FTP Settings saved!<br />Connection: OK!</div>
+					<?php
+				}
 			}
 		}
 	}
@@ -100,7 +108,7 @@ array('path' => 'admin/backup', 'chmod' => CHEX, 'recursive' => false, 'req' => 
 array('path' => 'admin/data', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
 array('path' => 'designs', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
 array('path' => 'images', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'components', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
+array('path' => 'modules', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
 array('path' => 'language', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
 array('path' => 'cache', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
 array('path' => 'temp', 'chmod' => CHEX, 'recursive' => true, 'req' => true),

@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,18 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 require_once("classes/function.frontend_init.php");
+
+function navLang($key) {
+	global $lang;
+	$prefix = substr(strtolower($key), 0, 6);
+	if ($prefix == 'lang->') {
+		$suffix = substr($key, 6);
+		return $lang->phrase($suffix);
+	}
+	else {
+		return $key;
+	}
+}
 
 function getRedirectURL($standard = true) {
 	global $gpc;
@@ -58,6 +70,38 @@ function getRedirectURL($standard = true) {
 		}
 	}
 	return $loc;
+}
+
+function getRequestURI() {
+	global $config;
+	$method = (isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) == 'GET');
+	if (empty($_SERVER['REQUEST_URI']) == false && $method == true) {
+		$request_uri = '';
+		$var = parse_url($config['furl']);
+		$request_uri = sprintf('http%s://%s%s',
+			(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == TRUE ? 's': ''),
+			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $var['host']),
+			$_SERVER['REQUEST_URI']
+		);
+		if (check_hp($request_uri)) {
+			$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
+			$url = parse_url($request_uri);
+			if (empty($url['path'])) {
+				$url['path'] = '';
+			}
+			$file = basename($url['path']);
+			if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
+				if (strpos($loc, '?') === false) {
+					$request_uri .= SID2URL_1;
+				}
+				else {
+					$request_uri .= SID2URL_x;
+				}
+			}
+			return $request_uri;
+		}
+	}
+	return '';
 }
 
 function getRefererURL() {
@@ -319,29 +363,6 @@ function pages ($anzposts, $epp, $uri, $p = 0, $template = '') {
     return $tpl->parse("main/pages".$template);
 }
 
-function double_udata ($opt,$val) {
-	global $db;
-	$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE '.$opt.' = "'.$val.'" LIMIT 1',__LINE__,__FILE__);
-	if ($db->num_rows($result) == 0) {
-		if ($opt == 'name') {
-			$olduserdata = file('data/deleteduser.php');
-			foreach ($olduserdata as $row) {
-				$row = trim($row);
-				if (!empty($row)) {
-					$row = explode("\t", $row);
-					if (strtolower($row[1]) == strtolower($val)) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
 function t1 () {
 	return benchmarktime();
 }
@@ -400,7 +421,7 @@ function BoardSelect($board = 0) {
 	global $config, $my, $tpl, $db, $gpc, $lang, $scache, $plugins;
 
 	$found = false;
-	$sub_cache = $forum_cache = $last_cache = array();
+	$sub_cache = $forum_cache = $last_cache = $forums = $cat = array();
 
 	$categories_obj = $scache->load('categories');
 	$cat_cache = $categories_obj->get();
@@ -425,14 +446,6 @@ function BoardSelect($board = 0) {
 
 	$keys = array('l_topic' => null, 'l_tid' => null, 'l_date' => null, 'l_uname' => null, 'l_name' => null, 'l_bid' => null);
 
-	if ($db->num_rows($result) == 0) {
-		$errormsg = array('There are currently no boards to show. Pleas visit the <a href="admin.php'.SID2URL_1.'">Admin Control Panel</a> and create some forums.');
-		$errorurl = $js_errorurl = '';
-		$tpl->globalvars(compact("js_errorurl", "errorurl","errormsg"));
-		echo $tpl->parse('main/error');
-		return $found;
-	}
-
 	while($row = $db->fetch_assoc($result)) {
 		$row['name'] = $gpc->prepare($row['name']);
 		$row['l_uname'] = $gpc->prepare($row['l_uname']);
@@ -450,9 +463,10 @@ function BoardSelect($board = 0) {
 	    ($code = $plugins->load('forums_caching')) ? eval($code) : null;
 	}
 
+	$cats = array();
 	// Work with the chached data!
     foreach ($cat_cache as $cat) {
-    	$forums = array();
+    	$cat['forums'] = array();
         if (isset($forum_cache[$cat['id']]) == false) {
             continue;
         }
@@ -573,15 +587,18 @@ function BoardSelect($board = 0) {
 			}
 			($code = $plugins->load('forums_entry_prepared')) ? eval($code) : null;
 			if ($forum['show'] == true) {
-            	$forums[] = $forum;
+            	$cat['forums'][] = $forum;
             }
         }
-        if (count($forums) > 0) {
-	        $tpl->globalvars(compact("cat","forums"));
-	        ($code = $plugins->load('forums_prepared')) ? eval($code) : null;
-	        echo $tpl->parse("categories");
-	    }
+        if (count($cat['forums']) > 0) {
+        	$cats[] = $cat;
+        }
     }
+
+    $tpl->globalvars(compact("cats", "board"));
+    ($code = $plugins->load('forums_prepared')) ? eval($code) : null;
+    echo $tpl->parse("categories");
+
     return $found;
 }
 
@@ -590,6 +607,7 @@ function GoBoardPW ($bpw, $bid) {
 	extract($GLOBALS, EXTR_SKIP);
 	if(!isset($my->pwfaccess[$bid]) || $my->pwfaccess[$bid] != $bpw) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
+		$tpl->globalvars(compact("bid"));
         echo $tpl->parse("main/boardpw");
 		$slog->updatelogged();
 		$zeitmessung = t2();

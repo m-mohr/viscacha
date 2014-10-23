@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -46,9 +46,11 @@ $cache = $com->get();
 ($code = $plugins->load('components_start')) ? eval($code) : null;
 
 if (isset($cache[$cid])) {
-	DEFINE('COM_ID', $cache[$_GET['cid']]['id']);
-	DEFINE('COM_DIR', 'components/'.COM_ID.'/');
-	$ini = $myini->read(COM_DIR.'components.ini');
+	DEFINE('COM_CID', $cid);
+	DEFINE('COM_ID', $cache[$cid]['package']);
+	DEFINE('COM_DIR', 'modules/'.COM_ID.'/');
+	$myini = new INI();
+	$ini = $myini->read(COM_DIR.'component.ini');
 	$mod = $gpc->get('file', str, 'frontpage');
 	if (!isset($ini['module'][$mod])) {
 		DEFINE('COM_MODULE', 'frontpage');
@@ -82,5 +84,5 @@ else {
 
 $slog->updatelogged();
 $phpdoc->Out();
-$db->close();		
+$db->close();
 ?>

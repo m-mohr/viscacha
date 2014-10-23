@@ -1,0 +1,12 @@
+<div class="border">
+<h3><img id="img_cat_i2" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" /> <a href="pm.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('new_pms'); ?></a></h3>
+<div id="part_cat_i2" class="bbody">
+<?php echo $lang->phrase('new_pms_since_last_visit'); ?>
+<ul>
+<?php foreach($pmcache as $row) { ?>
+  <li><span class="stext"><a href='pm.php?action=show&id=<?php echo $row['id'].SID2URL_x; ?>'><?php echo $row['topic']; ?></a> <?php echo $lang->phrase('by'); ?> <?php echo $row['name']; ?></span></li>
+<?php } ?>
+</ul>
+</div>
+</div>
+<br class="minibr" />

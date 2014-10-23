@@ -238,19 +238,19 @@ class ImageConverter {
 		switch($type){
 			case 'jpeg' :
 			case 'jpg' 	:
-				if(function_exists("imagejpeg"))
+				if(viscacha_function_exists("imagejpeg"))
 				$is_available = TRUE;
 				break;
 			case 'gif' :
-				if(function_exists("imagegif"))
+				if(viscacha_function_exists("imagegif"))
 				$is_available = TRUE;
 				break;
 			case 'png' :
-				if(function_exists("imagepng"))
+				if(viscacha_function_exists("imagepng"))
 				$is_available = TRUE;
 				break;
 			case 'wbmp' :
-				if(function_exists("imagewbmp"))
+				if(viscacha_function_exists("imagewbmp"))
 				$is_available = TRUE;
 				break;
 			case 'swf' :
@@ -258,11 +258,11 @@ class ImageConverter {
 				$is_available = TRUE;
 				break;
 		}
-		if(!$is_available && function_exists("imagejpeg")){
+		if(!$is_available && viscacha_function_exists("imagejpeg")){
 			/* if not available, cast image type to jpeg*/
 			return "jpeg";
 		}
-		else if(!$is_available && !function_exists("imagejpeg")){
+		else if(!$is_available && !viscacha_function_exists("imagejpeg")){
 		   die("No image support on this PHP server");
 		}
 		else

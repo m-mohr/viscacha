@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ echo $tpl->parse("header");
 if ($my->vlogin && $my->p['admin'] == 1) {
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$_GET['id']);
-	if ($db->num_rows() != 1) {
+	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 	}
 	$user = $gpc->prepare($db->fetch_assoc($result));
@@ -109,7 +109,8 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		ok($lang->phrase('member_deleted'),'members.php'.SID2URL_1);
 	}
 	elseif ($_GET['action'] == 'edit') {
-		// About
+		$lang->group("timezones");
+
 		$chars = numbers($config['maxaboutlength']);
 		BBProfile($bbcode);
 		$inner['bbhtml'] = $bbcode->getbbhtml();
@@ -274,16 +275,20 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 			error($error);
 		}
 		else {
-		    // Now we create the birthday...
-		    if (!$_POST['birthmonth'] && !$_POST['birthday'] && !$_POST['birthyear']) {
-		    	$bday = '0000-00-00';
-		    }
-		    else {
-		        $_POST['birthmonth'] = leading_zero($_POST['birthmonth']);
-		        $_POST['birthday'] = leading_zero($_POST['birthday']);
-		        $_POST['birthyear'] = leading_zero($_POST['birthyear'],4);
-		        $bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
-		    }
+			// Now we create the birthday...
+			if (empty($_POST['birthmonth']) || empty($_POST['birthday'])) {
+				$_POST['birthmonth'] = 0;
+				$_POST['birthday'] = 0;
+				$_POST['birthyear'] = 0;
+			}
+			if (empty($_POST['birthyear'])) {
+				$_POST['birthyear'] = 1000;
+			}
+			$_POST['birthmonth'] = leading_zero($_POST['birthmonth']);
+			$_POST['birthday'] = leading_zero($_POST['birthday']);
+			$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
+			$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
+
 		    $_POST['icq'] = str_replace('-', '', $_POST['icq']);
     		if (!is_id($_POST['icq'])) {
     			$_POST['icq'] = 0;

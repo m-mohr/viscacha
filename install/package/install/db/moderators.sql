@@ -6,6 +6,6 @@ CREATE TABLE `{:=DBPREFIX=:}moderators` (
   `s_article` enum('0','1') NOT NULL default '0',
   `p_delete` enum('0','1') NOT NULL default '1',
   `p_mc` enum('0','1') NOT NULL default '1',
-  `time` int(10) unsigned default NULL default '0',
+  `time` int(10) unsigned default '0',
   UNIQUE KEY `mid` (`mid`,`bid`)
 ) TYPE=MyISAM;

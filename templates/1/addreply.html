@@ -21,10 +21,10 @@
 <div class="bbody">
 <?php if (!$my->vlogin) { ?>
 <label for="name"><?php echo $lang->phrase('name'); ?></label>
-<input class="label" type="text" name="name" id="name" size="40" value="<?php echo $data['name']; ?>" />
+<input class="label" type="text" name="name" id="name" size="40" tabindex="1" value="<?php echo $data['name']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <label for="email"><?php echo $lang->phrase('email'); ?></label>
-<input class="label" type="text" name="email" id="email" size="40" value="<?php echo $data['email']; ?>" />
+<input class="label" type="text" name="email" id="email" size="40" tabindex="2" value="<?php echo $data['email']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <?php if ($config['botgfxtest_posts'] == 1) { if ($data['human'] != null) { ?>
 <input type="hidden" name="captcha" value="<?php echo $data['human']['captcha']; ?>" />
@@ -43,7 +43,7 @@
 	    <?php echo $textcode; ?>
 	  </div>
     <?php } ?>
-    <input id="letter" name="letter" type="text" size="8" />
+    <input id="letter" name="letter" type="text" tabindex="3" size="8" />
 </div>
 <br class="newinput" /><hr class="formsep" />
 <?php } } } else { ?>
@@ -56,14 +56,14 @@
 <br class="newinput" /><hr class="formsep" />
 <?php } ?>
 <label for="topic"><?php echo $lang->phrase('title'); ?></label>
-<input class="label" type="text" name="topic" id="topic" size="40" value="<?php echo $data['topic']; ?>" />
+<input class="label" type="text" name="topic" id="topic" size="40" tabindex="5" value="<?php echo $data['topic']; ?>" />
 <br class="newinput" /><hr class="formsep" />
 <label><?php echo $inner['smileys']; ?></label>
 <?php echo $inner['bbhtml']; ?>
 <br class="newinput" /><hr class="formsep" />
 <label for="comment"><?php echo $lang->phrase('post'); ?>&nbsp;</label>
 <div class="label">
-	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="9"><?php echo $data['comment']; ?></textarea>
+	<textarea class="label_inner" name="comment" id="comment" cols="50" rows="9" tabindex="6"><?php echo $data['comment']; ?></textarea>
 	<div class="stext">
 		<span class="textright right">
 			[<a href="#" onclick="return resize_textarea(1)"><?php echo $lang->phrase('textarea_increase_size'); ?></a>]
@@ -75,8 +75,8 @@
 <br class="newinput" /><hr class="formsep" />
 <label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
-	<input type="checkbox" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
-	<input type="checkbox" name="dowords" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
+	<input type="checkbox" name="dosmileys" tabindex="7" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
+	<input type="checkbox" name="dowords" tabindex="8" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
 </div>
 <br class="newinput" />
 <?php
@@ -84,14 +84,14 @@ if ($p_upload == 1) { ?>
 <hr class="formsep" />
 <label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label>
 <div class="label">
-	<a href="attachments.php?type=addreply&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+	<a href="attachments.php?type=addreply&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" tabindex="9" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
 	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
 </div>
 <br class="newinput" />
-<?php } if ($my->vlogin && !isset($abox->id)) { ?>
+<?php } if ($my->vlogin && $abox['id'] > 0) { ?>
 <hr class="formsep" />
 <label for="page"><?php echo $lang->phrase('topic_abo'); ?></label>
-<select class="label" name="digest" id="page">
+<select class="label" name="digest" id="page" tabindex="10">
 	<option value="0"<?php echo iif($data['digest'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_none'); ?></option>
 	<option value="1"<?php echo iif($data['digest'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_s'); ?></option>
 	<option value="2"<?php echo iif($data['digest'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_d'); ?></option>
@@ -102,8 +102,8 @@ if ($p_upload == 1) { ?>
 <br class="iefix_br" />
 </div>
 <div class="bfoot center">
-  <input type="submit" accesskey="s" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
-  <input type="submit" accesskey="p" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
+  <input type="submit" accesskey="s" tabindex="11" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
+  <input type="submit" accesskey="p" tabindex="12" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
   <input type="hidden" name="id" value="<?php echo $_GET['id']; ?>" />
 </div>
 </div>
@@ -113,7 +113,7 @@ if ($p_upload == 1) { ?>
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
 <label for="close"><?php echo $lang->phrase('admin_addpost_close'); ?></label>
-<div class="label"><input type="checkbox" id="close" name="close" value="1" /> <?php echo $lang->phrase('admin_addpost_close_desc'); ?></div>
+<div class="label"><input type="checkbox" id="close" name="close" value="1" tabindex="13" /> <?php echo $lang->phrase('admin_addpost_close_desc'); ?></div>
 <br class="newinput" /><br class="iefix_br" />
 </div>
 </div>

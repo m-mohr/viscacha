@@ -10,14 +10,15 @@ class cache_groups extends CacheItem {
 			$fields = unserialize(file_get_contents('data/group_fields.php'));
 			$fields = array_merge($fields['gFields'], $fields['maxFields'], $fields['minFields']);
 			$keys = array_combine($fields, range(1, count($fields)));
-			
+
 			$result = $db->query('SELECT * FROM '.$db->pre.'groups', __LINE__, __FILE__);
 			$this->data = array();
-			$this->data['groupstandard'] = $this->data['team_ag'] = $this->data['team_ag']['admin'] = $this->data['team_ag']['gmod'] = $this->data['group_status'] = array();
+			$this->data['groupstandard'] = $this->data['group_status'] = array();
+			$this->data['team_ag'] = array('gmod' => array(), 'admin' => array());
 			while ($row = $db->fetch_assoc($result)) {
 				// groups
 				$this->data['groups'][$row['id']] = array_intersect_key($row, $keys);
-				
+
 				// groupstandard
 			   	if ($row['core'] == '1' && $row['guest'] == '1') {
 					$this->data['groupstandard']['group_guest'] = $row['id'];
@@ -25,7 +26,7 @@ class cache_groups extends CacheItem {
 				if ($row['core'] == '1' && $row['guest'] == '0' && $row['admin'] != '1') {
 					$this->data['groupstandard']['group_member'] = $row['id'];
 				}
-				
+
 				// group_status
 				$this->data['group_status'][$row['id']] = array(
 					'admin' => $row['admin'],
@@ -33,7 +34,7 @@ class cache_groups extends CacheItem {
 					'title' => $row['title'],
 					'core' => $row['core']
 				);
-				
+
 				// team_ag
 		    	if ($row['admin'] == 1) {
 		        	$this->data['team_ag']['admin'][] = $row['id'];

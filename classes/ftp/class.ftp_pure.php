@@ -2,11 +2,13 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class ftp extends ftp_base {
+
 	function ftp($verb=FALSE, $le=FALSE) {
-		$this->LocalEcho = $le;
-		$this->Verbose = $verb;
-		$this->ftp_base();
-		$this->SendMSG('Connect with pure PHP.');
+		$this->__construct($verb, $le);
+	}
+
+	function __construct($verb=FALSE, $le=FALSE) {
+		parent::__construct(false, $verb, $le);
 	}
 
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -49,10 +51,7 @@ class ftp extends ftp_base {
 				$this->PushError($fnction,'Read failed');
 			} else {
 				$this->_message.=$tmp;
-//				for($i=0; $i<strlen($this->_message); $i++)
-//					if(ord($this->_message[$i])<32) echo "#".ord($this->_message[$i]); else echo $this->_message[$i];
-//				echo CRLF;
-				if(preg_match("/^([0-9]{3})(-(.*".CRLF.")+\\1)? [^".CRLF."]+".CRLF."$/", $this->_message, $regs)) $go=false;
+				if(preg_match("/^([0-9]{3})(-(.*[".CRLF."]{1,2})+\\1)? [^".CRLF."]+[".CRLF."]{1,2}$/", $this->_message, $regs)) $go=false;
 			}
 		} while($go);
 		if($this->LocalEcho) echo "GET < ".rtrim($this->_message, CRLF).CRLF;
@@ -77,11 +76,7 @@ class ftp extends ftp_base {
 	}
 
 	function _data_prepare($mode=FTP_ASCII) {
-		if($mode==FTP_BINARY) {
-			if(!$this->_exec("TYPE I", "_data_prepare")) return FALSE;
-		} else {
-			if(!$this->_exec("TYPE A", "_data_prepare")) return FALSE;
-		}
+		if(!$this->_settype($mode)) return FALSE;
 		if($this->_passive) {
 			if(!$this->_exec("PASV", "pasv")) {
 				$this->_data_close();
@@ -110,35 +105,22 @@ class ftp extends ftp_base {
 	}
 
 	function _data_read($mode=FTP_ASCII, $fp=NULL) {
-		$NewLine=$this->NewLineCode[$this->OS_local];
 		if(is_resource($fp)) $out=0;
 		else $out="";
 		if(!$this->_passive) {
 			$this->SendMSG("Only passive connections available!");
 			return FALSE;
 		}
-		if($mode!=FTP_BINARY) {
-			while (!feof($this->_ftp_data_sock)) {
-				$tmp=fread($this->_ftp_data_sock, 4096);
-				$line.=$tmp;
-				if(!preg_match("/".CRLF."$/", $line)) continue;
-				$line=rtrim($line,CRLF).$NewLine;
-				if(is_resource($fp)) $out+=fwrite($fp, $line, strlen($line));
-				else $out.=$line;
-				$line="";
-			}
-		} else {
-			while (!feof($this->_ftp_data_sock)) {
-				$block=fread($this->_ftp_data_sock, 4096);
-				if(is_resource($fp)) $out+=fwrite($fp, $block, strlen($block));
-				else $out.=$line;
-			}
+		while (!feof($this->_ftp_data_sock)) {
+			$block=fread($this->_ftp_data_sock, $this->_ftp_buff_size);
+			if($mode!=FTP_BINARY) $block=preg_replace("/\r\n|\r|\n/", $this->_eol_code[$this->OS_local], $block);
+			if(is_resource($fp)) $out+=fwrite($fp, $block, strlen($block));
+			else $out.=$block;
 		}
 		return $out;
 	}
 
 	function _data_write($mode=FTP_ASCII, $fp=NULL) {
-		$NewLine=$this->NewLineCode[$this->OS_local];
 		if(is_resource($fp)) $out=0;
 		else $out="";
 		if(!$this->_passive) {
@@ -147,27 +129,23 @@ class ftp extends ftp_base {
 		}
 		if(is_resource($fp)) {
 			while(!feof($fp)) {
-				$line=fgets($fp, 4096);
-				if($mode!=FTP_BINARY) $line=rtrim($line, CRLF).CRLF;
-				do {
-					if(($res=@fwrite($this->_ftp_data_sock, $line))===FALSE) {
-						$this->PushError("_data_write","Can't write to socket");
-						return FALSE;
-					}
-					$line=substr($line, $res);
-				}while($line!="");
+				$block=fread($fp, $this->_ftp_buff_size);
+				if(!$this->_data_write_block($mode, $block)) return false;
 			}
-		} else {
-			if($mode!=FTP_BINARY) $fp=rtrim($fp, $NewLine).CRLF;
-			do {
-				if(($res=@fwrite($this->_ftp_data_sock, $fp))===FALSE) {
-					$this->PushError("_data_write","Can't write to socket");
-					return FALSE;
-				}
-				$fp=substr($fp, $res);
-			}while($fp!="");
-		}
+		} elseif(!$this->_data_write_block($mode, $fp)) return false;
 		return TRUE;
+	}
+
+	function _data_write_block($mode, $block) {
+		if($mode!=FTP_BINARY) $block=preg_replace("/\r\n|\r|\n/", $this->_eol_code[$this->OS_remote], $block);
+		do {
+			if(($t=@fwrite($this->_ftp_data_sock, $block))===FALSE) {
+				$this->PushError("_data_write","Can't write to socket");
+				return FALSE;
+			}
+			$block=substr($block, $t);
+		} while(!empty($block));
+		return true;
 	}
 
 	function _data_close() {

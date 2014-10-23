@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -63,7 +63,7 @@ if ($_GET['action'] == 'show') {
 	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}'
 	ORDER BY p.date ASC
 	",__LINE__,__FILE__);
-	if ($db->num_rows() != 1) {
+	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
 
@@ -101,10 +101,24 @@ if ($_GET['action'] == 'show') {
 	if ($config['pm_user_status'] == 1) {
 		$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
 	}
-
+	if ($row['dir'] == 2) {
+		$row['fullname'] = $my->fullname;
+	}
 	if ($my->opt_showsig == 1) {
 		BBProfile($bbcode, 'signature');
-		$row['signature'] = $bbcode->parse($row['signature']);
+		if ($row['dir'] == 2) {
+			$row['signature'] = $bbcode->parse($my->signature);
+		}
+		else {
+			$row['signature'] = $bbcode->parse($row['signature']);
+		}
+	}
+
+	if ((!empty($row['fullname']) && $config['fullname_posts'] == 1) || (!empty($row['signature']) && $my->opt_showsig == 1)) {
+		$bottom = true;
+	}
+	else {
+		$bottom = false;
 	}
 
 	($code = $plugins->load('pm_show_prepared')) ? eval($code) : null;
@@ -273,6 +287,7 @@ elseif ($_GET['action'] == "save") {
 		$row = $gpc->prepare($db->fetch_assoc($result));
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
+			$row = $gpc->plain_str($row);
 			$maildata = $lang->get_mail('newpm');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 			$from = array();

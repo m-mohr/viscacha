@@ -5,7 +5,7 @@
 <?php echo $lang->phrase('register_resend_desc'); ?>
 <br class="newinput" /><hr />
 <label for="name"><?php echo $lang->phrase('name'); ?></label>
-<input id="name" class="label" type="text" name="name" value="<?php echo $name; ?>" size="40" />
+<input tabindex="1" id="name" class="label" type="text" name="name" value="<?php echo $name; ?>" size="40" />
 <br class="newinput" />
 <?php if ($config['botgfxtest'] == 1) { ?>
 <hr class="formsep" />
@@ -22,12 +22,12 @@
 	    <?php echo $textcode; ?>
 	  </div>
     <?php } ?>
-    <input id="letter" name="letter" type="text" size="8" />
+    <input tabindex="2" id="letter" name="letter" type="text" size="8" />
 </div>
 <br class="newinput" />
 <?php } ?>
 <br class="iefix_br" />
 </div>
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input tabindex="3" accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>
 </form>

@@ -18,7 +18,7 @@ if ($config['check_filesystem'] == 1) {
 	check_executable_r('docs');
 	check_executable_r('images');
 	check_executable_r('templates');
-	check_executable_r('components');
+	check_executable_r('modules');
 	check_executable_r('language');
 	check_executable('classes/cron/jobs');
 	check_executable('classes/feedcreator');
@@ -37,72 +37,11 @@ $txt2img_bg = '94B7DF';
 
 $htmlhead = '';
 
-// Arrays for Dates
-$months = array('January','February','March','April','May','June','July','August','September','October','November','December');
-$days = array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
-
-// Arrays for Permissions
-$gls = array(
-	'admin' => 'Is Administrator',
-	'gmod' => 'Is Global Moderator',
-	'guest' => 'Is Guest',
-	'members' => 'Can view Memberlist',
-	'profile' => 'Can view Profiles',
-	'pdf' => 'Can view PDF-Files',
-	'pm' => 'Can use PM',
-	'wwo' => 'Can view Who is Online',
-	'search' => 'Can use Search',
-	'team' => 'Can view Teamlist',
-	'usepic' => 'Can use (own) Avatar',
-	'useabout' => 'Create (own) Personal Page',
-	'usesignature' => 'Can use (own) Signature',
-	'downloadfiles' => 'Can download Attachements',
-	'forum' => 'Can view Forums',
-	'posttopics' => 'Can start a new Thread',
-	'postreplies' => 'Can write a reply',
-	'addvotes' => 'Can start a Poll',
-	'attachments' => 'Can add Attachements',
-	'edit' => 'Can edit own Posts',
-	'voting' => 'Can vote',
-	'docs' => 'Can view Documents/Pages'
-);
-$gll = array(
-	'admin' => 'The user ist he highest ranked Administrator in the forum. He may use this admincenter and has full control of the forum!',
-	'gmod' => 'The user will automatically be moderator in all forums and can use all options and actions on topics.',
-	'guest' => 'The users in this usergroup are (not registered) guests.',
-	'members' => 'May view the memberlist and use eventually observably data.',
-	'profile' => 'The user may view the profiles of the members and use eventually observably data.',
-	'pdf' => 'The user may download particular topics as PDF-file.',
-	'pm' => 'The user may use the Private Messaging (PM) System. He can send, receive, administer and archive private messages.',
-	'wwo' => 'May view the where-is-who-online-list with the users residence.',
-	'search' => 'May use the Search and view the results.',
-	'team' => 'May view the teamlist with administrators, global moderators and moderators.',
-	'usepic' => 'May upload his own picture for his profile (frequently named avatar) or indicate an URL to a picture.',
-	'useabout' => 'May create a personal site in his user profile.',
-	'usesignature' => 'The user may create his own signature.',
-	'downloadfiles' => 'The user may view and download attached files.',
-	'forum' => 'The user may generally view the forums and read them.',
-	'posttopics' => 'New topics may be started.',
-	'postreplies' => 'Answers to topics may be written.',
-	'addvotes' => 'Polls may be created within topics.',
-	'attachments' => 'The user may attach files to his post.',
-	'edit' => 'The user may edit and delete his own posts.',
-	'voting' => 'The user may participate in polls in topics.',
-	'docs' => 'May view all documents &amp; pages.'
-);
-
-$glk = array_keys($gls);
-$glk_forums = array(
-	'f_downloadfiles' => 'downloadfiles',
-	'f_forum' => 'forum',
-	'f_posttopics' => 'posttopics',
-	'f_postreplies' => 'postreplies',
-	'f_addvotes' => 'addvotes',
-	'f_attachments' => 'attachments',
-	'f_edit' => 'edit',
-	'f_voting' => 'voting'
-);
-$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
+define('IMPTYPE_PACKAGE', 1);
+define('IMPTYPE_DESIGN', 2);
+define('IMPTYPE_SMILEYPACK', 3);
+define('IMPTYPE_LANGUAGE', 4);
+define('IMPTYPE_BBCODE', 5);
 
 // Variables
 require_once ("classes/function.gpc.php");
@@ -119,29 +58,123 @@ include_once ("classes/class.language.php");
 // Global functions
 require_once ("classes/function.global.php");
 
+$benchmark = benchmarktime();
+
+$job = $gpc->get('job', str);
+
+$slog = new slog();
+$my = $slog->logged();
+$lang->initAdmin($my->language);
+$my->p = $slog->Permissions();
+
+if (!isset($my->settings['admin_interface'])) {
+	$my->settings['admin_interface'] = $admconfig['nav_interface'];
+}
+
+// Arrays for Dates
+$months = array($lang->phrase('admin_months_january'),$lang->phrase('admin_months_february'),$lang->phrase('admin_months_march'),$lang->phrase('admin_months_april'),$lang->phrase('admin_months_may'),$lang->phrase('admin_months_june'),$lang->phrase('admin_months_july'),$lang->phrase('admin_months_august'),$lang->phrase('admin_months_september'),$lang->phrase('admin_months_october'),$lang->phrase('admin_months_november'),$lang->phrase('admin_months_december'));
+$days = array($lang->phrase('admin_days_sunday'),$lang->phrase('admin_days_monday'),$lang->phrase('admin_days_tuesday'),$lang->phrase('admin_days_wednesday'),$lang->phrase('admin_days_thursday'),$lang->phrase('admin_days_friday'),$lang->phrase('admin_days_saturday'));
+
+// Arrays for Permissions
+$gls = array(
+	'admin' => $lang->phrase('admin_gls_admin'),
+	'gmod' => $lang->phrase('admin_gls_gmod'),
+	'guest' => $lang->phrase('admin_gls_guest'),
+	'members' => $lang->phrase('admin_gls_members'),
+	'profile' => $lang->phrase('admin_gls_profile'),
+	'pdf' => $lang->phrase('admin_gls_pdf'),
+	'pm' => $lang->phrase('admin_gls_pm'),
+	'wwo' => $lang->phrase('admin_gls_wwo'),
+	'search' => $lang->phrase('admin_gls_search'),
+	'team' => $lang->phrase('admin_gls_team'),
+	'usepic' => $lang->phrase('admin_gls_usepic'),
+	'useabout' => $lang->phrase('admin_gls_useabout'),
+	'usesignature' => $lang->phrase('admin_gls_usesignature'),
+	'downloadfiles' => $lang->phrase('admin_gls_downloadfiles'),
+	'forum' => $lang->phrase('admin_gls_forum'),
+	'posttopics' => $lang->phrase('admin_gls_posttopics'),
+	'postreplies' => $lang->phrase('admin_gls_postreplies'),
+	'addvotes' => $lang->phrase('admin_gls_addvotes'),
+	'attachments' => $lang->phrase('admin_gls_attachments'),
+	'edit' => $lang->phrase('admin_gls_edit'),
+	'voting' => $lang->phrase('admin_gls_voting'),
+	'docs' => $lang->phrase('admin_gls_docs')
+);
+$gll = array(
+	'admin' => $lang->phrase('admin_gll_admin'),
+	'gmod' => $lang->phrase('admin_gll_gmod'),
+	'guest' => $lang->phrase('admin_gll_guest'),
+	'members' => $lang->phrase('admin_gll_members'),
+	'profile' => $lang->phrase('admin_gll_profile'),
+	'pdf' => $lang->phrase('admin_gll_pdf'),
+	'pm' => $lang->phrase('admin_gll_pm'),
+	'wwo' => $lang->phrase('admin_gll_wwo'),
+	'search' => $lang->phrase('admin_gll_search'),
+	'team' => $lang->phrase('admin_gll_team'),
+	'usepic' => $lang->phrase('admin_gll_usepix'),
+	'useabout' => $lang->phrase('admin_gll_useabout'),
+	'usesignature' => $lang->phrase('admin_gll_usesignature'),
+	'downloadfiles' => $lang->phrase('admin_gll_downloadfiles'),
+	'forum' => $lang->phrase('admin_gll_forum'),
+	'posttopics' => $lang->phrase('admin_gll_posttopics'),
+	'postreplies' => $lang->phrase('admin_gll_postreplies'),
+	'addvotes' => $lang->phrase('admin_gll_addvotes'),
+	'attachments' => $lang->phrase('admin_gll_attachments'),
+	'edit' => $lang->phrase('admin_gll_edit'),
+	'voting' => $lang->phrase('admin_gll_voting'),
+	'docs' => $lang->phrase('admin_gll_docs')
+);
+
+$glk = array_keys($gls);
+$glk_forums = array(
+	'f_downloadfiles' => 'downloadfiles',
+	'f_forum' => 'forum',
+	'f_posttopics' => 'posttopics',
+	'f_postreplies' => 'postreplies',
+	'f_addvotes' => 'addvotes',
+	'f_attachments' => 'attachments',
+	'f_edit' => 'edit',
+	'f_voting' => 'voting'
+);
+$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
+
+
+// functions //
+function navLang($key, $show_key = true) {
+	global $lang;
+	$prefix = substr(strtolower($key), 0, 6);
+	if ($prefix == 'lang->') {
+		$suffix = substr($key, 6);
+		return $lang->phrase($suffix).iif($show_key, " [{$key}]");
+	}
+	else {
+		return $key;
+	}
+}
+
 function nl2whitespace($str){
 	return preg_replace("~(\r\n|\n|\r)~", " ", $str);
 }
 
 function AdminLogInForm() {
-	global $gpc;
+	global $gpc, $lang;
     $addr = $gpc->get('addr', none);
 	?>
 	<form action="admin.php?action=login2<?php echo iif(!empty($addr), '&amp;addr='.rawurlencode($addr)); ?>" method="post" target="_top">
 	 <table class="border" style="width: 50%;">
 	  <tr>
-	   <td class="obox" colspan="2">Log in</td>
+	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_login_title'); ?></td>
 	  </tr>
 	  <tr>
-		<td class="mbox" width="40%">User Name:</td>
+		<td class="mbox" width="40%"><?php echo $lang->phrase('admin_login_username'); ?></td>
 		<td class="mbox" width="60%"><input type="text" name="name" size="40" /></td>
 	  </tr>
 	  <tr>
-		<td class="mbox" width="40%">Password:</td>
+		<td class="mbox" width="40%"><?php echo $lang->phrase('admin_login_password'); ?></td>
 		<td class="mbox" width="60%"><input type="password" name="pw" size="40" /></td>
 	  </tr>
 	  <tr>
-	   <td class="ubox" align="center" colspan="2"><input type="submit" value="Log in" /></td>
+	   <td class="ubox" align="center" colspan="2"><input type="submit" value="<?php echo $lang->phrase('admin_form_login'); ?>" /></td>
 	  </tr>
 	 </table>
 	</form>
@@ -158,23 +191,6 @@ function isInvisibleHook($hook) {
 		default:
 			return false;
 	}
-}
-
-function pluginSettingGroupUninstall($pluginid) {
-	global $db;
-	$result = $db->query("SELECT id, name FROM {$db->pre}settings_groups WHERE name = 'module_{$pluginid}' LIMIT 1");
-	$row = $db->fetch_assoc($result);
-
-	$c = new manageconfig();
-	$c->getdata();
-	$result = $db->query("SELECT name FROM {$db->pre}settings WHERE sgroup = '{$row['id']}'");
-	while ($row2 = $db->fetch_assoc($result)) {
-		$c->delete(array($row['name'], $row2['name']));
-	}
-	$c->savedata();
-
-	$db->query("DELETE FROM {$db->pre}settings WHERE sgroup = '{$row['id']}'", __LINE__, __FILE__);
-	$db->query("DELETE FROM {$db->pre}settings_groups WHERE id = '{$row['id']}'", __LINE__, __FILE__);
 }
 
 function getHookArray() {
@@ -198,6 +214,29 @@ function getHookArray() {
 	return $hooks;
 }
 
+function addHookToArray($hook, $file) {
+	global $filesystem;
+	$data = file('admin/data/hooks.txt');
+	$data = array_map('trim', $data);
+	$exists = array_search("-{$hook}", $data);
+	if ($exists === false || $exists === null) {
+		$result = array_search($file, $data);
+		if ($result !== false && $result !== null) {
+			$data[$result] = $data[$result]."\r\n-{$hook}";
+		}
+		else {
+			$data[] = '';
+			$data[] = $file;
+			$data[] = "-{$hook}";
+		}
+		$filesystem->file_put_contents('admin/data/hooks.txt', implode("\r\n", $data));
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 function array2sqlsetlist($array, $seperator = ', ') {
 	$sqlarray = array();
 	foreach ($array as $key => $value) {
@@ -207,8 +246,9 @@ function array2sqlsetlist($array, $seperator = ', ') {
 }
 
 function gzAbortNotLoaded() {
-	if (!extension_loaded("zlib") || !function_exists('readgzfile')) {
-		error('javascript:history.back(-1);', 'GZIP Extension not loaded.');
+	if (!extension_loaded("zlib") || !viscacha_function_exists('readgzfile')) {
+		global $lang;
+		error('javascript:history.back(-1);', $lang->phrase('admin_gzip_not_loaded'));
 	}
 }
 
@@ -226,6 +266,7 @@ function gzTempfile($file, $new = null) {
 }
 
 function get_webserver() {
+	global $lang;
 	if (preg_match('#Apache/([0-9\.\s]+)#si', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Apache v$wsregs[1]";
 	}
@@ -242,30 +283,31 @@ function get_webserver() {
 		$webserver = SAPI_NAME;
 	}
 	else {
-		$webserver = 'Unknown';
+		$webserver = $lang->phrase('admin_server_unknown');
 	}
 	return $webserver;
 }
 
 function fileAge($age) {
+	global $lang;
     if($age>=30*24*60*60) {
         $age/=(30*24*60*60);
-        $string = 'Months';
+        $string = $lang->phrase('admin_months_name');
     }
     elseif($age>=24*60*60) {
         $age/=(24*60*60);
-        $string = 'Days';
+        $string = $lang->phrase('admin_days_name');
     }
     elseif($age>=60*60) {
         $age/=(60*60);
-        $string = 'Hours';
+        $string = $lang->phrase('admin_hours_name');
     }
     elseif($age>=60) {
         $age/=60;
-        $string = 'Minutes';
+        $string = $lang->phrase('admin_minutes_name');
     }
 	else {
-		$string = 'Seconds';
+		$string = $lang->phrase('admin_seconds_name');
 	}
 	return round($age, 0).' '.$string;
 }
@@ -345,7 +387,7 @@ function count_dir($dir, $totalsize=0) {
 }
 
 function pages ($anzposts, $uri, $teiler=50) {
-	global $gpc;
+	global $gpc, $lang;
 
 	$page = $gpc->get('page', int, 1);
 
@@ -356,7 +398,8 @@ function pages ($anzposts, $uri, $teiler=50) {
    	$pgs = $anzposts/$teiler;
     $anz = ceil($pgs);
 
-	$p = "Pages ($anz):";
+    $lang->assign('anz', $anz);
+	$p = $lang->phrase('admin_pages');
 	for ($i = 1; $i <= $anz; $i++) {
 		if ($page == $i) {
 			$p .= " [<strong>$i</strong>]";
@@ -366,18 +409,6 @@ function pages ($anzposts, $uri, $teiler=50) {
 		}
 	}
 	return $p;
-}
-
-
-function txt2img ($text, $op=null) {
-	global $txt2img_fg, $txt2img_bg;
-	$imgtag = '<img src="classes/graphic/text2image.php?text='.rawurlencode($text).'&amp;angle=90&amp;bg='.$txt2img_bg.'&amp;fg='.$txt2img_fg.'" border="0">';
-	if ($op == null) {
-		echo $imgtag;
-	}
-	else {
-		return $imgtag;
-	}
 }
 
 function head($onload = '') {
@@ -393,7 +424,7 @@ function head($onload = '') {
 	<meta http-equiv="Cache-Control" content="no-cache" />
 	<link rel="stylesheet" type="text/css" href="admin/html/standard.css">
 	<link rel="up" href="javascript:self.scrollTo(0,0);">
-	<link rel="copyright" href="http://www.mamo-net.de">
+	<link rel="copyright" href="http://www.viscacha.org">
 	<script type="text/javascript">
 	<!--
 		var sidx = '<?php echo SID2URL_JS_x; ?>';
@@ -407,11 +438,14 @@ function head($onload = '') {
 	<?php
 }
 function foot() {
-	global $config, $benchmark, $db;
-	$benchmark = benchmarktime()-$benchmark;
+	global $config, $benchmark, $db, $lang;
+	$benchmark = round(benchmarktime()-$benchmark, 5);
+	$queries = $db->benchmark('queries');
+	$lang->assign('queries', $queries);
+	$lang->assign('benchmark', $benchmark);
 	?>
 	<br style="line-height: 8px;" />
-	<div class="stext center">[Generation Time: <?php echo round($benchmark, 5); ?>] [Queries: <?php echo $db->benchmark('queries'); ?>]</div>
+	<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
     <div id="copyright">
         <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
         Copyright &copy; 2004-2007, MaMo Net
@@ -422,30 +456,34 @@ function foot() {
 	<?php
 }
 
-function error ($errorurl, $errormsg='An unexpected error occurred') {
-	global $config, $my, $db;
-	if (!is_array($errormsg)) {
+function error ($errorurl, $errormsg = null) {
+	global $config, $my, $db, $lang;
+	if ($errormsg == null) {
+		$errormsg = array($lang->phrase('admin_an_unexpected_error_occured'));
+	}
+	else if (!is_array($errormsg)) {
 	    $errormsg = array($errormsg);
 	}
+	$time = 7500 + count($errormsg)*2500;
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout('<?php echo JS_URL($errorurl); ?>', 10000);
+window.setTimeout('<?php echo JS_URL($errorurl); ?>', <?php echo $time; ?>);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-    <td class="obox">An error occured:</td>
+    <td class="obox"><?php echo $lang->phrase('admin_an_error_occured'); ?></td>
   </tr>
   <tr>
     <td class="mbox">
-      Error message:<br />
+      <?php echo $lang->phrase('admin_error_message'); ?><br />
       <ul>
         <?php foreach ($errormsg as $error) { ?>
         <li><?php echo $error; ?></li>
         <?php } ?>
       </ul>
-      <p align="center" class="stext"><a href="<?php echo $errorurl; ?>">back</a></p>
+      <p align="center" class="stext"><a href="<?php echo $errorurl; ?>"><?php echo $lang->phrase('admin_back'); ?></a></p>
     </td>
   </tr>
 </table>
@@ -455,22 +493,25 @@ window.setTimeout('<?php echo JS_URL($errorurl); ?>', 10000);
 	exit;
 }
 
-function ok ($url, $msg = "Settings were saved successfully!") {
-	global $config, $my, $db;
+function ok ($url, $msg = null, $time = 1500) {
+	global $config, $my, $db, $lang;
+	if ($msg == null) {
+		$msg = $lang->phrase('admin_settings_successfully_saved');
+	}
 	?>
 <script language="Javascript" type="text/javascript">
 <!--
-window.setTimeout('<?php echo JS_URL($url); ?>', 1000);
+window.setTimeout('<?php echo JS_URL($url); ?>', <?php echo $time; ?>);
 -->
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-    <td class="obox">Confirmation:</td>
+    <td class="obox"><?php echo $lang->phrase('admin_confirmation'); ?></td>
   </tr>
   <tr>
     <td class="mbox" align="center">
     <?php echo $msg; ?><br /><br />
-    <span class="stext"><a href="<?php echo $url; ?>">continue</a></span>
+    <span class="stext"><a href="<?php echo $url; ?>"><?php echo $lang->phrase('admin_continue'); ?></a></span>
     </td>
   </tr>
 </table>
@@ -481,14 +522,15 @@ window.setTimeout('<?php echo JS_URL($url); ?>', 1000);
 }
 
 function noki ($int, $js = '', $id = '') {
+	global $lang;
 	if (!empty($id)) {
 		$id = ' id="'.$id.'"';
 	}
 	if ($int == 1 || $int == true) {
-		return '<img'.$js.$id.' class="valign" src="admin/html/images/yes.gif" border="0" alt="Yes"'.iif(!empty($js), ' title="Click here to change setting!"', ' title="Yes"').' />';
+		return '<img'.$js.$id.' class="valign" src="admin/html/images/yes.gif" border="0" alt="'.$lang->phrase('admin_yes').'"'.iif(!empty($js), ' title="'.$lang->phrase('admin_click_here_to_change_setting').'"', ' title="'.$lang->phrase('admin_yes').'"').' />';
 	}
 	else {
-		return '<img'.$js.$id.' class="valign" src="admin/html/images/no.gif" border="0" alt="No"'.iif(!empty($js), ' title="Click here to change setting!"', ' title="No"').' />';
+		return '<img'.$js.$id.' class="valign" src="admin/html/images/no.gif" border="0" alt="'.$lang->phrase('admin_no').'"'.iif(!empty($js), ' title="'.$lang->phrase('admin_click_here_to_change_setting').'"', ' title="'.$lang->phrase('admin_no').'"').' />';
 	}
 
 }

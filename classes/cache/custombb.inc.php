@@ -16,6 +16,7 @@ class cache_custombb extends CacheItem {
 				else {
 					$bb['bbcodereplacement'] = str_replace('{param}', '\1', $bb['bbcodereplacement']);
 				}
+				$bb['bbcodereplacement'] = str_replace(array("\r\n", "\n"), "\r", $bb['bbcodereplacement']);
 				$this->data[] = $bb;
 			}
 			$this->export();

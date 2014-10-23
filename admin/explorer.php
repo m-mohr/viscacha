@@ -76,7 +76,7 @@ if ($job == 'upload') {
 	    if (empty($_FILES['upload_'.$i]['name'])) {
 	    	continue;
 	    }
-	 
+
 	    $my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
@@ -92,7 +92,7 @@ if ($job == 'upload') {
 		}
     	$file = $dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename');
     	if (!file_exists($file)) {
-    	    $inserterrors[] = 'File ('.$file.') does not exist.';
+    	    $inserterrors[] = $lang->phrase('admin_explorer_file_does_not_exist');
     	}
     	else {
     	    $success++;
@@ -100,9 +100,9 @@ if ($job == 'upload') {
 	}
 	echo head();
 	if ($success == 0) {
-	    $inserterrors[] = 'No file successfully uploaded!';
+	    $inserterrors[] = $lang->phrase('admin_explorer_no_file_successfully_uploaded');
 	}
-	
+
 	if (count($inserterrors) > 0) {
 		error($url, $inserterrors);
 	}
@@ -121,7 +121,7 @@ if ($job == 'upload') {
 			}
 			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg');
 		}
-		ok($url, 'Upload ready!');
+		ok($url, $lang->phrase('admin_explorer_upload_ready'));
 	}
 }
 elseif ($job == 'newdir') {
@@ -131,15 +131,15 @@ elseif ($job == 'newdir') {
 <form name="form" method="post" action="admin.php?action=explorer&job=newdir2">
 <input type="hidden" name="path" value="<?php echo $path; ?>">
  <table class="border">
-  <tr> 
-   <td class="obox" colspan="2">Create new directory</td>
+  <tr>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_explorer_create_a_new_directory'); ?></td>
   </tr>
-  <tr> 
-   <td class="mbox">Name for the new directory:</td>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_explorer_name_for_directory'); ?></td>
    <td class="mbox"><input type="text" name="name" size="30"></td>
   </tr>
-  <tr> 
-   <td class="mbox">CHMOD:<br /><span class="stext">If you are not sure, use CHMOD 755. You can change it later.</span></td>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_explorer_chmod_label'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_explorer_chmod_label_desc'); ?></span></td>
    <td class="mbox"><select name="chmod">
    <option value="777">777</option>
    <option value="755" selected="selected">755</option>
@@ -151,7 +151,7 @@ elseif ($job == 'newdir') {
    </select></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Create"></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_create'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -179,39 +179,39 @@ elseif ($job == "chmod") {
 <form name="form" method="post" action="admin.php?action=explorer&job=chmod2">
 <input type="hidden" name="path" value="<?php echo $path; ?>">
  <table class="border">
-  <tr> 
-   <td class="obox" colspan="2">Set CHMOD</td>
+  <tr>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_explorer_set_chmod_title'); ?></td>
   </tr>
-  <tr> 
-   <td class="mbox">New CHMOD:</td>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_explorer_set_new_chmod'); ?></td>
    <td class="mbox"><input type="text" name="chmod" id="chmod" value="<?php echo $chmod; ?>" size="4" onKeyUp="octalchange()"></td>
   </tr>
-  <tr> 
-   <td class="mbox">CHMOD-Helper:
-   <noscript><br /><span class="stext">You can not use this Helper, until JavaScript is enabled.</span></noscript>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_explorer_chmod_helper'); ?>
+   <noscript><br /><span class="stext"><?php echo $lang->phrase('admin_explorer_helper_requires_js'); ?></span></noscript>
    </td>
    <td class="mbox">
 	<table class="inlinetable">
 	<tr>
 	<th>&nbsp;</th>
-	<th>Owner</th>
-	<th>Group</th>
-	<th>Other</th>
+	<th><?php echo $lang->phrase('admin_explorer_chmod_owner'); ?></th>
+	<th><?php echo $lang->phrase('admin_explorer_chmod_group'); ?></th>
+	<th><?php echo $lang->phrase('admin_explorer_chmod_other'); ?></th>
 	</tr>
 	<tr>
-	<th>Read</th>
+	<th><?php echo $lang->phrase('admin_explorer_chmod_read'); ?></th>
 	<td align="center"><input type="checkbox" id="owner4" value="4" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="group4" value="4" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="other4" value="4" onclick="calc_chmod()"></td>
 	</tr>
 	<tr>
-	<th>Write</th>
+	<th><?php echo $lang->phrase('admin_explorer_chmod_write'); ?></th>
 	<td align="center"><input type="checkbox" id="owner2" value="2" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="group2" value="2" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="other2" value="2" onclick="calc_chmod()"></td>
 	</tr>
 	<tr>
-	<th>Execute</th>
+	<th><?php echo $lang->phrase('admin_explorer_chmod_execute'); ?></th>
 	<td align="center"><input type="checkbox" id="owner1" value="1" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="group1" value="1" onclick="calc_chmod()"></td>
 	<td align="center"><input type="checkbox" id="other1" value="1" onclick="calc_chmod()"></td>
@@ -220,7 +220,7 @@ elseif ($job == "chmod") {
    </td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="&nbsp;Set&nbsp;"></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_set'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -242,22 +242,22 @@ elseif ($job == "chmod2") {
 elseif ($job == "rename") {
 	$path = urldecode($gpc->get('path', none));
 	$type = $gpc->get('type', str);
-	$name = iif($type == 'dir', 'directory', 'file');
+	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
 	?>
 <form name="form" method="post" action="admin.php?action=explorer&job=rename2">
 <input type="hidden" name="path" value="<?php echo $path; ?>">
 <input type="hidden" name="type" value="<?php echo $type; ?>">
  <table class="border">
-  <tr> 
-   <td class="obox" colspan="2">Rename a <?php echo $name; ?></td>
+  <tr>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_explorer_rename_a_x'); ?></td>
   </tr>
-  <tr> 
-   <td class="mbox">New name of <?php echo $name; ?>:<?php echo iif($type != 'dir', '<br /><span class="stext">Append the extension!</span>'); ?></td>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_explorer_new_name_of_x'); ?><?php echo iif($type != 'dir', '<br /><span class="stext">'.$lang->phrase('admin_explorer_append_the_extension').'</span>'); ?></td>
    <td class="mbox"><input type="text" name="name" size="30"></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Rename"></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_rename'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -270,9 +270,9 @@ elseif ($job == "rename2") {
 	$source = urldecode($gpc->get('path', none));
 	$newname = $gpc->get('name', str);
 	if (empty($newname)) {
-		error('admin.php?action=explorer&job=rename&path='.urlencode($source), 'No new name specified!');
+		error('admin.php?action=explorer&job=rename&path='.urlencode($source), $lang->phrase('admin_explorer_no_new_name_specified'));
 	}
-	
+
 	$repath = urlencode(extract_dir($source, false));
 	if ($type == 'dir') {
 		$dest = extract_dir($source).$newname;
@@ -299,20 +299,21 @@ elseif ($job == "rename2") {
 elseif ($job == "delete") {
 	$path = urldecode($gpc->get('path', none));
 	$type = $gpc->get('type', str);
-	$name = iif($type == 'dir', 'directory', 'file');
+	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
 	if (!file_exists($path)) {
-		error('admin.php?action=explorer&path='.urlencode(extract_dir($path, false)), ucfirst($name).' does not exist.');
+		$name = ucfirst($name);
+		error('admin.php?action=explorer&path='.urlencode(extract_dir($path, false)), $lang->phrase('admin_explorer_x_does_not_exist'));
 	}
 	?>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	<tr><td class="obox">Delete <?php echo $name; ?></td></tr>
+	<tr><td class="obox"><?php echo $lang->phrase('admin_explorer_delete_x'); ?></td></tr>
 	<tr><td class="mbox">
-	<p align="center">Do you really want to delete this <?php echo $name; ?>?</p>
+	<p align="center"><?php echo $lang->phrase('admin_explorer_confirm_delete'); ?></p>
 	<p align="center">
-	<a href="admin.php?action=explorer&job=delete2&type=<?php echo $type; ?>&path=<?php echo urlencode($path); ?>"><img border="0" align="middle" alt="" src="admin/html/images/yes.gif"> Yes</a>
+	<a href="admin.php?action=explorer&job=delete2&type=<?php echo $type; ?>&path=<?php echo urlencode($path); ?>"><img border="0" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_explorer_yes'); ?></a>
 	&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;
-	<a href="javascript: history.back(-1);"><img border="0" align="middle" alt="" src="admin/html/images/no.gif"> No</a>
+	<a href="javascript: history.back(-1);"><img border="0" alt="" src="admin/html/images/no.gif"> <?php echo $lang->phrase('admin_explorer_no'); ?></a>
 	</p>
 	</td></tr>
 </table>
@@ -322,12 +323,13 @@ elseif ($job == "delete") {
 elseif ($job == "delete2") {
 	$path = urldecode($gpc->get('path', none));
 	$type = $gpc->get('type', str);
-	$name = iif($type == 'dir', 'directory', 'file');
+	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
-	
+
 	$repath = urlencode(extract_dir($path, false));
 	if (@rmdirr($path)) {
-		ok('admin.php?action=explorer&path='.$repath, ucfirst($name).' successfully deleted!');
+		$name = ucfirst($name);
+		ok('admin.php?action=explorer&path='.$repath, $lang->phrase('admin_explorer_x_successfully_deleted'));
 	}
 	else {
 		error('admin.php?action=explorer&path='.$repath);
@@ -338,21 +340,21 @@ elseif ($job == "edit") {
 	$file = urldecode($gpc->get('path', none));
 	check_writable($file);
 	if (!$ServerNavigator->checkEdit($file)) {
-		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), 'File is not editable.');
+		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_is_not_editable'));
 	}
 	$content = file_get_contents($file);
 	?>
 <form name="form" method="post" action="admin.php?action=explorer&job=edit2&path=<?php echo urlencode($file); ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
-   <td class="obox" colspan="2"><b>Edit a File</b></td>
+  <tr>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_explorer_edit_a_file'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="15%">Content:</td> 
-   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo htmlspecialchars($content); ?></textarea></td> 
+   <td class="mbox" width="15%"><?php echo $lang->phrase('admin_explorer_edit_content'); ?></td>
+   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo htmlspecialchars($content); ?></textarea></td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Save" /></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_save'); ?>" /></td>
   </tr>
  </table>
 </form>
@@ -363,34 +365,34 @@ elseif ($job == "edit2") {
 	echo head();
 	$file = urldecode($gpc->get('path', none));
 	if (!$ServerNavigator->checkEdit($file)) {
-		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), 'File is not editable.');
+		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_is_not_editable'));
 	}
 	$content = $gpc->get('content', none);
 	$filesystem->file_put_contents($file, $content);
-	ok('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), 'File successfully saved.');
+	ok('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_successfully_saved'));
 }
 elseif ($job == "extract") {
 	echo head();
 	$file = urldecode($gpc->get('path', none));
 	if (!$ServerNavigator->checkExtract($file)) {
-		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), 'File is not an supported archive.');
+		error('admin.php?action=explorer&path='.urlencode(extract_dir($file, false)), $lang->phrase('admin_explorer_file_format_is_not_supported'));
 	}
 	$newdir = realpath(extract_dir($file, false));
 	$filename = basename($file, get_extension($file, true));
 	$newdir .= DIRECTORY_SEPARATOR.$filename;
 	?>
 <form name="form" method="post" action="admin.php?action=explorer&job=extract2">
-<input type="hidden" name="path" value="<?php echo $path; ?>">
+<input type="hidden" name="path" value="<?php echo $file; ?>">
  <table class="border">
-  <tr> 
-   <td class="obox" colspan="2">Extract an compressed archive (<?php echo implode(', ', $ServerNavigator->extract); ?>)</td>
+  <tr>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_explorer_extract_an_compressed_archive'); ?> (<?php echo implode(', ', $ServerNavigator->extract); ?>)</td>
   </tr>
-  <tr> 
-   <td class="mbox">Extract to:<br /><span class="stext">The directory must not exist. Please specify the <strong>absolute path</strong>!</span></td>
+  <tr>
+   <td class="mbox"><?php echo $lang->phrase('admin_explorer_extract_to'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_explorer_extract_to_info'); ?></span></td>
    <td class="mbox"><input type="text" name="to" size="60" value="<?php echo $newdir; ?>"></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Extract"></td> 
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_extract'); ?>"></td>
   </tr>
  </table>
 </form>
@@ -404,7 +406,7 @@ elseif ($job == "extract2") {
 	check_executable($dir);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
 	if (!preg_match('#\.(tar\.gz|tar|gz|zip)$#is', $file, $ext)) {
-		error($redirect, 'The archive is currently not supported. (Failed at position: preg_match)');
+		error($redirect, $lang->phrase('admin_explorer_archive_is_not_supported'));
 	}
 	unset($extension);
 	if (isset($ext[1])) {
@@ -444,7 +446,7 @@ elseif ($job == "extract2") {
 		}
 	}
 	if (!isset($extension)) {
-		error($redirect, 'File is not an supported archive. (Failed at position: setting extension)');
+		error($redirect, $lang->phrase('admin_explorer_file_is_not_supported2'));
 	}
 	else {
 		ok($redirect);

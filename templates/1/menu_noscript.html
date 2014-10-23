@@ -20,7 +20,7 @@
 			<strong><?php echo $lang->phrase('choose_newsfeed'); ?></strong>
 			<ul>
 			  <?php foreach (show_feeds() as $key => $name) { ?>
-			  	<li><a href="external.php?action=<?php echo $key; ?>"><?php echo $name; ?></a></li>
+			  	<li><a rel="nofollow" href="external.php?action=<?php echo $key; ?>"><?php echo $name; ?></a></li>
 			<?php  } ?>
 			</ul>
 			<?php } ?>

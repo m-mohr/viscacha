@@ -1,6 +1,9 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+// FS: MultiLangAdmin
+$lang->group("admin/designs");
+
 require_once("admin/lib/class.servernavigator.php");
 $snav = new ServerNavigator();
 
@@ -41,31 +44,31 @@ if ($job == 'design') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="6"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=design_import">Import Design</a> <a class="button" href="admin.php?action=designs&amp;job=design_add">Add new Design</a></span>Designs</td>
+   <td class="obox" colspan="6"><span class="right"><a class="button" href="admin.php?action=packages&amp;job=browser&amp;type=<?php echo IMPTYPE_DESIGN; ?>"><?php echo $lang->phrase('admin_design_browse_design'); ?></a> <a class="button" href="admin.php?action=designs&amp;job=design_import"><?php echo $lang->phrase('admin_design_import_design_button'); ?></a> <a class="button" href="admin.php?action=designs&amp;job=design_add"><?php echo $lang->phrase('admin_design_add_new_design'); ?></a></span><?php echo $lang->phrase('admin_design_designs'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="40%">Name</td>
-   <td class="ubox" width="5%">Templates</td>
-   <td class="ubox" width="5%">Stylesheets</td>
-   <td class="ubox" width="5%">Images</td>
-   <td class="ubox" width="5%">Published</td>
-   <td class="ubox" width="40%">Action</td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_name'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_design_templates'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_design_stylesheets'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_design_images'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_design_published'); ?></td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_action'); ?></td>
   </tr>
   <?php while ($row = $db->fetch_assoc($result)) { ?>
   <tr>
-   <td class="mbox"><?php echo $row['name']; ?><?php echo iif($row['id'] == $config['templatedir'], ' (<em>Default</em>)'); ?></td>
+   <td class="mbox"><?php echo $row['name']; ?><?php echo iif($row['id'] == $config['templatedir'], ' (<em>'.$lang->phrase('admin_design_default').'</em>)'); ?></td>
    <td class="mbox" align="right"><?php echo $row['template']; ?></td>
    <td class="mbox" align="right"><?php echo $row['stylesheet']; ?></td>
    <td class="mbox" align="right"><?php echo $row['images']; ?></td>
    <td class="mbox" align="center"><?php echo noki($row['publicuse'], ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=designs&job=ajax_publicuse&id='.$row['id'].'\')"'); ?></td>
    <td class="mbox">
-   <a class="button" href="admin.php?action=designs&amp;job=design_edit&amp;id=<?php echo $row['id']; ?>">Edit</a>
-   <a class="button" href="admin.php?action=designs&amp;job=design_export&amp;id=<?php echo $row['id']; ?>">Export</a>
-   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=design&amp;id=<?php echo $row['id']; ?>">Delete</a>
+   <a class="button" href="admin.php?action=designs&amp;job=design_edit&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_design_edit'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=design_export&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_design_export'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=design&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_design_delete'); ?></a>
    <?php if ($row['publicuse'] == 1 && $config['templatedir'] != $row['id']) { ?>
-   <a class="button" href="admin.php?action=designs&amp;job=design_default&amp;id=<?php echo $row['id']; ?>">Set as default</a>
+   <a class="button" href="admin.php?action=designs&amp;job=design_default&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_design_set_as_default'); ?></a>
    <?php } ?>
-   <a class="button" href="forum.php?design=<?php echo $row['id']; ?>&amp;admin=<?php echo $config['cryptkey'].SID2URL_x; ?>" target="_blank">View</a>
+   <a class="button" href="forum.php?design=<?php echo $row['id']; ?>&amp;admin=<?php echo $config['cryptkey'].SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('admin_design_view'); ?></a>
    </td>
   </tr>
   <?php } ?>
@@ -75,9 +78,9 @@ if ($job == 'design') {
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
    <td class="obox center">
-   <a class="button" href="admin.php?action=designs&job=templates">Template Manager</a>
-   <a class="button" href="admin.php?action=designs&job=css">Stylesheet Manager</a>
-   <a class="button" href="admin.php?action=designs&job=images">Image Manager</a>
+   <a class="button" href="admin.php?action=designs&job=templates"><?php echo $lang->phrase('admin_design_template_manager'); ?></a>
+   <a class="button" href="admin.php?action=designs&job=css"><?php echo $lang->phrase('admin_design_stylesheet_manager'); ?></a>
+   <a class="button" href="admin.php?action=designs&job=images"><?php echo $lang->phrase('admin_design_image_manager'); ?></a>
    </td>
   </tr>
  </table>
@@ -101,7 +104,7 @@ elseif ($job == 'design_default') {
 		ok('admin.php?action=designs&job=design');
 	}
 	else {
-		error('admin.php?action=designs&job=design', 'You can not set this design as "default" because it is not yet published.');
+		error('admin.php?action=designs&job=design', $lang->phrase('admin_design_set_design_as_default_error'));
 	}
 }
 elseif ($job == 'design_edit') {
@@ -144,14 +147,14 @@ elseif ($job == 'design_edit') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="6">Edit Design</td>
+   <td class="obox" colspan="6"><?php echo $lang->phrase('admin_design_edit_design'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Name for this design:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_name_for_this_design'); ?></td>
    <td class="mbox" width="60%"><input type="text" name="name" size="60" value="<?php echo $gpc->prepare($info['name']); ?>" /></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Directory to use for templates:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_directory_for_templates'); ?></td>
    <td class="mbox" width="60%">
    <?php foreach ($templates as $dir) { ?>
    <input<?php echo iif($info['template'] == $dir, ' checked="checked"'); ?> type="radio" name="template" value="<?php echo $dir; ?>" /> <a href="admin.php?action=designs&job=templates_browse&id=<?php echo $dir; ?>" target="_blank"><?php echo $dir; ?></a><br />
@@ -159,7 +162,7 @@ elseif ($job == 'design_edit') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Directory to use for stylesheets:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_directory_for_stylesheets'); ?></td>
    <td class="mbox" width="60%">
    <?php foreach ($stylesheet as $dir) { ?>
    <input<?php echo iif($info['stylesheet'] == $dir, ' checked="checked"'); ?> type="radio" name="stylesheet" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./designs/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
@@ -167,7 +170,7 @@ elseif ($job == 'design_edit') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Directory to use for images:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_directory_for_images'); ?></td>
    <td class="mbox" width="60%">
    <?php foreach ($images as $dir) { ?>
    <input<?php echo iif($info['images'] == $dir, ' checked="checked"'); ?> type="radio" name="images" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
@@ -175,11 +178,11 @@ elseif ($job == 'design_edit') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Published:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_form_published'); ?></td>
    <td class="mbox" width="60%"><input type="checkbox" name="publicuse" value="1"<?php echo iif($info['publicuse'] == '1', ' checked="checked"'); ?> /></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" value="Save" /></td>
+   <td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_design_form_save'); ?>" /></td>
   </tr>
  </table>
 </form>
@@ -200,13 +203,13 @@ elseif ($job == 'design_edit2') {
 	$result = $db->query("SELECT publicuse FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$puse = $db->fetch_assoc($result);
 	if ($puse['publicuse'] == 1 && $use == 0) {
-		if ($id == $config['langdir']) {
-			$error .= ', but you can not unpublish this design until you have defined another default design';
+		if ($id == $config['templatedir']) {
+			$error .= $lang->phrase('admin_design_design_unpublish_default_design_error');
 			$use = 1;
 		}
-		$db->query("SELECT * FROM {$db->pre}designs WHERE publicuse = '1'");
-		if ($db->num_rows() == 1) {
-			$error .= ', but you can not unpublish this design, because no other design is published';
+		$result = $db->query("SELECT * FROM {$db->pre}designs WHERE publicuse = '1'");
+		if ($db->num_rows($result) == 1) {
+			$error .= $lang->phrase('admin_design_design_unpublish_no_other_design_published_error');
 			$use = 1;
 		}
 	}
@@ -214,21 +217,22 @@ elseif ($job == 'design_edit2') {
 	$delobj->delete();
 	$db->query("UPDATE {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}' WHERE id = '{$id}' LIMIT 1");
 
-	ok('admin.php?action=designs&job=design&id='.$id, 'Changes were successfully saved'.$error.'.');
+	ok('admin.php?action=designs&job=design&id='.$id, $lang->phrase('admin_design_changes_were_successfully_saved'));
 }
 elseif ($job == 'design_delete') {
 	$id = $gpc->get('id', int);
 
 	$result = $db->query("SELECT id FROM {$db->pre}designs WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
-		error('admin.php?action=designs&job=design', 'You can not delete the last installed design!');
+		error('admin.php?action=designs&job=design', $lang->phrase('admin_design_you_cant_delete_the_last_design'));
 	}
 
 	$result = $db->query("SELECT publicuse FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
 
-	if ($info['publicuse'] == 1) {
-		error('admin.php?action=designs&job=design', 'You can not unpublish this design until you have defined another default design!');
+	if ($id == $config['templatedir']) {
+		echo head();
+		error('admin.php?action=designs&job=design', $lang->phrase('admin_design_you_cant_unpublish_design_until_other_default'));
 	}
 
 	$db->query("DELETE FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
@@ -238,7 +242,7 @@ elseif ($job == 'design_delete') {
 // Do NOT removes data. That "feature" is terrible on account of loosing data!
 
 	echo head();
-	ok('admin.php?action=designs&job=design', 'Design successfully deleted from database. For security, you have to delete CSS-Files, Template-Files and Image-Files manually!');
+	ok('admin.php?action=designs&job=design', $lang->phrase('admin_design_design_deleted_successfully'));
 }
 elseif ($job == 'design_add') {
 	$id = $gpc->get('id', int);
@@ -278,42 +282,45 @@ elseif ($job == 'design_add') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_add2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="6">Add a new Design</td>
+   <td class="obox" colspan="6"><?php echo $lang->phrase('admin_design_add_a_new_design'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Name for this design:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_name_for_this_design'); ?></td>
    <td class="mbox" width="60%"><input type="text" name="name" size="60" /></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Directory to use for templates:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_directory_for_templates'); ?></td>
    <td class="mbox" width="60%">
+   <input type="radio" name="template" value="0" /><?php echo $lang->phrase('admin_design_create_new_template_directory'); ?>
    <?php foreach ($templates as $dir) { ?>
-   <input type="radio" name="template" value="<?php echo $dir; ?>" /> <a href="admin.php?action=designs&job=templates_browse&id=<?php echo $dir; ?>" target="_blank"><?php echo $dir; ?></a><br />
+   <br /><input type="radio" name="template" value="<?php echo $dir; ?>" /> <a href="admin.php?action=designs&job=templates_browse&id=<?php echo $dir; ?>" target="_blank"><?php echo $dir; ?></a>
    <?php } ?>
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Directory to use for stylesheets:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_directory_for_stylesheets'); ?></td>
    <td class="mbox" width="60%">
+   <input type="radio" name="stylesheet" value="0" /><?php echo $lang->phrase('admin_design_copy_standard_css'); ?>
    <?php foreach ($stylesheet as $dir) { ?>
-   <input type="radio" name="stylesheet" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./designs/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
+   <br /><input type="radio" name="stylesheet" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./designs/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a>
    <?php } ?>
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Directory to use for images:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_directory_for_images'); ?></td>
    <td class="mbox" width="60%">
+   <input type="radio" name="images" value="0" /><?php echo $lang->phrase('admin_design_create_new_images_directory'); ?>
    <?php foreach ($images as $dir) { ?>
-   <input type="radio" name="images" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a><br />
+   <br /><input type="radio" name="images" value="<?php echo $dir; ?>" /> <a href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$dir.'/'); ?>" target="_blank"><?php echo $dir; ?></a>
    <?php } ?>
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Published:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_form_published'); ?></td>
    <td class="mbox" width="60%"><input type="checkbox" name="publicuse" value="1" /></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" value="Save" /></td>
+   <td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_design_save'); ?>" /></td>
   </tr>
  </table>
 </form>
@@ -333,25 +340,60 @@ elseif ($job == 'design_add2') {
 		$name = 'Design '.$id;
 	}
 
+	if ($template == 0) {
+		$template = 1;
+		while(is_dir('templates/'.$template)) {
+			$template++;
+			if ($template > 10000) {
+				error('admin.php?action=designs&job=design_add', $lang->phrase('admin_design_buffer_overflow_templates'));
+			}
+		}
+		$filesystem->mkdir("templates/{$template}/", 0777);
+	}
+	if ($stylesheet == 0) {
+		$stylesheet = 1;
+		while(is_dir('designs/'.$stylesheet)) {
+			$stylesheet++;
+			if ($stylesheet > 10000) {
+				error('admin.php?action=designs&job=design_add', $lang->phrase('admin_design_buffer_overflow_css'));
+			}
+		}
+		$result = $db->query("SELECT stylesheet FROM {$db->pre}designs WHERE id = '{$config['templatedir']}' LIMIT 1");
+		$info = $db->fetch_assoc($result);
+		$filesystem->mkdir("designs/{$stylesheet}/", 0777);
+		copyr("designs/{$info['stylesheet']}/", "designs/{$stylesheet}/");
+	}
+	if ($images == 0) {
+		$images = 1;
+		while(is_dir('images/'.$images)) {
+			$images++;
+			if ($images > 10000) {
+				error('admin.php?action=designs&job=design_add', $lang->phrase('admin_design_buffer_overflow_images'));
+			}
+		}
+		$filesystem->mkdir("images/{$images}/", 0777);
+	}
+
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
 	$db->query("INSERT INTO {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}'", __LINE__, __FILE__);
 
-	ok('admin.php?action=designs&job=design', 'Design was successfully added');
+	ok('admin.php?action=designs&job=design', $lang->phrase('admin_design_design_successfully_added'));
 }
 elseif ($job == 'design_import') {
+	$file = $gpc->get('file', str);
 	echo head();
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_import2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import a new Design</td></tr>
-  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_design_import_new_design'); ?></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_either_upload_a_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_allowed_file_types_and_max_file_size'); ?><?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
-  <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Delete file after import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_or_select_file_from_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_path_starting_from_root'); ?></span></td>
+  <td class="mbox"><input type="text" name="server" size="50" value="<?php echo $file; ?>" /></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_delete_file_after_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_design_form_send'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -380,7 +422,7 @@ elseif ($job == 'design_import2') {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
 				if (!file_exists($file)) {
-					$inserterrors[] = 'File ('.$file.') does not exist.';
+					$inserterrors[] = $lang->phrase('admin_design_file_dosent_exist');
 				}
 			}
 		}
@@ -394,11 +436,11 @@ elseif ($job == 'design_import2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'The selected file is no ZIP-file.';
+			$inserterrors[] = $lang->phrase('admin_design_file_isnt_a_zipfile');
 		}
 	}
 	else {
-		$inserterrors[] = 'No valid file selected.';
+		$inserterrors[] = $lang->phrase('admin_design_no_valid_file_selected');
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -415,12 +457,13 @@ elseif ($job == 'design_import2') {
 		if ($del > 0) {
 			$filesystem->unlink($file);
 		}
-		error('admin.php?action=designs&job=design_import', 'ZIP-archive could not be read or the folder is empty.');
+		error('admin.php?action=designs&job=design_import', $lang->phrase('admin_design_zip_archive_error'));
 	}
 	else {
 		if (!file_exists($tempdir.'design.ini')) {
-			error('admin.php?action=designs&job=design_import', 'ZIP-archive does not contain design.ini.');
+			error('admin.php?action=designs&job=design_import', $lang->phrase('admin_design_zip_archive_missing_design_ini'));
 		}
+		$myini = new INI();
 		$ini = $myini->read($tempdir.'design.ini');
 
 		$result = $db->query("SELECT * FROM `{$db->pre}designs` WHERE id = '{$config['templatedir']}' LIMIT 1");
@@ -431,7 +474,7 @@ elseif ($job == 'design_import2') {
 			while(is_dir('templates/'.$tplid)) {
 				$tplid++;
 				if ($tplid > 10000) {
-					error('admin.php?action=designs&job=design_import', 'Execution stopped: Buffer overflow (Templates)');
+					error('admin.php?action=designs&job=design_import', $lang->phrase('admin_design_buffer_overflow_templates'));
 				}
 			}
 			$tpldir = 'templates/'.$tplid;
@@ -444,7 +487,7 @@ elseif ($job == 'design_import2') {
 			while(is_dir('designs/'.$cssid)) {
 				$cssid++;
 				if ($cssid > 10000) {
-					error('admin.php?action=designs&job=design_import', 'Execution stopped: Buffer overflow (Stylesheets)');
+					error('admin.php?action=designs&job=design_import', $lang->phrase('admin_design_buffer_overflow_css'));
 				}
 			}
 			$cssdir = 'designs/'.$cssid;
@@ -457,7 +500,7 @@ elseif ($job == 'design_import2') {
 			while(is_dir('images/'.$imgid)) {
 				$imgid++;
 				if ($imgid > 10000) {
-					error('admin.php?action=designs&job=design_import', 'Execution stopped: Buffer overflow (Images)');
+					error('admin.php?action=designs&job=design_import', $lang->phrase('admin_design_buffer_overflow_images'));
 				}
 			}
 			$imgdir = 'images/'.$imgid;
@@ -486,7 +529,7 @@ elseif ($job == 'design_import2') {
 	}
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
-	ok('admin.php?action=designs&job=design', 'Design "'.$ini['name'].'" successfully imported!');
+	ok('admin.php?action=designs&job=design', $lang->phrase('admin_design_design_successfully_imported'));
 
 }
 elseif ($job == 'design_export') {
@@ -496,22 +539,22 @@ elseif ($job == 'design_export') {
 <form name="form2" method="post" action="admin.php?action=designs&job=design_export2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="6">Export Design</td>
+   <td class="obox" colspan="6"><?php echo $lang->phrase('admin_design_export_design'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Export Templates:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_export_templates'); ?></td>
    <td class="mbox" width="60%"><input type="checkbox" name="tpl" value="1" checked="checked" /></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Export Stylesheets:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_export_css'); ?></td>
    <td class="mbox" width="60%"><input type="checkbox" name="css" value="1" checked="checked" /></td>
   </tr>
   <tr>
-   <td class="mbox" width="40%">Export Images:</td>
+   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_design_export_images'); ?></td>
    <td class="mbox" width="60%"><input type="checkbox" name="img" value="1" checked="checked" /></td>
   </tr>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" value="Export" /></td>
+   <td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_design_export'); ?>" /></td>
   </tr>
  </table>
 </form>
@@ -552,6 +595,7 @@ elseif ($job == 'design_export2') {
 	$tempdir = "temp/";
 	$error = false;
 	$settings = $tempdir.'design.ini';
+	$myini = new INI();
 	$myini->write($settings, $info);
 
 	require_once('classes/class.zip.php');
@@ -563,7 +607,7 @@ elseif ($job == 'design_export2') {
 	else {
 		foreach ($dirs as $dir) {
 			$archive = new PclZip($tempdir.$file);
-			if (!empty($dir['func']) && function_exists($dir['func'])) {
+			if (!empty($dir['func']) && viscacha_function_exists($dir['func'])) {
 				$list = $dir['func']($dir['dir']);
 				$v_list = $archive->add($list, PCLZIP_OPT_REMOVE_PATH, $dir['dir'], PCLZIP_OPT_ADD_PATH, extract_dir($dir['dir'], false));
 			}
@@ -599,11 +643,11 @@ elseif ($job == 'ajax_publicuse') {
 	$use = $db->fetch_assoc($result);
 	if ($use['publicuse'] == 1) {
 		if ($id == $config['templatedir']) {
-			die('You can not unpublish this designs until you have defined another default designs.');
+			die($lang->phrase('admin_design_you_cant_unpublish_design_until_other_default'));
 		}
-		$db->query("SELECT * FROM {$db->pre}designs WHERE publicuse = '1'");
-		if ($db->num_rows() == 1) {
-			die('You can not unpublish this designs, because no other designs is published.');
+		$result = $db->query("SELECT * FROM {$db->pre}designs WHERE publicuse = '1'");
+		if ($db->num_rows($result) == 1) {
+			die($lang->phrase('admin_design_you_cant_unpublish_design_until_another_published'));
 		}
 	}
 	$use = invert($use['publicuse']);
@@ -619,12 +663,12 @@ elseif ($job == 'templates') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=templates_add">Add new Templates</a></span>Template Manager</td>
+   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=templates_add"><?php echo $lang->phrase('admin_design_add_new_templates'); ?></a></span><?php echo $lang->phrase('admin_design_template_manager'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="40%">Directory</td>
-   <td class="ubox" width="10%">Files</td>
-   <td class="ubox" width="40%">Action</td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_directory'); ?></td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_design_files'); ?></td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_action'); ?></td>
   </tr>
   <?php
 	while (false !== ($entry = $d->read())) {
@@ -635,9 +679,9 @@ elseif ($job == 'templates') {
    <td class="mbox"><?php echo $entry; ?></td>
    <td class="mbox" align="right"><?php echo $files; ?></td>
    <td class="mbox">
-   <a class="button" href="admin.php?action=designs&amp;job=templates_browse&amp;id=<?php echo $entry; ?>">Browse</a>
-   <a class="button" href="admin.php?action=designs&amp;job=templates_export&amp;id=<?php echo $entry; ?>">Export</a>
-   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=templates&amp;id=<?php echo $entry; ?>">Delete</a>
+   <a class="button" href="admin.php?action=designs&amp;job=templates_browse&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_browse'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=templates_export&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_export'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=templates&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_delete'); ?></a>
    </td>
   </tr>
   <?php } } ?>
@@ -651,14 +695,14 @@ elseif ($job == 'templates_add') {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=templates_add2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import new Templates</td></tr>
-  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_design_import_new_templates'); ?></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_either_upload_a_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_allowed_file_types_and_max_file_size'); ?><?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_or_select_file_from_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_path_starting_from_root'); ?></span></td>
   <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Delete file after import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_delete_file_after_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_design_form_send'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -687,7 +731,7 @@ elseif ($job == 'templates_add2') {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
 				if (!file_exists($file)) {
-					$inserterrors[] = 'File ('.$file.') does not exist.';
+					$inserterrors[] = $lang->phrase('admin_design_file_dosent_exist');
 				}
 			}
 		}
@@ -701,11 +745,11 @@ elseif ($job == 'templates_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'The selected file is no ZIP-file.';
+			$inserterrors[] = $lang->phrase('admin_design_zip_file_corrupt');
 		}
 	}
 	else {
-		$inserterrors[] = 'No valid file selected.';
+		$inserterrors[] = $lang->phrase('admin_design_no_valid_file_selected');
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -716,7 +760,7 @@ elseif ($job == 'templates_add2') {
 	while(is_dir('templates/'.$n)) {
 		$n++;
 		if ($n > 10000) {
-			error('admin.php?action=designs&job=templates_add', 'Execution stopped: Buffer overflow');
+			error('admin.php?action=designs&job=templates_add', $lang->phrase('admin_design_buffer_overflow'));
 		}
 	}
 
@@ -731,14 +775,14 @@ elseif ($job == 'templates_add2') {
 		if ($del > 0) {
 			$filesystem->unlink($file);
 		}
-		error('admin.php?action=designs&job=templates_add', 'ZIP-archive could not be read or the folder is empty.');
+		error('admin.php?action=designs&job=templates_add', $lang->phrase('admin_design_zip_archive_error'));
 	}
 
 	unset($archive);
 	if ($del > 0) {
 		$filesystem->unlink($file);
 	}
-	ok('admin.php?action=designs&job=templates', 'Templates successfully imported into directory '.$n.' .');
+	ok('admin.php?action=designs&job=templates', $lang->phrase('admin_design_templates_successfully_imported'));
 
 }
 elseif ($job == 'templates_export') {
@@ -775,10 +819,10 @@ elseif ($job == 'templates_delete') {
 	rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
-		error('admin.php?action=designs&job=templates', 'Directory could not be deleted.');
+		error('admin.php?action=designs&job=templates', $lang->phrase('admin_design_directory_couldnt_be_deleted'));
 	}
 	else {
-		ok('admin.php?action=designs&job=templates', 'Directory successfully deleted.');
+		ok('admin.php?action=designs&job=templates', $lang->phrase('admin_design_directory_successfully_deleted'));
 	}
 }
 elseif ($job == 'templates_file_edit') {
@@ -793,7 +837,7 @@ elseif ($job == 'templates_file_edit') {
 		$design = $db->fetch_assoc($result);
 		$path = 'templates/' . $design['template'] . iif(!empty($sub), "/{$sub}");
 		if (!file_exists($path.'/'.$file) || empty($file)) {
-			error('admin.php?action=designs&job=templates_browse&id='.$id, 'File not found.');
+			error('admin.php?action=designs&job=templates_browse&id='.$id, $lang->phrase('admin_design_file_not_found'));
 		}
 	}
 	$content = file_get_contents($path.'/'.$file);
@@ -802,21 +846,21 @@ elseif ($job == 'templates_file_edit') {
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=templates_file_edit2&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/', '')); ?>&file=<?php echo $file; ?>">
 <?php } ?>
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox"><?php echo iif($readonly, 'View', 'Edit'); ?> a Template &raquo; <?php echo $file; ?></td></tr>
+  <tr><td class="obox"><?php echo iif($readonly, $lang->phrase('admin_design_view_a_template'), $lang->phrase('admin_design_edit_a_template')).' &raquo; '.$file; ?></td></tr>
   <tr>
    <td class="mbox">
-   <strong>Template:</strong><br />
+   <strong><?php echo $lang->phrase('admin_design_form_template'); ?></strong><br />
    <textarea cols="120" rows="20" name="template" class="texteditor"><?php echo htmlspecialchars($content, ENT_NOQUOTES); ?></textarea>
    </td>
   </tr>
   <?php if (!$readonly) { ?>
   <tr>
    <td class="mbox">
-   <strong>Save in Template History? / Make Backup?</strong><br />
-   <input type="checkbox" name="backup" value="1" />&nbsp;Yes
+   <strong><?php echo $lang->phrase('admin_design_make_backup'); ?></strong><br />
+   <input type="checkbox" name="backup" value="1" />&nbsp;<?php echo $lang->phrase('admin_design_yes'); ?>
    </td>
   </tr>
-  <tr><td class="ubox" align="center"><input accesskey="s" type="submit" value="Edit" /></td></tr>
+  <tr><td class="ubox" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_design_edit'); ?>" /></td></tr>
   <?php } ?>
  </table>
  <?php if (!$readonly) { ?>
@@ -922,21 +966,21 @@ elseif ($job == 'templates_file_history') {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=templates_file_compare">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="7">Edit a Template &raquo; <?php echo $file; ?></td></tr>
+  <tr><td class="obox" colspan="7"><?php echo $lang->phrase('admin_design_edit_a_template'); ?> <?php echo $file; ?></td></tr>
   <tr>
-   <td class="ubox" width="25%">Type</td>
-   <td class="ubox" width="25%">Last modified</td>
-   <td class="ubox" width="40%" colspan="3">Action</td>
-   <td class="ubox" width="5%">Old</td>
-   <td class="ubox" width="5%">New</td>
+   <td class="ubox" width="25%"><?php echo $lang->phrase('admin_design_type'); ?></td>
+   <td class="ubox" width="25%"><?php echo $lang->phrase('admin_design_last_modified'); ?></td>
+   <td class="ubox" width="40%" colspan="3"><?php echo $lang->phrase('admin_design_action'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_design_old'); ?></td>
+   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_design_new'); ?></td>
   </tr>
   <?php if (!$default && file_exists($path.'/'.$file)) { $revert = true; ?>
   <tr>
-   <td class="mbox">Current Version (ID: <?php echo $id; ?>)</td>
+   <td class="mbox"><?php echo $lang->phrase('admin_design_current_version'); ?></td>
    <td class="mbox"><?php echo gmdate('d.m.Y H:i', times(filemtime($path.'/'.$file))); ?></td>
    <td class="mbox">&nbsp;</td>
-   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a></td>
-   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Delete</a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>"><?php echo $lang->phrase('admin_design_edit'); ?></a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>"><?php echo $lang->phrase('admin_design_delete'); ?></a></td>
    <td class="mbox"><input type="radio" name="old" value="<?php echo urldecode($path.'/'.$file); ?>" /></td>
    <td class="mbox"><input type="radio" name="new" checked="checked" value="<?php echo urldecode($path.'/'.$file); ?>" /></td>
   </tr>
@@ -948,26 +992,26 @@ elseif ($job == 'templates_file_history') {
 	$revert = true;
   ?>
   <tr>
-   <td class="mbox">Historical <?php echo $i; ?></td>
+   <td class="mbox"><?php echo $lang->phrase('admin_design_historical'); ?> <?php echo $i; ?></td>
    <td class="mbox"><?php echo gmdate('d.m.Y H:i', times(filemtime($path.'/'.$hfile))); ?></td>
-   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_revert&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Revert</a></td>
-   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>&readonly=1">View</a></td>
-   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Delete</a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_revert&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>"><?php echo $lang->phrase('admin_design_revert'); ?></a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>&readonly=1"><?php echo $lang->phrase('admin_design_view'); ?></a></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>"><?php echo $lang->phrase('admin_design_delete'); ?></a></td>
    <td class="mbox"><input type="radio" name="old" value="<?php echo urldecode($path.'/'.$hfile); ?>" /></td>
    <td class="mbox"><input type="radio" name="new" value="<?php echo urldecode($path.'/'.$hfile); ?>" /></td>
   </tr>
   <?php } ?>
   <tr>
-   <td class="mbox">Current Default (ID: <?php echo $design['template']; ?>)</td>
+   <td class="mbox"><?php echo $lang->phrase('admin_design_current_default'); ?></td>
    <td class="mbox"><?php echo gmdate('d.m.Y H:i', times(filemtime($defpath.'/'.$file))); ?></td>
    <td class="mbox">
-   <?php echo iif($revert, '<a class="button" href="admin.php?action=designs&job=templates_file_revert&id='.$id.'&dir='.rawurlencode( iif(!empty($sub), $sub.'/')).'&file='.rawurldecode($file).'&default=1">Revert</a>', '&nbsp;'); ?></td>
-   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $design['template']; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a></td>
+   <?php echo iif($revert, '<a class="button" href="admin.php?action=designs&job=templates_file_revert&id='.$id.'&dir='.rawurlencode( iif(!empty($sub), $sub.'/')).'&file='.rawurldecode($file).'&default=1">'.$lang->phrase('admin_design_revert').'</a>', '&nbsp;'); ?></td>
+   <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $design['template']; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>"><?php echo $lang->phrase('admin_design_edit'); ?></a></td>
    <td class="mbox">&nbsp;</td>
    <td class="mbox"><input type="radio" name="old" checked="checked" value="<?php echo urldecode($defpath.'/'.$file); ?>" /></td>
    <td class="mbox"><input type="radio" name="new" value="<?php echo urldecode($defpath.'/'.$file); ?>" /></td>
   </tr>
-  <tr><td class="ubox" colspan="7" align="center"><input accesskey="s" type="submit" value="Compare Versions" /></td></tr>
+  <tr><td class="ubox" colspan="7" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_design_compare_versions'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -980,7 +1024,7 @@ elseif ($job == 'templates_file_compare') {
 	$old = $gpc->get('old', none);
 	$new = $gpc->get('new', none);
 	if (empty($old) || empty($new)) {
-		error('javascript:history.back(-1);','Please choose an old and a new version of the file.');
+		error('javascript:history.back(-1);',$lang->phrase('admin_design_choose_an_old_and_new_version'));
 	}
 	$origText = file_get_contents($old);
 	$finalText = file_get_contents($new);
@@ -988,8 +1032,8 @@ elseif ($job == 'templates_file_compare') {
 	?>
 	<table cellspacing="0" cellpadding="0" border="0" width="100%" class="border">
 	 <tr>
-	  <td width="50%" class="obox">Old</td>
-	  <td width="50%" class="obox">New</td>
+	  <td width="50%" class="obox"><?php echo $lang->phrase('admin_design_old'); ?></td>
+	  <td width="50%" class="obox"><?php echo $lang->phrase('admin_design_new'); ?></td>
 	 </tr>
 	<?php
 	foreach ($diff['final'] as $idx => $undef) {
@@ -1097,8 +1141,8 @@ elseif ($job == 'templates_browse') {
 	  <tr>
 	   <td class="mbox" width="50%" style="color: <?php echo $color; ?>"><?php echo $dir['name']; ?></td>
 	   <td class="mbox" width="50%">
-	   <a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>">Edit</a>
-	   <a class="button" href="admin.php?action=designs&job=templates_file_history&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>">View History</a>
+	   <a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>"><?php echo $lang->phrase('admin_design_edit'); ?></a>
+	   <a class="button" href="admin.php?action=designs&job=templates_file_history&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($dir['name']); ?>"><?php echo $lang->phrase('admin_design_view_history'); ?></a>
 	   </td>
 	  </tr>
 	  <?php
@@ -1108,13 +1152,13 @@ elseif ($job == 'templates_browse') {
 	</table><br class="minibr" />
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox">Colors</td>
+   <td class="obox"><?php echo $lang->phrase('admin_design_color'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" style="color: black;">Template is <em>unchanged</em> from the default style</td>
+   <td class="mbox" style="color: black;"><?php echo $lang->phrase('admin_design_template_is_unchanged'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" style="color: green;">Template is <em>customized</em> in this style</td>
+   <td class="mbox" style="color: green;"><?php echo $lang->phrase('admin_design_template_is_customized'); ?></td>
   </tr>
  </table>
 	<?php
@@ -1127,12 +1171,12 @@ elseif ($job == 'css') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=css_add">Add new Stylesheets</a></span>Stylesheet Manager</td>
+   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=css_add"><?php echo $lang->phrase('admin_design_add_new_css'); ?></a></span><?php echo $lang->phrase('admin_design_stylesheet_manager'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="40%">Directory</td>
-   <td class="ubox" width="10%">Files</td>
-   <td class="ubox" width="40%">Action</td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_directory'); ?></td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_design_files'); ?></td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_action'); ?></td>
   </tr>
   <?php
 	while (false !== ($entry = $d->read())) {
@@ -1143,9 +1187,9 @@ elseif ($job == 'css') {
    <td class="mbox"><?php echo $entry; ?></td>
    <td class="mbox" align="right"><?php echo $files; ?></td>
    <td class="mbox">
-   <a class="button" href="admin.php?action=explorer&amp;path=<?php echo urlencode('designs/'.$entry.'/'); ?>">Browse</a>
-   <a class="button" href="admin.php?action=designs&amp;job=css_export&amp;id=<?php echo $entry; ?>">Export</a>
-   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=css&amp;id=<?php echo $entry; ?>">Delete</a>
+   <a class="button" href="admin.php?action=explorer&amp;path=<?php echo urlencode('designs/'.$entry.'/'); ?>"><?php echo $lang->phrase('admin_design_browse'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=css_export&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_export'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=css&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_delete'); ?></a>
    </td>
   </tr>
   <?php } } ?>
@@ -1161,18 +1205,18 @@ elseif ($job == 'css_browse') {
 	$id = $gpc->get('id', int);
 	$path = 'designs/'.$id;
 	if (!is_dir($path)) {
-		error('admin.php?action=designs&job=css', 'Verzeichnis ('.$path.') existiert nicht');
+		error('admin.php?action=designs&job=css', $lang->phrase('admin_design_css_directory_dosent_exist'));
 	}
 	$dirs = recur_dir($path);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="3">Images</td>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_design_images'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="40%">File</td>
-   <td class="ubox" width="10%">Size</td>
-   <td class="ubox" width="40%">Action</td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_file'); ?></td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_design_size'); ?></td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_action'); ?></td>
   </tr>
 	<?php showthis_css($dirs); ?>
  </table>
@@ -1187,10 +1231,10 @@ elseif ($job == 'css_delete') {
 	rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
-		error('admin.php?action=designs&job=css', 'Directory could not be deleted.');
+		error('admin.php?action=designs&job=css', $lang->phrase('admin_design_directory_couldnt_be_deleted'));
 	}
 	else {
-		ok('admin.php?action=designs&job=css', 'Directory successfully deleted.');
+		ok('admin.php?action=designs&job=css', $lang->phrase('admin_design_directory_successfully_deleted'));
 	}
 }
 elseif ($job == 'css_add') {
@@ -1202,14 +1246,14 @@ elseif ($job == 'css_add') {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=css_add2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import new Stylesheets</td></tr>
-  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_design_import_new_stylesheets'); ?></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_either_upload_a_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_allowed_file_types_and_max_file_size'); ?><?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_or_select_file_from_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_path_starting_from_root'); ?></span></td>
   <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Delete file after import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_delete_file_after_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_design_form_send'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -1238,7 +1282,7 @@ elseif ($job == 'css_add2') {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
 				if (!file_exists($file)) {
-					$inserterrors[] = 'File ('.$file.') does not exist.';
+					$inserterrors[] = $lang->phrase('admin_design_file_dosent_exist');
 				}
 			}
 		}
@@ -1252,11 +1296,11 @@ elseif ($job == 'css_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'The selected file is no ZIP-file.';
+			$inserterrors[] = $lang->phrase('admin_design_file_isnt_a_zipfile');
 		}
 	}
 	else {
-		$inserterrors[] = 'No valid file selected.';
+		$inserterrors[] = $lang->phrase('admin_design_no_valid_file_selected');
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -1267,7 +1311,7 @@ elseif ($job == 'css_add2') {
 	while(is_dir('designs/'.$n)) {
 		$n++;
 		if ($n > 10000) {
-			error('admin.php?action=designs&job=css_add', 'Execution stopped: Buffer overflow');
+			error('admin.php?action=designs&job=css_add', $lang->phrase('admin_design_buffer_overflow'));
 		}
 	}
 
@@ -1282,14 +1326,14 @@ elseif ($job == 'css_add2') {
 			$filesystem->unlink($file);
 		}
 		rmdirr($tempdir);
-		error('admin.php?action=designs&job=css_add', 'ZIP-archive could not be read or the folder is empty.');
+		error('admin.php?action=designs&job=css_add', $lang->phrase('admin_design_zip_archive_error'));
 	}
 
 	unset($archive);
 	if ($del > 0) {
 		$filesystem->unlink($file);
 	}
-	ok('admin.php?action=designs&job=css', 'Stylesheets successfully imported into directory '.$n.'.');
+	ok('admin.php?action=designs&job=css', $lang->phrase('admin_design_css_successfully_imported'));
 
 }
 elseif ($job == 'css_export') {
@@ -1323,13 +1367,13 @@ elseif ($job == 'confirm_delete') {
 	echo head();
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4">
-	<tr><td class="obox">Delete the data</td></tr>
+	<tr><td class="obox"><?php echo $lang->phrase('admin_design_delete_the_data'); ?></td></tr>
 	<tr><td class="mbox">
-	<p align="center">Would you really like to delete this data?</p>
+	<p align="center"><?php echo $lang->phrase('admin_design_really_delete_this_data'); ?></p>
 	<p align="center">
-	<a href="admin.php?action=designs&job=<?php echo $type; ?>_delete&id=<?php echo $id; ?>"><img border="0" align="middle" alt="Yes" src="admin/html/images/yes.gif"> Yes</a>
+	<a href="admin.php?action=designs&job=<?php echo $type; ?>_delete&id=<?php echo $id; ?>"><img border="0" alt="<?php echo $lang->phrase('admin_design_yes'); ?>" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_design_yes'); ?></a>
 	&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;
-	<a href="javascript: history.back(-1);"><img border="0" align="middle" alt="No" src="admin/html/images/no.gif"> No</a>
+	<a href="javascript: history.back(-1);"><img border="0" alt="<?php echo $lang->phrase('admin_design_no'); ?>" src="admin/html/images/no.gif"> <?php echo $lang->phrase('admin_design_no'); ?></a>
 	</p>
 	</td></tr>
 	</table>
@@ -1343,12 +1387,12 @@ elseif ($job == 'images') {
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=images_add">Add new Images</a></span>Image Manager</td>
+   <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=images_add"><?php echo $lang->phrase('admin_design_add_new_images'); ?></a></span><?php echo $lang->phrase('admin_design_image_manager'); ?></td>
   </tr>
   <tr>
-   <td class="ubox" width="40%">Directory</td>
-   <td class="ubox" width="10%">Files</td>
-   <td class="ubox" width="40%">Action</td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_directory'); ?></td>
+   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_design_files'); ?></td>
+   <td class="ubox" width="40%"><?php echo $lang->phrase('admin_design_action'); ?></td>
   </tr>
   <?php
 	while (false !== ($entry = $d->read())) {
@@ -1359,9 +1403,9 @@ elseif ($job == 'images') {
    <td class="mbox"><?php echo $entry; ?></td>
    <td class="mbox" align="right"><?php echo $files; ?></td>
    <td class="mbox">
-   <a class="button" href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$entry.'/'); ?>">Browse</a>
-   <a class="button" href="admin.php?action=designs&amp;job=images_export&amp;id=<?php echo $entry; ?>">Export</a>
-   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=images&amp;id=<?php echo $entry; ?>">Delete</a>
+   <a class="button" href="admin.php?action=explorer&path=<?php echo urlencode('./images/'.$entry.'/'); ?>"><?php echo $lang->phrase('admin_design_browse'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=images_export&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_export'); ?></a>
+   <a class="button" href="admin.php?action=designs&amp;job=confirm_delete&amp;type=images&amp;id=<?php echo $entry; ?>"><?php echo $lang->phrase('admin_design_delete'); ?></a>
    </td>
   </tr>
   <?php } } ?>
@@ -1377,10 +1421,10 @@ elseif ($job == 'images_delete') {
 	rmdirr($dir);
 	@clearstatcache();
 	if (file_exists($dir) || is_dir($dir)) {
-		error('admin.php?action=designs&job=images', 'Directory could not be deleted.');
+		error('admin.php?action=designs&job=images', $lang->phrase('admin_design_directory_couldnt_be_deleted'));
 	}
 	else {
-		ok('admin.php?action=designs&job=images', 'Directory successfully deleted.');
+		ok('admin.php?action=designs&job=images', $lang->phrase('admin_design_directory_successfully_deleted'));
 	}
 }
 elseif ($job == 'images_add') {
@@ -1388,14 +1432,14 @@ elseif ($job == 'images_add') {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=images_add2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2">Import new Images</td></tr>
-  <tr><td class="mbox"><em>Either</em> upload a file:<br /><span class="stext">Allowed file types: .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_design_import_new_images'); ?></td></tr>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_either_upload_a_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_allowed_file_types_and_max_file_size'); ?><?php echo formatFilesize(ini_maxupload()); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
-  <tr><td class="mbox"><em>or</em> select a file from the server:<br /><span class="stext">Path starting from the Viscacha-root-directory: <?php echo $config['fpath']; ?></span></td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_or_select_file_from_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_path_starting_from_root'); ?></span></td>
   <td class="mbox"><input type="text" name="server" size="50" /></td></tr>
-  <tr><td class="mbox">Delete file after import:</td>
+  <tr><td class="mbox"><?php echo $lang->phrase('admin_design_delete_file_after_import'); ?></td>
   <td class="mbox"><input type="checkbox" name="delete" value="1" checked="checked" /></td></tr>
-  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="Send" /></td></tr>
+  <tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_design_form_send'); ?>" /></td></tr>
  </table>
 </form>
 	<?php
@@ -1424,7 +1468,7 @@ elseif ($job == 'images_add2') {
 			if ($my_uploader->save_file()) {
 				$file = $dir.$my_uploader->fileinfo('filename');
 				if (!file_exists($file)) {
-					$inserterrors[] = 'File ('.$file.') does not exist.';
+					$inserterrors[] = $lang->phrase('admin_design_file_dosent_exist');
 				}
 			}
 		}
@@ -1438,11 +1482,11 @@ elseif ($job == 'images_add2') {
 			$file = $server;
 		}
 		else {
-			$inserterrors[] = 'The selected file is no ZIP-file.';
+			$inserterrors[] = $lang->phrase('admin_design_file_isnt_a_zipfile');
 		}
 	}
 	else {
-		$inserterrors[] = 'No valid file selected.';
+		$inserterrors[] = $lang->phrase('admin_design_no_valid_file_selected');
 	}
 	echo head();
 	if (count($inserterrors) > 0) {
@@ -1453,7 +1497,7 @@ elseif ($job == 'images_add2') {
 	while(is_dir('images/'.$n)) {
 		$n++;
 		if ($n > 10000) {
-			error('admin.php?action=designs&job=images_add', 'Execution stopped: Buffer overflow');
+			error('admin.php?action=designs&job=images_add', $lang->phrase('admin_design_buffer_overflow'));
 		}
 	}
 
@@ -1468,14 +1512,14 @@ elseif ($job == 'images_add2') {
 			$filesystem->unlink($file);
 		}
 		rmdirr($tempdir);
-		error('admin.php?action=designs&job=images_add', 'ZIP-archive could not be read or the folder is empty.');
+		error('admin.php?action=designs&job=images_add', $lang->phrase('admin_design_zip_archive_error'));
 	}
 
 	unset($archive);
 	if ($del > 0) {
 		$filesystem->unlink($file);
 	}
-	ok('admin.php?action=designs&job=images', 'Images successfully imported into directory '.$n.'.');
+	ok('admin.php?action=designs&job=images', $lang->phrase('admin_design_images_successfully_imported'));
 
 }
 elseif ($job == 'images_export') {

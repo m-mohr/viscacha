@@ -1,13 +1,13 @@
 CREATE TABLE `{:=DBPREFIX=:}filetypes` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `extension` varchar(20) NOT NULL default '',
+  `extension` varchar(200) NOT NULL default '',
   `program` tinytext NOT NULL,
   `desctxt` text NOT NULL,
-  `icon` varchar(50) NOT NULL default '',
-  `mimetype` varchar(64) NOT NULL default 'application/octet-stream',
+  `icon` varchar(100) NOT NULL default '',
+  `mimetype` varchar(100) NOT NULL default 'application/octet-stream',
   `stream` enum('inline','attachment') NOT NULL default 'attachment',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=36 ;
+) TYPE=MyISAM  AUTO_INCREMENT=41 ;
 
 INSERT INTO `{:=DBPREFIX=:}filetypes` (`id`, `extension`, `program`, `desctxt`, `icon`, `mimetype`, `stream`) VALUES (2, 'gif', '', 'Abkürzung für Graphics Interchange Format. Ein Format für Grafikdateien, das von CompuServe entwickelt wurde. Dieses Format wird für die Übertragung von Rasterbildern im Internet verwendet. Ein Bild kann bis zu 256 Farben (einschließlich einer transparenten Farbe) enthalten. Die Dateigröße hängt von der Anzahl der Farben ab, die tatsächlich verwendet werden. Die Komprimierungsmethode LZW wird verwendet, um die Dateigröße weiter zu verringern.', 'gif', 'image/gif', 'inline'),
 (3, 'ps', 'Adobe Reader, PS View', '', 'pdf', 'application/postscript', 'attachment'),
@@ -43,4 +43,4 @@ INSERT INTO `{:=DBPREFIX=:}filetypes` (`id`, `extension`, `program`, `desctxt`, 
 (21, 'css', 'Text-Editor', 'Cascading Style Sheets (CSS) ist eine deklarative Stylesheet-Sprache für strukturierte Dokumente (z.B. HTML und XML). Durch die Trennung von Stil und Inhalt wird das Veröffentlichen und Betreuen von Webseiten wesentlich vereinfacht.', 'css', 'text/css', 'attachment'),
 (22, 'rar', 'WinRAR', 'RAR ist ein Algorithmus und Dateiformat zur Datenkompression, um den Speicherbedarf von Dateien für die Archivierung und Übertragung zu verringern.', 'rar', 'application/x-rar-compressed', 'attachment'),
 (23, 'zip', 'WinZIP, 7-Zip, WinRAR, Power-Archivar, PKZIP', 'Das ZIP-Dateiformat ist ein Format zur komprimierten Archivierung von Dateien.', 'compressed', 'application/zip', 'attachment'),
-(40, 'php,phpx,php5,php4,p', 'PHP, Zend', 'PHP ist eine Skriptsprache mit einer an C bzw. Perl angelehnten Syntax, die hauptsächlich zur Erstellung dynamischer Webseiten verwendet wird. Bei PHP handelt es sich um Open-Source-Software.', 'php', 'text/plain', 'inline');
+(40, 'php,phpx,php5,php4,php3', 'PHP, Zend', 'PHP ist eine Skriptsprache mit einer an C bzw. Perl angelehnten Syntax, die hauptsächlich zur Erstellung dynamischer Webseiten verwendet wird. Bei PHP handelt es sich um Open-Source-Software.', 'php', 'text/plain', 'inline');

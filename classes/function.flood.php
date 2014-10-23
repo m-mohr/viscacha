@@ -2,9 +2,9 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 function flood_protect() {
 	global $config, $my;
-	
+
 	//Konfigurieren
 	if ($config['enableflood'] == 0 || $my->p['flood'] == 0) {
 		return TRUE;
@@ -57,7 +57,7 @@ function flood_protect() {
 		if ($filet == 'm') {
 			if ($data[0] == $my->id && $data[1] > (time()-$my->p['flood'])){
 				return FALSE;
-			} 
+			}
 			else  {
 				return TRUE;
 			}
@@ -65,17 +65,17 @@ function flood_protect() {
 		else {
 			if ($data[0] == getip() && $data[1] > (time()-$my->p['flood'])){
 				return FALSE;
-			} 
+			}
 			else  {
 				return TRUE;
-			}		
+			}
 		}
 	}
 	return TRUE;
 }
 function set_flood() {
-	global $config, $my;
-	
+	global $config, $my, $filesystem;
+
 	if ($config['enableflood'] == 0 || $my->p['flood'] == 0) {
 		return FALSE;
 	}
@@ -132,7 +132,7 @@ function set_flood() {
 		}
 	}
     // Daten Speichern
-	file_put_contents($file,implode("\n",$save));
+	$filesystem->file_put_contents($file,implode("\n",$save));
 	return TRUE;
 }
 

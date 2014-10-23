@@ -21,7 +21,15 @@ function resize_textarea(to) {
 
 function textarea_length(size) {
 	var textarea = FetchElement(textfield);
-	var av = size-textarea.value.length;
+	var value = textarea.value;
+	if (navigator.appVersion.indexOf("Win") != -1) {
+		var replace = "  ";
+	}
+	else {
+		var replace = " ";
+	}
+	value = value.replace(new RegExp("[\\r\\n]{1}", "g"), replace);
+	var av = size-value.length;
 	if (av >= 0) {
 		var key = 'js_ta_left';
 	}

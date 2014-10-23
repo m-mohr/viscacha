@@ -25,7 +25,6 @@ array('path' => 'admin/backup', 'chmod' => CHEX, 'recursive' => false, 'req' => 
 array('path' => 'admin/data', 'chmod' => CHEX, 'recursive' => false, 'req' => false),
 array('path' => 'designs', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
 array('path' => 'images', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
-array('path' => 'components', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
 array('path' => 'language', 'chmod' => CHEX, 'recursive' => true, 'req' => false),
 array('path' => 'cache', 'chmod' => CHEX, 'recursive' => true, 'req' => true),
 array('path' => 'temp', 'chmod' => CHEX, 'recursive' => true, 'req' => true),

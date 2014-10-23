@@ -1,11 +1,14 @@
 * {
-	font-family: MS Sans Serif, Helvetica, Trebuchet MS, Verdana sans-serif;
+	font-family: "Lucida Grande", "MS Sans Serif", "Bitstream Vera Sans", Verdana, sans-serif;
 }
 body {
 	background-color: #EEEEEE;
 	margin: 5px;
 	font-size: 9pt;
 	color: #000000;
+}
+tt, code, pre, .texteditor, .monospace {
+	font-family: "Bitstream Vera Mono", "Courier New", monospace;
 }
 form {
 	margin: 0px;
@@ -38,7 +41,6 @@ input:focus, select:focus, textarea:focus, input:hover, select:hover, textarea:h
 	color: #000000;
 }
 .texteditor {
-	font-family: Courier New, monospace;
 	white-space: pre;
 	max-width: 100%;
 }
@@ -60,6 +62,7 @@ a:hover {
 .border td, .border th {
 	border: 1px solid #3465A4;
 	padding: 4px;
+	line-height: 120%;
 }
 .invisibletable {
 	border-width: 0px;
@@ -74,6 +77,10 @@ a:hover {
 .invisibletable th {
 	text-align: left;
 	border: 0px;
+}
+.inlinelist ul {
+	margin-left: 10px;
+	padding-left: 10px;
 }
 .inlinetable {
 	border: 1px solid #bbbbbb;

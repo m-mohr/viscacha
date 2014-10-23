@@ -4,7 +4,7 @@
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -38,13 +38,7 @@ require_once("classes/class.docoutput.php");
 include_once ("classes/class.bbcode.php");
 
 $scache = new CacheServer();
-$myini = new INI();
-if (SCRIPTNAME == 'admin') {
-	$lang = new lang(false, E_USER_WARNING);
-}
-else {
-	$lang = new lang();
-}
+$lang = new lang();
 $plugins = new PluginSystem();
 
 // Database functions
@@ -224,6 +218,30 @@ function array_empty_trim($arr) {
 	}
 	return $array;
 }
+
+function double_udata ($opt,$val) {
+	global $db;
+	$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE '.$opt.' = "'.$val.'" LIMIT 1',__LINE__,__FILE__);
+	if ($db->num_rows($result) == 0) {
+		if ($opt == 'name') {
+			$olduserdata = file('data/deleteduser.php');
+			foreach ($olduserdata as $row) {
+				$row = trim($row);
+				if (!empty($row)) {
+					$row = explode("\t", $row);
+					if (strtolower($row[1]) == strtolower($val)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 function send_nocache_header() {
 	if (!empty($_SERVER['SERVER_SOFTWARE']) && strstr($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
 		header ('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0');
@@ -346,15 +364,15 @@ function copyr($source, $dest) {
         return $filesystem->copy($source, $dest);
     }
     if (!is_dir($dest)) {
-        $filesystem->mkdir($dest);
+        $filesystem->mkdir($dest, 0777);
     }
     $dir = dir($source);
     while (false !== $entry = $dir->read()) {
         if ($entry == '.' || $entry == '..') {
             continue;
         }
-        if ($dest !== "$source/$entry") {
-            copyr("$source/$entry", "$dest/$entry");
+        if ($dest !== "{$source}/{$entry}") {
+            copyr("{$source}/{$entry}", "{$dest}/{$entry}");
         }
     }
 
@@ -369,22 +387,15 @@ function serverload($int = false) {
 	else {
 		$unknown = -1;
 	}
-	if(strtolower(substr(PHP_OS, 0, 3)) === 'win') {
+	if(isWindows() == true) {
 		return $unknown;
 	}
-	elseif(@file_exists("/proc/loadavg")) {
+	if(@file_exists("/proc/loadavg")) {
 		$load = @file_get_contents("/proc/loadavg");
 		$serverload = explode(" ", $load);
 		$serverload[0] = round($serverload[0], 4);
-		if(!$serverload) {
-			$load = @exec("uptime");
-			$load = split("load averages?: ", $load);
-			if (isset($load[1])) {
-				$serverload = @explode(",", $load[1]);
-			}
-		}
 	}
-	else {
+	if (empty($serverload[0]) && viscacha_function_exists('exec') == true) {
 		$load = @exec("uptime");
 		$load = split("load averages?: ", $load);
 		if (isset($load[1])) {
@@ -405,7 +416,7 @@ function convert2adress($url) {
    $url = strtolower($url);
 
    $find = array(' ',
-      '&quot;',
+      '"',
       '&',
       '\r\n',
       '\n',
@@ -543,19 +554,19 @@ function check_hp($hp) {
 		return false;
 	}
 }
-function check_mail($email) {
+function check_mail($email, $simple = false) {
 	global $config;
 	if(preg_match("/^([_a-zA-Zäöü0-9-]+(\.[_a-zA-Z0-9äöu-]+)*@[a-zA-Zäöu0-9-]+(\.[a-zA-Z0-9äöü-]+)*(\.[a-zA-Z]{2,}))/si", $email)) {
 	 	list(, $domain) = explode('@', $email);
 	 	$domain = strtolower($domain);
 		// Check MX record.
 	 	// The idea for this is from UseBB/phpBB
-	 	if ($config['email_check_mx']) {
+	 	if ($config['email_check_mx'] && !$simple) {
 	 		if (checkdnsrr($domain, 'MX') === false) {
 	 			return false;
 	 		}
 	 	}
-		if ($config['sessionmails'] == 1) {
+		if ($config['sessionmails'] == 1 && !$simple) {
 	    	// get the known domains in lower case
 	    	$sessionmails = file('data/sessionmails.php');
 	    	$sessionmails = array_map("trim", $sessionmails);
@@ -674,7 +685,7 @@ function dateSpec($format, $timestamp = null) {
 		$timestamp = time();
 	}
 	if (is_int($timestamp) == false) {
-		trigger_error('dateSpec(): Second argument has to be integer or null.', E_NOTICE);
+		trigger_error('dateSpec(): Second argument has to be an integer or null.', E_USER_NOTICE);
 	}
 	$timestamp = times($timestamp);
 	$tz = array();

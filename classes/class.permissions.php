@@ -63,7 +63,7 @@ function slog () {
  * @return boolean
  */
 function SessionDel () {
-	global $config;
+	global $config, $filesystem;
 
 	if ($config['sessionrefresh'] == 0) {
 		return true;
@@ -73,7 +73,7 @@ function SessionDel () {
 	$handleget = file_get_contents("data/session_del.php");
 	$lastrefresh = $time-$handleget;
 	if ($lastrefresh > $config['sessionrefresh']) {
-		file_put_contents("data/session_del.php",$time);
+		$filesystem->file_put_contents("data/session_del.php",$time);
 		return true;
 	}
 	else {
@@ -420,6 +420,16 @@ function deleteOldSessions () {
 	}
 }
 
+function httpAuth($name = null) {
+	if ($name == null) {
+		global $config;
+		$name = $config['fname'];
+	}
+	header('WWW-Authenticate: Basic Realm="'.addslashes($name).'"');
+	header('HTTP/1.0 401 Unauthorized');
+	die("Authorization Required.");
+}
+
 /**
  * This script gets and prepares userdata, checks login data, sets cookies and manages sessions.
  *
@@ -439,8 +449,23 @@ function logged () {
     $vdata = $gpc->save_str(getcookie('vdata'));
     $vlastvisit = $gpc->save_int(getcookie('vlastvisit'));
     $vhash = $gpc->save_str(getcookie('vhash'));
-	// Read additional data
-	if (!empty($vdata)) {
+    if ($config['allow_http_auth'] == 1) {
+		if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
+			$http_user = $gpc->save_str($_SERVER['PHP_AUTH_USER']);
+			$http_pw = $gpc->save_str($_SERVER['PHP_AUTH_PW']);
+			$result = $db->query("SELECT id, pw FROM {$db->pre}user WHERE name = '{$http_user}' AND MD5('{$http_pw}') = pw LIMIT 1");
+			if ($db->num_rows($result) == 1) {
+				$this->cookiedata = $db->fetch_num($result);
+			}
+			else {
+				$this->httpAuth();
+			}
+		}
+		else {
+			$this->httpAuth();
+		}
+    }
+	elseif (!empty($vdata)) {
 		$this->cookies = true;
 		$this->cookiedata = explode("|", $vdata);
 	}
@@ -472,7 +497,7 @@ function logged () {
 
 	if (empty($this->sid) && array_empty($this->cookiedata)) {
 		$result = $db->query('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1',__LINE__,__FILE__);
-		if ($db->num_rows() == 1) {
+		if ($db->num_rows($result) == 1) {
 			$sidrow = $db->fetch_assoc($result);
 			$this->sid = $sidrow['sid'];
 			$this->querysid = true;
@@ -605,11 +630,6 @@ function logged () {
 
 	($code = $plugins->load('permissions_logged_end')) ? eval($code) : null;
 
-	if (!empty($this->bots[$my->is_bot]['type']) && $this->bots[$my->is_bot]['type'] == 'e') {
-		// E-Mail-Collector - Ban this user...
-		$this->banish();
-	}
-
 	$this->sid2url($my);
 
 	return $my;
@@ -620,25 +640,83 @@ function logged () {
  *
  * After calling the function exit() is called and script ends.
  * Connection to database is closed. Template 'banned' will be shown.
- * Error Message is loaded from 'data/banned.php'-file.
+ * This is not shown in the AdminCP!
  */
-function banish() {
-	global $config, $db, $phpdoc, $gpc, $lang, $plugins;
-	$slog = new slog();
-	$my = $slog->logged();
-	$lang->init($my->language);
-	$tpl = new tpl();
+function banish($reason = null, $until = null) {
+	if (SCRIPTNAME != 'admin') {
+		global $config, $db, $phpdoc, $lang, $plugins, $tpl, $my, $breadcrumb;
 
-	ob_start();
-	include('data/banned.php');
-	$banned = ob_get_contents();
-	ob_end_clean();
+		if (substr($reason, 0, 6) == 'lang->') {
+			$key = substr($reason, 6);
+			$reason = $lang->phrase($key);
+		}
+		if ($reason == null) {
+			$reason = $lang->phrase('banned_no_reason');
+		}
+		else {
+			$reason = htmlspecialchars($reason);
+		}
+		if ($until > 0) {
+			$until = gmdate($lang->phrase('dformat1'), times($until));
+		}
+		else {
+			$until = $lang->phrase('banned_left_never');
+		}
 
-	($code = $plugins->load('permissions_banish')) ? eval($code) : null;
-	echo $tpl->parse("banned");
-    $phpdoc->Out();
-	$db->close();
-	exit();
+		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
+
+		$tpl->globalvars(compact('reason', 'until'));
+		echo $tpl->parse("banned");
+
+	    $phpdoc->Out();
+		$db->close();
+		exit();
+	}
+}
+
+/**
+ * Checks whether a user has to be banned, and if so, calls $this->banisch().
+ */
+function checkBan() {
+	global $my;
+	$bannedip = file('data/bannedip.php');
+	$bannedip = array_map('trim', $bannedip);
+	$ban = false;
+	foreach ($bannedip as $row) {
+		$row = explode("\t", $row, 6);
+		if ($row[0] == 'ip') {
+			$row[2] = intval($row[2]);
+			if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
+				$ban = true;
+				break;
+			}
+		}
+		elseif ($row[0] == 'user') {
+			$row[2] = intval($row[2]);
+			if ($my->id == $row[1] && ($row[2] > time() || $row[2] == 0)) {
+				$ban = true;
+				break;
+			}
+		}
+		else {
+			continue;
+		}
+	}
+	if ($ban == true) {
+		if (empty($row[5]) == true) {
+			$reson = null;
+		}
+		else {
+			$reason = $row[5];
+		}
+		if ($row[2] == 0) {
+			$until = null;
+		}
+		else {
+			$until = $row[2];
+		}
+		$this->banish($reason, $until);
+	}
 }
 
 /**
@@ -1015,6 +1093,13 @@ function getBoards() {
 function Permissions ($board = 0, $groups = null, $member = null) {
 	global $db, $my, $scache;
 
+	if (!empty($this->bots[$my->is_bot]['type']) && $this->bots[$my->is_bot]['type'] == 'e') {
+		$this->banish('lang->bot_banned'); // Ban sucking spam bots
+	}
+	else {
+		$this->checkBan($my); // Try to ban other banned people or do nothing
+	}
+
 	if ($groups == null && isset($my->groups)) {
 		$groups = $my->groups;
 	}
@@ -1165,6 +1250,9 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 		}
 
 	}
+
+	$this->pwboards();
+
 	return $permissions;
 }
 
@@ -1267,6 +1355,8 @@ function GlobalPermissions() {
 
 	}
 
+	$this->pwboards();
+
 	return $permissions;
 }
 
@@ -1291,8 +1381,8 @@ function ModPermissions ($bid) {
 	    	return array(1,1,1,1,1,1);
 	    }
 	    else {
-		    $result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND time > ".time(),__LINE__,__FILE__);
-	        if ($db->num_rows() > 0) {
+		    $result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)",__LINE__,__FILE__);
+	        if ($db->num_rows($result) > 0) {
 	        	$row = $db->fetch_assoc($result);
 	            return array(1, $row['s_rating'], $row['s_news'], $row['s_article'], $row['p_delete'], $row['p_mc']);
 	        }
@@ -1306,9 +1396,22 @@ function ModPermissions ($bid) {
 	}
 }
 
-/*
-* - Konstruiert den günstigsten SQL-String -
-*/
+function pwboards() {
+	global $scache, $my;
+	$catbid = $scache->load('cat_bid');
+	$forums = $catbid->get();
+	foreach ($forums as $bid => $data) {
+		if ($data['opt'] == 'pw') {
+			if (isset($my->pwfaccess[$bid]) && $my->pwfaccess[$bid] == $data['optvalue']) {
+				$this->positive[$bid] = $bid;
+			}
+			else {
+				$this->negative[$bid] = $bid;
+			}
+		}
+	}
+}
+
 /**
  * Constructs the best sql query.
  *
@@ -1317,28 +1420,42 @@ function ModPermissions ($bid) {
  *
  * @param string field name
  * @param integer
+ * @param array board ids or null for all boards
  * @return string part of sql query
  */
-function sqlinboards($spalte, $r_and = 0) {
+function sqlinboards($spalte, $r_and = 0, $boards = null) {
+	$negative = $this->negative;
+	$positive = $this->positive;
+	if ($boards != null) {
+		// Positive
+		$positive = array_intersect($positive, $boards);
+		// Negative
+		$all = $this->getBoards();
+		$temp = array_diff($all, $boards);
+		$negative = array_merge($temp, $negative);
 
-	if ($this->permissions['forum'] == 1 && count($this->negative) > 1) {
-		$ids = implode(',',$this->negative);
-		$sql = ' '.$spalte.' NOT IN ('.$ids.') ';
 	}
-	elseif ($this->permissions['forum'] == 1 && count($this->negative) == 1) {
-		$sql = ' '.$spalte.' != '.current($this->negative).' ';
+
+	if ($this->permissions['forum'] == 1 && count($negative) > 1) {
+		$ids = implode(',', $negative);
+		$sql = " {$spalte} NOT IN ({$ids}) ";
 	}
-	elseif ($this->permissions['forum'] == 1 && count($this->negative) == 0) {
+	elseif ($this->permissions['forum'] == 1 && count($negative) == 1) {
+		$nid = current($negative);
+		$sql = " {$spalte} != {$nid} ";
+	}
+	elseif ($this->permissions['forum'] == 1 && count($negative) == 0) {
 		$sql = ' 1=1 ';
 	}
-	elseif ($this->permissions['forum'] == 0 && count($this->positive) > 1) {
-		$ids = implode(',',$this->positive);
-		$sql = ' '.$spalte.' IN ('.$ids.') ';
+	elseif ($this->permissions['forum'] == 0 && count($positive) > 1) {
+		$ids = implode(',', $positive);
+		$sql = " {$spalte} IN ({$ids}) ";
 	}
-	elseif ($this->permissions['forum'] == 0 && count($this->positive) == 1) {
-		$sql = ' '.$spalte.' = '.current($this->positive).' ';
+	elseif ($this->permissions['forum'] == 0 && count($positive) == 1) {
+		$pid = current($positive);
+		$sql = " {$spalte} = {$pid} ";
 	}
-	elseif ($this->permissions['forum'] == 0 && count($this->positive) == 0) {
+	elseif ($this->permissions['forum'] == 0 && count($positive) == 0) {
 		$sql = ' 1=0 ';
 	}
 	else {

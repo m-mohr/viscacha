@@ -1,0 +1,14 @@
+<form name="form2" method="post" action="managetopic.php?action=reports2&amp;id=<?php echo $_GET['id']; ?>&amp;topic_id=<?php echo $_GET['topic_id'].SID2URL_x; ?>">
+	<div class="border">
+		<h3><?php echo $lang->phrase('admin_report'); ?></h3>
+		<div class="bbody">
+			<label for="comment"><?php echo $lang->phrase('report_message'); ?></label>
+			<textarea name="comment" id="comment" readonly="readonly" class="label" cols="70" rows="10"><?php echo $data['report']; ?></textarea>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="temp"><?php echo $lang->phrase('admin_report_reset'); ?></label>
+			<input class="label" type="checkbox" id="temp" name="temp" value="1" />
+			<br class="newinput" /><br class="minibr" />
+		</div>
+		<div class="bfoot center"><input type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+	</div>
+</form>

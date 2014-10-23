@@ -199,6 +199,10 @@ members.php
 -members_prepare_bit
 -members_prepared
 -members_end
+-team_top
+-team_moderator_prepared
+-team_prepared
+-team_end
 
 misc.php
 -misc_wwo_start
@@ -385,16 +389,6 @@ showtopic.php
 -showtopic_prepared
 -showtopic_end
 
-spellcheck.php
--spellcheck_start
--spellcheck_end
-
-team.php
--team_top
--team_moderator_prepared
--team_prepared
--team_end
-
 admin/bbcodes.php
 -admin_bbcodes_jobs
 
@@ -433,6 +427,9 @@ admin/members.php
 admin/misc.php
 -admin_misc_jobs
 
+admin/packages.php
+-admin_packages_jobs
+
 admin/posts.php
 -admin_posts_jobs
 
@@ -462,8 +459,7 @@ classes/class.permissions.php
 
 classes/function.frontend_init.php
 -frontend_init
--frontend_init_banned
--frontent_init_offline
+-frontend_init_offline
 
 classes/function.viscacha_frontend.php
 -forums_query
@@ -474,3 +470,6 @@ classes/function.viscacha_frontend.php
 -frontend_errorlogin
 -frontend_error
 -frontend_ok
+
+templates/*/menu.html
+-template_forum_menu

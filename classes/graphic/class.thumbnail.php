@@ -16,19 +16,19 @@ function thumbnail () {
     $this->path = '';
 	$this->mime = array();
 
-    if (function_exists('imagejpeg') && IMG_JPEG) {
+    if (viscacha_function_exists('imagejpeg') && IMG_JPEG) {
     	define('IMAGEJPEG', true);
     }
     else {
     	define('IMAGEJPEG', false);
     }
-    if (function_exists('imagegif') && IMG_GIF) {
+    if (viscacha_function_exists('imagegif') && IMG_GIF) {
     	define('IMAGEGIF', true);
     }
     else {
     	define('IMAGEGIF', false);
     }
-    if (function_exists('imagepng') && IMG_PNG) {
+    if (viscacha_function_exists('imagepng') && IMG_PNG) {
     	define('IMAGEPNG', true);
     }
     else {
@@ -93,17 +93,17 @@ function create_thumbnail($attachment) {
 		if ($width > $config['tpcthumbwidth'] OR $height > $config['tpcthumbheight']) {
 			switch($imageinfo[2]) {
 				case 1:
-					if (!(function_exists('imagecreatefromgif') AND $image = @imagecreatefromgif($attachment))) {
+					if (!(viscacha_function_exists('imagecreatefromgif') AND $image = @imagecreatefromgif($attachment))) {
 						$this->create_error($this->lang['tne_giferror']);
 					}
 					break;
 				case 2:
-					if (!(function_exists('imagecreatefromjpeg') AND $image = imagecreatefromjpeg($attachment))) {
+					if (!(viscacha_function_exists('imagecreatefromjpeg') AND $image = imagecreatefromjpeg($attachment))) {
 						$this->create_error($this->lang['tne_jpgerror']);
 					}
 					break;
 				case 3:
-					if (!(function_exists('imagecreatefrompng') AND $image = imagecreatefrompng($attachment))) {
+					if (!(viscacha_function_exists('imagecreatefrompng') AND $image = imagecreatefrompng($attachment))) {
 						$this->create_error($this->lang['tne_pngerror']);
 					}
 					break;

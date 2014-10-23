@@ -2,7 +2,7 @@
 /*
 	Viscacha - A bulletin board solution for easily managing your content
 	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
-	
+
 	Author: Matthias Mohr
 	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
@@ -46,7 +46,7 @@ if ($my->p['admin'] != 1) {
 }
 ($code = $plugins->load('docs_query')) ? eval($code) : null;
 $result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}' {$nonadmin} LIMIT 1");
-if ($db->num_rows() != 1) {
+if ($db->num_rows($result) != 1) {
 	error($lang->phrase('docs_not_found'));
 }
 else {
@@ -97,7 +97,7 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 			'remote' => 0
 		);
 	}
-	
+
 	if ($typedata['inline'] == 0) {
 		if ((empty($info['content']) || $typedata['remote'] == 1) && $typedata['template'] != 'frame') {
 			$info['content'] = @file_get_contents($info['file']);
@@ -123,7 +123,7 @@ if ($my->p['docs'] == 1 && GroupCheck($info['groups'])) {
 			preg_match("~<title>(.+?)</title>~is", $info['content'], $match_title);
 			preg_match("~<body[^>]*?>(.+?)</body>~is", $info['content'], $match_body);
 			preg_match("~<head[^>]*?>(.+?)</head>~is", $info['content'], $match_head);
-			
+
 			if (!empty($match_head[1])) {
 				$match_head[1] = preg_replace("~<title>(.+?)</title>~is", "", $match_head[1]);
 				$htmlhead .= $match_head[1];
@@ -161,5 +161,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();		
+$db->close();
 ?>
