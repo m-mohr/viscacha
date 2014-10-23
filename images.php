@@ -81,13 +81,13 @@ elseif ($_GET['action'] == 'captcha') {
 	send_nocache_header();
 	$place = $gpc->get('place', none, 'posts');
 	$captcha = newCAPTCHA($place);
-	$captcha->makeImage();
+	$captcha->makeImage($lang->phrase('img_captcha_session_expired_error'));
 }
 elseif ($_GET['action'] == 'textimage') {
 	require('classes/graphic/class.text2image.php');
 
 	$img = new text2image();
-	$text = $gpc->get('text', none, '-');
+	$text = $gpc->get('text', none);
 	$angle = $gpc->get('angle', int);
 	$size = $gpc->get('size', int);
 	$bg = $gpc->get('bg');
@@ -95,7 +95,13 @@ elseif ($_GET['action'] == 'textimage') {
 	$file = $gpc->get('file');
 	$enc = $gpc->get('enc');
 
-	if ($size < 6) {
+	if (empty($text)) {
+		$text = '-';
+	}
+	else {
+		$text = substr($text, 0, 256);
+	}
+	if ($size < 6 || $size > 50) {
 		$size = 10;
 	}
 	if (strlen($bg) != 3 && strlen($bg) != 6) {
@@ -105,9 +111,12 @@ elseif ($_GET['action'] == 'textimage') {
 		$fg = '000000';
 	}
 	if (!preg_match('/^[\w\d\-\.]+$/', $file) || !file_exists("./classes/fonts/{$file}.ttf")) {
-		$file = 'trebuchet';
+		$file = null;
 	}
-	$img->prepare($text, $angle, $size, "./classes/fonts/{$file}.ttf");
+	else {
+		$file = "./classes/fonts/{$file}.ttf";
+	}
+	$img->prepare($text, $angle, $size, $file);
 	if (!empty($enc)) {
 		$img->base64();
 	}

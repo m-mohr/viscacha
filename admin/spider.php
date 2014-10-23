@@ -316,9 +316,9 @@ elseif ($job == 'add' || $job == 'edit') {
 			<td class="mbox" width="40%"><?php echo $lang->phrase('admin_spider_type'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_spider_type_description'); ?></span></td>
 			<td class="mbox">
 				<input type="radio" name="type" value="b"<?php echo iif(($job == 'edit' && $row['type'] == 'b'), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_spider_search_engine'); ?><br />
-   				<input type="radio" name="type" value="e"<?php echo iif(($job == 'edit' && $row['type'] == 'e'), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_spider_mail_collector_or_spam_bot'); ?><br />
-   				<input type="radio" name="type" value="v"<?php echo iif(($job == 'edit' && $row['type'] == 'v'), ' checked="checked"'); ?> /> <?php $lang->phrase('admin_spider_validator'); ?>
-   			</td>
+				<input type="radio" name="type" value="e"<?php echo iif(($job == 'edit' && $row['type'] == 'e'), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_spider_mail_collector_or_spam_bot'); ?><br />
+				<input type="radio" name="type" value="v"<?php echo iif(($job == 'edit' && $row['type'] == 'v'), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_spider_validator'); ?>
+			</td>
 		</tr>
 		<?php if ($job == 'edit') { ?>
 		<tr>

@@ -8,8 +8,7 @@ if (!class_exists('filesystem')) {
 
 $tar_packs = array(
 	1 => 'update.admin.tar',
-	2 => 'update.classes.tar',
-	3 => 'update.misc.tar'
+	2 => 'update.misc.tar'
 );
 if (empty($_REQUEST['sub']) || !isset($tar_packs[$_REQUEST['sub']])) {
 	$sub = 1;
@@ -22,6 +21,34 @@ require('install/classes/class.tar.php');
 $tar = new tar(realpath('install/files/'), $tar_packs[$sub]);
 $tar->ignore_chmod();
 $error = $tar->extract_files('./');
+
+$files = implode("\n", $tar->list_files());
+$dirs = array('language' => null, 'templates' => null, 'designs' => null, 'images' => null);
+preg_match_all('~^('.implode('|', array_keys($dirs)).')/(\d+)/([^\n]+)$~m', $files, $replicable, PREG_SET_ORDER);
+foreach ($replicable as $rep) {
+	if ($dirs[$rep[1]] === null) {
+		$dirs[$rep[1]] = array();
+		$dir = dir($rep[1]);
+		while (false !== ($entry = $dir->read())) {
+			if (is_id($entry) && is_dir($rep[1].'/'.$entry)) {
+				$dirs[$rep[1]][$entry] = $rep[1].'/'.$entry.'/';
+			}
+		}
+		$dir->close();
+	}
+
+	$content = file_get_contents($rep[0]);
+	foreach ($dirs[$rep[1]] as $path) {
+		$target = $path.$rep[3];
+		if (file_exists($target)) {
+			$filesystem->chmod($target, 0666);
+		}
+		elseif (!@is_dir(dirname($target))) {
+			$filesystem->mkdir(dirname($target), 0777);
+		}
+		$filesystem->file_put_contents($target, $content);
+	}
+}
 ?>
 <div class="bfoot">Source file updater - Step <?php echo $sub; ?> of <?php echo count($tar_packs); ?> - Currently extracting: <?php echo $tar_packs[$sub]; ?></div>
 <?php if ($error === false) { ?>

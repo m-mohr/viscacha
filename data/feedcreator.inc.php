@@ -6,7 +6,6 @@ GOOGLESITEMAP|googlesitemap.inc.php|Google Sitemap|0|0
 HTML|html.inc.php|HTML|0|0
 PIE01|pie01.inc.php|Pie 0.1|0|0
 JAVASCRIPT|javascript.inc.php|JavaScript|0|0
-MBOX|mbox.inc.php|MBox|0|1
 OPML|opml.inc.php|OPML|1|0
 XBEL|xbel.inc.php|XBEL|0|0
 KLIPFOLIO|klipfolio.inc.php|Klipfolio|1|1

@@ -229,7 +229,7 @@ else {
 
 				$slog->updatelogged();
 				$db->close();
-				viscacha_header('Location: attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
+				sendStatusCode(307, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
 				exit;
 			}
 		}
@@ -290,7 +290,7 @@ else {
 			else {
 				$slog->updatelogged();
 				$db->close();
-				viscacha_header('Location: attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
+				sendStatusCode(307, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
 				exit;
 			}
 		}
@@ -334,7 +334,6 @@ else {
 }
 
 $slog->updatelogged();
-$zeitmessung = t2();
 $phpdoc->Out();
 $db->close();
 ?>

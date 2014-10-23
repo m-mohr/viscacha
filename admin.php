@@ -97,6 +97,9 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'packages') {
 		include('admin/packages.php');
 	}
+	elseif ($action == 'admin') {
+		include('admin/packages_admin.php');
+	}
 	elseif ($action == 'profilefield') {
 		include('admin/profilefield.php');
 	}
@@ -112,7 +115,7 @@ if ($my->p['admin'] == 1) {
 		$url = $gpc->get('url', none);
 		if (!empty($url)) {
 			$db->close();
-			viscacha_header('Location: '.$url);
+			sendStatusCode(307, $url);
 			exit;
 		}
 		else {

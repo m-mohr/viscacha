@@ -77,6 +77,7 @@ foreach ($data as $feed) {
 		'header' => $feed[4]
 	);
 }
+
 if (!isset($f[$action])) {
 	$t = current($f);
 	$action = $t['class'];
@@ -91,17 +92,17 @@ else {
 
 // Header of feeds
 $rss = new UniversalFeedCreator();
-$rss->encoding = $lang->charset();
+$rss->encoding = 'UTF-8';
 $rss->setDir("feeds/topics_");
 $rss->useCached($action, '', $h);
-$rss->title = $gpc->plain_str($config['fname']);
-$rss->description = $gpc->plain_str($config['fdesc']);
+$rss->title = $config['fname'];
+$rss->description = $config['fdesc'];
 $rss->link = $config['furl']."/forum.php";
 $rss->language = $lang->phrase('rss_language');
 $rss->ttl = $config['rssttl'];
-$rss->copyright = $gpc->plain_str($config['fname']);
+$rss->copyright = $config['fname'];
 $rss->lastBuildDate = time();
-$rss->editor = $gpc->plain_str($config['fname']);
+$rss->editor = $config['fname'];
 if ($config['syndication_insert_email'] == 1) {
 	$rss->editorEmail = $config['forenmail'];
 }

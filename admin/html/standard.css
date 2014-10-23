@@ -179,7 +179,10 @@ a:hover {
 .valign {
 	vertical-align: middle;
 }
-
+.logcolumn {
+	overflow-y: auto;
+	height: 3em;
+}
 /* BB-Code Ausgabe */
 .bb_table {
 	border: 1px dotted #BCCADA;

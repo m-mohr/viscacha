@@ -233,7 +233,7 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		if (!isset($cache2[$_POST['opt_5']])) {
 			$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 		}
-		if (!empty($_POST['pic']) && preg_match(URL_REGEXP, $_POST['pic'])) {
+		if (!empty($_POST['pic']) && preg_match('~^'.URL_REGEXP.'$~i', $_POST['pic'])) {
 			$_POST['pic'] = checkRemotePic($_POST['pic'], $_GET['id'], "managemembers.php?action=edit&id=".$_GET['id']);
 			switch ($_POST['pic']) {
 				case REMOTE_INVALID_URL:

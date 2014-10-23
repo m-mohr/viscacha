@@ -7,7 +7,6 @@
 class GOOGLESITEMAP extends FeedCreator {
 
 function GOOGLESITEMAP() {
-	$this->encoding = "utf-8";
 }
 
 /**
@@ -16,7 +15,7 @@ function GOOGLESITEMAP() {
 * @return string the feed's complete text
 */
 function createFeed() {
-	$feed = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	$feed = "<?xml version=\"1.0\" encoding=\"{$this->encoding}\"?>\n";
 	$feed.= "<urlset xmlns=\"http://www.google.com/schemas/sitemap/0.84\"\n";
 	$feed.= "		 xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
 	$feed.= "		 xsi:schemaLocation=\"http://www.google.com/schemas/sitemap/0.84\n";
@@ -31,10 +30,10 @@ function createFeed() {
 	  		$feed.= "	 <lastmod>".$this->htmlspecialchars($itemDate->iso8601())."</lastmod>\n";
    		}
 		if (!empty($this->items[$i]->priority)) {
-		  $feed.= "	   <priority>".$this->items[$i]->priority."</priority>\n";
+		  $feed.= "	   <priority>".$this->htmlspecialchars($this->items[$i]->priority)."</priority>\n";
 		}
 		if (!empty($this->items[$i]->changefreq)) {
-		  $feed.= "	   <changefreq>".$this->items[$i]->changefreq."</changefreq>\n";
+		  $feed.= "	   <changefreq>".$this->htmlspecialchars($this->items[$i]->changefreq)."</changefreq>\n";
 		}
 		$feed.= "  </url>\n";
   	}

@@ -109,10 +109,7 @@ elseif ($job == 'ftp') {
 	$temp = $gpc->prepare($temp);
 
 	$path = '-';
-	$doc = realpath(getDocumentRoot());
-	if (!empty($doc)) {
-		$path = str_replace($doc.DIRECTORY_SEPARATOR, '', realpath('./'));
-	}
+	// @todo Add a better way to  determine the path for ftp
 
 	echo head();
 	?>
@@ -1480,12 +1477,24 @@ elseif ($job == 'cron2') {
 elseif ($job == 'general') {
 	echo head();
 
-	if (!empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['PHP_SELF'])) {
-		$furl = "http://".$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
+	// HTTP_HOST is having the correct browser url in most cases...
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
+
+	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
+	if (!$source) {
+		$source = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
 	}
-	else {
+	// Replace backslashes and doubled slashes (could happen on some proxy setups)
+	$source = str_replace(array('\\', '//', '/admin'), '/', $source);
+	$source = trim(trim(dirname($source)), '/');
+	$furl = $https.$server_name.'/'.$source;
+
+	if (!check_hp($furl)) {
 		$furl = $lang->phrase('admin_unable_to_analyze_url');
 	}
+
+	$fpath = str_replace('\\', '/', realpath('./'));
 
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=general2">
@@ -1502,11 +1511,11 @@ elseif ($job == 'general') {
 	   <td class="mbox" width="50%"><input type="text" name="fdesc" value="<?php echo $config['fdesc']; ?>" size="50"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_page_url'); ?><br><span class="stext"><?php echo $lang->phrase('admin_page_url_info'); ?></span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_page_url'); ?><br><span class="stext"><?php echo $lang->phrase('admin_page_url_info'); ?> <?php echo $furl; ?></span></td>
 	   <td class="mbox" width="50%"><input type="text" name="furl" value="<?php echo $gpc->prepare($config['furl']); ?>" size="50"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_path_forum'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_path_forum_info'); ?> <?php echo str_replace('\\', '/', realpath('./')); ?></span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_path_forum'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_path_forum_info'); ?> <?php echo $fpath; ?></span></td>
 	   <td class="mbox" width="50%"><input type="text" name="fpath" value="<?php echo $gpc->prepare($config['fpath']); ?>" size="50"></td>
 	  </tr>
 	  <tr>
@@ -1913,7 +1922,13 @@ elseif ($job == 'spiders') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_logging_visits'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_activate_logging_visits_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="spider_logvisits" value="1"<?php echo iif($config['spider_logvisits'],' checked'); ?>></td>
+	   <td class="mbox" width="50%">
+	    <select name="spider_logvisits">
+	     <option value="0"<?php echo iif($config['spider_logvisits'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_logvisits_no_logging'); ?></option>
+	     <option value="1"<?php echo iif($config['spider_logvisits'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_logvisits_full_logging'); ?></option>
+	     <option value="2"<?php echo iif($config['spider_logvisits'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_logvisits_count_logging'); ?></option>
+	    </select>
+	   </td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_logging_missing_ip'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_activate_logging_missing_ip_info'); ?></span></td>
@@ -1941,7 +1956,7 @@ elseif ($job == 'version') {
 	echo head();
 
 	$cache = $scache->load('version_check');
-	$data = $cache->get(60*60*24);
+	$data = $cache->get();
 
 	if ($data['comp'] == '3') {
 		$res = $lang->phrase('admin_v_not_up2date');
@@ -2003,7 +2018,10 @@ elseif ($job == 'custom') {
 	<form name="form" method="post" action="admin.php?action=settings&job=custom2&id=<?php echo $id; ?>&package=<?php echo $package; ?>">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	  <tr>
-	   <td class="obox" colspan="4"><b><?php echo $lang->phrase('admin_custom_settings'); ?></b></td>
+	   <td class="obox" colspan="4">
+	    <span class="right"><a class="button" href="admin.php?action=settings&amp;job=new&amp;package=<?php echo $package; ?>"><?php echo $lang->phrase('admin_setting_new_setting'); ?></a></span>
+	    <?php echo $lang->phrase('admin_custom_settings'); ?>
+	   </td>
 	  </tr>
 	<?php
 	if ($db->num_rows($result) > 0) {
@@ -2027,7 +2045,7 @@ elseif ($job == 'custom') {
 	else {
 	?>
 	  <tr>
-	   <td class="mbox" colspan="4" align="center"><?php echo $lang->phrase('admin_custom_settings_info'); ?> <a href="admin.php?action=settings&job=new&package=<?php echo $package; ?>"><?php echo $lang->phrase('admin_custom_settings_info2'); ?></a></td>
+	   <td class="mbox" colspan="4" align="center"><?php echo $lang->phrase('admin_custom_settings_info'); ?> <a href="admin.php?action=settings&amp;job=new&amp;package=<?php echo $package; ?>"><?php echo $lang->phrase('admin_custom_settings_info2'); ?></a></td>
 	  </tr>
 	<?php
 	}
@@ -2412,7 +2430,7 @@ else {
 		  	  <option value="admin.php?action=db&amp;job=optimize"><?php echo $lang->phrase('admin_select_optimize_repair'); ?></option>
 		  	  <option value="admin.php?action=db&amp;job=execute"><?php echo $lang->phrase('admin_select_execute_slq'); ?></option>
 		  	  <option value="admin.php?action=db&amp;job=status"><?php echo $lang->phrase('admin_select_status_database'); ?></option>
-		  	  <option value="admin.php?action=slog&amp;job=l_mysqlerror"><?php echo $lang->phrase('admin_select_slq_erroe_log'); ?></option>
+		  	  <option value="admin.php?action=slog&amp;job=l_mysqlerror"><?php echo $lang->phrase('admin_select_sys_error_log'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
 		  </form>
 		</td>

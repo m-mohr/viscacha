@@ -208,13 +208,26 @@ while ($row = $db->fetch_object($result)) {
 		}
 	}
 
+	$edit = array();
 	if (!empty($row->edit)) {
-		$edits = explode("\n", $row->edit);
-		$anz = count($edits);
-		$anz--;
-		$lastdata = explode("\t", $edits[$anz-1]);
-		$date = gmdate($lang->phrase('dformat1'), times($lastdata[1]));
-		$why = iif(empty($lastdata[2]), $lang->phrase('post_editinfo_na'), $bbcode->wordwrap($lastdata[2]));
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row->edit, $edits, PREG_SET_ORDER);
+		BBProfile($bbcode);
+		foreach ($edits as $e) {
+			$edit[] = array(
+				$e[1],
+				gmdate($lang->phrase('dformat1'), times($e[2])),
+				empty($e[3]) ? $lang->phrase('post_editinfo_na') : $bbcode->wordwrap($e[3]),
+				empty($e[4]) ? '-' : $e[4]
+			);
+		}
+		$anz = count($edit);
+		if ($anz == 0) {
+			$row->edit = null;
+		}
+		$lastdata = end($edit);
+		if ($lastdata != false) {
+			list(, $date, $why, ) = $lastdata;
+		}
 	}
 
 	($code = $plugins->load('print_entry_prepared')) ? eval($code) : null;

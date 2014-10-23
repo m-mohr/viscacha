@@ -23,14 +23,14 @@ function array_diff_all($arr_new, $arr_old, $assoc = false) {
 		$intersect = 'array_intersect';
 		$diff = 'array_diff';
 	}
-    $arr_equ = $intersect($arr_new, $arr_old);
-    $arr_del = $diff($arr_old, $arr_new);
-    $arr_add = $diff($arr_new, $arr_old);
-    return array(
-    	DO_UPD_EQU => $arr_equ,
-    	DO_UPD_DEL => $arr_del,
-    	DO_UPD_ADD => $arr_add
-    );
+	$arr_equ = $intersect($arr_new, $arr_old);
+	$arr_del = $diff($arr_old, $arr_new);
+	$arr_add = $diff($arr_new, $arr_old);
+	return array(
+		DO_UPD_EQU => $arr_equ,
+		DO_UPD_DEL => $arr_del,
+		DO_UPD_ADD => $arr_add
+	);
 }
 
 function count_diff_all($diff) {
@@ -53,6 +53,11 @@ function browser_sort_date($a, $b) {
 
 if ($job == 'package') {
 	echo head();
+	$hasACP = array();
+	$result = $db->query("SELECT module FROM {$db->pre}plugins WHERE position LIKE 'admin\_component\_%'");
+	while ($row = $db->fetch_assoc($result)) {
+		$hasACP[] = $row['module'];
+	}
 	$result = $db->query("
 		SELECT p.*, s.id AS config
 		FROM {$db->pre}packages AS p
@@ -68,7 +73,6 @@ if ($job == 'package') {
 	  <tr>
 	  	<td class="mbox center">
 	  		<?php if ($my->settings['admin_interface'] != 1) { ?>
-			<a class="button" href="admin.php?action=packages&amp;job=com" target="Main"><?php echo $lang->phrase('admin_packages_component_manager'); ?></a>
 			<a class="button" href="admin.php?action=packages&amp;job=plugins" target="Main"><?php echo $lang->phrase('admin_packages_plugin_manager'); ?></a>
 	  		<?php } ?>
 	  		<a class="button" href="admin.php?action=packages&amp;job=browser"><?php echo $lang->phrase('admin_packages_browse_packages'); ?></a>
@@ -95,13 +99,9 @@ if ($job == 'package') {
 	  	<td class="mbox center"><?php echo noki($row['core']); ?></td>
 	  	<td class="mbox">
 	  		<a class="button" href="admin.php?action=packages&amp;job=package_info&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_package_details'); ?></a>
-	  		<?php
-	  		if (file_exists("modules/{$row['id']}/component.ini")) {
-				$com = $myini->read("modules/{$row['id']}/component.ini");
-	  			if (!empty($com['admin']['frontpage']) == true) {
-	  		?>
-	  		<a class="button" href="admin.php?action=packages&amp;job=package_admin&amp;cid=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_administration'); ?></a>
-	  		<?php } } if ($row['config'] > 0) { ?>
+	  		<?php if (in_array($row['id'], $hasACP)) { ?>
+	  		<a class="button" href="admin.php?action=admin&amp;cid=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_administration'); ?></a>
+	  		<?php } if ($row['config'] > 0) { ?>
 	  		<a class="button" href="admin.php?action=settings&amp;job=custom&amp;id=<?php echo $row['config']; ?>&amp;package=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_configuration'); ?></a>
 	  		<?php } ?>
 	  		<a class="button" href="admin.php?action=packages&amp;job=package_edit&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_edit'); ?></a>
@@ -119,42 +119,6 @@ if ($job == 'package') {
 	 </table>
 	<?php
 	echo foot();
-}
-elseif ($job == 'package_admin') {
-	$id = $gpc->get('cid', int);
-	$mod = $gpc->get('file', str, 'frontpage');
-	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
-	if ($db->num_rows($result) == 0) {
-		echo head();
-		error('admin.php?action=cms&job=package',$lang->phrase('admin_packages_err_no_package_with_this_id'));
-	}
-	$pack = $row = $db->fetch_assoc($result); // $row for compatibility
-	$com = $myini->read('modules/'.$pack['id'].'/component.ini');
-	if (!isset($com['admin'][$mod])) {
-		echo head();
-		error('admin.php?action=cms&job=package',$lang->phrase('admin_packages_err_section_not_found'));
-	}
-
-	DEFINE('COM_ID', $pack['id']);
-	DEFINE('COM_DIR', 'modules/'.COM_ID.'/');
-	if (!isset($com['admin'][$mod])) {
-		DEFINE('COM_MODULE', 'frontpage');
-	}
-	else {
-		DEFINE('COM_MODULE', $mod);
-	}
-	DEFINE('COM_MODULE_FILE', $com['admin'][COM_MODULE]);
-	DEFINE('COM_FILE', $com['admin']['frontpage']);
-
-	$uri = explode('?', $com['admin'][$mod]);
-	$file = basename($uri[0]);
-	if (isset($uri[1])) {
-		parse_str($uri[1], $input);
-	}
-	else {
-		$input = array();
-	}
-	include("modules/{$pack['id']}/{$file}");
 }
 elseif ($job == 'package_update') {
 	echo head();
@@ -365,198 +329,6 @@ elseif ($job == 'package_update2') {
 		}
 		$c->savedata();
 
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'");
-		$design = $db->fetch_assoc($result);
-
-		// Components Start
-		$result = $db->query("SELECT id FROM {$db->pre}component WHERE package = '{$packageid}'");
-		$do = null;
-		if ($db->num_rows($result) == 0) {
-			if (file_exists($tdir.'modules/component.ini')) {
-				$do = DO_UPD_ADD; // Insert
-			}
-		}
-		else {
-			list($comid) = $db->fetch_num($result);
-			if (file_exists($tdir.'modules/component.ini')) {
-				$do = DO_UPD_CHNG; // Update
-			}
-			else {
-				$do = DO_UPD_DEL; // Delete
-			}
-		}
-
-
-		$com = $old_com = array();
-		if (file_exists($moddir.'component.ini')) {
-			$old_com = $myini->read($moddir.'component.ini');
-		}
-		if (file_exists($tdir.'modules/component.ini')) {
-			$com = $myini->read($tdir.'modules/component.ini');
-			if (!isset($com['module']['frontpage'])) {
-				$com['module']['frontpage'] = '';
-			}
-		}
-
-		if ($do == DO_UPD_ADD) {
-			$db->query("INSERT INTO {$db->pre}component (file, package, required) VALUES ('".$gpc->save_str($com['module']['frontpage'])."', '{$packageid}', '".$gpc->save_str($com['info']['required'])."')");
-			$comid = $db->insert_id();
-		}
-		elseif ($do == DO_UPD_CHNG) {
-			$db->query("UPDATE {$db->pre}component SET file = '".$gpc->save_str($com['module']['frontpage'])."', required = '".$gpc->save_str($com['info']['required'])."' WHERE id = '{$comid}'");
-		}
-		elseif ($do == DO_UPD_DEL) {
-			$db->query("DELETE FROM {$db->pre}component WHERE id = '{$comid}'");
-		}
-
-		if ($do != null) {
-			// Images
-			$diff = array_diff_all(
-				isset($com['images']) ? $com['images'] : array(),
-				isset($old_com['images']) ? $old_com['images'] : array()
-			);
-			if (count_diff_all($diff) > 0) {
-				foreach ($diff as $handler => $files) {
-					foreach($files as $file) {
-						$dir1 = "{$tdir}images/{$file}";
-						$dir2 = "./images/{$design['images']}/{$file}";
-						if ($handler == DO_UPD_ADD) {
-							$filesystem->unlink($dir2);
-							$filesystem->rename($dir1, $dir2);
-						}
-						elseif ($handler == DO_UPD_DEL) {
-							$filesystem->unlink($dir2);
-						}
-						// Dont update equal files. That has to be done by the custom updater when its required. We dont do that on account of loss of customized data.
-					}
-				}
-			}
-
-			// Stylesheets
-			$diff = array_diff_all(
-				isset($com['designs']) ? $com['designs'] : array(),
-				isset($old_com['designs']) ? $old_com['designs'] : array()
-			);
-			if (count_diff_all($diff) > 0) {
-				$default_dir = "./designs/{$css['stylesheet']}/";
-				foreach ($diff as $handler => $files) {
-					foreach ($com['designs'] as $file) {
-						$dir1 = "{$tdir}designs/{$file}";
-						if ($handler == DO_UPD_ADD) {
-							$filesystem->unlink($default_dir.$file); // Delete old data (rename will fail if file exists)
-							$filesystem->rename($dir1, $default_dir.$file);
-						}
-						elseif ($handler == DO_UPD_DEL) {
-							$filesystem->unlink($default_dir.$file);
-						}
-					}
-				}
-				// Get non standard stylesheets. We have to copy them from the default... (safe mode workaround)
-				$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'");
-				while ($css = $db->fetch_assoc($result)) {
-					foreach ($diff as $handler => $files) {
-						foreach ($com['designs'] as $file) {
-							$dir2 = "./designs/{$css['stylesheet']}/{$file}";
-							if ($handler == DO_UPD_ADD) {
-								$filesystem->unlink($dir2);  // Delete old data (rename will fail if file exists)
-								$filesystem->rename($default_dir.$file, $dir2);
-							}
-							elseif ($handler == DO_UPD_DEL) {
-								$filesystem->unlink($dir2);
-							}
-							// Dont update equal files. Like above...
-						}
-					}
-				}
-			}
-
-			// Language-Files
-			$diff = array_diff_all(
-				isset($com['language']) ? $com['language'] : array(),
-				isset($old_com['language']) ? $old_com['language'] : array()
-			);
-			if (count_diff_all($diff) > 0) {
-				$codes = getLangCodesByDir($tdir.'language/');
-				$langcodes = getLangCodes();
-				foreach ($langcodes as $code => $lid) {
-					$ldat = explode('_', $code);
-					if (isset($codes[$ldat[0]])) {
-						$count = count($codes[$ldat[0]]);
-						if (in_array('', $codes[$ldat[0]])) {
-							$count--;
-						}
-					}
-					else {
-						$count = -1;
-					}
-					$filesystem->mkdir("./language/{$lid}/modules/{$packageid}", 0777);
-					if (isset($codes[$ldat[0]]) && !empty($ldat[1]) && in_array($ldat[1], $codes[$ldat[0]])) { // Nehme Original
-						$src = $code;
-					}
-					elseif(isset($codes[$ldat[0]]) && in_array('', $codes[$ldat[0]])) { // Nehme gleichen Langcode, aber ohne Countrycode
-						$src = $ldat[0];
-					}
-					elseif(isset($codes[$ldat[0]]) && $count > 0) { // Nehme gleichen Langcode, aber falchen Countrycode
-						$src = $ldat[0].'_'.reset($codes[$ldat[0]]);
-					}
-					else { // Nehme Standard
-						$src = '';
-					}
-					$src = iif(!empty($src), '/'.$src);
-					$langcodes[$code] = array('lid' => $lid, 'src' => $src);
-				}
-
-				foreach ($diff as $handler => $files) {
-					foreach($files as $file) {
-						foreach ($langcodes as $code => $dat) {
-							if (file_exists("{$tdir}/language/{$dat['src']}/{$file}") == false) {
-								$dat['src'] = '';
-							}
-							if (!empty($dat['src'])) {
-								$source = "{$tdir}/language/{$dat['src']}/{$file}";
-							}
-							else {
-								$source = "{$tdir}/language/{$file}";
-							}
-							$target = "./language/{$dat['lid']}/modules/{$packageid}/{$file}";
-							if ($handler == DO_UPD_ADD) {
-								$filesystem->unlink($target);
-								$filesystem->copy($source, $target);
-							}
-							elseif ($handler == DO_UPD_DEL) {
-								$filesystem->unlink($target);
-							}
-							elseif ($handler == DO_UPD_EQU) {
-								// Add new phrases, delete old phrases.
-								// Update of existing phrases has to be done by the custom updater when its required.
-								$l1 = arrayFromFile($source);
-								$c = new manageconfig();
-								$c->getdata($target, 'lang');
-								$diff2 = array_diff_all(array_keys($l1), array_keys($c->data)); // Check the keys only
-								if (count_diff_all($diff2) > 0) {
-									foreach ($diff2 as $handler2 => $keys) {
-										foreach($keys as $key) {
-											if ($handler2 == DO_UPD_ADD) {
-												$c->updateconfig($key, str, $l1[$key]);
-											}
-											elseif ($handler2 == DO_UPD_DEL) {
-												$c->delete($key);
-											}
-										}
-									}
-									$c->savedata();
-								}
-							}
-						}
-					}
-				}
-			}
-
-			$delobj = $scache->load('components');
-			$delobj->delete();
-		}
-		// Components End
-
 		// Plugins Start
 		$result = $db->query("SELECT id FROM {$db->pre}plugins WHERE module = '{$packageid}' LIMIT 1");
 		$do = null;
@@ -580,6 +352,71 @@ elseif ($job == 'package_update2') {
 			$old_plug = $myini->read($moddir.'plugin.ini');
 		}
 		// New plugin.ini is loaded above for update-check
+
+		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'");
+		$design = $db->fetch_assoc($result);
+
+		if ($do != null) {
+			// Images
+			$diff = array_diff_all(
+				isset($plug['images']) ? $plug['images'] : array(),
+				isset($old_plug['images']) ? $old_plug['images'] : array()
+			);
+			if (count_diff_all($diff) > 0) {
+				foreach ($diff as $handler => $files) {
+					foreach($files as $file) {
+						$dir1 = "{$tdir}images/{$file}";
+						$dir2 = "./images/{$design['images']}/{$file}";
+						if ($handler == DO_UPD_ADD) {
+							$filesystem->unlink($dir2);
+							$filesystem->rename($dir1, $dir2);
+						}
+						elseif ($handler == DO_UPD_DEL) {
+							$filesystem->unlink($dir2);
+						}
+						// Dont update equal files. That has to be done by the custom updater when its required. We dont do that on account of loss of customized data.
+					}
+				}
+			}
+
+			// Stylesheets
+			$diff = array_diff_all(
+				isset($plug['designs']) ? $plug['designs'] : array(),
+				isset($old_plug['designs']) ? $old_plug['designs'] : array()
+			);
+			if (count_diff_all($diff) > 0) {
+				$default_dir = "./designs/{$css['stylesheet']}/";
+				foreach ($diff as $handler => $files) {
+					foreach ($plug['designs'] as $file) {
+						$dir1 = "{$tdir}designs/{$file}";
+						if ($handler == DO_UPD_ADD) {
+							$filesystem->unlink($default_dir.$file); // Delete old data (rename will fail if file exists)
+							$filesystem->rename($dir1, $default_dir.$file);
+						}
+						elseif ($handler == DO_UPD_DEL) {
+							$filesystem->unlink($default_dir.$file);
+						}
+					}
+				}
+				// Get non standard stylesheets. We have to copy them from the default... (safe mode workaround)
+				$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'");
+				while ($css = $db->fetch_assoc($result)) {
+					foreach ($diff as $handler => $files) {
+						foreach ($plug['designs'] as $file) {
+							$dir2 = "./designs/{$css['stylesheet']}/{$file}";
+							if ($handler == DO_UPD_ADD) {
+								$filesystem->unlink($dir2);  // Delete old data (rename will fail if file exists)
+								$filesystem->rename($default_dir.$file, $dir2);
+							}
+							elseif ($handler == DO_UPD_DEL) {
+								$filesystem->unlink($dir2);
+							}
+							// Dont update equal files. Like above...
+						}
+					}
+				}
+			}
+		}
 
 		if (!isset($old_plug['language']) || !is_array($old_plug['language'])) {
 			$old_plug['language'] = array();
@@ -654,48 +491,75 @@ elseif ($job == 'package_update2') {
 			}
 			foreach ($diff as $handler => $files) {
 				foreach ($files as $hook => $plugfile) {
-					if (isInvisibleHook($hook)) {
-						continue;
-					}
 					$source = $tdir.'modules/'.$plugfile;
 					$target = $moddir.$plugfile;
-					if ($handler == DO_UPD_ADD) {
-						$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$hook}'");
-						$row = $db->fetch_assoc($result);
-						$priority = $row['maximum']+1;
-						$db->query("
-						INSERT INTO {$db->pre}plugins
-						(`name`,`module`,`ordering`,`required`,`position`)
-						VALUES
-						('{$plug['names'][$hook]}','{$packageid}','{$priority}','{$plug['required'][$hook]}','{$hook}')
-						");
-						if (file_exists($source)) { // Doesn't exist? => Already moved (or package not ok)
-							$filesystem->unlink($target);
-							$filesystem->rename($source, $target);
-						}
-					}
-					elseif ($handler == DO_UPD_DEL) {
-						$delete = true;
-						if (isset($plug['php']) && is_array($plug['php'])) {
-							foreach ($plug['php'] as $pos => $val) {
-								if ($pos != $hook && $plugfile == $val) {
-									$delete = false;
-								}
+					if (isInvisibleHook($hook)) {
+						if ($handler == DO_UPD_ADD) {
+							if (file_exists($source)) { // Doesn't exist? => Already moved (or package not ok)
+								$filesystem->unlink($target);
+								$filesystem->rename($source, $target);
 							}
 						}
-						if (file_exists($target) && $delete == true) {
-							$filesystem->unlink($target);
+						elseif ($handler == DO_UPD_DEL) {
+							$delete = true;
+							if (isset($plug['php']) && is_array($plug['php'])) {
+								foreach ($plug['php'] as $pos => $val) {
+									if ($plugfile == $val) {
+										$delete = false;
+										break;
+									}
+								}
+							}
+							if (file_exists($target) && $delete == true) {
+								$filesystem->unlink($target);
+							}
 						}
-
-						$db->query("DELETE FROM {$db->pre}plugins WHERE id = '{$plugs[$hook]}' LIMIT 1");
-						$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$plugs[$hook]}'");
+						elseif ($handler == DO_UPD_EQU) {
+							if (file_exists($source)) {
+								$filesystem->unlink($target);
+								$filesystem->rename($source, $target);
+							}
+						}
 					}
-					elseif ($handler == DO_UPD_EQU) {
-						// Simply overwrite old file and update DB. Hopefully no changes were made and in this case no loss of data
-						$db->query("UPDATE {$db->pre}plugins SET `name` = '{$plug['names'][$hook]}', `required` = '{$plug['required'][$hook]}', `position` = '{$hook}' WHERE id = '{$plugs[$hook]}'");
-						if (file_exists($source)) {
-							$filesystem->unlink($target);
-							$filesystem->rename($source, $target);
+					else {
+						if ($handler == DO_UPD_ADD) {
+							$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$hook}'");
+							$row = $db->fetch_assoc($result);
+							$priority = $row['maximum']+1;
+							$db->query("
+							INSERT INTO {$db->pre}plugins
+							(`name`,`module`,`ordering`,`required`,`position`)
+							VALUES
+							('{$plug['names'][$hook]}','{$packageid}','{$priority}','{$plug['required'][$hook]}','{$hook}')
+							");
+							if (file_exists($source)) { // Doesn't exist? => Already moved (or package not ok)
+								$filesystem->unlink($target);
+								$filesystem->rename($source, $target);
+							}
+						}
+						elseif ($handler == DO_UPD_DEL) {
+							$delete = true;
+							if (isset($plug['php']) && is_array($plug['php'])) {
+								foreach ($plug['php'] as $pos => $val) {
+									if ($pos != $hook && $plugfile == $val) {
+										$delete = false;
+									}
+								}
+							}
+							if (file_exists($target) && $delete == true) {
+								$filesystem->unlink($target);
+							}
+
+							$db->query("DELETE FROM {$db->pre}plugins WHERE id = '{$plugs[$hook]}' LIMIT 1");
+							$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$plugs[$hook]}'");
+						}
+						elseif ($handler == DO_UPD_EQU) {
+							// Simply overwrite old file and update DB. Hopefully no changes were made and in this case no loss of data
+							$db->query("UPDATE {$db->pre}plugins SET `name` = '{$plug['names'][$hook]}', `required` = '{$plug['required'][$hook]}', `position` = '{$hook}' WHERE id = '{$plugs[$hook]}'");
+							if (file_exists($source)) {
+								$filesystem->unlink($target);
+								$filesystem->rename($source, $target);
+							}
 						}
 					}
 					$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
@@ -708,14 +572,8 @@ elseif ($job == 'package_update2') {
 
 
 		// Templates
-		$templates = array_merge(
-			isset($plug['template']) ? $plug['template'] : array(),
-			isset($com['template']) ? $com['template'] : array()
-		);
-		$old_templates = array_merge(
-			isset($old_plug['template']) ? $old_plug['template'] : array(),
-			isset($old_com['template']) ? $old_com['template'] : array()
-		);
+		$templates = isset($plug['template']) ? $plug['template'] : array();
+		$old_templates = isset($old_plug['template']) ? $old_plug['template'] : array();
 		$tpldir = "templates/{$design['template']}/modules/{$packageid}/";
 		if (count($templates) > 0) { // Add/update files
 			$diff = array_diff_all($templates, $old_templates);
@@ -753,14 +611,13 @@ elseif ($job == 'package_update2') {
 			}
 		}
 
+		$delobj = $scache->load('components');
+		$delobj->delete();
+
 		$tmoddir = $tdir.'modules/';
 		$filesystem->unlink($moddir.'package.ini');
 		if (file_exists($tmoddir.'package.ini')) {
 			$filesystem->rename($tmoddir.'package.ini', $moddir.'package.ini');
-		}
-		$filesystem->unlink($moddir.'component.ini');
-		if (file_exists($tmoddir.'component.ini')) {
-			$filesystem->rename($tmoddir.'component.ini', $moddir.'component.ini');
 		}
 		$filesystem->unlink($moddir.'plugin.ini');
 		if (file_exists($tmoddir.'plugin.ini')) {
@@ -949,83 +806,6 @@ elseif ($job == 'package_import2') {
 		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'");
 		$design = $db->fetch_assoc($result);
 
-		if (file_exists($moddir.'component.ini')) {
-			$com = $myini->read($moddir.'component.ini');
-			if (isset($com['info']) && count($com['info']) > 0) {
-				$com['info'] = $gpc->save_str($com['info']);
-
-				if (!isset($com['module']['frontpage'])) {
-					$com['module']['frontpage'] = '';
-				}
-
-				$db->query("INSERT INTO {$db->pre}component (file, package, required) VALUES ('".$gpc->save_str($com['module']['frontpage'])."', '{$packageid}', '{$com['info']['required']}')");
-				$comid = $db->insert_id();
-
-				if (isset($com['images']) && count($com['images']) > 0) {
-					foreach ($com['images'] as $file) {
-						$filesystem->rename("{$tdir}images/{$file}", "./images/{$design['images']}/{$file}");
-					}
-				}
-
-				if (isset($com['designs']) && count($com['designs']) > 0) {
-					$stdcssdir = "./designs/{$design['stylesheet']}/";
-					foreach ($com['designs'] as $file) {
-						$filesystem->rename("{$tdir}designs/{$file}", $stdcssdir.$file);
-					}
-					$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'");
-					while ($css = $db->fetch_assoc($result)) {
-						foreach ($com['designs'] as $file) {
-							$filesystem->copy($stdcssdir.$file, "./designs/{$css['stylesheet']}/{$file}");
-						}
-					}
-				}
-
-				if (isset($com['language']) && count($com['language']) > 0) {
-					$codes = getLangCodesByDir($tdir.'language/');
-					$langcodes = getLangCodes();
-					foreach ($langcodes as $code => $lid) {
-						$ldat = explode('_', $code);
-						if (isset($codes[$ldat[0]])) {
-							$count = count($codes[$ldat[0]]);
-							if (in_array('', $codes[$ldat[0]])) {
-								$count--;
-							}
-						}
-						else {
-							$count = -1;
-						}
-						$filesystem->mkdir("./language/{$lid}/modules/{$packageid}", 0777);
-						if (isset($codes[$ldat[0]]) && !empty($ldat[1]) && in_array($ldat[1], $codes[$ldat[0]])) { // Nehme Original
-							$src = $code;
-						}
-						elseif(isset($codes[$ldat[0]]) && in_array('', $codes[$ldat[0]])) { // Nehme gleichen Langcode, aber ohne Countrycode
-							$src = $ldat[0];
-						}
-						elseif(isset($codes[$ldat[0]]) && $count > 0) { // Nehme gleichen Langcode, aber falchen Countrycode
-							$src = $ldat[0].'_'.reset($codes[$ldat[0]]);
-						}
-						else { // Nehme Standard
-							$src = '';
-						}
-						$src = iif(!empty($src), '/'.$src);
-						foreach ($com['language'] as $file) {
-							if (file_exists("{$tdir}/language/{$src}/{$file}") == false) {
-								$src = '';
-							}
-							if (!empty($src)) {
-								$src = '/'.$src;
-							}
-							// ToDo: Move it first to standard dir, then copy it from there
-							$filesystem->copy("{$tdir}/language{$src}/{$file}", "./language/{$lid}/modules/{$packageid}/{$file}");
-						}
-					}
-				}
-
-				$delobj = $scache->load('components');
-				$delobj->delete();
-			}
-		}
-
 		if (file_exists($moddir.'plugin.ini')) {
 			$plug = $myini->read($moddir.'plugin.ini');
 
@@ -1080,6 +860,25 @@ elseif ($job == 'package_import2') {
 				}
 			}
 
+			if (isset($plug['images']) && count($plug['images']) > 0) {
+				foreach ($plug['images'] as $file) {
+					$filesystem->rename("{$tdir}images/{$file}", "./images/{$design['images']}/{$file}");
+				}
+			}
+
+			if (isset($plug['designs']) && count($plug['designs']) > 0) {
+				$stdcssdir = "./designs/{$design['stylesheet']}/";
+				foreach ($plug['designs'] as $file) {
+					$filesystem->rename("{$tdir}designs/{$file}", $stdcssdir.$file);
+				}
+				$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'");
+				while ($css = $db->fetch_assoc($result)) {
+					foreach ($plug['designs'] as $file) {
+						$filesystem->copy($stdcssdir.$file, "./designs/{$css['stylesheet']}/{$file}");
+					}
+				}
+			}
+
 			if (isset($plug['php']) && count($plug['php']) > 0) {
 				foreach ($plug['php'] as $hook => $plugfile) {
 					if (isInvisibleHook($hook)) {
@@ -1115,6 +914,13 @@ elseif ($job == 'package_import2') {
 			$temptpldir = "{$tdir}templates/";
 			$filesystem->mover($temptpldir, $tpldir);
 		}
+
+		$delobj = $scache->load('components');
+		$delobj->delete();
+
+
+		addHookToArray('component_'.$package['info']['internal'], 'components.php');
+		addHookToArray('admin_component_'.$package['info']['internal'], 'admin/packages_admin.php');
 
 		// Custom Installer
 		$confirm = true;
@@ -1154,20 +960,11 @@ elseif ($job == 'package_export') {
 	else {
 		$has_plugins = false;
 	}
-	$cini = "modules/{$data['id']}/component.ini";
-	if (file_exists($cini)) {
-		$ini2 = $myini->read($cini);
-		$has_component = true;
-	}
-	else {
-		$has_component = false;
-	}
 
 	$dirs = array();
 	$langcodes = getLangCodes();
-	foreach ($langcodes as $code => $lid) {
-		if ($has_plugins == true) {
-			// Plugins
+	if ($has_plugins == true) {
+		foreach ($langcodes as $code => $lid) {
 			$langdata = return_array('modules', $lid);
 			$langdata = array_intersect_key($langdata, $ini['language']);
 			if ($lid == $config['langdir']) {
@@ -1177,34 +974,7 @@ elseif ($job == 'package_export') {
 				$ini['language_'.$code] = $langdata;
 			}
 		}
-		// Component
-		if ($has_component == true) {
-			$lngdir = "language/{$lid}/modules/{$id}/";
-			if (is_dir($lngdir)) {
-				if ($lid != $config['langdir']) {
-					$key = 'language_'.$code;
-					$ini2[$key] = array();
-					foreach ($ini2['language'] as $lngfile) {
-						if (file_exists($lngdir.$lngfile)) {
-							$ini2[$key][] = $lngfile;
-						}
-					}
-				}
-				else {
-					$key = 'language';
-				}
-				$dirs[] = array(
-					'orig' => $lngdir,
-					'new' => str_replace('_', '/', $key).'/'
-				);
-			}
-		}
-	}
-	if ($has_plugins == true) {
 		$myini->write($pini, $ini);
-	}
-	if ($has_component == true) {
-		$myini->write($cini, $ini2);
 	}
 
 	// Determine standard template pack
@@ -1243,26 +1013,12 @@ elseif ($job == 'package_export') {
 		}
 	}
 
-	// Add languages
-	if (count($error) == 0 && $has_component == true) {
-		foreach ($dirs as $dir) {
-			$v_list = $archive->add(
-				$dir['orig'],
-				PCLZIP_OPT_REMOVE_PATH, $dir['orig'],
-				PCLZIP_OPT_ADD_PATH, $dir['new']
-			);
-			if ($v_list == 0) {
-				$error[] = $archive->errorInfo(true);
-			}
-		}
-	}
-
 	// Add images
-	if (count($error) == 0 && $has_component == true) {
+	if (count($error) == 0 && $has_plugins == true) {
 		$files = array();
 		$dir = "images/{$design['images']}/";
-		if (isset($ini2['images']) && count($ini2['images']) > 0) {
-			foreach ($ini2['images'] as $data) {
+		if (isset($ini['images']) && count($ini['images']) > 0) {
+			foreach ($ini['images'] as $data) {
 				$files[] = $dir.$data;
 			}
 			$v_list = $archive->add(
@@ -1278,11 +1034,11 @@ elseif ($job == 'package_export') {
 
 
 	// Add styles
-	if (count($error) == 0 && $has_component == true) {
+	if (count($error) == 0 && $has_plugins == true) {
 		$files = array();
 		$dir = "designs/{$design['stylesheet']}/";
-		if (isset($ini2['designs']) && count($ini2['designs']) > 0) {
-			foreach ($ini2['designs'] as $data) {
+		if (isset($ini['designs']) && count($ini['designs']) > 0) {
+			foreach ($ini['designs'] as $data) {
 				$files[] = $dir.$data;
 			}
 			$v_list = $archive->add(
@@ -1370,9 +1126,6 @@ elseif ($job == 'package_delete2') {
 		$c = new manageconfig();
 
 		$dir = "modules/{$package['id']}/";
-		if (file_exists("{$dir}component.ini")) {
-			$com = $myini->read("{$dir}component.ini");
-		}
 		if (file_exists("{$dir}plugin.ini")) {
 			$plug = $myini->read("{$dir}plugin.ini");
 		}
@@ -1381,7 +1134,6 @@ elseif ($job == 'package_delete2') {
 		($code = $plugins->uninstall($package['id'])) ? eval($code) : null;
 
 		$db->query("DELETE FROM {$db->pre}plugins WHERE module = '{$package['id']}'");
-		$db->query("DELETE FROM {$db->pre}component WHERE package = '{$package['id']}' LIMIT 1");
 		$db->query("DELETE FROM {$db->pre}packages WHERE id = '{$package['id']}' LIMIT 1");
 		// Delete references in navigation aswell
 		$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$package['id']}'");
@@ -1408,13 +1160,10 @@ elseif ($job == 'package_delete2') {
 		while ($data = $db->fetch_assoc($result)) {
 			$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
 		}
-		$delobj = $scache->load('components');
-		$delobj->delete();
 
 		$cache = array();
 		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs");
-		$design = $db->fetch_assoc($result);
-		while ($row = $db->fetch_assoc($design)) {
+		while ($row = $db->fetch_assoc($result)) {
 			$cache[] = $row;
 		}
 		// Delete templates
@@ -1429,6 +1178,8 @@ elseif ($job == 'package_delete2') {
 		$cache2 = array();
 		while ($language = $db->fetch_assoc($result)) {
 			$cache2[] = $language['id'];
+			// Delete (old component) language files
+			$filesystem->rmdirr("./language/{$language['id']}/modules/{$package['id']}");
 		}
 		if (isset($plug['language']) && count($plug['language']) > 0) {
 			foreach ($cache2 as $lid) {
@@ -1442,28 +1193,43 @@ elseif ($job == 'package_delete2') {
 				}
 			}
 		}
-		// Delete language files
-		foreach ($cache2 as $lid) {
-			$filesystem->rmdirr("./language/{$lid}/modules/{$package['id']}");
-		}
 		// Delete images
-		if (isset($com['images']) && count($com['images']) > 0) {
+		if (isset($plug['images']) && count($plug['images']) > 0) {
 			foreach ($cache as $design) {
-				foreach ($com['images'] as $file) {
+				foreach ($plug['images'] as $file) {
 					$filesystem->unlink("./images/{$design['images']}/{$file}");
 				}
 			}
 		}
-		if (isset($com['designs']) && count($com['designs']) > 0) {
+		if (isset($plug['designs']) && count($plug['designs']) > 0) {
 			foreach ($cache as $design) {
-				foreach ($com['designs'] as $file) {
+				foreach ($plug['designs'] as $file) {
 					$filesystem->unlink("./designs/{$design['stylesheet']}/{$file}");
 				}
 			}
 		}
+
+		// Remove hooks
+		removeHookFromArray('component_'.$package['internal']);
+		removeHookFromArray('admin_component_'.$package['internal']);
+
 		// Delete modules
 		if (file_exists($dir)) {
 			$filesystem->rmdirr($dir);
+		}
+
+		// Delete Cache
+		$delobj = $scache->load('modules_navigation');
+		$delobj->delete();
+		$delobj = $scache->load('components');
+		$delobj->delete();
+		if (isset($plug['php']) && is_array($plug['php'])) {
+			foreach ($plug['php'] as $pos => $file) {
+				$path = 'cache/modules/'.$plugins->_group($pos).'.php';
+				if (!isInvisibleHook($pos) && file_exists($path)) {
+					$filesystem->unlink($path);
+				}
+			}
 		}
 
 		if ($confirm == true) {
@@ -1695,15 +1461,6 @@ elseif ($job == 'package_info') {
 	}
 	ksort($modules);
 
-	if (file_exists("modules/{$package['id']}/component.ini") == true) {
-		$result = $db->query("SELECT * FROM {$db->pre}component WHERE package = '{$package['id']}'");
-		$component = $db->fetch_assoc($result);
-		$component_ini = $myini->read("modules/{$package['id']}/component.ini");
-	}
-	else {
-		$component = $component_ini = null;
-	}
-
 	$settings = $sg = array();
 	$result = $db->query("SELECT id, title, name FROM {$db->pre}settings_groups WHERE name = '{$package_ini['info']['internal']}' LIMIT 1");
 	if ($db->num_rows($result) > 0) {
@@ -1734,10 +1491,10 @@ elseif ($job == 'package_info') {
 	  <tr>
 	   <td class="obox" colspan="2">
 	   <span class="right">
-	    <a class="button" href="admin.php?action=packages&amp;job=package_delete&amp;id=<?php echo $package['id']; ?>"><?php echo $lang->phrase('admin_packages_delete'); ?></a>
-	    <a class="button" href="admin.php?action=packages&amp;job=package_edit&amp;id=<?php echo $package['id']; ?>"><?php echo $lang->phrase('admin_packages_info_edit'); ?></a>
-	    <?php if (!empty($component_ini['admin']['frontpage']) == true) { ?>
-	  	 <a class="button" href="admin.php?action=packages&amp;job=package_admin&amp;cid=<?php echo $package['id']; ?>"><?php echo $lang->phrase('admin_packages_administration'); ?></a>
+		<a class="button" href="admin.php?action=packages&amp;job=package_delete&amp;id=<?php echo $package['id']; ?>"><?php echo $lang->phrase('admin_packages_delete'); ?></a>
+		<a class="button" href="admin.php?action=packages&amp;job=package_edit&amp;id=<?php echo $package['id']; ?>"><?php echo $lang->phrase('admin_packages_info_edit'); ?></a>
+		<?php if (isset($modules['admin_component_'.$package['internal']])) { ?>
+	  	 <a class="button" href="admin.php?action=admin&amp;cid=<?php echo $package['id']; ?>"><?php echo $lang->phrase('admin_packages_administration'); ?></a>
 	  	<?php } ?>
 	   </span>
 	   	<?php
@@ -1823,36 +1580,6 @@ elseif ($job == 'package_info') {
 	  <?php } } else { ?>
 		<tr class="mbox">
 			<td colspan="4"><?php echo $lang->phrase('admin_packages_info_no_settings_specified_for_this_package'); ?></td>
-		</tr>
-	  <?php } ?>
-	 </table>
-	 <br class="minibr" />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	  <tr>
-	   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_packages_info_component'); ?></td>
-	  </tr>
-	  <?php if (is_array($component_ini) && count($component_ini) > 0) { ?>
-	  <tr class="ubox">
-	   <td width="80%"><?php echo $lang->phrase('admin_packages_info_name'); ?></td>
-	   <td width="10%"><?php echo $lang->phrase('admin_packages_active'); ?></td>
-	   <td width="10%"><?php echo $lang->phrase('admin_packages_info_required'); ?></td>
-	  </tr>
-	  <tr class="mbox">
-		<td><?php echo $component_ini['info']['title']; ?></td>
-		<td class="center">
-		<?php if ($component['active'] == 1 && $package['active'] == 1) { ?>
-		<img class="valign" src="admin/html/images/yes.gif" border="0" alt="Active" title="<?php echo $lang->phrase('admin_packages_component_is_active'); ?>" />
-		<?php } elseif ($component['active'] == 1 && $package['active'] == 0) { ?>
-		<img class="valign" src="admin/html/images/avg.gif" border="0" alt="Partially" title="<?php echo $lang->phrase('admin_packages_component_is_active_but_package_is_not_active'); ?>" />
-		<?php } else { ?>
-		<img class="valign" src="admin/html/images/no.gif" border="0" alt="Inactive" title="<?php echo $lang->phrase('admin_packages_component_is_not_active'); ?>" />
-		<?php } ?>
-		</td>
-	  	<td class="center"><?php echo noki($component['required']); ?></td>
-	  </tr>
-	  <?php } else { ?>
-		<tr class="mbox">
-			<td colspan="4"><?php echo $lang->phrase('admin_packages_info_for_this_package_is_no_component_specified'); ?></td>
 		</tr>
 	  <?php } ?>
 	 </table>
@@ -2023,11 +1750,14 @@ elseif ($job == 'package_add2') {
 	$myini->write("modules/{$packageid}/package.ini", $ini);
 	$filesystem->chmod("modules/{$packageid}/package.ini", 0666);
 
+	addHookToArray('component_'.$internal, 'components.php');
+	addHookToArray('admin_component_'.$internal, 'admin/packages_admin.php');
+
 	ok('admin.php?action=packages&job=package_info&id='.$packageid, $lang->phrase('admin_packages_ok_package_successfully_added'));
 }
 elseif ($job == 'package_active') {
 	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, active, core FROM '.$db->pre.'packages WHERE id = "'.$id.'"');
+	$result = $db->query("SELECT id, active, core FROM {$db->pre}packages WHERE id = '{$id}'");
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		echo head();
@@ -2048,174 +1778,14 @@ elseif ($job == 'package_active') {
 			}
 		}
 		$active = $row['active'] == 1 ? 0 : 1;
-		$db->query('UPDATE '.$db->pre.'packages SET active = "'.$active.'" WHERE id = "'.$id.'"');
+		$db->query("UPDATE {$db->pre}packages SET active = '{$active}' WHERE id = '{$id}'");
 		$result = $db->query("SELECT DISTINCT position FROM {$db->pre}plugins WHERE module = '{$id}'");
 		while ($row = $db->fetch_assoc($result)) {
 			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 		}
-		viscacha_header('Location: admin.php?action=packages&job=package');
-	}
-}
-elseif ($job == 'com') {
-	send_nocache_header();
-	echo head();
-?>
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="5"><?php echo $lang->phrase('admin_packages_component_manager'); ?></td>
-  </tr>
-  <tr class="ubox">
-   <td width="30%"><?php echo $lang->phrase('admin_packages_com_th_component'); ?></td>
-   <td width="30%"><?php echo $lang->phrase('admin_packages_com_th_package'); ?></td>
-   <td width="10%"><?php echo $lang->phrase('admin_packages_active'); ?></td>
-   <td width="30%"><?php echo $lang->phrase('admin_packages_action'); ?></td>
-  </tr>
-<?php
-	$result = $db->query("
-		SELECT c.*, p.title, p.core, p.active AS pactive
-		FROM {$db->pre}component AS c
-			LEFT JOIN {$db->pre}packages AS p ON c.package = p.id
-		ORDER BY active DESC
-	");
-	while ($row = $db->fetch_assoc($result)) {
-		if (!file_exists('modules/'.$row['package'].'/component.ini')) {
-			continue;
-		}
-		$component = $myini->read('modules/'.$row['package'].'/component.ini');
-	?>
-	<tr class="mbox">
-	<td><?php echo $component['info']['title']; ?></td>
-	<td><?php echo $row['title']; ?></td>
-	<td class="center">
-	<?php if ($row['active'] == 1 && $row['pactive'] == 1) { ?>
-	<img class="valign" src="admin/html/images/yes.gif" border="0" alt="Active" title="<?php echo $lang->phrase('admin_packages_component_is_active'); ?>" />
-	<?php } elseif ($row['active'] == 1 && $row['pactive'] == 0) { ?>
-	<img class="valign" src="admin/html/images/avg.gif" border="0" alt="Partially" title="<?php echo $lang->phrase('admin_packages_component_is_active_but_package_is_not_active'); ?>" />
-	<?php } else { ?>
-	<img class="valign" src="admin/html/images/no.gif" border="0" alt="Inactive" title="<?php echo $lang->phrase('admin_packages_component_is_not_active'); ?>" />
-	<?php } ?>
-	</td>
-	<td>
-	 <?php if ($row['required'] == 0) { ?>
-	 <a class="button" href="admin.php?action=packages&amp;job=com_active&amp;id=<?php echo $row['id']; ?>"><?php echo iif($row['active'] == 1, $lang->phrase('admin_packages_com_deactivate'), $lang->phrase('admin_packages_com_activate')); ?></a>
-	 <a class="button" href="admin.php?action=packages&amp;job=com_delete&amp;id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_packages_delete'); ?></a>
-	 <?php } else { echo "<em>".$lang->phrase('admin_packages_com_component_is_required')."</em>"; } ?>
-	</td>
-	</tr>
-	<?php
-}
-?>
- </table>
-<?php
-	echo foot();
-}
-elseif ($job == 'com_delete') {
-	echo head();
-	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, required FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1");
-	$row = $db->fetch_assoc($result);
-	if ($db->num_rows($result) == 0) {
-		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_component_not_found'));
-	}
-	elseif ($row['required'] == 1) {
-		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_component_is_required'));
-	}
-	else {
-		?>
-		<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-		<tr><td class="obox"><?php echo $lang->phrase('admin_packages_com_delete_head_delete_component'); ?></td></tr>
-		<tr><td class="mbox">
-		<p align="center"><?php echo $lang->phrase('admin_packages_com_delete_do_you_really_want_to_delete_this_component'); ?></p>
-		<p align="center">
-		<a href="admin.php?action=packages&amp;job=com_delete2&amp;id=<?php echo $id; ?>"><img border="0" alt="Yes" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_packages_yes'); ?></a>
-		&nbsp&nbsp;&nbsp;&nbsp&nbsp;&nbsp;
-		<a href="javascript: history.back(-1);"><img border="0" alt="No" src="admin/html/images/no.gif"> <?php echo $lang->phrase('admin_packages_no'); ?></a>
-		</p>
-		</td></tr>
-		</table>
-		<?php
-		echo foot();
-	}
-}
-elseif ($job == 'com_delete2') {
-	echo head();
-	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, required, package FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1");
-	$row = $db->fetch_assoc($result);
-	if ($db->num_rows($result) == 0) {
-		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_component_not_found'));
-	}
-	elseif ($row['required'] == 1) {
-		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_component_is_required'));
-	}
-	else {
-		$cfg = $myini->read("modules/{$row['package']}/component.ini");
-
-		$db->query("DELETE FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1");
-
-		$cache = array();
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs");
-		$design = $db->fetch_assoc($result);
-		while ($row = $db->fetch_assoc($design)) {
-			$cache[] = $row;
-		}
-		$result = $db->query("SELECT id FROM {$db->pre}language");
-		$languages = $db->fetch_assoc($result);
-
-		while ($lng = $db->fetch_assoc($languages)) {
-			$filesystem->rmdirr("./language/{$lng['id']}/modules/{$row['package']}");
-		}
-
-		foreach ($cache as $design) {
-			$filesystem->rmdirr("./templates/{$design['template']}/modules/{$row['package']}");
-		}
-		if (isset($cfg['images']) && count($cfg['images']) > 0) {
-			foreach ($cache as $design) {
-				foreach ($cfg['images'] as $file) {
-					$filesystem->unlink("./images/{$design['images']}/{$file}");
-				}
-			}
-		}
-		if (isset($cfg['designs']) && count($cfg['designs']) > 0) {
-			foreach ($cache as $design) {
-				foreach ($cfg['designs'] as $file) {
-					$filesystem->unlink("./designs/{$design['stylesheet']}/{$file}");
-				}
-			}
-		}
-
-		if (isset($cfg['php']) && count($cfg['php']) > 0) {
-			foreach ($cfg['php'] as $file) {
-				$filesystem->unlink("./modules/{$row['package']}/{$file}");
-			}
-		}
-
-		$filesystem->unlink("modules/{$row['package']}/component.ini");
-
 		$delobj = $scache->load('components');
 		$delobj->delete();
-
-		ok('admin.php?action=packages&job=com', $lang->phrase('admin_packages_ok_component_successfully_removed'));
-	}
-}
-elseif ($job == 'com_active') {
-	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, active, required FROM '.$db->pre.'component WHERE id = "'.$id.'"');
-	$row = $db->fetch_assoc($result);
-	if ($db->num_rows($result) == 0) {
-		echo head();
-		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_id_is_not_correct'));
-	}
-	elseif ($row['required'] == 1) {
-		echo head();
-		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_this_package_is_required_you_cannot_change_the_status'));
-	}
-	else {
-		$active = $row['active'] == 1 ? 0 : 1;
-		$delobj = $scache->load('components');
-		$delobj->delete();
-		$db->query('UPDATE '.$db->pre.'component SET active = "'.$active.'" WHERE id = "'.$id.'"');
-		viscacha_header('Location: admin.php?action=packages&job=com');
+		sendStatusCode(307, $config['furl'].'/admin.php?action=packages&job=package');
 	}
 }
 elseif ($job == 'plugins') {
@@ -2450,7 +2020,9 @@ elseif ($job == 'plugins_move') {
 			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering+1 WHERE id = "'.$id.'"');
 		}
 		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
-		viscacha_header('Location: admin.php?action=packages&job=plugins');
+		$delobj = $scache->load('components');
+		$delobj->delete();
+		sendStatusCode(307, $config['furl'].'/admin.php?action=packages&job=plugins');
 	}
 }
 elseif ($job == 'plugins_active') {
@@ -2469,7 +2041,9 @@ elseif ($job == 'plugins_active') {
 		$active = $row['active'] == 1 ? 0 : 1;
 		$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = "'.$id.'"');
 		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
-		viscacha_header('Location: admin.php?action=packages&job=plugins');
+		$delobj = $scache->load('components');
+		$delobj->delete();
+		sendStatusCode(307, $config['furl'].'/admin.php?action=packages&job=plugins');
 	}
 }
 elseif ($job == 'plugins_delete') {
@@ -2535,7 +2109,12 @@ elseif ($job == 'plugins_delete2') {
 
 		$delobj = $scache->load('modules_navigation');
 		$delobj->delete();
-		$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
+		$delobj = $scache->load('components');
+		$delobj->delete();
+		$path = 'cache/modules/'.$plugins->_group($data['position']).'.php';
+		if (!isInvisibleHook($data['position']) && file_exists($path)) {
+			$filesystem->unlink($path);
+		}
 
 		ok('admin.php?action=packages&job=plugins', $lang->phrase('admin_packages_ok_plugin_successfully_deleted'));
 	}
@@ -2568,7 +2147,7 @@ elseif ($job == 'plugins_hook_pos') {
 	  <?php
 	  if (file_exists($file)) {
 		$data = htmlspecialchars(file_get_contents($file));
-		$data = str_replace("\t", "    ", $data);
+		$data = str_replace("\t", "	", $data);
 		$data = str_replace("  ", "&nbsp;&nbsp;", $data);
 		$search = preg_quote(htmlspecialchars('$plugins->load(\''.$hook.'\')'), '~');
 		$data = preg_replace('~('.$search.')~i', '<a name="key"><span style="font-weight: bold; color: maroon;">\1</span></a>', $data);
@@ -2626,11 +2205,13 @@ elseif ($job == 'plugins_edit') {
 		$ini = $myini->read($dir.'plugin.ini');
 	}
 
+	$isComponent = (preg_match('/^(admin_)?component_/', $package['position']) == 1);
+
 
 	$hooks = getHookArray();
-	if (!isset($ini['php'][$package['position']])) {
+	if (!isset($ini['php'][$package['position']]) || !file_exists($dir.$ini['php'][$package['position']])) {
 		$code = '';
-		$codefile = 'Unknown';
+		$codefile = null;
 	}
 	else {
 		$codefile = $ini['php'][$package['position']];
@@ -2660,19 +2241,25 @@ elseif ($job == 'plugins_edit') {
 	 <tr class="mbox">
 	  <td><?php echo $lang->phrase('admin_packages_plugins_add_hook'); ?></td>
 	  <td>
-	  <?php if (is_id($pluginid) && $package['required'] == 0) { ?>
-	  <select name="hook" id="hook">
-	  <?php foreach ($hooks as $group => $positions) { ?>
-	  <optgroup label="<?php echo $group; ?>">
-		  <?php foreach ($positions as $hook) { ?>
-		  <option value="<?php echo $hook; ?>"<?php echo iif($hook == $package['position'], ' selected="selected"'); ?>><?php echo $hook; ?></option>
-		  <?php } ?>
-	  </optgroup>
-	  <?php } ?>
-	  </select> <a class="button" href="#" onclick="return openHookPosition();" target="_blank"><?php echo $lang->phrase('admin_packages_plugins_edit_show_source_code_around_this_hook'); ?></a>
-	  <?php } else { echo $package['position']; ?>
+	  <?php if (is_id($pluginid) && $package['required'] == 0 && !$isComponent) { ?>
+		<select name="hook" id="hook">
+		<?php foreach ($hooks as $group => $positions) { ?>
+			<optgroup label="<?php echo $group; ?>">
+			<?php
+			foreach ($positions as $hook) {
+				if ($hook == 'source' && preg_match("~^source(_\d+)?$~i", $package['position'])) { ?>
+					<option value="<?php echo $package['position']; ?>" selected="selected"><?php echo $hook; ?></option>
+				<?php } else { ?>
+					<option value="<?php echo $hook; ?>"<?php echo iif($hook == $package['position'], ' selected="selected"'); ?>><?php echo $hook; ?></option>
+			<?php } } ?>
+			</optgroup>
+		<?php } ?>
+		</select>
+	  <?php } else {
+	  	echo $package['position']; ?>
 		<input type="hidden" name="hook" value="<?php echo $package['position']; ?>" />
 	  <?php } ?>
+		<a class="button" href="#" onclick="return openHookPosition();" target="_blank"><?php echo $lang->phrase('admin_packages_plugins_edit_show_source_code_around_this_hook'); ?></a>
 	  </td>
 	 </tr>
 	 <tr class="mbox" valign="top">
@@ -2702,7 +2289,11 @@ elseif ($job == 'plugins_edit') {
 	  		echo '<span class="stext">'.$lang->phrase('admin_packages_file_for_code_text').'</span>';
 	  	?>
 	  </td>
-	  <td width="75%"><?php echo $codefile; ?></td>
+	  <td width="75%">
+	  	<?php if ($codefile === null) { ?>
+	  	<input type="text" name="file" value="<?php echo $package['position']; ?>.php" />
+	  	<?php } else { echo $codefile; } ?>
+	  </td>
 	 </tr>
 	 <?php if ($package['required'] == 0 && is_id($pluginid)) { ?>
 	 <tr class="mbox">
@@ -2760,21 +2351,34 @@ elseif ($job == 'plugins_edit2') {
 		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$title}', `active` = '{$active}', `position` = '{$hook}' WHERE id = '{$id}' LIMIT 1");
 	}
 
-	$file = $ini['php'][$data['position']];
+	$file = $gpc->get('file', none);
+	if (empty($file)) {
+		$file = $ini['php'][$data['position']];
+	}
 
 	if (!is_dir($dir.$file)) {
 		$filesystem->chmod($dir.$file, 0666);
 	}
 	$filesystem->file_put_contents($dir.$file, $code);
 
+	if ($hook == 'source') {
+		$i = 1;
+		do {
+			$hook = 'source_'.$i;
+			$i++;
+		} while (isset($ini['php'][$hook]));
+	}
+	$ini['php'][$hook] = $file;
+	$ini['names'][$hook] = $title;
 	if ($data['position'] != $hook && is_id($package) == false) {
-		$ini['php'][$hook] = $file;
-		$ini['names'][$hook] = $title;
 		$ini['required'][$hook] = 0;
 		unset($ini['php'][$data['position']]);
 		unset($ini['names'][$data['position']]);
 		unset($ini['required'][$data['position']]);
 		$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+	}
+	else {
+		$ini['required'][$hook] = $ini['required'][$data['position']];
 	}
 
 	$myini->write($dir."plugin.ini", $ini);
@@ -2860,12 +2464,7 @@ elseif ($job == 'plugins_add2') {
 	if (!$isInvisibleHook) {
 		$hookPriority = $db->query("SELECT id, name, ordering FROM {$db->pre}plugins WHERE position = '{$hook}' ORDER BY ordering");
 
-		$db->query("
-		INSERT INTO {$db->pre}plugins
-		(`name`,`module`,`ordering`,`active`,`position`)
-		VALUES
-		('{$title}','{$package['id']}','-1','0','{$hook}')
-		");
+		$db->query("INSERT INTO {$db->pre}plugins (`name`,`module`,`ordering`,`active`,`position`) VALUES ('{$title}','{$package['id']}','-1','0','{$hook}')");
 		$pluginid = $db->insert_id();
 	}
 	else {
@@ -3007,10 +2606,22 @@ elseif ($job == 'plugins_add3') {
 	else {
 		$ini = array();
 	}
+
+	if ($hook == 'source') {
+		$i = 1;
+		do {
+			$hook = 'source_'.$i;
+			$i++;
+		} while (isset($ini['php'][$hook]));
+	}
+
 	$ini['php'][$hook] = $file;
 	$ini['names'][$hook] = $title;
 	$ini['required'][$hook] = $required;
 	$myini->write($dir."plugin.ini", $ini);
+
+	$delobj = $scache->load('components');
+	$delobj->delete();
 
 	if (!$isInvisibleHook) {
 		$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
@@ -3214,7 +2825,7 @@ elseif ($job == 'plugins_template_edit') {
 		}
 
 		?>
-		<form method="post" action="admin.php?action=packages&job=plugins_template_edit2&id=<?php echo $data['id']; ?>&edit=<?php echo $editId; ?>">
+		<form method="post" action="admin.php?action=packages&amp;job=plugins_template_edit2&amp;id=<?php echo $data['id']; ?>&amp;edit=<?php echo $editId; ?>">
 		<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 		 <tr>
 		  <td class="obox" colspan="2"><?php echo $lang->phrase('admin_packages_template_edit_add_edit_template'); ?></td>
@@ -3242,7 +2853,7 @@ elseif ($job == 'plugins_template_edit') {
 		  	echo '<td>';
 		  	echo $lang->phrase('admin_packages_template_edit_template_groups').' <b>'.$tplid.'</b><br />';
 		  	echo $lang->phrase('admin_packages_template_edit_designs_affected_by_changes').$affected.'<br />';
-		  	echo '<textarea name="code['.$tplid.']" rows="8" cols="80" class="texteditor">'.$content.'</textarea>';
+		  	echo '<textarea name="code['.$tplid.']" rows="8" cols="80" class="texteditor">'.$gpc->prepare($content).'</textarea>';
 		  	echo '</td></tr>';
 		  }
 		  ?>
@@ -3801,13 +3412,13 @@ elseif ($job == 'browser_list') {
   	?>
   <tr class="mbox">
    <td valign="top">
-    <span class="right">
-    	<?php if (!$install || $row['multiple'] == 1) { ?>
-    	<a class="button" href="admin.php?action=packages&amp;job=browser_import&amp;id=<?php echo $key; ?>&amp;type=<?php echo $type; ?>"><?php echo $lang->phrase('admin_packages_browser_import'); ?></a>
-    	<?php } if ($install) { ?>
-    	<a class="button" href="admin.php?action=packages&amp;job=package_info&amp;id=<?php echo $installed[$row['internal']]['id']; ?>"><?php echo $lang->phrase('admin_packages_browser_go_to_installed_package'); ?></a>
-    	<?php } ?>
-    </span>
+	<span class="right">
+		<?php if (!$install || $row['multiple'] == 1) { ?>
+		<a class="button" href="admin.php?action=packages&amp;job=browser_import&amp;id=<?php echo $key; ?>&amp;type=<?php echo $type; ?>"><?php echo $lang->phrase('admin_packages_browser_import'); ?></a>
+		<?php } if ($install) { ?>
+		<a class="button" href="admin.php?action=packages&amp;job=package_info&amp;id=<?php echo $installed[$row['internal']]['id']; ?>"><?php echo $lang->phrase('admin_packages_browser_go_to_installed_package'); ?></a>
+		<?php } ?>
+	</span>
    	<a href="admin.php?action=packages&amp;job=browser_detail&amp;id=<?php echo $key; ?>&amp;type=<?php echo $type; ?>"><strong><?php echo $row['title']; ?></strong> <?php echo $row['version']; ?></a><br />
    	<span class="stext"><?php echo $row['summary']; ?></span>
    </td>
@@ -3816,8 +3427,8 @@ elseif ($job == 'browser_list') {
    <?php } ?>
    <td align="center"><?php echo noki($compatible); ?></td>
    <td valign="top">
-    <?php echo $lang->phrase('admin_packages_browser_last_update'); ?> <?php echo gmdate('d.m.Y', times($row['last_updated'])); ?><br />
-    <?php echo $lang->phrase('admin_packages_info_license'); ?> <?php echo empty($row['license']) ? $lang->phrase('admin_packages_unknown') : $row['license']; ?>
+	<?php echo $lang->phrase('admin_packages_browser_last_update'); ?> <?php echo gmdate('d.m.Y', times($row['last_updated'])); ?><br />
+	<?php echo $lang->phrase('admin_packages_info_license'); ?> <?php echo empty($row['license']) ? $lang->phrase('admin_packages_unknown') : $row['license']; ?>
    	<?php if($show_cat == true) { $cat = $pb->categories($type, $row['category']); ?><br /><?php echo $lang->phrase('admin_packages_browser_category'); ?> <?php echo $cat['name']; } ?>
    	</td>
   </tr>
@@ -3874,7 +3485,7 @@ elseif ($job == 'browser_detail') {
 	  	<?php if ($installed === false) { ?>
 	  	<span class="right"><a class="button" href="admin.php?action=packages&amp;job=browser_import&amp;id=<?php echo $id; ?>&amp;type=<?php echo $type; ?>"><?php $foo = $types[$type]; echo $lang->phrase('admin_packages_browser_import_this'); ?></a></span>
 	  	<?php } ?>
-	    <?php echo $lang->phrase('admin_packages_browser_browse_foo'); ?> &raquo; <?php echo $cat['name']; ?> &raquo; <?php echo $row['title']; ?>
+		<?php echo $lang->phrase('admin_packages_browser_browse_foo'); ?> &raquo; <?php echo $cat['name']; ?> &raquo; <?php echo $row['title']; ?>
 	   </td>
 	  </tr>
 	  <tr>
@@ -3904,11 +3515,11 @@ elseif ($job == 'browser_detail') {
 	   		<?php
 	   		if ($vc == 1) { ?>
 	   		<strong style="color: goldenrod;"><?php $foo = $types[$type]; echo $lang->phrase('admin_packages_browser_you_have_installed_a_newer_version_of_this_foo'); ?>.</strong>
-		    <?php } elseif($vc == -1) { ?>
-		    <strong style="color: firebrick;"><?php echo $lang->phrase('admin_packages_browser_you_have_installed_an_old_version'); ?> (<?php echo $pack['version']; ?>)!</strong>
-		    <?php } else { ?>
-		    <strong style="color: forestgreen;"><?php $foo = $types[$type]; echo $lang->phrase('admin_packages_browser_you_have_installed_this_foo'); ?>.</strong>
-	    <?php } } ?>
+			<?php } elseif($vc == -1) { ?>
+			<strong style="color: firebrick;"><?php echo $lang->phrase('admin_packages_browser_you_have_installed_an_old_version'); ?> (<?php echo $pack['version']; ?>)!</strong>
+			<?php } else { ?>
+			<strong style="color: forestgreen;"><?php $foo = $types[$type]; echo $lang->phrase('admin_packages_browser_you_have_installed_this_foo'); ?>.</strong>
+		<?php } } ?>
 	   </td>
 	  </tr>
 	  <?php } if (!empty($row['last_updated'])) { ?>

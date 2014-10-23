@@ -60,15 +60,15 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			</div>
 			<img src="templates/editor/images/seperator.gif" alt="" />
 			<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
-		    <div class="popup" id="popup_bbsize">
-		    <strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
+			<div class="popup" id="popup_bbsize">
+			<strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
 		   	<ul>
-		    	<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=large]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
-		    	<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=small]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
-		    	<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=extended]','[/size]','bbsize_<?php echo $id; ?>')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
-		    </ul>
-		    </div>
-		    <img src="templates/editor/images/seperator.gif" alt="" />
+				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=large]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=small]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=extended]','[/size]','bbsize_<?php echo $id; ?>')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
+			</ul>
+			</div>
+			<img src="templates/editor/images/seperator.gif" alt="" />
 			<a id="menu_bbhx_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbhx_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_header'); ?></a>
 			<div class="popup" id="popup_bbhx_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('bbcodes_header_title'); ?></strong>
@@ -585,7 +585,7 @@ elseif ($job == 'nav_move') {
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
 
-	viscacha_header('Location: admin.php?action=cms&job=nav');
+	sendStatusCode(307, $config['furl'].'/admin.php?action=cms&job=nav');
 }
 elseif ($job == 'nav_active') {
 	$id = $gpc->get('id', int);
@@ -612,7 +612,7 @@ elseif ($job == 'nav_active') {
 
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
-	viscacha_header('Location: admin.php?action=cms&job=nav');
+	sendStatusCode(307, $config['furl'].'/admin.php?action=cms&job=nav');
 }
 elseif ($job == 'nav_addplugin') {
 	echo head();
@@ -965,10 +965,10 @@ elseif ($job == 'nav_docslist') {
 elseif ($job == 'nav_comslist') {
 	echo head();
 	$result = $db->query("
-		SELECT c.id, c.package, p.title
-		FROM {$db->pre}component AS c
-			LEFT JOIN {$db->pre}packages AS p ON c.package = p.id
-		WHERE p.active = '1' AND c.active = '1'
+		SELECT p.id, p.title, c.name
+		FROM {$db->pre}packages AS p
+			LEFT JOIN {$db->pre}plugins AS c ON c.module = p.id
+		WHERE c.position = CONCAT('component_', p.internal)
 	");
 	?>
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -977,12 +977,8 @@ elseif ($job == 'nav_comslist') {
 	  </tr>
 	  <tr>
 	   <td class="mbox">
-	   <?php
-		while ($row = $db->fetch_assoc($result)) {
-			$head = array();
-			$ini = $myini->read('modules/'.$row['package'].'/component.ini');
-	   ?>
-	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo htmlentities($ini['info']['title']); ?>')"> <?php echo  $ini['info']['title']; ?> (Package: <?php echo $row['title']; ?>)<br />
+	   <?php while ($row = $db->fetch_assoc($result)) { ?>
+	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo htmlentities($row['title']); ?>')"> <?php echo $row['name']; ?> (<?php echo $lang->phrase('admin_cms_nav_package').' '.$row['title']; ?>)<br />
 	   <?php } ?>
 	   </td>
 	 </table>
@@ -1153,9 +1149,9 @@ elseif ($job == 'doc_select_color') {
 	 </tr>
 	 <tr class="mbox" align="center">
 	  <td>
-	    <?php echo $lang->phrase('admin_wysiwyg_hey_code'); ?> <input type="text" size="10" name="enterColor" id="enterColor" /><br /><br class="minibr" />
-	    <input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" />
-	    <input type="button" onclick="self.close();" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" />
+		<?php echo $lang->phrase('admin_wysiwyg_hey_code'); ?> <input type="text" size="10" name="enterColor" id="enterColor" /><br /><br class="minibr" />
+		<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" />
+		<input type="button" onclick="self.close();" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" />
 	  </td>
 	 </tr>
 	 <tr>
@@ -1306,7 +1302,7 @@ elseif ($job == 'doc_insert_image') {
 
 	// upload file
 	$error = null;
-    if (!empty($_FILES['file']['name'])) {
+	if (!empty($_FILES['file']['name'])) {
 		$path = $leadon;
 
 		$qdir = $gpc->get('dir', none);
@@ -1323,7 +1319,7 @@ elseif ($job == 'doc_insert_image') {
 		}
 
 		if ($error === null) {
-	    	require("classes/class.upload.php");
+			require("classes/class.upload.php");
 			$my_uploader = new uploader();
 			$my_uploader->max_filesize(ini_maxupload());
 			$my_uploader->file_types($supportedextentions);
@@ -1336,17 +1332,17 @@ elseif ($job == 'doc_insert_image') {
 			}
 			$image_file = $path.$my_uploader->fileinfo('filename');
 			if (!file_exists($image_file)) {
-			    $error = $lang->phrase('admin_cms_file_does_not_exist');
+				$error = $lang->phrase('admin_cms_file_does_not_exist');
 			}
 			$image_file = str_replace(realpath($config['fpath']).DIRECTORY_SEPARATOR, '', $image_file);
 			$image_file = str_replace(DIRECTORY_SEPARATOR, '/', $image_file);
 		}
-    }
+	}
 
-    $filesize = formatFilesize(ini_maxupload());
+	$filesize = formatFilesize(ini_maxupload());
 
-    $htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
-    echo head(' onLoad="loadImage();"');
+	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	echo head(' onLoad="loadImage();"');
 	?>
 <form method="post" action="admin.php?action=cms&amp;job=doc_insert_image&amp;wysiwyg=<?php echo $wysiwyg; ?>" enctype="multipart/form-data">
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center" style="width: 700px;">

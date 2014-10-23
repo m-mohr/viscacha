@@ -186,7 +186,7 @@ if ($allowed == true) {
 				if (!empty($_POST['Preview'])) {
 					$slog->updatelogged();
 					$db->close();
-					viscacha_header("Location: edit.php?action=preview&id={$info['id']}&fid=".$fid.SID2URL_JS_x);
+					sendStatusCode(307, $config['furl']."/edit.php?action=preview&id={$info['id']}&fid=".$fid.SID2URL_JS_x);
 					exit;
 				}
 				else {

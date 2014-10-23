@@ -13,22 +13,22 @@ function export_template_list ($path, $d = 0) {
 	}
    	$dirlist = array ();
    	if ($handle = opendir($path)) {
-       	while (false !== ($file = readdir($handle))) {
-           	if ($file != '.' && $file != '..') {
-               	$file = $path . $file ;
-               	if (!is_dir($file)) {
+	   	while (false !== ($file = readdir($handle))) {
+		   	if ($file != '.' && $file != '..') {
+			   	$file = $path . $file ;
+			   	if (!is_dir($file)) {
 					$extension = get_extension($path);
 					if (stripos($extension, 'bak') === false) {
 						$dirlist[] = $file;;
 					}
 				}
-               	elseif ($d >= 0) {
-                   	$result = export_template_list ( $file . '/' , $d + 1 );
-                   	$dirlist = array_merge ( $dirlist , $result );
-               	}
-       		}
-       	}
-       	closedir($handle);
+			   	elseif ($d >= 0) {
+				   	$result = export_template_list ( $file . '/' , $d + 1 );
+				   	$dirlist = array_merge ( $dirlist , $result );
+			   	}
+	   		}
+	   	}
+	   	closedir($handle);
    	}
    	if ($d == 0) {
 		natcasesort($dirlist);
@@ -1558,6 +1558,6 @@ elseif ($job == 'images_export') {
 	}
 }
 else {
-	viscacha_header('Location: admin.php?action=designs&job=design&interface=1');
+	sendStatusCode(307, $config['furl'].'/admin.php?action=designs&job=design&interface=1');
 }
 ?>

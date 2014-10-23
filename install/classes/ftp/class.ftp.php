@@ -51,8 +51,8 @@ class ftp_base {
 	var $AutoAsciiExt;
 
 	/* Constructor */
-	function ftp_base($port_mode=FALSE) {
-		$this->__construct($port_mode);
+	function ftp_base($port_mode=FALSE, $verb=FALSE, $le=FALSE) {
+		$this->__construct($port_mode, $verb, $le);
 	}
 
 	function __construct($port_mode=FALSE, $verb=FALSE, $le=FALSE) {
@@ -78,7 +78,7 @@ class ftp_base {
 		$this->SetTimeout(30);
 		$this->Passive(!$this->_port_available);
 		$this->_login="anonymous";
-		$this->_password="anon@ftp.com";
+		$this->_password="";
 		$this->_features=array();
 	    $this->OS_local=FTP_OS_Unix;
 		$this->OS_remote=FTP_OS_Unix;
@@ -258,7 +258,7 @@ class ftp_base {
 		if(!is_null($user)) $this->_login=$user;
 		else $this->_login="anonymous";
 		if(!is_null($pass)) $this->_password=$pass;
-		else $this->_password="anon@anon.com";
+		else $this->_password="";
 		if(!$this->_exec("USER ".$this->_login, "login")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
 		if($this->_code!=230) {
@@ -732,18 +732,31 @@ class ftp_base {
 }
 
 function pemftp_class_module() {
-	$mod_sockets = true;
-	if (!extension_loaded('sockets')) {
-		if (!viscacha_function_exists('dl')) {
-			$mod_sockets = false;
+	if (extension_loaded('ftp')) {
+		return 'ext';
+	}
+	else {
+		$mod_sockets = true;
+		if (!extension_loaded('sockets')) {
+			if (!viscacha_function_exists('dl')) {
+				$mod_sockets = false;
+			}
+			else {
+			    $prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
+			    if(!@dl($prefix . 'sockets.' . PHP_SHLIB_SUFFIX)) {
+			    	$mod_sockets = false;
+			    }
+			}
+		}
+		if ($mod_sockets == true) {
+			return 'sockets';
+		}
+		elseif ($mod_sockets == false && viscacha_function_exists('fsockopen')) {
+			return 'pure';
 		}
 		else {
-		    $prefix = (PHP_SHLIB_SUFFIX == 'dll') ? 'php_' : '';
-		    if(!@dl($prefix . 'sockets.' . PHP_SHLIB_SUFFIX)) {
-		    	$mod_sockets = false;
-		    }
+			die('Viscacha needs at least fsockopen, sockets extension or ftp extension to work! Please enable one of this features or you cannot use Viscacha!');
 		}
 	}
-	return ($mod_sockets ? "sockets" : "pure");
 }
 ?>

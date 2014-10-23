@@ -44,12 +44,12 @@ if (!empty($inner['upload_box'])) {
    <div class="fullname stext"><?php echo $row->fullname; ?></div>
   <?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
    <div class="signature"><?php echo $row->signature; ?></div>
-  <?php } if (!empty($row->edit)) { ?>
+ <?php } } if (!empty($row->edit)) { ?>
    <div class="textright stext">
    <?php echo $lang->phrase('post_editinfo1'); ?>
    <strong><a href="popup.php?action=edithistory&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="edithistory" onclick="edithistory(this)"><?php echo $anz; ?></a></strong>
    <?php echo $lang->phrase('post_editinfo2'); ?>
    </div>
-<?php }} ?>
+ <?php } ?>
 </div>
 </div>

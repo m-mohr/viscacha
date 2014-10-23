@@ -1,5 +1,11 @@
 <?php
 class cache_version_check extends CacheItem {
+
+	function cache_version_check ($filename, $cachedir = "cache/") {
+		$this->CacheItem($filename, $cachedir);
+		$this->max_age = 60*60*24;
+	}
+
 	function load () {
 		global $config;
 		if ($this->exists() == true) {

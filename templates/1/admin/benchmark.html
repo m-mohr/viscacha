@@ -9,32 +9,32 @@
 </thead>
 <tbody id="part_int_benchmark">
 <tr class="tbody">
-	<td width="25%"><strong>GZIP:</strong></td>
-	<td width="25%"><?php echo $gzbenchval; ?></td>
-	<td width="25%"><strong>Load Time:</strong></td>
-	<td width="25%"><?php echo $zeitmessung; ?> sec.</td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_gzip'); ?></strong></td>
+	<td width="25%"><?php echo iif(PAGE_IS_GZIPPED, $lang->phrase('page_gzip_on').$config['gzcompression'], $lang->phrase('page_gzip_off')); ?></td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_load_time'); ?></strong></td>
+	<td width="25%"><?php echo $zeitmessung; ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
 </tr><tr class="tbody">
-	<td width="25%"><strong>Queries:</strong></td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_queries'); ?></strong></td>
 	<td width="25%"><?php echo $db->benchmark('queries'); ?></td>
-	<td width="25%"><strong>Queries Time:</strong></td>
-	<td width="25%"><?php echo $db->benchmark('time'); ?> sec.</td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_queries_time'); ?></strong></td>
+	<td width="25%"><?php echo $db->benchmark('time'); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
 </tr><tr class="tbody">
-	<td width="25%"><strong>Templates:</strong></td>
-	<td width="25%"><?php echo $this->benchmark['all']; ?> (<?php echo $this->benchmark['error']; ?> failed)</td>
-	<td width="25%"><strong>Templates Time:</strong></td>
-	<td width="25%"><?php echo round($this->benchmark['time'], 5); ?> sec.</td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_templates'); ?></strong></td>
+	<td width="25%"><?php echo $this->benchmark['all']; ?> (<?php echo $this->benchmark['error']; ?> <?php echo $lang->phrase('benchmark_failed'); ?>)</td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_templates_time'); ?></strong></td>
+	<td width="25%"><?php echo round($this->benchmark['time'], 5); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
 </tr>
 <?php if ($bbcode->existsProfile('standard')) { ?>
 <tr class="tbody">
-	<td width="25%"><strong>BB-Codes + Smileys:</strong></td>
-	<td width="25%"><?php echo $bbcode->getBenchmark('bbcode'); ?> sec.</td>
-	<td width="25%"><strong>Smileys:</strong></td>
-	<td width="25%"><?php echo $bbcode->getBenchmark('smileys'); ?> sec.</td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_bbc_smileys'); ?></strong></td>
+	<td width="25%"><?php echo $bbcode->getBenchmark('bbcode'); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
+	<td width="25%"><strong><?php echo $lang->phrase('benchmark_smileys'); ?></strong></td>
+	<td width="25%"><?php echo $bbcode->getBenchmark('smileys'); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
 </tr>
 <?php } if ($my->p['admin'] == 1) { ?>
 <tr class="tbody">
 	<td width="50%" colspan="2" valign="top" class='stext'>
-	<strong>Templates:</strong><br />
+	<strong><?php echo $lang->phrase('benchmark_templates'); ?></strong><br />
 	<?php
 	foreach ($this->benchmark['detail'] as $row) {
 	    echo '<i'.iif(($zeitmessung/33) < $row['time'], ' style="color: red;"').'>'.$row['time'].'</i>: '.$row['file'].'<br />';
@@ -42,8 +42,8 @@
 	?>
 	</td>
 	<td width="50%" colspan="2" valign="top" class='stext'>
-	<strong>Queries:</strong><br />
-	<div style="width: 290px; height: 280px; overflow: scroll;">
+	<strong><?php echo $lang->phrase('benchmark_queries'); ?></strong><br />
+	<div style="height: 280px; overflow: scroll;">
 	<?php
 	foreach ($db->benchmark() as $row) {
 	    echo '<u><i'.iif(($zeitmessung/50) < $row['time'], ' style="color: red;"').'>'.$row['time'].'</i></u>:<br />'.$row['query'].'<br />';

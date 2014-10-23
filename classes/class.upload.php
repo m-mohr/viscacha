@@ -255,17 +255,7 @@ class uploader {
 		}
 		else {
 			// Secure file name
-			$this->file['raw_name'] = str_replace (array('á', 'à', 'â', 'Á', 'À', 'Â'), 			'a', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ë', 'Ê'), 	'e', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï'), 	'i', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('ó', 'ò', 'ô', 'Ó', 'Ò', 'Ô'), 			'o', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('ú', 'ù', 'û', 'Ú', 'Ù', 'Û'), 			'u', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('ä', 'Ä'), 								'ae', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('ö', 'Ö'), 								'oe', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array('ü', 'Ü'), 								'ue', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace (array(' ', '%20'), 								'_', 	$this->file['raw_name']);
-			$this->file['raw_name'] = str_replace ('ß', 'ss', $this->file['raw_name']);
-			$this->file['raw_name'] = preg_replace("/[^a-zA-Z0-9\._-]+/i", '', $this->file['raw_name']);
+			$this->file['raw_name'] = convert2adress($this->file['raw_name'], false, '_');
 		}
 
 		$new_path = $this->path.$this->file['raw_name'].'.'.$this->file['extension'];

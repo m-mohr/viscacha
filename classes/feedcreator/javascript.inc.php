@@ -49,7 +49,7 @@ class JAVASCRIPT extends FeedCreator {
 
 	/**
 	 * Writes the HTML.
-	 * @return    string    the scripts's complete text
+	 * @return	string	the scripts's complete text
 	 */
 	function createFeed() {
 		// if there is styleless output, use the content of this variable and ignore the rest
@@ -83,19 +83,20 @@ class JAVASCRIPT extends FeedCreator {
 			$feedArray[] = "<div class='".$this->stylePrefix."title'><a href='".$this->link."' ".$targetInsert." class='".$this->stylePrefix."title'>".
 				$this->htmlspecialchars(FeedCreator::iTrunc($this->title,100))."</a></div>";
 		}
-		if ($this->getDescription()) {
+		$description = $this->getDescription($this->encoding);
+		if ($description) {
 			$feedArray[] = "<div class='".$this->stylePrefix."description'>".
-				str_replace("]]>", "", str_replace("<![CDATA[", "", $this->getDescription())).
+				str_replace("]]>", "", str_replace("<![CDATA[", "", $description)).
 				"</div>";
 		}
 
 		if ($this->header) {
-			$feedArray[] = "<div class='".$this->stylePrefix."header'>".$this->header."</div>";
+			$feedArray[] = "<div class='".$this->stylePrefix."header'>".$this->htmlspecialchars($this->header)."</div>";
 		}
 
 		for ($i=0;$i<count($this->items);$i++) {
 			if ($this->separator and $i > 0) {
-				$feedArray[] = "<div class='".$this->stylePrefix."separator'>".$this->separator."</div>";
+				$feedArray[] = "<div class='".$this->stylePrefix."separator'>".$this->htmlspecialchars($this->separator)."</div>";
 			}
 
 			if ($this->items[$i]->title) {
@@ -111,15 +112,16 @@ class JAVASCRIPT extends FeedCreator {
 						"</div>";
 				}
 			}
-			if ($this->items[$i]->getDescription()) {
+			$description = $this->items[$i]->getDescription($this->encoding);
+			if ($description) {
 				$feedArray[] =
 				"<div class='".$this->stylePrefix."item_description'>".
-					str_replace("]]>", "", str_replace("<![CDATA[", "", $this->items[$i]->getDescription())).
+					str_replace("]]>", "", str_replace("<![CDATA[", "", $description)).
 					"</div>";
 			}
 		}
 		if ($this->footer) {
-			$feedArray[] = "<div class='".$this->stylePrefix."footer'>".$this->footer."</div>";
+			$feedArray[] = "<div class='".$this->stylePrefix."footer'>".$this->htmlspecialchars($this->footer)."</div>";
 		}
 
 		$jsFeed = "";

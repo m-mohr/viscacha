@@ -45,7 +45,7 @@ $lang['wwo_register'] = 'is registering';
 $lang['wwo_search'] = 'is using the <a href="search.php">searchfunction</a>';
 $lang['wwo_search_active'] = 'is viewing the currently active topics';
 $lang['wwo_showforum'] = 'is viewing the following board: <a href="showforum.php?id={$id}">{$title}</a>';
-$lang['wwo_showforum'] = 'is viewing a board';
+$lang['wwo_showforum_fallback'] = 'is viewing a board';
 $lang['wwo_showtopic'] = 'is reading the following topic: <a href="showtopic.php?id={$id}">{$title}</a>';
 $lang['wwo_showtopic_fallback'] = 'is reading a topic';
 $lang['wwo_team'] = 'is viewing the <a href="members.php?action=team">team overview</a>';

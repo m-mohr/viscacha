@@ -199,7 +199,7 @@ if ($_GET['action'] == "search") {
 		file_put_contents('cache/search/'.$fid.'.inc.php', serialize($data));
 		$slog->updatelogged();
 		$db->close();
-		viscacha_header('Location: search.php?action=result&fid='.$fid.SID2URL_JS_x);
+		sendStatusCode(307, $config['furl'].'/search.php?action=result&fid='.$fid.SID2URL_JS_x);
 		exit;
 	}
 	else {

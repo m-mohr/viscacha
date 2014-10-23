@@ -44,6 +44,7 @@ class CacheItem {
 	function export() {
 		global $filesystem;
 	    $ser_data = serialize($this->data);
+	    $filesystem->chmod($this->file, 0666);
 	    return $filesystem->file_put_contents($this->file, $ser_data);
 	}
 

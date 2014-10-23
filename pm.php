@@ -252,7 +252,7 @@ elseif ($_GET['action'] == "save") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
-			viscacha_header("Location: pm.php?action=preview&fid=".$fid.SID2URL_JS_x);
+			sendStatusCode(307, $config['furl'].'/pm.php?action=preview&fid='.$fid.SID2URL_JS_x);
 			exit;
 		}
 		else {

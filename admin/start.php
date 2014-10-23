@@ -81,6 +81,7 @@ elseif (empty($job) || $job == 'start') {
 		$age = $cache->age();
 	}
 	if ($age > 14*24*60*60) {
+		$cache->delete();
 		$vcurl = 'admin.php?action=settings&amp;job=version';
 		$tasks[] = $lang->phrase('admin_task_version_check');
 	}

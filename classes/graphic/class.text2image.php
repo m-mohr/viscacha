@@ -25,8 +25,11 @@ class text2image {
 		// Nothing to do...
 	}
 
-	function prepare($text, $angle=0, $size=10, $font='classes/fonts/trebuchet.ttf') {
-		$this->text = $text; // Line breaks with [nl]
+	function prepare($text, $angle = 0, $size = 10, $font = null) {
+		if (!file_exists($font)) {
+			$font = './classes/fonts/trebuchet.ttf';
+		}
+		$this->text = $text; // Line breaks with [nl] or standard html br
 		$this->angle = $angle+0;
 		$this->size = $size+0;
 		$this->font = $font;
@@ -70,7 +73,7 @@ class text2image {
 	}
 
 	function build ($margin = 2, $bg = 'ffffff', $fg = '000000') {
-		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
+		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/(\[nl\]|<br(\s?\/)?>)/is", "\r\n", $this->text));
 
 		$TxtBx_Lwr_L_x = $TextBoxSize[0];
 		$TxtBx_Lwr_L_y = $TextBoxSize[1];

@@ -165,10 +165,13 @@ function log_robot()  {
 
 		$today = time();
 
+		if ($config['spider_logvisits'] == 2 && $config['spider_pendinglist'] != 1 && ($agent_match == 1 || $ip_match == 1)) {
+			$db->query("UPDATE {$db->pre}spider SET bot_visits = bot_visits + 1 WHERE id = '{$row['id']}'");
+		}
 		if ($agent_match == 1 && $ip_match == 1) {
 			if ($config['spider_logvisits'] == 1) {
-				$result = $db->query("SELECT id, bot_visits, last_visit FROM {$db->pre}spider WHERE id = ".$row['id']);
-				$row = $db->fetch_assoc($result);
+				$result = $db->query("SELECT bot_visits, last_visit FROM {$db->pre}spider WHERE id = '{$row['id']}'");
+				$row = array_merge($row, $db->fetch_assoc($result));
 
 				$row['bot_visits']++;
 
@@ -176,83 +179,77 @@ function log_robot()  {
 				$last_visits[] = $today;
 				$last_visit = implode("|", array_empty_trim($last_visits));
 
-				$db->query("UPDATE {$db->pre}spider SET last_visit = '{$last_visit}', bot_visits = '{$row['bot_visits']}' WHERE id = ".$row['id']);
+				$db->query("UPDATE {$db->pre}spider SET last_visit = '{$last_visit}', bot_visits = '{$row['bot_visits']}' WHERE id = '{$row['id']}'");
 			}
 
 			return $row['id'];
-
 		}
-		else  {
-			if ($agent_match == 1 || $ip_match == 1) {
+		elseif ($agent_match == 1 || $ip_match == 1) {
+			$column = ((!$agent_match) ? 'agent' : 'ip');
+			$column2 = ((!$agent_match) ? 'user_agent' : 'bot_ip');
+			$sqlselect = array();
+			if ($config['spider_pendinglist'] == 1) {
+				$sqlselect[] = "pending_{$column}";
+				$sqlselect[] = $column2;
+			}
+			if ($config['spider_logvisits'] == 1) {
+				$sqlselect[] = "bot_visits";
+				$sqlselect[] = "last_visit";
+			}
+			if ($config['spider_logvisits'] == 1 || $config['spider_pendinglist'] == 1) {
+				$result = $db->query("SELECT ".implode(', ', $sqlselect)." FROM {$db->pre}spider WHERE id = '{$row['id']}'");
+				$row = array_merge($row, $db->fetch_assoc($result));
+			}
 
-				$column = ((!$agent_match) ? 'agent' : 'ip');
-				$column2 = ((!$agent_match) ? 'user_agent' : 'bot_ip');
-				$sqlselect = array("id");
-				if ($config['spider_pendinglist'] == 1) {
-					$sqlselect[] = "pending_{$column}";
-					$sqlselect[] = $column2;
-				}
-				if ($config['spider_logvisits'] == 1) {
-					$sqlselect[] = "bot_visits";
-					$sqlselect[] = "last_visit";
-				}
-				if ($config['spider_logvisits'] == 1 || $config['spider_pendinglist'] == 1) {
-					$result = $db->query("SELECT ".implode(', ', $sqlselect)." FROM {$db->pre}spider WHERE id = ".$row['id']);
-					$row2 = $db->fetch_assoc($result);
-				}
+			if ($config['spider_pendinglist'] == 1 && $db->num_rows($result) > 0) {
+				$func = ((!$agent_match) ? 'stristr' : 'strpos');
 
-				if ($config['spider_pendinglist'] == 1 && isset($row2)) {
-					$func = ((!$agent_match) ? 'stristr' : 'strpos');
+				$pending_array = (( $row['pending_'.$column] ) ? explode('|', $row['pending_'.$column]) : array());
 
-					$pending_array = (( $row2['pending_'.$column] ) ? explode('|', $row2['pending_'.$column]) : array());
-
-					$found = 0;
-
-					$count = count($pending_array);
-					if ($count > 0) {
-						for ($loop = 0; $loop < $count; $loop+=2) {
-							if ($pending_array[$loop] == ((!$agent_match) ? $this->user_agent : $this->ip)) {
-								$found = 1;
-								foreach (explode('|', $row2[$column2]) as $entry) {
-									if ($row2[$column2] && !empty($entry) && $func(((!$agent_match) ? $this->user_agent : $this->ip), $entry) !== false) {
-										$found = 0;
-										break;
-									}
+				$found = 0;
+				$count = count($pending_array);
+				if ($count > 0) {
+					for ($loop = 0; $loop < $count; $loop+=2) {
+						if ($pending_array[$loop] == ((!$agent_match) ? $this->user_agent : $this->ip)) {
+							$found = 1;
+							foreach (explode('|', $row[$column2]) as $entry) {
+								if ($row[$column2] && !empty($entry) && $func(((!$agent_match) ? $this->user_agent : $this->ip), $entry) !== false) {
+									$found = 0;
+									break;
 								}
 							}
 						}
 					}
-
-					if ($found == 0)  {
-						$pending_array[] = ((!$agent_match) ? str_replace("|", "&#124;", $this->user_agent) : $this->ip);
-						$pending_array[] = ((!$agent_match) ? $this->ip : str_replace("|", "&#124;", $this->user_agent));
-					}
-					$pending = implode("|", array_empty_trim($pending_array));
-				}
-				if ($config['spider_logvisits'] == 1 && isset($row2)) {
-					$row2['bot_visits']++;
-
-					$last_visits = explode('|', $row2['last_visit']);
-					$last_visits[] = $today;
-					$last_visit = implode("|", array_empty_trim($last_visits));
 				}
 
-				$sqlset = array();
-				if ($config['spider_pendinglist'] == 1) {
-					$sqlset[] = "pending_{$column} = '{$pending}'";
+				if ($found == 0)  {
+					$pending_array[] = ((!$agent_match) ? str_replace("|", "&#124;", $this->user_agent) : $this->ip);
+					$pending_array[] = ((!$agent_match) ? $this->ip : str_replace("|", "&#124;", $this->user_agent));
 				}
-				if ($config['spider_logvisits'] == 1) {
-					$sqlset[] = "last_visit = '{$last_visit}'";
-					$sqlset[] = "bot_visits = '{$row2['bot_visits']}'";
-				}
-				if (count($sqlset) > 0 && ($config['spider_logvisits'] == 1 || $config['spider_pendinglist'] == 1)) {
-					$db->query("UPDATE {$db->pre}spider SET ".implode(', ', $sqlset)." WHERE id = '{$row['id']}' LIMIT 1");
-				}
-
-				return $row['id'];
+				$pending = implode("|", array_empty_trim($pending_array));
 			}
-		}
+			if ($config['spider_logvisits'] == 1 && $db->num_rows($result) > 0) {
+				$row['bot_visits']++;
 
+				$last_visits = explode('|', $row['last_visit']);
+				$last_visits[] = $today;
+				$last_visit = implode("|", array_empty_trim($last_visits));
+			}
+
+			$sqlset = array();
+			if ($config['spider_pendinglist'] == 1) {
+				$sqlset[] = "pending_{$column} = '{$pending}'";
+			}
+			if ($config['spider_logvisits'] == 1) {
+				$sqlset[] = "last_visit = '{$last_visit}'";
+				$sqlset[] = "bot_visits = '{$row['bot_visits']}'";
+			}
+			if (count($sqlset) > 0 && ($config['spider_logvisits'] == 1 || $config['spider_pendinglist'] == 1)) {
+				$db->query("UPDATE {$db->pre}spider SET ".implode(', ', $sqlset)." WHERE id = '{$row['id']}' LIMIT 1");
+			}
+
+			return $row['id'];
+		}
 	}
 
 	return 0;
@@ -271,10 +268,10 @@ function defineGID() {
 	$data = $groups_obj->standard();
 
 	if (!defined('GROUP_GUEST')) {
-	    DEFINE('GROUP_GUEST', $data['group_guest']);
+		DEFINE('GROUP_GUEST', $data['group_guest']);
 	}
 	if (!defined('GROUP_MEMBER')) {
-	    DEFINE('GROUP_MEMBER', $data['group_member']);
+		DEFINE('GROUP_MEMBER', $data['group_member']);
 	}
 }
 
@@ -433,12 +430,12 @@ function updatelogged () {
  * @return boolean
  */
 function deleteOldSessions () {
-    global $config, $db;
+	global $config, $db;
 	if ($this->SessionDel() == true) {
-	    $sessionsave = $config['sessionsave']*60;
-	    $old = time()-$sessionsave;
-	    $db->query ("DELETE FROM {$db->pre}session WHERE active <= '{$old}'");
-	    return true;
+		$sessionsave = $config['sessionsave']*60;
+		$old = time()-$sessionsave;
+		$db->query ("DELETE FROM {$db->pre}session WHERE active <= '{$old}'");
+		return true;
 	}
 	else {
 		return false;
@@ -461,9 +458,9 @@ function logged () {
 		$this->querysid = false;
 	}
 
-    $vdata = $gpc->save_str(getcookie('vdata'));
-    $vhash = $gpc->save_str(getcookie('vhash'));
-    if (!empty($vdata)) {
+	$vdata = $gpc->save_str(getcookie('vdata'));
+	$vhash = $gpc->save_str(getcookie('vhash'));
+	if (!empty($vdata)) {
 		$this->cookies = true;
 		$this->cookiedata = explode("|", $vdata);
 	}
@@ -472,12 +469,12 @@ function logged () {
 	}
 	if (isset($vhash)) {
 		$this->cookies = true;
-	    if (strlen($vhash) != $config['sid_length']) {
-	    	$this->sid = '';
-	    }
-	    else {
-	    	$this->sid = $vhash;
-	    }
+		if (strlen($vhash) != $config['sid_length']) {
+			$this->sid = '';
+		}
+		else {
+			$this->sid = $vhash;
+		}
 	}
 	elseif($sessionid) {
 		$this->sid = $sessionid;
@@ -660,7 +657,7 @@ function banish($reason = null, $until = null) {
 	$tpl->globalvars(compact('reason', 'until'));
 	echo $tpl->parse("banned");
 
-    $phpdoc->Out();
+	$phpdoc->Out();
 	$db->close();
 	exit();
 }
@@ -741,7 +738,7 @@ function sid_load() {
 		$sql = 'u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"';
 	}
 	elseif ($this->get_robot_type() == 'b') {
-	    $sql = 's.ip = "'.$this->ip.'" AND s.mid = "0"';
+		$sql = 's.ip = "'.$this->ip.'" AND s.mid = "0"';
 	}
 	else {
 		$sql = $sid_checkip;
@@ -798,6 +795,7 @@ function sid_new() {
 		$my = $this->cleanUserData($db->fetch_object($result));
 		$nodata = ($db->num_rows($result) == 1) ? false : true;
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
+			makecookie($config['cookie_prefix'].'_vdata', '|', 0);
 			set_failed_login();
 		}
 	}
@@ -856,7 +854,7 @@ function sid_logout() {
 	");
 	$db->query("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'");
 
-	makecookie($config['cookie_prefix'].'_vdata', '|', -60);
+	makecookie($config['cookie_prefix'].'_vdata', '|', 0);
 }
 
 /**
@@ -970,7 +968,7 @@ function sid_login($remember = true) {
 			$expire = 31536000;
 		}
 		else {
-			$expire = null;
+			$expire = 900;
 		}
 		makecookie($config['cookie_prefix'].'_vdata', $my->id.'|'.$my->pw, $expire);
 		$this->cookiedata[0] = $my->id;
@@ -998,20 +996,20 @@ function sid2url($my = null) {
 		$my->is_bot = 0;
 	}
 	if (!defined('SID2URL')) {
-    	if ($this->cookies || $my->is_bot > 0) {
-    		DEFINE('SID2URL_JS_x', '');
-    		DEFINE('SID2URL_JS_1', '');
-    		DEFINE('SID2URL_x', '');
-    		DEFINE('SID2URL_1', '');
-    		DEFINE('SID2URL', '');
-    	}
-    	else {
-    		DEFINE('SID2URL_JS_x', '&s='.$this->sid);
-    		DEFINE('SID2URL_JS_1', '?s='.$this->sid);
-    		DEFINE('SID2URL_x', '&amp;s='.$this->sid);
-    		DEFINE('SID2URL_1', '?s='.$this->sid);
-    		DEFINE('SID2URL', $this->sid);
-    	}
+		if ($this->cookies || $my->is_bot > 0) {
+			DEFINE('SID2URL_JS_x', '');
+			DEFINE('SID2URL_JS_1', '');
+			DEFINE('SID2URL_x', '');
+			DEFINE('SID2URL_1', '');
+			DEFINE('SID2URL', '');
+		}
+		else {
+			DEFINE('SID2URL_JS_x', '&s='.$this->sid);
+			DEFINE('SID2URL_JS_1', '?s='.$this->sid);
+			DEFINE('SID2URL_x', '&amp;s='.$this->sid);
+			DEFINE('SID2URL_1', '?s='.$this->sid);
+			DEFINE('SID2URL', $this->sid);
+		}
 	}
 }
 
@@ -1362,19 +1360,19 @@ function GlobalPermissions() {
 function ModPermissions ($bid) {
 	global $my, $db;
 	if ($my->vlogin && $my->id > 0) {
-	    if ($this->permissions['admin'] == 1 || $this->permissions['gmod'] == 1) {
-	    	return array(1,1,1,1,1,1);
-	    }
-	    else {
-		    $result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
-	        if ($db->num_rows($result) > 0) {
-	        	$row = $db->fetch_assoc($result);
-	            return array(1, $row['s_rating'], $row['s_news'], $row['s_article'], $row['p_delete'], $row['p_mc']);
-	        }
-	        else {
-	            return array(0,0,0,0,0,0);
-	        }
-	    }
+		if ($this->permissions['admin'] == 1 || $this->permissions['gmod'] == 1) {
+			return array(1,1,1,1,1,1);
+		}
+		else {
+			$result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
+			if ($db->num_rows($result) > 0) {
+				$row = $db->fetch_assoc($result);
+				return array(1, $row['s_rating'], $row['s_news'], $row['s_article'], $row['p_delete'], $row['p_mc']);
+			}
+			else {
+				return array(0,0,0,0,0,0);
+			}
+		}
 	}
 	else {
 		return array(0,0,0,0,0,0);

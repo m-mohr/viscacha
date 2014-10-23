@@ -139,8 +139,8 @@ function sendStatusCode($code, $additional = null) {
 	);
 
 	if (isset($status[$code])) {
-		viscacha_header("HTTP 1.1 {$code} {$status[$code]}");
-		viscacha_header("Status: {$code} {$status[$code]}");
+
+		viscacha_header("Status: {$code} {$status[$code]}", true, $code);
 
 		// Additional headers
 		if ($additional != null) {
@@ -148,13 +148,13 @@ function sendStatusCode($code, $additional = null) {
 				case '301':
 				case '302':
 				case '307':
-					viscacha_header("Location: {$additional}");
+					viscacha_header("Location: {$additional}", true, $code);
 				break;
 				case '401':
-					viscacha_header('WWW-Authenticate: Basic Realm="'.$additional.'"');
+					viscacha_header('WWW-Authenticate: Basic Realm="'.$additional.'"', true, $code);
 				break;
 				case '503':
-					viscacha_header("Retry-After: {$additional}");
+					viscacha_header("Retry-After: {$additional}", true, $code);
 				break;
 			}
 		}
@@ -766,7 +766,7 @@ if (!viscacha_function_exists('array_combine')) {
  * @require		PHP 4.0.0 (trigger_error)
  */
 if (!viscacha_function_exists('http_build_query')) {
-	function php_compat_http_build_query($formdata, $numeric_prefix = null) {
+	function http_build_query($formdata, $numeric_prefix = null) {
 		// If $formdata is an object, convert it to an array
 		if (is_object($formdata)) {
 			$formdata = get_object_vars($formdata);

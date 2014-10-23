@@ -233,7 +233,9 @@ if (!empty($info['vquestion'])) {
 				    $vote['voter'][$row['id']][0] = '-';
 				}
 			}
-			$vote['phrase'] = iif($vote['voted'] > 0, 'vote_change_option', 'vote_go_form');
+			if ($my->vlogin && $my->p['voting'] == 1 && $info['status'] == 0) {
+				$vote['phrase'] = iif($vote['voted'] > 0, 'vote_change_option', 'vote_go_form');
+			}
 			($code = $plugins->load('showtopic_vote_result_prepared')) ? eval($code) : null;
 			$inner['vote_result'] = $tpl->parse("showtopic/vote_result");
 		}
@@ -296,12 +298,14 @@ if ($info['last'] > $my->clv) {
 // Custom Profile Fields
 include_once('classes/class.profilefields.php');
 $pfields = new ProfileFieldViewer();
-
+$rel_post_num = $start;
 while ($row = $db->fetch_object($result)) {
 	$inner['upload_box'] = '';
 	$inner['image_box'] = '';
 
 	$row = $slog->cleanUserData($row);
+	$rel_post_num++;
+	$row->rel_post_num = $rel_post_num;
 
 	if ($row->guest == 0) {
 		$row->mail = '';
@@ -404,15 +408,26 @@ while ($row = $db->fetch_object($result)) {
 		}
 	}
 
-	$anz = 0;
+	$edit = array();
 	if (!empty($row->edit)) {
-		$edits = explode("\n", $row->edit);
-		$anz = count($edits);
-		$anz--;
-		$lastdata = explode("\t", $edits[$anz-1]);
-		$date = gmdate($lang->phrase('dformat1'), times($lastdata[1]));
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row->edit, $edits, PREG_SET_ORDER);
 		BBProfile($bbcode);
-		$why = iif(empty($lastdata[2]), $lang->phrase('post_editinfo_na'), $bbcode->wordwrap($lastdata[2]));
+		foreach ($edits as $e) {
+			$edit[] = array(
+				$e[1],
+				gmdate($lang->phrase('dformat1'), times($e[2])),
+				empty($e[3]) ? $lang->phrase('post_editinfo_na') : $bbcode->wordwrap($e[3]),
+				empty($e[4]) ? '-' : $e[4]
+			);
+		}
+		$anz = count($edit);
+		if ($anz == 0) {
+			$row->edit = null;
+		}
+		$lastdata = end($edit);
+		if ($lastdata != false) {
+			list(, $date, $why, ) = $lastdata;
+		}
 	}
 
 	// Ratings

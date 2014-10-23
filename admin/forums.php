@@ -33,7 +33,7 @@ function ForumSubs ($tree, $cat, $board, $char = '+', $level = 0) {
 			$bdata = $board[$bid];
 			?>
 			  <tr>
-			    <td class="mbox"><?php echo str_repeat($char, $level+1).' '.$bdata['name']; ?></td>
+				<td class="mbox"><?php echo str_repeat($char, $level+1).' '.$bdata['name']; ?></td>
 				<td class="mbox" width="10%" align="right"><?php echo $bdata['position']; ?>&nbsp;&nbsp;
 				<a href="admin.php?action=forums&job=forum_move&id=<?php echo $bdata['id']; ?>&move=-1"><img src="admin/html/images/asc.gif" border="0" alt="<?php echo $lang->phrase('admin_forum_up'); ?>"></a>&nbsp;
 				<a href="admin.php?action=forums&job=forum_move&id=<?php echo $bdata['id']; ?>&move=1"><img src="admin/html/images/desc.gif" border="0" alt="<?php echo $lang->phrase('admin_forum_down'); ?>"></a>
@@ -67,9 +67,9 @@ function ForumSubs ($tree, $cat, $board, $char = '+', $level = 0) {
 				</form>
 			   </td>
 			  </tr>
-	    	<?php
-	    	ForumSubs($sub, $cat, $board, $char, $level+2);
-	    }
+			<?php
+			ForumSubs($sub, $cat, $board, $char, $level+2);
+		}
 	}
 }
 
@@ -109,60 +109,60 @@ elseif ($job == 'mods') {
 	?>
 <form name="form" method="post" action="admin.php?action=forums&job=mods_delete<?php echo iif($bid > 0, '&id='.$bid); ?>">
   <table class="border">
-    <tr>
-      <td class="obox" colspan="<?php echo $colspan; ?>"><span style="float: right;"><a class="button" href="admin.php?action=forums&amp;job=mods_add&amp;id=<?php echo $bid; ?>"><?php echo $lang->phrase('admin_forum_add_moderator'); ?></a></span><?php echo $lang->phrase('admin_forum_moderator_manager'); ?></td>
-    </tr>
-    <tr class="ubox">
-      <td width="5%" rowspan="2"><?php echo $lang->phrase('admin_forum_delete'); ?><br />
-          <span class="stext">
-          <input type="checkbox" onClick="check_all(this);" name="all" value="delete[]" />
-          <?php echo $lang->phrase('admin_forum_all'); ?></span></td>
-      <td width="30%" rowspan="2"><?php if ($bid == 0) { ?>
-          <a<?php echo iif($orderby == 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=member"><?php echo $lang->phrase('admin_forum_order_by_name'); ?></a>
-          <?php } else { echo $lang->phrase('admin_forum_order_by_name'); } ?>
-      </td>
-      <?php if ($bid == 0) { ?>
-      <td width="30%" rowspan="2"><a<?php echo iif($orderby != 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=board"><?php echo $lang->phrase('admin_forum_order_by_forum'); ?></a> </td>
-      <?php } ?>
-      <td width="20%" rowspan="2"><?php echo $lang->phrase('admin_forum_period'); ?></td>
-      <td width="21%" colspan="3" align="center"><?php echo $lang->phrase('admin_forum_status'); ?></td>
-      <td width="14%" colspan="2" align="center"><?php echo $lang->phrase('admin_forum_topic'); ?></td>
-    </tr>
-    <tr class="ubox">
-      <td width="7%"><?php echo $lang->phrase('admin_forum_rating'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('admin_forum_articles'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('admin_forum_news'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('admin_forum_move'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('admin_forum_delete'); ?></td>
-    </tr>
-    <?php
+	<tr>
+	  <td class="obox" colspan="<?php echo $colspan; ?>"><span style="float: right;"><a class="button" href="admin.php?action=forums&amp;job=mods_add&amp;id=<?php echo $bid; ?>"><?php echo $lang->phrase('admin_forum_add_moderator'); ?></a></span><?php echo $lang->phrase('admin_forum_moderator_manager'); ?></td>
+	</tr>
+	<tr class="ubox">
+	  <td width="5%" rowspan="2"><?php echo $lang->phrase('admin_forum_delete'); ?><br />
+		  <span class="stext">
+		  <input type="checkbox" onClick="check_all(this);" name="all" value="delete[]" />
+		  <?php echo $lang->phrase('admin_forum_all'); ?></span></td>
+	  <td width="30%" rowspan="2"><?php if ($bid == 0) { ?>
+		  <a<?php echo iif($orderby == 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=member"><?php echo $lang->phrase('admin_forum_order_by_name'); ?></a>
+		  <?php } else { echo $lang->phrase('admin_forum_order_by_name'); } ?>
+	  </td>
+	  <?php if ($bid == 0) { ?>
+	  <td width="30%" rowspan="2"><a<?php echo iif($orderby != 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=board"><?php echo $lang->phrase('admin_forum_order_by_forum'); ?></a> </td>
+	  <?php } ?>
+	  <td width="20%" rowspan="2"><?php echo $lang->phrase('admin_forum_period'); ?></td>
+	  <td width="21%" colspan="3" align="center"><?php echo $lang->phrase('admin_forum_status'); ?></td>
+	  <td width="14%" colspan="2" align="center"><?php echo $lang->phrase('admin_forum_topic'); ?></td>
+	</tr>
+	<tr class="ubox">
+	  <td width="7%"><?php echo $lang->phrase('admin_forum_rating'); ?></td>
+	  <td width="7%"><?php echo $lang->phrase('admin_forum_articles'); ?></td>
+	  <td width="7%"><?php echo $lang->phrase('admin_forum_news'); ?></td>
+	  <td width="7%"><?php echo $lang->phrase('admin_forum_move'); ?></td>
+	  <td width="7%"><?php echo $lang->phrase('admin_forum_delete'); ?></td>
+	</tr>
+	<?php
 	while ($row = $db->fetch_assoc($result)) {
 	if ($row['time'] > -1) {
 		$row['time'] = 'until '.gmdate('M d, Y',times($row['time']));
 	}
 	else {
-	    $row['time'] = '<em>'.$lang->phrase('admin_forum_no_restriction').'</em>';
+		$row['time'] = '<em>'.$lang->phrase('admin_forum_no_restriction').'</em>';
 	}
-    $p1 = ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=mods_ajax_changeperm&mid='.$row['mid'].'&bid='.$row['bid'].'&key=';
-    $p2 = '\')"';
+	$p1 = ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=mods_ajax_changeperm&mid='.$row['mid'].'&bid='.$row['bid'].'&key=';
+	$p2 = '\')"';
 ?>
-    <tr>
-      <td class="mbox" width="5%" align="center"><input type="checkbox" value="<?php echo $row['mid'].'_'.$row['bid']; ?>" name="delete[]"></td>
-      <td class="mbox" width="30%"><a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $row['mid']; ?>"><?php echo $row['user']; ?></a></td>
-      <?php if ($bid == 0) { ?>
-      <td class="mbox" width="30%"><a href="admin.php?action=forums&amp;job=mods&id=<?php echo $row['cat_id']; ?>"><?php echo $row['cat']; ?></a></td>
-      <?php } ?>
-      <td class="mbox" width="20%"><?php echo $row['time']; ?></td>
-      <td class="mbox" width="7%" align="center"><?php echo noki($row['s_rating'], $p1.'s_rating'.$p2); ?></td>
-      <td class="mbox" width="7%" align="center"><?php echo noki($row['s_article'], $p1.'s_article'.$p2); ?></td>
-      <td class="mbox" width="7%" align="center"><?php echo noki($row['s_news'], $p1.'s_news'.$p2); ?></td>
-      <td class="mbox" width="7%" align="center"><?php echo noki($row['p_mc'], $p1.'p_mc'.$p2); ?></td>
-      <td class="mbox" width="7%" align="center"><?php echo noki($row['p_delete'], $p1.'p_delete'.$p2); ?></td>
-    </tr>
-    <?php } ?>
-    <tr>
-      <td class="ubox" width="100%" colspan="<?php echo $colspan; ?>" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_forum_form_delete'); ?>"></td>
-    </tr>
+	<tr>
+	  <td class="mbox" width="5%" align="center"><input type="checkbox" value="<?php echo $row['mid'].'_'.$row['bid']; ?>" name="delete[]"></td>
+	  <td class="mbox" width="30%"><a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $row['mid']; ?>"><?php echo $row['user']; ?></a></td>
+	  <?php if ($bid == 0) { ?>
+	  <td class="mbox" width="30%"><a href="admin.php?action=forums&amp;job=mods&id=<?php echo $row['cat_id']; ?>"><?php echo $row['cat']; ?></a></td>
+	  <?php } ?>
+	  <td class="mbox" width="20%"><?php echo $row['time']; ?></td>
+	  <td class="mbox" width="7%" align="center"><?php echo noki($row['s_rating'], $p1.'s_rating'.$p2); ?></td>
+	  <td class="mbox" width="7%" align="center"><?php echo noki($row['s_article'], $p1.'s_article'.$p2); ?></td>
+	  <td class="mbox" width="7%" align="center"><?php echo noki($row['s_news'], $p1.'s_news'.$p2); ?></td>
+	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_mc'], $p1.'p_mc'.$p2); ?></td>
+	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_delete'], $p1.'p_delete'.$p2); ?></td>
+	</tr>
+	<?php } ?>
+	<tr>
+	  <td class="ubox" width="100%" colspan="<?php echo $colspan; ?>" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_forum_form_delete'); ?>"></td>
+	</tr>
   </table>
 </form>
 	<?php
@@ -192,7 +192,7 @@ elseif ($job == 'mods_delete') {
 }
 elseif ($job == 'mods_add') {
 	echo head();
-    $id = $gpc->get('id', int);
+	$id = $gpc->get('id', int);
 	?>
 <form name="form" method="post" action="admin.php?action=forums&amp;job=mods_add2">
 <?php echo iif(is_id($id), '<input type="hidden" name="id" value="'.$id.'" /><input type="hidden" name="bid" value="'.$id.'" />'); ?>
@@ -208,7 +208,7 @@ elseif ($job == 'mods_add') {
 	$boards = $catbid->get();
    	if (!isset($boards[$id]['name'])) {
    		echo SelectBoardStructure('id', ADMIN_SELECT_FORUMS);
-    }
+	}
    	else {
 		echo $boards[$id]['name'];
    	}
@@ -254,12 +254,12 @@ elseif ($job == 'mods_add') {
 elseif ($job == 'mods_add2') {
 	echo head();
 
-    $id = $gpc->get('id', int);
-    $bid = $gpc->get('bid', int);
-    $temp1 = $gpc->get('name', str);
-    $month = $gpc->get('month', int);
-    $day = $gpc->get('day', int);
-    $weekday = $gpc->get('weekday', int);
+	$id = $gpc->get('id', int);
+	$bid = $gpc->get('bid', int);
+	$temp1 = $gpc->get('name', str);
+	$month = $gpc->get('month', int);
+	$day = $gpc->get('day', int);
+	$weekday = $gpc->get('weekday', int);
 	if (!is_id($id)) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
@@ -300,7 +300,7 @@ elseif ($job == 'manage') {
 	?>
 <table class="border">
   <tr>
-    <td class="obox" colspan="3">
+	<td class="obox" colspan="3">
   <span style="float: right;"><a class="button" href="admin.php?action=forums&job=cat_add"><?php echo $lang->phrase('admin_forum_new_categroy'); ?></a> <a class="button" href="admin.php?action=forums&job=forum_add"><?php echo $lang->phrase('admin_forum_new_forum'); ?></a></span>
   <?php echo $lang->phrase('admin_forum_infomanage'); ?>
   </td>
@@ -330,16 +330,16 @@ elseif ($job == 'forum_delete') {
 	<table class="border">
 	<tr><td class="obox"><?php echo $lang->phrase('admin_forum_delete_forum'); ?></td></tr>
 	<tr><td class="mbox">
-	    <p align="center"><?php echo $lang->phrase('admin_forum_really_delete_data?'); ?></p>
-	    <p align="center">
-	        <a href="admin.php?action=forums&amp;job=forum_delete2&amp;id=<?php echo $id; ?>">
-	        	<img alt="<?php echo $lang->phrase('admin_forum_yes'); ?>" border="0" src="admin/html/images/yes.gif" /> <?php echo $lang->phrase('admin_forum_yes'); ?>
-	        </a>
-	        &nbsp;&nbsp;&nbsp;&nbsp;
-	        <a href="javascript: history.back(-1);">
-	        	<img border="0" alt="<?php echo $lang->phrase('admin_forum_no'); ?>" src="admin/html/images/no.gif" /> <?php echo $lang->phrase('admin_forum_no'); ?>
-	        </a>
-	    </p>
+		<p align="center"><?php echo $lang->phrase('admin_forum_really_delete_data?'); ?></p>
+		<p align="center">
+			<a href="admin.php?action=forums&amp;job=forum_delete2&amp;id=<?php echo $id; ?>">
+				<img alt="<?php echo $lang->phrase('admin_forum_yes'); ?>" border="0" src="admin/html/images/yes.gif" /> <?php echo $lang->phrase('admin_forum_yes'); ?>
+			</a>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<a href="javascript: history.back(-1);">
+				<img border="0" alt="<?php echo $lang->phrase('admin_forum_no'); ?>" src="admin/html/images/no.gif" /> <?php echo $lang->phrase('admin_forum_no'); ?>
+			</a>
+		</p>
 	</td></tr>
 	</table>
 	<?php
@@ -390,6 +390,8 @@ elseif ($job == 'forum_delete2') {
 	$delobj = $scache->load('forumtree');
 	$delobj->delete();
 	$delobj = $scache->load('parent_forums');
+	$delobj->delete();
+	$delobj = $scache->load('prefix');
 	$delobj->delete();
 
 	ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_forum_deleted'));
@@ -449,11 +451,11 @@ elseif ($job == 'forum_edit') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_forum_automatic_status'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_info_topic_status'); ?></span></td>
    <td class="mbox">
-    <select name="auto_status" size="1">
-     <option value=""<?php echo iif($row['auto_status'] == '', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_no_status'); ?></option>
-     <option value="a"<?php echo iif($row['auto_status'] == 'a', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_article'); ?></option>
-     <option value="n"<?php echo iif($row['auto_status'] == 'n', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_news'); ?></option>
-    </select>
+	<select name="auto_status" size="1">
+	 <option value=""<?php echo iif($row['auto_status'] == '', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_no_status'); ?></option>
+	 <option value="a"<?php echo iif($row['auto_status'] == 'a', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_article'); ?></option>
+	 <option value="n"<?php echo iif($row['auto_status'] == 'n', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_news'); ?></option>
+	</select>
    </td>
   </tr>
   <tr>
@@ -474,14 +476,14 @@ elseif ($job == 'forum_edit') {
   <tr>
    <td class="mbox" rowspan="3"><?php echo $lang->phrase('admin_forum_visibility'); ?></td>
    <td class="mbox">
-    <input type="radio" name="invisible" value="0"<?php echo iif($row['invisible'] == '0', ' checked="checked"'); ?> checked="checked" /> <?php echo $lang->phrase('admin_forum_show_forum_everyone'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('admin_forum_forum_shown_locked'); ?></span>
+	<input type="radio" name="invisible" value="0"<?php echo iif($row['invisible'] == '0', ' checked="checked"'); ?> checked="checked" /> <?php echo $lang->phrase('admin_forum_show_forum_everyone'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('admin_forum_forum_shown_locked'); ?></span>
    </td></tr><tr><td class="mbox">
-    <input type="radio" name="invisible" value="1"<?php echo iif($row['invisible'] == '1', ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_forum_select_hide_forum_from_users_without_authorization'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('admin_forum_forum_not_shown_locked'); ?></span>
+	<input type="radio" name="invisible" value="1"<?php echo iif($row['invisible'] == '1', ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_forum_select_hide_forum_from_users_without_authorization'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('admin_forum_forum_not_shown_locked'); ?></span>
    </td></tr><tr><td class="mbox">
-    <input type="radio" name="invisible" value="2"<?php echo iif($row['invisible'] == '2', ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_forum_select_hide_forum_completly'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('admin_forum_info_forum_access'); ?></span>
+	<input type="radio" name="invisible" value="2"<?php echo iif($row['invisible'] == '2', ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_forum_select_hide_forum_completly'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('admin_forum_info_forum_access'); ?></span>
    </td>
   </tr>
   <tr>
@@ -500,11 +502,11 @@ elseif ($job == 'forum_edit') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_forum_display_method'); ?></td>
    <td class="mbox">
-    <select name="message_active" size="1">
-     <option value="0"<?php echo iif($row['message_active'] == '0', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_dont_display_rules'); ?></option>
-     <option value="1"<?php echo iif($row['message_active'] == '1', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_inline_rules'); ?></option>
-     <option value="2"<?php echo iif($row['message_active'] == '2', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_link_rules'); ?></option>
-    </select>
+	<select name="message_active" size="1">
+	 <option value="0"<?php echo iif($row['message_active'] == '0', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_dont_display_rules'); ?></option>
+	 <option value="1"<?php echo iif($row['message_active'] == '1', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_inline_rules'); ?></option>
+	 <option value="2"<?php echo iif($row['message_active'] == '2', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_link_rules'); ?></option>
+	</select>
    </td>
   </tr>
   <tr>
@@ -689,10 +691,10 @@ elseif ($job == 'forum_add') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_forum_position'); ?></td>
    <td class="mbox">
-    <select name="sort_where">
-     <option value="-1"><?php echo $lang->phrase('admin_forum_before'); ?></option>
-     <option value="1" selected="selected"><?php echo $lang->phrase('admin_forum_after'); ?></option>
-    </select>&nbsp;<?php echo SelectBoardStructure('sort', ADMIN_SELECT_FORUMS); ?>
+	<select name="sort_where">
+	 <option value="-1"><?php echo $lang->phrase('admin_forum_before'); ?></option>
+	 <option value="1" selected="selected"><?php echo $lang->phrase('admin_forum_after'); ?></option>
+	</select>&nbsp;<?php echo SelectBoardStructure('sort', ADMIN_SELECT_FORUMS); ?>
    </td>
   </tr>
   <tr>
@@ -720,11 +722,11 @@ elseif ($job == 'forum_add') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_forum_automatic_status'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_info_topic_status'); ?></span></td>
    <td class="mbox">
-    <select name="auto_status" size="1">
-     <option value="" selected="selected"><?php echo $lang->phrase('admin_forum_no_status'); ?></option>
-     <option value="a"><?php echo $lang->phrase('admin_forum_article'); ?></option>
-     <option value="n"><?php echo $lang->phrase('admin_forum_news'); ?></option>
-    </select>
+	<select name="auto_status" size="1">
+	 <option value="" selected="selected"><?php echo $lang->phrase('admin_forum_no_status'); ?></option>
+	 <option value="a"><?php echo $lang->phrase('admin_forum_article'); ?></option>
+	 <option value="n"><?php echo $lang->phrase('admin_forum_news'); ?></option>
+	</select>
    </td>
   </tr>
   <tr>
@@ -745,14 +747,14 @@ elseif ($job == 'forum_add') {
   <tr>
    <td class="mbox" rowspan="3"><?php echo $lang->phrase('admin_forum_visibility'); ?></td>
    <td class="mbox">
-    <input type="radio" name="invisible" value="0" checked="checked" /> <?php echo $lang->phrase('admin_forum_show_forum_everyone'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('admin_forum_info_forum_permission'); ?></span>
+	<input type="radio" name="invisible" value="0" checked="checked" /> <?php echo $lang->phrase('admin_forum_show_forum_everyone'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('admin_forum_info_forum_permission'); ?></span>
    </td></tr><tr><td class="mbox">
-    <input type="radio" name="invisible" value="1" /> <?php echo $lang->phrase('admin_forum_hide_forum_authorization'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('admin_forum_forum_not_shown_locked'); ?></span>
+	<input type="radio" name="invisible" value="1" /> <?php echo $lang->phrase('admin_forum_hide_forum_authorization'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('admin_forum_forum_not_shown_locked'); ?></span>
    </td></tr><tr><td class="mbox">
-    <input type="radio" name="invisible" value="2" /> <?php echo $lang->phrase('admin_forum_select_hide_forum_completly'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('admin_forum_info_forum_access'); ?></span>
+	<input type="radio" name="invisible" value="2" /> <?php echo $lang->phrase('admin_forum_select_hide_forum_completly'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('admin_forum_info_forum_access'); ?></span>
    </td>
   </tr>
   <tr>
@@ -780,11 +782,11 @@ elseif ($job == 'forum_add') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_forum_display_method'); ?></td>
    <td class="mbox">
-    <select name="message_active" size="1">
-     <option value="0" selected="selected"><?php echo $lang->phrase('admin_forum_dont_display_rules'); ?></option>
-     <option value="1"><?php echo $lang->phrase('admin_forum_inline_rules'); ?></option>
-     <option value="2"><?php echo $lang->phrase('admin_forum_link_rules'); ?></option>
-    </select>
+	<select name="message_active" size="1">
+	 <option value="0" selected="selected"><?php echo $lang->phrase('admin_forum_dont_display_rules'); ?></option>
+	 <option value="1"><?php echo $lang->phrase('admin_forum_inline_rules'); ?></option>
+	 <option value="2"><?php echo $lang->phrase('admin_forum_link_rules'); ?></option>
+	</select>
    </td>
   </tr>
   <tr>
@@ -991,6 +993,8 @@ elseif ($job == 'forum_add2') {
 		$delobj->delete();
 		$delobj = $scache->load('parent_forums');
 		$delobj->delete();
+		$delobj = $scache->load('prefix');
+		$delobj->delete();
 
 		ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_successfully_added'));
 	}
@@ -1006,8 +1010,8 @@ elseif ($job == 'forum_recount') {
 	ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_stats_recounted'));
 }
 elseif ($job == 'cat_move' || $job == 'forum_move') {
-    $id = $gpc->get('id', int);
-    $move = $gpc->get('move', int);
+	$id = $gpc->get('id', int);
+	$move = $gpc->get('move', int);
 
 	if (!is_id($id)) {
 		echo head();
@@ -1025,7 +1029,7 @@ elseif ($job == 'cat_move' || $job == 'forum_move') {
 	$delobj = $scache->load($cache);
 	$delobj->delete();
 
-	viscacha_header('Location: admin.php?action=forums&job=manage');
+	sendStatusCode(307, $config['furl'].'/admin.php?action=forums&job=manage');
 }
 elseif ($job == 'rights') {
 	echo head();
@@ -1044,8 +1048,8 @@ elseif ($job == 'rights') {
   </tr>
   <tr>
   	<td class="ubox" valign="bottom"><b><?php echo $lang->phrase('admin_forum_delete'); ?></b><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_forum_all'); ?></span></td>
-    <td class="ubox" valign="bottom"><b><?php echo $lang->phrase('admin_forum_name_public_title'); ?></b></td>
-    <?php foreach ($glk_forums as $key) { ?>
+	<td class="ubox" valign="bottom"><b><?php echo $lang->phrase('admin_forum_name_public_title'); ?></b></td>
+	<?php foreach ($glk_forums as $key) { ?>
    	<td class="ubox" valign="bottom" align="center">
    		<img src="images.php?action=textimage&amp;text=<?php echo rawurlencode($gls[$key]); ?>&amp;angle=90&amp;bg=<?php echo $txt2img_bg; ?>&amp;fg=<?php echo $txt2img_fg; ?>" border="0">
    	</td>
@@ -1057,25 +1061,25 @@ elseif ($job == 'rights') {
   ?>
   <tr class="mbox">
   	<td><input type="checkbox" name="delete[]" value="<?php echo $row['fid']; ?>"></td>
-    <td>
-    <?php
-    if ($row['gid'] > 0) {
-    	echo $row['name'].' / '.$row['title'];
-    }
-    else {
-    	echo '<i>Valid for all groups except the groups shown below!</i>';
-    }
+	<td>
+	<?php
+	if ($row['gid'] > 0) {
+		echo $row['name'].' / '.$row['title'];
+	}
+	else {
+		echo '<i>Valid for all groups except the groups shown below!</i>';
+	}
 
-    ?>
-    </td>
-    <?php
-    foreach ($glk_forums as $key) {
-    	$clickable = !($guest && in_array($key, $guest_limitation));
+	?>
+	</td>
+	<?php
+	foreach ($glk_forums as $key) {
+		$clickable = !($guest && in_array($key, $guest_limitation));
 	   	$js = iif ($clickable,
 	   			' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=rights_ajax_changeperm&id='.$row['fid'].'&key='.$key.'\')"',
 	   			' style="-moz-opacity: 0.4; opacity: 0.4; filter:Alpha(opacity=40, finishopacity=0);"'
 	   		  );
-    ?>
+	?>
    	<td align="center"<?php echo iif(!$clickable, ' class="mmbox"'); ?>><?php echo noki($row["f_{$key}"], $js); ?></td>
    	<?php } ?>
   </tr>
@@ -1140,17 +1144,17 @@ elseif ($job == 'rights_add') {
    <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_forum_settings'); ?></td>
   </tr>
   <tr>
-      <td class="mbox"><?php echo $lang->phrase('admin_forum_use_groups'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_info_groub_specified_permissions'); ?></span></td>
-      <td class="mbox">
-      <select name="group">
-      <option value="0"><?php echo $lang->phrase('admin_forum_all_groups'); ?></option>
-      <?php
-      foreach($cache as $row) {
-      	echo '<option value="'.$row['id'].'">'.$row['name'].'</option>';
-      }
-      ?>
-      </select>
-      </td>
+	  <td class="mbox"><?php echo $lang->phrase('admin_forum_use_groups'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_info_groub_specified_permissions'); ?></span></td>
+	  <td class="mbox">
+	  <select name="group">
+	  <option value="0"><?php echo $lang->phrase('admin_forum_all_groups'); ?></option>
+	  <?php
+	  foreach($cache as $row) {
+	  	echo '<option value="'.$row['id'].'">'.$row['name'].'</option>';
+	  }
+	  ?>
+	  </select>
+	  </td>
   </tr>
   <tr>
    <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_forum_permissions'); ?></td>
@@ -1252,10 +1256,10 @@ elseif ($job == 'cat_add') {
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_position'); ?></td>
    <td class="mbox" width="50%">
-    <select name="sort_where">
-     <option value="-1"><?php echo $lang->phrase('admin_forum_before'); ?></option>
-     <option value="1" selected="selected"><?php echo $lang->phrase('admin_forum_after'); ?></option>
-    </select>&nbsp;<?php echo SelectBoardStructure('sort', ADMIN_SELECT_CATEGORIES); ?>
+	<select name="sort_where">
+	 <option value="-1"><?php echo $lang->phrase('admin_forum_before'); ?></option>
+	 <option value="1" selected="selected"><?php echo $lang->phrase('admin_forum_after'); ?></option>
+	</select>&nbsp;<?php echo SelectBoardStructure('sort', ADMIN_SELECT_CATEGORIES); ?>
    </td>
   </tr>
   <tr>

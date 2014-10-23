@@ -24,68 +24,102 @@ function daynumber($time) {
 if ($job == 'empty') {
 	echo head();
 	$file = $gpc->get('file', str);
-	if ($file == 'l_mysqlerror') {
+	if ($file == 'php') {
+	    $filename = 'data/errlog_php.inc.php';
+	    $url = 'admin.php?action=slog&job=l_mysqlerror&type='.$file;
+	}
+	elseif ($file == $db->system) {
 	    $filename = 'data/errlog_'.$db->system.'.inc.php';
+	    $url = 'admin.php?action=slog&job=l_mysqlerror&type='.$file;
 	}
 	elseif ($file == 'l_cron') {
 	    $filename = 'data/cron/cron.log';
+	    $url = 'admin.php?action=slog&job='.$file;
 	}
 	if (isset($filename) && file_exists($filename)) {
 	    $filesystem->file_put_contents($filename, '');
-	    ok('admin.php?action=slog&job='.$file, $lang->phrase('admin_slog_logfile_deleted'));
+	    ok($url, $lang->phrase('admin_slog_logfile_deleted'));
 	}
 	else {
-        error('admin.php?action=slog&job='.$file, $lang->phrase('admin_slog_logfile_not_found'));
+        error($url, $lang->phrase('admin_slog_logfile_not_found'));
 	}
 }
 elseif ($job == 'l_mysqlerror') {
     echo head();
-	$log = @file('data/errlog_'.$db->system.'.inc.php');
+    $type = $gpc->get('type', none);
+    if ($type != 'php') {
+    	$type = $db->system;
+    }
+	$log = @file('data/errlog_'.$type.'.inc.php');
 	if (!is_array($log) || count($log) < 1) {
 		$log = $lang->phrase('admin_slog_logfile_empty');
 	}
 	?>
-<form name="form" method="post" action="admin.php?action=slog&file=l_mysqlerror&job=empty">
+
  <table class="border">
   <tr>
-   <td class="obox" colspan="8"><?php echo $lang->phrase('admin_slog_sql_error_logfile'); ?></td>
+   <td class="obox" colspan="5">
+    <span class="right">
+    <?php if ($type != 'php') { ?>
+     <a class="button" href="admin.php?action=slog&amp;job=l_mysqlerror&amp;type=php">PHP</a>
+    <?php } else { ?>
+     <a class="button" href="admin.php?action=slog&amp;job=l_mysqlerror&amp;type=<?php echo $db->system; ?>">SQL</a>
+    <?php } ?>
+    </span>
+    <?php echo $lang->phrase('admin_slog_sql_error_logfile'); ?>: <?php echo iif ($type == 'php', 'PHP', 'SQL'); ?>
+   </td>
   </tr>
    <?php
 	if (!is_array($log)) {
-		echo '<tr class="mbox"><td colspan="8">'.$log.'</td></tr>';
+		echo '<tr class="mbox"><td colspan="5">'.$log.'</td></tr>';
 	}
 	else {
    ?>
    <tr class="ubox">
-    <td><?php echo $lang->phrase('admin_slog_error_report'); ?></td>
-    <td><?php echo $lang->phrase('admin_slog_query'); ?></td>
-    <td><?php echo $lang->phrase('admin_slog_information'); ?></td>
-    <td><?php echo $lang->phrase('admin_slog_date'); ?></td>
+    <td width="3%"><?php echo $lang->phrase('admin_slog_error_num'); ?></td>
+    <td width="23%"><?php echo $lang->phrase('admin_slog_error_report'); ?></td>
+    <td width="28%"><?php echo $lang->phrase('admin_slog_information'); ?></td>
+    <td width="11%"><?php echo $lang->phrase('admin_slog_date'); ?></td>
+	<td width="35%"><?php echo $lang->phrase('admin_slog_'.iif($type == 'php', 'backtrace', 'query')); ?></td>
    </tr>
-   <?php
-   foreach ($log as $row) {
-   $data =  explode("\t", $row);
-   ?>
+	<?php
+	foreach ($log as $row) {
+		$data =  explode("\t", $row);
+		if ($type == 'php') {
+			$arr = unserialize(base64_decode($data[6]));
+			$data[6] = '';
+			foreach ($arr as $i => $row) {
+				$i++;
+				if (!isset($row['file']) || !isset($row['line'])) {
+					continue;
+				}
+				$row['class'] = (!isset($row['class'])) ? '' : $row['class'];
+				$row['type'] = (!isset($row['type'])) ? '' : $row['type'];
+				
+				$data[6] .= "<b>#{$i}:</b> ".htmlspecialchars($row['file']).":{$row['line']}&nbsp;".htmlspecialchars($row['class'].$row['type'].$row['function'])."(...)<br />";
+			}
+		}
+	?>
    <tr class="mbox">
-    <td><textarea cols="35" rows="3" class="stext"><?php echo $data[0]; ?>: <?php echo $data[1]; ?></textarea></td>
-    <td><textarea cols="37" rows="3" class="stext"><?php echo $data[4]; ?></textarea></td>
-    <td>
-<textarea cols="39" rows="3" class="stext"><?php echo $lang->phrase('admin_slog_file').$data[2]; ?>
-
-<?php echo $lang->phrase('admin_slog_line').$data[3]; ?>
-
-<?php echo $lang->phrase('admin_slog_url').$data[5]; ?></textarea>
-    </td>
-    <td class="stext"><?php echo date("D, j M Y", $data[6]); ?><br /><?php echo date("G:i:s O", $data[6]); ?></td>
+    <td><div class="logcolumn"><?php echo $data[0]; ?></div></td>
+    <td><div class="logcolumn"><?php echo $data[1]; ?></div></td>
+    <td><div class="logcolumn">
+     <b><?php echo $lang->phrase('admin_slog_file'); ?></b><?php echo $data[2]; ?><br />
+     <b><?php echo $lang->phrase('admin_slog_line'); ?></b><?php echo $data[3]; ?><br />
+     <b><?php echo $lang->phrase('admin_slog_url'); ?></b><?php echo $data[4]; ?>
+    </div></td>
+    <td><div class="logcolumn"><?php echo date("D, j M Y", $data[5]); ?><br /><?php echo date("G:i:s O", $data[5]); ?></div></td>
+    <td><div class="logcolumn"><?php echo $data[6]; ?></div></td>
    </tr>
    <?php } } ?>
+  <tr>
+   <td class="ubox" align="center" colspan="5">
+   	<form name="form" method="post" action="admin.php?action=slog&amp;file=<?php echo $type; ?>&amp;job=empty">
+   	 <input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_slog_delete_log_now'); ?>">
+    </form>
    </td>
   </tr>
-  <tr>
-   <td class="ubox" align="center" colspan="8"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_slog_delete_log_now'); ?>"></td>
-  </tr>
  </table>
-</form>
 	<?php
 	echo foot();
 }

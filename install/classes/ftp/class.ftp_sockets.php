@@ -12,7 +12,7 @@ class ftp extends ftp_base {
 	}
 
 // <!-- --------------------------------------------------------------------------------------- -->
-// <!--       Private functions                                                                 -->
+// <!--	   Private functions																 -->
 // <!-- --------------------------------------------------------------------------------------- -->
 
 	function _settimeout($sock) {
@@ -110,7 +110,7 @@ class ftp extends ftp_base {
 			}
 			$ip_port = explode(",", ereg_replace("^.+ \\(?([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]+,[0-9]+)\\)?.*".CRLF."$", "\\1", $this->_message));
 			$this->_datahost=$ip_port[0].".".$ip_port[1].".".$ip_port[2].".".$ip_port[3];
-            $this->_dataport=(((int)$ip_port[4])<<8) + ((int)$ip_port[5]);
+			$this->_dataport=(((int)$ip_port[4])<<8) + ((int)$ip_port[5]);
 			$this->SendMSG("Connecting to ".$this->_datahost.":".$this->_dataport);
 			if(!@socket_connect($this->_ftp_data_sock, $this->_datahost, $this->_dataport)) {
 				$this->PushError("_data_prepare","socket_connect", socket_strerror(socket_last_error($this->_ftp_data_sock)));
@@ -176,8 +176,6 @@ class ftp extends ftp_base {
 
 	function _data_write($mode=FTP_ASCII, $fp=NULL) {
 		$NewLine=$this->_eol_code[$this->OS_local];
-		if(is_resource($fp)) $out=0;
-		else $out="";
 		if(!$this->_passive) {
 			$this->SendMSG("Connecting to ".$this->_datahost.":".$this->_dataport);
 			$this->_ftp_temp_sock=socket_accept($this->_ftp_data_sock);

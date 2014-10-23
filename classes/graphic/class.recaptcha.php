@@ -129,7 +129,11 @@ class ReCaptcha {
 	}
 
 	function makeImage() {
-		trigger_error('Image creating not supported by reCaptcha.', E_USER_ERROR);
+		require('classes/graphic/class.text2image.php');
+		$img = new text2image();
+		$img->prepare('Internal image creation not supported by reCaptcha.', 0, 8);
+		$img->build(4);
+		$img->output();
 	}
 
 	function setExtraParams($params) {

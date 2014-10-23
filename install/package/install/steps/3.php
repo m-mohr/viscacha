@@ -5,13 +5,9 @@ if (empty($config['ftp_path']) == false) {
 }
 else {
 	$path = '/';
-	if (isset($_SERVER['DOCUMENT_ROOT'])) {
-		$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']).DIRECTORY_SEPARATOR, '', realpath('./'));
-	}
 }
-
 ?>
-<div class="bfoot">You can change or remove these data in the Administration Control Panel later.</div>
+<div class="bfoot">You can change these data in the Administration Control Panel later.</div>
 <div class="bbody">
 	<input type="hidden" name="save" value="1" />
 	<table class="tables">

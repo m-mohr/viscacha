@@ -79,7 +79,7 @@ elseif ($_GET['action'] == "logout") {
 	if (!$my->vlogin) {
 		$slog->updatelogged();
 		$db->close();
-		viscacha_header('Location: log.php');
+		sendStatusCode(307, $config['furl'].'/log.php');
 		exit;
 	}
 	else {

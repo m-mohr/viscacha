@@ -168,14 +168,26 @@ elseif ($_GET['action'] == "showpost") {
 		}
 	}
 
+	$edit = array();
 	if (!empty($row->edit)) {
-		$edits = explode("\n", $row->edit);
-		$anz = count($edits);
-		$anz--;
-		$lastdata = explode("\t", $edits[$anz-1]);
-		$date = gmdate($lang->phrase('dformat1'), times($lastdata[1]));
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row->edit, $edits, PREG_SET_ORDER);
 		BBProfile($bbcode);
-		$why = iif(empty($lastdata[2]), $lang->phrase('post_editinfo_na'), $bbcode->wordwrap($lastdata[2]));
+		foreach ($edits as $e) {
+			$edit[] = array(
+				$e[1],
+				gmdate($lang->phrase('dformat1'), times($e[2])),
+				empty($e[3]) ? $lang->phrase('post_editinfo_na') : $bbcode->wordwrap($e[3]),
+				empty($e[4]) ? '-' : $e[4]
+			);
+		}
+		$anz = count($edit);
+		if ($anz == 0) {
+			$row->edit = null;
+		}
+		$lastdata = end($edit);
+		if ($lastdata != false) {
+			list(, $date, $why, ) = $lastdata;
+		}
 	}
 
 	($code = $plugins->load('popup_showpost_prepared')) ? eval($code) : null;
@@ -234,22 +246,15 @@ elseif ($_GET['action'] == "edithistory") {
 
 	$edit = array();
 	if (!empty($row['edit'])) {
-		$edits = explode("\n", $row['edit']);
-		$i = 0;
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row['edit'], $edits, PREG_SET_ORDER);
 		foreach ($edits as $e) {
-			$e = trim($e);
-			if (empty($e)) {
-				continue;
-			}
-			$data = explode("\t", $e);
-			$edit[$i] = array(
-				'date' => str_date($lang->phrase('dformat1'), times($data[1])),
-				'reason' => @iif(empty($data[2]), $lang->phrase('post_editinfo_na'), $data[2]),
-				'name' => $data[0],
-				'ip' => @iif(isset($data[3]), $data[3])
+			$edit[] = array(
+				'date' => str_date($lang->phrase('dformat1'), times($e[2])),
+				'reason' => empty($e[3]) ? $lang->phrase('post_editinfo_na') : $e[3],
+				'name' => $e[1],
+				'ip' => empty($e[4]) ? '-' : $e[4]
 			);
 			($code = $plugins->load('popup_edithistory_entry_prepared')) ? eval($code) : null;
-			$i++;
 		}
 	}
 	($code = $plugins->load('popup_edithistory_prepared')) ? eval($code) : null;

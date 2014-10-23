@@ -173,7 +173,7 @@ function nl2whitespace($str){
 
 function AdminLogInForm() {
 	global $gpc, $lang;
-    $addr = $gpc->get('addr', none);
+	$addr = $gpc->get('addr', none);
 	?>
 	<form action="admin.php?action=login2<?php echo iif(!empty($addr), '&amp;addr='.rawurlencode($addr)); ?>" method="post" target="_top">
 	 <table class="border" style="width: 50%;">
@@ -197,17 +197,7 @@ function AdminLogInForm() {
 }
 
 function isInvisibleHook($hook) {
-	switch ($hook) {
-		case 'uninstall':
-		case 'update_init':
-		case 'update_finish':
-		case 'install':
-		case 'source':
-			return true;
-		break;
-		default:
-			return false;
-	}
+	return (bool) preg_match("~^((un)?install|update_(init|finish)|source(_\d+)?)$~i", $hook);
 }
 
 function getHookArray() {
@@ -236,9 +226,9 @@ function addHookToArray($hook, $file) {
 	$data = file('admin/data/hooks.txt');
 	$data = array_map('trim', $data);
 	$exists = array_search("-{$hook}", $data);
-	if ($exists === false || $exists === null) {
+	if ($exists === false) {
 		$result = array_search($file, $data);
-		if ($result !== false && $result !== null) {
+		if ($result !== false) {
 			$data[$result] = $data[$result]."\r\n-{$hook}";
 		}
 		else {
@@ -251,6 +241,21 @@ function addHookToArray($hook, $file) {
 	}
 	else {
 		return false;
+	}
+}
+
+function removeHookFromArray($hook) {
+	global $filesystem;
+	$data = file('admin/data/hooks.txt');
+	$data = array_map('trim', $data);
+	$exists = array_search("-{$hook}", $data);
+	if ($exists === false) {
+		return false;
+	}
+	else {
+		unset($data[$exists]);
+		$filesystem->file_put_contents('admin/data/hooks.txt', implode("\r\n", $data));
+		return true;
 	}
 }
 
@@ -307,22 +312,22 @@ function get_webserver() {
 
 function fileAge($age) {
 	global $lang;
-    if($age>=30*24*60*60) {
-        $age/=(30*24*60*60);
-        $string = $lang->phrase('admin_months_name');
-    }
-    elseif($age>=24*60*60) {
-        $age/=(24*60*60);
-        $string = $lang->phrase('admin_days_name');
-    }
-    elseif($age>=60*60) {
-        $age/=(60*60);
-        $string = $lang->phrase('admin_hours_name');
-    }
-    elseif($age>=60) {
-        $age/=60;
-        $string = $lang->phrase('admin_minutes_name');
-    }
+	if($age>=30*24*60*60) {
+		$age/=(30*24*60*60);
+		$string = $lang->phrase('admin_months_name');
+	}
+	elseif($age>=24*60*60) {
+		$age/=(24*60*60);
+		$string = $lang->phrase('admin_days_name');
+	}
+	elseif($age>=60*60) {
+		$age/=(60*60);
+		$string = $lang->phrase('admin_hours_name');
+	}
+	elseif($age>=60) {
+		$age/=60;
+		$string = $lang->phrase('admin_minutes_name');
+	}
 	else {
 		$string = $lang->phrase('admin_seconds_name');
 	}
@@ -365,23 +370,23 @@ function recur_dir($dir, $clevel = 0) {
 }
 
 function formatFilesize($byte) {
-    $string = 'Byte';
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = 'KB';
-    }
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = 'MB';
-    }
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = 'GB';
-    }
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = 'TB';
-    }
+	$string = 'Byte';
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = 'KB';
+	}
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = 'MB';
+	}
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = 'GB';
+	}
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = 'TB';
+	}
 	return round($byte, 2)." ".$string;
 }
 
@@ -413,9 +418,9 @@ function pages ($anzposts, $uri, $teiler=50) {
 	}
 
    	$pgs = $anzposts/$teiler;
-    $anz = ceil($pgs);
+	$anz = ceil($pgs);
 
-    $lang->assign('anz', $anz);
+	$lang->assign('anz', $anz);
 	$p = $lang->phrase('admin_pages');
 	for ($i = 1; $i <= $anz; $i++) {
 		if ($page == $i) {
@@ -442,7 +447,7 @@ function head($onload = '') {
 	<link rel="stylesheet" type="text/css" href="admin/html/standard.css">
 	<link rel="up" href="javascript:self.scrollTo(0,0);">
 	<link rel="copyright" href="http://www.viscacha.org">
-	<script src="templates/lang2js.php?id=<?php echo $my->language; ?>&amp;admin=1" type="text/javascript"></script>
+	<script src="admin/html/language_<?php echo $my->language; ?>.js" type="text/javascript"></script>
 	<script language="JavaScript" type="text/javascript"><!--
 		var sidx = '<?php echo SID2URL_JS_x; ?>';
 		var sid1 = '<?php echo SID2URL_JS_1; ?>';
@@ -464,14 +469,14 @@ function foot($nocopy = false) {
 		?>
 		<br style="line-height: 8px;" />
 		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
-	    <div id="copyright">
-	        Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
-	        Copyright &copy; 2004-2009, The Viscacha Project
-	        <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
-	    </div>
+		<div id="copyright">
+			Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+			Copyright &copy; 2004-2009, The Viscacha Project
+			<?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
+		</div>
 	<?php } ?>
-    </body>
-    </html>
+	</body>
+	</html>
 	<?php
 }
 
@@ -481,7 +486,7 @@ function error ($errorurl, $errormsg = null, $time = null) {
 		$errormsg = array($lang->phrase('admin_an_unexpected_error_occured'));
 	}
 	else if (!is_array($errormsg)) {
-	    $errormsg = array($errormsg);
+		$errormsg = array($errormsg);
 	}
 	if (!is_int($time)) {
 		$time = 7500 + count($errormsg)*2500;
@@ -494,18 +499,18 @@ window.setTimeout('<?php echo JS_URL($errorurl); ?>', <?php echo $time; ?>);
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-    <td class="obox"><?php echo $lang->phrase('admin_an_error_occured'); ?></td>
+	<td class="obox"><?php echo $lang->phrase('admin_an_error_occured'); ?></td>
   </tr>
   <tr>
-    <td class="mbox">
-      <?php echo $lang->phrase('admin_error_message'); ?><br />
-      <ul>
-        <?php foreach ($errormsg as $error) { ?>
-        <li><?php echo $error; ?></li>
-        <?php } ?>
-      </ul>
-      <p align="center" class="stext"><a href="<?php echo $errorurl; ?>"><?php echo $lang->phrase('admin_back'); ?></a></p>
-    </td>
+	<td class="mbox">
+	  <?php echo $lang->phrase('admin_error_message'); ?><br />
+	  <ul>
+		<?php foreach ($errormsg as $error) { ?>
+		<li><?php echo $error; ?></li>
+		<?php } ?>
+	  </ul>
+	  <p align="center" class="stext"><a href="<?php echo $errorurl; ?>"><?php echo $lang->phrase('admin_back'); ?></a></p>
+	</td>
   </tr>
 </table>
 	<?php
@@ -528,13 +533,13 @@ window.setTimeout('<?php echo JS_URL($url); ?>', <?php echo $time; ?>);
 </script>
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-    <td class="obox"><?php echo $lang->phrase('admin_confirmation'); ?></td>
+	<td class="obox"><?php echo $lang->phrase('admin_confirmation'); ?></td>
   </tr>
   <tr>
-    <td class="mbox" align="center">
-    <?php echo $msg; ?><br /><br />
-    <span class="stext"><a href="<?php echo $url; ?>"><?php echo $lang->phrase('admin_continue'); ?></a></span>
-    </td>
+	<td class="mbox" align="center">
+	<?php echo $msg; ?><br /><br />
+	<span class="stext"><a href="<?php echo $url; ?>"><?php echo $lang->phrase('admin_continue'); ?></a></span>
+	</td>
   </tr>
 </table>
 	<?php
@@ -616,11 +621,11 @@ function SelectBoardStructure_html(&$html, $tree, $cat, $board, $group, $standar
 				$value = iif($group == ADMIN_SELECT_ALL, 'forums_').$bdata['id'];
 				$html[] = '<option '.iif($standard != null && $standard == $value, ' selected="selected"').' value="'.$value.'">'.str_repeat($char, $level+1).$bdata['name'].'</option>';
 			}
-	    	SelectBoardStructure_html($html, $sub, $cat, $board, $group, $standard, $skip, $char, $level+2);
-	    }
-	    if ($group == ADMIN_SELECT_FORUMS && $i == 0) {
-	    	$x = array_pop($html);
-	    }
+			SelectBoardStructure_html($html, $sub, $cat, $board, $group, $standard, $skip, $char, $level+2);
+		}
+		if ($group == ADMIN_SELECT_FORUMS && $i == 0) {
+			$x = array_pop($html);
+		}
 	}
 }
 ?>

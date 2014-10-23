@@ -256,7 +256,7 @@ class PHPMailer {
   var $boundary        = array();
   var $language        = array();
   var $error_count     = 0;
-  var $LE              = "\r\n";
+  var $LE              = "\n";
   var $sign_cert_file  = "";
   var $sign_key_file   = "";
   var $sign_key_pass   = "";
@@ -641,7 +641,7 @@ class PHPMailer {
    * @modified for Viscacha
    */
     function SetLanguage() {
-    	global $lang;
+        global $lang;
         $this->language = $lang->return_array("classes");
     }
 
@@ -1276,17 +1276,17 @@ class PHPMailer {
       } else {
         $encoded = base64_encode($str);
         $maxlen -= $maxlen % 4;
-        $encoded = trim(chunk_split($encoded, $maxlen, "\n"));
+        $encoded = trim(chunk_split($encoded, $maxlen, $this->LE));
       }
     } else {
       $encoding = 'Q';
       $encoded = $this->EncodeQ($str, $position);
       $encoded = $this->WrapText($encoded, $maxlen, true);
-      $encoded = str_replace('='.$this->LE, "\n", trim($encoded));
+      $encoded = str_replace('='.$this->LE, $this->LE, trim($encoded));
     }
 
     $encoded = preg_replace('/^(.*)$/m', " =?".$this->CharSet."?$encoding?\\1?=", $encoded);
-    $encoded = trim(str_replace("\n", $this->LE, $encoded));
+    $encoded = trim($encoded);
 
     return $encoded;
   }
@@ -1643,13 +1643,16 @@ class PHPMailer {
    * @modified for Viscacha
    */
     function Lang($key) {
-        if(count($this->language) < 1)
+        if(count($this->language) < 1) {
             $this->SetLanguage();
+        }
 
-        if(isset($this->language['mailer_'.$key]))
+        if(isset($this->language['mailer_'.$key])) {
             return $this->language['mailer_'.$key];
-        else
-            return "Language string failed to load: mailer_".$key;
+        }
+        else {
+            return "Language string failed to load: mailer_{$key}";
+        }
     }
 
   /**
@@ -1713,7 +1716,7 @@ class PHPMailer {
       $this->AltBody = html_entity_decode($textMsg);
     }
     if ( empty($this->AltBody) ) {
-      $this->AltBody = 'To view this email message, open the email in with HTML compatibility!' . "\n\n";
+      $this->AltBody = 'To view this email message, open the email in with HTML compatibility!' . $this->LE;
     }
   }
 
@@ -1863,6 +1866,7 @@ class PHPMailer {
     $str = trim($str);
     $str = str_replace("\r", "", $str);
     $str = str_replace("\n", "", $str);
+    $str = str_replace("\0", '', $str);
     return $str;
   }
 

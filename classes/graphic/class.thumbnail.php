@@ -30,38 +30,38 @@ var $path;
 var $lang;
 
 function thumbnail () {
-    ImageTypes();
+	ImageTypes();
 
 	$lang = new lang();
-    $this->lang = $lang->return_array("classes");
+	$this->lang = $lang->return_array("classes");
 
-    $this->path = '';
+	$this->path = '';
 	$this->mime = array();
 
-    if (viscacha_function_exists('imagejpeg') && IMG_JPEG) {
-    	define('IMAGEJPEG', true);
-    }
-    else {
-    	define('IMAGEJPEG', false);
-    }
-    if (viscacha_function_exists('imagegif') && IMG_GIF) {
-    	define('IMAGEGIF', true);
-    }
-    else {
-    	define('IMAGEGIF', false);
-    }
-    if (viscacha_function_exists('imagepng') && IMG_PNG) {
-    	define('IMAGEPNG', true);
-    }
-    else {
-    	define('IMAGEPNG', false);
-    }
+	if (viscacha_function_exists('imagejpeg') && IMG_JPEG) {
+		define('IMAGEJPEG', true);
+	}
+	else {
+		define('IMAGEJPEG', false);
+	}
+	if (viscacha_function_exists('imagegif') && IMG_GIF) {
+		define('IMAGEGIF', true);
+	}
+	else {
+		define('IMAGEGIF', false);
+	}
+	if (viscacha_function_exists('imagepng') && IMG_PNG) {
+		define('IMAGEPNG', true);
+	}
+	else {
+		define('IMAGEPNG', false);
+	}
 }
 
 function create_error($text) {
 	require('classes/graphic/class.text2image.php');
 	$img = new text2image();
-	$img->prepare(preg_replace("/<br>/is","\r\n",$text), 0, 8, '../fonts/trebuchet.ttf');
+	$img->prepare($text, 0, 8);
 	$img->build(4);
 	$img->output();
 	exit;
@@ -160,7 +160,7 @@ function create_thumbnail($attachment) {
 						imagetruecolortopalette($thumbnail, true, 256);
 					}
 				}
-                return $thumbnail;
+				return $thumbnail;
 			}
 			else {
 				$this->create_error($this->lang['tne_imageerror']);
@@ -176,18 +176,14 @@ function create_thumbnail($attachment) {
 	return NULL;
 }
 
+/*
+ * p h p U n s h a r p M a s k
+ *
+ * Unsharp mask algorithm by Torstein Hønsi 2003.
+ * thoensi_at_netcom_dot_no.
+ * Please leave this notice.
+ */
 function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-////
-////                  p h p U n s h a r p M a s k
-////
-////	Unsharp mask algorithm by Torstein Hønsi 2003.
-////	         thoensi_at_netcom_dot_no.
-////	           Please leave this notice.
-////
-///////////////////////////////////////////////////////////////////////////////////////////////
-
 
 	// $img is an image that is already created within php using
 	// imgcreatetruecolor. No url! $img must be a truecolor image.
@@ -201,7 +197,8 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 
 	$radius = abs(round($radius)); 	// Only integers make sense.
 	if ($radius == 0) {
-		return $img; imagedestroy($img); break;		}
+		return $img;
+	}
 	$w = imagesx($img); $h = imagesy($img);
 	$imgCanvas = imagecreatetruecolor($w, $h);
 	$imgCanvas2 = imagecreatetruecolor($w, $h);
@@ -248,7 +245,7 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 		imagecopymerge ($imgBlur2, $imgCanvas2, 0, 0, 0, 0, $w, $h, 50);
 		imagecopy ($imgCanvas2, $imgBlur2, 0, 0, 0, 0, $w, $h);
 
-		}
+	}
 
 	// Calculate the difference between the blurred pixels and the original
 	// and set the pixels
@@ -281,11 +278,11 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 
 
 			if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew)) {
-    				$pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
-    				ImageSetPixel($img, $x, $y, $pixCol);
-				}
-}
+				$pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
+				ImageSetPixel($img, $x, $y, $pixCol);
+			}
 		}
+	}
 
 	imagedestroy($imgCanvas);
 	imagedestroy($imgCanvas2);
@@ -294,7 +291,7 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 
 	return $img;
 
-	}
+}
 
 }
 ?>

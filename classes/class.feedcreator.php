@@ -23,7 +23,7 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define("FEEDCREATOR_VERSION", "Viscacha ".$config['version']." - FeedCreator 1.7.x");
+define("FEEDCREATOR_VERSION", "Viscacha {$config['version']} - FeedCreator 1.7");
 
 /**
  * A FeedItem is a part of a FeedCreator feed.
@@ -69,8 +69,8 @@ class FeedItem extends HtmlDescribable {
 
 	// Added by Joseph LeBlanc, contact@jlleblanc.com
 	var $enclosures = Array();
-	function addEnclosure($url, $length = 0, $type)
-	{
+
+	function addEnclosure($url, $length = 0, $type) {
 		$this->enclosures[] = array("url" => $url, "length" => $length, "type" => $type);
 	}
 	// end add, Joseph LeBlanc
@@ -122,13 +122,7 @@ class HtmlDescribable {
 	 * $descriptionTruncSize properties
 	 * @return    string    the formatted description
 	 */
-	function getDescription() {
-		if (isset($this->encoding)) {
-			$enc = $this->encoding;
-		}
-		else {
-			$enc = 'ISO-8859-1';
-		}
+	function getDescription($enc) {
 		$descriptionField = new FeedHtmlField($this->description, $enc);
 		$descriptionField->syndicateHtml = $this->descriptionHtmlSyndicated;
 		$descriptionField->truncSize = $this->descriptionTruncSize;
@@ -230,7 +224,8 @@ class UniversalFeedCreator extends FeedCreator {
 		if (!class_exists($format['class'])) {
 			include('classes/feedcreator/'.$format['file']);
 		}
-		eval('$this->_feed = new '.$format['class'].'();');
+		$cn = $format['class'];
+		$this->_feed = new $cn();
 
 		$vars = get_object_vars($this);
 		foreach ($vars as $key => $value) {
@@ -346,7 +341,7 @@ class FeedCreator extends HtmlDescribable {
 	 * This feed's character encoding.
 	 * @since 1.6.1
 	 **/
-	var $encoding = "ISO-8859-1";
+	var $encoding = "UTF-8";
 
 
 	/**
@@ -418,8 +413,10 @@ class FeedCreator extends HtmlDescribable {
 
 	function _htmlspecialchars($content, $enc) {
 		global $gpc;
-		$content = $gpc->save_str($content);
-		return $content;
+		if ($enc == 'UTF-8') {
+			$content = $gpc->plain_str($content);
+		}
+		return htmlspecialchars($content, ENT_QUOTES, $enc);
 	}
 
 	/**

@@ -33,7 +33,8 @@ function admin_customsave($uid) {
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
-		$value = $gpc->get($field, str);
+		$gpc_type = iif($type == 'multiselect' || $type == 'checkbox', arr_str, str);
+		$value = $gpc->get($field, $gpc_type);
 
 		if(($type == "multiselect" || $type == "checkbox") && is_array($value)) {
 			$options = implode("\n", $value);
@@ -162,7 +163,8 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
-		$value = $gpc->get($field, str);
+		$gpc_type = iif($type == 'multiselect' || $type == 'checkbox', arr_str, str);
+		$value = $gpc->get($field, $gpc_type);
 
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase($e1);
@@ -331,7 +333,8 @@ function editprofile_customsave($editable, $uid, $save = true) {
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
-		$value = $gpc->get($field, str);
+		$gpc_type = iif($type == 'multiselect' || $type == 'checkbox', arr_str, str);
+		$value = $gpc->get($field, $gpc_type);
 
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('error_missingrequiredfield');

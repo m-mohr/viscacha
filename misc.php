@@ -54,7 +54,7 @@ if ($_GET['action'] == "boardin") {
 	else {
 		$slog->updatelogged();
 		$db->close();
-		viscacha_header('Location: showforum.php?id='.$board.SID2URL_JS_x);
+		sendStatusCode(307, $config['furl'].'/showforum.php?id='.$board.SID2URL_JS_x);
 		exit;
 	}
 
@@ -792,8 +792,10 @@ elseif ($_GET['action'] == "error") {
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
-echo $tpl->parse("footer");
+if ($tpl->tplsent("header")) {
+	$zeitmessung = t2();
+	echo $tpl->parse("footer");
+}
 $phpdoc->Out();
 $db->close();
 ?>

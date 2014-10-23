@@ -1,27 +1,26 @@
 <?php
 /**
-+ * KlipCreator is a FeedCreator that implements the KlipFolio specification,
-+ * as in http://www.serence.com
-+ *
-+ * @since Viscacha 1.0
-+ * @author Matthias Mohr
-+ */
+  * KlipCreator is a FeedCreator that implements the KlipFolio specification,
+  * as in http://www.serence.com
+  *
+  * @author Matthias Mohr
+  */
 class KLIPFOLIO extends FeedCreator {
 
 	function createFeed() {
-		global $config, $lang;
+		global $config;
 		$now = new FeedDate();
 		$this->descriptionTruncSize = 500;
 
-		$feed = $this->_createGeneratorComment();
-
+		$feed = '<?xml version="1.0" encoding="'.$this->encoding.'"?>'."\n";
+		$feed .= $this->_createGeneratorComment();
 		$feed .= '<klip>'."\n";
 
 		$feed .= '	<owner>'."\n";
 		$feed .= '		<author>'.$this->htmlspecialchars(FeedCreator::iTrunc($this->editor,100)).'</author>'."\n";
 		$feed .= '		<copyright>'.$this->htmlspecialchars(FeedCreator::iTrunc($this->copyright,100)).'</copyright>'."\n";
 		if (!empty($this->editorEmail)) {
-			$feed .= '		<email>'.$this->editorEmail.'</email>'."\n";
+			$feed .= '		<email>'.$this->htmlspecialchars($this->editorEmail).'</email>'."\n";
 		}
 		$feed .= '		<web>'.$this->link.'</web>'."\n";
 		$feed .= '	</owner>'."\n";
@@ -31,7 +30,7 @@ class KLIPFOLIO extends FeedCreator {
 		$feed .= '		<uniqueid>'.md5($config['cryptkey']).'</uniqueid>'."\n";
 		$feed .= '		<version>1.0</version>'."\n";
 		$feed .= '		<lastmodified>'.$this->htmlspecialchars($now->v0001()).'</lastmodified>'."\n";
-		$feed .= '		<description>'.$this->getDescription().'</description>'."\n";
+		$feed .= '		<description>'.$this->getDescription($this->encoding).'</description>'."\n";
 		$feed .= '		<keywords>Viscacha '.$this->htmlspecialchars($this->title).'</keywords>'."\n";
 		$feed .= '	</identity>'."\n";
 

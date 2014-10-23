@@ -82,7 +82,7 @@ class VeriWord {
 		return $tpl->parse('main/veriword');
 	}
 
-	function makeImage() {
+	function makeImage($session_expired_lang = 'Session Error<br>Refresh the Page') {
 		global $config, $gpc;
 		$challenge = $gpc->get('challenge');
 		$this->settings['colortext'] = (bool) $config['botgfxtest_colortext'];
@@ -107,6 +107,9 @@ class VeriWord {
 				);
 				break;
 			}
+		}
+		if (empty($this->session['word'])) {
+			$this->_errorImage($session_expired_lang);
 		}
 
 		// Generate the image
@@ -149,7 +152,7 @@ class VeriWord {
 
 
 		$time = time();
-		$limit = $time-2*60*60; // 2h Zeit
+		$limit = $time-6*60*60; // 6h Zeit
 
 		$lines = file($this->datasource);
 		$lines = array_map('trim', $lines);

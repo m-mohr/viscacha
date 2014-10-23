@@ -41,7 +41,8 @@ $plugins = new PluginSystem();
 // Construct base bb-code object
 $bbcode = new BBCode();
 
-define('URL_REGEXP', '/^(http:\/\/|www.)([\wäöüÄÖÜ@\-_\.]+)\:?([0-9]*)\/?(.*)$/i');
+define('URL_REGEXP', 'https?://[a-z\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:[a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*[a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('EMAIL_REGEXP', "[a-z0-9!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[a-z0-9!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
 
 define('REMOTE_INVALID_URL', 100);
 define('REMOTE_CLIENT_ERROR', 200);
@@ -64,7 +65,8 @@ function is_hash($string) {
 function newCAPTCHA($place = null) {
 	global $config;
 	$place = 'botgfxtest'.iif(!empty($place), '_'.$place);
-	$type = constant('CAPTCHA_TYPE_'.$config[$place]);
+	$cfg = $config[$place];
+	$type = constant('CAPTCHA_TYPE_'.$cfg);
 	$filename = strtolower($type);
 	require_once("classes/graphic/class.{$filename}.php");
 	$obj = new $type();
@@ -91,14 +93,14 @@ function checkmx_idna($host) {
 		}
 	}
 	else {
-       @exec("nslookup -querytype=MX {$host_idna}", $output);
-       while(list($k, $line) = each($output)) {
-           # Valid records begin with host name
-           if(preg_match("~^(".preg_quote($host)."|".preg_quote($host_idna).")~i", $line)) {
-               return true;
-           }
-       }
-       return false;
+	   @exec("nslookup -querytype=MX {$host_idna}", $output);
+	   while(list($k, $line) = each($output)) {
+		   # Valid records begin with host name
+		   if(preg_match("~^(".preg_quote($host)."|".preg_quote($host_idna).")~i", $line)) {
+			   return true;
+		   }
+	   }
+	   return false;
    }
 }
 
@@ -107,17 +109,19 @@ function get_remote($file) {
 		include('classes/class.snoopy.php');
 	}
 
-	if (!preg_match(URL_REGEXP, $file, $url_ary)) {
+	if (!preg_match('~^'.URL_REGEXP.'$~i', $file)) {
 		return REMOTE_INVALID_URL;
 	}
 
-	if (strtolower($url_ary[1]) == 'www.') {
+	$url_ary = parse_url($file);
+
+	if (isset($url_ary['host']) && preg_match('~^www\.~i', $url_ary['host'])) {
 		$file = 'http://'.$file;
 	}
 
 	$snoopy = new Snoopy;
-	if (is_id($url_ary[3])) {
-		$snoopy->port = $url_ary[3];
+	if (isset($url_ary['port']) && is_id($url_ary['port'])) {
+		$snoopy->port = $url_ary['port'];
 	}
 	else {
 		$snoopy->port = null;
@@ -150,21 +154,21 @@ function checkRemotePic($pic, $id) {
 	if (filesize($origfile) > $config['avfilesize']) {
 		return REMOTE_FILESIZE_ERROR;
 	}
-    $imageinfo = @getimagesize($origfile);
-    if (is_array($imageinfo)) {
-    	list($width, $height, $type) = $imageinfo;
-    }
-    else {
-    	return REMOTE_IMAGE_ERROR;
-    }
+	$imageinfo = @getimagesize($origfile);
+	if (is_array($imageinfo)) {
+		list($width, $height, $type) = $imageinfo;
+	}
+	else {
+		return REMOTE_IMAGE_ERROR;
+	}
 	if ($width > $config['avwidth']) {
 		return REMOTE_IMAGE_WIDTH_ERROR;
 	}
 	if ($height > $config['avheight']) {
 		return REMOTE_IMAGE_HEIGHT_ERROR;
 	}
-    $types = explode(',', strtolower($config['avfiletypes']));
-    $ext = image_type_to_extension($type, false);
+	$types = explode(',', strtolower($config['avfiletypes']));
+	$ext = image_type_to_extension($type, false);
 	if (!in_array($ext, $types)) {
 		return REMOTE_EXTENSION_ERROR;
 	}
@@ -196,24 +200,24 @@ function JS_URL($url) {
 }
 
 function ini_maxupload() {
-    $keys = array(
-    'post_max_size' => 0,
-    'upload_max_filesize' => 0
-    );
-    foreach ($keys as $key => $bytes) {
-        $val = trim(@ini_get($key));
-        $last = strtolower($val{strlen($val)-1});
-        switch($last) {
-            case 'g':
-                $val *= 1024;
-            case 'm':
-                $val *= 1024;
-            case 'k':
-                $val *= 1024;
-        }
-        $keys[$key] = $val;
-    }
-    return min($keys);
+	$keys = array(
+		'post_max_size' => 0,
+		'upload_max_filesize' => 0
+	);
+	foreach ($keys as $key => $bytes) {
+		$val = trim(@ini_get($key));
+		$last = strtolower($val{strlen($val)-1});
+		switch($last) {
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+		$keys[$key] = $val;
+	}
+	return min($keys);
 }
 
 /**
@@ -222,7 +226,7 @@ function ini_maxupload() {
  * @param $arr, the array to be ordered
  * @param $l the "label" identifing the field
  * @param $f the ordering function to be used,
- *    strnatcasecmp() by default
+ *	strnatcasecmp() by default
  * @return  TRUE on success, FALSE on failure.
  */
 function array_columnsort(&$arr, $l , $f='strnatcasecmp') {
@@ -370,7 +374,7 @@ function invert ($int) {
 
 function serverload($int = false) {
 	if ($int == false) {
-		$unknown = 'Unknown';
+		$unknown = '-';
 	}
 	else {
 		$unknown = -1;
@@ -402,110 +406,47 @@ function serverload($int = false) {
 	return $returnload;
 }
 
-function convert2adress($url) {
+function convert2adress($url, $toLower = true, $spacer = '-') {
+	if ($toLower == true) {
+		$url = strtolower($url);
+	}
 
-   $url = strtolower($url);
+	// International umlauts
+	$url = str_replace (array('á', 'à', 'â', 'Á', 'À', 'Â'),			'a', $url);
+	$url = str_replace (array('ç', 'Ç'), 								'c', $url);
+	$url = str_replace (array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ë', 'Ê'),	'e', $url);
+	$url = str_replace (array('í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï'),	'i', $url);
+	$url = str_replace (array('ó', 'ò', 'ô', 'Ó', 'Ò', 'Ô'), 			'o', $url);
+	$url = str_replace (array('ú', 'ù', 'û', 'Ú', 'Ù', 'Û'), 			'u', $url);
+	// German umlauts
+	$url = str_replace (array('ä', 'Ä'), 'ae', $url);
+	$url = str_replace (array('ö', 'Ö'), 'oe', $url);
+	$url = str_replace (array('ü', 'Ü'), 'ue', $url);
+	$url = str_replace (array('ß'), 'ss', $url);
+	// Replace some special chars with delimiter
+	$url = preg_replace('/[\+\s\r\n\t]+/', $spacer, $url);
+	// Replace multiple delimiter chars with only one char
+	$url = preg_replace('/['.preg_quote($spacer, '/').']+/', $spacer, $url);
+	// Remove html and other special chars
+	$url = preg_replace(array('/<[^>]*>/', '/[^a-z0-9\-\._'.preg_quote($spacer, '/').']/i'), '', $url);
 
-   $find = array(' ',
-      '"',
-      '&',
-      '\r\n',
-      '\n',
-      '/',
-      '\\',
-      '+',
-      '<',
-      '>');
-   $url = str_replace ($find, '-', $url);
-
-   $find = array('é',
-      'è',
-      'ë',
-      'ê',
-      'É',
-      'È',
-      'Ë',
-      'Ê');
-   $url = str_replace ($find, 'e', $url);
-
-   $find = array('í',
-      'ì',
-      'î',
-      'ï',
-      'Í',
-      'Ì',
-      'Î',
-      'Ï');
-   $url = str_replace ($find, 'i', $url);
-
-   $find = array('ó',
-      'ò',
-      'ô',
-      'Ó',
-      'Ò',
-      'Ô');
-   $url = str_replace ($find, 'o', $url);
-
-   $find = array('ö',
-       'Ö');
-   $url = str_replace ($find, 'oe', $url);
-
-   $find = array('á',
-      'à',
-      'â',
-      'Á',
-      'À',
-      'Â');
-   $url = str_replace ($find, 'a', $url);
-
-   $find = array('ä',
-       'Ä');
-   $url = str_replace ($find, 'ae', $url);
-
-   $find = array('ú',
-      'ù',
-      'û',
-      'Ú',
-      'Ù',
-      'Û');
-   $url = str_replace ($find, 'u', $url);
-
-   $find = array('ü',
-       'Ü');
-   $url = str_replace ($find, 'ue', $url);
-
-   $find = array('ß');
-   $url = str_replace ($find, 'ss', $url);
-
-   $find = array('/[^a-z0-9\-<>]/',
-      '/[\-]+/',
-      '/<[^>]*>/');
-
-   $repl = array('',
-      '-',
-      '');
-
-   $url =  preg_replace ($find, $repl, $url);
-
-   $url = str_replace ('--', '-', $url);
-
-   return $url;
+	return $url;
 }
 
 function removeOldImages ($dir, $name) {
 	global $filesystem;
-    $dir = realpath($dir);
-    $dir_open = @opendir($dir);
-    while (($dir_content = readdir($dir_open)) !== false) {
-        if ($dir_content != '.' && $dir_content != '..') {
-            $ext = get_extension($dir_content, true);
-            $fname = str_ireplace($ext, '', $dir_content);
-            if ($fname == $name) {
-                @$filesystem->unlink($dir.'/'.$dir_content);
-            }
-        }
-    }
-    closedir($dir_open);
+	$dir = realpath($dir);
+	$dir_open = @opendir($dir);
+	while (($dir_content = readdir($dir_open)) !== false) {
+		if ($dir_content != '.' && $dir_content != '..') {
+			$ext = get_extension($dir_content, true);
+			$fname = str_ireplace($ext, '', $dir_content);
+			if ($fname == $name) {
+				@$filesystem->unlink($dir.'/'.$dir_content);
+			}
+		}
+	}
+	closedir($dir_open);
 }
 
 function secure_path($path) {
@@ -534,7 +475,7 @@ function secure_path($path) {
 }
 
 function check_hp($hp) {
-	if (preg_match("~^https?://[a-z\d\-\.@]+(\.[a-z]{2,7})?(:\d+)?/?([a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*)?$~i", $hp)) {
+	if (preg_match("~^".URL_REGEXP."$~i", $hp)) {
 		return true;
 	}
 	else {
@@ -544,7 +485,7 @@ function check_hp($hp) {
 
 function check_mail($email, $simple = false) {
 	global $config;
-	if(preg_match("/^([_a-zA-Zäöü0-9-]+(\.[_a-zA-Z0-9äöu-]+)*@[a-zA-Zäöu0-9-]+(\.[a-zA-Z0-9äöü-]+)*(\.[a-zA-Z]{2,}))/si", $email)) {
+	if(preg_match("~^".EMAIL_REGEXP."$~i", $email)) {
 	 	list(, $domain) = explode('@', $email);
 	 	$domain = strtolower($domain);
 		// Check MX record.
@@ -555,16 +496,16 @@ function check_mail($email, $simple = false) {
 	 		}
 	 	}
 		if ($config['sessionmails'] == 1 && !$simple) {
-	    	// get the known domains in lower case
-	    	$sessionmails = file('data/sessionmails.php');
-	    	$sessionmails = array_map("trim", $sessionmails);
-	    	$sessionmails = array_map("strtolower", $sessionmails);
+			// get the known domains in lower case
+			$sessionmails = file('data/sessionmails.php');
+			$sessionmails = array_map("trim", $sessionmails);
+			$sessionmails = array_map("strtolower", $sessionmails);
 			// compare the data and return the result
 			if (in_array($domain, $sessionmails)) {
 				return false;
 			}
-	    }
-	    return true;
+		}
+		return true;
 	}
 	else {
 		return false;
@@ -602,8 +543,8 @@ function subxstr($str, $start, $length = null) {
 
 	// check if we can predict the return value and save some processing time
 	if ($html_length === 0 || $start >= $html_length || (isset($length) && $length <= -$html_length)) {
-     	return "";
-     }
+	 	return "";
+	 }
 
 	//calculate start position
 	if ($start >= 0) {
@@ -632,14 +573,14 @@ function subxstr($str, $start, $length = null) {
 }
 
 function random_word($laenge=8) {
-    $newpass = "";
-    $string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-_?!.";
+	$newpass = "";
+	$string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-_?!.";
 
-    for ($i=1; $i <= $laenge; $i++) {
-        $newpass .= substr($string, mt_rand(0,strlen($string)-1), 1);
-    }
+	for ($i=1; $i <= $laenge; $i++) {
+		$newpass .= substr($string, mt_rand(0,strlen($string)-1), 1);
+	}
 
-    return $newpass;
+	return $newpass;
 }
 
 function leading_zero($int,$length=2) {
@@ -764,8 +705,8 @@ function UpdateBoardStats($board) {
 	$topics = $count2[0];
 
 	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
-    $last = $db->fetch_num($result);
-    if (empty($last[0])) {
+	$last = $db->fetch_num($result);
+	if (empty($last[0])) {
 		$last[0] = 0;
 	}
 	$db->query("
@@ -779,8 +720,8 @@ function UpdateBoardStats($board) {
 function UpdateBoardLastStats($board) {
 	global $db;
 	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
-    $last = $db->fetch_num($result);
-    if (empty($last[0])) {
+	$last = $db->fetch_num($result);
+	if (empty($last[0])) {
 		$last[0] = 0;
 	}
 	$db->query("UPDATE {$db->pre}forums SET last_topic = '{$last[0]}' WHERE id = '{$board}'");
@@ -879,21 +820,21 @@ function ext_iptrim ($text, $peaces) {
 
 function getAge($bday) {
 	$now = times();
-    if (gmdate("Y", $now) == $bday[0] && gmdate("m", $now) == $bday[1] && gmdate("d", $now) == $bday[2]) {
+	if (gmdate("Y", $now) == $bday[0] && gmdate("m", $now) == $bday[1] && gmdate("d", $now) == $bday[2]) {
 		$result = 0;
-    }
+	}
 	else {
-    	$result = gmdate("Y", $now) - $bday[0];
-    	if ($bday[1] > gmdate("m", $now)) {
-    		$result--;
-    	}
-    	elseif ($bday[1] == gmdate("m", $now)) {
-        	if ($bday[2] > gmdate("d",$now)) {
-        		$result--;
-        	}
-    	}
-    }
-    return $result;
+		$result = gmdate("Y", $now) - $bday[0];
+		if ($bday[1] > gmdate("m", $now)) {
+			$result--;
+		}
+		elseif ($bday[1] == gmdate("m", $now)) {
+			if ($bday[2] > gmdate("d",$now)) {
+				$result--;
+			}
+		}
+	}
+	return $result;
 }
 
 function CheckForumTree($tree, &$tree2, $board) {
@@ -903,8 +844,8 @@ function CheckForumTree($tree, &$tree2, $board) {
 			if ($bdata['opt'] == 're' || !check_forumperm($bdata)) {
 				//unset();
 			}
-	    	CheckForumTree($sub, $tree2, $board);
-	    }
+			CheckForumTree($sub, $tree2, $board);
+		}
 	}
 }
 
@@ -942,11 +883,11 @@ function SelectForums($html, $tree, $cat, $board, $group = true, $char = '&nbsp;
 			}
 			$i++;
 			$html[] = '<option value="'.$bdata['id'].'">'.str_repeat($char, $level+1).$bdata['name'].'</option>';
-	    	$html = SelectForums($html, $sub, $cat, $board, $group, $char, $level+2);
-	    }
-	    if ($i == 0) {
-	    	$x = array_pop($html);
-	    }
+			$html = SelectForums($html, $sub, $cat, $board, $group, $char, $level+2);
+		}
+		if ($i == 0) {
+			$x = array_pop($html);
+		}
 	}
 	return $html;
 }
@@ -991,6 +932,8 @@ function check_forumperm($forum) {
 /*
 Sends a plain text e-mail in UTF-8.
 
+All parameters should be in html entity mode, not in utf-8!
+
 Params:
 	(array/string)	$to		= Recipient
 					$to[]['name'] = Name of Recipient (opt)
@@ -1003,7 +946,7 @@ Params:
 */
 
 function xmail ($to, $from = array(), $topic, $comment) {
-	global $config, $my, $lang, $bbcode, $gpc;
+	global $config, $gpc;
 
 	require_once("classes/mail/class.phpmailer.php");
 
@@ -1027,7 +970,7 @@ function xmail ($to, $from = array(), $topic, $comment) {
 	if ($config['smtp'] == 1) {
 		$mail->Mailer   = "smtp";
 		$mail->IsSMTP();
-		$mail->Host     = $config['smtp_host'];
+		$mail->Host	 = $config['smtp_host'];
 		if ($config['smtp_auth'] == 1) {
 			$mail->SMTPAuth = TRUE;
 			$mail->Username = $config['smtp_username'];
@@ -1050,29 +993,29 @@ function xmail ($to, $from = array(), $topic, $comment) {
 	$i = 0;
 	foreach ($to as $email) {
 		$mail->IsHTML(false);
-	    $mail->Body = $gpc->plain_str($comment);
+		$mail->Body = $gpc->plain_str($comment);
 
-	    if (isset($email['name'])) {
-	    	$mail->AddAddress($gpc->plain_str($email['mail']), $gpc->plain_str($email['name']));
-	    }
-	    else {
-	    	$mail->AddAddress($gpc->plain_str($email['mail']));
-	    }
+		if (isset($email['name'])) {
+			$mail->AddAddress($gpc->plain_str($email['mail']), $gpc->plain_str($email['name']));
+		}
+		else {
+			$mail->AddAddress($gpc->plain_str($email['mail']));
+		}
 
 		if ($mail->Send()) {
 			$i++;
 		}
 
-	    $mail->ClearAddresses();
-	    $mail->ClearAttachments();
+		$mail->ClearAddresses();
+		$mail->ClearAttachments();
 	}
 	return $i;
 }
 
 function getcookie($name) {
-    global $config;
-    if (isset($_COOKIE[$config['cookie_prefix'].'_'.$name])) {
-    	return $_COOKIE[$config['cookie_prefix'].'_'.$name];
+	global $config;
+	if (isset($_COOKIE[$config['cookie_prefix'].'_'.$name])) {
+		return $_COOKIE[$config['cookie_prefix'].'_'.$name];
 	}
 	else {
 		return NULL;
@@ -1085,18 +1028,18 @@ function makecookie($name, $value = '', $expire = 31536000) {
 		return FALSE;
 	}
 
-//	if ($_SERVER['SERVER_PORT'] == '443' || isset($_SERVER['HTTPS'])) {
-//		$secure = 1;
-//	}
-//	else {
-//		$secure = 0;
-//	}
+	if ((isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') || isset($_SERVER['HTTPS'])) {
+		$secure = true;
+	}
+	else {
+		$secure = false;
+	}
 	if ($expire != null) {
 		$expire = time() + $expire;
 	}
 	else {
 		$expire = 0;
 	}
-	setcookie($name, $value, $expire);
+	setcookie($name, $value, $expire, null, null, $secure);
 }
 ?>

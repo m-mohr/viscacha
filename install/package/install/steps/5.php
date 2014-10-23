@@ -15,23 +15,22 @@ function getLangNameByPath ($dir) {
 if (empty($config['furl']) == false) {
 	$furl = $config['furl'];
 }
-elseif (!empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['PHP_SELF'])) {
-	$source = rtrim(dirname($_SERVER['PHP_SELF']), '/\\');
-	$pos = strrpos($source, '/');
-	if ($pos === false) {
-		$pos = strrpos($source, '\\');
-	}
-	if ($pos > 0) {
-		$dest = substr($source, 0, $pos+1);
-		$furl = "http://".$_SERVER['HTTP_HOST'].rtrim($dest, '/\\');
-	}
-	else {
-		$furl = '';
-	}
-}
 else {
-	$furl = '';
+	// HTTP_HOST is having the correct browser url in most cases...
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
+
+	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
+	if (!$source) {
+		$source = (!empty($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
+	}
+	// Replace backslashes and doubled slashes (could happen on some proxy setups)
+	$source = str_replace(array('\\', '//', '/install'), '/', $source);
+	$source = trim(trim(dirname($source)), '/');
+
+	$furl = $https.$server_name.'/'.$source;
 }
+
 if (empty($config['forenmail']) == false) {
 	$email = $config['forenmail'];
 }
@@ -41,6 +40,8 @@ elseif (isset($_SERVER['SERVER_ADMIN'])) {
 else {
 	$email = '';
 }
+
+// Determine path to script
 $fpath = !empty($config['fpath']) ? $config['fpath'] : str_replace('\\', '/', realpath('./'));
 
 $langarr = array();

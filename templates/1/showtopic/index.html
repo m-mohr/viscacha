@@ -53,20 +53,23 @@
 <?php if($my->vlogin) { ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_manage'); ?></strong>
 	 <ul>
-	 <li><a href="editprofile.php?action=addabo&amp;temp=9&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_favs'); ?></a></li>
+	 <li><a href="editprofile.php?action=addabo&amp;type=9&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_favs'); ?></a></li>
 	 </ul>
 	 <?php if ($info['status'] == 0) { ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_abo'); ?></strong>
 	 <ul>
-     <li><a href="editprofile.php?action=addabo&amp;temp=0&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo0'); ?></a></li>
-     <li><a href="editprofile.php?action=addabo&amp;temp=1&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo1'); ?></a></li>
-     <li><a href="editprofile.php?action=addabo&amp;temp=7&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo7'); ?></a></li>
+	 <?php if ($abox['id'] > 0) { ?>
+     <li><a href="editprofile.php?action=removeabo&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo_remove'); ?></a></li>
+	 <?php } else { ?>
+     <li><a href="editprofile.php?action=addabo&amp;type=0&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo0'); ?></a></li>
+     <li><a href="editprofile.php?action=addabo&amp;type=1&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo1'); ?></a></li>
+     <li><a href="editprofile.php?action=addabo&amp;type=7&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo7'); ?></a></li>
+     <?php } ?>
      </ul>
 <?php }} ?>
 	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>
 	 <ul>
 	 <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('print'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_print'); ?></a></li>
-	  <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>&amp;action=word"><img src="<?php echo $tpl->img('word'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_word'); ?></a></li>
 	 </ul>
 	</div>
 </noscript>
@@ -75,17 +78,17 @@
 <div class="border">
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
+<a href="managetopic.php?action=delete&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_delete'); ?></a> |
 <?php  if ($info['status'] != 2) { if ($info['status'] == 1) { ?>
 <a href="managetopic.php?action=open&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_open'); ?></a> |
 <?php } else { ?>
 <a href="managetopic.php?action=close&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_close'); ?></a> |
-<?php } if ($info['sticky'] == '1') { ?>
+<?php } if ($info['sticky'] == 1) { ?>
 <a href="managetopic.php?action=unpin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_unpin'); ?></a> |
 <?php } else { ?>
 <a href="managetopic.php?action=pin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_pin'); ?></a> |
-<?php }} ?>
-<a href="managetopic.php?action=delete&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_delete'); ?></a> |
 <a href="managetopic.php?action=move&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_move'); ?></a> |
+<?php } ?>
 <a href="managetopic.php?action=status&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_status'); ?></a> |
 <a href="managetopic.php?action=stat&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_stats'); ?></a> |
 <?php if (empty($info['vquestion'])) { ?>
@@ -102,7 +105,7 @@
 	<option value="pmerge"><?php echo $lang->phrase('admin_posts_merge'); ?></option>
 </select>&nbsp;
 <input type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
-<?php } ?>
+<?php }} ?>
 </div>
 </div>
 <?php } ?>

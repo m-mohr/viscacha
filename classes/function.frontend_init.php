@@ -169,29 +169,24 @@ require_once ("classes/function.global.php");
 include_once ("classes/function.flood.php");
 
 if (!file_exists('.htaccess')) {
-$htaccess = '';
-
+	$htaccess = array();
 	if ($config['hterrordocs'] == 1) {
-	    $htaccess .= "
-	    ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400
-	    ErrorDocument 401	{$config['furl']}/misc.php?action=error&id=401
-	    ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403
-	    ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404
-	    ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500
-	    ";
+	    $htaccess[] = "ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400";
+	    $htaccess[] = "ErrorDocument 401	{$config['furl']}/misc.php?action=error&id=401";
+	    $htaccess[] = "ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403";
+	    $htaccess[] = "ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404";
+	    $htaccess[] = "ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500";
+	    $htaccess[] = "";
 	}
-
 	if ($config['correctsubdomains'] == 1) {
 	    $url = parse_url($config['furl']);
 	    $host = str_ireplace('www.', '', $url['host']);
-	    $htaccess .= "
-	    RewriteEngine On
-	    RewriteCond %{HTTP_HOST} ^www\.".preg_quote($host)."$ [NC]
-	    RewriteRule ^(.*)$ http://".$host."/$1 [R=301,L]
-	    ";
+	    $htaccess[] = "RewriteEngine On";
+	    $htaccess[] = "RewriteCond %{HTTP_HOST} ^www\.".preg_quote($host)."$ [NC]";
+	    $htaccess[] = "RewriteRule ^(.*)$ http://".$host."/$1 [R=301,L]";
+	    $htaccess[] = "";
 	}
-
-	$filesystem->file_put_contents('.htaccess', $htaccess);
+	$filesystem->file_put_contents('.htaccess', implode("\r\n", $htaccess));
 }
 
 $breadcrumb = new breadcrumb();
@@ -199,12 +194,7 @@ $breadcrumb->Add($config['fname'], 'index.php');
 
 $phpdoc = new OutputDoc($config['gzip']);
 $phpdoc->Start($config['gzcompression']);
-if ($config['gzip'] == 1 && $phpdoc->Encoding()) {
-	$gzbenchval = 'On - Compression Rate: '.$config['gzcompression'];
-}
-else {
-	$gzbenchval = 'Off';
-}
+define('PAGE_IS_GZIPPED', ($config['gzip'] == 1 && $phpdoc->Encoding()));
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
@@ -224,12 +214,12 @@ if ($config['foffline'] && defined('TEMPSHOWLOG') == false) {
 	if ($my->p['admin'] != 1) {
 		$offline = file_get_contents('data/offline.php');
 		sendStatusCode(503, 3600);
-        ($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
+		($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
 		echo $tpl->parse("offline");
 
-        $phpdoc->Out();
+		$phpdoc->Out();
 		$db->close();
-	    exit();
+		exit();
 	}
 }
 ?>

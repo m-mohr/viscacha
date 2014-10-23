@@ -168,7 +168,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			else {
 				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 			}
-			viscacha_header('Location: '.$url);
+			sendStatusCode(307, $config['furl'].'/'.$url);
 			exit;
 		}
 		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
@@ -189,7 +189,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			else {
 				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 			}
-			viscacha_header('Location: '.$url);
+			sendStatusCode(307, $config['furl'].'/'.$url);
 			exit;
 		}
 		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
@@ -208,7 +208,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			else {
 				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 			}
-			viscacha_header('Location: '.$url);
+			sendStatusCode(307, $config['furl'].'/'.$url);
 		}
 		$my->pb = $slog->GlobalPermissions();
 		if ($my->mp[0] == 1 && $my->mp[5] == 0) {
@@ -278,7 +278,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			else {
 				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 			}
-			viscacha_header('Location: '.$url);
+			sendStatusCode(307, $config['furl'].'/'.$url);
 			exit;
 		}
 		$ids = implode(',', $_POST['delete']);

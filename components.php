@@ -37,40 +37,14 @@ $cid = $gpc->get('cid', int);
 $com = $scache->load('components');
 $cache = $com->get();
 
-($code = $plugins->load('components_start')) ? eval($code) : null;
-
 if (isset($cache[$cid])) {
-	DEFINE('COM_CID', $cid);
-	DEFINE('COM_ID', $cache[$cid]['package']);
-	DEFINE('COM_DIR', 'modules/'.COM_ID.'/');
-	$myini = new INI();
-	$ini = $myini->read(COM_DIR.'component.ini');
-	$mod = $gpc->get('file', str, 'frontpage');
-	if (!isset($ini['module'][$mod])) {
-		DEFINE('COM_MODULE', 'frontpage');
-	}
-	else {
-		DEFINE('COM_MODULE', $mod);
-	}
-	DEFINE('COM_MODULE_FILE', $ini['module'][COM_MODULE]);
-	DEFINE('COM_FILE', $ini['module']['frontpage']);
+	define('PACKAGE_ID', $cache[$cid]['cid']);
+	define('PACKAGE_INTERNAL', $cache[$cid]['internal']);
+	define('PACKAGE_DIR', 'modules/'.PACKAGE_ID.'/');
+	define('PLUGIN_ID', $cache[$cid]['id']);
+	unset($cache);
 
-	if (!file_exists(COM_DIR.COM_FILE)) {
-		error($lang->phrase('section_not_available'));
-	}
-	else {
-		define('COM_LANG_OLD_DIR', $lang->getdir(true));
-        $lang->setdir(COM_LANG_OLD_DIR.DIRECTORY_SEPARATOR.COM_DIR);
-        ($code = $plugins->load('components_prepared')) ? eval($code) : null;
-	    if (COM_MODULE == 'frontpage') {
-            include(COM_DIR.COM_FILE);
-        }
-        else {
-            include(COM_DIR.COM_MODULE_FILE);
-        }
-        $lang->setdir(COM_LANG_OLD_DIR);
-	}
-	($code = $plugins->load('components_end')) ? eval($code) : null;
+	($code = $plugins->load('component_'.PACKAGE_INTERNAL)) ? eval($code) : null;
 }
 else {
 	error($lang->phrase('component_na'));

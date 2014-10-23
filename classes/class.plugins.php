@@ -109,11 +109,11 @@ class PluginSystem {
 	function countPlugins($pos){
 		global $db;
 		$result = $db->query("
-	    SELECT COUNT(*) AS num
-    	FROM {$db->pre}plugins AS m
-    		LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
-    	WHERE m.position = '{$pos}' AND p.active = '1' AND m.active = '1'
-    	");
+		SELECT COUNT(*) AS num
+		FROM {$db->pre}plugins AS m
+			LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
+		WHERE m.position = '{$pos}' AND p.active = '1' AND m.active = '1'
+		");
 		$info = $db->fetch_assoc($result);
 		return $info['num'];
 	}
@@ -140,21 +140,21 @@ class PluginSystem {
 	}
 
 	function _setup($hook, $id) {
-		$source = '';
+		$source = false;
 		$inifile = $this->plugdir.$id.'/plugin.ini';
 		if (file_exists($inifile) == true) {
 			$myini = new INI();
 			$ini = $myini->read($inifile);
-		    if (isset($ini['php'][$hook])) {
-		    	$file = $ini['php'][$hook];
+			if (isset($ini['php'][$hook])) {
+				$file = $ini['php'][$hook];
 			  	$sourcefile = $this->plugdir.$id.'/'.$file;
 			  	if (file_exists($sourcefile)) {
 				   	$source = file_get_contents($sourcefile);
-	    		}
+				}
 				else {
 					trigger_error('Setup/Update for package not found! File '.$sourcefile.' could not be loaded while executing '.$hook.'.', E_USER_WARNING);
 				}
-	    	}
+			}
 		}
 		return $source;
 	}
@@ -206,48 +206,48 @@ class PluginSystem {
 		if ($this->sqlcache == null) {
 			$this->sqlcache = array();
 			$this->sqlcache[$group] = array();
-	        $result = $db->query("
-	        	SELECT m.id, m.module, m.position
-	        	FROM {$db->pre}plugins AS m
-	        		LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
-	        	WHERE p.active = '1' AND m.active = '1'
-	        	ORDER BY m.ordering
-	        ");
-	        while ($row = $db->fetch_assoc($result)) {
-	        	$row['group'] = $this->_group($row['position']);
-	            $this->sqlcache[$row['group']][$row['position']][$row['id']] = $row['module'];
-	        }
-	    }
-	    if (!isset($this->sqlcache[$group])) {
-	    	$this->sqlcache[$group] = array();
-	    }
+			$result = $db->query("
+				SELECT m.id, m.module, m.position
+				FROM {$db->pre}plugins AS m
+					LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
+				WHERE p.active = '1' AND m.active = '1'
+				ORDER BY m.ordering
+			");
+			while ($row = $db->fetch_assoc($result)) {
+				$row['group'] = $this->_group($row['position']);
+				$this->sqlcache[$row['group']][$row['position']][$row['id']] = $row['module'];
+			}
+		}
+		if (!isset($this->sqlcache[$group])) {
+			$this->sqlcache[$group] = array();
+		}
 
-	    $myini = new INI();
-	    $cfgdata = array();
-	    $code = array();
-	    foreach ($this->sqlcache[$group] as $position => $mods) {
-	    	$code[$position] = '';
-	    	foreach ($mods as $id => $plugin) {
-	    		if (!isset($cfgdata[$plugin])) {
-		    		$inifile = $this->plugdir.$plugin.'/plugin.ini';
-		    		$cfgdata[$plugin] = $myini->read($inifile);
-	    		}
-	    		if (isset($cfgdata[$plugin]['php'])) {
-		    		foreach ($cfgdata[$plugin]['php'] as $phpposition => $phpfile) {
-		    			if ($position == $phpposition) {
-				    		$sourcefile = $this->plugdir.$plugin.'/'.$phpfile;
-				    		if (file_exists($sourcefile)) {
-					    		$source = file_get_contents($sourcefile);
-					    		if (!isset($code[$position][$id])) {
-					    			$code[$position][$id] = '';
-					    		}
-					    		$code[$position][$id] .= '$pluginid = "'.$plugin.'";'."\r\n".$source."\r\n";
-				    		}
-			    		}
-			    	}
-	    		}
-	    	}
-	    }
+		$myini = new INI();
+		$cfgdata = array();
+		$code = array();
+		foreach ($this->sqlcache[$group] as $position => $mods) {
+			$code[$position] = '';
+			foreach ($mods as $id => $plugin) {
+				if (!isset($cfgdata[$plugin])) {
+					$inifile = $this->plugdir.$plugin.'/plugin.ini';
+					$cfgdata[$plugin] = $myini->read($inifile);
+				}
+				if (isset($cfgdata[$plugin]['php'])) {
+					foreach ($cfgdata[$plugin]['php'] as $phpposition => $phpfile) {
+						if ($position == $phpposition) {
+							$sourcefile = $this->plugdir.$plugin.'/'.$phpfile;
+							if (file_exists($sourcefile)) {
+								$source = file_get_contents($sourcefile);
+								if (!isset($code[$position][$id])) {
+									$code[$position][$id] = '';
+								}
+								$code[$position][$id] .= '$pluginid = "'.$plugin.'";'."\r\n".$source."\r\n";
+							}
+						}
+					}
+				}
+			}
+		}
 
 		$save = serialize($code);
 		$filesystem->file_put_contents($file, $save);
@@ -266,13 +266,13 @@ class PluginSystem {
 	}
 
 	function _check_permissions($groups) {
-	    global $slog;
-	    if ($groups == 0 || count(array_intersect(explode(',', $groups), $slog->groups)) > 0) {
-	        return true;
-	    }
-	    else {
-	        return false;
-	    }
+		global $slog;
+		if ($groups == 0 || count(array_intersect(explode(',', $groups), $slog->groups)) > 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }

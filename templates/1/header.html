@@ -26,14 +26,14 @@
 <?php } if (defined('LINK_LAST_PAGE')) { ?>
 	<link rel="last" href="<?php echo LINK_LAST_PAGE; ?>" />
 <?php } if ($config['syndication'] == 1) { ?>
-	<link rel="alternate" type="application/rss+xml" title="<?php echo $lang->phrase('link_rel_rss'); ?>" href="external.php?type=RSS20" />
-	<link rel="alternate" type="application/atom+xml" title="<?php echo $lang->phrase('link_rel_atom'); ?>" href="external.php?type=ATOM10" />
-	<link rel="alternate" type="application/xml" title="<?php echo $lang->phrase('link_rel_opml'); ?>" href="external.php?type=OPML" />
+	<link rel="alternate" type="application/rss+xml" title="<?php echo $lang->phrase('link_rel_rss'); ?>" href="external.php?action=RSS20" />
+	<link rel="alternate" type="application/atom+xml" title="<?php echo $lang->phrase('link_rel_atom'); ?>" href="external.php?action=ATOM10" />
+	<link rel="alternate" type="application/xml" title="<?php echo $lang->phrase('link_rel_opml'); ?>" href="external.php?action=OPML" />
 <?php } if (defined('LINK_PRINT_PAGE')) { ?>
 	<link rel="alternate" media="print" title="<?php echo $lang->phrase('link_rel_print'); ?>" href="<?php echo LINK_PRINT_PAGE; ?>" />
 <?php } ?>
 
-	<script src="templates/lang2js.php?id=<?php echo $my->language; ?>" type="text/javascript"></script>
+	<script src="templates/language_<?php echo $my->language; ?>.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	<!--
 	lng['ajax3_0'] = '<?php echo $tpl->img('dir_closed'); ?>';

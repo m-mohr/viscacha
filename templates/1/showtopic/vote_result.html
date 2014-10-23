@@ -1,7 +1,7 @@
 <table class="tables">
   <tr>
     <th colspan="4">
-      <?php if ($config['vote_change'] == 1 || $vote['voted'] == 0) { ?>
+      <?php if (($config['vote_change'] == 1 || $vote['voted'] == 0) && $vote['phrase']) { ?>
       <span class="right">[<a href="showtopic.php?temp=2&amp;id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><?php echo $lang->phrase($vote['phrase']); ?></a>]</span>
       <?php } ?>
       <img src="<?php echo $tpl->img('vote'); ?>" alt="" /> <?php echo $lang->phrase('vote_titlevote').$vote['question']; ?>

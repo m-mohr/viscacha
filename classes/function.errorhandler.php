@@ -74,6 +74,10 @@ function log_handler($errno, $errtext, $errfile, $errline) {
 	if(($errno & $replevel) != $errno) {
 		return;
 	}
+	// Ignore the error when it is a DB error (already saved to sql log file)
+	if (preg_match("~^DB ERROR \d+\:~i", $errtext)) {
+		return;
+	}
 
 	$errlogfile = 'data/errlog_php.inc.php';
 	if (file_exists($errlogfile) == false) {
@@ -95,6 +99,26 @@ function log_handler($errno, $errtext, $errfile, $errline) {
 	else {
 		$lines = array();
 	}
+	
+	if (viscacha_function_exists('debug_backtrace')) {
+		$backtrace = debug_backtrace();
+		foreach ($backtrace as $key => $value) {
+			unset($value['args']);
+			unset($value['object']);
+			$backtrace[$key] = $value;
+/*
+function  	string  	 The current function name. See also __FUNCTION__.
+line 	integer 	The current line number. See also __LINE__.
+file 	string 	The current file name. See also __FILE__.
+class 	string 	The current class name. See also __CLASS__
+object 	object 	The current object.
+type 	string 	The current call type. If a method call, "->" is returned. If a static method call, "::" is returned. If a function call, nothing is returned.
+*/
+		}
+	}
+	else {
+		$backtrace = array();
+	}
 
 	$cols = array(
 		$errno,
@@ -103,7 +127,7 @@ function log_handler($errno, $errtext, $errfile, $errline) {
 		$errline,
 		makeOneLine($_SERVER['REQUEST_URI']),
 		time(),
-		PHP_VERSION." (".PHP_OS.")"
+		base64_encode(serialize($backtrace))
 	);
 	$lines[] = implode("\t", $cols);
 

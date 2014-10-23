@@ -1,12 +1,12 @@
 <div class="uploadbox"><strong>
 <?php if ($my->p['downloadfiles'] == 0) { echo $file['file']; } else { ?>
 <a href="attachments.php?action=attachment&amp;id=<?php echo $file['id'].SID2URL_x; ?>" target="_blank" onclick="return openImageWindow(this, <?php echo $imagesize[0]; ?>, <?php echo $imagesize[1]; ?>);">
-<img src="attachments.php?action=thumbnail&amp;id=<?php echo $file['id'].SID2URL_x; ?>" alt="" />
+<img src="attachments.php?action=thumbnail&amp;id=<?php echo $file['id'].SID2URL_x; ?>" alt="<?php echo $file['file']; ?>" title="<?php echo $file['file']; ?>" />
 </a>
 <?php } ?>
 </strong><br />
 <span class="stext">
-<?php echo $lang->phrase('uploads_filetype'); ?><a href="popup.php?action=filetypes&type=<?php echo $imginfo.SID2URL_x; ?>" target="filetypeinfo" onclick="filetypeinfo(this)"><img src="<?php echo $tpl->img("filetypes/$icon"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$imginfo; ?>" /> <?php echo get_extension($file['file']); ?></a><br />
+<?php echo $lang->phrase('uploads_filetype'); ?><a href="popup.php?action=filetypes&type=<?php echo $imginfo.SID2URL_x; ?>" target="filetypeinfo" onclick="filetypeinfo(this)"><img src="<?php echo $tpl->img("filetypes/{$icon}"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$imginfo; ?>" /> <?php echo get_extension($file['file']); ?></a><br />
 <?php echo $lang->phrase('uploads_hits').$file['hits']; ?><br />
 <?php echo $lang->phrase('uploads_size').$fsize; ?><br />
 <?php echo $lang->phrase('uploads_imgsize'); ?>

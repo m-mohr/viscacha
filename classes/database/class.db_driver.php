@@ -222,28 +222,37 @@ class DB_Driver { // abstract class
 		}
 
 		if ($this->logerrors) {
-			$logs = array();
 			if (file_exists($this->errlogfile)) {
-				$logs = file($this->errlogfile);
-				$logs = array_empty_trim($logs);
+				$lines = file($this->errlogfile);
+				foreach($lines as $key => $value) {
+					$value = trim($value);
+					if (empty($value)) {
+						unset($lines[$key]);
+					}
+					else {
+						$lines[$key] = $value; // Also trim it for the file
+					}
+				}
 			}
-			$row = array(
+			else {
+				$lines = array();
+			}
+		
+			$cols = array(
 				$this->errno(),
-				$this->errstr(),
+				makeOneLine($this->errstr()),
 				$errfile,
 				$errline,
-				$errcomment,
-				$_SERVER['REQUEST_URI'],
+				makeOneLine($_SERVER['REQUEST_URI']),
 				time(),
-				PHP_VERSION." (".PHP_OS.")"
+				makeOneLine($errcomment)
 			);
-			$row = array_map('makeOneLine', $row);
-
-			$logs[] = implode("\t", $row);
-			@file_put_contents($this->errlogfile, implode("\n", $logs));
+			$lines[] = implode("\t", $cols);
+		
+			@file_put_contents($this->errlogfile, implode("\n", $lines));
 		}
 		$errcomment = nl2br($errcomment);
-	    return "Database error ".$this->errno().": ".$this->errstr()."<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";
+	    return "DB ERROR ".$this->errno().": ".$this->errstr()."<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";
 	}
 
 	function benchmarktime() {

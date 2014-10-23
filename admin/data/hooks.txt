@@ -48,9 +48,6 @@ attachments.php
 -attachments_upload_form_end
 
 components.php
--components_start
--components_prepared
--components_end
 
 cron.php
 -cron_start
@@ -416,6 +413,8 @@ admin/misc.php
 
 admin/packages.php
 -admin_packages_jobs
+
+admin/packages_admin.php
 
 admin/posts.php
 -admin_posts_jobs

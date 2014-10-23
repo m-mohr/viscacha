@@ -64,7 +64,7 @@ elseif ($job == 'cache') {
 				$files++;
 				$pluginsize += filesize($dir.$file);
 			}
-	    }
+		}
 		closedir($dh);
 	}
 	?>
@@ -195,7 +195,7 @@ elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 					$filesystem->unlink($cachedir.$file);
 				}
 			}
-	    }
+		}
 		closedir($dh);
 	}
 	ok('admin.php?action=misc&job=cache', iif($job == 'cache_refresh_all', $lang->phrase('admin_misc_cache_files_rebuilt_some_deleted'), $lang->phrase('admin_misc_cache_deleted_rebuilt_when_needed')));
@@ -208,7 +208,7 @@ elseif ($job == 'cache_delete_plugins') {
 			if (strpos($file, '.php') !== false) {
 				$filesystem->unlink($dir.$file);
 			}
-	    }
+		}
 		closedir($dh);
 	}
 	ok('admin.php?action=misc&job=cache', $lang->phrase('admin_misc_cache_deleted_rebuilt_when_needed'));
@@ -352,7 +352,7 @@ elseif ($job == 'feedcreator_active') {
 		}
 		$filesystem->file_put_contents('data/feedcreator.inc.php', implode("\n", $n));
 	}
-    viscacha_header('Location: admin.php?action=misc&job=feedcreator');
+	sendStatusCode(307, $config['furl'].'/admin.php?action=misc&job=feedcreator');
 
 }
 elseif ($job == 'feedcreator_add') {
@@ -421,7 +421,7 @@ elseif ($job == 'feedcreator_delete') {
 		}
 	}
 	$filesystem->file_put_contents('data/feedcreator.inc.php', implode("\n", $n));
-    ok('admin.php?action=misc&job=feedcreator', $lang->phrase('admin_misc_files_deleted'));
+	ok('admin.php?action=misc&job=feedcreator', $lang->phrase('admin_misc_files_deleted'));
 }
 elseif ($job == "captcha") {
 	echo head();
@@ -652,7 +652,7 @@ elseif ($job == "credits") {
 		$mhashext = "<span style='color: red'>".$lang->phrase('admin_misc_n_a')."</span>";
 	}
 
-	if (version_compare(PHP_VERSION, '4.1.0', '>=')) {
+	if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
 		$phpv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
@@ -665,8 +665,8 @@ elseif ($job == "credits") {
 <tr><td class="obox">Credits</td></tr>
 <tr><td class="mbox">
 	<p class="center">
-	    <small><a href="http://www.viscacha.org" target="_blank">The Viscacha Project</a> proudly presents...</small><br />
-	    <big style="font-weight: bold; color: #336699;">Viscacha <?php echo $config['version'];?></big>
+		<small><a href="http://www.viscacha.org" target="_blank">The Viscacha Project</a> proudly presents...</small><br />
+		<big style="font-weight: bold; color: #336699;">Viscacha <?php echo $config['version'];?></big>
 	</p>
 	<br class="minibr" />
 	<p>

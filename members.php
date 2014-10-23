@@ -166,12 +166,12 @@ else {
 	}
 
 	$sqlwhere = array();
+	$_GET['letter'] = $gpc->get('letter', db_esc);
 	if (strxlen($_GET['letter']) == 1) {
 		if ($_GET['letter'] == '#') {
 			$sqlwhere[] = "LEFT(name, 1) REGEXP '^[^".implode('', $available)."]'";
 		}
 		else {
-			$_GET['letter'] = $gpc->html_entity_decode($_GET['letter'], ENT_QUOTES);
 			$sqlwhere[] = "LEFT(name, 1) = '{$_GET['letter']}'";
 		}
 	}
@@ -244,7 +244,7 @@ else {
 
 	$sqljoin = '';
 	$online_key = array_search('online', $fields);
-	if ($online_key !== false && $online_key !== null) {
+	if ($online_key !== false) {
 		$sqljoin = "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id";
 		unset($fields[$online_key]);
 		$online = true;
@@ -256,7 +256,7 @@ else {
 	$fields[] = 'name';
 	$fields[] = 'id';
 	$key = array_search('pm', $fields);
-	if ($key !== false && $key !== null) {
+	if ($key !== false) {
 		unset($fields[$key]);
 		$pm = true;
 	}
@@ -265,7 +265,7 @@ else {
 	}
 	$sqlselect = $fields;
 	$key = array_search('lastvisit', $sqlselect);
-	if ($key !== false && $key !== null) {
+	if ($key !== false) {
 		$sqlselect[$key] = 'u.lastvisit';
 	}
 	$sqlselect = implode(',', $sqlselect);
