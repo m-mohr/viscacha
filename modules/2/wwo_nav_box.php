@@ -1,4 +1,4 @@
-global $wwo_module;
+global $wwo_module, $lang, $tpl;
 $wwo = $wwo_module->get();
 $tpl->globalvars(compact("wwo"));
 $lang->assign('wwo', $wwo);

@@ -327,6 +327,7 @@ elseif ($job == 'design_add') {
 	<?php
 	echo foot();
 }
+// Changed behaviour in 0.8 RC6: Templates and images are copied also
 elseif ($job == 'design_add2') {
 	echo head();
 
@@ -340,6 +341,9 @@ elseif ($job == 'design_add2') {
 		$name = 'Design '.$id;
 	}
 
+	$result = $db->query("SELECT template, images, stylesheet FROM {$db->pre}designs WHERE id = '{$config['templatedir']}' LIMIT 1");
+	$info = $db->fetch_assoc($result);
+
 	if ($template == 0) {
 		$template = 1;
 		while(is_dir('templates/'.$template)) {
@@ -349,6 +353,7 @@ elseif ($job == 'design_add2') {
 			}
 		}
 		$filesystem->mkdir("templates/{$template}/", 0777);
+		$filesystem->copyr("templates/{$info['template']}/", "templates/{$template}/");
 	}
 	if ($stylesheet == 0) {
 		$stylesheet = 1;
@@ -358,8 +363,6 @@ elseif ($job == 'design_add2') {
 				error('admin.php?action=designs&job=design_add', $lang->phrase('admin_design_buffer_overflow_css'));
 			}
 		}
-		$result = $db->query("SELECT stylesheet FROM {$db->pre}designs WHERE id = '{$config['templatedir']}' LIMIT 1");
-		$info = $db->fetch_assoc($result);
 		$filesystem->mkdir("designs/{$stylesheet}/", 0777);
 		$filesystem->copyr("designs/{$info['stylesheet']}/", "designs/{$stylesheet}/");
 	}
@@ -372,11 +375,12 @@ elseif ($job == 'design_add2') {
 			}
 		}
 		$filesystem->mkdir("images/{$images}/", 0777);
+		$filesystem->copyr("images/{$info['images']}/", "images/{$images}/");
 	}
 
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
-	$db->query("INSERT INTO {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}'", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}'");
 
 	ok('admin.php?action=designs&job=design', $lang->phrase('admin_design_design_successfully_added'));
 }

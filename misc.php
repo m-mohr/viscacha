@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -60,12 +60,13 @@ if ($_GET['action'] == "boardin") {
 
 }
 elseif ($_GET['action'] == "download_code") {
-	if (strlen($_GET['fid']) != 32) {
+	$fid = $gpc->get('fid', str);
+	if (!is_hash($fid)) {
 		error($lang->phrase('query_string_error'));
 	}
 	$scache->loadClass('UniversalCodeCache');
 	$cache = new UniversalCodeCache();
-	if (!$cache->setHash($_GET['fid'])) {
+	if (!$cache->setHash($fid)) {
 		error($lang->phrase('no_upload_found'));
 	}
 	$sourcecode = $cache->get();
@@ -81,7 +82,7 @@ elseif ($_GET['action'] == "download_code") {
 }
 elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, r.topic AS title, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, r.topic AS title, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
 	$info = $gpc->prepare($db->fetch_assoc($result));
 
 	$my->p = $slog->Permissions($info['board']);
@@ -140,7 +141,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			set_flood();
 			$message = $_POST['comment'];
 			// Update the report
-			$db->query("UPDATE {$db->pre}replies SET report = '{$message}' WHERE id = '{$info['id']}' LIMIT 1", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}replies SET report = '{$message}' WHERE id = '{$info['id']}' LIMIT 1");
 			// Get administrators and global moderators
 			$groups = $scache->load('groups');
 			$team = $groups->team();
@@ -150,13 +151,13 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 				$cache[] = "FIND_IN_SET($row,groups)";
 			}
 			$cache = implode(' OR ',$cache);
-			$result = $db->query("SELECT id, name, mail, language FROM {$db->pre}user WHERE {$cache}",__LINE__,__FILE__);
+			$result = $db->query("SELECT id, name, mail, language FROM {$db->pre}user WHERE {$cache}");
 			$cache = array();
 			while ($row = $db->fetch_assoc($result)) {
 				$cache[$row['id']] = $row;
 			}
 			// Get moderators
-			$result = $db->query("SELECT u.id, u.name, u.mail, u.language FROM {$db->pre}moderators AS m LEFT JOIN {$db->pre}user AS u ON u.id = m.mid WHERE m.bid = '{$info['board']}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT u.id, u.name, u.mail, u.language FROM {$db->pre}moderators AS m LEFT JOIN {$db->pre}user AS u ON u.id = m.mid WHERE m.bid = '{$info['board']}'");
 			while ($row = $db->fetch_assoc($result)) {
 				// If ID exists already in array then overwrite it
 				$cache[$row['id']] = $row;
@@ -165,7 +166,6 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			$lang_dir = $lang->getdir(true);
 			foreach ($cache as $row) {
 				$lang->setdir($row['language']);
-				$row = $gpc->plain_str($row);
 				$data = $lang->get_mail('report_post');
 				$to = array(array('name' => $row['name'], 'mail' => $row['mail']));
 				xmail($to, array(), $data['title'], $data['comment']);
@@ -226,7 +226,7 @@ elseif ($_GET['action'] == "wwo") {
 	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent, is_bot
 	FROM {$db->pre}session
 	ORDER BY active DESC
-	",__LINE__,__FILE__);
+	");
 
 	while ($row = $db->fetch_object($result)) {
 		$row->user_agent = strip_tags($row->user_agent);
@@ -283,7 +283,7 @@ elseif ($_GET['action'] == "wwo") {
 			break;
 		case 'docs':
 			$id = $row->wiw_id;
-			if ($my->p['docs'] == 1 && isset($wrap_cache[$id]) && GroupCheck($wrap_cache[$id]['groups'])) {
+			if (isset($wrap_cache[$id]) && GroupCheck($wrap_cache[$id]['groups'])) {
 				$lid = getDocLangID($wrap_cache[$id]['titles']);
 				$title = $wrap_cache[$id]['titles'][$lid];
 				$loc = $lang->phrase('wwo_docs');
@@ -338,7 +338,7 @@ elseif ($_GET['action'] == "wwo") {
 							LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
 						WHERE r.id = '{$id}'
 						LIMIT 1
-					", __LINE__, __FILE__);
+					");
 					if ($db->num_rows($result2) == 1) {
 						$nfo = $db->fetch_assoc($result2);
 						$cache['p'.$id] = $nfo;
@@ -380,11 +380,10 @@ elseif ($_GET['action'] == "wwo") {
 			break;
 		case 'addreply':
 		case 'showtopic':
-		case 'print':
-		case 'pdf': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
+		case 'print': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
 			$id = $row->wiw_id;
 			if (!isset($cache['t'.$id])) {
-				$result2 = $db->query("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+				$result2 = $db->query("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1");
 				if ($db->num_rows($result2) == 1) {
 					$nfo = $db->fetch_assoc($result2);
 					$cache['t'.$id] = $nfo;
@@ -446,47 +445,54 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "vote") {
-	$allow = TRUE;
+	$voted = 0;
 
 	($code = $plugins->load('misc_vote_start')) ? eval($code) : null;
 
-	$result = $db->query("
-	SELECT v.id
-	FROM {$db->pre}vote AS v
-		LEFT JOIN {$db->pre}votes AS r ON v.id=r.aid
-	WHERE v.tid = '{$_GET['id']}' AND r.mid = '".$my->id."'
-	LIMIT 1
-	",__LINE__,__FILE__);
-
-	if ($db->num_rows($result) > 0) {
-		$allow = FALSE;
-	}
-	$result = $db->query("SELECT board FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+	$result = $db->query("SELECT board, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
-
 	$my->p = $slog->Permissions($info['board']);
 
-    $error = array();
-	if (!is_id($_GET['id'])) {
-		$error[] = $lang->phrase('query_string_error');
+	if (!$my->vlogin || $my->p['forum'] == 0 || $my->p['voting'] == 0) {
+		errorLogin($lang->phrase('not_allowed'));
 	}
-	if (!is_id($_POST['temp'])) {
+
+	if ($info['status'] != 0) {
+		error($lang->phrase('topic_closed'));
+	}
+
+	$answers = array();
+	$result = $db->query("
+		SELECT r.id
+		FROM {$db->pre}vote AS v
+			LEFT JOIN {$db->pre}votes AS r ON v.id = r.aid
+		WHERE v.tid = '{$_GET['id']}' AND r.mid = '{$my->id}'
+	");
+	if ($db->num_rows($result) > 0) {
+		list($voted) = $db->fetch_num($result);
+	}
+
+	$error = array();
+	$result = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$_GET['id']}' AND id = '{$_POST['temp']}'");
+	if ($db->num_rows($result) == 0) {
 		$error[] = $lang->phrase('vote_no_value_checked');
 	}
-	if (!$allow) {
+	if ($voted > 0 && $config['vote_change'] != 1) {
 		$error[] = $lang->phrase('already_voted');
-	}
-	if ($my->p['forum'] == 0 || $my->p['voting'] == 0 || !$my->vlogin) {
-		$error[] = $lang->phrase('not_allowed');
 	}
 	($code = $plugins->load('misc_vote_errorhandling')) ? eval($code) : null;
 	if (count($error) > 0) {
-		errorLogin($error);
+		error($error, 'showtopic.php?id='.$_GET['id'].'&page='.$_POST['page'].SID2URL_x);
 	}
 	else {
 		($code = $plugins->load('misc_vote_savedata')) ? eval($code) : null;
-		$db->query("INSERT INTO {$db->pre}votes (mid, aid) VALUES ('{$my->id}','{$_POST['temp']}')",__LINE__,__FILE__);
-		ok($lang->phrase('data_success'), 'showtopic.php?id='.$_GET['id'].SID2URL_x);
+		if ($voted > 0) {
+			$db->query("UPDATE {$db->pre}votes SET aid = '{$_POST['temp']}' WHERE id = '{$voted}'");
+		}
+		else {
+			$db->query("INSERT INTO {$db->pre}votes (mid, aid) VALUES ('{$my->id}','{$_POST['temp']}')");
+		}
+		ok($lang->phrase('data_success'), 'showtopic.php?id='.$_GET['id'].'&page='.$_POST['page'].SID2URL_x);
 	}
 }
 elseif ($_GET['action'] == "bbhelp") {
@@ -773,11 +779,12 @@ elseif ($_GET['action'] == "board_rules") {
 elseif ($_GET['action'] == "error") {
 	$my->p = $slog->Permissions();
 	$errid = $gpc->get('id', int);
-	if ($errid != 400 && $errid != 404 && $errid != 401 && $errid != 403  && $errid != 500) {
-		$errid = 0;
+	if ($errid != 400 && $errid != 404 && $errid != 401 && $errid != 403) {
+		$errid = 500; // internal server error
 	}
+	sendStatusCode($errid);
 	($code = $plugins->load('misc_error_prepared')) ? eval($code) : null;
-	$breadcrumb->Add($lang->phrase('htaccess_error_'.$_GET['id']));
+	$breadcrumb->Add($lang->phrase('htaccess_error_'.$errid));
 	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
 }

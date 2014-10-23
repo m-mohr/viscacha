@@ -28,8 +28,6 @@ $lang['wwo_misc_rules'] = 'is reading the <a href="misc.php?action=rules">guidel
 $lang['wwo_misc_wwo'] = 'is viewing the who is online list';
 $lang['wwo_newtopic'] = 'is writing a new post';
 $lang['wwo_newtopic_forum'] = 'writing a new post in the board <a href="showforum.php?id={$id}">{$title}</a>';
-$lang['wwo_pdf'] = 'is viewing the PDF file of the following topic: <a href="pdf.php?id={$id}">{$title}</a>';
-$lang['wwo_pdf_fallback'] = 'is viewing the PDF file of a topic';
 $lang['wwo_pm'] = 'is viewing the <a href="pm.php">PM-overview</a>';
 $lang['wwo_pm_manage'] = 'is managing their private messages';
 $lang['wwo_pm_view'] = 'is reading a private message';

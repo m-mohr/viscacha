@@ -83,7 +83,7 @@ elseif ($job == 'add2') {
     	    $mime = '';
     	    $mime2 = '';
     	}
-		$db->query("INSERT INTO {$db->pre}filetypes (extension, program, desctxt, stream, icon{$mime}) VALUES ('{$extension}', '{$program}', '{$desctxt}', '{$stream}', '{$icon}'{$mime2})",__LINE__,__FILE__);
+		$db->query("INSERT INTO {$db->pre}filetypes (extension, program, desctxt, stream, icon{$mime}) VALUES ('{$extension}', '{$program}', '{$desctxt}', '{$stream}', '{$icon}'{$mime2})");
 		ok('admin.php?action=filetypes&job=manage', $lang->phrase('admin_filetype_added'));
 	}
 }

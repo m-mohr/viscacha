@@ -9,7 +9,7 @@ FROM '.$db->pre.'replies
 WHERE topic_id = "'.$info['id'].'"
 ORDER BY date DESC
 LIMIT '.$num
-,__LINE__,__FILE__);
+);
 
 BBProfile($bbcode);
 $data = array();

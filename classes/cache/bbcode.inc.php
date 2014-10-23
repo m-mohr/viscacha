@@ -12,7 +12,7 @@ class cache_bbcode extends CacheItem {
 				'word' => array(),
 				'replace' => array()
 			);
-			$result = $db->query("SELECT * FROM {$db->pre}textparser",__LINE__,__FILE__);
+			$result = $db->query("SELECT * FROM {$db->pre}textparser");
 			while ($bb = $db->fetch_assoc($result)) {
 				$this->data[$bb['type']][] = $bb;
 			}

@@ -1,12 +1,10 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -23,6 +21,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class PluginSystem {
 
@@ -113,7 +113,7 @@ class PluginSystem {
     	FROM {$db->pre}plugins AS m
     		LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
     	WHERE m.position = '{$pos}' AND p.active = '1' AND m.active = '1'
-    	", __LINE__, __FILE__);
+    	");
 		$info = $db->fetch_assoc($result);
 		return $info['num'];
 	}
@@ -212,7 +212,7 @@ class PluginSystem {
 	        		LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
 	        	WHERE p.active = '1' AND m.active = '1'
 	        	ORDER BY m.ordering
-	        ",__LINE__,__FILE__);
+	        ");
 	        while ($row = $db->fetch_assoc($result)) {
 	        	$row['group'] = $this->_group($row['position']);
 	            $this->sqlcache[$row['group']][$row['position']][$row['id']] = $row['module'];

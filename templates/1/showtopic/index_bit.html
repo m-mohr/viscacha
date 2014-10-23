@@ -1,9 +1,9 @@
 <div class="border">
 <div class="bfoot topfooter">
     <span class="right">
-    <?php if((($row->mid == $my->id && $row->guest == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && $info['status'] == 0) { ?>
+    <?php if($can_edit) { ?>
 	    <a href="edit.php?id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('post_edit'); ?></a>
-    <?php } if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0') { ?>
+    <?php } if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0) { ?>
 	    <a class="sep" id="menu_mquote_<?php echo $row->id; ?>" onmouseover="RegisterMenu('mquote_<?php echo $row->id; ?>');" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>">
 		<img src="<?php echo $tpl->img('no_mquote'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" id="mq_<?php echo $row->id; ?>" />
 		<?php echo $lang->phrase('post_quote'); ?>
@@ -17,11 +17,12 @@
 		</div>
     <?php } if($my->vlogin && empty($row->report)) { ?>
 	    <a class="sep" href="misc.php?action=report_post&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('post_report'); ?></a>
-	<?php } if ($my->mp[0] == 1) { if(!empty($row->report)) { ?>
+	<?php } if ($my->mp[0] == 1) { ?>
+	<?php if(!empty($row->report)) { ?>
 		<a class="sep" href="managetopic.php?action=reports&amp;topic_id=<?php echo $row->id; ?>&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('post_reported'); ?></a>
-	<?php } ?>
+	<?php } if ($info['posts'] > 0) { ?>
     	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
-    <?php } ?>
+    <?php } } ?>
     </span>
     <img src="<?php echo $tpl->img('post_'.$new); ?>" alt="" /> <?php echo $row->date; ?>
     <?php echo iif($firstnew == 1,'<a name="firstnew" id="firstnew"></a>'); ?>
@@ -53,7 +54,7 @@
     	<a href="popup.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>&amp;rating=-1" target="postrating" onclick="postrating(this)"><img src="<?php echo $tpl->img('negative'); ?>" alt="" title="<?php echo $lang->phrase('postrating_rate_negative'); ?>" /></a>
     	<?php } echo iif(($ratingcounter >= $config['postrating_counter'] || $showrating), '</span>'); ?>
   <?php } ?>
-  <span class='stext'>
+  <span class="stext">
     <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="popup.php?action=showpost&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->topic; ?></a></strong>
   </span>
   <hr />

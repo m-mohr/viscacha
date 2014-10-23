@@ -1,318 +1,333 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+/*
+	Viscacha - A bulletin board solution for easily managing your content
+	Copyright (C) 2004-2009  The Viscacha Project
 
-// Bases on Verification Word v2 by Huda M Elmatsani
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
+	Start Date: May 22, 2004
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class VeriWord {
 
-	/* path to font directory*/
-	var $dir_font = './classes/fonts/';
-	/* path to background image directory*/
-	var $dir_noise = "./classes/graphic/noises/";
-	var $word = "";
-	var $wordarray = array();
-	var $im_width = 0;
-	var $im_height = 0;
-	var $im_type = ""; //image type: jpeg, png
-	var $sess_file = './data/captcha.php';
-	var $type = 0;
-	var $noises = array();
-	var $fonts = array();
-	var $filter = 0;
-	var $colortext  = false;
+	var $datasource = 'data/captcha.php';
+	var $chars = "23456789ABCDEFGHJKLMNPRSTUVWXYZ";
+	var $dir_fonts = './classes/fonts/';
+	var $dir_noises = "./classes/graphic/noises/";
+	var $dimensions;
+	var $session;
+	var $settings;
 
 	function VeriWord() {
-
-		// Get Font-Files
-		$handle = opendir($this->dir_font);
-		$pre = 'captcha_';
-		while ($file = readdir($handle)) {
-			if ($file != "." && $file != ".." && !is_dir($this->dir_font.$file)) {
-				$nfo = pathinfo($this->dir_font.$file);
-				$prefix = substr($nfo['basename'], 0, strlen($pre));
-				if ($nfo['extension'] == 'ttf' && $prefix == $pre) {
-					$this->fonts[] = $nfo['basename'];
-				}
-			}
-		}
-
-		// Get Noise-Files
-		$handle = opendir($this->dir_noise);
-		while ($file = readdir($handle)) {
-			if ($file != "." && $file != ".." && !is_dir($this->dir_noise.$file)) {
-				$nfo = pathinfo($this->dir_noise.$file);
-				if ($nfo['extension'] == 'jpg' || $nfo['extension'] == 'jpeg') {
-					$this->noises[] = $nfo['basename'];
-				}
-			}
-		}
-
-		ImageTypes();
-
-		$lang = new lang();
-		$lang->group("classes");
-		$this->lang = $lang->return_array();
-
-		if (viscacha_function_exists('imagejpeg') && IMG_JPEG) {
-			define('IMAGEJPEG', true);
-		}
-		else {
-			define('IMAGEJPEG', false);
-		}
-		if (viscacha_function_exists('imagegif') && IMG_GIF) {
-			define('IMAGEGIF', true);
-		}
-		else {
-			define('IMAGEGIF', false);
-		}
-		if (viscacha_function_exists('imagepng') && IMG_PNG) {
-			define('IMAGEPNG', true);
-		}
-		else {
-			define('IMAGEPNG', false);
-		}
-
-		srand((float)microtime()*time());
-		mt_srand((double)microtime()*1000000);
-
+		global $config;
+		$this->session = null;
+		$this->dimensions = array(
+			'w' => $config['botgfxtest_width'],
+			'h' => $config['botgfxtest_height']
+		);
+		$this->settings = array();
 	}
 
-	function set_filter ($filter) {
-		$this->filter = (int) $filter;
-	}
+	function check() {
+		global $gpc;
+		$this->session = array(
+			'word' => $gpc->get('response'),
+			'id' => $gpc->get('challenge')
+		);
 
-	function set_color ($ct) {
-		if ($ct) {
-			$this->colortext = true;
+		if (empty($this->session['id']) || empty($this->session['word'])) {
+			return CAPTCHA_FAILURE;
 		}
-		else {
-			$this->colortext = false;
-		}
-	}
 
-	function set_size ($w=200, $h=80) {
-		if ($w > 1000 || $h > 1000) {
-			$w=200;
-			$h=80;
-		}
-		$this->im_width = $w;
-		$this->im_height = $h;
-	}
-
-	function set_veriword($type=0) {
-		if ($type == 0) {
-			$this->word = $this->pick_alnum();
-		}
-		else {
-			$this->word = $this->pick_word();
-		}
-		return $this->set_session();
-	}
-
-	function check_session($fid, $word) {
-		$floods = file($this->sess_file);
-		foreach ($floods as $row) {
-			if (strlen($row) < 47) {
+		$lines = file($this->datasource);
+		$lines = array_map('trim', $lines);
+		foreach ($lines as $row) {
+			if (empty($row)) {
 				continue;
 			}
-			$data = explode("\t",$row);
-			if ($data[0] == $fid && strcasecmp($data[2], $word) == 0){
-				return TRUE;
+			$data = explode("\t", $row);
+			if ($data[0] == $this->session['id'] && strcasecmp($data[2], $this->session['word']) == 0){
+				return CAPTCHA_OK;
 			}
 		}
-		return FALSE;
+		return CAPTCHA_MISTAKE;
 	}
 
-	function set_session() {
+	function generateCode($tabindex = 0) {
+		global $tpl;
+		$session = $this->_newSession();
+		$data = array(
+			'session' => $session,
+			'tabindex' => $tabindex,
+			'width' => $this->dimensions['w'],
+			'height' => $this->dimensions['h']
+		);
+		$tpl->globalvars($data);
+		return $tpl->parse('main/veriword');
+	}
+
+	function makeImage() {
+		global $config, $gpc;
+		$challenge = $gpc->get('challenge');
+		$this->settings['colortext'] = (bool) $config['botgfxtest_colortext'];
+		$this->settings['filter'] = (bool) $config['botgfxtest_filter'];
+		$jpeg_quality = (int) $config['botgfxtest_quality'];
+		$format = ($config['botgfxtest_format'] == 'png') ? 'PNG' : 'JPEG';
+		if ((ImageTypes() & constant("IMG_{$format}")) == false) {
+			$format = ($format == 'PNG') ? 'JPEG' : 'PNG';
+		}
+
+		$lines = file($this->datasource);
+		$lines = array_map('trim', $lines);
+		foreach ($lines as $row) {
+			if (empty($row)) {
+				continue;
+			}
+			$data = explode("\t", $row);
+			if ($data[0] == $challenge){
+				$this->session = array(
+					'word' => $data[2],
+					'id' => $data[1]
+				);
+				break;
+			}
+		}
+
+		// Generate the image
+		$im = $this->_drawImage();
+
+		send_nocache_header();
+		switch($format){
+			case 'PNG' :
+				header("Content-type: image/png");
+				imagepng($im);
+			break;
+			default:
+				header("Content-type: image/jpeg");
+				imagejpeg($im, '', $jpeg_quality);
+		}
+		imagedestroy($im);
+	}
+
+	function getError() {
+		return null;
+	}
+
+	function _errorImage($text) {
+		require('classes/graphic/class.text2image.php');
+		$img = new text2image();
+		$img->prepare($text, 0, 8);
+		$img->build(4);
+		$img->output();
+	}
+
+	function _newSession() {
 		global $filesystem;
-		$fid = md5(microtime());
-		$floods = array();
-		$word = &$this->word;
-		$floods = file($this->sess_file);
-		$save = array();
-		$limit = time()-60*60;
 
-//		  if (count($floods) > 1000) {
-//			  die('We can not accept registrations at the moment, because spam bots are attacking the script. Please try again in an hour!');
-//		  }
+		$id = md5(microtime());
+		$word = '';
+		for ($i=1; $i <= rand(5,6); $i++) {
+			$word .= substr($this->chars, mt_rand(0,strlen($this->chars)-1), 1);
+		}
+		$this->session = compact("word", "id");
 
-		foreach ($floods as $row) {
-			if (strlen($row) < 47) {
+
+		$time = time();
+		$limit = $time-2*60*60; // 2h Zeit
+
+		$lines = file($this->datasource);
+		$lines = array_map('trim', $lines);
+
+		$save = array("{$id}\t{$time}\t{$word}");
+		foreach ($lines as $row) {
+			if (empty($row)) {
 				continue;
 			}
-			$row = trim($row);
-			$data = explode("\t",$row);
+			$data = explode("\t", $row);
 			if ($data[1] > $limit){
 				$save[] = $row;
 			}
 		}
-		$save[] = $fid."\t".time()."\t".$word;
 
-		$filesystem->file_put_contents($this->sess_file, implode("\n",$save));
+		$filesystem->file_put_contents($this->datasource, implode("\n", $save));
 
-		return $fid;
+		return $this->session;
 	}
 
-	function output_word($fid) {
-
-		$floods = file($this->sess_file);
-		foreach ($floods as $row) {
-			if (strlen($row) < 47) {
-				continue;
-			}
-			$data = explode("\t",$row);
-			if ($data[0] == $fid){
-				$this->word = $data[2];
-			}
-		}
-
-		$t = array();
-		$t[] = array(
-			array('	   ###	  ',' ########  ','  ######  ',' #######   ',' ######## ',' ######## ','  ######   ',' ##	  ## ',' #### ','		## ',' ##	 ## ',' ##		 ',' ##		## ',' ##	 ## ','   #####	   ',' ########  ','  ########  ',' ########  ','  ######  ',' ######## ',' ##	   ## ',' ##	  ## ',' ##		 ## ',' ##	   ## ',' ##	## ',' ######## '),
-			array('   ## ##   ',' ##	 ## ',' ##	  ## ',' ##	   ##  ',' ##		',' ##		 ',' ##		## ',' ##	  ## ','  ##  ','		## ',' ##   ##  ',' ##		 ',' ###   ### ',' ###   ## ','  ##	   ##  ',' ##	  ## ',' ##		 ## ',' ##	   ## ',' ##	## ','   ##		',' ##	   ## ',' ##	  ## ',' ##  ##  ## ','  ##   ##  ','  ##  ##  ','		##  '),
-			array('  ##   ##  ',' ##	 ## ',' ##		 ',' ##		## ',' ##		',' ##		 ',' ##		   ',' ##	  ## ','  ##  ','		## ',' ##  ##   ',' ##		 ',' #### #### ',' ####  ## ',' ##		## ',' ##	  ## ',' ##		 ## ',' ##	   ## ',' ##	   ','   ##		',' ##	   ## ',' ##	  ## ',' ##  ##  ## ','   ## ##   ','   ####   ','	   ##   '),
-			array(' ##	   ## ',' ########  ',' ##		 ',' ##		## ',' ######   ',' ######   ',' ##   #### ',' ######### ','  ##  ','		## ',' #####	',' ##		 ',' ## ### ## ',' ## ## ## ',' ##		## ',' ########  ',' ##		 ## ',' ########  ','  ######  ','   ##		',' ##	   ## ',' ##	  ## ',' ##  ##  ## ','	   ###	  ','	 ##	   ','	  ##	'),
-			array(' ######### ',' ##	 ## ',' ##		 ',' ##		## ',' ##		',' ##		 ',' ##		## ',' ##	  ## ','  ##  ',' ##	## ',' ##  ##   ',' ##		 ',' ##		## ',' ##  #### ',' ##		## ',' ##		 ',' ##  ##  ## ',' ##   ##   ','		## ','   ##		',' ##	   ## ','  ##	 ##  ',' ##  ##  ## ','   ## ##   ','	 ##	   ','   ##		'),
-			array(' ##	   ## ',' ##	 ## ',' ##	  ## ',' ##	   ##  ',' ##		',' ##		 ',' ##		## ',' ##	  ## ','  ##  ',' ##	## ',' ##   ##  ',' ##		 ',' ##		## ',' ##   ### ','  ##	   ##  ',' ##		 ',' ##	   ##   ',' ##	  ##  ',' ##	## ','   ##		',' ##	   ## ','   ##  ##   ',' ##  ##  ## ','  ##   ##  ','	 ##	   ','  ##		'),
-			array(' ##	   ## ',' ########  ','  ######  ',' #######   ',' ######## ',' ##		 ','  ######   ',' ##	  ## ',' #### ','  ######  ',' ##	 ## ',' ######## ',' ##		## ',' ##	 ## ','   #####	   ',' ##		 ','  #####  ## ',' ##	   ## ','  ######  ','   ##		','  #######  ','	  ##	 ','  ###  ###  ',' ##	   ## ','	 ##	   ',' ######## ')
-		);
-		$t[] = array(
-			array('	   #	',' ######  ','  #####  ',' #####   ',' ###### ',' ###### ','  #####  ',' #		# ',' ### ','		# ',' #	   # ',' #		',' #	   # ',' #	   # ','   #####   ',' ######  ','  ######  ',' ######  ','  #####  ',' ######### ',' #		 # ',' #	 # ',' #	   # ',' #	   # ',' #	   # ',' ####### '),
-			array('   # #   ',' #	  # ',' #	  # ',' #	 #  ',' #	   ',' #	  ',' #		# ',' #		# ','  #  ','		# ',' #   #  ',' #		',' ##	  ## ',' ##	   # ','  #		#  ',' #	 # ',' #	  # ',' #	  # ',' #	  # ','		#	  ',' #		 # ',' #	 # ',' #	   # ','  #   #  ','  #   #  ','	  #  '),
-			array('  #   #  ',' #	  # ',' #		',' #	  # ',' #	   ',' #	  ',' #		  ',' #		# ','  #  ','		# ',' #  #   ',' #		',' # #  # # ',' # #   # ',' #		 # ',' #	 # ',' #	  # ',' #	  # ',' #		','		#	  ',' #		 # ',' #	 # ',' #	   # ','   # #   ','   # #   ','	 #   '),
-			array(' #	  # ',' ######  ',' #		',' #	  # ',' #####  ',' #####  ',' #  ###  ',' ####### ','  #  ','		# ',' ###	 ',' #		',' #  ##  # ',' #  #  # ',' #		 # ',' ######  ',' #	  # ',' ######  ','  #####  ','		#	  ',' #		 # ',' #	 # ',' #   #   # ','	#	 ','	#	 ','	#	 '),
-			array(' ####### ',' #	  # ',' #		',' #	  # ',' #	   ',' #	  ',' #		# ',' #		# ','  #  ',' #		# ',' #  #   ',' #		',' #	   # ',' #   # # ',' #		 # ',' #	   ',' #  #   # ',' #   #   ','		  # ','		#	  ',' #		 # ','  #   #  ',' #   #   # ','   # #   ','	#	 ','   #	 '),
-			array(' #	  # ',' #	  # ',' #	  # ',' #	 #  ',' #	   ',' #	  ',' #		# ',' #		# ','  #  ',' #		# ',' #   #  ',' #		',' #	   # ',' #	  ## ','  #		#  ',' #	   ',' #	#   ',' #	 #  ',' #	  # ','		#	  ',' #		 # ','   # #   ',' #  # #  # ','  #   #  ','	#	 ','  #		 '),
-			array(' #	  # ',' ######  ','  #####  ',' #####   ',' ###### ',' #	  ','  #####  ',' #		# ',' ### ','  #####  ',' #	   # ',' ###### ',' #	   # ',' #	   # ','   #####   ',' #	   ','  ####  # ',' #	  # ','  #####  ','		#	  ','  ######  ','	  #	   ','  ##   ##  ',' #	   # ','	#	 ',' ####### ')
-		);
-
-		$set = array(
-		'A' => 0,
-		'B' => 1,
-		'C' => 2,
-		'D' => 3,
-		'E' => 4,
-		'F' => 5,
-		'G' => 6,
-		'H' => 7,
-		'I' => 8,
-		'J' => 9,
-		'K' => 10,
-		'L' => 11,
-		'M' => 12,
-		'N' => 13,
-		'O' => 14,
-		'P' => 15,
-		'Q' => 16,
-		'R' => 17,
-		'S' => 18,
-		'T' => 19,
-		'U' => 20,
-		'V' => 21,
-		'W' => 22,
-		'X' => 23,
-		'Y' => 24,
-		'Z' => 25
-		);
-
-		$r = array();
-		foreach ($this->wordarray as $key => $v) {
-			$r[$key] = rand(0,1);
-		}
-		$text = '';
-		for ($i = 0; $i < 7; $i++) {
-			foreach ($this->wordarray as $key => $v) {
-				$v = strtoupper($v);
-				$text .= $t[$r[$key]][$i][$set[$v]];
-			}
-			$text .= "<br>";
-		}
-
-		return str_replace(' ', '&nbsp;', $text);
-	}
-
-	function output_image($fid, $type='jpeg', $quality = 90) {
-		$floods = file($this->sess_file);
-		$this->word = ' ';
-		foreach ($floods as $row) {
-			if (strlen($row) < 47) {
-				continue;
-			}
-			$data = explode("\t",$row);
-			if ($data[0] == $fid){
-				$this->word = $data[2];
+	function _getFont() {
+		$pre = 'captcha_';
+		$ext = 'ttf';
+		$fonts = array();
+		$handle = opendir($this->dir_fonts);
+		while ($file = readdir($handle)) {
+			if ($file != "." && $file != ".." && !is_dir($this->dir_fonts.$file)) {
+				$info = pathinfo($this->dir_fonts.$file);
+				$prefix = substr($info['basename'], 0, strlen($pre));
+				if (strtolower($info['extension']) == $ext && $prefix == $pre) {
+					$fonts[] = $info['basename'];
+				}
 			}
 		}
-
-		/* make it not case sensitive*/
-		$this->im_type = strtolower($type);
-
-		/* check image type availability */
-		$this->validate_type();
-
-		/* draw the image  */
-		$this->draw_image();
-
-		header ('Pragma: no-cache');
-		/* show the image  */
-		switch($this->im_type){
-			case 'gif' :
-				header("Content-type: image/gif");
-				imagegif($this->im);
-				imagedestroy($this->im);
-			  break;
-			case 'png' :
-				header("Content-type: image/png");
-				imagepng($this->im);
-				imagedestroy($this->im);
-			  break;
-			default:
-				header("Content-type: image/jpeg");
-				imagejpeg($this->im, '', $quality);
-				imagedestroy($this->im);
-			  break;
-		}
-		exit;
-	}
-
-	function pick_alnum() {
-		$newpass = "";
-		$string="132465789ABCDEFGHIJKLMNPQRSTUVWXYZ";
-
-		for ($i=1; $i <= rand(5,6); $i++) {
-			$newpass .= substr($string, mt_rand(0,strlen($string)-1), 1);
-		}
-		return $newpass;
-	}
-
-	function pick_word() {
-		$newpass = "";
-		$string="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-		for ($i=1; $i <= 5; $i++) {
-			$a = substr($string, mt_rand(0,strlen($string)-1), 1);
-			$newpass .= $a;
-			$this->wordarray[$i] = $a;
-		}
-		return $newpass;
-	}
-
-	function get_font() {
-		shuffle($this->fonts);
-		$f = array_shift($this->fonts);
-		if(file_exists($this->dir_font.$f)) {
-			return $this->dir_font.$f;
+		if (count($fonts) == 0) {
+			return $this->dir_fonts.'trebuchet.ttf';
 		}
 		else {
-			return rand(1,5);
+			$key = mt_rand(0, count($fonts)-1);
+			return $this->dir_fonts.$fonts[$key];
 		}
 	}
 
-	function imagettftext($im, $size, $angle, $x, $y, $color, $font, $text, $spacing = 0) {
-		$numchar = strlen($text);
-		if (is_array($color) && count($color) < $numchar) {
-			trigger_error('Not enough colors specified. '.count($color).' specified, but '.$numchar.' needed!', E_USER_ERROR);
+	function _getNoise() {
+		$ext = array('png', 'jpeg', 'jpg');
+		$noises = array();
+		$handle = opendir($this->dir_noises);
+		while ($file = readdir($handle)) {
+			if ($file != "." && $file != ".." && !is_dir($this->dir_noises.$file)) {
+				$info = pathinfo($this->dir_noises.$file);
+				if (in_array(strtolower($info['extension']), $ext)) {
+					$noises[] = $info['basename'];
+				}
+			}
 		}
+		$key = mt_rand(0, count($noises)-1);
+		return $this->dir_noises.$noises[$key];
+	}
+
+	function _imagecreate($w, $h) {
+		$im = @imagecreatetruecolor($w, $h);
+		if (!$im) {
+			$im = imagecreate($w, $h);
+		}
+		return $im;
+	}
+
+	function _drawImage() {
+		// Shorter use of dimensions
+		extract($this->dimensions);
+
+		/* get the noise image file*/
+		$img_file = $this->_getNoise();
+		if($img_file) {
+			// Get noise file from stock
+			$im_noise = @imagecreatefromjpeg($img_file);
+		}
+		else {
+			// No noise file found, create a random noise
+			$im_noise = $this->_imagecreate($w, $h);
+			$bg_color = imagecolorallocate($im_noise, 255, 255, 255);
+			imagefill($im_noise, 0, 0, $bg_color);
+
+			for ($i = 0; $i < $h; $i++) {
+				$line_color = imagecolorallocate($im_noise, mt_rand(0, 255), mt_rand(0, 255), mt_rand(0, 255));
+				imagesetthickness($im_noise, mt_rand(1, 5));
+				imageline(
+					$im_noise,
+					mt_rand(0, 30), // x1
+					$i + mt_rand(-10, 10), // y1
+					$w - mt_rand(0, 30), // x2
+					$i + mt_rand(-10, 10), // y2
+					$line_color
+				);
+			}
+		}
+
+		$im = $this->_imagecreate($w, $h);
+
+		// Resize noise
+		imagecopyresampled ($im, $im_noise, 0, 0, 0, 0, $w, $h, imagesx($im_noise), imagesy($im_noise));
+		imagedestroy($im_noise);
+		// Insert Text
+		$im_text = $this->_draw_text();
+		imagecopymerge ($im, $im_text, 0, 0, 0, 0, $w, $h, mt_rand(70,90));
+		imagedestroy($im_text);
+
+		return $im;
+	}
+
+	function _draw_text() {
+		$text_font = $this->_getFont();
+		$text_angle = mt_rand(-15,15);
+		if ($text_angle > 8) {
+			$spacing = mt_rand(3,8);
+		}
+		else {
+			$spacing = mt_rand(0,5);
+		}
+
+		$text_size = $this->dimensions['h'];
+
+		$box = $this->_imagettfbbox($text_size, $text_angle, $text_font, $this->session['word'], $spacing);
+
+		$text_width = $this->_math_diff($box[2], $box[0]);
+		$text_height = $this->_math_diff($box[5], $box[3]);
+		$margin = ceil( ($text_width/strlen($this->session['word'])) * 0.5);
+
+		$im_string = $this->_imagecreate( ceil($text_width + $margin*2), ceil($text_height + $margin*2) );
+
+		$bg_color = imagecolorallocate ($im_string, 255, 255, 255);
+		if ($this->settings['colortext']) {
+			$color_array	= array();
+			$color_array[]  = array(mt_rand(200,255), mt_rand(0,50), mt_rand(0,50)); // Rot
+			$color_array[]  = array(mt_rand(0,50), mt_rand(200,255), mt_rand(0,50)); // Grün
+			$color_array[]  = array(mt_rand(0,50), mt_rand(0,50), mt_rand(200,255)); // Blau
+			$color_array[]  = array(mt_rand(200,255), mt_rand(0,50), mt_rand(200,255)); // Pink/Violett
+			$color_array[]  = array(mt_rand(0,50), mt_rand(170,230), mt_rand(170,230)); // Türkis
+			$color_array[]  = array(mt_rand(0,50), mt_rand(0,50), mt_rand(0,50)); // Grey
+			$color_array[]  = array(mt_rand(150,200), mt_rand(40,150), mt_rand(0,40)); // Braun-ähnlich
+
+			$text_color = array();
+			$entries = strlen($this->session['word']);
+			for($i = 0; $i < $entries; $i++) {
+				$key = array_rand($color_array);
+				$rgb = $color_array[$key];
+				$text_color[] = imagecolorallocate ($im_string, $rgb[0], $rgb[1], $rgb[2]);
+			}
+		}
+		else {
+			$text_color = array();
+			$entries = strlen($this->session['word']);
+			for($i = 0; $i < $entries; $i++) {
+				$rgb = mt_rand(0,50);
+				$text_color[] = imagecolorallocate ($im_string, $rgb, $rgb, $rgb);
+			}
+		}
+
+		imagefill($im_string, 0, 0, $bg_color);
+
+		$this->_imagettftext($im_string, ceil($text_size*0.9), $text_angle, $margin, $margin + $text_height, $text_color, $text_font, $this->session['word'], $spacing);
+
+		if ($this->settings['filter']) {
+			$im_string = $this->_wave($im_string, mt_rand(2,8), true);
+		}
+
+		imagecolortransparent($im_string, $bg_color);
+
+		$im_text = $this->_imagecreate($this->dimensions['w'], $this->dimensions['h']);
+		imagecopyresampled ($im_text, $im_string, 0, 0, 0, 0, $this->dimensions['w'], $this->dimensions['h'], ceil($text_width+$margin*2), ceil($text_height+$margin*2));
+
+		imagedestroy($im_string);
+
+		return $im_text;
+	}
+
+	function _imagettftext($im, $size, $angle, $x, $y, $color, $font, $text, $spacing = 0) {
+		$numchar = strlen($text);
 		$w = 0;
 		for($i = 0; $i < $numchar; $i++) {
 			   $char = substr($text, $i, 1);
@@ -325,12 +340,12 @@ class VeriWord {
 			}
 			imagettftext($im, $size, $angle, ($x + $w + ($i * $spacing)), $y, $c, $font, $char);
 
-			$width = $this->imagettfbbox($size, $angle, $font, $char);
+			$width = $this->_imagettfbbox($size, $angle, $font, $char);
 			$w = $w + $width[2];
 		}
 	}
 
-	function imagettfbbox($size, $angle, $font, $text, $spacing = 0) {
+	function _imagettfbbox($size, $angle, $font, $text, $spacing = 0) {
 		// Get the boundingbox from imagettfbbox(), which is correct when angle is 0
 		$bbox = imagettfbbox($size, 0, $font, $text);
 		if ($angle == 0) {
@@ -352,7 +367,7 @@ class VeriWord {
 		return $bbox;
 	}
 
-	function math_diff($x1, $x2) {
+	function _math_diff($x1, $x2) {
 		$max = max($x1, $x2);
 		$min = min($x1, $x2);
 		$diff = $max-$min;
@@ -360,254 +375,6 @@ class VeriWord {
 			$diff = $diff * (-1);
 		}
 		return $diff;
-	}
-
-	function draw_text() {
-
-		/* pick one font type randomly from font directory */
-		$text_font	   = $this->get_font();
-		/* angle for text inclination */
-		$text_angle = rand(-15,15);
-
-		/* numeric means built-in font */
-		if(is_numeric($text_font)) {
-			$text_width		   = imagefontwidth($text_font) * strlen($this->word);
-			$text_height	   = imagefontheight($text_font);
-			$margin			   = ceil ($text_width * 0.5);
-
-			$im_string		   = @imagecreatetruecolor( ceil($text_width + $margin), ceil($text_height + $margin) );
-			if (!$im_string) {
-				$im_string	   = imagecreate( ceil($text_width + $margin), ceil($text_height + $margin) ); // For older Versions
-			}
-
-			$bg_color		   = imagecolorallocate ($im_string, 255, 255, 255);
-			$text_color		   = imagecolorallocate ($im_string, 0, 0, 0);
-
-			imagefill($im_string, 0, 0, $bg_color);
-
-			$text_x			   = $margin/2;
-			$text_y			   = $margin/2;
-
-			imagestring ( $im_string, $text_font, $text_x, $text_y, $this->word, $text_color );
-		}
-		else {
-			$text_size  = $this->im_height;
-
-			$spacing = rand(-3,3);
-
-			$box		 	= $this->imagettfbbox( $text_size, $text_angle, $text_font, $this->word, $spacing);
-
-			$text_width		= $this->math_diff($box[2], $box[0]);
-			$text_height	= $this->math_diff($box[5], $box[3]);
-
-			$margin		   	= ceil( ($text_width/strlen($this->word)) * 0.5);
-
-			$im_string		= @imagecreatetruecolor( ceil($text_width + $margin*2), ceil($text_height + $margin*2) );
-			if (!$im_string) {
-				$im_string  = imagecreate( ceil($text_width + $margin*2), ceil($text_height + $margin*2) ); // For older Versions
-			}
-
-			$bg_color		= imagecolorallocate ($im_string, 255, 255, 255);
-			if ($this->colortext) {
-				$color_array	= array();
-				$color_array[]  = array(rand(200,255), rand(0,50), rand(0,50)); // Rot
-				$color_array[]  = array(rand(0,50), rand(200,255), rand(0,50)); // Grün
-				$color_array[]  = array(rand(0,50), rand(0,50), rand(200,255)); // Blau
-				// $color_array[]  = array(rand(180,220), rand(180,220), rand(0,50)); // Gelb (darker) - Bad contrast
-				$color_array[]  = array(rand(200,255), rand(0,50), rand(200,255)); // Pink/Violett
-				$color_array[]  = array(rand(0,50), rand(170,230), rand(170,230)); // Türkis (darker)
-				$color_array[]  = array(rand(0,50), rand(0,50), rand(0,50)); // Grey (dark)
-				$color_array[]  = array(rand(150,200), rand(40,150), rand(0,40)); // Braun-ähnlich
-
-				$text_color = array();
-				$entries = strlen($this->word);
-				$lastkey = $key = -1;
-				for($i = 0; $i < $entries; $i++) {
-					while ($lastkey == $key) {
-						$key = array_rand($color_array);
-					}
-					$rgb = $color_array[$key];
-					$text_color[] = imagecolorallocate ($im_string, $rgb[0], $rgb[1], $rgb[2]);
-					$lastkey = $key;
-				}
-			}
-			else {
-				$text_color		   = imagecolorallocate ($im_string, 0, 0, 0);
-			}
-
-			imagefill($im_string, 0, 0, $bg_color);
-
-			/* draw text into canvas */
-			$this->imagettftext	   (
-				$im_string,
-				ceil($text_size*0.9),
-				$text_angle,
-				ceil($margin),
-				ceil($margin)+$text_height,
-				$text_color,
-				$text_font,
-				$this->word,
-				$spacing
-			);
-		}
-
-		if ($this->filter == 1) {
-			$im_string = $this->wave($im_string, rand(0,6), true);
-		}
-
-		$im_text		 = @imagecreatetruecolor($this->im_width, $this->im_height);
-		if (!$im_text) {
-			$im_text	 = imagecreate($this->im_width, $this->im_height); // For older Versions
-		}
-
-		imagecolortransparent($im_string, $bg_color);
-
-		$done = @imagecopyresampled ($im_text,
-					$im_string,
-					0, 0, 0, 0,
-					$this->im_width,
-					$this->im_height,
-					ceil($text_width+$margin*2),
-					ceil($text_height+$margin*2)
-				);
-
-		   if (!$done) {
-			   imagecopyresized ($im_text,
-					   $im_string,
-					   0, 0, 0, 0,
-					   $this->im_width,
-					   $this->im_height,
-					   ceil($text_width+$margin*2),
-					   ceil($text_height+$margin*2)
-			   );
-		   }
-
-		imagedestroy($im_string);
-
-		return $im_text;
-	}
-
-	function get_noise() {
-		/* pick one noise image randomly from image directory */
-		shuffle($this->noises);
-		$n = array_shift($this->noises);
-		if(file_exists($this->dir_noise.$n)) {
-			return $this->dir_noise.$n;
-		}
-		else {
-			return FALSE;
-		}
-	}
-
-	function draw_image() {
-
-		/* get the noise image file*/
-		$img_file		  = $this->get_noise();
-
-		if($img_file) {
-			/* create "noise" background image from your image stock*/
-			$im_noise	  = @imagecreatefromjpeg ($img_file);
-		}
-		else {
-			/* if fail to load image file, create it on the fly */
-			$im_noise	  = $this->draw_noise();
-		}
-
-		$noise_width	  = imagesx($im_noise);
-		$noise_height	  = imagesy($im_noise);
-
-		/* resize the background image to fit the size of image output */
-		$this->im		  = @imagecreatetruecolor($this->im_width,$this->im_height);
-		if (!$this->im) {
-			$this->im	  = imagecreate($this->im_width,$this->im_height); // For older Versions
-		}
-
-		$done = @imagecopyresampled (   $this->im,
-										$im_noise,
-										0, 0, 0, 0,
-										$this->im_width,
-										$this->im_height,
-										$noise_width,
-										$noise_height);
-		if (!$done) {
-			imagecopyresized (  $this->im,
-								$im_noise,
-								0, 0, 0, 0,
-								$this->im_width,
-								$this->im_height,
-								$noise_width,
-								$noise_height);
-		}
-		/* put text image into background image */
-		imagecopymerge (	$this->im,
-							$this->draw_text(),
-							0, 0, 0, 0,
-							$this->im_width,
-							$this->im_height,
-							rand(50,70) );
-
-		imagedestroy($im_noise);
-
-		return $this->im;
-	}
-
-	function draw_noise() {
-		$im_noise = @imagecreatetruecolor($this->im_width, $this->im_height);
-		$bg_color = imagecolorallocate($im_noise, 255, 255, 255);
-		imagefill($im_noise, 0, 0, $bg_color);
-
-		for ($i = 0; $i < $this->im_height; $i++) {
-			$c = rand(100, 200);
-			$line_color = imagecolorallocate($im_noise, $c, $c, $c);
-			imagesetthickness($im_noise, rand(1, 5));
-			imageline(
-				$im_noise,
-				rand(0, 30),					 // x1
-				$i + rand(-10, 10),				 // y1
-				$this->im_width - rand(0, 30),   // x2
-				$i + rand(-10, 10),				 // y2
-				$line_color);					 // color
-		}
-		for ($i = 0; $i < 1000; $i++) {
-			$c = rand(100, 200);
-			$line_color = imagecolorallocate($im_noise, $c, $c, $c);
-			imagesetpixel(
-				$im_noise,
-				rand(0, $this->im_width),	 // x
-				rand(0, $this->im_height),   // y
-				$line_color);				 // color
-		}
-
-		return $im_noise;
-	}
-
-
-	function validate_type() {
-		if ($this->im_type == 'gif' AND IMAGEGIF) {
-			$this->im_type = 'gif';
-			return true;
-		}
-		elseif ($this->im_type == 'png' AND IMAGEPNG) {
-			$this->im_type = 'png';
-			return true;
-		}
-		elseif (IMAGEJPEG) {
-			$this->im_type = 'jpeg';
-			return true;
-		}
-		else {
-			$this->create_error($this->lang['tne_badtype']);
-			return false;
-		}
-	}
-
-	function create_error($text) {
-		require('classes/graphic/class.text2image.php');
-		$img = new text2image();
-		$img->prepare(preg_replace("/<br>/is","\r\n",$text), 0, 8, '../fonts/trebuchet.ttf');
-		$img->build(4);
-		$img->output();
-		exit;
 	}
 
 	/**
@@ -619,21 +386,15 @@ class VeriWord {
 	*
 	* @return	 image
 	*/
-	function wave(&$image, $wave = 10, $randirection = true) {
+	function _wave(&$image, $wave = 10, $randirection = true) {
 		$image_width = imagesx($image);
 		$image_height = imagesy($image);
 
-		$temp = @imagecreatetruecolor($image_width, $image_height);
-		if (!$temp) {
-			$temp = imagecreate($image_width, $image_height); // For older Versions
-		}
+		$temp = $this->_imagecreate($image_width, $image_height);
 
 		if ($randirection) {
 			$direction = (mt_rand(0, 1) == 1) ? true : false;
 		}
-
-		$middlex = floor($image_width / 2);
-		$middley = floor($image_height / 2);
 
 		for ($x = 0; $x < $image_width; $x++) {
 			for ($y = 0; $y < $image_height; $y++) {
@@ -665,6 +426,5 @@ class VeriWord {
 
 		return $temp;
 	}
-
 }
 ?>

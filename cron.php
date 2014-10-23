@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify

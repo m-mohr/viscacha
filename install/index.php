@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 
 chdir('../');
 
-define('VISCACHA_VERSION', '0.8 RC5');
+define('VISCACHA_VERSION', '0.8 RC6');
 define('VISCACHA_CORE', '1');
 define('SCRIPTNAME', 'install');
 define('SCRIPT_LOCKED', file_exists('./locked.txt'));
@@ -15,8 +15,7 @@ if (!SCRIPT_LOCKED) {
 	require_once('install/classes/function.tools.php');
 
 	$old_versions = array(
-		'update' => '0.8 RC4 pl1',
-		'update_rc4' => '0.8 RC4'
+		'update' => '0.8 RC5'
 	);
 
 	$packages = array(
@@ -143,7 +142,7 @@ if (!SCRIPT_LOCKED) {
 	</div>
 	<br class="invclear" />
 	<div class="breadcrumb center">
-		<strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo VISCACHA_VERSION; ?></a></strong> Copyright &copy;, MaMo Net
+		Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo VISCACHA_VERSION; ?></a></strong> &middot; Copyright &copy; 2004-2009, The Viscacha Project
 	</div>
 </div>
 </body>

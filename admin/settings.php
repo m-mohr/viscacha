@@ -98,11 +98,20 @@ elseif ($job == 'admin2') {
 	ok('admin.php?action=settings&job=settings');
 }
 elseif ($job == 'ftp') {
-	$config = $gpc->prepare($config);
+	$temp = $config;
+	if ($gpc->get('change', int) == 1) {
+		$temp['ftp_server'] = $gpc->get('ftp_server', none);
+		$temp['ftp_port'] = $gpc->get('ftp_port', int);
+		$temp['ftp_user'] = $gpc->get('ftp_user', none);
+		$temp['ftp_pw'] = $gpc->get('ftp_pw', none);
+		$temp['ftp_path'] = $gpc->get('ftp_path', none, DIRECTORY_SEPARATOR);
+	}
+	$temp = $gpc->prepare($temp);
 
-	$path = 'N/A';
-	if (isset($_SERVER['DOCUMENT_ROOT'])) {
-		$path = str_replace(realpath($_SERVER['DOCUMENT_ROOT']).DIRECTORY_SEPARATOR, '', realpath('./'));
+	$path = '-';
+	$doc = realpath(getDocumentRoot());
+	if (!empty($doc)) {
+		$path = str_replace($doc.DIRECTORY_SEPARATOR, '', realpath('./'));
 	}
 
 	echo head();
@@ -110,30 +119,30 @@ elseif ($job == 'ftp') {
 	<form name="form" method="post" action="admin.php?action=settings&job=ftp2">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	 <tr>
-	  <td class="obox" colspan="2"><span class="right"><a class="button" href="admin.php?action=settings&amp;job=ftptest"><?php echo $lang->phrase('admin_test_ftp_connection'); ?></a></span><?php echo $lang->phrase('admin_ftp_settings'); ?></b></td>
+	  <td class="obox" colspan="2"><?php echo $lang->phrase('admin_ftp_settings'); ?></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_ftp_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_ftp_server_info'); ?></span></td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_server" size="50" value="<?php echo $config['ftp_server']; ?>"></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_server" size="50" value="<?php echo $temp['ftp_server']; ?>"></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_ftp_port'); ?></td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_port" value="21" size="4" value="<?php echo $config['ftp_port']; ?>"></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_port" value="21" size="4" value="<?php echo $temp['ftp_port']; ?>"></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_ftp_startpath'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_ftp_startpath_info'); ?></span></td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_path" value="<?php echo $config['ftp_path']; ?>" size="50"></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_path" value="<?php echo $temp['ftp_path']; ?>" size="50"></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_ftp_username'); ?></td>
-	  <td class="mbox" width="50%"><input type="text" name="ftp_user" value="<?php echo $config['ftp_user']; ?>" size="50"></td>
+	  <td class="mbox" width="50%"><input type="text" name="ftp_user" value="<?php echo $temp['ftp_user']; ?>" size="50"></td>
 	 </tr>
 	 <tr>
 	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_ftp_password'); ?></td>
-	  <td class="mbox" width="50%"><input type="password" name="ftp_pw" value="<?php echo $config['ftp_pw']; ?>" size="50"></td>
+	  <td class="mbox" width="50%"><input type="password" name="ftp_pw" value="<?php echo $temp['ftp_pw']; ?>" size="50"></td>
 	 </tr>
 	 </tr>
-	  <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
+	  <td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_test_ftp_connection'); ?>" /></td>
 	 </tr>
 	</table>
 	</form>
@@ -141,58 +150,87 @@ elseif ($job == 'ftp') {
 	echo foot();
 }
 elseif ($job == 'ftp2') {
-	echo head();
-
-	$c->getdata();
-	$c->updateconfig('ftp_server', str);
-	$c->updateconfig('ftp_user', str);
-	$c->updateconfig('ftp_pw', str);
-	$c->updateconfig('ftp_path', str);
-	$c->updateconfig('ftp_port', int);
-	$c->savedata();
-
-	ok('admin.php?action=settings&job=settings');
-}
-elseif ($job == 'ftptest') {
-	echo head();
 	require_once("classes/ftp/class.ftp.php");
 	require_once("classes/ftp/class.ftp_".pemftp_class_module().".php");
 
-	?>
-	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	 <tr>
-	  <td class="obox" colspan="2"><span class="right"><a class="button" href="admin.php?action=settings&amp;job=ftp"><?php echo $lang->phrase('admin_configure_ftp_connection'); ?></a></span><?php echo $lang->phrase('admin_ftp_connection_test'); ?></td>
-	 </tr>
-	 <tr>
-	  <td class="mbox" width="100%"><strong><?php echo $lang->phrase('admin_ftp_command_log'); ?></strong><br /><pre><?php
-	$ftp = new ftp(true, true);
-	if(!$ftp->SetServer($config['ftp_server'], $config['ftp_port'])) {
-		?></pre><?php echo $lang->phrase('admin_server_port_invalid'); ?><?php
-	}
-	else {
-		if (!$ftp->connect()) {
-			?></pre><?php echo $lang->phrase('admin_cannot_connect_to_ftp_server'); ?><?php
+	$temp = array(
+		'ftp_server' => $gpc->get('ftp_server', none),
+		'ftp_port' => $gpc->get('ftp_port', int),
+		'ftp_user' => $gpc->get('ftp_user', none),
+		'ftp_pw' => $gpc->get('ftp_pw', none),
+		'ftp_path' => $gpc->get('ftp_path', none, DIRECTORY_SEPARATOR)
+	);
+
+	$error = false;
+	$dataGiven = count(array_unique($temp)) == 5;
+	if ($dataGiven) {
+		ob_start();
+		$ftp = new ftp(true, true);
+		if(!$ftp->SetServer($temp['ftp_server'], $temp['ftp_port'])) {
+			$error = 'admin_server_port_invalid';
 		}
 		else {
-			if (!$ftp->login($config['ftp_user'], $config['ftp_pw'])) {
-				$ftp->quit();
-				?></pre><?php echo $lang->phrase('admin_cannot_authenticate_at_ftp_server'); ?><?php
+			if (!$ftp->connect()) {
+				$error = 'admin_cannot_connect_to_ftp_server';
 			}
 			else {
-				if (!$ftp->chdir($config['ftp_path'])) {
+				if (!$ftp->login($temp['ftp_user'], $temp['ftp_pw'])) {
 					$ftp->quit();
-					?></pre><?php echo $lang->phrase('admin_ftp_directory_does_not_exist'); ?><?php
+					$error = 'admin_cannot_authenticate_at_ftp_server';
 				}
 				else {
-					?></pre><?php echo $lang->phrase('admin_connection_is_ok'); ?><?php
+
+					if (!$ftp->chdir($temp['ftp_path']) || !$ftp->file_exists('data/config.inc.php')) {
+						$ftp->quit();
+						$lang->assign('ftp_path', $temp['ftp_path']);
+						$error = 'admin_ftp_directory_does_not_exist';
+					}
 				}
 			}
 		}
+		$log = ob_get_contents();
+		ob_end_clean();
 	}
-	?>
-	</td></tr></table>
-	<?php
-	echo foot();
+
+	echo head();
+	if ($error === false) {
+		$c->getdata();
+		$c->updateconfig('ftp_server', str, $temp['ftp_server']);
+		$c->updateconfig('ftp_user', str, $temp['ftp_user']);
+		$c->updateconfig('ftp_pw', str, $temp['ftp_pw']);
+		$c->updateconfig('ftp_path', str, $temp['ftp_path']);
+		$c->updateconfig('ftp_port', int, $temp['ftp_port']);
+		$c->savedata();
+
+		$msg = $dataGiven ? $lang->phrase('admin_connection_is_ok') : null;
+
+		ok('admin.php?action=settings&job=settings', $msg);
+	}
+	else {
+		?>
+		<form name="form" method="post" action="admin.php?action=settings&amp;job=ftp&amp;change=1">
+		<?php foreach ($temp as $key => $value) { ?>
+		<input type="hidden" name="<?php echo $key; ?>" value="<?php echo $gpc->prepare($value); ?>" />
+		<?php } ?>
+		<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+		 <tr>
+		  <td class="obox" colspan="2"><?php echo $lang->phrase('admin_ftp_connection_test'); ?></td>
+		 </tr>
+		 <tr>
+		  <td class="mbox" width="100%">
+		   <strong><?php echo $lang->phrase($error); ?></strong><br /><br />
+		   <strong><?php echo $lang->phrase('admin_ftp_command_log'); ?></strong><br />
+		   <pre><?php echo $log; ?></pre>
+		  </td>
+		 </tr>
+		 <tr>
+		  <td class="ubox center"><input type="submit" value="<?php echo $lang->phrase('admin_configure_ftp_connection'); ?>" /></td>
+		 </tr>
+		</table>
+		</form>
+		<?php
+		echo foot();
+	}
 }
 elseif ($job == 'posts') {
 	$config = $gpc->prepare($config);
@@ -266,21 +304,8 @@ elseif ($job == 'posts') {
 	   <td class="mbox" width="50%"><input type="checkbox" name="post_user_status" value="1"<?php echo iif($config['post_user_status'] == 1, ' checked="checked"'); ?> /></td>
 	  </tr>
 	  <tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
-	  </tr>
-	 </table>
-	 <br class="minibr" />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_topics_posts_pdf'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_pdf_topics'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_activate_pdf_topics_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="pdfdownload" value="1"<?php echo iif($config['pdfdownload'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_compress_pdf'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_compress_pdf_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="pdfcompress" value="1"<?php echo iif($config['pdfcompress'] == 1,' checked="checked"'); ?>></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enable_change_vote'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_enable_change_vote_info'); ?></span></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="vote_change" value="1"<?php echo iif($config['vote_change'] == 1, ' checked="checked"'); ?> /></td>
 	  </tr>
 	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
@@ -313,8 +338,6 @@ elseif ($job == 'posts2') {
 	$c->getdata();
 	$c->updateconfig('maxeditlength', int);
 	$c->updateconfig('mineditlength', int);
-	$c->updateconfig('pdfdownload', int);
-	$c->updateconfig('pdfcompress', int);
 	$c->updateconfig('resizebigimg', int);
 	$c->updateconfig('resizebigimgwidth', int);
 	$c->updateconfig('maxpostlength', int);
@@ -331,6 +354,7 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('abozahl', int);
 	$c->updateconfig('fullname_posts', int);
 	$c->updateconfig('post_user_status', int);
+	$c->updateconfig('vote_change', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');
@@ -564,6 +588,9 @@ elseif ($job == 'server') {
         	}
     	}
 	}
+
+	$std_err_reporting = ($config['error_reporting'] != '0' && $config['error_reporting'] != 'E_ALL' && $config['error_reporting'] != 'E_ERROR');
+
 	echo head();
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=server2">
@@ -580,16 +607,14 @@ elseif ($job == 'server') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_php_error_report'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_php_error_report_info'); ?></span></td>
-	   <td class="mbox" width="50%"><select name="error_reporting">
-	   <option value="-1"<?php echo iif($config['error_reporting'] == -1, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_php_standard'); ?></option>
-	   <option value="E_ERROR"<?php echo iif($config['error_reporting'] == 1 || $config['error_reporting'] == 'E_ERROR', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_error'); ?></option>
-	   <option value="E_WARNING"<?php echo iif($config['error_reporting'] == 2 || $config['error_reporting'] == 'E_WARNING', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_warning'); ?> </option>
-	   <option value="E_NOTICE"<?php echo iif($config['error_reporting'] == 8 || $config['error_reporting'] == 'E_NOTICE', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_notice'); ?></option>
-	   <option value="E_ALL"<?php echo iif($config['error_reporting'] == 2047 || $config['error_reporting'] == 'E_ALL', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_all'); ?></option>
-	   <?php if (version_compare(PHP_VERSION, '5.0.0', '>=')) { ?>
-	   <option value="E_STRICT"<?php echo iif($config['error_reporting'] == 2048 || $config['error_reporting'] == 'E_STRICT', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_strict'); ?></option>
-	   <?php } ?>
-	   </select></td>
+	   <td class="mbox" width="50%">
+	    <select name="error_reporting">
+	     <option value="-1"<?php echo iif($std_err_reporting, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_php_standard'); ?></option>
+	     <option value="0"<?php echo iif($config['error_reporting'] == '0', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_none'); ?></option>
+	     <option value="E_ALL"<?php echo iif($config['error_reporting'] == 'E_ALL', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_all'); ?></option>
+	     <option value="E_ERROR"<?php echo iif($config['error_reporting'] == 'E_ERROR', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_error'); ?></option>
+	    </select>
+	   </td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_error_handler'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_error_handler_info'); ?></span></td>
@@ -622,7 +647,7 @@ elseif ($job == 'server2') {
 	$c->updateconfig('gdversion', int);
 	$c->updateconfig('error_handler', int);
 	$c->updateconfig('error_log', int);
-	$c->updateconfig('error_reporting', int);
+	$c->updateconfig('error_reporting', str);
 	$c->updateconfig('correctsubdomains', int);
 	$c->updateconfig('hterrordocs', int);
 	$c->savedata();
@@ -1026,8 +1051,45 @@ elseif ($job == 'captcha') {
 	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_spambot_edit'); ?></b></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_show_text_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_show_text_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="botgfxtest_text_verification" value="1"<?php echo iif($config['botgfxtest_text_verification'] == 1,' checked="checked"'); ?>></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_registration'); ?></td>
+	   <td class="mbox" width="50%">
+	    <select name="botgfxtest">
+	     <?php for($i = 0; $i <= 2; $i++) { ?>
+	     <option value="<?php echo $i; ?>"<?php echo iif($config['botgfxtest'] == $i, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type'.$i); ?></option>
+	     <?php } ?>
+	    </select>
+	   </td>
+	  </tr>
+	  <tr>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_at_guests'); ?></td>
+	   <td class="mbox" width="50%">
+	    <select name="botgfxtest_posts">
+	     <?php for($i = 0; $i <= 2; $i++) { ?>
+	     <option value="<?php echo $i; ?>"<?php echo iif($config['botgfxtest_posts'] == $i, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type'.$i); ?></option>
+	     <?php } ?>
+	    </select>
+	   </td>
+	  </tr>
+	  <tr>
+	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
+	  </tr>
+	 </table>
+	 <?php if ($config['botgfxtest'] == 1 || $config['botgfxtest_posts'] == 1) { ?>
+	<br class="minibr" />
+	 <table class="border" border="0" cellspacing="0" cellpadding="4">
+	  <tr>
+	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_spambot_veriword'); ?></b></td>
+	  </tr>
+	  <tr>
+	   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_spambot_veriword_info'); ?></td>
+	  </tr>
+	  <tr>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_width_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_width_captcha_info'); ?></span></td>
+	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_width" value="<?php echo $config['botgfxtest_width']; ?>" size="5">px</td>
+	  </tr>
+	  <tr>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_height_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_height_captcha_info'); ?></span></td>
+	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_height" value="<?php echo $config['botgfxtest_height']; ?>" size="5">px</td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_wave_filter_captcha'); ?></td>
@@ -1049,87 +1111,63 @@ elseif ($job == 'captcha') {
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_pic_quality_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_pic_quality_captcha_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_quality" value="<?php echo $config['botgfxtest_quality']; ?>" size="5">%</td>
 	  </tr>
-	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
+	<?php
+	}
+	if ($config['botgfxtest'] == 2 || $config['botgfxtest_posts'] == 2) {
+		$re_link = '<a href="http://recaptcha.net/api/getkey?app=Viscacha" target="_blank">reCaptcha</a>';
+		?>
 	<br class="minibr" />
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
 	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_spambot_registration'); ?></b></td>
+	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_spambot_recaptcha'); ?></b></td>
+	  </tr>
+	   <tr>
+	   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_spambot_recaptcha_info'); ?></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_registration'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="botgfxtest" value="1"<?php echo iif($config['botgfxtest'] == 1,' checked="checked"'); ?>></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_recaptcha_public_key'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_recaptcha_public_key_info'); ?></span></td>
+	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_recaptcha_public" value="<?php echo $config['botgfxtest_recaptcha_public']; ?>" size="55"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_width_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_width_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_width" value="<?php echo $config['botgfxtest_width']; ?>" size="5">px</td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_height_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_height_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_height" value="<?php echo $config['botgfxtest_height']; ?>" size="5">px</td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_recaptcha_private_key'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_recaptcha_private_key_info'); ?></span></td>
+	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_recaptcha_private" value="<?php echo $config['botgfxtest_recaptcha_private']; ?>" size="55"></td>
 	  </tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
-	<br class="minibr" />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_spambot_posting'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_at_guests'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="botgfxtest_posts" value="1"<?php echo iif($config['botgfxtest_posts'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_width_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_width_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_posts_width" value="<?php echo $config['botgfxtest_posts_width']; ?>" size="5">px</td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_height_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_height_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_posts_height" value="<?php echo $config['botgfxtest_posts_height']; ?>" size="5">px</td>
-	  </tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
-	  </tr>
-	 </table>
-	</form><br />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="4"><b><?php echo $lang->phrase('admin_examples_captchaimg_textcodes'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" width="50%" colspan="2" align="center"><?php echo $lang->phrase('admin_examples_captcha'); ?></td>
-	   <td class="ubox" width="50%" colspan="2" align="center"><?php echo $lang->phrase('admin_examples_textcodes'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="25%" align="center"><img src="admin/html/images/captcha.jpg" border="0" /></td>
-	   <td class="mbox" width="25%" align="center"><img src="admin/html/images/captcha2.jpg" border="0" /></td>
-	   <td class="mbox" width="25%"><div class="center" style="padding: 2px; font-size: 7px; line-height:7px; font-family: Courier New, monospace">&nbsp;########&nbsp;&nbsp;&nbsp;######&nbsp;&nbsp;&nbsp;&nbsp;########&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;########&nbsp;&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;<br>&nbsp;########&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;######&nbsp;&nbsp;&nbsp;&nbsp;#####&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;########&nbsp;&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;######&nbsp;&nbsp;&nbsp;&nbsp;########&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;########&nbsp;&nbsp;</div></td>
-	   <td class="mbox" width="25%"><div class="center" style="padding: 2px; font-size: 7px; line-height:7px; font-family: Courier New, monospace">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;######&nbsp;&nbsp;########&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;###&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;##&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;#####&nbsp;&nbsp;&nbsp;######&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;#########&nbsp;<br>&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;<br>&nbsp;&nbsp;######&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;##&nbsp;</div></td>
-	  </tr>
-	 </table>
+	 <?php } ?>
+	</form>
 	<?php
 	echo foot();
 }
 elseif ($job == 'captcha2') {
 	echo head();
 
+	$register = $gpc->get('botgfxtest', int);
+	$posts = $gpc->get('botgfxtest_posts', int);
+
 	$c->getdata();
 	$c->updateconfig('botgfxtest', int);
 	$c->updateconfig('botgfxtest_posts', int);
-	$c->updateconfig('botgfxtest_filter', int);
-	$c->updateconfig('botgfxtest_colortext', int);
-	$c->updateconfig('botgfxtest_width', int);
-	$c->updateconfig('botgfxtest_height', int);
-	$c->updateconfig('botgfxtest_posts_width', int);
-	$c->updateconfig('botgfxtest_posts_height', int);
-	$c->updateconfig('botgfxtest_format', str);
-	$c->updateconfig('botgfxtest_quality', int);
-	$c->updateconfig('botgfxtest_text_verification', int);
+	if ($config['botgfxtest'] == 1 || $config['botgfxtest_posts'] == 1) {
+		$c->updateconfig('botgfxtest_filter', int);
+		$c->updateconfig('botgfxtest_colortext', int);
+		$c->updateconfig('botgfxtest_width', int);
+		$c->updateconfig('botgfxtest_height', int);
+		$c->updateconfig('botgfxtest_format', str);
+		$c->updateconfig('botgfxtest_quality', int);
+	}
+	if ($config['botgfxtest'] == 2 || $config['botgfxtest_posts'] == 2) {
+		$c->updateconfig('botgfxtest_recaptcha_public', str);
+		$c->updateconfig('botgfxtest_recaptcha_private', str);
+	}
+
 	$c->savedata();
 
-	ok('admin.php?action=settings&job=settings');
+	ok('admin.php?action=settings&job=captcha');
 }
 elseif ($job == 'register') {
 	$config = $gpc->prepare($config);
@@ -1449,7 +1487,6 @@ elseif ($job == 'general') {
 		$furl = $lang->phrase('admin_unable_to_analyze_url');
 	}
 
-	$config = $gpc->prepare($config);
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=general2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1466,19 +1503,19 @@ elseif ($job == 'general') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_page_url'); ?><br><span class="stext"><?php echo $lang->phrase('admin_page_url_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="furl" value="<?php echo $config['furl']; ?>" size="50"></td>
+	   <td class="mbox" width="50%"><input type="text" name="furl" value="<?php echo $gpc->prepare($config['furl']); ?>" size="50"></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_path_forum'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_path_forum_info'); ?> <?php echo str_replace('\\', '/', realpath('./')); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="fpath" value="<?php echo $config['fpath']; ?>" size="50"></td>
+	   <td class="mbox" width="50%"><input type="text" name="fpath" value="<?php echo $gpc->prepare($config['fpath']); ?>" size="50"></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_email'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_email_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="forenmail" value="<?php echo $config['forenmail']; ?>" size="50"></td>
+	   <td class="mbox" width="50%"><input type="text" name="forenmail" value="<?php echo $gpc->prepare($config['forenmail']); ?>" size="50"></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_output_benchmark'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="benchmarkresult" value="1"<?php echo iif($config['benchmarkresult'],' checked'); ?>></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="benchmarkresult" value="1"<?php echo iif($config['benchmarkresult'],' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
@@ -1492,12 +1529,12 @@ elseif ($job == 'general2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('fname',str);
-	$c->updateconfig('fdesc',str);
-	$c->updateconfig('furl',str);
-	$c->updateconfig('fpath',str);
-	$c->updateconfig('forenmail',str);
-	$c->updateconfig('benchmarkresult',int);
+	$c->updateconfig('fname', html_enc);
+	$c->updateconfig('fdesc', html_enc);
+	$c->updateconfig('furl', str);
+	$c->updateconfig('fpath', str);
+	$c->updateconfig('forenmail', str);
+	$c->updateconfig('benchmarkresult', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');
@@ -1961,7 +1998,7 @@ elseif ($job == 'custom') {
 		LEFT JOIN {$db->pre}packages AS p ON p.internal = g.name
 	WHERE s.sgroup = '{$id}'
 	ORDER BY s.name
-	", __LINE__, __FILE__);
+	");
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=custom2&id=<?php echo $id; ?>&package=<?php echo $package; ?>">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -2012,7 +2049,7 @@ elseif ($job == 'custom2') {
 		LEFT JOIN {$db->pre}settings_groups AS g ON s.sgroup = g.id
 	WHERE s.sgroup = '{$id}'
 	ORDER BY s.name
-	", __LINE__, __FILE__);
+	");
 	while ($row = $db->fetch_assoc($result)) {
 		$c->updateconfig(array($row['groupname'], $row['name']), none);
 	}
@@ -2160,10 +2197,10 @@ elseif ($job == 'new') {
 			FROM {$db->pre}settings_groups AS g
 				LEFT JOIN {$db->pre}packages AS p ON p.internal = g.name
 			WHERE p.id = '{$package}'
-		", __LINE__, __FILE__);
+		");
 	}
 	else {
-		$result = $db->query("SELECT id, title FROM {$db->pre}settings_groups ORDER BY title", __LINE__, __FILE__);
+		$result = $db->query("SELECT id, title FROM {$db->pre}settings_groups ORDER BY title");
 	}
 	?>
 <form action="admin.php?action=settings&amp;job=new2&amp;package=<?php echo $package; ?>" method="post">

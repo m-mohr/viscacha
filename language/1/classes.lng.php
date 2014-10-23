@@ -13,6 +13,7 @@ $lang['mailer_instantiate'] = 'Mail Funktion konnte nicht initialisiert werden.'
 $lang['mailer_mailer_not_supported'] = '-Mailer wird nicht unterst&uuml;tzt.';
 $lang['mailer_provide_address'] = 'Bitte geben Sie mindestens eine Empf&auml;nger E-Mail-Adresse an.';
 $lang['mailer_recipients_failed'] = 'SMTP Fehler: Die folgenden Empf&auml;nger sind nicht korrekt:';
+$lang['mailer_signing'] = 'Signierungsfehler: ';
 $lang['tne_badtype'] = 'Ungültiger Bildtyp!';
 $lang['tne_gd1error'] = 'Konnte GD1-Thumbnail nicht erzeugen!';
 $lang['tne_giferror'] = 'Konnte gif-Thumbnail nicht erzeugen!';

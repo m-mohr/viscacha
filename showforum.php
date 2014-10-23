@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ else {
 ($code = $plugins->load('showforum_filer_query')) ? eval($code) : null;
 
 if (!empty($marksql)) {
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' {$marksql}",__LINE__,__FILE__);
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' {$marksql}");
 	$vlasttopics = $db->fetch_num($result);
 	$info['topics'] = $vlasttopics[0];
 }
@@ -128,7 +128,7 @@ if ($info['topics'] > 0) {
 	WHERE board = '{$board}' {$marksql}
 	ORDER BY sticky DESC, last DESC
 	LIMIT {$start}, {$info['forumzahl']}
-	",__LINE__,__FILE__);
+	");
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($board);

@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -28,20 +28,20 @@ include_once(dirname(__FILE__)."/class.db_driver.php");
 
 class DB extends DB_Driver { // MySQL
 
-	var $escaper;
 	var $system;
 
 	function DB($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '', $open = true) {
 	    $this->system = 'mysql';
-		if (version_compare(PHP_VERSION, "4.3.0", ">=") && viscacha_function_exists('mysql_real_escape_string') == true) {
-			$this->escaper = 'mysql_real_escape_string';
-		}
-		else {
-			$this->escaper = 'mysql_escape_string';
-		}
 		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
 		parent::DB_Driver($host, $user, $pwd, $dbname, $dbprefix, $open);
-		$this->freeResult = ($this->persistence == 1);
+		@ini_set('mysql.trace_mode', 0);
+		$tracemode = @ini_get('mysql.trace_mode');
+		if ($tracemode == 'ON' || $tracemode == 'On' || $tracemode === true || $tracemode == '1') {
+			$this->freeResult = true;
+		}
+		else {
+			$this->freeResult = false;
+		}
 	}
 
 	function version () {
@@ -54,21 +54,23 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function free_result($result = null) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
-	    if (is_resource($result)) {
+	    if ($this->isResultSet($result)) {
 	    	return @mysql_free_result($result);
 	    }
 	    else {
-	    	return true;
+	    	return false;
 	    }
 	}
 
 	function close() {
 		if ($this->hasConnection()) {
 			if ($this->freeResult == true) {
-		    	$this->free_result();
+				foreach ($this->all_results as $result) {
+					$this->free_result($result);
+				}
 		    }
 			return mysql_close($this->conn);
 		}
@@ -119,23 +121,40 @@ class DB extends DB_Driver { // MySQL
 		return mysql_error();
 	}
 
-	function query($sql, $line = 0, $file = '', $die = true) {
-		$this->open();
+	function query($sql, $die = true) {
+		// This is a workaround for files that uses the old query syntax (with line and file) (0.8 <= RC5)
+		if (!is_bool($die)) {
+			if (func_num_args() == 4) {
+				$die = func_get_arg(3);
+			}
+			else {
+				$die = true;
+			}
+		}
 
 		$errfunc = ($die == true) ? E_USER_ERROR : E_USER_NOTICE;
-		$zm1 = $this->benchmarktime();
 
-		$this->result = mysql_query($sql, $this->conn) or trigger_error($this->error($line, $file, $sql), $errfunc);
+		$this->open();
 
-		$zm2 = $this->benchmarktime();
-		$zm=$zm2-$zm1;
-		$this->dbqd[] = array('query' => $sql, 'time' => substr($zm,0,7));
+		$start = $this->benchmarktime();
+
+		$this->result = mysql_query($sql, $this->conn) or trigger_error($this->error($sql), $errfunc);
+
+		$time = $this->benchmarktime() - $start;
+		$this->dbqd[] = array(
+			'query' => $sql,
+			'time' => round($time, 5)
+		);
+
+		if ($this->freeResult == true && $this->isResultSet($this->result)) {
+			$this->all_results[] = $this->result;
+		}
 
 	    return $this->result;
 	}
 
 	function num_rows($result = null) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    return @mysql_num_rows($result);
@@ -145,28 +164,28 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function data_seek($result = null, $pos = 0) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    return @mysql_data_seek($result, $pos);
 	}
 
 	function fetch_object($result = null) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    return @mysql_fetch_object($result);
 	}
 
 	function fetch_num($result = null) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    return @mysql_fetch_row($result);
 	}
 
 	function fetch_assoc($result = null) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    return @mysql_fetch_assoc($result);
@@ -174,18 +193,18 @@ class DB extends DB_Driver { // MySQL
 
 	function escape_string($value) {
 		$this->open();
-		return call_user_func($this->escaper, $value);
+		return mysql_real_escape_string($value, $this->conn);
 	}
 
 	function num_fields($result = null) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 		return mysql_num_fields($result);
 	}
 
 	function field_len($result = null, $k) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    $data = mysql_field_len($result, $k);
@@ -198,7 +217,7 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function field_type($result = null, $k) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    $data = mysql_field_type($result, $k);
@@ -211,7 +230,7 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function field_name($result = null, $k) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    $data = mysql_field_name($result, $k);
@@ -224,7 +243,7 @@ class DB extends DB_Driver { // MySQL
 	}
 
 	function field_table($result = null, $k) {
-		if (!is_resource($result)) {
+		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 	    $data = mysql_field_table($result, $k);

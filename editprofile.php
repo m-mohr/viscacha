@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,7 @@ if ($_GET['action'] == "pw2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_pw2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '{$my->id}' LIMIT 1");
 		$slog->sid_logout();
 		ok($lang->phrase('editprofile_pw_success'), "log.php".SID2URL_1);
 	}
@@ -73,11 +73,11 @@ if ($_GET['action'] == "pw2") {
 elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 	if (count($_POST['delete']) > 0) {
 		($code = $plugins->load('editprofile_attachments2_start')) ? eval($code) : null;
-		$result = $db->query ("SELECT source FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
+		$result = $db->query ("SELECT source FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")");
 		while ($row = $db->fetch_assoc($result)) {
 			$filesystem->unlink('uploads/topics/'.$row['source']);
 		}
-		$db->query ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")");
 		$anz = $db->affected_rows();
 		ok($lang->phrase('editprofile_attachments_deleted'), "editprofile.php?action=attachments".SID2URL_x);
 	}
@@ -98,7 +98,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid
 	WHERE u.mid = '$my->id'
 	ORDER BY u.topic_id, u.tid
-	",__LINE__,__FILE__);
+	");
 
 	$all = array(0,0,0);
 	$cache = array();
@@ -142,7 +142,7 @@ elseif ($_GET['action'] == "abos") {
 		LEFT JOIN {$db->pre}forums AS f ON f.id=t.board
 	WHERE a.mid = '{$my->id}' AND f.invisible != '2' {$sqlwhere}
 	ORDER BY a.id DESC
-	",__LINE__,__FILE__);
+	");
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
@@ -225,7 +225,7 @@ elseif ($_GET['action'] == "abos2") {
 	$anz = 0;
 	if (count($_POST['delete']) > 0) {
 		$delete = implode(',', $_POST['delete']);
-		$db->query ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})");
 		$anz = $db->affected_rows();
 	}
 
@@ -238,7 +238,7 @@ elseif ($_GET['action'] == "abos2") {
 		foreach ($update as $type => $ids) {
 			if (count($ids) > 0) {
 				$ids = implode(',', $ids);
-				$db->query("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})",__LINE__,__FILE__);
+				$db->query("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})");
 				$anz2 += $db->affected_rows();
 			}
 		}
@@ -273,7 +273,7 @@ elseif ($_GET['action'] == "notice2") {
 	else {
 		$sqlnotes = implode('[VSEP]',$notes);
 		($code = $plugins->load('editprofile_notice2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET notice = '{$sqlnotes}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET notice = '{$sqlnotes}' WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('text_to_notice_success'), 'editprofile.php?action=notice'.SID2URL_x);
 	}
 
@@ -317,7 +317,7 @@ elseif ($_GET['action'] == "signature") {
 			error($error, "editprofile.php?action=signature".SID2URL_x);
 		}
 		else {
-			$db->query("UPDATE {$db->pre}user SET signature = '{$_POST['signature']}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+			$db->query("UPDATE {$db->pre}user SET signature = '{$_POST['signature']}' WHERE id = '{$my->id}' LIMIT 1");
 			ok($lang->phrase('data_success'), "editprofile.php?action=signature".SID2URL_x);
 		}
 	}
@@ -381,8 +381,9 @@ elseif ($_GET['action'] == "about") {
 
 	BBProfile($bbcode);
 
-	if (strlen($_GET['fid']) == 32) {
-		$data = $gpc->prepare(import_error_data($_GET['fid']));
+	$fid = $gpc->get('fid', str);
+	if (is_hash($fid)) {
+		$data = $gpc->unescape(import_error_data($fid));
 		if ($_GET['job'] == 'preview') {
 			$preview = true;
 			$data = $gpc->unescape($data);
@@ -410,7 +411,7 @@ elseif ($_GET['action'] == "pic3") {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
 	removeOldImages('uploads/pics/', $my->id);
-	$db->query("UPDATE {$db->pre}user SET pic = '' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}user SET pic = '' WHERE id = '{$my->id}' LIMIT 1");
 	($code = $plugins->load('editprofile_pic3_end')) ? eval($code) : null;
 	ok($lang->phrase('editprofile_pic_success'), "editprofile.php?action=pic".SID2URL_x);
 
@@ -478,7 +479,7 @@ elseif ($_GET['action'] == "pic2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_pic2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET pic = '{$my->pic}' WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET pic = '{$my->pic}' WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('editprofile_pic_success'), "editprofile.php?action=pic".SID2URL_x);
 	}
 }
@@ -588,7 +589,8 @@ elseif ($_GET['action'] == "profile2") {
 		$error[] = $lang->phrase('editprofile_fullname_incorrect');
 	}
 
-	$error_custom = editprofile_customsave(1, $my->id);
+	$save = (count($error) == 0);
+	$error_custom = editprofile_customsave(1, $my->id, $save);
 	$error = array_merge($error, $error_custom);
 	($code = $plugins->load('editprofile_profile2_errorhandling')) ? eval($code) : null;
 
@@ -625,7 +627,7 @@ elseif ($_GET['action'] == "profile2") {
 
 		($code = $plugins->load('editprofile_profile2_query')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('data_success'), "editprofile.php?action=profile".SID2URL_x);
 	}
 
@@ -714,7 +716,8 @@ elseif ($_GET['action'] == "settings2") {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_newsletter');
 	}
 
-	$error_custom = editprofile_customsave(2, $my->id);
+	$save = (count($error) == 0);
+	$error_custom = editprofile_customsave(2, $my->id, $save);
 	$error = array_merge($error, $error_custom);
 
 	($code = $plugins->load('editprofile_settings2_errorhandling')) ? eval($code) : null;
@@ -748,7 +751,7 @@ elseif ($_GET['action'] == "settings2") {
 			opt_showsig = '{$_POST['opt_7']}'
 		WHERE id = '{$my->id}'
 		LIMIT 1
-		",__LINE__,__FILE__);
+		");
 		ok($lang->phrase('data_success'), "editprofile.php?action=settings".SID2URL_x);
 	}
 
@@ -770,7 +773,7 @@ elseif ($_GET['action'] == "mylast") {
 	GROUP BY r.topic_id
 	ORDER BY r.date DESC
 	LIMIT 0, {$config['mylastzahl']}
-	",__LINE__,__FILE__);
+	");
 	$anz = $db->num_rows($result);
 
 	$prefix_obj = $scache->load('prefix');
@@ -833,7 +836,7 @@ elseif ($_GET['action'] == "mylast") {
 	($code = $plugins->load('editprofile_mylast_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "addabo") {
-	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id'],__LINE__,__FILE__);
+	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
 	$info = $db->fetch_assoc($result);
 	$my->p = $slog->Permissions($info['board']);
 
@@ -863,18 +866,18 @@ elseif ($_GET['action'] == "addabo") {
 	}
 
 	($code = $plugins->load('editprofile_addabo_prepared')) ? eval($code) : null;
-	$result = $db->query('SELECT id, type FROM '.$db->pre.'abos WHERE tid = '.$info['id'].' AND mid = '.$my->id,__LINE__,__FILE__);
+	$result = $db->query('SELECT id, type FROM '.$db->pre.'abos WHERE tid = '.$info['id'].' AND mid = '.$my->id);
 	if ($db->num_rows($result) > 0) {
 		error($lang->phrase('addabo_error'));
 	}
 	else {
-		$db->query('INSERT INTO '.$db->pre.'abos (tid,mid,type) VALUES ("'.$_GET['id'].'","'.$my->id.'","'.$type.'")',__LINE__,__FILE__);
+		$db->query('INSERT INTO '.$db->pre.'abos (tid,mid,type) VALUES ("'.$_GET['id'].'","'.$my->id.'","'.$type.'")');
 		ok($lang->phrase('subscribed_successfully'));
 	}
 }
 elseif ($_GET['action'] == "removeabo") {
 	($code = $plugins->load('editprofile_removeabo_start')) ? eval($code) : null;
-	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id'],__LINE__,__FILE__);
+	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
 	$info = $db->fetch_assoc($result);
 	$my->p = $slog->Permissions($info['board']);
 
@@ -884,7 +887,7 @@ elseif ($_GET['action'] == "removeabo") {
 	forum_opt($last);
 
 	($code = $plugins->load('editprofile_removeabo_prepared')) ? eval($code) : null;
-	$db->query("DELETE FROM {$db->pre}abos WHERE tid = '{$_GET['id']}' AND mid = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+	$db->query("DELETE FROM {$db->pre}abos WHERE tid = '{$_GET['id']}' AND mid = '{$my->id}' LIMIT 1");
 	ok($lang->phrase('unsubscribed_successfully'));
 }
 else {

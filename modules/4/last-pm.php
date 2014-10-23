@@ -1,6 +1,6 @@
 BBProfile($bbcode);
 
-$result = $db->query("SELECT dir, status, id, topic, comment, date, pm_from AS mid FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id = '{$_GET['id']}' AND dir != '2' ORDER BY date ASC",__LINE__,__FILE__);
+$result = $db->query("SELECT dir, status, id, topic, comment, date, pm_from AS mid FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id = '{$_GET['id']}' AND dir != '2' ORDER BY date ASC");
 
 if ($db->num_rows($result) != 0) {
 	$row = $gpc->prepare($db->fetch_assoc($result));

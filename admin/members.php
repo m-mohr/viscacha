@@ -152,14 +152,14 @@ elseif ($job == 'emailsearch') {
   <tr>
    <td class="mbox" colspan="2" width="50%"><?php echo $lang->phrase('admin_member_exactness'); ?></td>
    <td class="mbox" colspan="1" width="50%">
-   <input type="radio" name="type" value="0"> <?php echo $lang->phrase('admin_member_at_least_one_match'); ?><br>
-   <input type="radio" name="type" value="1" checked="checked"> <?php echo $lang->phrase('admin_member_whole_match'); ?>
+   <input type="radio" name="type" value="0"> <b><?php echo $lang->phrase('admin_member_at_least_one_match'); ?></b> (<?php echo $lang->phrase('admin_member_at_least_one_match_desc'); ?>)<br>
+   <input type="radio" name="type" value="1" checked="checked"> <b><?php echo $lang->phrase('admin_member_whole_match'); ?></b> (<?php echo $lang->phrase('admin_member_whole_match'); ?>)
    </td>
   </tr>
   <tr>
-   <td class="ubox" width="45%">&nbsp;</td>
+   <td class="ubox" width="35%">&nbsp;</td>
    <td class="ubox" width="5%"><?php echo $lang->phrase('admin_member_relational_operator'); ?></td>
-   <td class="ubox" width="50%">&nbsp;</td>
+   <td class="ubox" width="60%">&nbsp;</td>
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_id'); ?></td>
@@ -227,12 +227,18 @@ elseif ($job == 'emailsearch') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_groups'); ?></td>
    <td class="mbox" align="center">=</td>
-   <td class="mbox"><select size="3" name="groups" multiple="multiple">
+   <td class="mbox">
+    <select size="3" name="groups[]" multiple="multiple">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
 	  <?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
 		<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 	  <?php } ?>
-	</select></td>
+	</select>
+    <select name="groups_op" size="2" style="margin: 0.5em 0 0.5em 0;">
+	  <option value="0" selected="selected" title="<?php echo $lang->phrase('admin_member_at_least_one_match_desc'); ?>"><?php echo $lang->phrase('admin_member_at_least_one_match'); ?></option>
+   	  <option value="1" title="<?php echo $lang->phrase('admin_member_whole_match_desc'); ?>"><?php echo $lang->phrase('admin_member_whole_match'); ?></option>
+	</select>
+	</td>
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_lang'); ?></td>
@@ -256,9 +262,9 @@ elseif ($job == 'emailsearch') {
    <td class="mbox"><select size="1" name="confirm">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
 	  <option value="11"><?php echo $lang->phrase('admin_member_activated'); ?></option>
-	  <option value="10"><?php echo $lang->phrase('admin_member_activate_via_mail'); ?></option>
-	  <option value="01"><?php echo $lang->phrase('admin_member_activate_by_admin'); ?></option>
-	  <option value="00"><?php echo $lang->phrase('admin_member_not_activated'); ?></option>
+	  <option value="10"><?php echo $lang->phrase('admin_member_must_activate_via_mail'); ?></option>
+	  <option value="01"><?php echo $lang->phrase('admin_member_must_activate_by_admin'); ?></option>
+	  <option value="00"><?php echo $lang->phrase('admin_member_has_not_been_activated'); ?></option>
 	</select></td>
   </tr>
   <tr>
@@ -290,12 +296,7 @@ elseif ($job == 'emailsearch2') {
 	$language = $loadlanguage_obj->get();
 
 	$type = $gpc->get('type', int);
-	if ($type == 0) {
-		$sep = ' OR ';
-	}
-	else {
-		$sep = ' AND ';
-	}
+	$sep = ($type == 0) ? ' OR ' : ' AND ';
 
 	$compare = $gpc->get('compare', arr_int);
 	foreach ($compare as $key => $cmp) {
@@ -315,17 +316,7 @@ elseif ($job == 'emailsearch2') {
 	$sqlwhere = array();
 	$input = array();
 	foreach ($fields as $key => $data) {
-		$value = $gpc->get($key, none);
-		if (is_array($value)) {
-			$value = implode('', $value);
-		}
-		if (strpos($value, '%') !== false || strpos($value, '_') !== false) {
-			$value = $gpc->get($key, none, DONT_CARE);
-			$value = $gpc->save_str($value);
-		}
-		else {
-			$value = $gpc->get($key, $data, DONT_CARE);
-		}
+		$value = $gpc->get($key, $data[1], DONT_CARE);
 		if ($key == 'regdate' || $key == 'lastvisit') {
 			if (is_array($value) && array_sum($value) != 0) { // for php version >= 5.1.0
 				$input[$key] =  @mktime(0, 0, 0, intval($value[2]), intval($value[1]), intval($value[3]));
@@ -335,6 +326,14 @@ elseif ($job == 'emailsearch2') {
 			}
 			else {
 				$input[$key] = DONT_CARE;
+			}
+		}
+		elseif ($key == 'groups') {
+			if (array_empty($value) !== false) {
+				$input[$key] = DONT_CARE;
+			}
+			else {
+				$input[$key] = $value;
 			}
 		}
 		elseif ($key == 'birthday') {
@@ -379,10 +378,7 @@ elseif ($job == 'emailsearch2') {
 			}
 		}
 		else {
-			if (!isset($_REQUEST[$key])) {
-				$_REQUEST[$key] = null;
-			}
-			if (empty($_REQUEST[$key]) && $_REQUEST[$key] != '0') {
+			if (empty($value)) {
 				$input[$key] = DONT_CARE;
 			}
 			else {
@@ -395,21 +391,33 @@ elseif ($job == 'emailsearch2') {
 		}
 
 		if ($input[$key] != DONT_CARE) {
-			if (strpos($input[$key], '%') !== false || strpos($input[$key], '_') !== false) {
-				if ($compare[$key] == '=') {
-					$compare[$key] = 'LIKE';
+			if ($key == 'groups') {
+				$gcmp = $gpc->get('groups_op', int);
+				$gsep = ($gcmp == 0) ? ' OR ' : ' AND ';
+				$groupwhere = array();
+				foreach ($input[$key] as $gid) {
+					$groupwhere[] = " FIND_IN_SET('{$gid}', {$key}) ";
 				}
-				elseif ($compare[$key] == '!=') {
-					$compare[$key] = 'NOT LIKE';
-				}
+				$groupwhere = implode($gsep, $groupwhere);
+				$sqlwhere[] = " ({$groupwhere}) ";
 			}
-			$sqlwhere[] = " `{$key}` {$compare[$key]} '{$input[$key]}' ";
+			else {
+				if (strpos($input[$key], '%') !== false || strpos($input[$key], '_') !== false) {
+					if ($compare[$key] == '=') {
+						$compare[$key] = 'LIKE';
+					}
+					elseif ($compare[$key] == '!=') {
+						$compare[$key] = 'NOT LIKE';
+					}
+				}
+				$sqlwhere[] = " `{$key}` {$compare[$key]} '{$input[$key]}' ";
+			}
 		}
 	}
 
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT id FROM '.$db->pre.'user WHERE '.implode($sep, $sqlwhere);
-		$result = $db->query($query, __LINE__, __FILE__);
+		$result = $db->query($query);
 		$users = array();
 		while ($row = $db->fetch_assoc($result)) {
 			$users[] = $row['id'];
@@ -479,7 +487,7 @@ elseif ($job == 'emaillist') {
 		}
 	}
 
-	$result = $db->query("SELECT DISTINCT mail FROM {$db->pre}user WHERE {$filter} id IN (".implode(',', $ids).")", __LINE__, __FILE__);
+	$result = $db->query("SELECT DISTINCT mail FROM {$db->pre}user WHERE {$filter} id IN (".implode(',', $ids).")");
 	$emails = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$emails[] = $row['mail'];
@@ -547,7 +555,7 @@ elseif ($job == 'newsletter') {
 		error('admin.php?action=members&job=emailsearch', 'No Members found.');
 	}
 
-	$result = $db->query("SELECT id FROM {$db->pre}user WHERE {$filter} id IN (".implode(',', $ids).") GROUP BY mail", __LINE__, __FILE__);
+	$result = $db->query("SELECT id FROM {$db->pre}user WHERE {$filter} id IN (".implode(',', $ids).") GROUP BY mail");
 	$ids = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$ids[] = $row['id'];
@@ -613,7 +621,7 @@ elseif ($job == 'newsletter2') {
 	$data = array(
 		'users' => $gpc->get('users', none),
 		'from_mail' => $gpc->get('from_mail', none, $config['forenmail']),
-		'from_name' => $gpc->get('from_name', none, $config['fname']),
+		'from_name' => $gpc->get('from_name', none, $gpc->plain_str($config['fname'])),
 		'title' => $gpc->get('title', none),
 		'message' => $gpc->get('message', none),
 		'batch' => $gpc->get('batch', int, 20),
@@ -626,7 +634,7 @@ elseif ($job == 'newsletter2') {
 
 	$dbd = array_map(array($db, 'escape_string'), $data);
 
-	$db->query("INSERT INTO {$db->pre}newsletter (receiver, sender, title, content, time, type) VALUES ('{$dbd['users']}','{$dbd['from_name']} <{$dbd['from_mail']}>','{$dbd['title']}','{$dbd['message']}','".time()."', '{$dbd['type']}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}newsletter (receiver, sender, title, content, time, type) VALUES ('{$dbd['users']}','{$dbd['from_name']} <{$dbd['from_mail']}>','{$dbd['title']}','{$dbd['message']}','".time()."', '{$dbd['type']}')");
 	$nid = $db->insert_id();
 
 	$data['chunks'] = array_chunk(explode(',', $data['users']), $data['batch']);
@@ -670,7 +678,7 @@ elseif ($job == 'newsletter3') {
 		$mail->IsMail();
 	}
 	$ids = implode(',', $data['chunks'][$page-1]);
-	$result = $db->query("SELECT id, name, mail FROM {$db->pre}user WHERE id IN ($ids)", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, name, mail FROM {$db->pre}user WHERE id IN ($ids)");
 	while ($row = $db->fetch_assoc($result)) {
 		$message = str_replace('{$user.id}', $row['id'], $data['message']);
 		$message = str_replace('{$user.name}', $row['name'], $message);
@@ -740,7 +748,7 @@ elseif ($job == 'newsletter3') {
 	echo foot();
 }
 elseif ($job == 'newsletter_archive') {
-	$result = $db->query('SELECT * FROM '.$db->pre.'newsletter ORDER BY time', __LINE__, __FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'newsletter ORDER BY time');
 	echo head();
 ?>
 <form name="form" method="post" action="admin.php?action=members&amp;job=newsletter_delete">
@@ -832,7 +840,7 @@ elseif ($job == 'newsletter_delete') {
 	$del = $gpc->get('delete', arr_int);
 	if (count($del) > 0) {
 		$ids = implode(',', $del);
-		$db->query("DELETE FROM {$db->pre}newsletter WHERE id IN ($ids)", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}newsletter WHERE id IN ($ids)");
 		$anz = $db->affected_rows();
 		ok('admin.php?action=members&job=newsletter_archive', $lang->phrase('admin_member_nl_been_deleted'));
 	}
@@ -1103,7 +1111,7 @@ elseif ($job == 'memberrating') {
 	GROUP BY aid
 	ORDER BY ravg DESC
 	LIMIT '.$start.',25
-	', __LINE__, __FILE__);
+	');
 	?>
 	<form name="form" action="admin.php?action=members&job=delete" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1185,14 +1193,14 @@ elseif ($job == 'recount') {
 					LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 				WHERE r.guest = '0'". iif(count($id) > 0, " AND r.board NOT IN (".implode(',', $id).")") ."
 				GROUP BY u.id
-			", __LINE__, __FILE__);
+			");
 
 
 			$i = 0;
 			while ($row = $db->fetch_assoc($result)) {
 				if ($row['new'] != $row['posts']) {
 					$i++;
-					$db->query("UPDATE {$db->pre}user SET posts = '{$row['new']}' WHERE id = '{$row['id']}'",__LINE__,__FILE__);
+					$db->query("UPDATE {$db->pre}user SET posts = '{$row['new']}' WHERE id = '{$row['id']}'");
 				}
 			}
 
@@ -1325,35 +1333,8 @@ elseif ($job == 'register2') {
 	}
 
 	// Custom profile fields
-	$upquery = array();
-	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
-		$thing = explode("\n", $profilefield['type'], 2);
-		$type = $thing[0];
-		$field = "fid{$profilefield['fid']}";
-
-		$value = $gpc->get($field, str);
-
-		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
-			$error[] = $lang->phrase('admin_member_no_value_for_required_field');
-		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
-			$error[] = $lang->phrase('admin_member_to_many_chars_for_required_fields');
-		}
-
-		if($type == "multiselect" || $type == "checkbox") {
-			if (is_array($value)) {
-				$upquery[$field] = implode("\n", $value);
-			}
-			else {
-				$upquery[$field] = '';
-			}
-		}
-		else {
-			$upquery[$field] = $value;
-		}
-	}
+	$custom = addprofile_customprepare('admin_member_no_value_for_required_field', 'admin_member_to_many_chars_for_required_fields');
+	$error = array_merge($error, $custom['error']);
 
 	if (count($error) > 0) {
 		echo head();
@@ -1363,25 +1344,10 @@ elseif ($job == 'register2') {
 	    $reg = time();
 	    $pw_md5 = md5($pwx);
 
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$name}', '{$pw_md5}', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '', '')",__LINE__,__FILE__);
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$name}', '{$pw_md5}', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '', '')");
         $redirect = $db->insert_id();
 
-		if (count($upquery) > 0) {
-			$fields = $db->list_fields("{$db->pre}userfields");
-			$sqldata = array();
-			foreach ($fields as $field) {
-				if (isset($upquery[$field])) {
-					$sqldata[$field] = "'{$upquery[$field]}'";
-				}
-				else {
-					$sqldata[$field] = "''";
-				}
-			}
-			$sqldata['ufid'] = "'{$redirect}'";
-			$fields = implode(', ', array_keys($fields));
-			$sqldata = implode(', ', $sqldata);
-			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
-		}
+		addprofile_customsave($custom['data'], $redirect);
 
 		$com = $scache->load('memberdata');
 		$cache = $com->delete();
@@ -1393,11 +1359,11 @@ elseif ($job == 'register2') {
 elseif ($job == 'edit') {
 	include_once ("classes/function.profilefields.php");
 
-	// About
-	$id = $gpc->get('id', int);
+	echo head();
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$id);
-	if ($db->num_rows() != 1) {
+	$id = $gpc->get('id', int);
+	$result = $db->query("SELECT * FROM {$db->pre}user WHERE id = '{$id}'");
+	if ($db->num_rows($result) != 1) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
 	$user = $gpc->prepare($db->fetch_assoc($result));
@@ -1427,8 +1393,6 @@ elseif ($job == 'edit') {
 	$random = md5(microtime());
 
 	$customfields = admin_customfields($user['id']);
-
-	echo head();
 ?>
 <form name="form_<?php echo $random; ?>" method="post" action="admin.php?action=members&job=edit2&amp;id=<?php echo $id; ?>&amp;random=<?php echo $random; ?>">
 <table class="border">
@@ -1662,7 +1626,7 @@ elseif ($job == 'edit2') {
 	}
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$query['id']);
-	if ($db->num_rows() != 1) {
+	if ($db->num_rows($result) != 1) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
 	$user = $gpc->prepare($db->fetch_assoc($result));
@@ -1807,7 +1771,7 @@ elseif ($job == 'edit2') {
 
 		admin_customsave($query['id']);
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '".$query['temp']."', opt_textarea = '".$query['opt_0']."', opt_pmnotify = '".$query['opt_1']."', opt_hidebad = '".$query['opt_2']."', opt_hidemail = '".$query['opt_3']."', template = '".$query['opt_4']."', language = '".$query['opt_5']."', pic = '".$query['pic']."', about = '".$query['comment']."', icq = '".$query['icq']."', yahoo = '".$query['yahoo']."', aol = '".$query['aol']."', msn = '".$query['msn']."', jabber = '".$query['jabber']."', birthday = '".$bday."', gender = '".$query['gender']."', hp = '".$query['hp']."', signature = '".$query['signature']."', location = '".$query['location']."', fullname = '".$query['fullname']."', skype = '".$query['skype']."', mail = '".$query['email']."', name = '".$query['name']."'".$update_sql." WHERE id = '".$user['id']."' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '".$query['temp']."', opt_textarea = '".$query['opt_0']."', opt_pmnotify = '".$query['opt_1']."', opt_hidebad = '".$query['opt_2']."', opt_hidemail = '".$query['opt_3']."', template = '".$query['opt_4']."', language = '".$query['opt_5']."', pic = '".$query['pic']."', about = '".$query['comment']."', icq = '".$query['icq']."', yahoo = '".$query['yahoo']."', aol = '".$query['aol']."', msn = '".$query['msn']."', jabber = '".$query['jabber']."', birthday = '".$bday."', gender = '".$query['gender']."', hp = '".$query['hp']."', signature = '".$query['signature']."', location = '".$query['location']."', fullname = '".$query['fullname']."', skype = '".$query['skype']."', mail = '".$query['email']."', name = '".$query['name']."'".$update_sql." WHERE id = '".$user['id']."' LIMIT 1");
 		ok("admin.php?action=members&job=manage", $lang->phrase('admin_member_data_saved'));
 	}
 }
@@ -2031,7 +1995,7 @@ elseif ($job == 'ban_add2') {
 	}
 	elseif ($type == 'user') {
 		$data = $gpc->save_str($data);
-		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$data}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$data}' LIMIT 1");
 		if ($db->num_rows($result) == 0) {
 			$error[] = $lang->phrase('admin_member_no_user_found');
 		}
@@ -2224,7 +2188,7 @@ elseif ($job == 'inactive2') {
 
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT id, '.implode(',', $keys).' FROM '.$db->pre.'user WHERE '.implode(' AND ', $sqlwhere).' ORDER BY name';
-		$result = $db->query($query, __LINE__, __FILE__);
+		$result = $db->query($query);
 		$count = $db->num_rows($result);
 	}
 	else {
@@ -2238,7 +2202,7 @@ elseif ($job == 'inactive2') {
 		<span style="float: right;">
 		  <a class="button" href="admin.php?action=members&amp;job=search"><?php echo $lang->phrase('admin_member_search_members'); ?></a>
 		</span>
-		  <?php $lang->phrase('admin_member_search_inactive'); ?>
+		  <?php echo $lang->phrase('admin_member_search_inactive'); ?>
 		  </td>
 		</tr>
 		<?php if ($count == 0) { ?>
@@ -2334,18 +2298,18 @@ elseif ($job == 'search') {
   <tr>
    <td class="mbox" colspan="2"><?php echo $lang->phrase('admin_member_exactness'); ?></td>
    <td class="mbox" colspan="2">
-   <input type="radio" name="type" value="0"> <?php echo $lang->phrase('admin_member_at_least_one_match'); ?><br>
-   <input type="radio" name="type" value="1" checked="checked"> <?php echo $lang->phrase('admin_member_whole_match'); ?>
+   <input type="radio" name="type" value="0"> <b><?php echo $lang->phrase('admin_member_at_least_one_match'); ?></b> (<?php echo $lang->phrase('admin_member_at_least_one_match_desc'); ?>)<br>
+   <input type="radio" name="type" value="1" checked="checked"> <b><?php echo $lang->phrase('admin_member_whole_match'); ?></b> (<?php echo $lang->phrase('admin_member_whole_match_desc'); ?>)
    </td>
   </tr>
   <tr>
-   <td class="ubox" width="40%">&nbsp;</td>
+   <td class="ubox" width="30%">&nbsp;</td>
    <td class="ubox" width="5%"><?php echo $lang->phrase('admin_member_relational_operator'); ?></td>
-   <td class="ubox" width="50%">&nbsp;</td>
+   <td class="ubox" width="60%">&nbsp;</td>
    <td class="ubox" width="5%"><?php echo $lang->phrase('admin_member_show'); ?></td>
   </tr>
   <tr>
-   <td class="mbox">ID:</td>
+   <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_id'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[id]">
 	  <option value="-1">&lt;</option>
 	  <option value="0" selected="selected">=</option>
@@ -2527,12 +2491,18 @@ elseif ($job == 'search') {
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_groups'); ?></td>
    <td class="mbox" align="center">=</td>
-   <td class="mbox"><select size="3" name="groups" multiple="multiple">
+   <td class="mbox">
+    <select size="3" name="groups[]" multiple="multiple">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
 	  <?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
 		<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 	  <?php } ?>
-	</select></td>
+	</select>
+    <select name="groups_op" size="2" style="margin: 0.5em 0 0.5em 0;">
+	  <option value="0" selected="selected" title="<?php echo $lang->phrase('admin_member_at_least_one_match_desc'); ?>"><?php echo $lang->phrase('admin_member_at_least_one_match'); ?></option>
+   	  <option value="1" title="<?php echo $lang->phrase('admin_member_whole_match_desc'); ?>"><?php echo $lang->phrase('admin_member_whole_match'); ?></option>
+	</select>
+	</td>
    <td class="mbox"><input type="checkbox" name="show[groups]" value="1"></td>
   </tr>
   <tr>
@@ -2623,12 +2593,7 @@ elseif ($job == 'search2') {
 	$language = $loadlanguage_obj->get();
 
 	$type = $gpc->get('type', int);
-	if ($type == 0) {
-		$sep = ' OR ';
-	}
-	else {
-		$sep = ' AND ';
-	}
+	$sep = ($type == 0) ? ' OR ' : ' AND ';
 
 	$compare = $gpc->get('compare', arr_int);
 	foreach ($compare as $key => $cmp) {
@@ -2652,17 +2617,7 @@ elseif ($job == 'search2') {
 	$sqlwhere = array();
 	$input = array();
 	foreach ($fields as $key => $data) {
-		$value = $gpc->get($key, none);
-		if (is_array($value)) {
-			$value = implode('', $value);
-		}
-		if (strpos($value, '%') !== false || strpos($value, '_') !== false) {
-			$value = $gpc->get($key, none, DONT_CARE);
-			$value = $gpc->save_str($value);
-		}
-		else {
-			$value = $gpc->get($key, $data[1], DONT_CARE);
-		}
+		$value = $gpc->get($key, $data[1], DONT_CARE);
 		if ($key == 'regdate' || $key == 'lastvisit') {
 			if (is_array($value) && array_sum($value) != 0) { // for php version >= 5.1.0
 				$input[$key] =  @mktime(0, 0, 0, intval($value[2]), intval($value[1]), intval($value[3]));
@@ -2672,6 +2627,14 @@ elseif ($job == 'search2') {
 			}
 			else {
 				$input[$key] = DONT_CARE;
+			}
+		}
+		elseif ($key == 'groups') {
+			if (array_empty($value) !== false) {
+				$input[$key] = DONT_CARE;
+			}
+			else {
+				$input[$key] = $value;
 			}
 		}
 		elseif ($key == 'birthday') {
@@ -2716,10 +2679,7 @@ elseif ($job == 'search2') {
 			}
 		}
 		else {
-			if (!isset($_REQUEST[$key])) {
-				$_REQUEST[$key] = null;
-			}
-			if (empty($_REQUEST[$key]) && $_REQUEST[$key] != '0') {
+			if (empty($value)) {
 				$input[$key] = DONT_CARE;
 			}
 			else {
@@ -2732,22 +2692,35 @@ elseif ($job == 'search2') {
 		}
 
 		if ($input[$key] != DONT_CARE) {
-			if (strpos($input[$key], '%') !== false || strpos($input[$key], '_') !== false) {
-				if ($compare[$key] == '=') {
-					$compare[$key] = 'LIKE';
+			if ($key == 'groups') {
+				$gcmp = $gpc->get('groups_op', int);
+				$gsep = ($gcmp == 0) ? ' OR ' : ' AND ';
+				$groupwhere = array();
+				foreach ($input[$key] as $gid) {
+					$groupwhere[] = " FIND_IN_SET('{$gid}', {$key}) ";
 				}
-				elseif ($compare[$key] == '!=') {
-					$compare[$key] = 'NOT LIKE';
-				}
+				$groupwhere = implode($gsep, $groupwhere);
+				$sqlwhere[] = " ({$groupwhere}) ";
 			}
-			$sqlwhere[] = " `{$key}` {$compare[$key]} '{$input[$key]}' ";
+			else {
+				if (strpos($input[$key], '%') !== false || strpos($input[$key], '_') !== false) {
+					if ($compare[$key] == '=') {
+						$compare[$key] = 'LIKE';
+					}
+					elseif ($compare[$key] == '!=') {
+						$compare[$key] = 'NOT LIKE';
+					}
+				}
+				$sqlwhere[] = " `{$key}` {$compare[$key]} '{$input[$key]}' ";
+			}
 		}
 	}
+
 	$colspan = count($show) + 1;
 
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT '.implode(',',$sqlkeys).' FROM '.$db->pre.'user WHERE '.implode($sep, $sqlwhere).' ORDER BY name';
-		$result = $db->query($query, __LINE__, __FILE__);
+		$result = $db->query($query);
 		$count = $db->num_rows($result);
 	}
 	else {
@@ -2921,10 +2894,9 @@ elseif ($job == 'confirm') {
 		$confirm = '11';
 	}
 
-	$db->query('UPDATE '.$db->pre.'user SET confirm = "'.$confirm.'" WHERE id = "'.$row['id'].'" LIMIT 1', __LINE__, __FILE__);
+	$db->query('UPDATE '.$db->pre.'user SET confirm = "'.$confirm.'" WHERE id = "'.$row['id'].'" LIMIT 1');
 
 	// Send Mail
-	$row = $gpc->plain_str($row);
 	$content = $lang->get_mail('admin_confirmed');
 	xmail(array('0' => array('mail' => $row['mail'])), array(), $content['title'], $content['comment']);
 
@@ -2937,9 +2909,8 @@ elseif ($job == 'confirm2') {
 	$result = $db->query('SELECT id, name, mail FROM '.$db->pre.'user WHERE id = "'.$id.'" LIMIT 1');
 	$row = $db->fetch_assoc($result);
 
-	$db->query("UPDATE {$db->pre}user SET confirm = '11' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}user SET confirm = '11' WHERE id = '{$id}' LIMIT 1");
 
-	$row = $gpc->plain_str($row);
 	$content = $lang->get_mail('admin_confirmed');
 	xmail(array('0' => array('mail' => $row['mail'])), array(), $content['title'], $content['comment']);
 
@@ -2952,7 +2923,7 @@ elseif ($job == 'ips') {
 
 	echo head();
 	if (!empty($username)) {
-		$result = $db->query("SELECT id, name FROM {$db->pre}user WHERE name = '{$username}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT id, name FROM {$db->pre}user WHERE name = '{$username}' LIMIT 1");
 		$userinfo = $db->fetch_assoc($result);
 		$userid = $userinfo['id'];
 		if (!is_id($userid)) {
@@ -2968,7 +2939,7 @@ elseif ($job == 'ips') {
 			if (empty($hostname) || $hostname == $ipaddress) {
 				$hostname = $lang->phrase('admin_member_could_not_resolve_hostname');
 			}
-			$users = $db->query("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u  WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name", __LINE__, __FILE__);
+			$users = $db->query("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u  WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
 			?>
 			<table align="center" class="border">
 			<tr>
@@ -2990,7 +2961,7 @@ elseif ($job == 'ips') {
 					</li>
 					<?php
 				}
-				if ($db->num_rows() == 0) {
+				if ($db->num_rows($result) == 0) {
 					?>
 					<li><?php echo $lang->phrase('admin_member_no_matches'); ?></li>
 					<?php
@@ -3010,7 +2981,7 @@ elseif ($job == 'ips') {
 				<td class="mbox">
 				<ul>
 				<?php
-				$ips = $db->query("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip", __LINE__, __FILE__);
+				$ips = $db->query("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip");
 				while ($ip = $db->fetch_assoc($ips)) {
 					?>
 					<li style="padding: 3px;">
@@ -3019,7 +2990,7 @@ elseif ($job == 'ips') {
 					</li>
 					<?php
 				}
-				if ($db->num_rows() == 0) {
+				if ($db->num_rows($result) == 0) {
 					?>
 					<li><?php echo $lang->phrase('admin_member_no_matches'); ?></li>
 					<?php

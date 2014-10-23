@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ class BBCode {
 	var $benchmark;
 	var $author;
 	var $index;
+	var $url_regex;
 
 	function BBCode ($profile = 'viscacha') {
 	    $this->benchmark = array(
@@ -59,6 +60,8 @@ class BBCode {
 		$this->pid = 0;
 		$this->author = -1;
 		$this->index = 0;
+		// URL RegExp - First match is whole url, two matches predefined
+		$this->url_regex = "((svn://|telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|ed2k://)?[a-z\d\-\.@]{2,}\.[a-z]{2,7}[\w\d;\/\?:@=\&\$\-\.\+\!\*'\(\),\~%#]+?)";
 
 		if (!class_exists('ConvertRoman')) {
 			include_once('classes/class.convertroman.php');
@@ -270,50 +273,6 @@ class BBCode {
 
 	    return $ahref.$chop;
 	}
-	function cb_pdf_code ($matches) {
-		global $lang;
-		$pid = $this->noparse_id();
-
-		list(,,$code,$nl) = $matches;
-	    $rows = explode("\n",$code);
-		$code = $this->code_prepare($code);
-
-	    if (count($rows) > 1) {
-	    	$a = 0;
-	    	$code = '';
-	    	$lines = strlen(count($rows));
-		    foreach ($rows as $row) {
-		        $a++;
-		        $code .= "<tt>".leading_zero($a, $lines)."</tt>: <code>{$row}</code><br>";
-		    }
-
-		    $this->noparse[$pid] = '<br><b>'.$lang->phrase('bb_sourcecode').'</b><br>'.htmlentities($code);
-		}
-		else {
-			$this->noparse[$pid] = '<code>'.htmlentities($code).'</code>';
-			if (!empty($nl)) {
-				$this->noparse[$pid] .= '<br>';
-			}
-		}
-	    return '<!PID:'.$pid.'>';
-	}
-	function cb_pdf_size ($matches) {
-		list(,$size,$content) = $matches;
-		if ($size != 'extended') {
-			if ($size == 'small') {
-				$fontsize = 7;
-			}
-			elseif ($size == 'large') {
-				$fontsize = 9;
-			}
-			else {
-				$fontsize = 8;
-			}
-			$content = "<font size=\"{$fontsize}\">{$content}</font>";
-		}
-
-		return $content;
-	}
 	function cb_plain_list ($matches) {
 		list(, $type, $pattern) = $matches;
 	    $liarray = preg_split('/(\n\s?-\s|\[\*\])/',$pattern);
@@ -383,7 +342,7 @@ class BBCode {
 		$this->cache_bbcode();
 		$text = preg_replace('/(\r\n|\r|\n)/', "\n", $text);
 		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text);
-		$text = preg_replace("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", "\\3", $text);
+		$text = preg_replace("~\[url={$this->url_regex}\](.+?)\[\/url\]~is", "\\3 (\\1)", $text);
 
 		$search = array(
 			'[sub]','[/sub]',
@@ -434,16 +393,13 @@ class BBCode {
 		return $text;
 	}
 
-	// Possible values for $type: html, pdf, plain (with linebreaks)
+	// Possible values for $type: html, plain (with linebreaks)
 	function parse ($text, $type = 'html') {
 		global $lang, $my;
 		$thiszm1=benchmarktime();
 		$this->cache_bbcode();
 		$this->noparse = array();
 		$text = preg_replace('/(\r\n|\r|\n)/', "\n", $text);
-		if ($type != 'pdf') {
-			$text = str_replace('$', '&#36;', $text);
-		}
 		if($type == 'html' && (!empty($my->p['admin']) || ($my->id > 0 && $my->id == $this->author))) {
 		    $text = preg_replace('/\n?\[hide\](.+?)\[\/hide\]/is', '<br /><div class="bb_hide"><strong>'.$lang->phrase('bb_hidden_content').'</strong><span>\1</span></div>', $text);
 		}
@@ -451,7 +407,7 @@ class BBCode {
 		    $text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text);
 		}
 		if ($type == 'plain') {
-			$text = preg_replace("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", "\\3 (\\1)", $text);
+			$text = preg_replace("~\[url={$this->url_regex}\](.+?)\[\/url\]~is", "\\3 (\\1)", $text);
 
 			$search = array(
 			'[sub]','[/sub]',
@@ -498,64 +454,27 @@ class BBCode {
 			$text = preg_replace('/(\[hr\]){1,}/is', "\n-------------------\n", $text);
 			$text = str_ireplace('[tab]', "    ", $text);
 		}
-		elseif ($type == 'pdf') {
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_pdf_code'), $text) : $text;
-			$text = $this->ListWorkAround($text);
-			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', "\\1 (<i>\\2</i>)", $text);
-
-			$text = preg_replace("~\[url\]((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})+:\/\/[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\[\/url\]~is", "<a href=\"\\1\">\\1</a>", $text);
-			$text = preg_replace("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", "<a href=\"\\1\">\\3</a>", $text);
-			$text = empty($this->profile['disallow']['img']) ? preg_replace("/\[img\](([^?&=\[\]]+?)\.(png|gif|bmp|jpg|jpe|jpeg))\[\/img\]/is", "<img src=\"\\1\">", $text) : $text;
-			$text = preg_replace("/\[img\](.+?)\[\/img\]/is", "<a href=\"\\1\">\\1</a>", $text); // Correct incorrect urls
-
-			$text = preg_replace('/\[color=\#?([0-9A-F]{3,6})\](.+?)\[\/color\]/is', "<font color=\"#\\1\">\\2</font>", $text);
-			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/is', "<p align=\"\\1\">\\2</p>", $text);
-
-			$text = preg_replace("/\[email\]([a-z0-9\-_\.\+]+@[a-z0-9\-]+\.[a-z0-9\-\.]+?)\[\/email\]/is", "<a href=\"mailto:\\1\">\\1</a>", $text);
-			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array(&$this, 'cb_header'), $text) : $text;
-			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array(&$this, 'cb_pdf_size'), $text);
-
-			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text)) {
-				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<br><b>".$lang->phrase('bb_quote_by')." \\1:</b><hr><i>\\2</i><hr>", $text);
-			}
-			while (preg_match('/\[quote](.+?)\[\/quote\]/is',$text)) {
-				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/is', "<br><b>".$lang->phrase('bb_quote')."</b><hr><i>\\1</cite></i><hr>", $text);
-			}
-			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit\](.+?)\[\/edit\]/is',$text)) {
-				$text = preg_replace('/\[edit\](.+?)\[\/edit\]\n?/is', "<br><b>".$lang->phrase('bb_edit_author')."</b><hr>\\1<hr>", $text);
-			}
-			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/is',$text)) {
-				$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/is', "<br><b>".$lang->phrase('bb_edit_mod')." \\1:</b><hr>\\2<hr>", $text);
-			}
-			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/is',$text)) {
-				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/is', "<br><b>".$lang->phrase('bb_offtopic')."</b><hr><span style=\"color: #999999\" size=\"7\">\\1</span><hr>", $text);
-			}
-
-			$text = preg_replace('/\[b\](.+?)\[\/b\]/is', "<b>\\1</b>", $text);
-			$text = preg_replace('/\[i\](.+?)\[\/i\]/is', "<i>\\1</i>", $text);
-			$text = preg_replace('/\[u\](.+?)\[\/u\]/is', "<u>\\1</u>", $text);
-			$text = preg_replace('/\[tt\](.+?)\[\/tt\]/is', "<tt>\\1</tt>", $text);
-			$text = preg_replace('/\n?(\[hr\]){1,}\n?/is', "<hr>", $text);
-
-			$text = preg_replace('/\[sub\](.+?)\[\/sub\]/is', "<sub>\\1</sub>", $text);
-			$text = preg_replace('/\[sup\](.+?)\[\/sup\]/is', "<sup>\\1</sup>", $text);
-
-			$text = preg_replace_callback('/\[table(=(\d+\%;head|head;\d+\%|\d+\%|head))?\]\n*(.+?)\n*\[\/table\]\n?/is', array(&$this, 'cb_pdf_table'), $text);
-			$text = str_ireplace('[tab]', "\t", $text);
-
-			$text = $this->tab2space($text);
-			$text = $this->parseSmileys($text);
-		}
 		else {
 			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=(\w+?))?\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_hlcode'), $text) : $text;
 
+			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text, $values)) {
+				$pid = $this->noparse_id();
+				if (check_hp($values[1])) {
+					$this->noparse[$pid] = '<a href="'.$values[1].'" target="_blank">'.$values[1].'</a>';
+				}
+				else {
+					$this->noparse[$pid] = $values[1]; //"\\1";
+				}
+				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote_by')." <!PID:{$pid}>:</strong><br /><blockquote>\\2</blockquote></div>", $text, 1);
+			}
+
 			$text = $this->ListWorkAround($text);
 
-			$text = preg_replace_callback('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', array(&$this, 'cb_note'), $text);
+			$text = preg_replace_callback("~\[url\]{$this->url_regex}\[\/url\]~is", array(&$this, 'cb_url'), $text);
+			$text = preg_replace_callback("~\[url={$this->url_regex}\](.+?)\[\/url\]~is", array(&$this, 'cb_title_url'), $text);
+			$text = preg_replace_callback("~((svn://|telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|ed2k://)[a-z\d\-\.@]{2,}\.[a-z]{2,7}(:\d+)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~]*)?([a-zA-Z0-9/\\\+\=\?]{1}))([^\'\"\<\>\s\r\n\t]{0,8})~is", array(&$this, 'cb_auto_url'), $text);
 
-			$text = preg_replace_callback("~\[url\]((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})+:\/\/[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\[\/url\]~is", array(&$this, 'cb_url'), $text);
-			$text = preg_replace_callback("~\[url=((telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|www.|mailto:|ed2k://|\w+?.\w{2,7})[a-z0-9;\/\?:@=\&\$\-_\.\+!\*'\(\),\~%#]+?)\](.+?)\[\/url\]~is", array(&$this, 'cb_title_url'), $text);
-			$text = preg_replace_callback("~((et://|svn://|telnet://|callto://|irc://|teamspeak://|http://|https://|ftp://|ed2k://|www.)[a-zA-Z0-9\-\.@]+\.[a-zA-Z0-9]{1,7}(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~]*)?([a-zA-Z0-9/\\\+\=\?]{1}))([^\'\"\<\>\s\r\n\t]{0,8})~is", array(&$this, 'cb_auto_url'), $text);
+			$text = preg_replace_callback('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', array(&$this, 'cb_note'), $text);
 
 			$text = empty($this->profile['disallow']['img']) ? preg_replace("/\[img\](([^?&=\[\]]+?)\.(png|gif|bmp|jpg|jpe|jpeg))\[\/img\]/is", '<img src="\1" alt=""'.iif($this->profile['resizeImg'] > 0, ' name="resize"').' />', $text) : $text;
 			$text = preg_replace("/\[img\](.+?)\[\/img\]/is", '<a href="\1" target="_blank">\1</a>', $text); // Correct incorrect urls
@@ -567,15 +486,6 @@ class BBCode {
 			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array(&$this, 'cb_header'), $text) : $text;
 			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array(&$this, 'cb_size'), $text);
 
-			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text, $values)) {
-				if (isset($values[1]) && check_hp($values[1])) {
-					$quote_html = '<a href="\1" target="_blank">\1</a>';
-				}
-				else {
-					$quote_html = "\\1";
-				}
-				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote_by')." {$quote_html}:</strong><br /><blockquote>\\2</blockquote></div>", $text);
-			}
 			while (preg_match('/\[quote](.+?)\[\/quote\]/is',$text)) {
 				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/is', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote')."</strong><br /><blockquote>\\1</blockquote></div>", $text);
 			}
@@ -635,9 +545,6 @@ class BBCode {
 		if ($type == 'plain') {
 			$text = str_replace("\n", " \n", $text); // Evtl. Leerzeichen oder nur Zeilenumbruch...
 		}
-		elseif ($type == 'pdf') {
-			$text = str_replace("\n", "<br>\n", $text);
-		}
 		else {
 			$text = str_replace("\n", "<br />\n", $text);
 		}
@@ -665,10 +572,6 @@ class BBCode {
 		else {
 			return $topic;
 		}
-	}
-
-	function cb_pdf_table($data) {
-		return $this->cb_table($data, 'pdf');
 	}
 
 	function cb_table($data, $type = 'html') {
@@ -745,46 +648,26 @@ class BBCode {
 			}
 		}
 
-		if ($type == 'pdf') {
-			$width = floor(100/$bbcode_table['table']['cols']);
+		$style = ' style="width:'.floor(100/$bbcode_table['table']['cols']).'%;"';
 
-			if($bbcode_table['head']['enabled'] == true){
-				$table_head = '<tr><th bgcolor="#dddddd">'.implode('</th><th bgcolor="#dddddd">',$table_head).'</th></tr>';
-			}
-			else{
-				$table_head = '';
-			}
-
-			for($i=0;$i<$bbcode_table['table']['rows'];$i++){
-				$table_rows[$i] = '<td>'.implode('</td><td>', $table_rows[$i]).'</td>';
-				$table_rows[$i] = '<tr>'.$table_rows[$i].'</tr>';
-			}
-
-			$table_rows = implode('',$table_rows);
-			$table_html = '<table border="1">'.$table_head.$table_rows.'</table>';
+		if($bbcode_table['head']['enabled'] == true){
+			$table_head = '<tr><th'.$style.'>'.implode('</th><th'.$style.'>',$table_head).'</th></tr>';
 		}
-		else {
-			$style = ' style="width:'.floor(100/$bbcode_table['table']['cols']).'%;"';
-
-			if($bbcode_table['head']['enabled'] == true){
-				$table_head = '<tr><th'.$style.'>'.implode('</th><th'.$style.'>',$table_head).'</th></tr>';
-			}
-			else{
-				$table_head = '';
-			}
-
-			for($i=0;$i<$bbcode_table['table']['rows'];$i++){
-				$table_rows[$i] = '<td'.iif($bbcode_table['head']['enabled'], $style).'>'.implode('</td><td'.iif($bbcode_table['head']['enabled'], $style).'>', $table_rows[$i]).'</td>';
-				$table_rows[$i] = '<tr>'.$table_rows[$i].'</tr>';
-			}
-
-			$table_rows = implode('',$table_rows);
-			$table_html = '<table class="bb_table"';
-			if ($bbcode_table['width'] != null){
-				$table_html .= ' style="width:'.$bbcode_table['width'].';"';
-			}
-			$table_html .= '>'.$table_head.$table_rows.'</table>';
+		else{
+			$table_head = '';
 		}
+
+		for($i=0;$i<$bbcode_table['table']['rows'];$i++){
+			$table_rows[$i] = '<td'.iif($bbcode_table['head']['enabled'], $style).'>'.implode('</td><td'.iif($bbcode_table['head']['enabled'], $style).'>', $table_rows[$i]).'</td>';
+			$table_rows[$i] = '<tr>'.$table_rows[$i].'</tr>';
+		}
+
+		$table_rows = implode('',$table_rows);
+		$table_html = '<table class="bb_table"';
+		if ($bbcode_table['width'] != null){
+			$table_html .= ' style="width:'.$bbcode_table['width'].';"';
+		}
+		$table_html .= '>'.$table_head.$table_rows.'</table>';
 		return $table_html;
 	}
 
@@ -813,18 +696,25 @@ class BBCode {
 		return str_replace($char, '&nbsp;', implode("\n", $result));
 	}
 	function getBenchmark($type='bbcode') {
-	    return substr($this->benchmark[$type], 0, 7);
+	    return round($this->benchmark[$type], 5);
 	}
 	function parseSmileys ($text, $type = 'html') {
-	    $thiszm1 = benchmarktime();
-	    $this->cache_smileys();
+	    $start = benchmarktime();
 		if ($type != 'plain') {
+			$this->cache_smileys();
 			foreach ($this->smileys as $smiley) {
-				$text = str_replace(' '.$smiley['search'], ' <img src="'.$smiley['replace'].'" border="0" alt="'.$smiley['desc'].'" />', $text);
+				// Old way to replace smileys - use this when you have problems with smileys
+				// $text = str_replace(' '.$smiley['search'], ' <img src="'.$smiley['replace'].'" border="0" alt="'.$smiley['desc'].'" />', $text);
+				if (strpos($text, $smiley['search']) !== false) {
+					$text = preg_replace(
+						'~(\r|\n|\t|\s|\>|\<|^)'.preg_quote($smiley['search'], '~').'(\r|\n|\t|\s|\>|\<|$)~s',
+						'\1<img src="'.$smiley['replace'].'" border="0" alt="'.$smiley['desc'].'" />\2',
+						$text
+					);
+				}
 			}
 		}
-		$thiszm2 = benchmarktime();
-		$this->benchmark['smileys'] += $thiszm2-$thiszm1;
+		$this->benchmark['smileys'] += benchmarktime() - $start;
 		return $text;
 	}
 	function getSmileys () {
@@ -952,7 +842,7 @@ class BBCode {
 			foreach ($this->bbcodes['word'] as $word) {
 				$this->index++;
 				$word['search'] = trim($word['search']);
-			    if ($type == 'pdf' || $type == 'plain') {
+			    if ($type == 'plain') {
 			    	$text = str_replace(
 			    		'\"',
 			    		'"',

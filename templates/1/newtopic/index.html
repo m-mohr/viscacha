@@ -15,7 +15,7 @@
 </div>
 <br class="minibr" />
 <?php }} ?>
-<form name="form2" method="post" action="newtopic.php?id=<?php echo $board.SID2URL_x; ?>&amp;action=save">
+<form name="form2" method="post" action="newtopic.php?id=<?php echo $board; ?>&amp;fid=<?php echo $fid.SID2URL_x; ?>&amp;action=save">
 <div class="border">
 <h3><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('newtopic_title'); ?></h3>
 <div class="bbody">
@@ -26,27 +26,16 @@
 <label for="email"><?php echo $lang->phrase('email'); ?></label>
 <input tabindex="2" type="text" id="email" class="label" name="email" size="40" value="<?php echo $data['email']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<?php if ($config['botgfxtest_posts'] == 1) { if ($data['human'] != null) { ?>
-<input type="hidden" name="captcha" value="<?php echo $data['human']['captcha']; ?>" />
-<input type="hidden" name="letter" value="<?php echo $data['human']['letter']; ?>" />
-<?php } else { ?>
-<input type="hidden" name="captcha" value="<?php echo $veriid; ?>" />
+<?php if ($captcha !== null) { ?>
 <label for="letter">
-    <?php echo $lang->phrase('veriword_check'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
+	<?php echo $lang->phrase('veriword_check'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
 </label>
 <div class="label">
-    <?php if ($config['botgfxtest_text_verification'] == 0) { ?>
-	  <img alt="" class="right" border="1" width="<?php echo $config['botgfxtest_width']; ?>" height="<?php echo $config['botgfxtest_height']; ?>" src="images.php?action=captcha&amp;type=register&amp;captcha=<?php echo $veriid; ?>" />
-	<?php } else { ?>
-	  <div class="right" style="padding: 2px; font-size: 7px; line-height:7px; font-family: Courier New, monospace">
-	    <?php echo $textcode; ?>
-	  </div>
-    <?php } ?>
-    <input tabindex="3" id="letter" name="letter" type="text" size="8" />
+	<?php echo $captcha->generateCode(3); ?>
 </div>
 <br class="newinput" /><hr class="formsep" />
-<?php } } } else { ?>
+<?php } } else { ?>
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
 <span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
 <br class="newinput" /><hr class="formsep" />

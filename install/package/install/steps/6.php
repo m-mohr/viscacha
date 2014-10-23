@@ -7,22 +7,27 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	include('install/classes/class.phpconfig.php');
 	$c = new manageconfig();
 	$c->getdata('data/config.inc.php');
-	$c->updateconfig('fname',str);
-	$c->updateconfig('fname',str);
-	$c->updateconfig('fdesc',str);
-	$c->updateconfig('furl',str);
-	$c->updateconfig('fpath',str);
-	$c->updateconfig('forenmail',str);
-	$c->updateconfig('cookie_prefix',str);
+	if (!isset($_REQUEST['fname'])) {
+		$_REQUEST['fname'] = '';
+	}
+	if (!isset($_REQUEST['fdesc'])) {
+		$_REQUEST['fdesc'] = '';
+	}
+	$c->updateconfig('fname', str, htmlentities($_REQUEST['fname'], ENT_QUOTES));
+	$c->updateconfig('fdesc', str, htmlentities($_REQUEST['fdesc'], ENT_QUOTES));
+	$c->updateconfig('furl', str);
+	$c->updateconfig('fpath', str);
+	$c->updateconfig('forenmail', str);
+	$c->updateconfig('cookie_prefix', str);
 	$c->updateconfig('langdir', int);
 	$langdir = $c->data['langdir'];
 	if (empty($c->data['cryptkey']) == true) {
-		$c->updateconfig('cryptkey',str,md5(microtime()));
+		$c->updateconfig('cryptkey', str, md5(microtime()));
 	}
-	$c->updateconfig('foffline',int,1);
-	$c->updateconfig('version',str,VISCACHA_VERSION);
+	$c->updateconfig('foffline', int, 1);
+	$c->updateconfig('version', str, VISCACHA_VERSION);
 	if (!empty($c->data['forenmail']) && empty($c->data['pccron_sendlog_email'])) {
-		$c->updateconfig('pccron_sendlog_email',str,$c->data['forenmail']);
+		$c->updateconfig('pccron_sendlog_email', str, $c->data['forenmail']);
 	}
 	$c->savedata();
 

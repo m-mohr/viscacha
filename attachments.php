@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@ if ($_GET['action'] == "thumbnail") {
 		FROM '.$db->pre.'uploads AS u
 			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid
 		WHERE u.id = '.$_GET['id']
-		,__LINE__,__FILE__);
+		);
 		$row = $db->fetch_assoc($result);
 
 		$my->p = $slog->Permissions($row['board']);
@@ -98,7 +98,7 @@ elseif ($_GET['action'] == "attachment") {
 			LEFT JOIN '.$db->pre.'topics AS t ON t.id = u.tid
 		WHERE u.id = '.$_GET['id'].' AND u.tid > 0
 		LIMIT 1
-		',__LINE__,__FILE__);
+		');
 		$row = $db->fetch_assoc($result);
 
 		$my->p = $slog->Permissions($row['board']);
@@ -117,7 +117,7 @@ elseif ($_GET['action'] == "attachment") {
 			error($lang->phrase('no_upload_found'));
 		}
 
-		$db->query('UPDATE '.$db->pre.'uploads SET hits = hits+1 WHERE id = '.$_GET['id'],__LINE__,__FILE__);
+		$db->query('UPDATE '.$db->pre.'uploads SET hits = hits+1 WHERE id = '.$_GET['id']);
 
 		$mime = get_mimetype($uppath);
 
@@ -156,7 +156,7 @@ else {
 
 	($code = $plugins->load('attachments_upload_start')) ? eval($code) : null;
 	if ($_GET['type'] == 'addreply' && is_id($_GET['id'])) {
-		$result = $db->query("SELECT id, board, name, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+		$result = $db->query("SELECT id, board, name, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
 		if ($db->num_rows($result) != 1) {
 			$error = true;
 		}
@@ -176,7 +176,7 @@ else {
 		);
 	}
 	elseif ($_GET['type'] == 'edit' && $_GET['id'] > 0) {
-		$result = $db->query("SELECT id, board, name, topic_id FROM {$db->pre}replies WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+		$result = $db->query("SELECT id, board, name, topic_id FROM {$db->pre}replies WHERE id = '{$_GET['id']}' LIMIT 1");
 		if ($db->num_rows($result) != 1) {
 			$error = true;
 		}
@@ -214,7 +214,7 @@ else {
 				SELECT source
 				FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
-				',__LINE__,__FILE__);
+				');
 
 				while ($row = $db->fetch_num($result)) {
 					if (file_exists('uploads/topics/'.$row[0])) {
@@ -225,7 +225,7 @@ else {
 				$db->query('
 				DELETE FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
-				',__LINE__,__FILE__);
+				');
 
 				$slog->updatelogged();
 				$db->close();
@@ -277,7 +277,7 @@ else {
 				foreach ($insertuploads as $uploaddata) {
 					$uploaddata['file'] = $db->escape_string($uploaddata['file']);
 					$uploaddata['source'] = $db->escape_string($uploaddata['source']);
-					$db->query("INSERT INTO {$db->pre}uploads (file,source,tid,mid,topic_id) VALUES ('{$uploaddata['file']}','{$uploaddata['source']}','{$tid}','{$upper}','{$upinfo['topic_id']}')",__LINE__,__FILE__);
+					$db->query("INSERT INTO {$db->pre}uploads (file,source,tid,mid,topic_id) VALUES ('{$uploaddata['file']}','{$uploaddata['source']}','{$tid}','{$upper}','{$upinfo['topic_id']}')");
 				}
 			}
 
@@ -302,10 +302,10 @@ else {
 		$filesize = formatFilesize($config['tpcfilesize']);
 
 		if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
-			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"',__LINE__,__FILE__);
+			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"');
 		}
 		elseif ($_GET['type'] == 'newtopic' || $_GET['type'] == 'addreply') {
-			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"',__LINE__,__FILE__);
+			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"');
 		}
 		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
 

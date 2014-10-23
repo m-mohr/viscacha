@@ -24,6 +24,7 @@ function highlight_sql_query($sql) {
 function exec_query_form ($query = '') {
 	global $db, $lang;
 	$tables = $db->list_tables();
+	$lang->assign('maxfilesize', formatFilesize(ini_maxupload()));
 ?>
 <script type="text/javascript" src="templates/editor/bbcode.js"></script>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
@@ -51,7 +52,7 @@ function exec_query_form ($query = '') {
  </table>
 </form>
 <br />
-<?php if (empty($query)) { $maxfilesize = formatFilesize(ini_maxupload()); ?>
+<?php if (empty($query)) { ?>
 <form name="form" method="post" action="admin.php?action=db&amp;job=query2&amp;type=1" enctype="multipart/form-data">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -145,11 +146,11 @@ elseif ($job == 'optimize2') {
 
     $rep = $gpc->get('repair', arr_str);
 	if (count($rep) > 0) {
-		$db->query("REPAIR TABLE ".implode(', ',$rep),__LINE__,__FILE__);
+		$db->query("REPAIR TABLE ".implode(', ',$rep));
 	}
 	$opt = $gpc->get('optimize', arr_str);
 	if (count($opt) > 0) {
-		$db->query("OPTIMIZE TABLE ".implode(', ', $opt),__LINE__,__FILE__);
+		$db->query("OPTIMIZE TABLE ".implode(', ', $opt));
 	}
 
 	ok('admin.php?action=db&job=optimize', $lang->phrase('admin_db_tables_repaired_optimized'));
@@ -205,9 +206,12 @@ elseif ($job == 'backup2') {
 	}
 	$structure = $gpc->get('structure', int);
 	$data = $gpc->get('data', int);
+	if (empty($structure) && empty($data)) {
+		error('admin.php?action=db&job=backup', $lang->phrase('admin_db_backup_options_invalid'));
+	}
 	$drop = $gpc->get('drop', int);
 	$zip = $gpc->get('zip', int);
-	$name = gmdate('d_m_Y-H_i_s');
+	$name = $db->database.'-'.gmdate('Ymd-His');
 
 	$temp = array('zip' => $zip, 'drop' => $drop, 'steps' => 0);
 	foreach ($tables as $table) {
@@ -284,11 +288,13 @@ elseif ($job == 'backup3') {
 	$fp = fopen($tfile, 'a');
 	if (is_resource($fp)) {
 		$data = '';
+		$offset_details = '';
 		if ($temp[$step]['structure'] == true) {
 			$data .= $db->new_line.$db->getStructure($temp[$step]['table'], $temp['drop']).$db->new_line;
 		}
 		if ($temp[$step]['offset'] >= 0) {
 			$data .= $db->new_line.$db->getData($temp[$step]['table'], $temp[$step]['offset']).$db->new_line;
+			$offset_details = ' {'.$temp[$step]['offset'].', '.($temp[$step]['offset']+$db->std_limit).'}';
 		}
 
 		fwrite($fp, $data);
@@ -316,7 +322,7 @@ elseif ($job == 'backup3') {
 		   <td class="mbox">
 		   	<div style="width: 600px; border: 1px solid black; background-color: white;"><div style="width: <?php echo ceil($percent)*6; ?>px; background-color: steelblue;">&nbsp;</div></div>
 		   <?php echo $lang->phrase('admin_db_progress').round($percent, 1); ?>%<br /><br />
-		   <?php echo $lang->phrase('admin_db_backup_table_x').' '.$temp[$step]['table'].' {'.$temp[$step]['offset'].', '.($temp[$step]['offset']+$db->std_limit).'}'; ?>
+		   <?php echo $lang->phrase('admin_db_backup_table_x').' '.$temp[$step]['table'].$offset_details; ?>
 		   </td>
 		  </tr>
 		  <tr>
@@ -470,23 +476,23 @@ elseif ($job == 'restore') {
 	$result = array();
 	$dir = "./admin/backup/";
 
+	// Old names: DD_MM_YYYY-HH_MM_SS
+	// New names: DBNAME-YYYYMMDD-HHMMSS
+
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
 		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {
 			$nfo = pathinfo($dir.$file);
 			if ($nfo['extension'] == 'zip' || $nfo['extension'] == 'sql') {
-
-				$date = str_replace('.zip', '', $nfo['basename']);
-				$date = str_replace('.sql', '', $date);
-
 				$result[] = array(
 					'file' => $nfo['basename'],
-					'size' => filesize($dir.$file),
-					'date' => $date
+					'size' => filesize($dir.$file)
 				);
 			}
 		}
 	}
+
+	$maxfilesize = formatFilesize(ini_maxupload());
 ?>
 <form name="form" method="post" action="admin.php?action=db&job=restore2">
  <table class="border">
@@ -531,7 +537,7 @@ elseif ($job == 'restore') {
   </tr>
   <tr>
    <td class="mbox" width="50%">
-    <?php echo $lang->phrase('admin_db_upload_backup'); ?><br /><?php $maxfilesize = formatFilesize(ini_maxupload()); ?>
+    <?php echo $lang->phrase('admin_db_upload_backup'); ?><br />
     <span class="stext"><?php echo $lang->phrase('admin_db_allowed_filetypes_max_filesize'); ?></span>
    </td>
    <td class="mbox" width="50%"><input type="file" name="upload_0" size="40" /></td>
@@ -634,7 +640,7 @@ elseif ($job == 'status') {
 	$result = $db->list_tables();
 
 	if (!empty($table)) {
-		$result11 = $db->query('SHOW TABLE STATUS FROM '.$db->database.' LIKE "'.$table.'"',__LINE__,__FILE__);
+		$result11 = $db->query('SHOW TABLE STATUS FROM '.$db->database.' LIKE "'.$table.'"');
 		$result12 = $db->query('DESCRIBE '.$table);
 ?>
   <table class="border">
@@ -679,8 +685,8 @@ elseif ($job == 'status') {
  <?php
 	}
 	elseif ($status == 1) {
-		$result1 = $db->query('SHOW STATUS',__LINE__,__FILE__);
-		$result2 = $db->query('SHOW VARIABLES',__LINE__,__FILE__);
+		$result1 = $db->query('SHOW STATUS');
+		$result2 = $db->query('SHOW VARIABLES');
  ?>
  <table class="border">
   <tr>

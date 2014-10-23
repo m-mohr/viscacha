@@ -19,7 +19,7 @@ function initImg(size) {
 			HandCursor(switchimg);
 			Switch(switchimg);
 		}
-		else if (document.images[i].name = 'resize') {
+		else if (document.images[i].name == 'resize') {
 			ResizeImg(document.images[i],size);
 		}
 	}

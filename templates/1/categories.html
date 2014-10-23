@@ -1,9 +1,14 @@
-<?php if (count($cats) == 0 && $board == 0) { ?>
-  <div class="border">
-   <h3><?php echo $lang->phrase('re_error_title'); ?></h3>
-   <div class="bbody"><?php echo $lang->phrase('error_no_forums_found'); ?></div>
+<?php if ($error_state) { ?>
+<div class="border">
+  <h3><?php echo $lang->phrase('re_error_title'); ?></h3>
+  <div class="bbody"><?php echo $lang->phrase(iif($hidden == 0, 'error_no_forums_found', 'error_no_forum_permissions')); ?></div>
+  <?php if ($hidden > 0) { ?>
+  <div class="bfoot">
+    <label><?php echo $lang->phrase('logged_in_as'); ?></label><?php echo $my->name; ?>
   </div>
-  <br class="minibr" />
+  <?php } ?>
+</div>
+<br class="minibr" />
 <?php } else { foreach ($cats as $cat) { ?>
   <table class="tables">
     <thead>

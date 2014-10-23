@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -50,6 +50,31 @@ define('REMOTE_IMAGE_HEIGHT_ERROR', 400);
 define('REMOTE_IMAGE_WIDTH_ERROR', 500);
 define('REMOTE_EXTENSION_ERROR', 600);
 define('REMOTE_IMAGE_ERROR', 700);
+
+define('CAPTCHA_FAILURE', 0);
+define('CAPTCHA_OK', 1);
+define('CAPTCHA_MISTAKE', 2);
+define('CAPTCHA_TYPE_2', 'ReCaptcha');
+define('CAPTCHA_TYPE_1', 'VeriWord');
+
+function is_hash($string) {
+	return (bool) preg_match("/^[a-f\d]{32}$/i", $string);
+}
+
+function newCAPTCHA($place = null) {
+	global $config;
+	$place = 'botgfxtest'.iif(!empty($place), '_'.$place);
+	$type = constant('CAPTCHA_TYPE_'.$config[$place]);
+	$filename = strtolower($type);
+	require_once("classes/graphic/class.{$filename}.php");
+	$obj = new $type();
+	return $obj;
+}
+
+function splitWords($text) {
+	$word_seperator = "\\.\\,;:\\+!\\?\\_\\|\s\"'\\#\\[\\]\\%\\{\\}\\(\\)\\/\\\\";
+	return preg_split('/['.$word_seperator.']+?/', $text, -1, PREG_SPLIT_NO_EMPTY);
+}
 
 function checkmx_idna($host) {
 	if (empty($host)) {
@@ -231,16 +256,15 @@ function array_empty($array) {
 	}
 }
 
-function array_empty_trim($arr) {
-	$array = array();
-	if (!is_array($arr)) {
+function array_empty_trim($array) {
+	if (!is_array($array)) {
 		trigger_error('array_empty_trim() expected argument to be an array!', E_USER_NOTICE);
 	}
 	else {
-		foreach($arr as $key => $val) {
-			$trimmed = trim($val);
-			if (!empty($trimmed)) {
-				$array[$key] = $val;
+		foreach($array as $key => $value) {
+			$value = trim($value);
+			if (empty($value)) {
+				unset($array[$key]);
 			}
 		}
 	}
@@ -249,7 +273,7 @@ function array_empty_trim($arr) {
 
 function double_udata ($opt,$val) {
 	global $db;
-	$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE '.$opt.' = "'.$val.'" LIMIT 1',__LINE__,__FILE__);
+	$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE '.$opt.' = "'.$val.'" LIMIT 1');
 	if ($db->num_rows($result) == 0) {
 		if ($opt == 'name') {
 			$olduserdata = file('data/deleteduser.php');
@@ -510,7 +534,7 @@ function secure_path($path) {
 }
 
 function check_hp($hp) {
-	if (preg_match("~^https?://[a-zA-Z0-9\-\.@]+(\.[a-zA-Z0-9]{1,7})?(:[A-Za-z0-9]*)?/?([a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~]*)?$~i", $hp)) {
+	if (preg_match("~^https?://[a-z\d\-\.@]+(\.[a-z]{2,7})?(:\d+)?/?([a-zA-Z0-9\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*)?$~i", $hp)) {
 		return true;
 	}
 	else {
@@ -609,8 +633,7 @@ function subxstr($str, $start, $length = null) {
 
 function random_word($laenge=8) {
     $newpass = "";
-    $string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    mt_srand((double)microtime()*1000000);
+    $string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-_?!.";
 
     for ($i=1; $i <= $laenge; $i++) {
         $newpass .= substr($string, mt_rand(0,strlen($string)-1), 1);
@@ -728,37 +751,46 @@ function get_extension($url, $include_dot = false) {
 		return '.'.strtolower($path_parts["extension"]);
 	}
 }
-function UpdateBoardStats ($board) {
-	global $config, $db, $scache;
-	if ($config['updateboardstats'] == '1') {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='{$board}'",__LINE__,__FILE__);
-		$count = $db->fetch_num ($result);
 
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='{$board}'",__LINE__,__FILE__);
-		$count2 = $db->fetch_num($result);
+function UpdateBoardStats($board) {
+	global $db, $scache;
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='{$board}'");
+	$count = $db->fetch_num ($result);
 
-		$replies = $count[0]-$count2[0];
-		$topics = $count2[0];
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='{$board}'");
+	$count2 = $db->fetch_num($result);
 
-		$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1",__LINE__,__FILE__);
-	    $last = $db->fetch_num($result);
-	    if (empty($last[0])) {
-			$last[0] = 0;
-		}
-		$db->query("
-		UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last[0]}'
-		WHERE id = '{$board}'
-		",__LINE__,__FILE__);
-		$delobj = $scache->load('cat_bid');
-		$delobj->delete();
+	$replies = $count[0]-$count2[0];
+	$topics = $count2[0];
+
+	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
+    $last = $db->fetch_num($result);
+    if (empty($last[0])) {
+		$last[0] = 0;
 	}
+	$db->query("
+	UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last[0]}'
+	WHERE id = '{$board}'
+	");
+	$delobj = $scache->load('cat_bid');
+	$delobj->delete();
+}
+
+function UpdateBoardLastStats($board) {
+	global $db;
+	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
+    $last = $db->fetch_num($result);
+    if (empty($last[0])) {
+		$last[0] = 0;
+	}
+	$db->query("UPDATE {$db->pre}forums SET last_topic = '{$last[0]}' WHERE id = '{$board}'");
 }
 
 function UpdateMemberStats($id) {
 	global $db;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}' AND guest = '0'",__LINE__,__FILE__);
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}' AND guest = '0'");
 	$count = $db->fetch_num ($result);
-	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}'",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}'");
 	return $count[0];
 }
 
@@ -957,21 +989,21 @@ function check_forumperm($forum) {
 }
 
 /*
-Sends a plain-text E-Mail.
+Sends a plain text e-mail in UTF-8.
 
 Params:
-	(array/string)	$to		= Absender
-					$to[]['name'] = Empfängername (opt)
-					$to[]['mail'] = Empfängeremail
-	(array/string)	$from		= Absender (opt)
-					$from['name'] = Absendername (opt)
-					$from['mail'] = Absenderemail (opt)
-	(string)		$topic 		= Titel
-	(string)		$comment 	= Inhalt
+	(array/string)	$to		= Recipient
+					$to[]['name'] = Name of Recipient (opt)
+					$to[]['mail'] = Mail of Recipient
+	(array/string)	$from		= Sender (opt)
+					$from['name'] = Name of Sender (opt)
+					$from['mail'] = Mail of Sender (opt)
+	(string)		$topic 		= Title
+	(string)		$comment 	= Content
 */
 
 function xmail ($to, $from = array(), $topic, $comment) {
-	global $config, $my, $lang, $bbcode;
+	global $config, $my, $lang, $bbcode, $gpc;
 
 	require_once("classes/mail/class.phpmailer.php");
 
@@ -984,13 +1016,13 @@ function xmail ($to, $from = array(), $topic, $comment) {
 		$mail->From = $config['forenmail'];
 	}
 	else {
-		$mail->From = $from['mail'];
+		$mail->From = $gpc->plain_str($from['mail']);
 	}
 	if (!isset($from['name'])) {
-		$mail->FromName = $config['fname'];
+		$mail->FromName = $gpc->plain_str($config['fname']);
 	}
 	else {
-		$mail->FromName = $from['name'];
+		$mail->FromName = $gpc->plain_str($from['name']);
 	}
 	if ($config['smtp'] == 1) {
 		$mail->Mailer   = "smtp";
@@ -1011,20 +1043,20 @@ function xmail ($to, $from = array(), $topic, $comment) {
 		$mail->IsMail();
 	}
 
-	$mail->Subject = $topic;
+	$mail->Subject = $gpc->plain_str($topic);
 	if (!is_array($to)) {
 		$to = array('0' => array('mail' => $to));
 	}
 	$i = 0;
 	foreach ($to as $email) {
 		$mail->IsHTML(false);
-	    $mail->Body = $comment;
+	    $mail->Body = $gpc->plain_str($comment);
 
 	    if (isset($email['name'])) {
-	    	$mail->AddAddress($email['mail'], $email['name']);
+	    	$mail->AddAddress($gpc->plain_str($email['mail']), $gpc->plain_str($email['name']));
 	    }
 	    else {
-	    	$mail->AddAddress($email['mail']);
+	    	$mail->AddAddress($gpc->plain_str($email['mail']));
 	    }
 
 		if ($mail->Send()) {

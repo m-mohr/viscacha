@@ -1,10 +1,10 @@
-<form name="form2" method="post" action="register.php?action=save<?php echo SID2URL_x; ?>">
+<form name="form2" method="post" action="register.php?action=save&amp;fid=<?php echo $fid.SID2URL_x; ?>">
 <div class="border">
 <h3><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_title'); ?></h3>
 <div class="bbody">
 <label for="name"><?php echo $lang->phrase('name'); ?><br /><span class="stext"><?php echo $lang->phrase('minmax_name'); ?></span></label>
 <div class="label">
-    <input class="label_inner" type="text" onblur="ajax_doubleudata(this.value);" id="name" name="name" size="40" value="<?php echo $_GET['name']; ?>" /><br />
+    <input class="label_inner" type="text" onblur="ajax_doubleudata(this.value);" id="name" name="name" size="40" value="<?php echo $data['name']; ?>" /><br />
     <span id="udata_name" class="stext">&nbsp;</span>
 </div>
 <br class="newinput" /><hr class="formsep" />
@@ -25,28 +25,20 @@
 	  <br /><span class="stext"><?php echo $lang->phrase('register_tempmails'); ?></span>
     <?php } ?>
 </label>
-<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $_GET['email']; ?>" />
+<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $data['email']; ?>" />
 <?php foreach ($customfields as $row) { ?>
 <br class="newinput" /><hr class="formsep" />
-  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
+  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'].iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
   <?php echo $row['input']; } ?>
 <br class="newinput" />
-<?php if ($config['botgfxtest'] == 1) { ?>
+<?php if ($captcha !== null) { ?>
 <hr class="formsep" />
-<input type="hidden" name="captcha" value="<?php echo $veriid; ?>" />
 <label for="letter">
-    <?php echo $lang->phrase('veriword_check'); ?><br />
-    <span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
+	<?php echo $lang->phrase('veriword_check'); ?><br />
+	<span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
 </label>
 <div class="label">
-    <?php if ($config['botgfxtest_text_verification'] == 0) { ?>
-	  <img alt="" class="right" border="1" width="<?php echo $config['botgfxtest_width']; ?>" height="<?php echo $config['botgfxtest_height']; ?>" src="images.php?action=captcha&amp;type=register&amp;captcha=<?php echo $veriid; ?>" />
-	<?php } else { ?>
-	  <div class="right" style="padding: 2px; font-size: 7px; line-height:7px; font-family: Courier New, monospace">
-	    <?php echo $textcode; ?>
-	  </div>
-    <?php } ?>
-    <input id="letter" name="letter" type="text" size="8" />
+	<?php echo $captcha->generateCode(3); ?>
 </div>
 <br class="newinput" />
 <?php } ?>
@@ -61,7 +53,7 @@
 <?php } ?>
 </ol>
 <hr class="formsep" />
-<label for="temp" class="textright"><input type="checkbox" id="temp" name="temp" value="1" /></label>
+<label for="temp" class="textright"><input type="checkbox" id="temp" name="temp" value="1"<?php echo iif($data['temp'] == 1, ' checked="checked"'); ?> /></label>
 <div class="label"><?php echo $lang->phrase('register_accept_rules'); ?></div>
 <br class="newinput" />
 <br class="iefix_br" />

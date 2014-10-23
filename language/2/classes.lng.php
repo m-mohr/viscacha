@@ -13,6 +13,7 @@ $lang['mailer_instantiate'] = 'Could not initialise mail function.';
 $lang['mailer_mailer_not_supported'] = '-mailer is not supported.';
 $lang['mailer_provide_address'] = 'Please enter at least one e-mail address.';
 $lang['mailer_recipients_failed'] = 'SMTP error: These addresses are not correct:';
+$lang['mailer_signing'] = 'Signing Error: ';
 $lang['tne_badtype'] = 'Invalid imagetype.';
 $lang['tne_gd1error'] = 'Could not create GD1-thumbnail.';
 $lang['tne_giferror'] = 'Could not create gif-thumbnail.';

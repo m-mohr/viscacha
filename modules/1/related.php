@@ -1,8 +1,7 @@
 $ignorewords = $lang->get_words();
 $ignorewords = array_map("strtolower", $ignorewords);
 
-$word_seperator = "0-9\\.,;:!\\?\\-\\|\n\r\s\"'\\[\\]\\{\\}\\(\\)\\/\\\\";
-$searchtopic = preg_split('/['.$word_seperator.']+?/', strtolower($info['topic']), -1, PREG_SPLIT_NO_EMPTY);
+$searchtopic = splitWords(strtolower($info['topic']));
 
 $sqltopic = array();
 foreach ($searchtopic as $val) {
@@ -20,18 +19,18 @@ $rows = array();
 
 if (count($sqltopic) > 0) {
 	$matchsql = implode(' ', $sqltopic);
-	
+
 	$slog->GlobalPermissions();
 	$boardsql = $slog->sqlinboards('board', 1);
-	
+
 	$result = $db->query("
 	SELECT id, board, topic, MATCH (topic) AGAINST ('{$matchsql}') AS af
 	FROM {$db->pre}topics
 	WHERE {$boardsql} id != '{$_GET['id']}' AND status != '2' AND MATCH (topic) AGAINST ('$matchsql') > 0.6
-	ORDER BY af DESC 
+	ORDER BY af DESC
 	LIMIT {$config['viscacha_related_topics']['relatednum']}"
-	,__LINE__,__FILE__);
-	
+	);
+
 	if ($db->num_rows($result) > 0) {
 		while ($line = $db->fetch_assoc($result)) {
 			$line['topic'] = $gpc->prepare($line['topic']);

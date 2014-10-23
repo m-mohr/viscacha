@@ -472,7 +472,7 @@ a:hover {
 	width: 35px;
 	float: left;
 	background-color: #ffffff;
-	border: 1px solid 888888;
+	border: 1px solid #888888;
 	text-align: center;
 	margin-right: 5px;
 }
@@ -503,27 +503,26 @@ button.mouseOut {
 	cursor: default;
 	text-align: left;
 }
-.wysiwyg-color-picker-table {
-	border: 1px solid #7E7E81;
-	background-color: #F7F7F7;
-	padding: 1px;
+
+.colorpicker-div, .colorpicker-td {
+	line-height: 12px;
+	font-size: 12px;
 }
-.wysiwyg-color-picker-div {
-	font-size: 1px;
-	height:12px;
-	width:12px;
+.colorpicker-div {
+	padding: 10px;
+	background-color: #ffffff;
+	border: 1px solid #000000;
 }
-.selectColorBorder {
-	border: 1px solid #F7F7F7;
+.colorpicker-div img, .colorpicker-td img {
+	width: 8px;
+	height: 10px;
+	display: block;
+	float: left;
+	cursor: pointer;
+	border-width: 1px;
+	border-style: solid;
 }
-.selectColorOn {
-	border: 1px solid #999999;
-	background-color: #CCCCCC;
-}
-.selectColorOff {
-	border: 1px solid #F7F7F7;
-	background-color: #F7F7F7;
-}
+
 .select_color {
 	cursor: hand;
 }

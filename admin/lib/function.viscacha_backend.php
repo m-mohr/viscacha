@@ -73,7 +73,6 @@ $gls = array(
 	'guest' => $lang->phrase('admin_gls_guest'),
 	'members' => $lang->phrase('admin_gls_members'),
 	'profile' => $lang->phrase('admin_gls_profile'),
-	'pdf' => $lang->phrase('admin_gls_pdf'),
 	'pm' => $lang->phrase('admin_gls_pm'),
 	'wwo' => $lang->phrase('admin_gls_wwo'),
 	'search' => $lang->phrase('admin_gls_search'),
@@ -88,8 +87,7 @@ $gls = array(
 	'addvotes' => $lang->phrase('admin_gls_addvotes'),
 	'attachments' => $lang->phrase('admin_gls_attachments'),
 	'edit' => $lang->phrase('admin_gls_edit'),
-	'voting' => $lang->phrase('admin_gls_voting'),
-	'docs' => $lang->phrase('admin_gls_docs')
+	'voting' => $lang->phrase('admin_gls_voting')
 );
 $gll = array(
 	'admin' => $lang->phrase('admin_gll_admin'),
@@ -97,7 +95,6 @@ $gll = array(
 	'guest' => $lang->phrase('admin_gll_guest'),
 	'members' => $lang->phrase('admin_gll_members'),
 	'profile' => $lang->phrase('admin_gll_profile'),
-	'pdf' => $lang->phrase('admin_gll_pdf'),
 	'pm' => $lang->phrase('admin_gll_pm'),
 	'wwo' => $lang->phrase('admin_gll_wwo'),
 	'search' => $lang->phrase('admin_gll_search'),
@@ -112,8 +109,7 @@ $gll = array(
 	'addvotes' => $lang->phrase('admin_gll_addvotes'),
 	'attachments' => $lang->phrase('admin_gll_attachments'),
 	'edit' => $lang->phrase('admin_gll_edit'),
-	'voting' => $lang->phrase('admin_gll_voting'),
-	'docs' => $lang->phrase('admin_gll_docs')
+	'voting' => $lang->phrase('admin_gll_voting')
 );
 
 $glk = array_keys($gls);
@@ -469,8 +465,8 @@ function foot($nocopy = false) {
 		<br style="line-height: 8px;" />
 		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
 	    <div id="copyright">
-	        <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
-	        Copyright &copy; 2004-2007, MaMo Net
+	        Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+	        Copyright &copy; 2004-2009, The Viscacha Project
 	        <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
 	    </div>
 	<?php } ?>

@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,11 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 require_once("classes/function.frontend_init.php");
+
+define('BOARD_STATE_OLD', 0);
+define('BOARD_STATE_NEW', 1);
+define('BOARD_STATE_LOCKED', 2);
+define('BOARD_STATE_WWW', 3);
 
 function getRedirectURL($standard = true) {
 	global $gpc;
@@ -182,13 +187,13 @@ function DocCodeParser($syntax, $parser = 1) {
 }
 
 function GroupCheck($groups) {
-    global $slog;
-    if ($groups == 0 || count(array_intersect(explode(',', $groups), $slog->groups)) > 0) {
-        return true;
-    }
-    else {
-        return false;
-    }
+	global $slog;
+	if ($groups == 0 || count(array_intersect(explode(',', $groups), $slog->groups)) > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 function numbers ($nvar,$deci=null) {
@@ -210,27 +215,27 @@ function numbers ($nvar,$deci=null) {
 
 function formatFilesize($byte) {
 	global $lang;
-    $string = $lang->phrase('fs_byte');
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = $lang->phrase('fs_kb');
-    }
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = $lang->phrase('fs_mb');
-    }
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = $lang->phrase('fs_gb');
-    }
-    if($byte>=1024) {
-        $byte/=1024;
-        $string = $lang->phrase('fs_tb');
-    }
+	$string = $lang->phrase('fs_byte');
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = $lang->phrase('fs_kb');
+	}
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = $lang->phrase('fs_mb');
+	}
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = $lang->phrase('fs_gb');
+	}
+	if($byte>=1024) {
+		$byte/=1024;
+		$string = $lang->phrase('fs_tb');
+	}
 
-    if(numbers($byte) != $byte) {
-    	$byte=numbers($byte);
-    }
+	if(numbers($byte) != $byte) {
+		$byte=numbers($byte);
+	}
 	return $byte." ".$string;
 }
 
@@ -293,14 +298,14 @@ function count_nl($str='',$max=NULL) {
 }
 
 function get_mimetype($file) {
-    global $db, $scache;
+	global $db, $scache;
 
 	$ext = strtolower(get_extension($file));
 
 	$mimetype_headers = $scache->load('mimetype_headers');
 	$mime = $mimetype_headers->get();
 
-    if (isset($mime[$ext])) {
+	if (isset($mime[$ext])) {
 		return array(
 		'mime' => $mime[$ext]['mimetype'],
 		'browser' => $mime[$ext]['stream']
@@ -348,7 +353,7 @@ function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = tr
 	// Array with all page numbers
 	$available_pages = range(1, $anz);
 	// Page data for template
-    $pages = array();
+	$pages = array();
 
 	if ($anz > 10) {
 		// What we want to be shown if available
@@ -410,39 +415,29 @@ function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = tr
 
 	$tpl->globalvars(compact("uri", "anz", "pages"));
 	$lang->assign('anz', $anz);
-    return $tpl->parse("main/pages".$template);
+	return $tpl->parse("main/pages".$template);
 }
 
-function t1 () {
-	return benchmarktime();
-}
-
-function t2 ($time = NULL) {
-	if ($time == NULL) {
-		global $zeitmessung1;
+function t2 ($start = null) {
+	if ($start === null) {
+		$start = SCRIPT_START_TIME;
 	}
-	else {
-		$zeitmessung1 = $time;
-	}
-	$zeitmessung2=benchmarktime();
-
-	$zeitmessung=$zeitmessung2-$zeitmessung1;
-	$zeitmessung=substr($zeitmessung,0,7);
-
-	return $zeitmessung;
+	$duration = benchmarktime() - $start;
+	$duration = round($duration, 5);
+	return $duration;
 }
 
 
 function UpdateTopicStats($topic) {
 	global $db;
-	$resultc = $db->query("SELECT COUNT(*) as posts FROM {$db->pre}replies WHERE topic_id = '{$topic}' AND tstart = '0'",__LINE__,__FILE__);
+	$resultc = $db->query("SELECT COUNT(*) as posts FROM {$db->pre}replies WHERE topic_id = '{$topic}' AND tstart = '0'");
 	$count = $db->fetch_assoc($resultc);
-	$result = $db->query("SELECT date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date DESC LIMIT 1",__LINE__,__FILE__);
+	$result = $db->query("SELECT date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date DESC LIMIT 1");
 	$last = $db->fetch_assoc($result);
-	$result = $db->query("SELECT id, date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date ASC LIMIT 1",__LINE__,__FILE__);
+	$result = $db->query("SELECT id, date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date ASC LIMIT 1");
 	$start = $db->fetch_assoc($result);
-	$db->query("UPDATE {$db->pre}topics SET posts = '{$count['posts']}', last = '{$last['date']}', last_name = '{$last['name']}', date = '{$start['date']}', name = '{$start['name']}' WHERE id = '{$topic}'",__LINE__,__FILE__);
-	$db->query("UPDATE {$db->pre}replies SET tstart = '1' WHERE id = '{$start['id']}'",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}topics SET posts = '{$count['posts']}', last = '{$last['date']}', last_name = '{$last['name']}', date = '{$start['date']}', name = '{$start['name']}' WHERE id = '{$topic}'");
+	$db->query("UPDATE {$db->pre}replies SET tstart = '1' WHERE id = '{$start['id']}'");
 	return $count['posts'];
 }
 
@@ -483,16 +478,16 @@ function BoardSelect($board = 0) {
 	$mod_cache = $index_moderators->get();
 
 	($code = $plugins->load('forums_query')) ? eval($code) : null;
-    // Fetch Forums
+	// Fetch Forums
 	$result = $db->query("
 	SELECT
-    	f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
-    	t.topic as l_topic, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
-    FROM {$db->pre}forums AS f
-        LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id
-        LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id
-    ORDER BY f.parent, f.position
-	",__LINE__,__FILE__);
+		f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
+		t.topic as l_topic, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
+	FROM {$db->pre}forums AS f
+		LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id
+		LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id
+	ORDER BY f.parent, f.position
+	");
 
 	$keys = array('l_topic' => null, 'l_tid' => null, 'l_date' => null, 'l_uname' => null, 'l_name' => null, 'l_bid' => null);
 
@@ -501,92 +496,96 @@ function BoardSelect($board = 0) {
 		$row['l_uname'] = $gpc->prepare($row['l_uname']);
 		$row['l_name'] = $gpc->prepare($row['l_name']);
 		$row['bid'] = $cat_cache[$row['parent']]['parent'];
-	    // Caching for Subforums
-	    if (!empty($row['bid'])) {
-	        $sub_cache[$row['bid']][] = $row;
-	    }
-	    // Caching the Forums
-	    if ($row['bid'] == $board) {
-	        $forum_cache[$row['parent']][] = $row;
-	    }
-	    $last_cache[$row['id']] = $row;
-	    ($code = $plugins->load('forums_caching')) ? eval($code) : null;
+		// Caching for Subforums
+		if (!empty($row['bid'])) {
+			$sub_cache[$row['bid']][] = $row;
+		}
+		// Caching the Forums
+		if ($row['bid'] == $board) {
+			$forum_cache[$row['parent']][] = $row;
+		}
+		$last_cache[$row['id']] = $row;
+		($code = $plugins->load('forums_caching')) ? eval($code) : null;
 	}
 
 	$cats = array();
+	$hidden = 0;
 	// Work with the chached data!
-    foreach ($cat_cache as $cat) {
-    	$cat['forums'] = array();
-        if (isset($forum_cache[$cat['id']]) == false) {
-            continue;
-        }
-        foreach ($forum_cache[$cat['id']] as $forum) {
-            $found = true;
-    		$forum['new'] = false;
-    		$forum['show'] = true;
+	foreach ($cat_cache as $cat) {
+		$cat['forums'] = array();
+		if (isset($forum_cache[$cat['id']]) == false) {
+			continue;
+		}
+		foreach ($forum_cache[$cat['id']] as $forum) {
+			$found = true;
+			$forum['new'] = false;
+			$forum['show'] = true;
 
-    	    // Subforendaten vererben (Letzter Beitrag, Markierung)
-    	    if(isset($sub_cache[$forum['id']])) {
-    			$substats = SubStats($forum['topics'], $forum['replies'], $forum['id'], $sub_cache);
-    			$forum['topics'] = $substats[0];
-    			$forum['replies'] = $substats[1];
-    		}
+			// Subforendaten vererben (Letzter Beitrag, Markierung)
+			if(isset($sub_cache[$forum['id']])) {
+				$substats = SubStats($forum['topics'], $forum['replies'], $forum['id'], $sub_cache);
+				$forum['topics'] = $substats[0];
+				$forum['replies'] = $substats[1];
+			}
 
 			// Letzter Beitrag
-    		$last = $last_cache[$forum['id']];
-    		if(isset($sub_cache[$forum['id']])) {
-    			foreach ($substats[2] as $last_bid) {
-    				$sub = $last_cache[$last_bid];
-    				if ($last['l_date'] < $sub['l_date'] && check_forumperm($sub)) {
-    					$last = $sub;
-    				}
-    			}
-    		}
-    		$forum = array_merge($forum, array_intersect_key($last, $keys));
+			$last = $last_cache[$forum['id']];
+			if(isset($sub_cache[$forum['id']])) {
+				foreach ($substats[2] as $last_bid) {
+					$sub = $last_cache[$last_bid];
+					if ($last['l_date'] < $sub['l_date'] && check_forumperm($sub)) {
+						$last = $sub;
+					}
+				}
+			}
+			$forum = array_merge($forum, array_intersect_key($last, $keys));
 
-    		if (is_id($forum['l_name']) && isset($memberdata[$forum['l_name']])) {
-    			$forum['l_name'] = array($forum['l_uname'], $forum['l_name']);
-    		}
-    		else {
-    			$forum['l_name'] = array($forum['l_name'], 0);
-    		}
+			if (is_id($forum['l_name']) && isset($memberdata[$forum['l_name']])) {
+				$forum['l_name'] = array($forum['l_uname'], $forum['l_name']);
+			}
+			else {
+				$forum['l_name'] = array($forum['l_name'], 0);
+			}
 
-            // Rechte und Gelesensystem
-    		if ($forum['opt'] != 're') {
-    			if (!check_forumperm($forum)) {
-    				if ($forum['invisible'] != 0) {
-    					$forum['show'] = false;
-    				}
+			// Rechte und Gelesensystem
+			if ($forum['opt'] != 're') {
+				if (!check_forumperm($forum)) {
+					if ($forum['invisible'] != 0) {
+						$forum['show'] = false;
+					}
 					$forum['foldimg'] = $tpl->img('cat_locked');
-    				$forum['topics'] = '-';
-    				$forum['replies'] = '-';
-    				$forum['l_topic'] = false;
-    			}
-    			else {
-    				if ($slog->isForumRead($forum['id'], $forum['l_date']) || $forum['topics'] < 1) {
-    					$forum['foldimg'] = $tpl->img('cat_open');
-    				}
-    				else {
-    				   	$forum['foldimg'] = $tpl->img('cat_red');
-    				   	$forum['new'] = true;
-    				}
-		    		if (!empty($forum['l_topic'])) {
-		    			if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
-		    				$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
-		    				$forum['l_topic'] .= "...";
-		    			}
-		    			$forum['l_topic'] = $gpc->prepare($forum['l_topic']);
-		    			$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
+					$forum['state'] = BOARD_STATE_LOCKED;
+					$forum['topics'] = '-';
+					$forum['replies'] = '-';
+					$forum['l_topic'] = false;
+				}
+				else {
+					if ($slog->isForumRead($forum['id'], $forum['l_date']) || $forum['topics'] < 1) {
+						$forum['foldimg'] = $tpl->img('cat_open');
+						$forum['state'] = BOARD_STATE_OLD;
+					}
+					else {
+					   	$forum['foldimg'] = $tpl->img('cat_red');
+					   	$forum['state'] = BOARD_STATE_NEW;
+					   	$forum['new'] = true;
+					}
+					if (!empty($forum['l_topic'])) {
+						if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
+							$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
+							$forum['l_topic'] .= "...";
+						}
+						$forum['l_topic'] = $gpc->prepare($forum['l_topic']);
+						$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
 
-		    		}
-    		    }
-    	    }
-    	    $forum['topics'] = numbers($forum['topics']);
-    	    $forum['replies'] = numbers($forum['replies']);
+					}
+				}
+			}
+			$forum['topics'] = numbers($forum['topics']);
+			$forum['replies'] = numbers($forum['replies']);
 
-    	    // Moderatoren
-    	    $forum['mod'] = array();
-    	    if(isset($mod_cache[$forum['id']])) {
+			// Moderatoren
+			$forum['mod'] = array();
+			if(isset($mod_cache[$forum['id']])) {
 				$anz2 = count($mod_cache[$forum['id']]);
 				for($i = 0; $i < $anz2; $i++) {
 					if ($anz2 != $i+1) {
@@ -595,41 +594,45 @@ function BoardSelect($board = 0) {
 					else {
 						$mod_cache[$forum['id']][$i]['sep'] = '';
 					}
-				    $forum['mod'][] = $mod_cache[$forum['id']][$i];
+					$forum['mod'][] = $mod_cache[$forum['id']][$i];
 				}
 			}
-    	    // Unterforen
-    	    $forum['sub'] = array();
-    	    if ($config['showsubfs']) {
+			// Unterforen
+			$forum['sub'] = array();
+			if ($config['showsubfs']) {
 				if(isset($sub_cache[$forum['id']])) {
 					$anz2 = count($sub_cache[$forum['id']]);
 					$sub = array();
 					for($i = 0; $i < $anz2; $i++) {
 						$show = true;
 						$sub_cache[$forum['id']][$i]['new'] = false;
-			    		if ($sub_cache[$forum['id']][$i]['opt'] != 're') {
-			    			if (!check_forumperm($sub_cache[$forum['id']][$i])) {
-			    				if ($sub_cache[$forum['id']][$i]['invisible'] != 0) {
-			    					$show = false;
-			    				}
-			    				else {
-									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_locked');
+						if ($sub_cache[$forum['id']][$i]['opt'] != 're') {
+							if (!check_forumperm($sub_cache[$forum['id']][$i])) {
+								if ($sub_cache[$forum['id']][$i]['invisible'] != 0) {
+									$show = false;
 								}
-			    			}
-			    			else {
-			    				if ($slog->isForumRead($sub_cache[$forum['id']][$i]['id'], $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['topics'] < 1) {
-			    					$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_open');
-			    				}
-			    				else {
-			    				   	$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_red');
-			    				   	$sub_cache[$forum['id']][$i]['new'] = true;
-			    				}
-			    		    }
-			    	    }
-			    	    else {
-			    	    	$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_redirect');
-			    	    }
-			    	    if ($show == true) {
+								else {
+									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_locked');
+									$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_LOCKED;
+								}
+							}
+							else {
+								if ($slog->isForumRead($sub_cache[$forum['id']][$i]['id'], $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['topics'] < 1) {
+									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_open');
+									$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_OLD;
+								}
+								else {
+								   	$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_red');
+								   	$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_NEW;
+								   	$sub_cache[$forum['id']][$i]['new'] = true;
+								}
+							}
+						}
+						else {
+							$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_redirect');
+							$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_WWW;
+						}
+						if ($show == true) {
 							$forum['sub'][] = $sub_cache[$forum['id']][$i];
 						}
 					}
@@ -637,19 +640,25 @@ function BoardSelect($board = 0) {
 			}
 			($code = $plugins->load('forums_entry_prepared')) ? eval($code) : null;
 			if ($forum['show'] == true) {
-            	$cat['forums'][] = $forum;
-            }
-        }
-        if (count($cat['forums']) > 0) {
-        	$cats[] = $cat;
-        }
-    }
+				$cat['forums'][] = $forum;
+			}
+			elseif ($forum['invisible'] != 2) {
+				$hidden++;
+			}
+		}
+		if (count($cat['forums']) > 0) {
+			$cats[] = $cat;
+		}
+	}
 
-    $tpl->globalvars(compact("cats", "board"));
-    ($code = $plugins->load('forums_prepared')) ? eval($code) : null;
-    echo $tpl->parse("categories");
+	($code = $plugins->load('forums_prepared')) ? eval($code) : null;
+	$error_state = (count($cats) == 0 && $board == 0);
+	if (count($cats) > 0 || $error_state) {
+		$tpl->globalvars(compact("cats", "board", "hidden", "error_state"));
+		echo $tpl->parse("categories");
+	} // Else: This is a forum without sub forums (that should be displayed)
 
-    return $found;
+	return $found;
 }
 
 
@@ -658,7 +667,7 @@ function GoBoardPW ($bpw, $bid) {
 	if(!isset($my->pwfaccess[$bid]) || $my->pwfaccess[$bid] != $bpw) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
 		$tpl->globalvars(compact("bid"));
-        echo $tpl->parse("main/boardpw");
+		echo $tpl->parse("main/boardpw");
 		$slog->updatelogged();
 		$zeitmessung = t2();
 		$tpl->globalvars(compact("zeitmessung"));
@@ -691,7 +700,7 @@ function errorLogin($errormsg=NULL,$errorurl=NULL,$EOS = NULL) {
 
 	($code = $plugins->load('frontend_errorlogin')) ? eval($code) : null;
 	$tpl->globalvars(compact("errormsg","errorurl"));
-    echo $tpl->parse("main/not_allowed");
+	echo $tpl->parse("main/not_allowed");
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
@@ -732,7 +741,7 @@ function error ($errormsg = null,$errorurl = 'javascript:history.back(-1);', $EO
 
 	($code = $plugins->load('frontend_error')) ? eval($code) : null;
 	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
-    echo $tpl->parse("main/error");
+	echo $tpl->parse("main/error");
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
@@ -770,7 +779,7 @@ function ok ($errormsg = NULL, $errorurl = "javascript:history.back(-1)", $EOS =
 
 	($code = $plugins->load('frontend_ok')) ? eval($code) : null;
 	$tpl->globalvars(compact("errormsg","errorurl","js_errorurl"));
-    echo $tpl->parse("main/ok");
+	echo $tpl->parse("main/ok");
 
 	$slog->updatelogged();
 	$zeitmessung = t2();
@@ -793,13 +802,13 @@ function forum_opt($array, $check = 'forum') {
 	global $my, $lang, $tpl;
 	extract($array, EXTR_PREFIX_ALL, 'f');
 	if ($f_opt == 'pw' && (!isset($my->pwfaccess[$f_id]) || $my->pwfaccess[$f_id] != $f_optvalue)) {
-    	if (!$tpl->tplsent('header')) {
-    		echo $tpl->parse('header');
-    	}
-    	if (!$tpl->tplsent('menu')) {
-    		echo $tpl->parse('menu');
-    	}
-	    GoBoardPW($f_optvalue, $f_id);
+		if (!$tpl->tplsent('header')) {
+			echo $tpl->parse('header');
+		}
+		if (!$tpl->tplsent('menu')) {
+			echo $tpl->parse('menu');
+		}
+		GoBoardPW($f_optvalue, $f_id);
 	}
 	elseif ($f_opt == "re") {
 		error($lang->phrase('forumopt_re'), $f_optvalue);
@@ -822,18 +831,15 @@ function import_error_data($fid) {
 	$data = $cache->get();
 	return $data;
 }
-function save_error_data($fc) {
+function save_error_data($fc, $fid = '') {
 	global $gpc;
-	$fid = md5(microtime());
+	if (!is_hash($fid)) {
+		$fid = md5(microtime());
+	}
 
 	$cache = new CacheItem($fid, 'temp/errordata/');
-	if ($cache->exists() == false) {
-		foreach ($fc as $key => $row) {
-			$fc[$key] = $gpc->unescape($row);
-		}
-	    $cache->set($fc);
-	    $cache->export();
-	}
+	$cache->set($fc);
+	$cache->export();
 	return $fid;
 }
 

@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@ SELECT topic, posts, sticky, status, last, board, vquestion, prefix
 FROM '.$db->pre.'topics
 WHERE id = '.$_GET['id'].'
 LIMIT 1
-',__LINE__,__FILE__);
+');
 $info = $gpc->prepare($db->fetch_assoc($result));
 
 $my->p = $slog->Permissions($info['board']);
@@ -110,7 +110,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 	WHERE v.tid = '{$_GET['id']}'
 	GROUP BY v.id
 	ORDER BY v.id
-	",__LINE__,__FILE__);
+	");
 	while ($row = $db->fetch_assoc($vresult)) {
 		$row['answer'] = $gpc->prepare($row['answer']);
 		$cachev[] = $row;
@@ -121,7 +121,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 	}
 	$voter = array();
 	$tids = implode(',', $aids);
-	$rresult = $db->query("SELECT mid, aid FROM {$db->pre}votes WHERE aid IN({$tids})",__LINE__,__FILE__);
+	$rresult = $db->query("SELECT mid, aid FROM {$db->pre}votes WHERE aid IN({$tids})");
 	while ($row = $db->fetch_assoc($rresult)) {
 		if (!isset($voter[$row['aid']]) || ! is_array($voter[$row['aid']])) {
 			$voter[$row['aid']] = array();
@@ -152,7 +152,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = ".$_GET['id'],__LINE__,__FILE__);
+	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = ".$_GET['id']);
 	$uploads = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
@@ -165,7 +165,7 @@ SELECT r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name 
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 WHERE r.topic_id = '{$_GET['id']}' {$searchsql}
-",__LINE__,__FILE__);
+");
 
 while ($row = $db->fetch_object($result)) {
 	$inner['upload_box'] = '';

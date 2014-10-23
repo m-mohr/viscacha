@@ -52,7 +52,11 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<a id="menu_bbcolor_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbcolor_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
 			<div class="popup" id="popup_bbcolor_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
-			<div class="bbcolor"><script type="text/javascript">document.write(writeRow('<?php echo $id; ?>'));</script></div>
+			<div class="bbcolor">
+				<script type="text/javascript">
+					document.write(generateColorPicker("InsertTagsMenu('<?php echo $id; ?>', '[color=<color>]', '[/color]', 'bbcolor_<?php echo $id; ?>')"));
+				</script>
+			</div>
 			</div>
 			<img src="templates/editor/images/seperator.gif" alt="" />
 			<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
@@ -172,8 +176,7 @@ function parseNavPosSetting() {
 	return $arr;
 }
 function attachWYSIWYG() {
-	$r = '<link rel="stylesheet" type="text/css" href="admin/html/wysiwyg.css" />';
-	$r .= '<script type="text/javascript" src="templates/editor/wysiwyg.js"></script>';
+	$r = '<script type="text/javascript" src="templates/editor/wysiwyg.js"></script>';
 	$r .= '<script type="text/javascript"> WYSIWYG.attach("all", full); </script>';
 	return $r;
 }
@@ -220,7 +223,7 @@ if ($job == 'nav') {
  </table>
  <br />
 <?php
-	$result = $db->query("SELECT * FROM {$db->pre}menu ORDER BY position, ordering, id", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}menu ORDER BY position, ordering, id");
 	$sqlcache = array();
 	$cat = array();
 	$sub = array();
@@ -368,15 +371,15 @@ if ($job == 'nav') {
 elseif ($job == 'nav_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}menu WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}menu WHERE id = '{$id}' LIMIT 1");
 	$data = $db->fetch_assoc($result);
 	$data['group_array'] = explode(',', $data['groups']);
 	$pos = parseNavPosSetting();
 
-	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
+	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 
 	if ($data['sub'] > 0) {
-		$result = $db->query("SELECT id, name, sub, position FROM {$db->pre}menu WHERE module = '0' ORDER BY position, ordering, id", __LINE__, __FILE__);
+		$result = $db->query("SELECT id, name, sub, position FROM {$db->pre}menu WHERE module = '0' ORDER BY position, ordering, id");
 		$cache = array(0 => array());
 		while ($row = $db->fetch_assoc($result)) {
 			if (!isset($cache[$row['sub']]) || !is_array($cache[$row['sub']])) {
@@ -387,7 +390,7 @@ elseif ($job == 'nav_edit') {
 	}
 
 	if ($data['module'] > 0) {
-		$plugs = $db->query("SELECT * FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering", __LINE__, __FILE__);
+		$plugs = $db->query("SELECT * FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering");
 	}
 
 	$last = null;
@@ -477,7 +480,7 @@ elseif ($job == 'nav_edit2') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}menu WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}menu WHERE id = '{$id}' LIMIT 1");
 	$data = $db->fetch_assoc($result);
 
 	$title = getNavTitle();
@@ -487,7 +490,7 @@ elseif ($job == 'nav_edit2') {
 
 	$active = $gpc->get('active', int);
 	$groups = $gpc->get('groups', arr_int);
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
 	$count = $db->fetch_num($result);
 	if (count($groups) == $count[0]) {
 		$groups = 0;
@@ -501,23 +504,23 @@ elseif ($job == 'nav_edit2') {
 		$sub = $gpc->get('sub', int);
 		$result = $db->query("SELECT position FROM {$db->pre}menu WHERE id = '{$sub}'");
 		$pos = $gpc->save_str($db->fetch_assoc($result));
-		$db->query("UPDATE {$db->pre}menu SET name = '{$title}', link = '{$url}', param = '{$target}', groups = '{$groups}', sub = '{$sub}', active = '{$active}', position = '{$pos['position']}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}menu SET name = '{$title}', link = '{$url}', param = '{$target}', groups = '{$groups}', sub = '{$sub}', active = '{$active}', position = '{$pos['position']}' WHERE id = '{$id}' LIMIT 1");
 	}
 	else {
 		if ($data['module'] > 0) {
 			$plug = $gpc->get('plugin', int);
-			$result = $db->query("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
 			if ($db->num_rows($result) > 0) {
 				$module_sql = ", module = '{$plug}'";
 				$row = $db->fetch_assoc($result);
 				$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 				// Do not do that anymore, because it may be required
-				// $db->query("UPDATE {$db->pre}plugins SET active = '{$active}' WHERE id = '{$plug}' LIMIT 1", __LINE__, __FILE__);
+				// $db->query("UPDATE {$db->pre}plugins SET active = '{$active}' WHERE id = '{$plug}' LIMIT 1");
 			}
-			$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}'{$module_sql} WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}'{$module_sql} WHERE id = '{$id}' LIMIT 1");
 		}
 		else {
-			$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}' WHERE id = '{$id}' LIMIT 1");
 		}
 	}
 	$delobj = $scache->load('modules_navigation');
@@ -547,10 +550,10 @@ elseif ($job == 'nav_delete2') {
 	$id = $gpc->get('id', int);
 	$delete = array($id);
 
-	$result = $db->query("SELECT id, sub FROM {$db->pre}menu WHERE sub = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, sub FROM {$db->pre}menu WHERE sub = '{$id}'");
 	while($row = $db->fetch_assoc($result)) {
 		$delete[] = $row['id'];
-		$result2 = $db->query("SELECT id FROM {$db->pre}menu WHERE sub = '{$row['id']}'", __LINE__, __FILE__);
+		$result2 = $db->query("SELECT id FROM {$db->pre}menu WHERE sub = '{$row['id']}'");
 		while($row2 = $db->fetch_assoc($result2)) {
 			$delete[] = $row2['id'];
 		}
@@ -558,7 +561,7 @@ elseif ($job == 'nav_delete2') {
 
 	$count = count($delete);
 	$ids = implode(',', $delete);
-	$db->query("DELETE FROM {$db->pre}menu WHERE id IN ({$ids}) LIMIT {$count}", __LINE__, __FILE__);
+	$db->query("DELETE FROM {$db->pre}menu WHERE id IN ({$ids}) LIMIT {$count}");
 	$anz = $db->affected_rows();
 
 	$delobj = $scache->load('modules_navigation');
@@ -573,10 +576,10 @@ elseif ($job == 'nav_move') {
 		error('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_invalid_id_given'));
 	}
 	if ($pos < 0) {
-		$db->query('UPDATE '.$db->pre.'menu SET ordering = ordering-1 WHERE id = '.$id, __LINE__, __FILE__);
+		$db->query('UPDATE '.$db->pre.'menu SET ordering = ordering-1 WHERE id = '.$id);
 	}
 	elseif ($pos > 0) {
-		$db->query('UPDATE '.$db->pre.'menu SET ordering = ordering+1 WHERE id = '.$id, __LINE__, __FILE__);
+		$db->query('UPDATE '.$db->pre.'menu SET ordering = ordering+1 WHERE id = '.$id);
 	}
 
 	$delobj = $scache->load('modules_navigation');
@@ -593,17 +596,17 @@ elseif ($job == 'nav_active') {
 	if ($pos != 0 && $pos != 1) {
 		error('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_invalid_status_specified'));
 	}
-	$db->query('UPDATE '.$db->pre.'menu SET active = "'.$pos.'" WHERE id = '.$id, __LINE__, __FILE__);
+	$db->query('UPDATE '.$db->pre.'menu SET active = "'.$pos.'" WHERE id = '.$id);
 
 	$plug = $gpc->get('plug', int);
 	if ($plug > 0) {
-		$result = $db->query("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
 		if ($db->num_rows($result) > 0) {
 			$module_sql = ", module = '{$plug}'";
 			$row = $db->fetch_assoc($result);
 			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 			// Do not do that anymore, because it may be required
-			// $db->query("UPDATE {$db->pre}plugins SET active = '{$pos}' WHERE id = '{$plug}' LIMIT 1", __LINE__, __FILE__);
+			// $db->query("UPDATE {$db->pre}plugins SET active = '{$pos}' WHERE id = '{$plug}' LIMIT 1");
 		}
 	}
 
@@ -614,12 +617,12 @@ elseif ($job == 'nav_active') {
 elseif ($job == 'nav_addplugin') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY position, ordering, id", __LINE__, __FILE__);
-	$plugs = $db->query("SELECT id, name FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering", __LINE__, __FILE__);
-	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
+	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY position, ordering, id");
+	$plugs = $db->query("SELECT id, name FROM {$db->pre}plugins WHERE position = 'navigation' ORDER BY ordering");
+	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 	$pos = parseNavPosSetting();
 	?>
-<form name="form" method="post" action="admin.php?action=cms&job=nav_addplugin2">
+<form name="form" method="post" action="admin.php?action=cms&amp;job=nav_addplugin2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
    <td class="obox" colspan="2"><?php echo $lang->phrase('admin_cms_nav_add_plugin'); ?></td>
@@ -690,8 +693,8 @@ elseif ($job == 'nav_addplugin') {
 elseif ($job == 'nav_addplugin2') {
 	echo head();
 	$plug = $gpc->get('plugin', int);
-	$result = $db->query("SELECT id, name, active FROM {$db->pre}plugins WHERE id = '{$plug}' AND position = 'navigation'", __LINE__, __FILE__);
-	$data = $db->fetch_assoc();
+	$result = $db->query("SELECT id, name, active FROM {$db->pre}plugins WHERE id = '{$plug}' AND position = 'navigation'");
+	$data = $db->fetch_assoc($result);
 	$title = getNavTitle();
 	if (empty($title)) {
 		$title = $data['name'];
@@ -708,7 +711,7 @@ elseif ($job == 'nav_addplugin2') {
 		$sort = $db->fetch_assoc($result);
 	}
 	$groups = $gpc->get('groups', arr_int);
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
 	$count = $db->fetch_num($result);
 	if (count($groups) == $count[0]) {
 		$groups = 0;
@@ -716,15 +719,15 @@ elseif ($job == 'nav_addplugin2') {
 	else {
 		$groups = implode(',', $groups);
 	}
-	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, active, module, position) VALUES ('{$title}','{$groups}','{$sort['ordering']}','{$data['active']}','{$data['id']}','{$sort['position']}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, active, module, position) VALUES ('{$title}','{$groups}','{$sort['ordering']}','{$data['active']}','{$data['id']}','{$sort['position']}')");
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_plugins_successfully_added'));
 }
 elseif ($job == 'nav_add') {
 	echo head();
-	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
-	$result = $db->query("SELECT id, name, sub, position FROM {$db->pre}menu WHERE module = '0' ORDER BY position, ordering, id", __LINE__, __FILE__);
+	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
+	$result = $db->query("SELECT id, name, sub, position FROM {$db->pre}menu WHERE module = '0' ORDER BY position, ordering, id");
 	$cache = array(0 => array());
 	while ($row = $db->fetch_assoc($result)) {
 		if (!isset($cache[$row['sub']]) || !is_array($cache[$row['sub']])) {
@@ -818,24 +821,24 @@ elseif ($job == 'nav_add2') {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
 
-	$pos = $db->fetch_num($db->query("SELECT position FROM {$db->pre}menu WHERE id = '{$sub}' LIMIT 1", __LINE__, __FILE__));
+	$pos = $db->fetch_num($db->query("SELECT position FROM {$db->pre}menu WHERE id = '{$sub}' LIMIT 1"));
 	if (empty($pos[0])) {
 		$pos = array('left');
 	}
 
 	if ($sort == 1) {
-		$sort = $db->fetch_num($db->query("SELECT MAX(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1", __LINE__, __FILE__));
+		$sort = $db->fetch_num($db->query("SELECT MAX(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1"));
 		$sort = $sort[0]+1;
 	}
 	elseif ($sort == 0) {
-		$sort = $db->fetch_num($db->query("SELECT MIN(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1", __LINE__, __FILE__));
+		$sort = $db->fetch_num($db->query("SELECT MIN(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1"));
 		$sort = $sort[0]-1;
 	}
 	else {
 		$sort = 0;
 	}
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
 	$count = $db->fetch_num($result);
 	if (count($groups) == $count[0]) {
 		$groups = 0;
@@ -843,15 +846,15 @@ elseif ($job == 'nav_add2') {
 	else {
 		$groups = implode(',', $groups);
 	}
-	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, link, param, sub, position) VALUES ('{$title}','{$groups}','{$sort}','{$url}','{$target}','{$sub}','{$pos[0]}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, link, param, sub, position) VALUES ('{$title}','{$groups}','{$sort}','{$url}','{$target}','{$sub}','{$pos[0]}')");
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_link_successfully_added'));
 }
 elseif ($job == 'nav_addbox') {
 	echo head();
-	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY position, ordering, id", __LINE__, __FILE__);
-	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
+	$sort = $db->query("SELECT id, name, position FROM {$db->pre}menu WHERE sub = '0' ORDER BY position, ordering, id");
+	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 	$pos = parseNavPosSetting();
 	?>
 <form name="form" method="post" action="admin.php?action=cms&job=nav_addbox2">
@@ -927,7 +930,7 @@ elseif ($job == 'nav_addbox2') {
 		$sort = $db->fetch_assoc($result);
 	}
 	$groups = $gpc->get('groups', arr_int);
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
 	$count = $db->fetch_num($result);
 	if (count($groups) == $count[0]) {
 		$groups = 0;
@@ -935,7 +938,7 @@ elseif ($job == 'nav_addbox2') {
 	else {
 		$groups = implode(',', $groups);
 	}
-	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, position) VALUES ('{$title}','{$groups}','{$sort['ordering']}','{$sort['position']}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}menu (name, groups, ordering, position) VALUES ('{$title}','{$groups}','{$sort['ordering']}','{$sort['position']}')");
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_box_successfully_added'));
@@ -966,7 +969,7 @@ elseif ($job == 'nav_comslist') {
 		FROM {$db->pre}component AS c
 			LEFT JOIN {$db->pre}packages AS p ON c.package = p.id
 		WHERE p.active = '1' AND c.active = '1'
-	", __LINE__, __FILE__);
+	");
 	?>
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	  <tr>
@@ -985,6 +988,196 @@ elseif ($job == 'nav_comslist') {
 	 </table>
 	<?php
 	echo foot();
+}
+elseif ($job == 'doc_create_table') {
+	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	echo head();
+	?>
+	<table class="border" style="width: 490px;" border="0" cellpadding="4" cellspacing="0" align="center">
+		<tr><td class="obox" colspan="4"><?php echo $lang->phrase('admin_wysiwyg_table_properties'); ?></td></tr>
+		<tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_table_rows'); ?></td>
+			<td><input type="text" size="4" id="rows" name="rows" value="2" /></td>
+			<td><?php echo $lang->phrase('admin_wysiwyg_table_cols'); ?></td>
+			<td><input type="text" size="4" id="cols" name="cols" value="2" /></td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_table_width'); ?></td>
+			<td>
+				<input type="text" name="width" id="width" value="100" size="10" />
+				<select name="widthType" id="widthType">
+					<option value="%">%</option>
+					<option value="px">px</option>
+				</select>
+			</td>
+			<td><?php echo $lang->phrase('admin_wysiwyg_alignment'); ?></td>
+			<td>
+				<select name="alignment" id="alignment">
+					<option value=""<?php echo $lang->phrase('admin_wysiwyg_alignment_not_set'); ?></option>
+					<option value="left"><?php echo $lang->phrase('admin_wysiwyg_alignment_left'); ?></option>
+					<option value="right"><?php echo $lang->phrase('admin_wysiwyg_alignment_right'); ?></option>
+					<option value="center"><?php echo $lang->phrase('admin_wysiwyg_alignment_center'); ?></option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_padding'); ?></td>
+			<td><input type="text" id="padding" name="padding" value="2" size="4" />px</td>
+			<td><?php echo $lang->phrase('admin_wysiwyg_bgcolor'); ?></td>
+			<td>
+				<input type="text" name="backgroundcolor" id="backgroundcolor" value="none">
+				<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('backgroundcolor');" />
+			</td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_border_width'); ?></td>
+			<td><input type="text" size="4" id="borderwidth" name="borderwidth" value="0" />px</td>
+			<td><?php echo $lang->phrase('admin_wysiwyg_border_color'); ?></td>
+			<td>
+				<input type="text" name="bordercolor" id="bordercolor" value="none">
+				<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('bordercolor');" />
+			</td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_border_style'); ?></td>
+			<td>
+				<select id="borderstyle" name="borderstyle">
+					<option value="none">none</option>
+					<option value="solid">solid</option>
+					<option value="double">double</option>
+					<option value="dotted">dotted</option>
+					<option value="dashed">dashed</option>
+					<option value="groove">groove</option>
+					<option value="ridge">ridge</option>
+					<option value="inset">inset</option>
+					<option value="outset">outset</option>
+				</select>
+			</td>
+			<td><?php echo $lang->phrase('admin_wysiwyg_border_collapse'); ?></td>
+			<td><input type="checkbox" name="bordercollapse" id="bordercollapse" checked="checked" /></td>
+		</tr><tr>
+			<td class="ubox" colspan="4" align="center">
+				<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" onClick="buildTable(WYSIWYG_Popup.getParam('wysiwyg'));" />
+				<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" onClick="window.close();" />
+			</td>
+		</tr>
+	</table>
+	<?php
+	echo foot(true);
+}
+elseif ($job == 'doc_insert_hr') {
+	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	echo head();
+	?>
+	<form name="hr_form">
+	<table class="border" width="300" border="0" cellpadding="4" cellspacing="0" align="center">
+		<tr><td class="obox" colspan="3"><?php echo $lang->phrase('admin_wysiwyg_insert_hr'); ?></td></tr>
+		<tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_width'); ?></td>
+			<td><input type="text" name="width" id="width" value="" size="10" /></td>
+			<td>
+				<select name="widthgroup" id="widthgroup" size="1">
+					<option value="1"><?php echo $lang->phrase('admin_wysiwyg_width_full'); ?></option>
+					<option value="2">px</option>
+					<option value="3">%</option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_height'); ?></td>
+			<td colspan="2"><input type="text" name="height" id="height" value="" size="10" /></td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_alignment'); ?></td>
+			<td colspan="2">
+				<select name="align" id="align" size="1">
+					<option value="1"><?php echo $lang->phrase('admin_wysiwyg_alignment_center'); ?></option>
+					<option value="2"><?php echo $lang->phrase('admin_wysiwyg_alignment_left'); ?></option>
+					<option value="3"><?php echo $lang->phrase('admin_wysiwyg_alignment_right'); ?></option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td norwap="nowrap"><?php echo $lang->phrase('admin_wysiwyg_no_shade'); ?></td>
+			<td colspan="2"><input type="checkbox" name="shade" id="shade" value="1" /></td>
+		</tr><tr class="mbox">
+			<td norwap="nowrap"><?php echo $lang->phrase('admin_wysiwyg_color'); ?></td>
+			<td><input type="text" name="color" id="color" value="none" size="10" /></td>
+			<td><input type="button" onClick="WYSIWYG_ColorInst.choose('color');" value="<?php echo $lang->phrase('admin_wysiwyg_choose'); ?>" /></td>
+		</tr><tr>
+			<td class="ubox" colspan="3" align="center">
+				<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" onClick="createHR(WYSIWYG_Popup.getParam('wysiwyg'));" />
+				<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" onClick="window.close();" />
+			</td>
+   		</tr>
+   	</table>
+	</form>
+	<?php
+	echo foot(true);
+}
+elseif ($job == 'doc_insert_hyperlink') {
+	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	echo head('loadLink();');
+	?>
+	<table class="border" width="360" border="0" cellpadding="4" cellspacing="0" align="center">
+		<tr><td class="obox" colspan="3"><?php echo $lang->phrase('admin_wysiwyg_insert_link'); ?></td></tr>
+		<tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_url'); ?></td>
+			<td colspan="2"><input type="text" name="linkUrl" id="linkUrl" value="http://" size="50" /></td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_target'); ?></td>
+			<td><input type="text" name="linkTarget" id="linkTarget" value="" /></td>
+			<td>
+				<select name="linkTargetChooser" id="linkTargetChooser" onchange="updateTarget(this.value);">
+					<option value="" selected="selected"><?php echo $lang->phrase('admin_wysiwyg_custom_target'); ?></option>
+					<option value="_blank">_blank</option>
+					<option value="_self">_self</option>
+					<option value="_parent">_parent</option>
+					<option value="_top">_top</option>
+				</select>
+			</td>
+		</tr><tr class="mbox">
+			<td><?php echo $lang->phrase('admin_wysiwyg_name'); ?></td>
+			<td colspan="2"><input type="text" name="linkName" id="linkName" value="" /></td>
+		</tr><tr>
+			<td class="ubox" colspan="3" align="center">
+				<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" onClick="insertHyperLink(WYSIWYG_Popup.getParam('wysiwyg'));" />
+				<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" onClick="window.close();" />
+			</td>
+		</tr>
+	</table>
+	<?php
+	echo foot(true);
+}
+elseif ($job == 'doc_select_color') {
+	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	echo head("loadColor();");
+	?>
+	<form onSubmit="selectColor(document.getElementById('enterColor').value);">
+	<table class="border" border="0" cellspacing="0" cellpadding="4" style="width: 232px;">
+	 <tr>
+	  <td class="obox"><?php echo $lang->phrase('admin_wysiwyg_select_color'); ?></td>
+	 </tr>
+	 <tr class="mbox" align="center">
+	  <td>
+	    <?php echo $lang->phrase('admin_wysiwyg_hey_code'); ?> <input type="text" size="10" name="enterColor" id="enterColor" /><br /><br class="minibr" />
+	    <input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" />
+	    <input type="button" onclick="self.close();" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" />
+	  </td>
+	 </tr>
+	 <tr>
+	  <td class="obox"><?php echo $lang->phrase('admin_wysiwyg_preview'); ?></td>
+	 </tr>
+	 <tr class="mbox">
+	  <td align="center" id="PreviewColor"><?php echo $lang->phrase('admin_wysiwyg_color_preview'); ?></td>
+	 </tr>
+	 <tr>
+	  <td class="obox"><?php echo $lang->phrase('admin_wysiwyg_predefined_colors'); ?></td>
+	 </tr>
+	 <tr class="mbox">
+	  <td align="center">
+	   <div class="colorpicker-td">
+		<script type="text/javascript">document.write(generateColorPicker("previewColor('<color>')", 'images/empty.gif'));</script>
+	   </div>
+	  </td>
+	 </tr>
+	</table>
+	</form>
+	<?php
+	echo foot(true);
 }
 elseif ($job == 'doc_select_image') {
 	/********************************************************************
@@ -1014,60 +1207,31 @@ elseif ($job == 'doc_select_image') {
 		$leadon = str_replace('\\', '/', $leadon);
 	}
 
-	$sort = $gpc->get('sort', none);
-
 	clearstatcache();
 	$n = 0;
+	$dirs = array();
+	$files = array();
 	if ($handle = opendir($leadon)) {
 		while (false !== ($file = readdir($handle))) {
 			//first see if this file is required in the listing
-			if ($file == "." || $file == "..")  continue;
-			if (@filetype($leadon.$file) == "dir") {
-
-				$n++;
-				if($sort=="date") {
-					$key = @filemtime($leadon.$file) . ".$n";
-				}
-				else {
-					$key = $n;
-				}
-				$dirs[$key] = $file . "/";
+			if ($file == "." || $file == "..") {
+				continue;
 			}
-			else {
-				$n++;
-				if($sort=="date") {
-					$key = @filemtime($leadon.$file) . ".$n";
+			if (is_dir($leadon.$file) == true) {
+				$dirs[] = $file;
+			}
+			else if (is_file($leadon.$file) == true) {
+				$ext = strtolower(get_extension($file));
+				if(in_array($ext, $supportedextentions)) {
+					$files[] = $file;
 				}
-				elseif($sort=="size") {
-					$key = @filesize($leadon.$file) . ".$n";
-				}
-				else {
-					$key = $n;
-				}
-				$files[$key] = $file;
 			}
 		}
 		closedir($handle);
 	}
 
-	if($sort=="date") {
-		@ksort($dirs, SORT_NUMERIC);
-		@ksort($files, SORT_NUMERIC);
-	}
-	elseif($sort=="size") {
-		@natcasesort($dirs);
-		@ksort($files, SORT_NUMERIC);
-	}
-	else {
-		@natcasesort($dirs);
-		@natcasesort($files);
-	}
-
-	$order = $gpc->get('order', none);
-
-	if($order=="desc" && $sort!="size") {$dirs = @array_reverse($dirs);}
-	if($order=="desc") {$files = @array_reverse($files);}
-	$dirs = @array_values($dirs); $files = @array_values($files);
+	natcasesort($dirs);
+	natcasesort($files);
 
 	$fileicons_obj = $scache->load('fileicons');
 	$fileicons = $fileicons_obj->get();
@@ -1082,7 +1246,7 @@ elseif ($job == 'doc_select_image') {
 		}
 
 		if(parent) {
-			parent.document.getElementById("dir").value = '<?php echo iif($dotdotdir, $dir); ?>';
+			parent.document.getElementById("framedir").value = '<?php echo iif($dotdotdir, $dir); ?>';
 		}
 
 	</script>
@@ -1092,36 +1256,31 @@ elseif ($job == 'doc_select_image') {
 			  <?php
 				if($dotdotdir) {
 					?>
-					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<em>Previous Directory</em></a><br>
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<em><?php echo $lang->phrase('admin_wysiwyg_prev_dir'); ?></em></a><br>
 					<?php
 				}
-				$arsize = count($dirs);
-				for($i=0;$i<$arsize;$i++) {
-					$dir = substr($dirs[$i], 0, strlen($dirs[$i]) - 1);
+				$i = -1;
+				foreach ($dirs as $i => $dirname) {
 					?>
-					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirs[$i]); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<?php echo $dir; ?></a><br>
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirname); ?>">
+					<img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<?php echo $dirname; ?>
+					</a><br />
 					<?php
 				}
-				if ($arsize > 0 || $dotdotdir) {
+				if ($i >= 0 || $dotdotdir) {
 					echo "</td></tr><tr><td>";
 				}
-				$arsize = count($files);
-				for($i=0;$i<$arsize;$i++) {
-					$ext = strtolower(substr($files[$i], strrpos($files[$i], '.')+1));
-					if(in_array($ext, $supportedextentions)) {
-						$filename = $files[$i];
-						if (!isset($fileicons[$ext])) {
-							$icon = 'unknown';
-						}
-						else {
-							$icon = $fileicons[$ext];
-						}
+				foreach ($files as $filename) {
+					$ext = strtolower(get_extension($filename));
+					$icon = isset($fileicons[$ext]) ? $fileicons[$ext] : 'unknown';
 					?>
-					<a href="javascript:void(0)" onclick="selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');">
-					<img src="<?php echo $tpl->img('filetypes/'.$icon); ?>" alt="" border="0" />&nbsp;<?php echo $filename; ?>
-					</a><br>
+					<a href="javascript:selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');">
+					  <img src="<?php echo $tpl->img("filetypes/{$icon}"); ?>" alt="<?php echo strtoupper($ext); ?>" border="0" />&nbsp;<?php echo $filename; ?>
+					</a><br />
 					<?php
-					}
+				}
+				if (count($files) == 0) {
+					echo $lang->phrase('admin_wysiwyg_no_files_found');
 				}
 				?>
 			</td>
@@ -1133,131 +1292,156 @@ elseif ($job == 'doc_select_image') {
 elseif ($job == 'doc_insert_image') {
 	$wysiwyg = $gpc->get('wysiwyg', str);
 	$leadon = realpath(EDITOR_IMAGEDIR).DIRECTORY_SEPARATOR;
-	$leadon = str_replace('\\', '/', $leadon);
-	$dir = $gpc->get('dir', none);
-	if(!empty($dir)) {
-		if(substr($dir, -1, 1)!='/') {
-			$dir = $dir . '/';
-		}
-		$dirok = true;
-		$dirnames = split('/', $dir);
-		$count = count($dirnames);
-		for($di=0; $di < $count; $di++) {
-			if($di<(sizeof($dirnames)-2)) {
-				$dotdotdir = $dotdotdir . $dirnames[$di] . '/';
-			}
-		}
-		if(substr($dir, 0, 1)=='/') {
-			$dirok = false;
-		}
-		if($dir == $leadon) {
-			$dirok = false;
-		}
-		if($dirok) {
-			$leadon .= $dir;
-		}
-		else {
-			$dir = '';
+	$image_file = null;
+
+	$dirhandler = opendir($leadon);
+	$dirlist = array();
+	while ($dir = readdir ($dirhandler)) {
+		if ($dir != '.' && $dir != '..' && is_dir($dir)) {
+			$dirlist[] = $dir;
 		}
 	}
+	closedir($dirhandler);
+	natcasesort($dirlist);
 
 	// upload file
 	$error = null;
     if (!empty($_FILES['file']['name'])) {
-    	require("classes/class.upload.php");
-		$my_uploader = new uploader();
-		$my_uploader->max_filesize(ini_maxupload());
-		$my_uploader->file_types($supportedextentions);
-		$my_uploader->set_path($leadon);
-		if ($my_uploader->upload('file')) {
-			$my_uploader->save_file();
+		$path = $leadon;
+
+		$qdir = $gpc->get('dir', none);
+		$ndir = $gpc->get('newdir', none);
+		if($qdir == '#') {
+			if (!preg_match('/[^\w\d\-\.]/i', $qdir) || empty($ndir)) {
+				$error = $lang->phrase('admin_wysiwyg_folder_restrictions');
+			}
+			else {
+				if ($filesystem->mkdir($leadon.$ndir, 0777)) {
+					$path = $leadon.$ndir;
+				}
+			}
 		}
-		if ($my_uploader->upload_failed()) {
-			$error = $my_uploader->get_error();
-		}
-		$file = $leadon.$my_uploader->fileinfo('filename');
-		if (!file_exists($file)) {
-		    $error = $lang->phrase('admin_cms_file_does_not_exist');
+
+		if ($error === null) {
+	    	require("classes/class.upload.php");
+			$my_uploader = new uploader();
+			$my_uploader->max_filesize(ini_maxupload());
+			$my_uploader->file_types($supportedextentions);
+			$my_uploader->set_path($path);
+			if ($my_uploader->upload('file')) {
+				$my_uploader->save_file();
+			}
+			if ($my_uploader->upload_failed()) {
+				$error = $my_uploader->get_error();
+			}
+			$image_file = $path.$my_uploader->fileinfo('filename');
+			if (!file_exists($image_file)) {
+			    $error = $lang->phrase('admin_cms_file_does_not_exist');
+			}
+			$image_file = str_replace(realpath($config['fpath']).DIRECTORY_SEPARATOR, '', $image_file);
+			$image_file = str_replace(DIRECTORY_SEPARATOR, '/', $image_file);
 		}
     }
+
+    $filesize = formatFilesize(ini_maxupload());
+
     $htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
-    $htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-color.js"></script>';
-    $htmlhead .= '<script type="text/javascript"> function onloader() { WYSIWYG_ColorInst.init(); loadImage(); } </script>';
-    echo head(' onLoad="onloader();"');
+    echo head(' onLoad="loadImage();"');
 	?>
 <form method="post" action="admin.php?action=cms&amp;job=doc_insert_image&amp;wysiwyg=<?php echo $wysiwyg; ?>" enctype="multipart/form-data">
-<input type="hidden" id="dir" name="dir" value="">
 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center" style="width: 700px;">
 	<tr>
-		<td class="obox" colspan="4">Insert Image</td>
-		<td class="obox">Select Image</td>
+		<td class="obox" colspan="3"><?php echo $lang->phrase('admin_wysiwyg_upload_x'); ?></td>
 	</tr>
 	<tr class="mbox">
-		<td width="120">Upload:<br /><span class="stext">Max Filesize: <?php echo formatFilesize(ini_maxupload()); ?></span></td>
-		<td colspan="3" width="330">
-			<input type="file" name="file" size="30" />
-			<?php
-			if ($error !== null) {
-				echo '<br /><span class="stext">'.$error.'</span>';
-			}
-			?>
+		<td><?php echo $lang->phrase('admin_wysiwyg_folder'); ?></td>
+		<td>
+			<select name="dir" onchange="dirSelect(this)">
+				<option value=""<?php echo iif(empty($dir), ' selected="selected"'); ?>>Hauptverzeichnis</option>
+				<?php if (count($dirlist) > 0) { ?>
+				<optgroup label="Existierende Verzeichnisse">
+					<?php foreach ($dirlist as $dir) { ?>
+					<option value="<?php echo $dir; ?>"<?php echo iif($dir == $qdir, ' selected="selected"'); ?>><?php echo $dir; ?></option>
+					<?php } ?>
+				</optgroup>
+				<?php } ?>
+				<option value="#"<?php echo iif($dir == '#', ' selected="selected"'); ?>>Neues Verzeichnis erstellen:</option>
+			</select>
+			<input type="text" name="newdir" id="newdir" style="display: none;" size="30" />
 		</td>
+		<td rowspan="2" valign="middle" align="center" class="ubox"><input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_upload'); ?>"></td>
+	</tr>
+	<tr class="mbox">
+		<td><?php echo $lang->phrase('admin_wysiwyg_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_wysiwyg_max_filesize'); ?></span></td>
+		<td>
+			<input type="file" name="file" size="50" />
+			<?php if ($error !== null) { ?><br /><span class="stext"><?php echo $error; ?></span><?php } ?>
+		</td>
+	</tr>
+</table>
+<input type="hidden" name="framedir" id="framedir" value="" />
+</form>
+<br class="minibr" />
+<table class="border" border="0" cellspacing="0" cellpadding="4" align="center" style="width: 700px;">
+	<tr>
+		<td class="obox" colspan="4"><?php echo $lang->phrase('admin_wysiwyg_insert_img'); ?></td>
+		<td class="obox"><?php echo $lang->phrase('admin_wysiwyg_select_img'); ?></td>
+	</tr>
+	<tr class="mbox">
+		<td><?php echo $lang->phrase('admin_wysiwyg_image_url'); ?></td>
+		<td colspan="3"><input type="text" name="src" id="src" value="<?php echo iif(!empty($image_file), $image_file); ?>" size="50" /></td>
 		<td rowspan="8" width="250">
 			<iframe id="chooser" height="260" width="250" frameborder="0" src="admin.php?action=cms&amp;job=doc_select_image&amp;dir=<?php echo urlencode($dir); ?>"></iframe>
 		</td>
 	</tr><tr class="mbox">
-		<td>Image URL:</td>
-		<td colspan="3"><input type="text" name="src" id="src" value="" size="50" /></td>
-	</tr><tr class="mbox">
-		<td>Alternate Text:</td>
+		<td><?php echo $lang->phrase('admin_wysiwyg_alt_text'); ?></td>
 		<td colspan="3"><input type="text" name="alt" id="alt" value="" size="50" /></td>
 	</tr>
-	<tr><td class="obox" colspan="4">Layout</td></tr>
+	<tr><td class="obox" colspan="4"><?php echo $lang->phrase('admin_wysiwyg_layout'); ?></td></tr>
 	<tr class="mbox">
-	  <td width="120">Width:</td>
+	  <td width="120"><?php echo $lang->phrase('admin_wysiwyg_width'); ?></td>
 	  <td width="105"><input type="text" name="width" id="width" value="" size="10" />px</td>
-	  <td width="120">Height:</td>
+	  <td width="120"><?php echo $lang->phrase('admin_wysiwyg_height'); ?></td>
 	  <td width="105"><input type="text" name="height" id="height" value="" size="10" />px</td>
 	</tr>
 	<tr class="mbox">
-	  <td>Horizontal Space:</td>
+	  <td><?php echo $lang->phrase('admin_wysiwyg_hspace'); ?></td>
 	  <td><input type="text" name="hspace" id="hspace" value="" size="10" /></td>
-	  <td>Vertical Space:</td>
+	  <td><?php echo $lang->phrase('admin_wysiwyg_vspace'); ?></td>
 	  <td><input type="text" name="vspace" id="vspace" value="" size="10" /></td>
 	</tr>
 	<tr class="mbox">
-	  <td>Border-Width:</td>
+	  <td><?php echo $lang->phrase('admin_wysiwyg_border_width'); ?></td>
 	  <td><input type="text" name="border" id="border" value="0" size="10" />px</td>
-	  <td>Alignment:</td>
+	  <td><?php echo $lang->phrase('admin_wysiwyg_alignment'); ?></td>
 	  <td>
 		<select name="align" id="align">
-		 <option value="">Not Set</option>
-		 <option value="left">Left</option>
-		 <option value="right">Right</option>
-		 <option value="bottom">Bottom</option>
-		 <option value="middle">Middle</option>
-		 <option value="top">Top</option>
+		 <option value=""><?php echo $lang->phrase('admin_wysiwyg_alignment_not_set'); ?></option>
+		 <option value="left"><?php echo $lang->phrase('admin_wysiwyg_alignment_left'); ?></option>
+		 <option value="right"><?php echo $lang->phrase('admin_wysiwyg_alignment_right'); ?></option>
+		 <option value="bottom"><?php echo $lang->phrase('admin_wysiwyg_alignment_bottom'); ?></option>
+		 <option value="middle"><?php echo $lang->phrase('admin_wysiwyg_alignment_middle'); ?></option>
+		 <option value="top"><?php echo $lang->phrase('admin_wysiwyg_alignment_top'); ?></option>
 		</select>
 	  </td>
 	</tr>
 	<tr class="mbox">
-	  <td>Border-Color:</td>
+	  <td><?php echo $lang->phrase('admin_wysiwyg_border_color'); ?></td>
 	  <td colspan="3">
 	  	<input type="text" name="bordercolor" id="bordercolor" value="none" size="10" />
-	  	<input type="button" value="Choose" onClick="WYSIWYG_ColorInst.choose('bordercolor');" />
+	  	<input type="button" value="<?php echo $lang->phrase('admin_wysiwyg_choose'); ?>" onClick="WYSIWYG_ColorInst.choose('bordercolor', 1);" />
 	  </td>
 	</tr>
 	<tr class="mbox">
-	  <td colspan="5" class="ubox" align="center">
-		<input type="submit" value="Submit" onclick="insertImage();return false;">
-		<input type="submit" value="Upload">
-		<input type="button" value="Cancel" onclick="window.close();">
+	  <td colspan="4" class="ubox" align="center">
+		<input type="submit" value="<?php echo $lang->phrase('admin_wysiwyg_form_submit'); ?>" onclick="insertImage();return false;">
+		<input type="button" value="<?php echo $lang->phrase('admin_wysiwyg_form_cancel'); ?>" onclick="window.close();">
 	  </td>
 	</tr>
 	</table>
 	</form>
 	<?php
-	echo foot();
+	echo foot(true);
 }
 elseif ($job == 'doc') {
 	$memberdata_obj = $scache->load('memberdata');
@@ -1270,7 +1454,7 @@ elseif ($job == 'doc') {
 		FROM {$db->pre}documents AS d
 			LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
 		ORDER BY c.title
-	", __LINE__, __FILE__);
+	");
 	$data = array();
 	while ($row = $db->fetch_assoc($result)) {
 		if(is_id($row['author']) && isset($memberdata[$row['author']])) {
@@ -1370,10 +1554,10 @@ elseif ($job == 'doc') {
 elseif ($job == 'doc_ajax_active') {
 	$id = $gpc->get('id', int);
 	$lid = $gpc->get('lid', int);
-	$result = $db->query("SELECT active FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT active FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1");
 	$use = $db->fetch_assoc($result);
 	$use = invert($use['active']);
-	$db->query("UPDATE {$db->pre}documents_content SET active = '{$use}' WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}documents_content SET active = '{$use}' WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1");
 	$delobj = $scache->load('wraps');
 	$delobj->delete();
 	die(strval($use));
@@ -1431,7 +1615,7 @@ elseif ($job == 'doc_add2') {
 		$htmlhead .= attachWYSIWYG();
 	}
 	echo head(' onload="hideLanguageBoxes()"');
-  	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
+  	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 ?>
 <form id="form" method="post" action="admin.php?action=cms&job=doc_add3&type=<?php echo $type; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1525,9 +1709,6 @@ elseif ($job == 'doc_add3') {
 
 	$i = 0;
 	foreach ($use as $lid => $usage) {
-		if ($format['remote'] == 1) {
-			$content[$lid] = '';
-		}
 		if ($usage == 1) {
 			$i++;
 		}
@@ -1536,7 +1717,7 @@ elseif ($job == 'doc_add3') {
 		error('javascript:history.back(-1);', $lang->phrase('admin_cms_havent_checked_box'));
 	}
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups', __LINE__, __FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
 	$count = $db->fetch_num($result);
 	if (count($groups) == $count[0]) {
 		$groups = 0;
@@ -1547,7 +1728,7 @@ elseif ($job == 'doc_add3') {
 
 	$time = time();
 
-	$db->query("INSERT INTO {$db->pre}documents (`author`, `date`, `update`, `type`, `groups`, `icomment`) VALUES ('{$my->id}', '{$time}' , '{$time}' , '{$type}', '{$groups}', '{$icomment}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}documents (`author`, `date`, `update`, `type`, `groups`, `icomment`) VALUES ('{$my->id}', '{$time}' , '{$time}' , '{$type}', '{$groups}', '{$icomment}')");
 	$did = $db->insert_id();
 
 	foreach ($use as $lid => $usage) {
@@ -1555,7 +1736,7 @@ elseif ($job == 'doc_add3') {
 			if (strlen($content[$lid]) < 20) {
 				$content[$lid] = trim(strip_tags($content[$lid]));
 			}
-			if (empty($content[$lid])) {
+			if (empty($content[$lid]) && $format['remote'] != 1) {
 				continue;
 			}
 			if (empty($title[$lid])) {
@@ -1564,15 +1745,15 @@ elseif ($job == 'doc_add3') {
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
 			}
-			if ($format['parser'] == 3) {
+			if ($format['parser'] == 3) { // bb code page
 				// Handle bb-code like in the forums (entites etc.)
 				$content[$lid] = $gpc->save_str($content[$lid]);
 			}
-			else {
+			else { // html page or inline frame
 				$content[$lid] = $db->escape_string($content[$lid]);
 			}
 			$lid = $gpc->save_int($lid);
-			$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$did}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')", __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$did}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')");
 		}
 	}
 
@@ -1586,9 +1767,9 @@ elseif ($job == 'doc_delete') {
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
 		$deleteids = implode(',', $delete);
-		$db->query("DELETE FROM {$db->pre}documents WHERE id IN ({$deleteids})", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}documents WHERE id IN ({$deleteids})");
 		$anz = $db->affected_rows();
-		$db->query("DELETE FROM {$db->pre}documents_content WHERE did IN ({$deleteids})", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}documents_content WHERE did IN ({$deleteids})");
 
 		$delobj = $scache->load('wraps');
 		$delobj->delete();
@@ -1603,20 +1784,20 @@ elseif ($job == 'doc_edit') {
 	$id = $gpc->get('id', int);
 	$types = doctypes();
 
-	$result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}'");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_invalid_id_given'));
 	}
 	$row = $db->fetch_assoc($result);
 
-	$result = $db->query("SELECT content, active, title, lid FROM {$db->pre}documents_content WHERE did = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT content, active, title, lid FROM {$db->pre}documents_content WHERE did = '{$id}'");
 	$content = array();
 	while ($row2 = $db->fetch_assoc($result)) {
 		$content[$row2['lid']] = $row2;
 	}
 
 	$format = $types[$row['type']];
-	$groups = $db->query("SELECT id, name FROM {$db->pre}groups", __LINE__, __FILE__);
+	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 	$garr = explode(',', $row['groups']);
 
 	$memberdata_obj = $scache->load('memberdata');
@@ -1740,7 +1921,7 @@ elseif ($job == 'doc_edit2') {
   	$groups = $gpc->get('groups', arr_int);
   	$content = $gpc->get('template', arr_none);
 
-	$result = $db->query("SELECT type FROM {$db->pre}documents WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT type FROM {$db->pre}documents WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_document_doesnt_exist'));
 	}
@@ -1750,9 +1931,6 @@ elseif ($job == 'doc_edit2') {
 
 	$i = 0;
 	foreach ($use as $lid => $usage) {
-		if ($format['remote'] == 1) {
-			$content[$lid] = '';
-		}
 		if ($usage == 1) {
 			$i++;
 		}
@@ -1772,7 +1950,7 @@ elseif ($job == 'doc_edit2') {
 
 	$time = time();
 
-	$db->query("UPDATE {$db->pre}documents SET `update` = '{$time}', `groups` = '{$groups}', `author` = '{$author}', `icomment` = '{$icomment}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}documents SET `update` = '{$time}', `groups` = '{$groups}', `author` = '{$author}', `icomment` = '{$icomment}' WHERE id = '{$id}' LIMIT 1");
 
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
@@ -1789,7 +1967,7 @@ elseif ($job == 'doc_edit2') {
 			$content[$lid] = trim(strip_tags($content[$lid]));
 		}
 		if (empty($content[$lid]) || $usage != 1) {
-			$db->query("DELETE FROM v_documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
+			$db->query("DELETE FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
 		}
 		elseif ($usage == 1) {
 			if (empty($title[$lid])) {
@@ -1798,19 +1976,19 @@ elseif ($job == 'doc_edit2') {
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
 			}
-			$result = $db->query("SELECT lid FROM v_documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
-			if ($format['parser'] == 3) {
+			$result = $db->query("SELECT lid FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
+			if ($format['parser'] == 3) { // bb code page
 				// Handle bb-code like in the forums (entites etc.)
 				$content[$lid] = $gpc->save_str($content[$lid]);
 			}
-			else {
+			else { // html page or inline frame
 				$content[$lid] = $db->escape_string($content[$lid]);
 			}
 			if ($db->num_rows($result) == 1) {
-				$db->query("UPDATE {$db->pre}documents_content SET `title` = '{$title[$lid]}', `content` = '{$content[$lid]}', `active` = '{$active[$lid]}' WHERE did = '{$id}' AND lid = '{$lid}'", __LINE__, __FILE__);
+				$db->query("UPDATE {$db->pre}documents_content SET `title` = '{$title[$lid]}', `content` = '{$content[$lid]}', `active` = '{$active[$lid]}' WHERE did = '{$id}' AND lid = '{$lid}'");
 			}
 			else {
-				$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$id}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')", __LINE__, __FILE__);
+				$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$id}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')");
 			}
 		}
 	}
@@ -1842,7 +2020,7 @@ elseif ($job == 'doc_code') {
 	echo foot();
 }
 elseif ($job == 'feed') {
-	$result = $db->query("SELECT * FROM {$db->pre}grab ORDER BY title", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}grab ORDER BY title");
 	$num = $db->num_rows($result);
 	echo head();
 ?>
@@ -1933,7 +2111,7 @@ elseif ($job == 'feed_add2') {
 		$max_age = 60*12;
 	}
 
-	$db->query("INSERT INTO {$db->pre}grab (title, file, entries, max_age) VALUES ('{$title}','{$file}','{$entries}','{$max_age}')", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}grab (title, file, entries, max_age) VALUES ('{$title}','{$file}','{$entries}','{$max_age}')");
 
 	$delobj = $scache->load('grabrss');
 	$delobj->delete();
@@ -1949,7 +2127,7 @@ elseif ($job == 'feed_delete') {
 			$deleteids[] = 'id = '.$did;
 		}
 
-		$db->query('DELETE FROM '.$db->pre.'grab WHERE '.implode(' OR ',$deleteids), __LINE__, __FILE__);
+		$db->query('DELETE FROM '.$db->pre.'grab WHERE '.implode(' OR ',$deleteids));
 		$anz = $db->affected_rows();
 
 		$delobj = $scache->load('grabrss');
@@ -1967,7 +2145,7 @@ elseif ($job == 'feed_edit') {
 	if (empty($id)) {
 		error('admin.php?action=cms&job=feed', 'Invalid ID given');
 	}
-	$result = $db->query('SELECT * FROM '.$db->pre.'grab WHERE id = '.$id, __LINE__, __FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'grab WHERE id = '.$id);
 	$row = $db->fetch_assoc($result);
 ?>
 <form name="form" method="post" action="admin.php?action=cms&job=feed_edit2&id=<?php echo $id; ?>">
@@ -2024,7 +2202,7 @@ elseif ($job == 'feed_edit2') {
 		$max_age = 60*12;
 	}
 
-	$db->query("UPDATE {$db->pre}grab SET file = '{$file}', title = '{$title}', entries = '{$entries}', max_age = '{$max_age}' WHERE id = '{$id}'", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}grab SET file = '{$file}', title = '{$title}', entries = '{$entries}', max_age = '{$max_age}' WHERE id = '{$id}'");
 
 	$delobj = $scache->load('grabrss');
 	$delobj->delete();

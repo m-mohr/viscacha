@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -32,8 +32,8 @@ if (!defined('VISCACHA_CORE')) {
 require_once("data/config.inc.php");
 
 if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
-	header("HTTP/1.0 301 Moved Permanently");
-    header('Location: index.php');
+	require_once("classes/function.phpcore.php");
+	sendStatusCode(301, 'index.php');
     exit;
 }
 
@@ -46,8 +46,7 @@ if ($plugins->countPlugins('portal') == 0) {
 	else {
 		$slog->updatelogged();
 		$db->close();
-		header("HTTP/1.0 301 Moved Permanently");
-	    header('Location: forum.php');
+		sendStatusCode(301, 'index.php');
 	    exit;
 	}
 }

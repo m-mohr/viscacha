@@ -1,12 +1,10 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -23,6 +21,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class ProfileFieldViewer {
 
@@ -59,7 +59,7 @@ class ProfileFieldViewer {
 		if ($this->settings == null) {
 			global $db;
 			$this->settings = array();
-			$query = $db->query("SELECT * FROM {$db->pre}profilefields ORDER BY disporder", __LINE__, __FILE__);
+			$query = $db->query("SELECT * FROM {$db->pre}profilefields ORDER BY disporder");
 			while($row = $db->fetch_assoc($query)) {
 				$thing = explode("\n", $row['type'], 2);
 				$row['type'] = $thing[0];
@@ -97,7 +97,7 @@ class ProfileFieldViewer {
 			global $db, $gpc;
 			$this->cache[$this->uid] = array();
 			$this->data[$this->uid] = array();
-			$result = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$this->uid}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$this->uid}'");
 			$row = $db->fetch_assoc($result);
 			unset($row['ufid']);
 			$row = $gpc->prepare($row);

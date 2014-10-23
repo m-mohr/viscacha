@@ -177,7 +177,7 @@ elseif ($job == 's_general_image') {
 
 	$max = 0;
 	$cache = array();
-	$result = $db->query("SELECT COUNT(*) AS nr, DATE_FORMAT(FROM_UNIXTIME($datefield),'$sqlformat') AS timeorder, MAX($datefield) AS statdate FROM $table WHERE $datefield > '$from' AND $datefield < '$to' $sql GROUP BY timeorder ORDER BY $datefield $sort", __LINE__, __FILE__);
+	$result = $db->query("SELECT COUNT(*) AS nr, DATE_FORMAT(FROM_UNIXTIME($datefield),'$sqlformat') AS timeorder, MAX($datefield) AS statdate FROM $table WHERE $datefield > '$from' AND $datefield < '$to' $sql GROUP BY timeorder ORDER BY $datefield $sort");
 	while ($row = $db->fetch_assoc($result)) {
 		$statdate = date($phpformat, $row['statdate']);
 
@@ -374,28 +374,28 @@ if ($show == 1) {
 <?php
 	}
 	else {
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'replies',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'replies');
 	$posts = $db->fetch_num($result);
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics');
 	$topics = $db->fetch_num($result);
 	$replies = $posts[0]-$topics[0];
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""');
 	$vote = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user');
 	$members = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type != "f"',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type != "f"');
 	$abos = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type = "f"',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type = "f"');
 	$favs = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'uploads',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'uploads');
 	$uploads = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'votes',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'votes');
 	$votes = $db->fetch_num($result);
 ?>
  <table class="border">

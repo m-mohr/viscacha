@@ -23,9 +23,6 @@
 	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>
 	 <ul>
 	 <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('print'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_print'); ?></a></li>
-<?php if ($config['pdfdownload'] == 1) { ?>
-	  <li><a href="pdf.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pdf'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_pdf'); ?></a></li>
-<?php } ?>
 	 </ul>
 	</div>
 <?php if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0') { ?>
@@ -69,9 +66,6 @@
 	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>
 	 <ul>
 	 <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('print'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_print'); ?></a></li>
-<?php if ($config['pdfdownload'] == 1) { ?>
-	  <li><a href="pdf.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pdf'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_pdf'); ?></a></li>
-<?php } ?>
 	  <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>&amp;action=word"><img src="<?php echo $tpl->img('word'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_word'); ?></a></li>
 	 </ul>
 	</div>

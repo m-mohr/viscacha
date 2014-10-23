@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -76,7 +76,7 @@ $breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
 $breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
 
 if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
-	$result=$db->query('SELECT id, name, opt_hidemail, mail FROM '.$db->pre.'user WHERE id = '.$_GET['id'],__LINE__,__FILE__);
+	$result=$db->query('SELECT id, name, opt_hidemail, mail FROM '.$db->pre.'user WHERE id = '.$_GET['id']);
 	$row = $slog->cleanUserData($db->fetch_object($result));
 	$breadcrumb->Add($lang->phrase('profile_mail_2'));
 
@@ -113,7 +113,7 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 				set_flood();
 				$to = array('0' => array('name' => $row->name, 'mail' => $row->mail));
 				$from = array('name' => $my->name, 'mail' => $my->mail);
-				xmail($to, $from, $_POST['topic'], $gpc->unescape($_POST['comment']));
+				xmail($to, $from, $gpc->get('topic', none), $gpc->get('comment', none));
 				ok($lang->phrase('email_sent'),"profile.php?id=".$_GET['id'].SID2URL_x);
 			}
 
@@ -125,8 +125,9 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 				$row->mail = str_replace($chars, $entities, $row->mail);
 			}
 
-			if (strlen($_GET['fid']) == 32) {
-				$data = $gpc->prepare(import_error_data($_GET['fid']));
+			$fid = $gpc->get('fid', str);
+			if (is_hash($fid)) {
+				$data = $gpc->unescape(import_error_data($fid));
 			}
 			else {
 				$data = array(
@@ -162,7 +163,7 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 		$error[] = $lang->phrase('query_string_error');
 	}
 
-	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
+	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
 
 	$row = $slog->cleanUserData($db->fetch_assoc($result));
 	if (empty($row[$_GET['type']])) {
@@ -215,7 +216,7 @@ elseif ($is_guest) {
 elseif ($is_member) {
 	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.id = {$_GET['id']}",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.id = {$_GET['id']}");
 
 	$breadcrumb->resetUrl();
 	echo $tpl->parse("header");
@@ -277,6 +278,10 @@ elseif ($is_member) {
 			if ($bday[0] > 1000) {
 				$bday_age = getAge($bday);
 			}
+			else {
+				$bday_age = null;
+				$bday[0] = 0;
+			}
 			$show_bday = true;
 		}
 		else {
@@ -288,7 +293,7 @@ elseif ($is_member) {
 
 		$osi = '';
 		if ($config['osi_profile'] == 1) {
-			$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id'],__LINE__,__FILE__);
+			$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
 			$wwo = $db->fetch_num($result);
 			if ($wwo[0] > 0) {
 				$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
@@ -332,7 +337,7 @@ elseif ($is_member) {
 }
 else {
 	$db->close();
-	viscacha_header('Location: members.php');
+	sendStatusCode(301, 'members.php');
 	exit;
 }
 

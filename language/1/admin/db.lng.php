@@ -6,6 +6,7 @@ $lang['admin_db_all'] = 'Alle';
 $lang['admin_db_allowed_filetypes_max_filesize'] = 'Erlaubte Dateitypen: .sql, .zip - maximale Dateigröße: {$maxfilesize}';
 $lang['admin_db_backup'] = 'Datenbank-Sicherung';
 $lang['admin_db_backup_missing_permissions'] = 'Datenbank-Sicherung wurde auf Grund von fehlenden Rechten nicht erstellt.';
+$lang['admin_db_backup_options_invalid'] = 'Die Wahl der Optionen war leider nicht korrekt. Sie müssen entweder die Struktur und/oder die Daten exportieren.';
 $lang['admin_db_backup_prepared'] = 'Die Erstellung der Datenbank-Sicherung wurde vorbereitet. Die DB-Sicherung wird nun erstellt...';
 $lang['admin_db_backup_successfully_created'] = 'Datenbank-Sicherung wurde erfolgreich erstellt.';
 $lang['admin_db_backup_tables'] = 'Datenbank-Sicherung durchführen: Schritt 1';

@@ -162,9 +162,6 @@ h1 a, h1 a:hover {
 #blank h3 img, #content h3 img, #window h3 img, .tables th img, .h3 img {
 	vertical-align: middle;
 }
-.inlineheader {
-	border-top: 1px solid #839FBC;
-}
 .topfooter {
 	border-top: 0px solid;
 }
@@ -259,16 +256,18 @@ h1 a, h1 a:hover {
 	border-bottom: 1px solid #839FBC;
 }
 
-#blank h3, #content h3, .outline {
+#blank h3, #content h3, #window h3, #blank h3, .h3 {
 	border: 1px solid #839FBC;
 }
-#blank .border h3, #content .border h3 {
+#blank .border h3, #content .border h3, #window .border h3, .border .h3 {
 	border-width: 0px;
 }
 .h3 {
 	font-weight: bold;
 }
-
+.inlineheader, #blank .border .inlineheader, #content .border .inlineheader, #window .border .inlineheader {
+	border-top: 1px solid #839FBC;
+}
 
 /* Oberes Menü im Forum */
 .topmenu {
@@ -285,6 +284,7 @@ h1 a, h1 a:hover {
 	font-weight: bold;
 	padding-right: 0.5em;
 	padding-left: 0.5em;
+	white-space: nowrap;
 }
 
 /* Footer */
@@ -523,6 +523,7 @@ label, .labeldiv {
 	border-top: 1px solid #336699;
 	padding: 0px;
 	display: block;
+	white-space: normal;
 }
 .popup li form, .popup li p {
 	padding: 2px;
@@ -591,12 +592,12 @@ label, .labeldiv {
 	min-height: 50px;
 	width: 560px;
 }
-.bb_blockcode li {
-	white-space: pre;
+.bb_blockcode * {
 	font-family: 'Courier New', monospace;
-	font-weight: normal;
-	font-style: normal;
-	margin-left: 4px;
+}
+.bb_blockcode li {
+	margin-left: 12px;
+	white-space: pre;
 }
 .bb_blockcode a {
 	border-bottom: 1px dotted #000000;
@@ -718,7 +719,6 @@ label, .labeldiv {
 	font-size: 9pt;
 	border-width: 0px;
 	width: 100%;
-	overflow: auto;
 	margin: -4px;
 	padding: 4px;
 }
@@ -734,11 +734,11 @@ label, .labeldiv {
 .editor_statusbar a:hover {
 	text-decoration: underline;
 }
-
 .editor_textarea_outer .popup {
 	border: 1px solid #888888;
 	max-height: 250px;
 	width: 200px;
+	overflow: auto;
 }
 .editor_textarea_outer .popup ul {
 	list-style-type: none;
@@ -754,7 +754,7 @@ label, .labeldiv {
 }
 .editor_textarea_outer .popup li {
 	border-width: 0px;
-	padding: 2px 3px 1px 3px;
+	padding: 2px 3px 2px 3px;
 	background-color: #ffffff;
 	font-size: 9pt;
 }
@@ -774,27 +774,18 @@ label, .labeldiv {
 .bbcolor {
 	padding: 10px;
 	background-color: #ffffff;
-	line-height: 13px;
-	font-size: 13px;
+	line-height: 12px;
+	font-size: 12px;
 }
-.bbcolor span {
-	width: 10px;
-	height: 13px;
+.bbcolor img {
+	width: 8px;
+	height: 10px;
 	display: block;
 	float: left;
 	cursor: pointer;
+	border-width: 1px;
+	border-style: solid;
 }
-.bbcolor img {
-	width: 10px;
-	height: 13px;
-	border-width: 0px;
-}
-.bbcolor img:hover {
-	width: 8px;
-	height: 11px;
-	border: 1px solid #ffffff;
-}
-
 .bbtable {
 	background-color: #ffffff;
 	padding: 4px;

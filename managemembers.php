@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -299,10 +299,10 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 			($code = $plugins->load('managemembers_edit2_savedata')) ? eval($code) : null;
 			$db->query("
 			UPDATE {$db->pre}user
-			SET groups = '".saveCommaSeparated($_POST['groups'])."', timezone = '".$_POST['temp']."', opt_textarea = '".$_POST['opt_0']."', opt_pmnotify = '".$_POST['opt_1']."', opt_hidebad = '".$_POST['opt_2']."', opt_hidemail = '".$_POST['opt_3']."', template = '".$_POST['opt_4']."', language = '".$_POST['opt_5']."', pic = '".$_POST['pic']."', about = '".$_POST['comment']."', icq = '".$_POST['icq']."', yahoo = '".$_POST['yahoo']."', aol = '".$_POST['aol']."', msn = '".$_POST['msn']."', jabber = '".$_POST['jabber']."', skype = '{$_POST['skype']}', birthday = '".$bday."', gender = '".$_POST['gender']."', hp = '".$_POST['hp']."', signature = '".$_POST['signature']."', location = '".$_POST['location']."', fullname = '".$_POST['fullname']."', mail = '".$_POST['email']."', name = '".$_POST['name']."' {$update_sql}
-			WHERE id = '".$user['id']."'
+			SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_textarea = '{$_POST['opt_0']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidebad = '{$_POST['opt_2']}', opt_hidemail = '{$_POST['opt_3']}', template = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', skype = '{$_POST['skype']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql}
+			WHERE id = '{$user['id']}'
 			LIMIT 1
-			",__LINE__,__FILE__);
+			");
 			ok($lang->phrase('data_success'), "profile.php?id=".$user['id']);
 		}
 	}

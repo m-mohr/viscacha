@@ -17,7 +17,8 @@ elseif (empty($job) || $job == 'start') {
 	$tasks = array();
 
 	// Install-folder
-	if (is_dir('./install/')) {
+	$path = realpath('./install/');
+	if (is_dir($path)) {
 		$tasks[] = '<span style="color: red;">'.$lang->phrase('admin_task_remove_installdir1').' <strong><a href="admin.php?action=explorer&amp;job=delete_install">'.$lang->phrase('admin_task_remove_installdir2').'</a></strong></span>';
 	}
 

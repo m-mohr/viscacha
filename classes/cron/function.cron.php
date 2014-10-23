@@ -184,16 +184,21 @@ function runJob($job) {
 		$argv = $job[PC_ARGS];
 
 		$jobData = getJobTempData($job);
+
 		$benchmark = job_benchmark_start();
+		ob_start();
+	    include(CRON_PATH.$job[PC_CMD]);
+	    $return = trim(ob_get_contents());
+	    ob_end_clean();
+	    $seconds = job_benchmark_end($benchmark);
+
 	    if ($debug) {
-	     	include(CRON_PATH.$job[PC_CMD]);
+	    	echo $return;
 	    }
-	    else {
-	      	$e = @error_reporting(0);
-	      	include(CRON_PATH.$job[PC_CMD]);
-	      	@error_reporting($e);
+
+	    if (!empty($return)) {
+			logMessage("  Script returned:\t".makeOneLine($return));
 	    }
-		$seconds = job_benchmark_end($benchmark);
 		logMessage("  Execution time:\t$seconds seconds");
 
 	    markLastRun($job, $lastScheduled, $jobData);
@@ -285,13 +290,11 @@ function InitCron() {
 }
 
 function job_benchmark_start() {
-	$zeitmessung1=benchmarktime();
-	return $zeitmessung1;
+	return benchmarktime();
 }
-function job_benchmark_end($zeitmessung1) {
-	$zeitmessung2=benchmarktime();
-	$zeitmessung=$zeitmessung2-$zeitmessung1;
-	$zeitmessung=substr($zeitmessung,0,6);
-	return $zeitmessung;
+function job_benchmark_end($start) {
+	$duration = benchmarktime() - $start;
+	$duration = round($duration, 5);
+	return $duration;
 }
 ?>

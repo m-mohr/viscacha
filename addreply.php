@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -33,8 +33,9 @@ include ("classes/function.viscacha_frontend.php");
 ($code = $plugins->load('addreply_topic_query')) ? eval($code) : null;
 
 $id = $gpc->get('id', int);
+$fid = $gpc->get('fid', str);
 
-$result = $db->query("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'",__LINE__,__FILE__);
+$result = $db->query("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'");
 
 $info = $db->fetch_assoc($result);
 if ($db->num_rows($result) == 0) {
@@ -73,29 +74,40 @@ if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) {
 	$p_upload = 1;
 }
 
+$standard_data = array(
+			'name' => '',
+			'email' => '',
+			'guest' => iif($my->vlogin, 0, 1),
+			'comment' => '',
+			'dosmileys' => 1,
+			'dowords' => 1,
+			'digest' => -1,
+			'topic' => $lang->phrase('reply_prefix').$info['topic'],
+			'human' => false,
+			'id' => $id
+		);
+
 ($code = $plugins->load('addreply_start')) ? eval($code) : null;
 
 if ($_GET['action'] == "save") {
 	$digest = $gpc->get('digest', int);
 	$error = array();
-	$human = null;
+	if (is_hash($fid)) {
+		$error_data = import_error_data($fid);
+	}
+	$human = empty($error_data['human']) ? false : $error_data['human'];
 	if (!$my->vlogin) {
-		if ($config['botgfxtest_posts'] == 1) {
-			include("classes/graphic/class.veriword.php");
-			$vword = new VeriWord();
-			if($_POST['letter']) {
-				if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
-					$error[] = $lang->phrase('veriword_mistake');
-				}
-				else {
-				     $human = array(
-                            'captcha' => $_POST['captcha'],
-							'letter' => $_POST['letter']
-					 );
-				}
+		if ($config['botgfxtest_posts'] > 0 && $human == false) {
+			$captcha = newCAPTCHA('posts');
+			$status = $captcha->check();
+			if ($status == CAPTCHA_FAILURE) {
+				$error[] = $lang->phrase('veriword_failed');
+			}
+			elseif ($status == CAPTCHA_MISTAKE) {
+				$error[] = $lang->phrase('veriword_mistake');
 			}
 			else {
-				$error[] = $lang->phrase('veriword_failed');
+				$human = true;
 			}
 		}
 		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
@@ -156,7 +168,9 @@ if ($_GET['action'] == "save") {
 			'id' => $id,
 			'digest' => $digest,
 			'guest' => 0,
-			'human' => $human
+			'human' => $human,
+			'name' => null,
+			'email' => null
 		);
 		if (!$my->vlogin) {
 			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
@@ -169,7 +183,7 @@ if ($_GET['action'] == "save") {
 			$data['name'] = $_POST['name'];
 		}
 		($code = $plugins->load('addreply_save_errordata')) ? eval($code) : null;
-		$fid = save_error_data($data);
+		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
@@ -198,20 +212,20 @@ if ($_GET['action'] == "save") {
 		UPDATE {$db->pre}topics
 		SET last_name = '{$pnameid}', last = '{$date}', posts = posts+1
 		WHERE id = '{$id}'
-		",__LINE__,__FILE__);
+		");
 
 		$db->query("
 		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest,edit,report)
 		VALUES ('{$info['board']}','{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
-		",__LINE__,__FILE__);
+		");
 		$redirect = $db->insert_id();
 
 		// Set uploads to correct reply
-		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'");
 
 		// Update, insert, delete notifications
 		if ($my->vlogin) {
-			$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 			switch ($digest) {
 				case 1:  $type = '';  break;
 				case 2:  $type = 'd'; break;
@@ -222,24 +236,24 @@ if ($_GET['action'] == "save") {
 			if ($db->num_rows($result) > 0) {
 				$row = $db->fetch_assoc($result);
 				if ($type === null) { // Lösche Abo
-					$db->query("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'", __LINE__, __FILE__);
+					$db->query("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'");
 				}
 				elseif ($row['type'] != $type) { // Aktualisiere Abo, wenn veränderter Typ
-					$db->query("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'", __LINE__, __FILE__);
+					$db->query("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'");
 				}
 			}
 			else {
 				if ($type !== null) { // Füge Abo hinzu
-					$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')",__LINE__,__FILE__);
+					$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')");
 				}
 			}
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'",__LINE__,__FILE__);
+			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'");
 		}
 
-		$db->query ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$id}' WHERE id = '{$info['board']}'",__LINE__,__FILE__);
+		$db->query ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$id}' WHERE id = '{$info['board']}'");
 
 		$lang_dir = $lang->getdir(true);
 		// ToDo: Send only one notification on more than one answer
@@ -249,10 +263,9 @@ if ($_GET['action'] == "save") {
 			LEFT JOIN {$db->pre}user AS u ON u.id = a.mid
 			LEFT JOIN {$db->pre}topics AS t ON t.id = a.tid
 		WHERE a.type = '' AND a.tid = '{$id}' AND a.mid != '{$my->id}'
-		",__LINE__,__FILE__);
+		");
 		while ($row = $db->fetch_assoc($result)) {
 			$lang->setdir($row['language']);
-			$row = $gpc->plain_str($row);
 			$data = $lang->get_mail('digest_s');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 			$from = array();
@@ -274,7 +287,7 @@ if ($_GET['action'] == "save") {
 		if ($close == 1 && $my->vlogin) {
 			$my->mp = $slog->ModPermissions($info['board']);
 			if ($my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
+				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'");
 			}
 		}
 
@@ -291,8 +304,8 @@ else {
 
 	($code = $plugins->load('addreply_form_start')) ? eval($code) : null;
 
-	if (strlen($_GET['fid']) == 32) {
-		$data = $gpc->prepare(import_error_data($_GET['fid']));
+	if (is_hash($fid)) {
+		$data = $gpc->unescape(import_error_data($fid));
 		if ($id != $data['id']) {
 			error($lang->phrase('query_string_error'), 'showforum.php?id='.$info['board'].SID2URL_x);
 		}
@@ -305,21 +318,14 @@ else {
 			$bbcode->setReplace($data['dowords']);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
 		}
-		if (isset($data['human']) == false) {
-			$data['human'] = null;
+		foreach ($standard_data as $key => $value) {
+			if (!isset($data[$key])) {
+				$data[$key] = $value;
+			}
 		}
 	}
 	else {
-		$data = array(
-			'name' => '',
-			'email' => '',
-			'comment' => '',
-			'dosmileys' => 1,
-			'dowords' => 1,
-			'digest' => -1,
-			'topic' => $lang->phrase('reply_prefix').$info['topic'],
-			'human' => null
-		);
+		$data = $standard_data;
 
 		$memberdata_obj = $scache->load('memberdata');
 		$memberdata = $memberdata_obj->get();
@@ -340,7 +346,7 @@ else {
 			FROM '.$db->pre.'replies
 			WHERE id IN('.implode(',',$qids).')
 			LIMIT '.$config['maxmultiquote']
-			,__LINE__,__FILE__);
+			);
 
 			while($row = $gpc->prepare($db->fetch_assoc($result))) {
 				if ($row['guest'] == 0) {
@@ -361,17 +367,15 @@ else {
 		}
 	}
 
-	if ($config['botgfxtest_posts'] == 1 && is_null($data['human']) == true) {
-		include("classes/graphic/class.veriword.php");
-		$vword = new VeriWord();
-		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
-		if ($config['botgfxtest_text_verification'] == 1) {
-			$textcode = $vword->output_word($veriid);
-		}
+	if ($config['botgfxtest_posts'] > 0 && $data['human'] == false) {
+		$captcha = newCAPTCHA('posts');
+	}
+	else {
+		$captcha = null;
 	}
 
 	if ($my->vlogin && $data['digest'] == -1) {
-		$result = $db->query("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'",__LINE__,__FILE__);
+		$result = $db->query("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 		if ($db->num_rows($result) > 0) {
 			$temp = $db->fetch_assoc($result);
 			switch ($temp['type']) {

@@ -58,7 +58,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$error[] = 'The specified passwords are not exactly the same';
 			}
 
-			$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_REQUEST['name'].'" LIMIT 1',__LINE__,__FILE__);
+			$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_REQUEST['name'].'" LIMIT 1');
 			if ($db->num_rows($result) > 0) {
 				$error[] = 'The specified user name is already in use';
 			}
@@ -78,7 +78,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			else {
 			    $reg = time();
 			    $_REQUEST['pwx'] = md5($_REQUEST['pwx']);
-				$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$_REQUEST['name']}', '{$_REQUEST['pwx']}', '{$_REQUEST['email']}', '{$reg}', '11', '1', '', '', '')",__LINE__,__FILE__);
+				$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$_REQUEST['name']}', '{$_REQUEST['pwx']}', '{$_REQUEST['email']}', '{$reg}', '11', '1', '', '', '')");
 				?>
 		<div class="bfoot">Your account (<em><?php echo $_REQUEST['name']; ?></em>) has been created!</div>
 				<?php

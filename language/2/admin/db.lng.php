@@ -6,6 +6,7 @@ $lang['admin_db_all'] = 'All';
 $lang['admin_db_allowed_filetypes_max_filesize'] = 'Allowed file types: .sql, .zip - Maximum file size: {$maxfilesize}';
 $lang['admin_db_backup'] = 'Backup';
 $lang['admin_db_backup_missing_permissions'] = 'Backup was not created on account of missing permissions!';
+$lang['admin_db_backup_options_invalid'] = 'The chosen options are not correct. You need to export the structure and/or the data.';
 $lang['admin_db_backup_prepared'] = 'The backup has been prepared. The backup will be created now...';
 $lang['admin_db_backup_successfully_created'] = 'Backup successfully created!';
 $lang['admin_db_backup_tables'] = 'Backup Database Tables: Step 1';

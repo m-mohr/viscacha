@@ -22,7 +22,7 @@ WHERE
 	a.type = "d" AND
 	t.last > "'.$lastdate.'" AND
 	t.last_name != u.id
-',__LINE__,__FILE__);
+');
 
 $lang_dir = $lang->getdir(true);
 
@@ -33,7 +33,6 @@ while ($row = $db->fetch_assoc($result)) {
 	if (isset($memberdata[$row['last_name']])) {
 		$row['last_name'] = $memberdata[$row['last_name']];
 	}
-	$row = $gpc->plain_str($row);
 	$lang->setdir($row['language']);
 	$data = $lang->get_mail('digest_d');
 	$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));

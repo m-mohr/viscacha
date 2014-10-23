@@ -239,15 +239,6 @@ newtopic.php
 -newtopic_form_end
 -newtopic_end
 
-pdf.php
--pdf_topic_query
--pdf_start
--pdf_vote_prepared
--pdf_query
--pdf_attachments_prepared
--pdf_entry_prepared
--pdf_prepared
-
 pm.php
 -pm_show_query
 -pm_show_prepared

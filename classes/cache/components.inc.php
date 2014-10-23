@@ -12,7 +12,7 @@ class cache_components extends CacheItem {
 				FROM {$db->pre}component AS c
 					LEFT JOIN {$db->pre}packages AS p ON c.package = p.id
 				WHERE c.active = '1' AND p.active = '1'
-			",__LINE__,__FILE__);
+			");
 		    $this->data = array();
 		    while ($comp = $db->fetch_assoc($result)) {
 		        $this->data[$comp['id']] = $comp;

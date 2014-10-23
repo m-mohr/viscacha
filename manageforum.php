@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -68,7 +68,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		($code = $plugins->load('manageforum_filter_query')) ? eval($code) : null;
 
 		if (!empty($marksql)) {
-			$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '$board' {$marksql}",__LINE__,__FILE__);
+			$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '$board' {$marksql}");
 			$vlasttopics = $db->fetch_num($result);
 			$info['topics'] = $vlasttopics[0];
 		}
@@ -85,7 +85,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			FROM {$db->pre}topics
 			WHERE board = '{$board}' {$marksql}
 			ORDER BY sticky DESC, last DESC LIMIT {$start}, {$info['forumzahl']}
-			",__LINE__,__FILE__);
+			");
 
 			$memberdata_obj = $scache->load('memberdata');
 			$memberdata = $memberdata_obj->get();
@@ -171,7 +171,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			viscacha_header('Location: '.$url);
 			exit;
 		}
-		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
 		if ($db->affected_rows() > 0) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showforum.php?id='.$board.SID2URL_x);
 		}
@@ -192,7 +192,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			viscacha_header('Location: '.$url);
 			exit;
 		}
-		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
 		if ($db->affected_rows() > 0) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showforum.php?id='.$board.SID2URL_x);
 		}
@@ -230,21 +230,20 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			FROM {$db->pre}replies AS r
 				LEFT JOIN {$db->pre}user AS u ON u.id = r.name AND r.guest = '0'
 			WHERE topic_id = '{$id}' AND tstart = '1'
-			",__LINE__,__FILE__);
+			");
 			$old = $db->fetch_assoc($result);
-			$db->query("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
+			$db->query("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1");
 			$anz += $db->affected_rows();
-			$db->query("UPDATE {$db->pre}replies SET board = '{$_POST['opt_0']}' WHERE topic_id = '{$id}'",__LINE__,__FILE__);
+			$db->query("UPDATE {$db->pre}replies SET board = '{$_POST['opt_0']}' WHERE topic_id = '{$id}'");
 			$anz += $db->affected_rows();
 
 			if ($_POST['temp'] == 1) {
 				// Prefix wird nicht übernommen!
-				$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''",__LINE__,__FILE__);
+				$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
 				$tid = $db->insert_id();
-				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''",__LINE__,__FILE__);
+				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''");
 			}
 			if ($_POST['temp2'] == 1) {
-				$old = $gpc->plain_str($old);
 				if ($old['guest'] == 0) {
 					$old['email'] = $old['uemail'];
 					$old['name'] = $old['uname'];
@@ -255,8 +254,15 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				xmail($to, $from, $data['title'], $data['comment']);
 			}
 		}
-		UpdateBoardStats($board);
-		UpdateBoardStats($_POST['opt_0']);
+		if ($config['updateboardstats'] == 1) {
+			UpdateBoardStats($board);
+			UpdateBoardStats($_POST['opt_0']);
+		}
+		else {
+			UpdateBoardLastStats($board);
+			UpdateBoardLastStats($_POST['opt_0']);
+		}
+
 		ok($lang->phrase('x_entries_moved'),'showforum.php?id='.$board.SID2URL_x);
 	}
 	elseif ($_GET['action'] == "delete") {
@@ -277,14 +283,14 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 		$ids = implode(',', $_POST['delete']);
 		if ($config['updatepostcounter'] == 1 && $info['count_posts'] == 1) {
-			$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id IN({$ids}) GROUP BY name", __LINE__, __FILE__);
+			$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id IN({$ids}) GROUP BY name");
 			while ($row = $db->fetch_assoc($result)) {
-				$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'",__LINE__,__FILE__);
+				$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
 			}
 		}
-		$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})");
 		$anz = $db->affected_rows();
-		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
+		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
 		while ($urow = $db->fetch_assoc($uresult)) {
 			$filesystem->unlink('uploads/topics/'.$urow['source']);
 			$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
@@ -292,28 +298,34 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				$filesystem->unlink($thumb);
 			}
 		}
-		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
 		$anz += $db->affected_rows();
-		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})");
 		$anz += $db->affected_rows();
-		$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
 		$anz += $db->affected_rows();
-		$db->query ("DELETE FROM {$db->pre}topics WHERE id IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}topics WHERE id IN({$ids})");
 		$anz += $db->affected_rows();
-		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})",__LINE__,__FILE__);
+		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");
 		$voteaids = array();
 		while ($row = $db->fetch_num($votes)) {
 			$voteaids[] = $row[0];
 		}
 		if (count($voteaids) > 0) {
-			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")",__LINE__,__FILE__);
+			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
 			$anz += $db->affected_rows();
 		}
-		$db->query ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})");
 		$anz += $db->affected_rows();
 		($code = $plugins->load('manageforum_delete_end')) ? eval($code) : null;
 
-		UpdateBoardStats($board);
+		if ($config['updateboardstats'] == 1) {
+			UpdateBoardStats($board);
+		}
+		else {
+			UpdateBoardLastStats($board);
+		}
+
 		ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$board.SID2URL_x);
 	}
 	elseif ($_GET['action'] == "stat") {

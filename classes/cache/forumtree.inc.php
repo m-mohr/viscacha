@@ -15,7 +15,7 @@ class cache_forumtree extends CacheItem {
 			FROM {$db->pre}categories AS c 
 				LEFT JOIN {$db->pre}forums AS f ON c.id = f.parent 
 			ORDER BY c.position, f.position
-			", __LINE__, __FILE__);
+			");
 			while($row = $db->fetch_assoc($result)) {
 				if (!empty($row['id'])) {
 					if ($row['bid'] == 0) {

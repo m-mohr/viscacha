@@ -26,6 +26,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 *
 *  This script is free. Please keep the credits.
 *
+* @todo Implement imagettftext instead of using imagestring (for unicode support).
+*
 */
 
 /**
@@ -34,32 +36,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 
    NOTE: make sure that your PHP is compiled to work with GD Lib.
-
-   NOTE: You may create test images using a form that comes with this script. Just add a "showform"
-   as a query string. (Example: "graphic.php?showform")
-
-
-   PowerGraphic works with query strings (information sent after the "?" of an URL). Here is an
-   example of how you will have to send the graphic information. Let's suppose that you want to
-   show a graphic of your user's sex:
-
-	   <img src="graphic.php?title=Sex&type=5&x1=male&y1=50&x2=female&y2=55" />
-
-   This will create a pie graphic (set by type=5) with title as "Sex" and default skin.
-   Let's see the other parameters:
-
-	   x1 = male
-	   y1 = 50 (quantity of males)
-	   x2 = female
-	   y2 = 55 (quantity of females)
-
-   See how it's simple! :)
-   For those who don't know, to create a query string you have to put an "?" at the end of the URL and join
-   the parameters with "&". Example: "graphic.php?Parameter_1=Value_1&Parameter_2=Value_2" (and so on). You
-   can set how many parameters you want.
-
-   The boring step would be to create this query string. Well, "would be", if I didn't create a function to do that. :)
-   Let's see an example of how you can use this function in a PHP document:
 
 
 ///// START OF EXAMPLE /////

@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ FROM '.$db->pre.'replies AS r
 	LEFT JOIN '.$db->pre.'topics AS t ON r.topic_id = t.id
 WHERE r.id = "'.$_GET['id'].'"
 LIMIT 1
-',__LINE__,__FILE__);
+');
 
 if ($db->num_rows($result) != 1) {
 	error(array($lang->phrase('query_string_error')));
@@ -98,39 +98,44 @@ if ($allowed == true) {
 			if ($info['tstart'] == 0 || $info['posts'] == 0) {
 				if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
 					if ($info['tstart'] == 1) {
-						$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name", __LINE__, __FILE__);
+						$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name");
 						while ($row = $db->fetch_assoc($result)) {
-							$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'",__LINE__,__FILE__);
+							$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
 						}
 					}
 					else {
 						if ($info['guest'] == 0 && $last['count_posts'] == 1) {
-							$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}'",__LINE__,__FILE__);
+							$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}'");
 						}
 					}
 				}
-				$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'",__LINE__,__FILE__);
-				$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
+				$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
+				$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
 				while ($urow = $db->fetch_num($uresult)) {
 				    $filesystem->unlink('uploads/topics/'.$urow[0]);
 				}
-				$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
-				$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'",__LINE__,__FILE__);
+				$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
+				$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'");
 				if ($info['tstart'] == 1) {
-					$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'",__LINE__,__FILE__);
-					$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'",__LINE__,__FILE__);
-					$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
+					$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
+					$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
+					$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 					$voteaids = array();
 					while ($row = $db->fetch_num($votes)) {
 						$voteaids[] = $row[0];
 					}
 					if (count($voteaids) > 0) {
-						$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")",__LINE__,__FILE__);
+						$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
 					}
-					$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
+					$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 				}
 				($code = $plugins->load('edit_save_delete')) ? eval($code) : null;
-				UpdateBoardStats($info['board']);
+				if ($config['updateboardstats'] == 1) {
+					UpdateBoardStats($info['board']);
+				}
+				else {
+					UpdateBoardLastStats($info['board']);
+				}
 				UpdateTopicStats($info['topic_id']);
 
 				ok($lang->phrase('edit_postdeleted'),iif($info['tstart'] == 1, "showforum.php?id=".$info['board'], "showtopic.php?action=last&id=".$info['topic_id']).SID2URL_x);
@@ -196,7 +201,7 @@ if ($allowed == true) {
 				UPDATE {$db->pre}replies
 				SET edit = '{$info['edit']}', topic = '{$_POST['topic']}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', dowords = '{$_POST['dowords']}'
 				WHERE id = '{$_GET['id']}'
-				",__LINE__,__FILE__);
+				");
 
 				if ($info['tstart'] == '1') {
 
@@ -204,7 +209,7 @@ if ($allowed == true) {
 					UPDATE {$db->pre}topics
 					SET prefix = '{$_POST['opt_0']}', topic = '{$_POST['topic']}'
 					WHERE id = '{$info['topic_id']}'
-					",__LINE__,__FILE__);
+					");
 
 				}
 				ok($lang->phrase('data_success'),'showtopic.php?action=jumpto&id='.$info['topic_id'].'&topic_id='.$info['id'].SID2URL_x);
@@ -218,8 +223,9 @@ if ($allowed == true) {
 
 		($code = $plugins->load('edit_form_start')) ? eval($code) : null;
 
-		if (strlen($_GET['fid']) == 32) {
-			$data = $gpc->prepare(import_error_data($_GET['fid']));
+		$fid = $gpc->get('fid', str);
+		if (is_hash($fid)) {
+			$data = $gpc->unescape(import_error_data($fid));
 			if ($_GET['action'] == 'preview') {
 				$bbcode->setSmileys($data['dosmileys']);
 				if ($config['wordstatus'] == 0) {

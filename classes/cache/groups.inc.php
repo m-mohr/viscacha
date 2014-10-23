@@ -11,7 +11,7 @@ class cache_groups extends CacheItem {
 			$fields = array_merge($fields['gFields'], $fields['maxFields'], $fields['minFields']);
 			$keys = array_combine($fields, range(1, count($fields)));
 
-			$result = $db->query('SELECT * FROM '.$db->pre.'groups', __LINE__, __FILE__);
+			$result = $db->query('SELECT * FROM '.$db->pre.'groups');
 			$this->data = array();
 			$this->data['groupstandard'] = $this->data['group_status'] = array();
 			$this->data['team_ag'] = array('gmod' => array(), 'admin' => array());

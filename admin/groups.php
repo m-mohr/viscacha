@@ -220,7 +220,7 @@ elseif ($job == 'add2') {
 		}
 	}
 
-	$db->query('INSERT INTO '.$db->pre.'groups ('.implode(',', $glk).',flood,title,name) VALUES ('.$sql_values.'"'.$gpc->get('flood', int).'","'.$gpc->get('title', str).'","'.$gpc->get('name', str).'")', __LINE__, __FILE__);
+	$db->query('INSERT INTO '.$db->pre.'groups ('.implode(',', $glk).',flood,title,name) VALUES ('.$sql_values.'"'.$gpc->get('flood', int).'","'.$gpc->get('title', str).'","'.$gpc->get('name', str).'")');
 	$gid = $db->insert_id();
 
 	$copyf = $gpc->get('copyf', int);
@@ -279,7 +279,7 @@ elseif ($job == 'delete') {
 elseif ($job == 'edit') {
 	$id = $gpc->get('id', int);
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}groups WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}groups WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		error('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_no_valid_id_given'));
 	}
@@ -345,7 +345,7 @@ elseif ($job == 'edit2') {
 		}
 	}
 
-	$db->query('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1', __LINE__, __FILE__);
+	$db->query('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1');
 
 	$delobj = $scache->load('groups');
 	$delobj->delete();

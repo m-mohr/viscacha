@@ -14,7 +14,7 @@ class cache_index_moderators extends CacheItem {
 		    $this->import();
 		}
 		else {
-		    $result = $db->query('SELECT mid, bid FROM '.$db->pre.'moderators WHERE time > '.time().' OR time IS NULL',__LINE__,__FILE__);
+		    $result = $db->query('SELECT mid, bid FROM '.$db->pre.'moderators WHERE time > '.time().' OR time IS NULL');
 		    $this->data = array();
 		    while($row = $db->fetch_assoc($result)) {
 		    	if (isset($memberdata[$row['mid']])) {

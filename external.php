@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -94,14 +94,14 @@ $rss = new UniversalFeedCreator();
 $rss->encoding = $lang->charset();
 $rss->setDir("feeds/topics_");
 $rss->useCached($action, '', $h);
-$rss->title = $config['fname'];
-$rss->description = $config['fdesc'];
+$rss->title = $gpc->plain_str($config['fname']);
+$rss->description = $gpc->plain_str($config['fdesc']);
 $rss->link = $config['furl']."/forum.php";
 $rss->language = $lang->phrase('rss_language');
 $rss->ttl = $config['rssttl'];
-$rss->copyright = $config['fname'];
+$rss->copyright = $gpc->plain_str($config['fname']);
 $rss->lastBuildDate = time();
-$rss->editor = $config['fname'];
+$rss->editor = $gpc->plain_str($config['fname']);
 if ($config['syndication_insert_email'] == 1) {
 	$rss->editorEmail = $config['forenmail'];
 }
@@ -127,7 +127,7 @@ FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
 WHERE {$sqlwhere}
 ORDER BY {$sqlorder}
 LIMIT {$sqllimit}
-",__LINE__,__FILE__);
+");
 
 // Loop through them if the site is not offline
 if ($config['foffline'] == 0) {

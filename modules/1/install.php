@@ -1,1 +1,1 @@
-$db->query("ALTER TABLE `{$db->pre}topics` ADD FULLTEXT `topic` (`topic`)", __LINE__, __FILE__);
+$db->query("ALTER TABLE `{$db->pre}topics` ADD FULLTEXT `topic` (`topic`)");

@@ -10,7 +10,7 @@ class cache_smileys extends CacheItem {
 		}
 		else {
 			$this->data = array();
-			$result = $db->query("SELECT s.search, s.replace, s.desc, s.show FROM {$db->pre}smileys AS s",__LINE__,__FILE__);
+			$result = $db->query("SELECT s.search, s.replace, s.desc, s.show FROM {$db->pre}smileys AS s");
 			$this->data = array();
 			while ($smiley = $db->fetch_assoc($result)) {
 				$smiley['jssearch'] = addslashes($smiley['search']);

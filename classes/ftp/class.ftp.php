@@ -387,11 +387,12 @@ class ftp_base {
 	function features() {
 		if(!$this->_exec("FEAT", "features")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		$f=preg_split("/[".CRLF."]+/", preg_replace("/[0-9]{3}[ -].*[".CRLF."]+/", "", $this->_message), -1, PREG_SPLIT_NO_EMPTY);
+		$f=array_slice(preg_split("/[".CRLF."]+/", $this->_message, -1, PREG_SPLIT_NO_EMPTY), 1, -1);
+		array_walk($f, create_function('&$a', '$a=preg_replace("/[0-9]{3}[\s-]+/", "", trim($a));'));
 		$this->_features=array();
 		foreach($f as $k=>$v) {
 			$v=explode(" ", trim($v));
-			$this->_features[array_shift($v)]=$v;;
+			$this->_features[array_shift($v)]=$v;
 		}
 		return true;
 	}

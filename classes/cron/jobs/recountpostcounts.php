@@ -21,7 +21,7 @@ if ($config['updatepostcounter'] == 0) {
 		FROM {$db->pre}replies
 		WHERE guest = '0' AND date > '{$jobData}'". iif(count($id) > 0, " AND board NOT IN (".implode(',', $id).")") ."
 		GROUP BY name
-	", __LINE__, __FILE__);
+	");
 
 	while ($row = $db->fetch_assoc($result)) {
 		UpdateMemberStats($row['name']);

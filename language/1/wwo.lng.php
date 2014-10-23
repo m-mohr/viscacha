@@ -28,8 +28,6 @@ $lang['wwo_misc_rules'] = 'Liest die die <a href="misc.php?action=rules">Verhalt
 $lang['wwo_misc_wwo'] = 'Betrachtet diese Wer-ist-Online-Liste';
 $lang['wwo_newtopic'] = 'Schreibt einen neuen Beitrag';
 $lang['wwo_newtopic_forum'] = 'Schreibt einen neuen Beitrag im Forum <a href="showforum.php?id={$id}">{$title}</a>';
-$lang['wwo_pdf'] = 'Betrachtet die PDF-Version eines Themas: <a href="pdf.php?id={$id}">{$title}</a>';
-$lang['wwo_pdf_fallback'] = 'Betrachtet die PDF-Version eines Themas';
 $lang['wwo_pm'] = 'Betrachtet die <a href="pm.php">PN-Übersicht</a>';
 $lang['wwo_pm_manage'] = 'Verwaltet die eigenen privaten Nachrichten';
 $lang['wwo_pm_view'] = 'Liest eine private Nachricht';

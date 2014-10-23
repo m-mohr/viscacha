@@ -11,14 +11,14 @@ if ($job == 'smileys_delete') {
 	if (count($deleteid) > 0) {
 	   	$delobj = $scache->load('smileys');
 	   	$delobj->delete();
-	   	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')',__LINE__,__FILE__);
+	   	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')');
 	   	while ($row = $db->fetch_assoc($result)) {
 	   		$row['replace'] = str_replace('{folder}', $config['smileypath'], $row['replace']);
 	   		if(file_exists($row['replace'])) {
 	   			$filesystem->unlink($row['replace']);
 	   		}
 	   	}
-		$db->query('DELETE FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')',__LINE__,__FILE__);
+		$db->query('DELETE FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')');
 		$anz = $db->affected_rows();
 	}
 	else {
@@ -33,7 +33,7 @@ elseif ($job == 'smileys_edit') {
 		viscacha_header('Location: admin.php?action=bbcodes&job=smileys');
 		exit;
 	}
-	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $editid).')',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $editid).')');
 	echo head();
 	$num_smileys = count($editid);
 	?>
@@ -83,7 +83,7 @@ elseif ($job == 'smileys_edit2') {
 		$replace = $gpc->get('replace_'.$i, db_esc);
 		$desc = $gpc->get('desc_'.$i, db_esc);
 		$show = $gpc->get('show_'.$i, int);
-		$db->query("UPDATE {$db->pre}smileys AS s SET s.search = '{$search}', s.replace = '{$replace}', s.desc = '{$desc}', s.show = '{$show}' WHERE s.id = '{$i}' LIMIT 1",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}smileys AS s SET s.search = '{$search}', s.replace = '{$replace}', s.desc = '{$desc}', s.show = '{$show}' WHERE s.id = '{$i}' LIMIT 1");
 	}
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
@@ -229,14 +229,14 @@ elseif ($job == 'smileys_import2') {
 	// Delete old smileys
 	$codes = array();
 	if ($truncate == 1) {
-	   	$result = $db->query('SELECT * FROM '.$db->pre.'smileys',__LINE__,__FILE__);
+	   	$result = $db->query('SELECT * FROM '.$db->pre.'smileys');
 	   	while ($row = $db->fetch_assoc($result)) {
 	   		$row['replace'] = str_replace('{folder}', $config['smileypath'], $row['replace']);
 	   		if(file_exists($row['replace'])) {
 	   			$filesystem->unlink($row['replace']);
 	   		}
 	   	}
-		$db->query('TRUNCATE TABLE '.$db->pre.'smileys',__LINE__,__FILE__);
+		$db->query('TRUNCATE TABLE '.$db->pre.'smileys');
 	}
 	else {
 		// Get existing smiley codes from database
@@ -422,10 +422,10 @@ elseif ($job == 'smileys') {
 }
 elseif ($job == 'smileys_ajax_pos') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT b.show FROM {$db->pre}smileys AS b WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
+	$result = $db->query("SELECT b.show FROM {$db->pre}smileys AS b WHERE id = '{$id}' LIMIT 1");
 	$use = $db->fetch_assoc($result);
 	$use = invert($use['show']);
-	$db->query("UPDATE {$db->pre}smileys AS b SET b.show = '{$use}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}smileys AS b SET b.show = '{$use}' WHERE id = '{$id}' LIMIT 1");
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
 	echo strval($use);
@@ -485,7 +485,7 @@ elseif ($job == 'smileys_add') {
 			$img = str_replace($config['fpath'], '{folder}', $img);
 		}
 	}
-	$db->query("INSERT INTO {$db->pre}smileys (`search`,`replace`,`desc`,`show`) VALUES ('".$gpc->get('code', str)."','".$img."','".$gpc->get('desc', str)."','".$gpc->get('show', int)."')",__LINE__,__FILE__);
+	$db->query("INSERT INTO {$db->pre}smileys (`search`,`replace`,`desc`,`show`) VALUES ('".$gpc->get('code', str)."','".$img."','".$gpc->get('desc', str)."','".$gpc->get('show', int)."')");
 
 	$delobj = $scache->load('smileys');
 	$delobj->delete();
@@ -494,7 +494,7 @@ elseif ($job == 'smileys_add') {
 }
 elseif ($job == 'word') {
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'word'",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'word'");
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=word">
  <table class="border">
@@ -548,7 +548,7 @@ elseif ($job == 'word') {
 }
 elseif ($job == 'censor') {
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'censor'",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'censor'");
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=censor">
  <table class="border">
@@ -596,7 +596,7 @@ elseif ($job == 'censor') {
 }
 elseif ($job == 'replace') {
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'replace'",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'replace'");
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=replace">
  <table class="border">
@@ -664,7 +664,7 @@ elseif ($job == 'add') {
 		error('admin.php?action=bbcodes&job='.$type, $error);
 	}
 
-	$db->query("INSERT INTO {$db->pre}textparser (`search`,`replace`,`type`,`desc`) VALUES ('".$gpc->get('temp1', str)."','".$gpc->get('temp2', db_esc)."','{$type}','".$gpc->get('temp3', db_esc)."')",__LINE__,__FILE__);
+	$db->query("INSERT INTO {$db->pre}textparser (`search`,`replace`,`type`,`desc`) VALUES ('".$gpc->get('temp1', str)."','".$gpc->get('temp2', db_esc)."','{$type}','".$gpc->get('temp3', db_esc)."')");
 
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
@@ -748,7 +748,7 @@ elseif ($job == 'edit2') {
 		error('admin.php?action=bbcodes&job=edit&tp='.$type.'&id='.$id, $error);
 	}
 
-	$db->query("UPDATE {$db->pre}textparser SET `search` = '".$gpc->get('temp1', str)."', `replace` = '".$gpc->get('temp2', db_esc)."', `desc` = '".$gpc->get('temp3', db_esc)."' WHERE id = '{$id}' AND type = '{$type}'",__LINE__,__FILE__);
+	$db->query("UPDATE {$db->pre}textparser SET `search` = '".$gpc->get('temp1', str)."', `replace` = '".$gpc->get('temp2', db_esc)."', `desc` = '".$gpc->get('temp3', db_esc)."' WHERE id = '{$id}' AND type = '{$type}'");
 
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
@@ -762,7 +762,7 @@ elseif ($job == 'del') {
 	if (count($delete) == 0) {
 		error('admin.php?action=bbcodes&job='.$type, $lang->phrase('admin_bbc_no_valid_selection'));
 	}
-	$db->query('DELETE FROM '.$db->pre.'textparser WHERE id IN ('.implode(',',$delete).')',__LINE__,__FILE__);
+	$db->query('DELETE FROM '.$db->pre.'textparser WHERE id IN ('.implode(',',$delete).')');
 	$anz = $db->affected_rows();
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
@@ -847,7 +847,7 @@ elseif ($job == 'custombb_export') {
 	FROM {$db->pre}bbcode
 	WHERE id = '{$id}'
 	LIMIT 1
-	", __LINE__, __FILE__);
+	");
 	$data = $db->fetch_assoc($result);
 	$data['button'] = null;
 
@@ -958,7 +958,7 @@ elseif ($job == 'custombb_import2') {
 
 	$bb = array_map(array($db, 'escape_string'), $bb);
 
-	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$bb['bbcodetag']}' AND twoparams = '{$bb['twoparams']}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$bb['bbcodetag']}' AND twoparams = '{$bb['twoparams']}'");
 	if ($db->num_rows($result) > 0) {
 		$bbcodetag = $bb['bbcodetag'];
 		error('admin.php?action=bbcodes&job=custombb_import', $lang->phrase('admin_bbc_bbcode_already_exists'));
@@ -977,7 +977,7 @@ elseif ($job == 'custombb_import2') {
 	$db->query("
 	INSERT INTO {$db->pre}bbcode (bbcodetag, bbcodereplacement, bbcodeexample, bbcodeexplanation, twoparams, title, buttonimage)
 	VALUES ('{$bb['bbcodetag']}','{$bb['bbcodereplacement']}','{$bb['bbcodeexample']}','{$bb['bbcodeexplanation']}','{$bb['twoparams']}','{$bb['title']}','{$bb['buttonimage']}')
-	", __LINE__, __FILE__);
+	");
 
 	if ($del > 0) {
 		$filesystem->unlink($file);
@@ -1061,7 +1061,7 @@ elseif ($job == 'custombb_add2') {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'");
 	if ($db->num_rows($result) > 0) {
 		$bbcodetag = $query['bbcodetag'];
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
@@ -1070,7 +1070,7 @@ elseif ($job == 'custombb_add2') {
 	$db->query("
 	INSERT INTO {$db->pre}bbcode (bbcodetag, bbcodereplacement, bbcodeexample, bbcodeexplanation, twoparams, title, buttonimage)
 	VALUES ('{$query['bbcodetag']}','{$query['bbcodereplacement']}','{$query['bbcodeexample']}','{$query['bbcodeexplanation']}','{$query['twoparams']}','{$query['title']}','{$query['buttonimage']}')
-	", __LINE__, __FILE__);
+	");
 
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
@@ -1081,7 +1081,7 @@ elseif ($job == 'custombb_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE id = ".$id, __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE id = ".$id);
 	$bbcode = $gpc->prepare($db->fetch_assoc($result));
 
 	?>
@@ -1161,14 +1161,14 @@ elseif ($job == 'custombb_edit2') {
 	}
 
 	if (strtolower($query['bbcodetag']) != strtolower($query['bbcodetag_old'])) {
-		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}' AND ", __LINE__, __FILE__);
+		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}' AND ");
 		if ($db->num_rows($result) > 0) {
 			$bbcodetag = $query['bbcodetag'];
 			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 		}
 	}
 
-	$db->query("UPDATE {$db->pre}bbcode SET title = '{$query['title']}',bbcodetag = '{$query['bbcodetag']}',bbcodereplacement = '{$query['bbcodereplacement']}',bbcodeexample = '{$query['bbcodeexample']}',bbcodeexplanation = '{$query['bbcodeexplanation']}',twoparams = '{$query['twoparams']}',buttonimage = '{$query['buttonimage']}' WHERE id = '{$query['id']}'", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}bbcode SET title = '{$query['title']}',bbcodetag = '{$query['bbcodetag']}',bbcodereplacement = '{$query['bbcodereplacement']}',bbcodeexample = '{$query['bbcodeexample']}',bbcodeexplanation = '{$query['bbcodeexplanation']}',twoparams = '{$query['twoparams']}',buttonimage = '{$query['buttonimage']}' WHERE id = '{$query['id']}'");
 
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
@@ -1178,7 +1178,7 @@ elseif ($job == 'custombb_edit2') {
 elseif ($job == 'custombb_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1");
 	$image = $db->fetch_assoc($result);
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1204,13 +1204,13 @@ elseif ($job == 'custombb_delete2'){
 	$id = $gpc->get('id', int);
 	$img = $gpc->get('img', int);
 	if ($img == 1) {
-		$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1");
 		$image = $db->fetch_assoc($result);
 		if (!preg_match(URL_REGEXP, $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) {
 			$filesystem->unlink(CBBC_BUTTONDIR.$image['buttonimage']);
 		}
 	}
-	$db->query("DELETE FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("DELETE FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1");
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
 	ok('admin.php?action=bbcodes&job=custombb', $lang->phrase('admin_bbc_bbc_successfully_deleted'));
@@ -1257,7 +1257,7 @@ elseif ($job == 'custombb_test') {
 	echo foot();
 }
 elseif ($job == 'custombb') {
-	$result = $db->query("SELECT * FROM {$db->pre}bbcode", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}bbcode");
 	echo head();
 	?>
 	<table align="center" class="border">

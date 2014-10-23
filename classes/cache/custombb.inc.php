@@ -7,7 +7,7 @@ class cache_custombb extends CacheItem {
 		}
 		else {
 			$this->data = array();
-			$result = $db->query("SELECT * FROM {$db->pre}bbcode ORDER BY id",__LINE__,__FILE__);
+			$result = $db->query("SELECT * FROM {$db->pre}bbcode ORDER BY id");
 			while ($bb = $db->fetch_assoc($result)) {
 				if ($bb['twoparams']) {
 					$bb['bbcodereplacement'] = str_replace('{param}', '\2', $bb['bbcodereplacement']);

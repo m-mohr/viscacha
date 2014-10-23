@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@ if ($_GET['action'] == 'show') {
 		{$sql_join}
 	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}'
 	ORDER BY p.date ASC
-	",__LINE__,__FILE__);
+	");
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
@@ -64,7 +64,7 @@ if ($_GET['action'] == 'show') {
 	$row = $slog->cleanUserData($db->fetch_assoc($result));
 
 	if ($row['status'] == '0') {
-		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
 	}
 
 	if (empty($row['name'])) {
@@ -154,7 +154,7 @@ elseif ($_GET['action'] == "massdelete") {
 	if (count($deleteids) > 0) {
 		($code = $plugins->load('pm_massdelete_query')) ? eval($code) : null;
 		$ids = implode(',', $deleteids);
-		$db->query("DELETE FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id IN ({$ids})",__LINE__,__FILE__);
+		$db->query("DELETE FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id IN ({$ids})");
 		$anz = $db->affected_rows();
 		ok($lang->phrase('x_entries_deleted'), 'pm.php'.SID2URL_1);
 	}
@@ -175,7 +175,7 @@ elseif ($_GET['action'] == "massmove") {
 	if (count($deleteids) > 0) {
 		($code = $plugins->load('pm_massmove_query')) ? eval($code) : null;
 		$ids = implode(',', $deleteids);
-		$db->query("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})");
 		$anz = $db->affected_rows();
 		ok($lang->phrase('x_entries_moved'), 'pm.php?action=browse&amp;id='.$_GET['id'].SID2URL_x);
 	}
@@ -184,7 +184,7 @@ elseif ($_GET['action'] == "massmove") {
 	}
 }
 elseif ($_GET['action'] == "delete") {
-	$result = $db->query ("SELECT id FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}' LIMIT 1",__LINE__,__FILE__);
+	$result = $db->query ("SELECT id FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('pm_not_found'));
 	}
@@ -202,7 +202,7 @@ elseif ($_GET['action'] == "delete2") {
 		error($lang->phrase('query_string_error'));
 	}
 	($code = $plugins->load('pm_delete2_query')) ? eval($code) : null;
-	$db->query ("DELETE FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}'",__LINE__,__FILE__);
+	$db->query ("DELETE FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}'");
 	$anz = $db->affected_rows();
 	ok($lang->phrase('x_entries_deleted'),'pm.php'.SID2URL_1);
 }
@@ -225,7 +225,7 @@ elseif ($_GET['action'] == "save") {
 	}
 
 	if (!is_id($_POST['name'])) {
-		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name="'.$_POST['name'].'" LIMIT 1',__LINE__,__FILE__);
+		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name="'.$_POST['name'].'" LIMIT 1');
 		$user = $db->fetch_num($result);
 		if ($user[0] > 0) {
 			$_POST['name'] = $user[0];
@@ -267,21 +267,20 @@ elseif ($_GET['action'] == "save") {
 		$db->query("
 		INSERT INTO {$db->pre}pm (topic,pm_from,pm_to,comment,date,dir)
 		VALUES ('{$_POST['topic']}','{$my->id}','{$_POST['name']}','{$_POST['comment']}','{$date}','1')
-		",__LINE__,__FILE__);
+		");
 
 		if ($_POST['temp'] == 1) {
 			$db->query("
 			INSERT INTO {$db->pre}pm (topic,pm_from,pm_to,comment,date,dir,status)
 			VALUES ('{$_POST['topic']}','{$_POST['name']}','{$my->id}','{$_POST['comment']}','{$date}','2','1')
-			",__LINE__,__FILE__);
+			");
 		}
 
 		$lang_dir = $lang->getdir(true);
-		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE id = '{$_POST['name']}'",__LINE__,__FILE__);
+		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE id = '{$_POST['name']}'");
 		$row = $slog->cleanUserData($db->fetch_assoc($result));
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
-			$row = $gpc->plain_str($row);
 			$maildata = $lang->get_mail('newpm');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
 			$from = array();
@@ -301,8 +300,9 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 
 	($code = $plugins->load('pm_compose_start')) ? eval($code) : null;
 
-	if (strlen($_GET['fid']) == 32) {
-		$data = $gpc->prepare(import_error_data($_GET['fid']));
+	$fid = $gpc->get('fid', str);
+	if (is_hash($fid)) {
+		$data = $gpc->unescape(import_error_data($fid));
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys(1);
 			$bbcode->setReplace($config['wordstatus']);
@@ -316,7 +316,7 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 				LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
 			WHERE p.id='{$_GET['id']}' AND p.dir != '2' AND p.pm_to = '{$my->id}'
 			LIMIT 1
-		",__LINE__,__FILE__);
+		");
 		if ($db->num_rows($result) != 1) {
 			error($lang->phrase('pm_not_found'), 'pm.php'.SID2URL_1);
 		}
@@ -384,7 +384,7 @@ elseif ($_GET['action'] == "browse") {
 	SELECT COUNT(*)
 	FROM {$db->pre}pm
 	WHERE pm_to = '{$my->id}' AND dir = '{$_GET['id']}'
-	",__LINE__,__FILE__);
+	");
 	$count = $db->fetch_num($result);
 
 	$temp = pages($count[0], $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
@@ -400,7 +400,7 @@ elseif ($_GET['action'] == "browse") {
 	WHERE pm_to = '{$my->id}' AND dir = '{$_GET['id']}'
 	ORDER BY date DESC
 	LIMIT {$start}, {$config['pmzahl']}
-	",__LINE__,__FILE__);
+	");
 
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
@@ -448,7 +448,7 @@ else {
 	FROM {$db->pre}pm
 	WHERE pm_to = '{$my->id}' AND (date > {$timestamp} OR  status = '0') AND dir != '2'
 	ORDER BY date DESC
-	",__LINE__,__FILE__);
+	");
 
 	$count = $db->num_rows($result);
 	$inner['index_bit'] = '';

@@ -1,4 +1,27 @@
 <?php
+/*
+	Viscacha - A bulletin board solution for easily managing your content
+	Copyright (C) 2004-2009  The Viscacha Project
+
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
+	Start Date: May 22, 2004
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class slog {
@@ -394,12 +417,12 @@ function updatelogged () {
 			pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}', lastvisit = '{$my->clv}' {$sqlset}
 		WHERE {$sqlwhere2}
 		LIMIT 1
-		",__LINE__,__FILE__);
+		");
 	}
 
 	if ($my->vlogin) {
 		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
-		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'");
 	}
 
 }
@@ -414,22 +437,12 @@ function deleteOldSessions () {
 	if ($this->SessionDel() == true) {
 	    $sessionsave = $config['sessionsave']*60;
 	    $old = time()-$sessionsave;
-	    $db->query ("DELETE FROM {$db->pre}session WHERE active <= '{$old}'",__LINE__,__FILE__);
+	    $db->query ("DELETE FROM {$db->pre}session WHERE active <= '{$old}'");
 	    return true;
 	}
 	else {
 		return false;
 	}
-}
-
-function httpAuth($name = null) {
-	if ($name == null) {
-		global $config;
-		$name = $config['fname'];
-	}
-	header('WWW-Authenticate: Basic Realm="'.addslashes($name).'"');
-	header('HTTP/1.0 401 Unauthorized');
-	die("Authorization Required.");
 }
 
 /**
@@ -450,23 +463,7 @@ function logged () {
 
     $vdata = $gpc->save_str(getcookie('vdata'));
     $vhash = $gpc->save_str(getcookie('vhash'));
-    if ($config['allow_http_auth'] == 1) {
-		if (!empty($_SERVER['PHP_AUTH_USER']) && !empty($_SERVER['PHP_AUTH_PW'])) {
-			$http_user = $gpc->save_str($_SERVER['PHP_AUTH_USER']);
-			$http_pw = $gpc->save_str($_SERVER['PHP_AUTH_PW']);
-			$result = $db->query("SELECT id, pw FROM {$db->pre}user WHERE name = '{$http_user}' AND MD5('{$http_pw}') = pw LIMIT 1");
-			if ($db->num_rows($result) == 1) {
-				$this->cookiedata = $db->fetch_num($result);
-			}
-			else {
-				$this->httpAuth();
-			}
-		}
-		else {
-			$this->httpAuth();
-		}
-    }
-	elseif (!empty($vdata)) {
+    if (!empty($vdata)) {
 		$this->cookies = true;
 		$this->cookiedata = explode("|", $vdata);
 	}
@@ -490,7 +487,7 @@ function logged () {
 	}
 
 	if (empty($this->sid) && array_empty($this->cookiedata)) {
-		$result = $db->query('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1',__LINE__,__FILE__);
+		$result = $db->query('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1');
 		if ($db->num_rows($result) == 1) {
 			$sidrow = $db->fetch_assoc($result);
 			$this->sid = $sidrow['sid'];
@@ -757,7 +754,7 @@ function sid_load() {
 		LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
 	WHERE '.$sql.'
 	LIMIT 1
-	',__LINE__,__FILE__);
+	');
 
 	if ($db->num_rows($result) == 1) {
 		$my = $this->cleanUserData($db->fetch_object($result));
@@ -788,7 +785,7 @@ function sid_new() {
 	global $config, $db, $gpc;
 
 	if (!$this->sidload && !array_empty($this->cookiedata)) {
-		$load = $db->query('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1',__LINE__,__FILE__);
+		$load = $db->query('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1');
 		if ($db->num_rows($load) == 1) {
 			$this->sidload = true;
 			$my = $this->sid_load();
@@ -797,7 +794,7 @@ function sid_new() {
 	}
 
 	if (!array_empty($this->cookiedata)) {
-		$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1',__LINE__,__FILE__);
+		$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1');
 		$my = $this->cleanUserData($db->fetch_object($result));
 		$nodata = ($db->num_rows($result) == 1) ? false : true;
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
@@ -836,7 +833,7 @@ function sid_new() {
 
 	$db->query("INSERT INTO {$db->pre}session
 	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings, is_bot) VALUES
-	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."','{$my->is_bot}')",__LINE__,__FILE__);
+	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."','{$my->is_bot}')");
 
 	return $my;
 }
@@ -856,8 +853,8 @@ function sid_logout() {
 	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0', pwfaccess = ''
 	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$this->sid}'")."
 	LIMIT 1
-	",__LINE__,__FILE__);
-	$db->query("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'",__LINE__,__FILE__);
+	");
+	$db->query("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'");
 
 	makecookie($config['cookie_prefix'].'_vdata', '|', -60);
 }
@@ -879,7 +876,7 @@ function sid_login($remember = true) {
 		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}')
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id
 	WHERE u.name = '{$username}' AND u.pw = MD5('{$pw}') AND s.is_bot = '0'
-	",__LINE__,__FILE__);
+	");
 	$sessions = $db->num_rows($result);
 
 	if ($sessions > 1) {
@@ -1046,18 +1043,17 @@ function cleanUserData($data) {
  */
 function construct_sid() {
 	global $config;
-	srand((double)microtime()*1000000);
 	if ($config['sid_length'] == 64) {
-		$sid = md5(uniqid(rand())).md5(uniqid($this->ip));
+		$sid = md5(uniqid(mt_rand())).md5(uniqid($this->ip));
 	}
 	elseif ($config['sid_length'] == 96) {
-		$sid = md5(uniqid(rand())).md5(uniqid($this->ip)).md5(rand());
+		$sid = md5(uniqid(mt_rand())).md5(uniqid($this->ip)).md5(mt_rand());
 	}
 	elseif ($config['sid_length'] == 128) {
-		$sid = md5(uniqid(rand())).md5(uniqid($this->ip)).md5(rand()).md5(microtime());
+		$sid = md5(uniqid(mt_rand())).md5(uniqid($this->ip)).md5(mt_rand()).md5(microtime());
 	}
 	else {		// Falling back to 32 chars
-		$sid = md5(uniqid(rand()));
+		$sid = md5(uniqid(mt_rand()));
 	}
 	$this->sid = str_shuffle($sid);
 	return $this->sid;
@@ -1137,10 +1133,10 @@ function Permissions ($board = 0, $groups = null, $member = null) {
 		}
 		foreach ($permissions as $key => $value) {
 			if (in_array($key, $this->minFields)) {
-				$permissions[$key] = min($value);
+				$permissions[$key] = (int) @min($value);
 			}
 			else {
-				$permissions[$key] = max($value);
+				$permissions[$key] = (int) @max($value); // Do the max more elegant
 			}
 		}
 	}
@@ -1370,7 +1366,7 @@ function ModPermissions ($bid) {
 	    	return array(1,1,1,1,1,1);
 	    }
 	    else {
-		    $result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)",__LINE__,__FILE__);
+		    $result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
 	        if ($db->num_rows($result) > 0) {
 	        	$row = $db->fetch_assoc($result);
 	            return array(1, $row['s_rating'], $row['s_news'], $row['s_article'], $row['p_delete'], $row['p_mc']);
@@ -1421,8 +1417,7 @@ function sqlinboards($spalte, $r_and = 0, $boards = null) {
 		// Negative
 		$all = $this->getBoards();
 		$temp = array_diff($all, $boards);
-		$negative = array_merge($temp, $negative);
-
+		$negative = array_merge($negative, $temp);
 	}
 
 	if ($this->permissions['forum'] == 1 && count($negative) > 1) {
@@ -1467,7 +1462,7 @@ function setTopicRead($tid, $parents) {
 	// Erstelle ein Array mit schon gelesenen Beiträgen
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last > '{$my->clv}' AND id NOT IN({$inkeys})",__LINE__,__FILE__);
+		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last > '{$my->clv}' AND id NOT IN({$inkeys})");
 		$row = $db->fetch_num($result);
 		if ($row[0] == 0) {
 			$my->mark['f'][$tf] = time();
@@ -1477,7 +1472,7 @@ function setTopicRead($tid, $parents) {
 
 function setForumRead($fid) {
 	global $db, $my;
-	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last > '{$my->clv}'",__LINE__,__FILE__);
+	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last > '{$my->clv}'");
 	while ($row = $db->fetch_assoc($result)) {
 		$my->mark['t'][$row['id']] = time();
 	}
@@ -1494,10 +1489,10 @@ function setForumRead($fid) {
 function setAllRead() {
 	global $my, $db;
 	if ($my->vlogin) {
-		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'",__LINE__,__FILE__);
+		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'");
 	}
 	else {
-		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'",__LINE__,__FILE__);
+		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'");
 	}
 	// Todo: Save some queries!
 	// This queries can be saved normally, because it will be saved with updatelogged (in ok/error funcs) later!

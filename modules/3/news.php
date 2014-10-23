@@ -12,7 +12,7 @@ FROM {$db->pre}topics AS t
 WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark IS NULL)) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
 ORDER BY r.date DESC
 LIMIT 0,{$config['viscacha_news_boxes']['items']}"
-,__LINE__,__FILE__);
+);
 BBProfile($bbcode);
 while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 	$row['pre'] = '';

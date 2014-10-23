@@ -21,7 +21,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 	$pending_number = $gpc->get('pending', int);
 	$pending_data = $gpc->get('data', str);
 
-	$result = $db->query("SELECT pending_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT pending_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'");
 
 	$row = $db->fetch_assoc($result);
 
@@ -34,11 +34,11 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 	array_splice($pending_array, ($pending_number-1)*2, 2);
 	$pending = implode("|", array_empty_trim($pending_array));
 
-	$result = $db->query("UPDATE {$db->pre}spider SET pending_{$pending_data} = '{$pending}' WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("UPDATE {$db->pre}spider SET pending_{$pending_data} = '{$pending}' WHERE id = '{$id}'");
 
 	if ($action == "add_pending") {
 
-		$result = $db->query("SELECT bot_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT bot_{$pending_data} FROM {$db->pre}spider WHERE id = '{$id}'");
 		$row = $db->fetch_assoc($result);
 
 		$pending_array = explode('|', $row['bot_' . $pending_data]);
@@ -99,7 +99,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 
 		$pending = implode("|", array_empty_trim($pending_array));
 
-		$db->query("UPDATE {$db->pre}spider SET bot_{$pending_data} = '{$pending}' WHERE id = '{$id}'", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}spider SET bot_{$pending_data} = '{$pending}' WHERE id = '{$id}'");
 
 		$delobj = $scache->load('spiders');
 		$delobj->delete();
@@ -111,7 +111,7 @@ if ($job == 'ignore_pending' || $job == 'add_pending') {
 }
 elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
 
-	$result = $db->query("SELECT pending_ip, pending_agent, bot_ip, user_agent FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT pending_ip, pending_agent, bot_ip, user_agent FROM {$db->pre}spider WHERE id = '{$id}'");
 	$row = $db->fetch_assoc($result);
 
 	$pending_ip_array = explode('|', $row['pending_ip']);
@@ -123,7 +123,7 @@ elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
 		$pending_agent_array[$key] = str_replace("|", "&#124;", $value);
 	}
 
-	$result = $db->query("UPDATE {$db->pre}spider SET pending_ip = '', pending_agent = '' WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("UPDATE {$db->pre}spider SET pending_ip = '', pending_agent = '' WHERE id = '{$id}'");
 
 	if ($action == "add_all_pending") {
 
@@ -185,7 +185,7 @@ elseif ($job == 'ignore_all_pending' || $job == 'add_all_pending') {
 		$bot_ip = implode("|", array_empty_trim($bot_ip_array));
 		$bot_agent = implode("|", array_empty_trim($bot_agent_array));
 
-		$db->query("UPDATE {$db->pre}spider SET user_agent = '{$bot_agent}', bot_ip = '{$bot_ip}' WHERE id = '{$id}'", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}spider SET user_agent = '{$bot_agent}', bot_ip = '{$bot_ip}' WHERE id = '{$id}'");
 
 		$delobj = $scache->load('spiders');
 		$delobj->delete();
@@ -198,7 +198,7 @@ elseif ($job == 'delete') {
 	$mark = array_empty_trim($mark);
 	if ($id > 0 || count($mark) > 0) {
 		$id = ($id > 0) ? " = {$id}" : ' IN (' . implode(', ', $mark) . ')';
-		$db->query("DELETE FROM {$db->pre}spider WHERE id {$id}", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}spider WHERE id {$id}");
 		if ($db->affected_rows() == 0) {
 			error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_no_entries_deleted'));
 		}
@@ -216,7 +216,7 @@ elseif ($job == 'reset') {
 	$mark = array_empty_trim($mark);
 	if ($id > 0 || count($mark) > 0) {
 		$id = ($id > 0) ? " = {$id}" : ' IN (' . implode(', ', $mark) . ')';
-		$db->query("UPDATE {$db->pre}spider SET last_visit = '', bot_visits = '0' WHERE id {$id}", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}spider SET last_visit = '', bot_visits = '0' WHERE id {$id}");
 		if ($db->affected_rows() == 0) {
 			error("admin.php?action=spider&job=manage", $lang->phrase('admin_spider_no_entries_reset'));
 		}
@@ -246,13 +246,13 @@ elseif ($job == 'add2' || $job == 'edit2') {
 	}
 	else {
 		if ($job == 'add2') {
-			$db->query("INSERT INTO {$db->pre}spider (name, user_agent, bot_ip, type, last_visit, pending_agent, pending_ip) VALUES ('{$bot_name}', '{$bot_agent}', '{$bot_ip}', '{$type}', '', '', '')", __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}spider (name, user_agent, bot_ip, type, last_visit, pending_agent, pending_ip) VALUES ('{$bot_name}', '{$bot_agent}', '{$bot_ip}', '{$type}', '', '', '')");
 		}
 		else {
 			$bot_visits = $gpc->get('visits', int);
 			$reset_lastvisit = $gpc->get('reset_lastvisit', int);
 			if ($reset_lastvisit == 1) {
-				$result = $db->query("SELECT last_visit FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
+				$result = $db->query("SELECT last_visit FROM {$db->pre}spider WHERE id = '{$id}'");
 				$lvdat = $db->fetch_assoc($result);
 				$lastvisits = explode('|', $lvdat['last_visit']);
 				$lastvisits = array_empty_trim($lastvisits);
@@ -266,7 +266,7 @@ elseif ($job == 'add2' || $job == 'edit2') {
 			else {
 				$last = '';
 			}
-			$db->query("UPDATE {$db->pre}spider SET name='{$bot_name}', user_agent='{$bot_agent}', bot_ip='{$bot_ip}', bot_visits='{$bot_visits}'".iif($reset_lastvisit > 0, ", last_visit = '{$last}'")." WHERE id = '{$id}'", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}spider SET name='{$bot_name}', user_agent='{$bot_agent}', bot_ip='{$bot_ip}', bot_visits='{$bot_visits}'".iif($reset_lastvisit > 0, ", last_visit = '{$last}'")." WHERE id = '{$id}'");
 		}
 		if ($db->affected_rows() <> 1) {
 			error("admin.php?action=spider&job=".iif($job == 'edit2', 'edit', 'add').iif($id > 0, '&id='.$id), "No data changed.");
@@ -280,7 +280,7 @@ elseif ($job == 'add2' || $job == 'edit2') {
 }
 elseif ($job == 'add' || $job == 'edit') {
 	if ($job == 'edit') {
-		$result = $db->query("SELECT name, user_agent, bot_ip, type, bot_visits FROM {$db->pre}spider WHERE id = '{$id}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT name, user_agent, bot_ip, type, bot_visits FROM {$db->pre}spider WHERE id = '{$id}'");
 		if ($db->num_rows($result) == 1) {
 			$row = $db->fetch_assoc($result);
 		}
@@ -343,7 +343,7 @@ elseif ($job == 'add' || $job == 'edit') {
 	echo foot();
 }
 elseif ($job == 'pending') {
-	$result = $db->query("SELECT id, name, pending_agent, pending_ip, type FROM {$db->pre}spider", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, name, pending_agent, pending_ip, type FROM {$db->pre}spider");
 	$pending_bots = 0;
 	?>
 	<table border="0" align="center" class="border">
@@ -451,7 +451,7 @@ elseif (empty($job) || $job == 'manage') {
 	<form action="admin.php?action=spider" method="post">
 	<table border="0" align="center" class="border">
 	<?php
-	$result = $db->query("SELECT id, name, last_visit, bot_visits, type, user_agent FROM {$db->pre}spider ORDER BY type, name", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, name, last_visit, bot_visits, type, user_agent FROM {$db->pre}spider ORDER BY type, name");
 	if ($db->num_rows($result) > 0) {
 		$category = '';
 		while ($row = $db->fetch_assoc($result)) {

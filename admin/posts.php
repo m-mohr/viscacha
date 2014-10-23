@@ -58,7 +58,7 @@ elseif ($_GET['job'] == 'postrating2') {
 	GROUP BY p.tid
 	ORDER BY ravg DESC
 	LIMIT {$start}, {$perpage}"
-	,__LINE__,__FILE__);
+	);
 
 	?>
 <table class="border">
@@ -174,7 +174,7 @@ elseif ($_GET['job'] == 'reports') {
 	WHERE r.report != ''
 	ORDER BY r.topic_id DESC, r.date DESC
 	LIMIT {$start}, {$perpage}"
-	,__LINE__,__FILE__);
+	);
 	$num = $db->num_rows($result);
 	?>
 <form method="post" action="admin.php?action=posts&amp;job=reports2">
@@ -256,7 +256,7 @@ elseif ($_GET['job'] == 'reports2') {
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
 		$din = implode(',', $delete);
-		$db->query("UPDATE {$db->pre}replies SET report = '' WHERE id IN ({$din})",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}replies SET report = '' WHERE id IN ({$din})");
 		ok('admin.php?action=posts&job=reports', $lang->phrase('admin_reports_set_as_done'));
 	}
 	else {

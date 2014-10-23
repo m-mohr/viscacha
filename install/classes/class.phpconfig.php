@@ -1,6 +1,30 @@
 <?php
+/*
+	Viscacha - A bulletin board solution for easily managing your content
+	Copyright (C) 2004-2009  The Viscacha Project
+
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
+	Start Date: May 22, 2004
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+/* This is the version only for the installer (without GPC class) */
 class manageconfig {
 
 	var $file;
@@ -9,14 +33,12 @@ class manageconfig {
 	var $varname;
 
 	function manageconfig() {
-
 		if (!defined('str')) {
 			define('str', 2);
 		}
 		if (!defined('int')) {
 			define('int', 1);
 		}
-
 	}
 
 	function getdata($file='data/config.inc.php', $varname = 'config') {
@@ -111,28 +133,22 @@ class manageconfig {
 			$key = trim($key);
 		}
 		if ($val == null) {
-			global $gpc;
-			if (isset($gpc)) {
-				$val = $gpc->get($key, none);
-			}
-			else {
-		        if (isset($_REQUEST[$key])) {
-		            if ($type == int) {
-		                $val = intval(trim($_REQUEST[$key]));
-		            }
-		            else {
-		                $val = $_REQUEST[$key];
-		            }
-		        }
-		        else {
-		            if ($type == str) {
-		                $val = '';
-		            }
-		            elseif ($type == int) {
-		                $val = 0;
-		            }
-		        }
-			}
+	        if (isset($_REQUEST[$key])) {
+	            if ($type == int) {
+	                $val = intval(trim($_REQUEST[$key]));
+	            }
+	            else {
+	                $val = $_REQUEST[$key];
+	            }
+	        }
+	        else {
+	            if ($type == str) {
+	                $val = '';
+	            }
+	            elseif ($type == int) {
+	                $val = 0;
+	            }
+	        }
 		}
 
 		if (isset($group)) {
@@ -158,5 +174,4 @@ class manageconfig {
 	}
 
 }
-
 ?>

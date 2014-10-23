@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1",__LINE__,__FILE__);
+$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
 $info = $gpc->prepare($db->fetch_assoc($result));
 
 $my->p = $slog->Permissions($info['board']);
@@ -58,14 +58,15 @@ if ($last['topiczahl'] < 1) {
 $q = urldecode($gpc->get('q', str));
 if (strxlen($q) > 2) {
 	$qUrl = '&q='.urlencode($q);
+	$qUrl2 = '&amp;q='.urlencode($q);
 }
 else {
-	$qUrl = '';
+	$qUrl = $qUrl2 = '';
 }
 
 if ($_GET['action'] == 'firstnew') {
 	if ($info['last'] > $my->clv) {
-		$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date <= '{$my->clv}'",__LINE__,__FILE__);
+		$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date <= '{$my->clv}'");
 		$old = $db->fetch_assoc($result);
 		$tp = $old['count'] + 1; // Number of old post (with topic start post) + 1, to get the first new post, not the last old post
 		$pgs = ceil($tp/$last['topiczahl']);
@@ -73,23 +74,23 @@ if ($_GET['action'] == 'firstnew') {
 			$pgs = 1;
 		}
 		$db->close();
-		viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
+		sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
 		exit;
 	}
 }
 elseif ($_GET['action'] == 'last') {
-	// Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
-	$result = $db->query('SELECT id FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' ORDER BY date DESC LIMIT 1',__LINE__,__FILE__);
+	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
+	$result = $db->query('SELECT id FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' ORDER BY date DESC LIMIT 1');
 	$new = $db->fetch_num($result);
 	$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
 	$db->close();
-	viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
+	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
 elseif ($_GET['action'] == 'mylast') {
 	$result = $db->query('SELECT date, id FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' AND name="'.$my->id.'" ORDER BY date DESC LIMIT 1');
 	$mylast =$db->fetch_num($result);
-	$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' AND date > '.$mylast[0],__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = '.$info['id'].' AND date > '.$mylast[0]);
 	$new = $db->fetch_assoc($result);
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
@@ -97,13 +98,13 @@ elseif ($_GET['action'] == 'mylast') {
 		$pgs = 1;
 	}
 	$db->close();
-	viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 elseif ($_GET['action'] == 'jumpto') {
 	$result = $db->query('SELECT date, id FROM '.$db->pre.'replies WHERE topic_id = "'.$info['id'].'" AND id="'.$gpc->get('topic_id', int).'" ORDER BY date DESC LIMIT 1');
 	$mylast =$db->fetch_num($result);
-	$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = "'.$info['id'].'" AND date > "'.$mylast[0].'"',__LINE__,__FILE__);
+	$result = $db->query('SELECT COUNT(*) AS count FROM '.$db->pre.'replies WHERE topic_id = "'.$info['id'].'" AND date > "'.$mylast[0].'"');
 	$new = $db->fetch_assoc($result);
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
@@ -111,7 +112,7 @@ elseif ($_GET['action'] == 'jumpto') {
 		$pgs = 1;
 	}
 	$db->close();
-	viscacha_header('Location: showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(307, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 
@@ -137,7 +138,7 @@ forum_opt($last);
 $speeder = $info['posts']+1;
 $start = $_GET['page']*$last['topiczahl'];
 $start = $start-$last['topiczahl'];
-$temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id']."&amp;", $_GET['page']);
+$temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id'].$qUrl2."&amp;", $_GET['page']);
 
 define('LINK_PRINT_PAGE', "print.php?id={$info['id']}&amp;page={$_GET['page']}".SID2URL_x);
 
@@ -155,77 +156,84 @@ $inner['index_bit'] = array();
 $inner['vote_result'] = '';
 $inner['related'] = '';
 
-// prepare for vote
+// Do we have a vote?
 if (!empty($info['vquestion'])) {
-	$votes = 0;
-	if (!$my->vlogin || $my->p['voting'] == 0 || $_GET['temp'] == 1) {
-		$showresults = TRUE;
-	}
-	else {
-		$showresults = FALSE;
+	// Yeah, we have - Create an empty array for the data
+	$vote = array(
+		'count' => 0, // Number of all votes
+		'question' => $info['vquestion'], // The question of the vote
+		'entries' => array(), // Each option (with title of the option, ...)
+		'voted' => 0, // The option (answer id) the requesting user has chosen (0 = no vote yet)
+		'results' => false, // Show the result page (true) or the form to chose the options (false)
+		'voter' => array(), // The voter for each option
+		'phrase' => null // Phrase to switch to the survey form (change/add)
+	);
+
+	if (!$my->vlogin || $my->p['voting'] == 0 || $_GET['temp'] == 1 || $info['status'] != 0) {
+		$vote['results'] = true;
 	}
 
-	$cachev = array();
-	$aids = array();
+	// Get data: count of votes per option, option id, option text
 	$vresult = $db->query("
-	SELECT COUNT(r.id) as votes, v.id, v.answer
-	FROM {$db->pre}vote AS v
-		LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id
-	WHERE v.tid = '{$info['id']}'
-	GROUP BY v.id
-	ORDER BY v.id
-	",__LINE__,__FILE__);
-
-	while ($row = $db->fetch_assoc($vresult)) {
-		$row['answer'] = $gpc->prepare($row['answer']);
-		$cachev[] = $row;
-		$votes += $row['votes'];
-		if (!isset($aids[$row['id']])) {
-			$aids[$row['id']] = $row['id'];
+		SELECT COUNT(r.id) as votes, v.id, v.answer
+		FROM {$db->pre}vote AS v
+			LEFT JOIN {$db->pre}votes AS r ON r.aid = v.id
+		WHERE v.tid = '{$info['id']}'
+		GROUP BY v.id
+		ORDER BY v.id
+	");
+	if ($db->num_rows($vresult) > 0) {
+		// Collect and cache data for a single query instead of multiple
+		while ($row = $db->fetch_assoc($vresult)) {
+			$vote['entries'][$row['id']] = $row;
+			$vote['voter'][$row['id']] = array();
+			$vote['count'] += $row['votes'];
 		}
-	}
-	if (count($aids) > 0) {
-		$voter = array();
-		$tids = implode(',', $aids);
-		$rresult = $db->query("SELECT mid, aid FROM {$db->pre}votes WHERE aid IN({$tids})",__LINE__,__FILE__);
-		while ($row = $db->fetch_assoc($rresult)) {
+
+		// Now get more data (for what the users voted exactly)
+		$sql_aid_in = implode(',', array_keys($vote['entries']));
+		$vresult = $db->query("SELECT mid, aid FROM {$db->pre}votes WHERE aid IN({$sql_aid_in})");
+		while ($row = $db->fetch_assoc($vresult)) {
+			// Save the data for the member who is calling this page
 			if ($row['mid'] == $my->id) {
-				$showresults = TRUE;
+				if ($config['vote_change'] != 1 || ($config['vote_change'] == 1 && $_GET['temp'] != 2)) {
+					$vote['results'] = true;
+				}
+				$vote['voted'] = $row['aid'];
 			}
-			if (!isset($voter[$row['aid']]) || ! is_array($voter[$row['aid']])) {
-				$voter[$row['aid']] = array();
-			}
-			$voter[$row['aid']][$row['mid']] = $memberdata[$row['mid']]; // Array mit den Namen der Leute und deren Antwort
+			// Create element in array with name (+ member id as key) at the selected answer
+			$vote['voter'][$row['aid']][$row['mid']] = $memberdata[$row['mid']];
 		}
 
-		if (!$showresults) {
+		if ($vote['results'] == false) {
+			// When we only show the form to submit/change a vote
 		    ($code = $plugins->load('showtopic_vote_prepared')) ? eval($code) : null;
 			$inner['vote_result'] = $tpl->parse("showtopic/vote");
 		}
 		else {
-			foreach ($cachev as $key => $row) {
-				if ($votes > 0) {
-					$row['percent2'] = ceil($row['votes'] / $votes * 200);
-					$row['percent'] = $row['votes'] / $votes * 100;
+			// Show the results
+			foreach ($vote['entries'] as $key => $row) {
+				if ($row['votes'] > 0) {
+					$row['percent'] = $row['votes'] / $vote['count'] * 100;
 					if (strstr($row['percent'], '.') > 0) {
-						$row['percent'] = sprintf("%01.1f", $row['percent']);
+						$row['percent'] = numbers($row['percent'], 1);
 					}
 				}
 				else {
 					$row['percent'] = 0;
-					$row['percent2'] = 0;
 				}
-				$cachev[$key] = $row;
-				if (!isset($voter[$row['id']])) {
-					$voter[$row['id']] = array();
-				}
-				if (count($voter[$row['id']]) > 0) {
-				    $voter[$row['id']][0] = implode(', ', $voter[$row['id']]);
+				$vote['entries'][$key] = $row;
+
+				// Make comma separated string from array of users
+				// Keys: (0 = Voter separated by comma, 1,2,3,... = Voter name with id as key)
+				if (count($vote['voter'][$row['id']]) > 0) {
+				    $vote['voter'][$row['id']][0] = implode(', ', $vote['voter'][$row['id']]);
 				}
 				else {
-				    $voter[$row['id']][0] = '-';
+				    $vote['voter'][$row['id']][0] = '-';
 				}
 			}
+			$vote['phrase'] = iif($vote['voted'] > 0, 'vote_change_option', 'vote_go_form');
 			($code = $plugins->load('showtopic_vote_result_prepared')) ? eval($code) : null;
 			$inner['vote_result'] = $tpl->parse("showtopic/vote_result");
 		}
@@ -233,7 +241,7 @@ if (!empty($info['vquestion'])) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
+	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
 	$uploads = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
@@ -277,12 +285,12 @@ FROM {$db->pre}replies AS r
 WHERE r.topic_id = '{$info['id']}'
 ORDER BY date ASC
 {$sql_limit}
-",__LINE__,__FILE__);
+");
 
 $firstnew = 0;
 $firstnew_url = null;
 if ($info['last'] > $my->clv) {
-	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].SID2URL_x;
+	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].$qUrl2.SID2URL_x;
 }
 
 // Custom Profile Fields
@@ -325,6 +333,7 @@ while ($row = $db->fetch_object($result)) {
 	else {
 	    $edit_seconds = $config['edit_edit_time']*60;
 	}
+	$can_edit = ((($row->mid == $my->id && $row->guest == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && $info['status'] == 0);
 
 	$new = iif($row->date > $my->clv, 'new', 'old');
 
@@ -429,7 +438,7 @@ while ($row = $db->fetch_object($result)) {
 }
 
 if ($my->vlogin && is_id($info['id'])) {
-	$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'",__LINE__,__FILE__);
+	$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'");
 	$abox = $db->fetch_assoc($result);
 }
 else {

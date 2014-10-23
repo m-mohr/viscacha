@@ -7,7 +7,7 @@ class cache_loadlanguage extends CacheItem {
 		    $this->import();
 		}
 		else {
-		    $result = $db->query("SELECT id, language, detail FROM {$db->pre}language WHERE publicuse != '0'",__LINE__,__FILE__);
+		    $result = $db->query("SELECT id, language, detail FROM {$db->pre}language WHERE publicuse != '0'");
 		    $this->data = array();
 		    while ($row = $db->fetch_assoc($result)) {
 		        $this->data[$row['id']] = $row;

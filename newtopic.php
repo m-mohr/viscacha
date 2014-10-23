@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
 $board = $gpc->get('id', int);
+$fid = $gpc->get('fid', str);
 
 $my->p = $slog->Permissions($board);
 
@@ -57,7 +58,7 @@ $breadcrumb->Add($lang->phrase('newtopic_title'));
 
 if ($_GET['action'] == "startvote") {
 
-	$result = $db->query("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
 
 	$my->mp = $slog->ModPermissions($info['board']);
@@ -83,8 +84,8 @@ if ($_GET['action'] == "startvote") {
 		errorLogin($error,"showforum.php?id=".$info['board'].SID2URL_x);
 	}
 
-	if (strlen($_GET['fid']) == 32) {
-		$data = $gpc->prepare(import_error_data($_GET['fid']));
+	if (is_hash($fid)) {
+		$data = $gpc->unescape(import_error_data($fid));
 		for ($i = 1; $i <= $temp; $i++) {
 			if (!isset($data[$i])) {
 				$data[$i] = '';
@@ -112,7 +113,7 @@ elseif ($_GET['action'] == "savevote") {
 
 	if (!empty($_POST['Update'])) {
 		$_POST['notice']['question'] = $_POST['question'];
-		$fid = save_error_data($_POST['notice']);
+		$fid = save_error_data($_POST['notice'], $fid);
 		$slog->updatelogged();
 		$db->close();
 		viscacha_header("Location: newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
@@ -123,7 +124,7 @@ elseif ($_GET['action'] == "savevote") {
 		errorLogin($lang->phrase('not_allowed'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
 
-	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1', __LINE__, __FILE__);
+	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1');
 	$info = $db->fetch_assoc($result);
 
 	$error = $sqlwhere = array();
@@ -159,7 +160,7 @@ elseif ($_GET['action'] == "savevote") {
 	if (count($error) > 0) {
 		$_POST['notice']['question'] = $_POST['question'];
 		($code = $plugins->load('newtopic_savevote_errordata')) ? eval($code) : null;
-		$fid = save_error_data($_POST['notice']);
+		$fid = save_error_data($_POST['notice'], $fid);
 		error($error,"newtopic.php?action=startvote&amp;id={$info['board']}&topic_id={$topic_id}&amp;temp={$temp}&amp;fid=".$fid.SID2URL_x);
 	}
 	else {
@@ -167,41 +168,37 @@ elseif ($_GET['action'] == "savevote") {
 
 		($code = $plugins->load('newtopic_savevote_queries')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$info['id']}'",__LINE__,__FILE__);
-		$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES {$sqlwhere}",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$info['id']}'");
+		$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES {$sqlwhere}");
 		$inserted = $db->affected_rows();
 		if ($inserted > 1) {
 			ok($lang->phrase('data_success'),"showtopic.php?id={$topic_id}".SID2URL_x);
 		}
 		else {
-			$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$topic_id}'",__LINE__,__FILE__);
+			$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$topic_id}'");
 			error($lang->phrase('add_vote_failed'),"showtopic.php?id={$topic_id}".SID2URL_x);
 		}
 	}
 }
 elseif ($_GET['action'] == "save") {
-
-	$error = array();
-	$human = null;
 	$digest = $gpc->get('digest', int);
-
+	$error = array();
+	if (is_hash($fid)) {
+		$error_data = import_error_data($fid);
+	}
+	$human = empty($error_data['human']) ? false : $error_data['human'];
 	if (!$my->vlogin) {
-		if ($config['botgfxtest_posts'] == 1) {
-			include("classes/graphic/class.veriword.php");
-			$vword = new VeriWord();
-			if($_POST['letter']) {
-				if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
-					$error[] = $lang->phrase('veriword_mistake');
-				}
-				else {
-				     $human = array(
-                     		'captcha' => $_POST['captcha'],
-							'letter' => $_POST['letter']
-					 );
-				}
+		if ($config['botgfxtest_posts'] > 0 && $human == false) {
+			$captcha = newCAPTCHA('posts');
+			$status = $captcha->check();
+			if ($status == CAPTCHA_FAILURE) {
+				$error[] = $lang->phrase('veriword_failed');
+			}
+			elseif ($status == CAPTCHA_MISTAKE) {
+				$error[] = $lang->phrase('veriword_mistake');
 			}
 			else {
-				$error[] = $lang->phrase('veriword_failed');
+				$human = true;
 			}
 		}
 		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
@@ -270,8 +267,12 @@ elseif ($_GET['action'] == "save") {
 			'replies' => $_POST['temp'],
 			'guest' => 1,
 			'human' => $human,
-			'digest' => $digest
+			'digest' => $digest,
+			'name' => null,
+			'email' => null,
+			'guest' => 0
 		);
+
 		if (!$my->vlogin) {
 			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
 				$data['email'] = '';
@@ -283,7 +284,7 @@ elseif ($_GET['action'] == "save") {
 			$data['guest'] = 1;
 		}
 		($code = $plugins->load('newtopic_save_errordata')) ? eval($code) : null;
-		$fid = save_error_data($data);
+		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			$db->close();
@@ -311,16 +312,16 @@ elseif ($_GET['action'] == "save") {
 		$db->query("
 		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix,vquestion)
 		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}','')
-		",__LINE__,__FILE__);
+		");
 		$tredirect = $db->insert_id();
 
 		$db->query("
 		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest,edit,report)
 		VALUES ('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
-		",__LINE__,__FILE__);
+		");
 		$rredirect = $db->insert_id();
 
-		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'",__LINE__,__FILE__);
+		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'");
 
 		// Insert notifications
 		if ($my->vlogin && $type != 0) {
@@ -329,7 +330,7 @@ elseif ($_GET['action'] == "save") {
 				case 3:  $type = 'w'; break;
 				default: $type = '';  break;
 			}
-			$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$type}')",__LINE__,__FILE__);
+			$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$type}')");
 		}
 
 
@@ -340,10 +341,10 @@ elseif ($_GET['action'] == "save") {
 		$stat = $gpc->get('status', int);
 		if (($close == 1 || $pin == 1) && $my->vlogin) {
 			if ($close == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
+				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'");
 			}
 			if ($pin == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
+				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
 			}
 		}
 		if ((($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1) || $stat == 9) && $my->vlogin) { // null (Kein Status) ist standard und muss nicht geändert werden
@@ -356,14 +357,14 @@ elseif ($_GET['action'] == "save") {
 			elseif ($stat == 9) {
 				$input = '';
 			}
-			$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
+			$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$tredirect}'");
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'",__LINE__,__FILE__);
+			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'");
 		}
 
-		$db->query ("UPDATE {$db->pre}forums SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'",__LINE__,__FILE__);
+		$db->query ("UPDATE {$db->pre}forums SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'");
 		$catobj = $scache->load('cat_bid');
 		$catobj->delete();
 
@@ -403,8 +404,22 @@ else {
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($board);
 
-	if (strlen($_GET['fid']) == 32) {
-		$data = $gpc->prepare(import_error_data($_GET['fid']));
+	$standard_data = array(
+		'prefix' => 0,
+		'vote' => '',
+		'replies' => '',
+		'name' => '',
+		'email' => '',
+		'comment' => '',
+		'dosmileys' => 1,
+		'dowords' => 1,
+		'topic' => '',
+		'human' => false,
+		'digest' => 0
+	);
+
+	if (is_hash($fid)) {
+		$data = $gpc->unescape(import_error_data($fid));
 		$info = array($data['topic']);
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
@@ -421,22 +436,15 @@ else {
 				$prefix = $prefix_arr[$data['prefix']]['value'];
 			}
 		}
+		foreach ($standard_data as $key => $value) {
+			if (!isset($data[$key])) {
+				$data[$key] = $value;
+			}
+		}
 	}
 	else {
-		$data = array(
-			'prefix' => 0,
-			'vote' => '',
-			'replies' => '',
-			'name' => '',
-			'email' => '',
-			'comment' => '',
-			'dosmileys' => 1,
-			'dowords' => 1,
-			'topic' => '',
-			'human' => null,
-			'digest' => 0
-		);
-		$_GET['action'] = '';
+		$data = $standard_data;
+		$_GET['action'] = $_POST['action'] = '';
 	}
 
 	if (count($prefix_arr) > 0) {
@@ -466,13 +474,11 @@ else {
 		$inner['index_prefix'] = '';
 	}
 
-	if ($config['botgfxtest_posts'] == 1 && $data['human'] == null) {
-		include("classes/graphic/class.veriword.php");
-		$vword = new VeriWord();
-		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
-		if ($config['botgfxtest_text_verification'] == 1) {
-			$textcode = $vword->output_word($veriid);
-		}
+	if ($config['botgfxtest_posts'] > 0 && $data['human'] == false) {
+		$captcha = newCAPTCHA('posts');
+	}
+	else {
+		$captcha = null;
 	}
 
 	($code = $plugins->load('newtopic_form_prepared')) ? eval($code) : null;

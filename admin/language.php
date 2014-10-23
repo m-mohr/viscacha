@@ -40,7 +40,7 @@ $mailbase = array(
 
 if ($job == 'manage') {
 	echo head();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -93,7 +93,7 @@ elseif ($job == 'ajax_publicuse') {
 		if ($id == $config['langdir']) {
 			die($lang->phrase('admin_lang_cannot_unpublish_until_defined_other_lang'));
 		}
-		$db->query("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
+		$result = $db->query("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
 		if ($db->num_rows($result) == 1) {
 			die($lang->phrase('admin_lang_cannot_unpublish_because_no_other_lang'));
 		}
@@ -516,7 +516,7 @@ elseif ($job == 'lang_settings2') {
 			$error .= $lang->phrase('admin_lang_but_cannot_unpublish_until_defined_another_lang');
 			$use = 1;
 		}
-		$db->query("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
+		$result = $db->query("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
 		if ($db->num_rows($result) == 1) {
 			$error .= $lang->phrase('admin_lang_but_cannot_unpublish_because_no_other_lang_published');
 			$use = 1;
@@ -997,10 +997,7 @@ elseif ($job == 'lang_default') {
 	$c = new manageconfig();
 	$c->getdata();
 	$c->updateconfig('langdir', int, $id);
-	$current = $lang->getdir();
-	$lang->setdir($id);
-	$data = $lang->return_array('settings');
-	$lang->setdir($current);
+	$data = return_array('settings', $id);
 	$c->updateconfig('asia_charset', str, $data['charset']);
 	$c->savedata();
 
@@ -1096,7 +1093,7 @@ elseif ($job == 'lang_edit') {
 			FROM {$db->pre}component AS c
 				LEFT JOIN {$db->pre}packages AS p ON c.package = p.id
 			ORDER BY p.title
-		", __LINE__, __FILE__);
+		");
 		while ($row = $db->fetch_assoc($result)) {
 			$c = $myini->read('modules/'.$row['package'].'/component.ini');
 		?>
@@ -1142,7 +1139,7 @@ elseif ($job == 'phrase') {
 	$cache = array();
 	$diff = array();
 	$complete = array();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	while($row = $db->fetch_assoc($result)) {
 		$cache[$row['id']] = $row;
 		$diff[$row['id']] = dir_array('language/'.$row['id'], 'language/'.$row['id']);
@@ -1230,7 +1227,7 @@ elseif ($job == 'phrase_file') {
 	$diff = array();
 	$complete = array();
 	$lang_data = array();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	while($row = $db->fetch_assoc($result)) {
 		$cache[$row['id']] = $row;
 		$lang_data[$row['id']] = return_array($group, $row['id']);
@@ -1345,7 +1342,7 @@ elseif ($job == 'phrase_copy') {
 	$language = $gpc->get('id', int);
 	$file = $gpc->get('file', none);
 	$encfile = base64_decode($file);
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	echo head();
 	?>
 <form name="form" method="post" action="admin.php?action=language&amp;job=phrase_copy2&amp;file=<?php echo $file; ?>&amp;id=<?php echo $language; ?>">
@@ -1403,7 +1400,7 @@ elseif ($job == 'phrase_file_edit') {
 	$encfile = base64_decode($file);
 	$basefile = substr($encfile, 0, strlen($encfile)-8);
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	$cache = array();
 	while($row = $db->fetch_assoc($result)) {
 	  	$phrases = return_array($basefile, $row['id']);
@@ -1481,7 +1478,7 @@ elseif ($job == 'phrase_file_copy') {
 	$file = $gpc->get('file', none);
 	$encfile = base64_decode($file);
 	$phrase = $gpc->get('phrase', str);
-	$result = $db->query("SELECT * FROM {$db->pre}language WHERE id != '{$language}' ORDER BY language",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}language WHERE id != '{$language}' ORDER BY language");
 	echo head();
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_file_copy2&phrase=<?php echo $phrase; ?>&file=<?php echo $file; ?>&id=<?php echo $language; ?>">
@@ -1538,7 +1535,7 @@ elseif ($job == 'phrase_file_copy2') {
 elseif ($job == 'phrase_delete') {
 	echo head();
 	$delete = $gpc->get('delete', arr_none);
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	while($row = $db->fetch_assoc($result)) {
 		foreach ($delete as $base) {
 			$base = base64_decode($base);
@@ -1555,7 +1552,7 @@ elseif ($job == 'phrase_file_delete') {
 	$delete = $gpc->get('delete', arr_str);
 	$file = $gpc->get('file', none);
 	$encfile = base64_decode($file);
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	$c = new manageconfig();
 	while($row = $db->fetch_assoc($result)) {
 		$path = "language/{$row['id']}/{$encfile}";
@@ -1610,7 +1607,7 @@ elseif ($job == 'phrase_add_lngfile2') {
 	$dir = base64_decode($gpc->get('dir', none));
 	$file = $gpc->get('file', none);
 	$c = new manageconfig();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	while($row = $db->fetch_assoc($result)) {
 		$c->createfile("language/{$row['id']}/{$dir}{$file}.lng.php", 'lang');
 	}
@@ -1619,7 +1616,7 @@ elseif ($job == 'phrase_add_lngfile2') {
 }
 elseif ($job == 'phrase_add_mailfile') {
 	echo head();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_add_mailfile2">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
@@ -1703,7 +1700,7 @@ elseif ($job == 'phrase_add_mailfile2') {
 elseif ($job == 'phrase_add') {
 	echo head();
 	$file = base64_decode($gpc->get('file', none));
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=phrase_add2&file=<?php echo $gpc->get('file', none); ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">

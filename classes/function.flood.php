@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ function flood_protect($type = FLOOD_TYPE_STANDARD) {
 		$value = $my->id;
 		$field = 'mid';
 	}
-	$result = $db->query("SELECT time FROM {$db->pre}flood WHERE type = '{$type}' AND {$field} = '{$value}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT time FROM {$db->pre}flood WHERE type = '{$type}' AND {$field} = '{$value}' LIMIT 1");
 	if ($db->num_rows($result) == 1) {
 		$data = $db->fetch_assoc($result);
 		if ($data['time'] > (time()-$my->p['flood'])) {
@@ -73,9 +73,9 @@ function set_flood($type = FLOOD_TYPE_STANDARD) {
 	$time = time();
 	$limit = $time - $my->p['flood'];
 	// Alte Daten löschen (zu alte oder eigene)
-	$db->query("DELETE FROM {$db->pre}flood WHERE (time <= '{$limit}' AND type != '".FLOOD_TYPE_LOGIN."') OR (type = '{$type}' AND {$field} = '{$value}')", __LINE__, __FILE__);
+	$db->query("DELETE FROM {$db->pre}flood WHERE (time <= '{$limit}' AND type != '".FLOOD_TYPE_LOGIN."') OR (type = '{$type}' AND {$field} = '{$value}')");
 	// Daten einfügen
-	$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', {$field} = '{$value}', type = '{$type}'", __LINE__, __FILE__);
+	$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', {$field} = '{$value}', type = '{$type}'");
 	return true;
 }
 
@@ -89,7 +89,7 @@ function set_failed_login() {
 	$ip = $slog->getIP();
 	$time = time();
 	$limit = $time - $config['login_attempts_time']*60;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}flood WHERE ip = '{$ip}' AND time > '{$limit}' AND type = '".FLOOD_TYPE_LOGIN."'", __LINE__, __FILE__);
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}flood WHERE ip = '{$ip}' AND time > '{$limit}' AND type = '".FLOOD_TYPE_LOGIN."'");
 	$data = $db->fetch_num($result);
 	$data[0]++;
 
@@ -111,7 +111,7 @@ function set_failed_login() {
 	}
 	else {
 		// Add one login attempt
-		$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', ip = '{$ip}', type = '".FLOOD_TYPE_LOGIN."'", __LINE__, __FILE__);
+		$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', ip = '{$ip}', type = '".FLOOD_TYPE_LOGIN."'");
 		return $data[0];
 	}
 }
@@ -119,7 +119,7 @@ function set_failed_login() {
 function clear_login_attempts() {
 	global $slog, $db, $config;
 	if ($config['login_attempts_max'] > 0) {
-		$db->query("DELETE FROM {$db->pre}flood WHERE type = '".FLOOD_TYPE_LOGIN."' AND ip = '".$slog->getIP()."'", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}flood WHERE type = '".FLOOD_TYPE_LOGIN."' AND ip = '".$slog->getIP()."'");
 	}
 }
 

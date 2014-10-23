@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -64,7 +64,7 @@ if ($_GET['action'] == 'team') {
 	FROM '.$db->pre.'user
 	WHERE '.implode(' OR ',$cache).'
 	ORDER BY name ASC
-	',__LINE__,__FILE__);
+	');
 
 	$admin_cache = array();
 	$gmod_cache = array();
@@ -87,7 +87,7 @@ if ($_GET['action'] == 'team') {
 		LEFT JOIN '.$db->pre.'user AS u ON u.id = m.mid
 		LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
 	ORDER BY u.name ASC
-	',__LINE__,__FILE__);
+	');
 
 	$inner['moderator_bit'] = '';
 	if ($db->num_rows($result) > 0) {
@@ -235,7 +235,7 @@ else {
 
 	($code = $plugins->load('members_queries')) ? eval($code) : null;
 
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE {$sqlwhere}",__LINE__,__FILE__);
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE {$sqlwhere}");
 	$count = $db->fetch_num($result);
 
 	$temp = pages($count[0], $config['mlistenzahl'], "members.php?{$query_page}&amp;", $_GET['page']);
@@ -280,7 +280,7 @@ else {
 	WHERE {$sqlwhere}
 	ORDER BY {$sqlorderby}
 	LIMIT {$start},{$config['mlistenzahl']}
-	",__LINE__,__FILE__);
+	");
 
 	if ($count[0] > 0 && $db->num_rows($result) == 0) {
 		error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
@@ -331,7 +331,7 @@ else {
 		'' => array('url' => '', 'html' => $lang->phrase('members_all'))
 	);
 	$specials = false;
-	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter",__LINE__,__FILE__);
+	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter");
 	while ($row = $db->fetch_assoc($result)) {
 		if (in_array($row['letter'], $available)) {
 			$letter[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);

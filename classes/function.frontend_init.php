@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 }
 
 // Gets a file with php-functions
-@include_once("classes/function.phpcore.php");
+require_once("classes/function.phpcore.php");
 
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
 	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
@@ -67,12 +67,10 @@ require_once ("classes/function.gpc.php");
 $http_vars = array(
 	'action' => str,
 	'job' => str,
-	'search' => str,
 	'name' => str,
 	'email' => db_esc,
 	'topic' => str,
 	'comment' => str,
-	'error' => str,
 	'pw' => str,
 	'pwx' => str,
 	'order' => str,
@@ -93,10 +91,6 @@ $http_vars = array(
 	'skype' => db_esc,
 	'yahoo' => db_esc,
 	'jabber' => db_esc,
-	'fid' => str,
-	'file' => str,
-	'groups' => str,
-	'captcha' => str,
 	'board' => int,
 	'topic_id' => int,
 	'id' => int,
@@ -117,7 +111,6 @@ $http_vars = array(
 	'opt_6' => int,
 	'opt_7' => int,
 	'notice' => arr_str,
-	'boards' => arr_int,
 	'delete' => arr_int
 );
 
@@ -217,7 +210,7 @@ else {
 
 // Global and important functions (not for cron and external)
 if (defined('TEMPNOFUNCINIT') == false || ($config['foffline'] && defined('TEMPSHOWLOG') == false)) {
-	$zeitmessung1 = t1();
+	define('SCRIPT_START_TIME', benchmarktime());
 	$slog = new slog();
 	$my = $slog->logged();
 	$lang->init($my->language);
@@ -230,6 +223,7 @@ if ($config['foffline'] && defined('TEMPSHOWLOG') == false) {
 
 	if ($my->p['admin'] != 1) {
 		$offline = file_get_contents('data/offline.php');
+		sendStatusCode(503, 3600);
         ($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
 		echo $tpl->parse("offline");
 

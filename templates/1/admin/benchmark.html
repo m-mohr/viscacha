@@ -22,7 +22,7 @@
 	<td width="25%"><strong>Templates:</strong></td>
 	<td width="25%"><?php echo $this->benchmark['all']; ?> (<?php echo $this->benchmark['error']; ?> failed)</td>
 	<td width="25%"><strong>Templates Time:</strong></td>
-	<td width="25%"><?php echo substr($this->benchmark['time'], 0, 7); ?> sec.</td>
+	<td width="25%"><?php echo round($this->benchmark['time'], 5); ?> sec.</td>
 </tr>
 <?php if ($bbcode->existsProfile('standard')) { ?>
 <tr class="tbody">

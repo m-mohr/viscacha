@@ -59,7 +59,7 @@ if ($job == 'package') {
 			LEFT JOIN {$db->pre}settings_groups AS s ON p.internal = s.name
 		GROUP BY p.internal
 		ORDER BY p.title
-	", __LINE__, __FILE__);
+	");
 	?>
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	  <tr>
@@ -123,7 +123,7 @@ if ($job == 'package') {
 elseif ($job == 'package_admin') {
 	$id = $gpc->get('cid', int);
 	$mod = $gpc->get('file', str, 'frontpage');
-	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) == 0) {
 		echo head();
 		error('admin.php?action=cms&job=package',$lang->phrase('admin_packages_err_no_package_with_this_id'));
@@ -280,7 +280,7 @@ elseif ($job == 'package_update2') {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_err_package_ini_does_not_exist'));
 		}
 
-		$result = $db->query("SELECT id FROM {$db->pre}packages WHERE internal = '{$package['info']['internal']}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}packages WHERE internal = '{$package['info']['internal']}'");
 		if ($db->num_rows($result) == 0) {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_package_with_name_not_installed'));
 		}
@@ -289,7 +289,7 @@ elseif ($job == 'package_update2') {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_packache_id_doesnt_match'));
 		}
 		if (isset($package['dependency']) && count($package['dependency']) > 0) {
-			$result = $db->query("SELECT internal FROM {$db->pre}packages", __LINE__, __FILE__);
+			$result = $db->query("SELECT internal FROM {$db->pre}packages");
 			$internals = array();
 			while ($row = $db->fetch_assoc($result)) {
 				$internals[] = $row['internal'];
@@ -310,7 +310,7 @@ elseif ($job == 'package_update2') {
 		// Custom Updater - Init
 		($code = $plugins->update_init($packageid, $tdir)) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}packages SET title = '{$package['info']['title']}', version = '{$package['info']['version']}' WHERE id = '{$packageid}'", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}packages SET title = '{$package['info']['title']}', version = '{$package['info']['version']}' WHERE id = '{$packageid}'");
 
 		$moddir = "./modules/{$packageid}/";
 		$old = $myini->read($moddir.'package.ini');
@@ -320,13 +320,13 @@ elseif ($job == 'package_update2') {
 			if (!isset($package['config']['description'])) {
 				$package['config']['description'] = '';
 			}
-			$result = $db->query("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$package['info']['internal']}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$package['info']['internal']}'");
 			if ($db->num_rows($result) > 0) {
-				$db->query("UPDATE {$db->pre}settings_groups SET title = '{$package['config']['title']}', description = '{$package['config']['description']}' WHERE name = '{$package['info']['internal']}'", __LINE__, __FILE__);
+				$db->query("UPDATE {$db->pre}settings_groups SET title = '{$package['config']['title']}', description = '{$package['config']['description']}' WHERE name = '{$package['info']['internal']}'");
 				list($sg) = $db->fetch_num($result);
 			}
 			else {
-				$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')", __LINE__, __FILE__);
+				$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')");
 				$sg = $db->insert_id();
 			}
 		}
@@ -347,14 +347,14 @@ elseif ($job == 'package_update2') {
 				$name = substr($section, 8);
 				if ($sg != null && isset($old[$section]) && isset($package[$section])) { // Nur aktualisieren
 					$values = $package[$section];
-					$db->query("UPDATE {$db->pre}settings SET title = '{$values['title']}', description = '{$values['description']}', type = '{$values['type']}', optionscode = '{$values['optionscode']}', value = '{$values['value']}' WHERE name = '{$name}' AND sgroup = '{$sg}'", __LINE__, __FILE__);
+					$db->query("UPDATE {$db->pre}settings SET title = '{$values['title']}', description = '{$values['description']}', type = '{$values['type']}', optionscode = '{$values['optionscode']}', value = '{$values['value']}' WHERE name = '{$name}' AND sgroup = '{$sg}'");
 				}
 				elseif ($sg != null && !isset($old[$section]) && isset($package[$section])) { // Hinzufügen
 					$values = $package[$section];
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
 					VALUES ('{$name}', '{$values['title']}', '{$values['description']}', '{$values['type']}', '{$values['optionscode']}', '{$values['value']}', '{$sg}')
-					", __LINE__, __FILE__);
+					");
 					$c->updateconfig(array($package['info']['internal'], $name), none, $values['value']);
 				}
 				else { // Löschen
@@ -365,11 +365,11 @@ elseif ($job == 'package_update2') {
 		}
 		$c->savedata();
 
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'",__LINE__,__FILE__);
+		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'");
 		$design = $db->fetch_assoc($result);
 
 		// Components Start
-		$result = $db->query("SELECT id FROM {$db->pre}component WHERE package = '{$packageid}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}component WHERE package = '{$packageid}'");
 		$do = null;
 		if ($db->num_rows($result) == 0) {
 			if (file_exists($tdir.'modules/component.ini')) {
@@ -399,14 +399,14 @@ elseif ($job == 'package_update2') {
 		}
 
 		if ($do == DO_UPD_ADD) {
-			$db->query("INSERT INTO {$db->pre}component (file, package, required) VALUES ('".$gpc->save_str($com['module']['frontpage'])."', '{$packageid}', '".$gpc->save_str($com['info']['required'])."')", __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}component (file, package, required) VALUES ('".$gpc->save_str($com['module']['frontpage'])."', '{$packageid}', '".$gpc->save_str($com['info']['required'])."')");
 			$comid = $db->insert_id();
 		}
 		elseif ($do == DO_UPD_CHNG) {
-			$db->query("UPDATE {$db->pre}component SET file = '".$gpc->save_str($com['module']['frontpage'])."', required = '".$gpc->save_str($com['info']['required'])."' WHERE id = '{$comid}'", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}component SET file = '".$gpc->save_str($com['module']['frontpage'])."', required = '".$gpc->save_str($com['info']['required'])."' WHERE id = '{$comid}'");
 		}
 		elseif ($do == DO_UPD_DEL) {
-			$db->query("DELETE FROM {$db->pre}component WHERE id = '{$comid}'", __LINE__, __FILE__);
+			$db->query("DELETE FROM {$db->pre}component WHERE id = '{$comid}'");
 		}
 
 		if ($do != null) {
@@ -452,7 +452,7 @@ elseif ($job == 'package_update2') {
 					}
 				}
 				// Get non standard stylesheets. We have to copy them from the default... (safe mode workaround)
-				$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'",__LINE__,__FILE__);
+				$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'");
 				while ($css = $db->fetch_assoc($result)) {
 					foreach ($diff as $handler => $files) {
 						foreach ($com['designs'] as $file) {
@@ -558,7 +558,7 @@ elseif ($job == 'package_update2') {
 		// Components End
 
 		// Plugins Start
-		$result = $db->query("SELECT id FROM {$db->pre}plugins WHERE module = '{$packageid}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}plugins WHERE module = '{$packageid}' LIMIT 1");
 		$do = null;
 		if ($db->num_rows($result) == 0) {
 			if (file_exists($tdir.'modules/plugin.ini')) {
@@ -660,7 +660,7 @@ elseif ($job == 'package_update2') {
 					$source = $tdir.'modules/'.$plugfile;
 					$target = $moddir.$plugfile;
 					if ($handler == DO_UPD_ADD) {
-						$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$hook}'", __LINE__, __FILE__);
+						$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$hook}'");
 						$row = $db->fetch_assoc($result);
 						$priority = $row['maximum']+1;
 						$db->query("
@@ -668,7 +668,7 @@ elseif ($job == 'package_update2') {
 						(`name`,`module`,`ordering`,`required`,`position`)
 						VALUES
 						('{$plug['names'][$hook]}','{$packageid}','{$priority}','{$plug['required'][$hook]}','{$hook}')
-						", __LINE__, __FILE__);
+						");
 						if (file_exists($source)) { // Doesn't exist? => Already moved (or package not ok)
 							$filesystem->unlink($target);
 							$filesystem->rename($source, $target);
@@ -687,12 +687,12 @@ elseif ($job == 'package_update2') {
 							$filesystem->unlink($target);
 						}
 
-						$db->query("DELETE FROM {$db->pre}plugins WHERE id = '{$plugs[$hook]}' LIMIT 1", __LINE__, __FILE__);
-						$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$plugs[$hook]}'", __LINE__, __FILE__);
+						$db->query("DELETE FROM {$db->pre}plugins WHERE id = '{$plugs[$hook]}' LIMIT 1");
+						$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$plugs[$hook]}'");
 					}
 					elseif ($handler == DO_UPD_EQU) {
 						// Simply overwrite old file and update DB. Hopefully no changes were made and in this case no loss of data
-						$db->query("UPDATE {$db->pre}plugins SET `name` = '{$plug['names'][$hook]}', `required` = '{$plug['required'][$hook]}', `position` = '{$hook}' WHERE id = '{$plugs[$hook]}'", __LINE__, __FILE__);
+						$db->query("UPDATE {$db->pre}plugins SET `name` = '{$plug['names'][$hook]}', `required` = '{$plug['required'][$hook]}', `position` = '{$hook}' WHERE id = '{$plugs[$hook]}'");
 						if (file_exists($source)) {
 							$filesystem->unlink($target);
 							$filesystem->rename($source, $target);
@@ -902,12 +902,12 @@ elseif ($job == 'package_import2') {
 			error('admin.php?action=packages&job=package_import', $lang->phrase('admin_packages_err_package_ini_does_not_exist'));
 		}
 
-		$result = $db->query("SELECT id FROM {$db->pre}packages WHERE internal = '{$package['info']['internal']}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}packages WHERE internal = '{$package['info']['internal']}'");
 		if ($db->num_rows($result) > 0 && $package['info']['multiple'] == 0) {
 			error('admin.php?action=packages&job=package_import', $lang->phrase('admin_packages_a_package_with_this_name_does_allready_exist'));
 		}
 		if (isset($package['dependency']) && count($package['dependency']) > 0) {
-			$result = $db->query("SELECT internal FROM {$db->pre}packages", __LINE__, __FILE__);
+			$result = $db->query("SELECT internal FROM {$db->pre}packages");
 			$internals = array();
 			while ($row = $db->fetch_assoc($result)) {
 				$internals[] = $row['internal'];
@@ -918,7 +918,7 @@ elseif ($job == 'package_import2') {
 			}
 		}
 
-		$db->query("INSERT INTO {$db->pre}packages (title, version, internal, core) VALUES ('{$package['info']['title']}', '{$package['info']['version']}', '{$package['info']['internal']}', '{$package['info']['core']}')", __LINE__, __FILE__);
+		$db->query("INSERT INTO {$db->pre}packages (title, version, internal, core) VALUES ('{$package['info']['title']}', '{$package['info']['version']}', '{$package['info']['internal']}', '{$package['info']['core']}')");
 		$packageid = $db->insert_id();
 
 		$filesystem->mkdir("./modules/{$packageid}", 0777);
@@ -929,7 +929,7 @@ elseif ($job == 'package_import2') {
 			if (!isset($package['config']['description'])) {
 				$package['config']['description'] = '';
 			}
-			$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')", __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')");
 			$sg = $db->insert_id();
 			foreach ($package as $section => $values) {
 				if (substr($section, 0, 8) == 'setting_') {
@@ -937,7 +937,7 @@ elseif ($job == 'package_import2') {
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
 					VALUES ('{$name}', '{$values['title']}', '{$values['description']}', '{$values['type']}', '{$values['optionscode']}', '{$values['value']}', '{$sg}')
-					", __LINE__, __FILE__);
+					");
 
 					$c->getdata();
 					$c->updateconfig(array($package['info']['internal'], $name), none, $values['value']);
@@ -946,7 +946,7 @@ elseif ($job == 'package_import2') {
 			}
 		}
 
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'",__LINE__,__FILE__);
+		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs WHERE id = '{$config['templatedir']}'");
 		$design = $db->fetch_assoc($result);
 
 		if (file_exists($moddir.'component.ini')) {
@@ -958,7 +958,7 @@ elseif ($job == 'package_import2') {
 					$com['module']['frontpage'] = '';
 				}
 
-				$db->query("INSERT INTO {$db->pre}component (file, package, required) VALUES ('".$gpc->save_str($com['module']['frontpage'])."', '{$packageid}', '{$com['info']['required']}')", __LINE__, __FILE__);
+				$db->query("INSERT INTO {$db->pre}component (file, package, required) VALUES ('".$gpc->save_str($com['module']['frontpage'])."', '{$packageid}', '{$com['info']['required']}')");
 				$comid = $db->insert_id();
 
 				if (isset($com['images']) && count($com['images']) > 0) {
@@ -972,7 +972,7 @@ elseif ($job == 'package_import2') {
 					foreach ($com['designs'] as $file) {
 						$filesystem->rename("{$tdir}designs/{$file}", $stdcssdir.$file);
 					}
-					$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'",__LINE__,__FILE__);
+					$result = $db->query("SELECT DISTINCT stylesheet FROM {$db->pre}designs WHERE stylesheet != '{$design['stylesheet']}'");
 					while ($css = $db->fetch_assoc($result)) {
 						foreach ($com['designs'] as $file) {
 							$filesystem->copy($stdcssdir.$file, "./designs/{$css['stylesheet']}/{$file}");
@@ -1085,7 +1085,7 @@ elseif ($job == 'package_import2') {
 					if (isInvisibleHook($hook)) {
 						continue;
 					}
-					$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$hook}'", __LINE__, __FILE__);
+					$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$hook}'");
 					$row = $db->fetch_assoc($result);
 					$priority = $row['maximum']+1;
 					$db->query("
@@ -1093,7 +1093,7 @@ elseif ($job == 'package_import2') {
 					(`name`,`module`,`ordering`,`required`,`position`)
 					VALUES
 					('{$plug['names'][$hook]}','{$packageid}','{$priority}','{$plug['required'][$hook]}','{$hook}')
-					", __LINE__, __FILE__);
+					");
 					$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
 				}
 			}
@@ -1135,7 +1135,7 @@ elseif ($job == 'package_import2') {
 }
 elseif ($job == 'package_export') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, internal FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, internal FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('admin.php?action=packages&job=package', $lang->phrase('admin_packages_err_package_does_not_exist'));
@@ -1314,7 +1314,7 @@ elseif ($job == 'package_export') {
 elseif ($job == 'package_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, core, internal FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, core, internal FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	$data = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=package', $lang->phrase('admin_packages_err_package_does_not_exist'));
@@ -1323,7 +1323,7 @@ elseif ($job == 'package_delete') {
 		error('admin.php?action=packages&job=package', $lang->phrase('admin_packages_err_this_is_a_core_package_and_cannot_be_deleted'));
 	}
 	else {
-		$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$id}'", __LINE__, __FILE__);
+		$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$id}'");
 		while ($row = $db->fetch_assoc($result)) {
 			$pack = $myini->read("modules/{$row['id']}/package.ini");
 			if (isset($pack['dependency']) && in_array($data['internal'], $pack['dependency'])) {
@@ -1348,7 +1348,7 @@ elseif ($job == 'package_delete') {
 }
 elseif ($job == 'package_delete2') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, core, internal FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, core, internal FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	$package = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		echo head();
@@ -1359,7 +1359,7 @@ elseif ($job == 'package_delete2') {
 		error('admin.php?action=packages&job=package', $lang->phrase('admin_packages_err_this_is_a_core_package_and_cannot_be_deleted'));
 	}
 	else {
-		$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$id}'", __LINE__, __FILE__);
+		$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$id}'");
 		while ($row = $db->fetch_assoc($result)) {
 			$pack = $myini->read("modules/{$row['id']}/package.ini");
 			if (isset($pack['dependency']) && in_array($package['internal'], $pack['dependency'])) {
@@ -1380,11 +1380,11 @@ elseif ($job == 'package_delete2') {
 		$confirm = true;
 		($code = $plugins->uninstall($package['id'])) ? eval($code) : null;
 
-		$db->query("DELETE FROM {$db->pre}plugins WHERE module = '{$package['id']}'", __LINE__, __FILE__);
-		$db->query("DELETE FROM {$db->pre}component WHERE package = '{$package['id']}' LIMIT 1", __LINE__, __FILE__);
-		$db->query("DELETE FROM {$db->pre}packages WHERE id = '{$package['id']}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}plugins WHERE module = '{$package['id']}'");
+		$db->query("DELETE FROM {$db->pre}component WHERE package = '{$package['id']}' LIMIT 1");
+		$db->query("DELETE FROM {$db->pre}packages WHERE id = '{$package['id']}' LIMIT 1");
 		// Delete references in navigation aswell
-		$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$package['id']}'", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$package['id']}'");
 		// Delete settings
 		$result = $db->query("
 		SELECT g.id, s.name, g.name AS groupname
@@ -1404,7 +1404,7 @@ elseif ($job == 'package_delete2') {
 			}
 		}
 
-		$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE module = '{$package['id']}' GROUP BY position", __LINE__, __FILE__);
+		$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE module = '{$package['id']}' GROUP BY position");
 		while ($data = $db->fetch_assoc($result)) {
 			$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
 		}
@@ -1412,7 +1412,7 @@ elseif ($job == 'package_delete2') {
 		$delobj->delete();
 
 		$cache = array();
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs",__LINE__,__FILE__);
+		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs");
 		$design = $db->fetch_assoc($result);
 		while ($row = $db->fetch_assoc($design)) {
 			$cache[] = $row;
@@ -1425,7 +1425,7 @@ elseif ($job == 'package_delete2') {
 			}
 		}
 		// Delete phrases
-		$result = $db->query("SELECT id FROM {$db->pre}language",__LINE__,__FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}language");
 		$cache2 = array();
 		while ($language = $db->fetch_assoc($result)) {
 			$cache2[] = $language['id'];
@@ -1474,13 +1474,13 @@ elseif ($job == 'package_delete2') {
 }
 elseif ($job == 'package_edit') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}'");
 	$row = $gpc->prepare($db->fetch_assoc($result));
 
 	$ini = $myini->read("modules/{$row['id']}/package.ini");
 
 	$dependency = false;
-	$result = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$id}'");
 	$depend_packs = array();
 	while ($row2 = $db->fetch_assoc($result)) {
 		$depend_packs[] = $row2;
@@ -1545,7 +1545,7 @@ elseif ($job == 'package_edit') {
 	  <td><input type="text" name="copyright" size="60" value="<?php echo $ini['info']['copyright']; ?>" /></td>
 	 </tr>
 	 <tr class="mbox">
-	  <td><?php echo $lang->phrase('admin_packages_einfo_license'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_edit_optional'); ?></span></td>
+	  <td><?php echo $lang->phrase('admin_packages_info_license'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_edit_optional'); ?></span></td>
 	  <td><input type="text" name="license" size="60" value="<?php echo $ini['info']['license']; ?>" /></td>
 	 </tr>
 	 <tr class="mbox">
@@ -1563,7 +1563,7 @@ elseif ($job == 'package_edit') {
 	$result = $db->query("SELECT id, title FROM {$db->pre}settings_groups WHERE name = '{$ini['info']['internal']}' LIMIT 1");
 	if ($db->num_rows($result) > 0) {
 		$sg = $db->fetch_assoc($result);
-		$result = $db->query("SELECT name, title, sgroup FROM {$db->pre}settings WHERE sgroup = '{$sg['id']}' ORDER BY name", __LINE__, __FILE__);
+		$result = $db->query("SELECT name, title, sgroup FROM {$db->pre}settings WHERE sgroup = '{$sg['id']}' ORDER BY name");
 		while ($row2 = $db->fetch_assoc($result)) {
 			$settings[] = $row2;
 		}
@@ -1613,7 +1613,7 @@ elseif ($job == 'package_edit') {
 elseif ($job == 'package_edit2') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, core FROM {$db->pre}packages WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, core FROM {$db->pre}packages WHERE id = '{$id}'");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=package', $lang->phrase('admin_packages_err_could_not_find_a_package_with_this_id'));
 	}
@@ -1643,7 +1643,7 @@ elseif ($job == 'package_edit2') {
 
 	$dbtitle = $gpc->save_str($title);
 	$dbversion = $gpc->save_str($version);
-	$db->query("UPDATE {$db->pre}packages SET `title` = '{$dbtitle}', `version` = '{$dbversion}', `active` = '{$active}' WHERE id = '{$id}'", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}packages SET `title` = '{$dbtitle}', `version` = '{$dbversion}', `active` = '{$active}' WHERE id = '{$id}'");
 
 	$ini = $myini->read("modules/{$id}/package.ini");
 	$ini['info']['title'] = $title;
@@ -1665,11 +1665,11 @@ elseif ($job == 'package_info') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	$package = $db->fetch_assoc($result);
 	$package_ini = $myini->read("modules/{$package['id']}/package.ini");
 
-	$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE module = '{$package['id']}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE module = '{$package['id']}'");
 	$modules = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$modules[$row['position']] = $row;
@@ -1696,7 +1696,7 @@ elseif ($job == 'package_info') {
 	ksort($modules);
 
 	if (file_exists("modules/{$package['id']}/component.ini") == true) {
-		$result = $db->query("SELECT * FROM {$db->pre}component WHERE package = '{$package['id']}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT * FROM {$db->pre}component WHERE package = '{$package['id']}'");
 		$component = $db->fetch_assoc($result);
 		$component_ini = $myini->read("modules/{$package['id']}/component.ini");
 	}
@@ -1708,7 +1708,7 @@ elseif ($job == 'package_info') {
 	$result = $db->query("SELECT id, title, name FROM {$db->pre}settings_groups WHERE name = '{$package_ini['info']['internal']}' LIMIT 1");
 	if ($db->num_rows($result) > 0) {
 		$sg = $db->fetch_assoc($result);
-		$result = $db->query("SELECT * FROM {$db->pre}settings WHERE sgroup = '{$sg['id']}' ORDER BY name", __LINE__, __FILE__);
+		$result = $db->query("SELECT * FROM {$db->pre}settings WHERE sgroup = '{$sg['id']}' ORDER BY name");
 		while ($row = $db->fetch_assoc($result)) {
 			$row['current'] = $config[$sg['name']][$row['name']];
 			if ($row['type'] == 'select') {
@@ -1721,7 +1721,7 @@ elseif ($job == 'package_info') {
 
 	$dependencies = array();
 	if (isset($package_ini['dependency']) && count($package_ini['dependency']) > 0) {
-		$result = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE internal IN ('".implode("','", $package_ini['dependency'])."')", __LINE__, __FILE__);
+		$result = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE internal IN ('".implode("','", $package_ini['dependency'])."')");
 		while ($row = $db->fetch_assoc($result)) {
 			$dependencies[] = $row;
 		}
@@ -1911,7 +1911,7 @@ elseif ($job == 'package_info') {
 }
 elseif ($job == 'package_add') {
 	echo head();
-	$result = $db->query("SELECT id, title, internal FROM {$db->pre}packages", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title, internal FROM {$db->pre}packages");
 	?>
 	<form method="post" action="admin.php?action=packages&job=package_add2">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -2027,7 +2027,7 @@ elseif ($job == 'package_add2') {
 }
 elseif ($job == 'package_active') {
 	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, active, core FROM '.$db->pre.'packages WHERE id = "'.$id.'"', __LINE__, __FILE__);
+	$result = $db->query('SELECT id, active, core FROM '.$db->pre.'packages WHERE id = "'.$id.'"');
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		echo head();
@@ -2039,7 +2039,7 @@ elseif ($job == 'package_active') {
 	}
 	else {
 		if ($row['active'] == 1) {
-			$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$row['id']}'", __LINE__, __FILE__);
+			$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages WHERE id != '{$row['id']}'");
 			while ($row2 = $db->fetch_assoc($result)) {
 				$pack = $myini->read("modules/{$row2['id']}/package.ini");
 				if (isset($pack['dependency']) && in_array($row['internal'], $pack['dependency'])) {
@@ -2048,7 +2048,7 @@ elseif ($job == 'package_active') {
 			}
 		}
 		$active = $row['active'] == 1 ? 0 : 1;
-		$db->query('UPDATE '.$db->pre.'packages SET active = "'.$active.'" WHERE id = "'.$id.'"', __LINE__, __FILE__);
+		$db->query('UPDATE '.$db->pre.'packages SET active = "'.$active.'" WHERE id = "'.$id.'"');
 		$result = $db->query("SELECT DISTINCT position FROM {$db->pre}plugins WHERE module = '{$id}'");
 		while ($row = $db->fetch_assoc($result)) {
 			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
@@ -2076,7 +2076,7 @@ elseif ($job == 'com') {
 		FROM {$db->pre}component AS c
 			LEFT JOIN {$db->pre}packages AS p ON c.package = p.id
 		ORDER BY active DESC
-	", __LINE__, __FILE__);
+	");
 	while ($row = $db->fetch_assoc($result)) {
 		if (!file_exists('modules/'.$row['package'].'/component.ini')) {
 			continue;
@@ -2112,7 +2112,7 @@ elseif ($job == 'com') {
 elseif ($job == 'com_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, required FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, required FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1");
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_component_not_found'));
@@ -2140,7 +2140,7 @@ elseif ($job == 'com_delete') {
 elseif ($job == 'com_delete2') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, required, package FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, required, package FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1");
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=com', $lang->phrase('admin_packages_err_specified_component_not_found'));
@@ -2151,15 +2151,15 @@ elseif ($job == 'com_delete2') {
 	else {
 		$cfg = $myini->read("modules/{$row['package']}/component.ini");
 
-		$db->query("DELETE FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}component WHERE id = '{$id}' LIMIT 1");
 
 		$cache = array();
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs",__LINE__,__FILE__);
+		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs");
 		$design = $db->fetch_assoc($result);
 		while ($row = $db->fetch_assoc($design)) {
 			$cache[] = $row;
 		}
-		$result = $db->query("SELECT id FROM {$db->pre}language",__LINE__,__FILE__);
+		$result = $db->query("SELECT id FROM {$db->pre}language");
 		$languages = $db->fetch_assoc($result);
 
 		while ($lng = $db->fetch_assoc($languages)) {
@@ -2200,7 +2200,7 @@ elseif ($job == 'com_delete2') {
 }
 elseif ($job == 'com_active') {
 	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, active, required FROM '.$db->pre.'component WHERE id = "'.$id.'"', __LINE__, __FILE__);
+	$result = $db->query('SELECT id, active, required FROM '.$db->pre.'component WHERE id = "'.$id.'"');
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		echo head();
@@ -2214,7 +2214,7 @@ elseif ($job == 'com_active') {
 		$active = $row['active'] == 1 ? 0 : 1;
 		$delobj = $scache->load('components');
 		$delobj->delete();
-		$db->query('UPDATE '.$db->pre.'component SET active = "'.$active.'" WHERE id = "'.$id.'"', __LINE__, __FILE__);
+		$db->query('UPDATE '.$db->pre.'component SET active = "'.$active.'" WHERE id = "'.$id.'"');
 		viscacha_header('Location: admin.php?action=packages&job=com');
 	}
 }
@@ -2249,11 +2249,11 @@ elseif ($job == 'plugins') {
 		$my->settings['admin_plugins_sort'] = 1;
 
 		$result = $db->query("
-		SELECT p.*, m.title, m.core, m.active AS mactive
+		SELECT p.id, p.name, p.ordering, p.active, p.position, p.required, m.title, m.core, m.active AS mactive, m.id AS module
 		FROM {$db->pre}packages AS m
 			LEFT JOIN {$db->pre}plugins AS p ON p.module = m.id
 		ORDER BY m.id, p.position
-		", __LINE__, __FILE__);
+		");
 		?>
 		 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 		  <tr class="ubox">
@@ -2319,7 +2319,7 @@ elseif ($job == 'plugins') {
 		FROM {$db->pre}plugins AS p
 			LEFT JOIN {$db->pre}packages AS m ON p.module = m.id
 		ORDER BY p.position, p.ordering
-		", __LINE__, __FILE__);
+		");
 		?>
 		 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 		  <tr class="ubox">
@@ -2437,17 +2437,17 @@ elseif ($job == 'plugins_hook_add2') {
 elseif ($job == 'plugins_move') {
 	$id = $gpc->get('id', int);
 	$pos = $gpc->get('value', int);
-	$result = $db->query('SELECT id, position FROM '.$db->pre.'plugins WHERE id = "'.$id.'"', __LINE__, __FILE__);
+	$result = $db->query('SELECT id, position FROM '.$db->pre.'plugins WHERE id = "'.$id.'"');
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=plugins', $lang->phrase('admin_packages_err_specified_id_is_not_correct'));
 	}
 	else {
 		$row = $db->fetch_assoc($result);
 		if ($pos < 0) {
-			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering-1 WHERE id = "'.$id.'"', __LINE__, __FILE__);
+			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering-1 WHERE id = "'.$id.'"');
 		}
 		elseif ($pos > 0) {
-			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering+1 WHERE id = "'.$id.'"', __LINE__, __FILE__);
+			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering+1 WHERE id = "'.$id.'"');
 		}
 		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 		viscacha_header('Location: admin.php?action=packages&job=plugins');
@@ -2455,7 +2455,7 @@ elseif ($job == 'plugins_move') {
 }
 elseif ($job == 'plugins_active') {
 	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, active, required, position FROM '.$db->pre.'plugins WHERE id = "'.$id.'"', __LINE__, __FILE__);
+	$result = $db->query('SELECT id, active, required, position FROM '.$db->pre.'plugins WHERE id = "'.$id.'"');
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		echo head();
@@ -2467,7 +2467,7 @@ elseif ($job == 'plugins_active') {
 	}
 	else {
 		$active = $row['active'] == 1 ? 0 : 1;
-		$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = "'.$id.'"', __LINE__, __FILE__);
+		$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = "'.$id.'"');
 		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
 		viscacha_header('Location: admin.php?action=packages&job=plugins');
 	}
@@ -2475,7 +2475,7 @@ elseif ($job == 'plugins_active') {
 elseif ($job == 'plugins_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, required FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, required FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1");
 	$row = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=plugins', $lang->phrase('admin_packages_err_specified_plugin_not_found'));
@@ -2503,7 +2503,7 @@ elseif ($job == 'plugins_delete') {
 elseif ($job == 'plugins_delete2') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1");
 	$data = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=packages&job=plugins', $lang->phrase('admin_packages_err_specified_plugin_not_found'));
@@ -2529,9 +2529,9 @@ elseif ($job == 'plugins_delete2') {
 		}
 		$myini->write($dir."plugin.ini", $ini);
 
-		$db->query("DELETE FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1");
 		// Delete references in navigation aswell
-		$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$id}'", __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}menu WHERE module = '{$id}'");
 
 		$delobj = $scache->load('modules_navigation');
 		$delobj->delete();
@@ -2617,7 +2617,7 @@ elseif ($job == 'plugins_edit') {
 			LEFT JOIN {$db->pre}packages AS m ON p.module = m.id
 		WHERE p.id = '{$pluginid}'
 		LIMIT 1
-		", __LINE__, __FILE__);
+		");
 		$package = $db->fetch_assoc($result);
 		if ($db->num_rows($result) != 1) {
 			error("admin.php?action=packages&job=plugins", $lang->phrase('admin_packages_err_plugin_not_found_in_database'));
@@ -2740,7 +2740,7 @@ elseif ($job == 'plugins_edit2') {
 	}
 	else {
 		$id = $pos = $gpc->save_int($id);
-		$result = $db->query("SELECT module, position, required FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT module, position, required FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1");
 		$data = $db->fetch_assoc($result);
 		if ($db->num_rows($result) != 1) {
 			error("admin.php?action=packages&job=plugins", $lang->phrase('admin_packages_err_plugin_not_found'));
@@ -2757,7 +2757,7 @@ elseif ($job == 'plugins_edit2') {
 	}
 
 	if (is_id($package) == false) {
-		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$title}', `active` = '{$active}', `position` = '{$hook}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$title}', `active` = '{$active}', `position` = '{$hook}' WHERE id = '{$id}' LIMIT 1");
 	}
 
 	$file = $ini['php'][$data['position']];
@@ -2844,7 +2844,7 @@ elseif ($job == 'plugins_add2') {
 	$isInvisibleHook = isInvisibleHook($hook);
 	$packageid = $id = $gpc->get('package', int);
 	$title = $gpc->get('title', str);
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$packageid}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$packageid}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('admin.php?action=packages&job=plugins_add', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -2858,14 +2858,14 @@ elseif ($job == 'plugins_add2') {
 	}
 
 	if (!$isInvisibleHook) {
-		$hookPriority = $db->query("SELECT id, name, ordering FROM {$db->pre}plugins WHERE position = '{$hook}' ORDER BY ordering", __LINE__, __FILE__);
+		$hookPriority = $db->query("SELECT id, name, ordering FROM {$db->pre}plugins WHERE position = '{$hook}' ORDER BY ordering");
 
 		$db->query("
 		INSERT INTO {$db->pre}plugins
 		(`name`,`module`,`ordering`,`active`,`position`)
 		VALUES
 		('{$title}','{$package['id']}','-1','0','{$hook}')
-		", __LINE__, __FILE__);
+		");
 		$pluginid = $db->insert_id();
 	}
 	else {
@@ -2963,7 +2963,7 @@ elseif ($job == 'plugins_add3') {
 	$isInvisibleHook = (is_id($id) == false);
 
 	if (!$isInvisibleHook) {
-		$result = $db->query("SELECT module, name, position FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT module, name, position FROM {$db->pre}plugins WHERE id = '{$id}' LIMIT 1");
 		$data = $db->fetch_assoc($result);
 		$package = $data['module'];
 		$hook = $data['position'];
@@ -2977,18 +2977,18 @@ elseif ($job == 'plugins_add3') {
 		}
 
 		if (is_id($priority)) {
-			$result = $db->query("SELECT id, ordering FROM {$db->pre}plugins WHERE id = '{$priority}' LIMIT 1", __LINE__, __FILE__);
+			$result = $db->query("SELECT id, ordering FROM {$db->pre}plugins WHERE id = '{$priority}' LIMIT 1");
 			$row = $db->fetch_assoc($result);
 			$priority = $row['ordering']-1;
-			$result = $db->query("UPDATE {$db->pre}plugins SET ordering = ordering-1 WHERE ordering < '{$priority}' AND position = '{$data['position']}'", __LINE__, __FILE__);
+			$result = $db->query("UPDATE {$db->pre}plugins SET ordering = ordering-1 WHERE ordering < '{$priority}' AND position = '{$data['position']}'");
 		}
 		else {
-			$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$data['position']}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT MAX(ordering) AS maximum FROM {$db->pre}plugins WHERE position = '{$data['position']}'");
 			$row = $db->fetch_assoc($result);
 			$priority = $row['maximum']+1;
 		}
 
-		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$title}', `ordering` = '{$priority}', `active` = '{$active}', `required` = '{$required}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}plugins SET `name` = '{$title}', `ordering` = '{$priority}', `active` = '{$active}', `required` = '{$required}' WHERE id = '{$id}' LIMIT 1");
 	}
 	else {
 		$dir = "modules/{$package}/";
@@ -3025,7 +3025,7 @@ elseif ($job == 'plugins_add3') {
 elseif ($job == 'plugins_template') {
 	$id = $gpc->get('id', int);
 
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -3122,7 +3122,7 @@ elseif ($job == 'plugins_template_add') {
 	$code = $gpc->get('code', none);
 	$file = $gpc->get('file', none);
 
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -3160,7 +3160,7 @@ elseif ($job == 'plugins_template_edit') {
 	$deleteId = $gpc->get('delete', arr_int);
 	$output = -1;
 
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -3272,7 +3272,7 @@ elseif ($job == 'plugins_template_edit2') {
 	$code = $gpc->get('code', arr_none);
 
 	echo head();
-	$result = $db->query("SELECT id FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
 	}
@@ -3295,7 +3295,7 @@ elseif ($job == 'plugins_language') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -3318,7 +3318,7 @@ elseif ($job == 'plugins_language') {
 	$cache = array();
 	$diff = array();
 	$complete = array();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	while($row = $db->fetch_assoc($result)) {
 		$cache[$row['id']] = $row;
 		$diff[$row['id']] = array_keys(return_array($group, $row['id']));
@@ -3369,14 +3369,14 @@ elseif ($job == 'plugins_language_add') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
 	}
 	$data = $db->fetch_assoc($result);
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
 <form name="form" method="post" action="admin.php?action=packages&job=plugins_language_save2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -3428,7 +3428,7 @@ elseif ($job == 'plugins_language_save2') {
 		error('javascript: history.back(-1);', $lang->phrase('admin_packages_err_no_default_text_specified'));
 	}
 
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
 	}
@@ -3476,7 +3476,7 @@ elseif ($job == 'plugins_language_delete') {
 	$id = $gpc->get('id', int);
 	$delete = $gpc->get('delete', arr_str);
 
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -3497,7 +3497,7 @@ elseif ($job == 'plugins_language_delete') {
 	}
 	$myini->write("modules/{$data['id']}/plugin.ini", $ini);
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	$c = new manageconfig();
 	while($row = $db->fetch_assoc($result)) {
 		$path = "language/{$row['id']}/modules.lng.php";
@@ -3516,7 +3516,7 @@ elseif ($job == 'plugins_language_edit') {
 
 	$phrase = $gpc->get('phrase', none);
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, title FROM {$db->pre}packages WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		echo head();
 		error('javascript: self.close();', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
@@ -3529,7 +3529,7 @@ elseif ($job == 'plugins_language_edit') {
 		error('admin.php?action=packages&job=plugins_edit&id=7', $lang->phrase('admin_packages_err_phrase_not_found'));
 	}
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language',__LINE__,__FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
 <form name="form" method="post" action="admin.php?action=packages&job=plugins_language_save2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpediting="4" align="center">
@@ -3598,7 +3598,7 @@ elseif ($job == 'package_updates') {
 		ok('admin.php?action=packages&job=package_info&id='.$id, $lang->phrase('admin_packages_ok_the_package_was_not_found_on_one_of_the_known_servers'), 3000);
 	}
 	else {
-		$result = $db->query("SELECT * FROM {$db->pre}packages GROUP BY internal ORDER BY title", __LINE__, __FILE__);
+		$result = $db->query("SELECT * FROM {$db->pre}packages GROUP BY internal ORDER BY title");
 		$pb = $scache->load('package_browser');
 		?>
 		 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">

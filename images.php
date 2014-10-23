@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -38,13 +38,14 @@ function ImageHexColorAllocate(&$image, $string) {
 
 ($code = $plugins->load('images_start')) ? eval($code) : null;
 
+// Change $gpc->plain_str(..., false) to true when Charts-lib can use utf-8
 if ($_GET['action'] == 'vote') {
 	$result = $db->query('
 	SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix
 	FROM '.$db->pre.'topics
 	WHERE id = '.$_GET['id'].'
 	LIMIT 1
-	',__LINE__,__FILE__);
+	');
 	$info = $db->fetch_assoc($result);
 
 	require_once('classes/class.charts.php');
@@ -53,8 +54,8 @@ if ($_GET['action'] == 'vote') {
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);
 
-	$PG->title     = $info['vquestion'];
-	$PG->axis_y    = $lang->phrase('vote_export_votes');
+	$PG->title     = $gpc->plain_str($info['vquestion'], false);
+	$PG->axis_y    = $gpc->plain_str($lang->phrase('vote_export_votes'), false);
 	$PG->type      = $modus;
 	$PG->skin      = $skin;
 	$PG->dp 	   = $lang->phrase('decpoint');
@@ -62,7 +63,7 @@ if ($_GET['action'] == 'vote') {
 
 	$votes = 0;
 	$i = 0;
-	$result = $db->query("SELECT COUNT(r.id) as votes, v.id, v.answer FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id",__LINE__,__FILE__);
+	$result = $db->query("SELECT COUNT(r.id) as votes, v.id, v.answer FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id");
 	while ($row = $db->fetch_assoc($result)) {
 		$votes += $row['votes'];
 
@@ -72,59 +73,42 @@ if ($_GET['action'] == 'vote') {
 		$i++;
 	}
 
-	$PG->credits   = $lang->phrase('vote_counter').$votes;
+	$PG->credits   = $gpc->plain_str($lang->phrase('vote_counter').$votes, false);
 
 	$PG->start();
 }
 elseif ($_GET['action'] == 'captcha') {
-	if ($_GET['type'] == 'register') {
-		$width = $config['botgfxtest_width'];
-		$height = $config['botgfxtest_height'];
-	}
-	if ($_GET['type'] == 'post') {
-		$width = $config['botgfxtest_posts_width'];
-		$height = $config['botgfxtest_posts_height'];
-	}
-	else {
-		$width = $gpc->get('width', int, 160);
-		$height = $gpc->get('height', int, 40);
-	}
-
-	include("classes/graphic/class.veriword.php");
-	$vword = new VeriWord();
-	$vword->set_filter($config['botgfxtest_filter']);
-	$vword->set_color($config['botgfxtest_colortext']);
-	$vword->set_size($width, $height, $config['botgfxtest_format'], $config['botgfxtest_quality']);
 	send_nocache_header();
-	$vword->output_image($_GET['captcha']);
+	$place = $gpc->get('place', none, 'posts');
+	$captcha = newCAPTCHA($place);
+	$captcha->makeImage();
 }
 elseif ($_GET['action'] == 'textimage') {
 	require('classes/graphic/class.text2image.php');
 
 	$img = new text2image();
-	if (empty($_GET['text'])) {
-		$_GET['text'] = '-';
+	$text = $gpc->get('text', none, '-');
+	$angle = $gpc->get('angle', int);
+	$size = $gpc->get('size', int);
+	$bg = $gpc->get('bg');
+	$fg = $gpc->get('fg');
+	$file = $gpc->get('file');
+	$enc = $gpc->get('enc');
+
+	if ($size < 6) {
+		$size = 10;
 	}
-	if (empty($_GET['angle'])) {
-		$_GET['angle'] = 0;
-	}
-	if (empty($_GET['size']) || $_GET['size'] < 6) {
-		$_GET['size'] = 10;
-	}
-	if (!empty($_GET['bg']) && strlen($_GET['bg']) > 2) {
-		$bg = $_GET['bg'];
-	}
-	else {
+	if (strlen($bg) != 3 && strlen($bg) != 6) {
 		$bg = 'ffffff';
 	}
-	if (!empty($_GET['fg']) && strlen($_GET['fg']) > 2) {
-		$fg = $_GET['fg'];
-	}
-	else {
+	if (strlen($fg) != 3 && strlen($fg) != 6) {
 		$fg = '000000';
 	}
-	$img->prepare($_GET['text'], $_GET['angle'], $_GET['size'], 'classes/fonts/trebuchet.ttf');
-	if (!empty($_REQUEST['enc'])) {
+	if (!preg_match('/^[\w\d\-\.]+$/', $file) || !file_exists("./classes/fonts/{$file}.ttf")) {
+		$file = 'trebuchet';
+	}
+	$img->prepare($text, $angle, $size, "./classes/fonts/{$file}.ttf");
+	if (!empty($enc)) {
 		$img->base64();
 	}
 	$img->build(4, $bg, $fg);

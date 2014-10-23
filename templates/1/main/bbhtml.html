@@ -5,7 +5,11 @@
 		<a id="menu_bbcolor_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbcolor_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
 		<div class="popup" id="popup_bbcolor_<?php echo $id; ?>">
 		<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
-		<div class="bbcolor"><script type="text/javascript">document.write(writeRow('<?php echo $id; ?>'));</script></div>
+		<div class="bbcolor">
+			<script type="text/javascript">
+				document.write(generateColorPicker("InsertTagsMenu('<?php echo $id; ?>', '[color=<color>]', '[/color]', 'bbcolor_<?php echo $id; ?>')"));
+			</script>
+		</div>
 		</div>
 		<img src="templates/editor/images/seperator.gif" alt="" />
 		<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>

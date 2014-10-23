@@ -82,13 +82,13 @@ if ($job == 'mods_ajax_changeperm') {
 	if(!is_id($mid) || !is_id($bid) || empty($key)) {
 		die($lang->phrase('admin_forum_key_not_valid'));
 	}
-	$result = $db->query("SELECT {$key} FROM {$db->pre}moderators WHERE bid = '{$bid}' AND mid = '{$mid}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT {$key} FROM {$db->pre}moderators WHERE bid = '{$bid}' AND mid = '{$mid}' LIMIT 1");
 	$perm = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		die($lang->phrase('admin_forum_not_found'));
 	}
 	$perm = invert($perm[$key]);
-	$db->query("UPDATE {$db->pre}moderators SET {$key} = '{$perm}' WHERE bid = '{$bid}' AND mid = '{$mid}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}moderators SET {$key} = '{$perm}' WHERE bid = '{$bid}' AND mid = '{$mid}' LIMIT 1");
 	die(strval($perm));
 }
 elseif ($job == 'mods') {
@@ -105,7 +105,7 @@ elseif ($job == 'mods') {
 		LEFT JOIN {$db->pre}forums AS c ON c.id = m.bid
 	".iif($bid > 0, "WHERE m.bid = '{$bid}'")."
 	ORDER BY ".iif($orderby == 'member' || $bid > 0, "u.name, c.name", "c.name, u.name")
-	, __LINE__, __FILE__);
+	);
 	?>
 <form name="form" method="post" action="admin.php?action=forums&job=mods_delete<?php echo iif($bid > 0, '&id='.$bid); ?>">
   <table class="border">
@@ -179,7 +179,7 @@ elseif ($job == 'mods_delete') {
 			$bid = $gpc->save_int($bid);
 			$deleteids[] = " (mid = '{$mid}' AND bid = '{$bid}') ";
 		}
-		$db->query("DELETE FROM {$db->pre}moderators WHERE ".implode(' OR ',$deleteids), __LINE__, __FILE__);
+		$db->query("DELETE FROM {$db->pre}moderators WHERE ".implode(' OR ',$deleteids));
 		$anz = $db->affected_rows();
 		$delobj = $scache->load('index_moderators');
 		$delobj->delete();
@@ -263,7 +263,7 @@ elseif ($job == 'mods_add2') {
 	if (!is_id($id)) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
-	$uid = $db->fetch_num($db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$temp1.'" LIMIT 1', __LINE__, __FILE__));
+	$uid = $db->fetch_num($db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$temp1.'" LIMIT 1'));
 	if ($uid[0] < 1) {
 		error('admin.php?action=forums&job=mods_add'.iif($bid > 0, '&id='.$id), $lang->phrase('admin_forum_member_not_found'));
 	}
@@ -283,7 +283,7 @@ elseif ($job == 'mods_add2') {
 	$db->query("
 	INSERT INTO {$db->pre}moderators (mid, bid, s_rating, s_news, s_article, p_delete, p_mc, time)
 	VALUES ('{$uid[0]}', '{$id}', '{$rating}', '{$news}', '{$article}', '{$delete}', '{$move}', {$timestamp})
-	", __LINE__, __FILE__);
+	");
 
 	if ($db->affected_rows() == 1) {
 		$delobj = $scache->load('index_moderators');
@@ -348,15 +348,15 @@ elseif ($job == 'forum_delete') {
 elseif ($job == 'forum_delete2') {
 	echo head();
 	$id = array();
-	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$_GET['id']}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$_GET['id']}'");
 		if ($db->num_rows($result) > 0) {
 		while ($row = $db->fetch_assoc($result)) {
 			$id[] = $row['id'];
 		}
 		$ids = implode(',', $id);
 
-		$db->query ("DELETE FROM {$db->pre}replies WHERE board = '{$_GET['id']}'",__LINE__,__FILE__);
-		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}replies WHERE board = '{$_GET['id']}'");
+		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
 		while ($urow = $db->fetch_assoc($uresult)) {
 			$filesystem->unlink('uploads/topics/'.$urow['source']);
 			$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
@@ -364,24 +364,24 @@ elseif ($job == 'forum_delete2') {
 				$filesystem->unlink($thumb);
 			}
 		}
-		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})",__LINE__,__FILE__);
-		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})",__LINE__,__FILE__);
-		$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})",__LINE__,__FILE__);
-		$db->query ("DELETE FROM {$db->pre}topics WHERE board = '{$_GET['id']}'",__LINE__,__FILE__);
-		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
+		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})");
+		$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
+		$db->query ("DELETE FROM {$db->pre}topics WHERE board = '{$_GET['id']}'");
+		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");
 		$voteaids = array();
 		while ($row = $db->fetch_num($votes)) {
 			$voteaids[] = $row[0];
 		}
 		if (count($voteaids) > 0) {
-			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN(".implode(',', $voteaids).")",__LINE__,__FILE__);
+			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN(".implode(',', $voteaids).")");
 		}
-		$db->query ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})",__LINE__,__FILE__);
+		$db->query ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})");
 	}
-	$db->query("DELETE FROM {$db->pre}fgroups WHERE bid = '{$_GET['id']}'", __LINE__, __FILE__);
-	$db->query("DELETE FROM {$db->pre}moderators WHERE bid = '{$_GET['id']}'", __LINE__, __FILE__);
-	$db->query("DELETE FROM {$db->pre}prefix WHERE bid = '{$_GET['id']}'", __LINE__, __FILE__);
-	$db->query("DELETE FROM {$db->pre}forums WHERE id = '{$_GET['id']}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("DELETE FROM {$db->pre}fgroups WHERE bid = '{$_GET['id']}'");
+	$db->query("DELETE FROM {$db->pre}moderators WHERE bid = '{$_GET['id']}'");
+	$db->query("DELETE FROM {$db->pre}prefix WHERE bid = '{$_GET['id']}'");
+	$db->query("DELETE FROM {$db->pre}forums WHERE id = '{$_GET['id']}' LIMIT 1");
 
 	$delobj = $scache->load('cat_bid');
 	$delobj->delete();
@@ -397,7 +397,7 @@ elseif ($job == 'forum_delete2') {
 elseif ($job == 'forum_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}forums WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}forums WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_invalid_id'));
 	}
@@ -528,7 +528,7 @@ elseif ($job == 'forum_edit2') {
 
 	$id = $gpc->get('id', int);
 	$name = $gpc->get('name', str);
-	$description = $gpc->get('description', str);
+	$description = $gpc->get('description', db_esc);
 	$parent = $gpc->get('parent', int);
 	$opt_re = $gpc->get('link', str);
 	$topiczahl = $gpc->get('topiczahl', int);
@@ -546,7 +546,7 @@ elseif ($job == 'forum_edit2') {
 	$message_text = $gpc->get('message_text', str);
 
 	$error = array();
-	$result = $db->query("SELECT * FROM {$db->pre}forums WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}forums WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) == 0) {
 		$error[] = $lang->phrase('admin_forum_invalid_id');
 	}
@@ -655,8 +655,7 @@ elseif ($job == 'forum_edit2') {
 		  `message_title` = '{$message_title}',
 		  `message_text` = '{$message_text}'
 		WHERE id = '{$id}'
-		LIMIT 1;
-		", __LINE__, __FILE__);
+		");
 
 		$delobj = $scache->load('cat_bid');
 		$delobj->delete();
@@ -813,7 +812,7 @@ elseif ($job == 'forum_add2') {
 	echo head();
 
 	$name = $gpc->get('name', str);
-	$description = $gpc->get('description', str);
+	$description = $gpc->get('description', db_esc);
 	$sortx = $gpc->get('sort_where', int);
 	$sort = $gpc->get('sort', int);
 	$parent = $gpc->get('parent', int);
@@ -956,24 +955,23 @@ elseif ($job == 'forum_add2') {
 		INSERT INTO {$db->pre}forums (
 		  `name`,`description`,`parent`,`position`,`opt`,`optvalue`,`forumzahl`,`topiczahl`,`invisible`,`readonly`,`count_posts`,
 		  `auto_status`,`reply_notification`,`topic_notification`,`active_topic`,`message_active`,`message_title`,`message_text`
-		)
-		VALUES (
+		) VALUES (
 		  '{$name}','{$description}','{$parent}','{$position}','{$opt}','{$optvalue}','{$forumzahl}','{$topiczahl}','{$invisible}','{$readonly}','{$count_posts}',
 		  '{$auto_status}','{$reply_notification}','{$topic_notification}','{$active_topic}','{$message_active}','{$message_title}','{$message_text}'
-		);
-		", __LINE__, __FILE__);
+		)
+		");
 		$newid = $db->insert_id();
 
 		if ($perm > 0) {
 			$columns = implode(', ', array_keys($glk_forums));
-			$result = $db->query("SELECT {$columns}, gid FROM {$db->pre}fgroups WHERE bid = '{$perm}'", __LINE__, __FILE__);
+			$result = $db->query("SELECT {$columns}, gid FROM {$db->pre}fgroups WHERE bid = '{$perm}'");
 			while($row = $db->fetch_assoc($result)) {
 				$gid = $row['gid'];
 				unset($row['gid']);
 				ksort($glk_forums, SORT_STRING);
 				ksort($row, SORT_STRING);
 				$row_str = implode("', '", $row);
-				$db->query("INSERT INTO {$db->pre}fgroups ({$columns}, bid, gid) VALUES ('{$row_str}', '{$newid}', '{$gid}')", __LINE__, __FILE__);
+				$db->query("INSERT INTO {$db->pre}fgroups ({$columns}, bid, gid) VALUES ('{$row_str}', '{$newid}', '{$gid}')");
 			}
 		}
 		$prefixes = preg_split('/[\r\n]+/', $prefix, -1, PREG_SPLIT_NO_EMPTY);
@@ -982,7 +980,7 @@ elseif ($job == 'forum_add2') {
 			foreach ($prefixes as $p) {
 				$sql_values[] = "('{$newid}', '{$p}')";
 			}
-			$db->query("INSERT INTO {$db->pre}prefix (bid,value) VALUES ".implode(', ', $sql_values), __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}prefix (bid,value) VALUES ".implode(', ', $sql_values));
 		}
 
 		$delobj = $scache->load('cat_bid');
@@ -1020,7 +1018,7 @@ elseif ($job == 'cat_move' || $job == 'forum_move') {
 	$cache = iif($job == 'cat_move', "categories", "cat_bid");
 	$op = iif($move == 1, "+", "-");
 
-	$db->query("UPDATE {$table} SET position = position{$op}1 WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$table} SET position = position{$op}1 WHERE id = '{$id}' LIMIT 1");
 
 	$delobj = $scache->load('forumtree');
 	$delobj->delete();
@@ -1035,7 +1033,7 @@ elseif ($job == 'rights') {
 	if ($id == 0) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
-	$result = $db->query("SELECT f.*, g.name, g.title, g.guest, g.core FROM {$db->pre}fgroups AS f LEFT JOIN {$db->pre}groups AS g ON g.id = f.gid WHERE f.bid = '{$id}' ORDER BY f.gid", __LINE__, __FILE__);
+	$result = $db->query("SELECT f.*, g.name, g.title, g.guest, g.core FROM {$db->pre}fgroups AS f LEFT JOIN {$db->pre}groups AS g ON g.id = f.gid WHERE f.bid = '{$id}' ORDER BY f.gid");
 	$cache = array();
 	$colspan = count($glk_forums)+2;
 	?>
@@ -1096,7 +1094,7 @@ elseif ($job == 'rights_ajax_changeperm') {
 	if(!is_id($id) || !in_array($key, $glk_forums)) {
 		die($lang->phrase('admin_forum_invalid_id'));
 	}
-	$result = $db->query("SELECT `f_{$key}` AS `{$key}`, gid FROM {$db->pre}fgroups WHERE fid = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT `f_{$key}` AS `{$key}`, gid FROM {$db->pre}fgroups WHERE fid = '{$id}' LIMIT 1");
 	$perm = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		die($lang->phrase('admin_forum_not_found'));
@@ -1109,7 +1107,7 @@ elseif ($job == 'rights_ajax_changeperm') {
 		}
 	}
 	$perm = invert($perm[$key]);
-	$db->query("UPDATE {$db->pre}fgroups SET `f_{$key}` = '{$perm}' WHERE fid = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}fgroups SET `f_{$key}` = '{$perm}' WHERE fid = '{$id}' LIMIT 1");
 	$delobj = $scache->load('fgroups');
 	$delobj->delete();
 	die(strval($perm));
@@ -1120,8 +1118,8 @@ elseif ($job == 'rights_add') {
 	if ($id == 0) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
-	$result = $db->query("SELECT id, name FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC", __LINE__, __FILE__);
-	$result2 = $db->query("SELECT gid FROM {$db->pre}fgroups WHERE bid = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, name FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	$result2 = $db->query("SELECT gid FROM {$db->pre}fgroups WHERE bid = '{$id}'");
 	$cache = array();
 	$cache2 = array();
 	while ($row = $db->fetch_num($result2)) {
@@ -1177,7 +1175,7 @@ elseif ($job == 'rights_add2') {
 	$id = $gpc->get('id', int);
 	$group = $gpc->get('group', int);
 
-	$result = $db->query("SELECT * FROM {$db->pre}fgroups WHERE bid = '{$id}' AND gid = '{$group}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}fgroups WHERE bid = '{$id}' AND gid = '{$group}'");
 	if ($db->num_rows($result) > 0) {
 		error('admin.php?action=forums&job=rights&id='.$id, $lang->phrase('admin_forum_group_entry_exists'));
 	}
@@ -1202,7 +1200,7 @@ elseif ($job == 'rights_add2') {
 	$db->query("
 	INSERT INTO {$db->pre}fgroups (bid,gid,f_downloadfiles,f_forum,f_posttopics,f_postreplies,f_addvotes,f_attachments,f_edit,f_voting)
 	VALUES ('{$id}','{$group}','{$downloadfiles}','{$forum}','{$posttopics}','{$postreplies}','{$addvotes}','{$attachments}','{$edit}','{$voting}')
-	", __LINE__, __FILE__);
+	");
 	if ($db->affected_rows() == 1) {
 		$delobj = $scache->load('fgroups');
 		$delobj->delete();
@@ -1220,7 +1218,7 @@ elseif ($job == 'rights_delete') {
 	}
 	$did = $gpc->get('delete', arr_int);
 	if (count($did) > 0) {
-		$db->query('DELETE FROM '.$db->pre.'fgroups WHERE fid IN('.implode(',',$did).') AND bid = "'.$id.'"', __LINE__, __FILE__);
+		$db->query('DELETE FROM '.$db->pre.'fgroups WHERE fid IN('.implode(',',$did).') AND bid = "'.$id.'"');
 		$anz = $db->affected_rows();
 		$delobj = $scache->load('fgroups');
 		$delobj->delete();
@@ -1329,7 +1327,7 @@ elseif ($job == 'cat_add2') {
 	$db->query("
 	INSERT INTO {$db->pre}categories (name, description, position, parent)
 	VALUES ('{$name}', '{$description}', '{$position}', '{$parent}')
-	", __LINE__, __FILE__);
+	");
 
 	$delobj = $scache->load('categories');
 	$delobj->delete();
@@ -1342,7 +1340,7 @@ elseif ($job == 'cat_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$result = $db->query("SELECT id, name, description, parent FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id, name, description, parent FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_cat_not_found'));
 	}
@@ -1396,7 +1394,7 @@ elseif ($job == 'cat_edit2') {
 		$subs = array();
 		$parent_forums = $scache->load('parent_forums');
 		$parents = $parent_forums->get();
-		$result = $db->query("SELECT parent FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$result = $db->query("SELECT parent FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1");
 		$row = $db->fetch_assoc($result);
 		foreach ($parents as $id => $p_arr) {
 			array_shift($p_arr);
@@ -1417,7 +1415,7 @@ elseif ($job == 'cat_edit2') {
 		error('admin.php?action=forums&job=cat_edit&id='.$id, $lang->phrase('admin_forum_name_long'));
 	}
 
-	$db->query("UPDATE {$db->pre}categories SET name = '{$name}', description = '{$description}', parent = '{$parent}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("UPDATE {$db->pre}categories SET name = '{$name}', description = '{$description}', parent = '{$parent}' WHERE id = '{$id}' LIMIT 1");
 
 	$delobj = $scache->load('categories');
 	$delobj->delete();
@@ -1435,12 +1433,12 @@ elseif ($job == 'cat_delete') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$result = $db->query("SELECT id FROM {$db->pre}forums WHERE parent = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$result = $db->query("SELECT id FROM {$db->pre}forums WHERE parent = '{$id}' LIMIT 1");
 	if ($db->num_rows($result) > 0) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_delete_all_subforums'));
 	}
 
-	$db->query("DELETE FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+	$db->query("DELETE FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1");
 
 	$delobj = $scache->load('categories');
 	$delobj->delete();
@@ -1455,7 +1453,7 @@ elseif ($job == 'prefix') {
 	if (!is_id($id)) {
 		error('admin.php?action=forums&job=manage', 'Invalid ID given.');
 	}
-	$result = $db->query('SELECT * FROM '.$db->pre.'prefix WHERE bid = "'.$id.'" ORDER BY value', __LINE__, __FILE__);
+	$result = $db->query('SELECT * FROM '.$db->pre.'prefix WHERE bid = "'.$id.'" ORDER BY value');
 ?>
 <form name="form" method="post" action="admin.php?action=forums&job=prefix_delete&id=<?php echo $id; ?>">
  <table class="border">
@@ -1511,7 +1509,7 @@ elseif ($job == 'prefix') {
 elseif ($job == 'prefix_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}prefix WHERE id = '{$id}'", __LINE__, __FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}prefix WHERE id = '{$id}'");
 	$row = $db->fetch_assoc($result);
 ?>
 <form name="form" method="post" action="admin.php?action=forums&job=prefix_edit2&id=<?php echo $id; ?>">
@@ -1541,18 +1539,18 @@ elseif ($job == 'prefix_edit2') {
 	$val = $gpc->get('name', str);
 	$standard = $gpc->get('standard', int);
 
-	$result = $db->query('SELECT bid, standard FROM '.$db->pre.'prefix WHERE id = "'.$id.'"', __LINE__, __FILE__);
+	$result = $db->query('SELECT bid, standard FROM '.$db->pre.'prefix WHERE id = "'.$id.'"');
 	$row = $db->fetch_assoc($result);
 
-	$result = $db->query('SELECT id FROM '.$db->pre.'prefix WHERE bid = "'.$row['bid'].'" AND value = "'.$val.'" AND id != "'.$id.'" LIMIT 1', __LINE__, __FILE__);
+	$result = $db->query('SELECT id FROM '.$db->pre.'prefix WHERE bid = "'.$row['bid'].'" AND value = "'.$val.'" AND id != "'.$id.'" LIMIT 1');
 	if ($db->num_rows($result) > 0) {
 		error('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_prefix_value_exists'));
 	}
 	else {
 		if ($row['standard'] != $standard && $standard == 1) {
-			$db->query("UPDATE {$db->pre}prefix SET standard = '0' WHERE standard = '1' AND bid = '{$row['bid']}' LIMIT 1", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}prefix SET standard = '0' WHERE standard = '1' AND bid = '{$row['bid']}' LIMIT 1");
 		}
-		$db->query("UPDATE {$db->pre}prefix SET value = '{$val}', standard = '{$standard}' WHERE id = '{$id}' LIMIT 1", __LINE__, __FILE__);
+		$db->query("UPDATE {$db->pre}prefix SET value = '{$val}', standard = '{$standard}' WHERE id = '{$id}' LIMIT 1");
 		$delobj = $scache->load('prefix');
 		$delobj->delete();
 		ok('admin.php?action=forums&job=prefix&id='.$row['bid'], $lang->phrase('admin_forum_prefix_changed'));
@@ -1565,7 +1563,7 @@ elseif ($job == 'prefix_delete') {
 	$did = implode(',', $did);
 	$delobj = $scache->load('prefix');
 	$delobj->delete();
-	$db->query('DELETE FROM '.$db->pre.'prefix WHERE id IN('.$did.') AND bid = "'.$id.'"', __LINE__, __FILE__);
+	$db->query('DELETE FROM '.$db->pre.'prefix WHERE id IN('.$did.') AND bid = "'.$id.'"');
 	$anz = $db->affected_rows();
 	ok('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_entries_deleted'));
 }
@@ -1574,12 +1572,12 @@ elseif ($job == 'prefix_add') {
 	$id = $gpc->get('id', int);
 	$val = $gpc->get('name', str);
 	$standard = $gpc->get('standard', int);
-	$result = $db->query('SELECT id FROM '.$db->pre.'prefix WHERE bid = "'.$id.'" AND value = "'.$val.'" LIMIT 1', __LINE__, __FILE__);
+	$result = $db->query('SELECT id FROM '.$db->pre.'prefix WHERE bid = "'.$id.'" AND value = "'.$val.'" LIMIT 1');
 	if ($db->num_rows($result) > 0) {
 		error('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_prefix_value_exists'));
 	}
 	else {
-		$db->query("INSERT INTO {$db->pre}prefix (bid, value, standard) VALUES ('{$id}', '{$val}', '{$standard}')", __LINE__, __FILE__);
+		$db->query("INSERT INTO {$db->pre}prefix (bid, value, standard) VALUES ('{$id}', '{$val}', '{$standard}')");
 		$delobj = $scache->load('prefix');
 		$delobj->delete();
 		ok('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_prefix_added'));

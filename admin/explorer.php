@@ -12,6 +12,7 @@ if ($job == 'delete_install') {
 	echo head();
 	$path = './install/';
 	if (is_dir($path) && $filesystem->rmdirr($path)) {
+		$filesystem->unlink('./locked.txt');
 		$name = '"./install/"';
 		ok('admin.php?action=index', $lang->phrase('admin_explorer_x_successfully_deleted'));
 	}

@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ send_nocache_header();
 
 // Schliesst oder oeffnet einen Beitrag mittels AJAX
 if ($action == 'openclosethread') {
-    $result = $db->query("SELECT status, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
+    $result = $db->query("SELECT status, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
     $row = $db->fetch_assoc($result);
     $my->p = $slog->Permissions($row['board']);
     $my->mp = $slog->ModPermissions($row['board']);
@@ -51,13 +51,13 @@ if ($action == 'openclosethread') {
 
     if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) {
 	    if ($row['status'] == 0) {
-	    	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
+	    	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$_GET['id']}'");
 			if ($db->affected_rows() == 1) {
 	        	$request = 3;
 	    	}
 	    }
 	    else {
-	    	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
+	    	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '{$_GET['id']}'");
 			if ($db->affected_rows() == 1) {
 	        	$request = 4;
 	    	}
@@ -112,13 +112,13 @@ elseif ($action == 'searchmember') {
 	}
 }
 elseif ($action == 'search') {
-	if (strlen($_GET['search']) > 2) {
-		$search = urldecode($_GET['search']);
+	$search = $gpc->get('search', str);
+	if (strlen($search) > 2) {
+		$search = urldecode($search);
 		$search = preg_replace("/(\s){1,}/is"," ",$search);
 	    $search = preg_replace("/\*{1,}/is",'*',$search);
 		$ignorewords = $lang->get_words();
-		$word_seperator = "\\.\\,;:\\+!\\?\\_\\|\s\"'\\#\\[\\]\\%\\{\\}\\(\\)\\/\\\\";
-		$searchwords = preg_split('/['.$word_seperator.']+?/', $search, -1, PREG_SPLIT_NO_EMPTY);
+		$searchwords = splitWords($search);
 		$ignored = array();
 		foreach ($searchwords as $sw) {
 			$sw = trim($sw);

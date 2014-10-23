@@ -7,7 +7,7 @@ class cache_mimetype_headers extends CacheItem {
 	        $this->import();
 	    }
 	    else {
-	        $result = $db->query("SELECT extension, mimetype, stream FROM {$db->pre}filetypes WHERE mimetype != 'application/octet-stream' AND stream != 'attachment'",__LINE__,__FILE__);
+	        $result = $db->query("SELECT extension, mimetype, stream FROM {$db->pre}filetypes WHERE mimetype != 'application/octet-stream' AND stream != 'attachment'");
 	        $this->data = array();
 	        while ($row = $db->fetch_assoc($result)) {
 	        	$extensions = explode(',', $row['extension']);

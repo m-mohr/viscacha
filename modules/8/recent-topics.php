@@ -4,7 +4,7 @@ FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
 WHERE f.opt != 'pw' AND f.invisible != '2' AND f.active_topic = '1' AND t.status != '2' ".$slog->sqlinboards('t.board')."
 ORDER BY t.last DESC
 LIMIT 0,{$config['viscacha_recent_topics']['topicnum']}"
-,__LINE__,__FILE__);
+);
 
 $prefix_obj = $scache->load('prefix');
 $prefix = $prefix_obj->get();

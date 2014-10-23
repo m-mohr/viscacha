@@ -22,10 +22,7 @@ echo "- FTP class loaded, Database connection started.<br />";
 
 // Hooks
 $hooks = array_map('trim', file('admin/data/hooks.txt'));
-removeHook($hooks, 'editprofile_copy_');
-removeHook($hooks, 'popup_hlcode_');
-removeHook($hooks, 'popup_code_');
-insertHookAfter($hooks, 'showtopic_entry_added', 'showtopic_attachments_prepared');
+removeHook($hooks, 'pdf');
 $filesystem->file_put_contents('admin/data/hooks.txt', implode("\r\n", $hooks));
 echo "- Hooks updated.<br />";
 
@@ -33,23 +30,20 @@ echo "- Hooks updated.<br />";
 $c = new manageconfig();
 $c->getdata('data/config.inc.php');
 $c->updateconfig('version', str, VISCACHA_VERSION);
-$c->updateconfig('doclang', int, $config['langdir']);
-$c->updateconfig('error_reporting', str, 'E_ALL');
-$c->updateconfig('login_attempts_blocktime', int, 60);
-$c->updateconfig('login_attempts_max', int, 5);
-$c->updateconfig('login_attempts_time', int, 60);
-$c->delete('check_filesystem');
-$c->delete('enable_jabber');
-$c->delete('jabber_server');
-$c->delete('jabber_user');
-$c->delete('jabber_pass');
-$c->delete('pspell');
-$c->delete('smileysperrow');
-$c->delete('spellcheck');
-$c->delete('spellcheck_ignore');
-$c->delete('spellcheck_mode');
-$c->delete('vcard_dl');
-$c->delete('vcard_dl_guests');
+$c->updateconfig('fname', str, htmlentities($config['fname'], ENT_QUOTES));
+$c->updateconfig('fdesc', str, htmlentities($config['fdesc'], ENT_QUOTES));
+$c->updateconfig('always_send_js', int, 1);
+$c->updateconfig('vote_change', int, 0);
+$c->updateconfig('botgfxtest_width', int, 150);
+$c->updateconfig('botgfxtest_height', int, 40);
+$c->updateconfig('botgfxtest_recaptcha_private', str, '');
+$c->updateconfig('botgfxtest_recaptcha_public', str, '');
+$c->delete('pdfcompress');
+$c->delete('pdfdownload');
+$c->delete('allow_http_auth');
+$c->delete('botgfxtest_text_verification');
+$c->delete('botgfxtest_posts_width');
+$c->delete('botgfxtest_posts_height');
 $c->savedata();
 
 $c = new manageconfig();
@@ -58,832 +52,467 @@ $c->updateconfig('checked_package_updates', int, 0);
 $c->savedata();
 echo "- Configuration updated.<br />";
 
-// MySQL & Documents
-$pre = $db->prefix();
-
-$result = $db->query("SELECT * FROM {$pre}documents ORDER BY id");
-$documents = array();
-while($row = $db->fetch_assoc($result)) {
-	$documents[$row['id']] = $row;
-}
-
-// Start: Update Tables
-$file = 'install/package/update/db/db_changes.sql';
-//$file = 'package/'.$package.'/db/db_changes.sql';
-$sql = file_get_contents($file);
-$sql = str_ireplace('{:=DBPREFIX=:}', $pre, $sql);
-$db->multi_query($sql);
-// End: Update Tables
-
-foreach ($documents as $doc) {
-	if (!empty($doc['content'])) {
-		$content = $doc['content'];
-	}
-	elseif (!empty($doc['file'])) {
-		if ($doc['type'] == 1) { // Frame Page!
-			$content = $doc['file'];
-		}
-		else {
-			$base = realpath($doc['file']);
-			if (!empty($base) && file_exists($base)) {
-				$content = file_get_contents($base);
-			}
-		}
-	}
-	if (empty($content)) {
-		$content = '';
-	}
-	$db->query("
-		INSERT INTO `v_documents` (
-			`id` , `author` , `date` , `update` , `type` , `groups` , `icomment`
-		) VALUES (
-			{$doc['id']} , '{$doc['author']}', '{$doc['date']}', '{$doc['update']}', '{$doc['type']}', '{$doc['groups']}', ''
-		)
-	");
-	$content = $db->escape_string($content);
-	$doc['title'] = $db->escape_string($doc['title']);
-	$doc['author'] = $db->escape_string($doc['author']);
-	$db->query("
-		INSERT INTO `v_documents_content` ( `did` , `lid` , `title` , `content` , `active` )
-		VALUES (
-		'{$doc['id']}', '{$config['langdir']}', '{$doc['title']}', '{$content}', '{$doc['active']}'
-		)
-	");
-
-}
-
-echo "- Database tables updated and documents converted.<br />";
-
-// Update crontab file
-$cron = file_get_contents('data/cron/crontab.inc.php');
-if (strpos($cron, 'exportBoardStats.php') === false) {
-	$cron = trim($cron);
-	$cron .= "\r\n0\t5\t*\t*\t*\texportBoardStats.php\t#Daily: Export forum statistics to an ini-file (optional)";
-	$filesystem->file_put_contents('data/cron/crontab.inc.php', $cron);
-	echo "- Crontab updated.<br />";
-}
-
-// Old files
-$filesystem->unlink('admin/html/menu.js');
-$filesystem->unlink('admin/html/editor.js');
-$filesystem->unlink('classes/function.jabber.php');
-$filesystem->unlink('classes/class.vCard.inc.php');
-$filesystem->unlink('classes/class.jabber.php');
-$filesystem->unlink('classes/geshi/asp.php');
-$filesystem->unlink('classes/geshi/c.php');
-$filesystem->unlink('classes/geshi/dos.php');
-$filesystem->unlink('classes/geshi/eiffel.php');
-$filesystem->unlink('classes/geshi/fortran.php');
-$filesystem->unlink('classes/geshi/oobas.php');
-$filesystem->unlink('classes/geshi/pascal.php');
-$filesystem->unlink('classes/geshi/qbasic.php');
-$filesystem->unlink('classes/geshi/rails.php');
-$filesystem->unlink('classes/geshi/reg.php');
-$filesystem->unlink('classes/geshi/visualfoxpro.php');
-$filesystem->unlink('classes/geshi/winbatch.php');
-$filesystem->unlink('classes/mail/extended.phpmailer.php');
-$filesystem->unlink('data/g_flood.php');
-$filesystem->unlink('data/m_flood.php');
-$filesystem->unlink('templates/editor/images/bar.gif');
-$filesystem->unlink('templates/editor/images/blackdot.gif');
-$filesystem->unlink('templates/editor/images/centre.gif');
-$filesystem->unlink('templates/editor/images/code.gif');
-$filesystem->unlink('templates/editor/images/copy.gif');
-$filesystem->unlink('templates/editor/images/cut.gif');
-$filesystem->unlink('templates/editor/images/design.gif');
-$filesystem->unlink('templates/editor/images/hyperlink.gif');
-$filesystem->unlink('templates/editor/images/image.gif');
-$filesystem->unlink('templates/editor/images/indent.gif');
-$filesystem->unlink('templates/editor/images/insert_table.gif');
-$filesystem->unlink('templates/editor/images/justifyfull.gif');
-$filesystem->unlink('templates/editor/images/left_just.gif');
-$filesystem->unlink('templates/editor/images/list.gif');
-$filesystem->unlink('templates/editor/images/numbered_list.gif');
-$filesystem->unlink('templates/editor/images/outdent.gif');
-$filesystem->unlink('templates/editor/images/paste.gif');
-$filesystem->unlink('templates/editor/images/pastetext.gif');
-$filesystem->unlink('templates/editor/images/pasteword.gif');
-$filesystem->unlink('templates/editor/images/preview.gif');
-$filesystem->unlink('templates/editor/images/redo.gif');
-$filesystem->unlink('templates/editor/images/replace.gif');
-$filesystem->unlink('templates/editor/images/right_just.gif');
-$filesystem->unlink('templates/editor/images/selectall.gif');
-$filesystem->unlink('templates/editor/images/special_char.gif');
-$filesystem->unlink('templates/editor/images/spellcheck.gif');
-$filesystem->unlink('templates/editor/images/textcolor.gif');
-$filesystem->unlink('templates/editor/images/undo.gif');
-$filesystem->unlink('templates/editor/images/unformat.gif');
-$filesystem->unlink('templates/editor/images/word_count.gif');
-$filesystem->unlink('templates/editor/blank.htm');
-$filesystem->unlink('templates/editor/html2xhtml.js');
-$filesystem->unlink('templates/editor/insert_char.htm');
-$filesystem->unlink('templates/editor/insert_img.htm');
-$filesystem->unlink('templates/editor/insert_link.htm');
-$filesystem->unlink('templates/editor/insert_table.htm');
-$filesystem->unlink('templates/editor/palette.htm');
-$filesystem->unlink('templates/editor/paste_text.htm');
-$filesystem->unlink('templates/editor/paste_word.htm');
-$filesystem->unlink('templates/editor/replace.htm');
-$filesystem->unlink('templates/editor/richtext.js');
-$filesystem->unlink('templates/editor/rte.css');
-$filesystem->unlink('templates/controlWindow.js');
-$filesystem->unlink('templates/editor.js');
-$filesystem->unlink('templates/menu.js');
-$filesystem->unlink('templates/spellChecker.js');
-$filesystem->unlink('templates/wordWindow.js');
-$filesystem->rmdirr('templates/editor/lang/');
-$filesystem->rmdirr('classes/spellchecker/');
-$filesystem->rmdirr('docs/');
-$dir = dir('images');
-while (false !== ($entry = $dir->read())) {
-	$path = "{$dir->path}/{$entry}";
-	if (is_dir($path) && is_id($entry)) {
-		$filesystem->rmdirr("{$path}/bbcodes/");
-		$filesystem->unlink("{$path}/copy.gif");
-	}
-}
-$dir = dir('language');
-while (false !== ($entry = $dir->read())) {
-	$path = "{$dir->path}/{$entry}";
-	if (is_dir($path) && is_id($entry)) {
-		$filesystem->unlink("{$path}/texts/notice.php");
-	}
-}
-$dir = dir('templates');
-while (false !== ($entry = $dir->read())) {
-	$path = "{$dir->path}/{$entry}";
-	if (is_dir($path) && is_id($entry)) {
-		$filesystem->unlink("{$path}/main/pages_current.html");
-		$filesystem->unlink("{$path}/main/pages_current_small.html");
-		$filesystem->unlink("{$path}/main/smileys.html");
-		$filesystem->unlink("{$path}/members/index_letter.html");
-		$filesystem->unlink("{$path}/popup/code.html");
-		$filesystem->unlink("{$path}/popup/hlcode.html");
-		$filesystem->rmdirr("{$path}/spellcheck/");
-	}
-}
-echo "- Old files deleted.<br />";
-
-$filesystem->mkdir('uploads/images/', 0777);
-$filesystem->file_put_contents('uploads/images/index.htm', '', true);
-echo "- Updated filesystem.<br />";
-
 // Languages
 $ini = array (
-  'admin/bbcodes' =>
-  array (
-    'language_de' =>
-    array (
-      'admin_bbc_button_image_desc' => 'Optional - Wenn Sie diesen BB-Code als klickbaren Button angezeigt haben möchten, so geben Sie hier die Adresse zu einem 20 x 20 Pixel großen Bild an. Dieser Button wird dann zum Einfügen des BB-Codes benutzt. Sie können entweder eine absolute URL (http://...) benutzen oder eine relative URL, ausgehend vom Verzeichnis {@config->furl}/templates/editor/images/',
-    ),
-    'language' =>
-    array (
-      'admin_bbc_button_image_desc' => 'Optional - If you would like this bbcode to appear as a clickable button on the message editor toolbar, enter the adress of an image 20 x 20 pixels in size that will act as the button to insert this bbcode. You can use either an absolute URL (http://...) or a relative URL, basing on the directory {@config->furl}/templates/editor/images/.',
-    ),
-  ),
   'admin/cms' =>
   array (
     'language_de' =>
     array (
-      'admin_cms_big_font' => NULL,
-      'admin_cms_center' => NULL,
-      'admin_cms_doc_file' => NULL,
-      'admin_cms_doc_id' => 'Hinweis',
-      'admin_cms_extended_font' => NULL,
-      'admin_cms_heading_1' => NULL,
-      'admin_cms_heading_2' => NULL,
-      'admin_cms_heading_3' => NULL,
-      'admin_cms_head_alignment' => NULL,
-      'admin_cms_head_choose_alignment' => NULL,
-      'admin_cms_head_choose_color' => NULL,
-      'admin_cms_head_choose_heading' => NULL,
-      'admin_cms_head_choose_size' => NULL,
-      'admin_cms_head_color' => NULL,
-      'admin_cms_head_heading' => NULL,
-      'admin_cms_head_help' => NULL,
-      'admin_cms_head_size' => NULL,
-      'admin_cms_head_smileys' => NULL,
-      'admin_cms_if_path_is_given' => NULL,
-      'admin_cms_invalid_id_given' => 'Ungültige ID angegeben',
-      'admin_cms_justify' => NULL,
-      'admin_cms_left' => NULL,
-      'admin_cms_more_smileys' => NULL,
-      'admin_cms_nav_title_text' => 'Um Phrasen aus der benutzerdefinierten Sprachdatei für diesen Eintrag zu benutzen, ist der folgende Code vorgesehen: <code>lang->key</code>. <code>key</code> ist der Schlüssel/interne Name der Phrase die Sie benutzen möchten. Um die benutzerdefinierten Phrasen zu verwalten, klicken Sie bitte <a href="admin.php?action=language&amp;job=phrase_file&amp;file=Y3VzdG9tLmxuZy5waHA%3D" target="_blank">hier</a>. Die Titel der Dokumente können für die Verlinkung ebenfalls verwendet werden. Dazu einfach den Code <code>doc->ID</code> verwenden. <code>ID</code> ist dabei die ID des Dokuments, das Sie verlinken möchten. Dieser Code wird bei Auswahl automatisch über die Seite "Existierende Dokumente" erzeugt.',
-      'admin_cms_right' => NULL,
-      'admin_cms_small_font' => NULL,
-      'admin_cms_tag_boldface' => NULL,
-      'admin_cms_tag_definition' => NULL,
-      'admin_cms_tag_definition_please_enter_definition' => NULL,
-      'admin_cms_tag_definition_please_enter_word' => NULL,
-      'admin_cms_tag_edited_passage' => NULL,
-      'admin_cms_tag_email' => NULL,
-      'admin_cms_tag_horizontal_ruler' => NULL,
-      'admin_cms_tag_image' => NULL,
-      'admin_cms_tag_italic' => NULL,
-      'admin_cms_tag_off_topic' => NULL,
-      'admin_cms_tag_ordered_list' => NULL,
-      'admin_cms_tag_quote' => NULL,
-      'admin_cms_tag_source_code' => NULL,
-      'admin_cms_tag_subscript' => NULL,
-      'admin_cms_tag_superscript' => NULL,
-      'admin_cms_tag_typewriter' => NULL,
-      'admin_cms_tag_underline' => NULL,
-      'admin_cms_tag_unordered_list' => NULL,
-      'admin_cms_tag_url' => NULL,
-      'admin_cms_tag_url_please_provide_text' => NULL,
-      'admin_cms_tag_url_please_provide_url' => NULL,
-      'admin_cms_doc_av_languages' => 'Sprachen',
-      'admin_cms_doc_checkboxes_help' => '<strong>Hinweis:</strong> Bei jeder Sprache die gespeichert werden soll, muss die Checkbox vor dem Sprachennamen mit einem Häkchen versehen sein, ansonsten werden die Daten nicht gespeichert und gehen dann unwiderruflich verloren!',
-      'admin_cms_doc_click_for_adding_lang' => 'Klicken Sie hier, um für diese Sprache Daten zum Dokument hinzuzufügen.',
-      'admin_cms_doc_global_settings' => 'Globale Einstellungen für das Dokument',
-      'admin_cms_doc_internal_note' => 'Interner Hinweis/Kommentar:',
-      'admin_cms_edit_doc' => 'Ein Dokument ändern',
-      'admin_cms_file_does_not_exist' => 'Die Datei wurde leider nicht gefunden!',
-      'admin_cms_news_max_age' => 'Zeit nach der auf Aktualisierungen geprüft wird',
-      'admin_cms_news_max_age_info' => 'Zeit in Minuten, nach der der Cache geelert wird.',
-      'bbcode_help' => 'Hilfe',
+      'admin_wysiwyg_alignment' => 'Ausrichtung:',
+      'admin_wysiwyg_alignment_bottom' => 'Unten',
+      'admin_wysiwyg_alignment_center' => 'Zentriert',
+      'admin_wysiwyg_alignment_left' => 'Links',
+      'admin_wysiwyg_alignment_middle' => 'Mitte',
+      'admin_wysiwyg_alignment_not_set' => 'Nicht gesetzt',
+      'admin_wysiwyg_alignment_right' => 'Rechts',
+      'admin_wysiwyg_alignment_top' => 'Oben',
+      'admin_wysiwyg_alt_text' => 'Alternativtext:',
+      'admin_wysiwyg_bgcolor' => 'Hintergrundfarbe',
+      'admin_wysiwyg_border_collapse' => 'Rahmen vereinigen:',
+      'admin_wysiwyg_border_color' => 'Rahmenfarbe',
+      'admin_wysiwyg_border_style' => 'Rahmenstil:',
+      'admin_wysiwyg_border_width' => 'Rahmenstärke:',
+      'admin_wysiwyg_choose' => 'Auswählen',
+      'admin_wysiwyg_color' => 'Farbe:',
+      'admin_wysiwyg_color_preview' => 'Vorschau der Farbe',
+      'admin_wysiwyg_custom_target' => 'Kein Ziel / Benutzerdefiniert',
+      'admin_wysiwyg_file' => 'Datei:',
+      'admin_wysiwyg_folder' => 'Verzeichnis:',
+      'admin_wysiwyg_folder_restrictions' => 'Das Verzeichnis darf nur Buchstaben, Zahlen, Unterstriche und Bindestriche enthalten.',
+      'admin_wysiwyg_form_cancel' => 'Abbrechen',
+      'admin_wysiwyg_form_submit' => 'Einfügen',
+      'admin_wysiwyg_form_upload' => 'Hochladen',
+      'admin_wysiwyg_height' => 'Höhe:',
+      'admin_wysiwyg_hey_code' => 'Hex-Code:',
+      'admin_wysiwyg_hspace' => 'Horizontaler Zwischenraum:',
+      'admin_wysiwyg_image_url' => 'Bild-Adresse:',
+      'admin_wysiwyg_insert_hr' => 'Horizontale Linie einfügen',
+      'admin_wysiwyg_insert_img' => 'Bild einfügen',
+      'admin_wysiwyg_insert_link' => 'Link einfügen',
+      'admin_wysiwyg_layout' => 'Layout',
+      'admin_wysiwyg_max_filesize' => 'Maximale Dateigröße: {$filesize}',
+      'admin_wysiwyg_name' => 'Titel:',
+      'admin_wysiwyg_no_files_found' => 'Es wurden leider keine Dateien gefunden.',
+      'admin_wysiwyg_no_shade' => 'Kein Schatten:',
+      'admin_wysiwyg_padding' => 'Innenabstand:',
+      'admin_wysiwyg_predefined_colors' => 'Vordefinierte Farben',
+      'admin_wysiwyg_preview' => 'Vorschau',
+      'admin_wysiwyg_prev_dir' => 'Vorheriges Verzeichnis',
+      'admin_wysiwyg_select_color' => 'Farbe wählen',
+      'admin_wysiwyg_select_img' => 'Bild auswählen',
+      'admin_wysiwyg_table_cols' => 'Spalten:',
+      'admin_wysiwyg_table_properties' => 'Tabellen-Einstellungen',
+      'admin_wysiwyg_table_rows' => 'Zeilen:',
+      'admin_wysiwyg_table_width' => 'Breite:',
+      'admin_wysiwyg_upload_x' => 'Bild hochladen',
+      'admin_wysiwyg_url' => 'Adresse:',
+      'admin_wysiwyg_vspace' => 'Vertikaler Zwischenraum:',
+      'admin_wysiwyg_width' => 'Breite:',
+      'admin_wysiwyg_width_full' => 'Voll',
     ),
     'language' =>
     array (
-      'admin_cms_big_font' => NULL,
-      'admin_cms_center' => NULL,
-      'admin_cms_doc_file' => NULL,
-      'admin_cms_doc_id' => 'Note',
-      'admin_cms_extended_font' => NULL,
-      'admin_cms_heading_1' => NULL,
-      'admin_cms_heading_2' => NULL,
-      'admin_cms_heading_3' => NULL,
-      'admin_cms_head_alignment' => NULL,
-      'admin_cms_head_choose_alignment' => NULL,
-      'admin_cms_head_choose_color' => NULL,
-      'admin_cms_head_choose_heading' => NULL,
-      'admin_cms_head_choose_size' => NULL,
-      'admin_cms_head_color' => NULL,
-      'admin_cms_head_heading' => NULL,
-      'admin_cms_head_help' => NULL,
-      'admin_cms_head_size' => NULL,
-      'admin_cms_head_smileys' => NULL,
-      'admin_cms_if_path_is_given' => NULL,
-      'admin_cms_justify' => NULL,
-      'admin_cms_left' => NULL,
-      'admin_cms_more_smileys' => NULL,
-      'admin_cms_nav_title_text' => 'To use phrases from the custom language file for this entry simply use the follwoing code: <code>lang->key</code>. <code>key</code> is the key of the phrase you want to use. To manage the phrases just <a href="admin.php?action=language&amp;job=phrase_file&amp;file=Y3VzdG9tLmxuZy5waHA%3D" target="_blank">edit the custom language file</a>. The titles of the documents can also be used for the link text. Therefor you can use the code <code>doc->ID</code>, whereat <code>ID</code> is the ID of the linked document. This code will be created automatically while choosing one of the documents on the page "Existing Documents".',
-      'admin_cms_right' => NULL,
-      'admin_cms_small_font' => NULL,
-      'admin_cms_tag_boldface' => NULL,
-      'admin_cms_tag_definition' => NULL,
-      'admin_cms_tag_definition_please_enter_definition' => NULL,
-      'admin_cms_tag_definition_please_enter_word' => NULL,
-      'admin_cms_tag_edited_passage' => NULL,
-      'admin_cms_tag_email' => NULL,
-      'admin_cms_tag_horizontal_ruler' => NULL,
-      'admin_cms_tag_image' => NULL,
-      'admin_cms_tag_italic' => NULL,
-      'admin_cms_tag_off_topic' => NULL,
-      'admin_cms_tag_ordered_list' => NULL,
-      'admin_cms_tag_quote' => NULL,
-      'admin_cms_tag_source_code' => NULL,
-      'admin_cms_tag_subscript' => NULL,
-      'admin_cms_tag_superscript' => NULL,
-      'admin_cms_tag_typewriter' => NULL,
-      'admin_cms_tag_underline' => NULL,
-      'admin_cms_tag_unordered_list' => NULL,
-      'admin_cms_tag_url' => NULL,
-      'admin_cms_tag_url_please_provide_text' => NULL,
-      'admin_cms_tag_url_please_provide_url' => NULL,
-      'admin_cms_doc_av_languages' => 'Languages',
-      'admin_cms_doc_checkboxes_help' => '<strong>Notice:</strong> Each language that is supposed to be saved, the check box before the language name must be checked, otherwise the data won\'t be saved and is lost irrevocably!',
-      'admin_cms_doc_click_for_adding_lang' => 'Click here to add data for this language to the document.',
-      'admin_cms_doc_global_settings' => 'Global settings for the document',
-      'admin_cms_doc_internal_note' => 'Internal note/comment:',
-      'admin_cms_edit_doc' => 'Edit a Document',
-      'admin_cms_file_does_not_exist' => 'The file does not exist!',
-      'admin_cms_news_max_age' => 'Time after which the program checks for updates',
-      'admin_cms_news_max_age_info' => 'Time in minutes after that the cache will be cleared.',
-      'bbcode_help' => 'Hilfe',
+      'admin_wysiwyg_alignment' => 'Alignment:',
+      'admin_wysiwyg_alignment_bottom' => 'Bottom',
+      'admin_wysiwyg_alignment_center' => 'Center',
+      'admin_wysiwyg_alignment_left' => 'Left',
+      'admin_wysiwyg_alignment_middle' => 'Middle',
+      'admin_wysiwyg_alignment_not_set' => 'Not set',
+      'admin_wysiwyg_alignment_right' => 'Right',
+      'admin_wysiwyg_alignment_top' => 'Top',
+      'admin_wysiwyg_alt_text' => 'Alternate Text:',
+      'admin_wysiwyg_bgcolor' => 'Background-Color:',
+      'admin_wysiwyg_border_collapse' => 'Border-Collapse:',
+      'admin_wysiwyg_border_color' => 'Border-Color:',
+      'admin_wysiwyg_border_style' => 'Border-Style:',
+      'admin_wysiwyg_border_width' => 'Border-Width:',
+      'admin_wysiwyg_choose' => 'Choose',
+      'admin_wysiwyg_color' => 'Color:',
+      'admin_wysiwyg_color_preview' => 'Preview of the color',
+      'admin_wysiwyg_custom_target' => 'No target / Custom',
+      'admin_wysiwyg_file' => 'File:',
+      'admin_wysiwyg_folder' => 'Folder:',
+      'admin_wysiwyg_folder_restrictions' => 'The folder should only contain letters, numbers, underscores or hyphen.',
+      'admin_wysiwyg_form_cancel' => 'Cancel',
+      'admin_wysiwyg_form_submit' => 'Insert',
+      'admin_wysiwyg_form_upload' => 'Upload',
+      'admin_wysiwyg_height' => 'Height:',
+      'admin_wysiwyg_hey_code' => 'Hex-Code:',
+      'admin_wysiwyg_hspace' => 'Horizontal Space:',
+      'admin_wysiwyg_image_url' => 'Image URL:',
+      'admin_wysiwyg_insert_hr' => 'Insert Horizontal Ruler',
+      'admin_wysiwyg_insert_img' => 'Insert Image',
+      'admin_wysiwyg_insert_link' => 'Insert Hyperlink',
+      'admin_wysiwyg_layout' => 'Layout',
+      'admin_wysiwyg_max_filesize' => 'Max Filesize: {$filesize}',
+      'admin_wysiwyg_name' => 'Name:',
+      'admin_wysiwyg_no_files_found' => 'Sorry, no files found.',
+      'admin_wysiwyg_no_shade' => 'No Shade:',
+      'admin_wysiwyg_padding' => 'Padding:',
+      'admin_wysiwyg_predefined_colors' => 'Predefined colors',
+      'admin_wysiwyg_preview' => 'Preview',
+      'admin_wysiwyg_prev_dir' => 'Previous Directory',
+      'admin_wysiwyg_select_color' => 'Select Color',
+      'admin_wysiwyg_select_img' => 'Select Image',
+      'admin_wysiwyg_table_cols' => 'Columns:',
+      'admin_wysiwyg_table_properties' => 'Table Properties',
+      'admin_wysiwyg_table_rows' => 'Rows:',
+      'admin_wysiwyg_table_width' => 'Width:',
+      'admin_wysiwyg_upload_x' => 'Upload image',
+      'admin_wysiwyg_url' => 'URL:',
+      'admin_wysiwyg_vspace' => 'Vertical Space:',
+      'admin_wysiwyg_width' => 'Width:',
+      'admin_wysiwyg_width_full' => 'Full',
     ),
   ),
   'admin/db' =>
   array (
     'language_de' =>
     array (
-      'admin_db_file_no_comments' => 'In der Datei wurden keine Backup-Informationen gefunden.',
-      'admin_db_unknown_file_format' => 'Unbekanntes Dateiformat angegeben.',
+      'admin_db_backup_options_invalid' => 'Die Wahl der Optionen war leider nicht korrekt. Sie müssen entweder die Struktur und/oder die Daten exportieren.',
     ),
     'language' =>
     array (
-      'admin_db_file_no_comments' => 'The file does not contain backup information.',
-      'admin_db_unknown_file_format' => 'Unknown file format.',
+      'admin_db_backup_options_invalid' => 'The chosen options are not correct. You need to export the structure and/or the data.',
     ),
   ),
-  'admin/explorer' =>
+  'admin/designs' =>
   array (
     'language_de' =>
     array (
-      'admin_explorer_archive_is_not_supported' => 'Dieses Archiv wird derzeit nicht unterstützt.',
-      'admin_explorer_file_is_not_supported2' => NULL,
-      'admin_explorer_check_chmod' => 'Alle CHMOD prüfen',
-      'admin_explorer_chmod_file_dir' => 'Datei oder Verzeichnis',
-      'admin_explorer_chmod_info1' => 'Einige Verzeichnisse und Dateien benötigen spezielle Zugriffsrechte (CHMODs) um beschreibbar und ausführbar zu sein. Diese Rechte werden hier geprüft (und ggf. geändert) und das Resultat wird weiter unten angezeigt.',
-      'admin_explorer_chmod_info2' => 'Die folgenen Status können auftreten:',
-      'admin_explorer_chmod_state' => 'Status',
-      'admin_explorer_chmod_status_failure' => 'Fehler',
-      'admin_explorer_chmod_status_failure_info' => 'Die Rechte sind nicht korrekt gesetzt und müssen manuell (per FTP) korrigiert werden. Sie können die grundlegenden Funktionen von Viscacha nicht nutzen bis die Rechte korrekt gesetzt sind.',
-      'admin_explorer_chmod_status_failure_x' => 'Fehler*',
-      'admin_explorer_chmod_status_failure_x_info' => 'Die Rechte sind nicht korrekt gesetzt, aber diese Dateien sind nur für Arbeiten im Administrationsbereich relevant, daher müssen die Rechte erst dann vorher korrekt gesetzt werden wenn Sie diese Dateien bearbeiten wollen.',
-      'admin_explorer_chmod_status_ok' => 'OK',
-      'admin_explorer_chmod_status_ok_info' => 'Die Rechte sind korrekt gesetzt.',
-      'admin_explorer_current_chmod' => 'Derzeitiger CHMOD',
-      'admin_explorer_required_chmod' => 'Benötigter CHMOD',
+      'admin_design_copy_standard_css' => 'Erstelle ein neues Stylesheet-Verzeichnis und benutze die Stylesheets des Standard-Designs als Grundlage.',
+      'admin_design_create_new_images_directory' => 'Erstelle ein neues Bilder-Verzeichnis und benutze die Bilder des Standard-Designs als Grundlage.',
+      'admin_design_create_new_template_directory' => 'Erstelle ein neues Template-Verzeichnis und benutze die Templates des Standard-Designs als Grundlage.',
     ),
     'language' =>
     array (
-      'admin_explorer_archive_is_not_supported' => 'The archive is currently not supported.',
-      'admin_explorer_file_is_not_supported2' => NULL,
-      'admin_explorer_check_chmod' => 'Check all CHMOD',
-      'admin_explorer_chmod_file_dir' => 'File or Directory',
-      'admin_explorer_chmod_info1' => 'Some directories and files needs special permissions (CHMODs) to be writable und executable. This permissions will be checked (and changed) and the result will be shown below.',
-      'admin_explorer_chmod_info2' => 'The following states can appear:',
-      'admin_explorer_chmod_state' => 'State',
-      'admin_explorer_chmod_status_failure' => 'Failure',
-      'admin_explorer_chmod_status_failure_info' => 'The permissions are not correct and you have to set them manually (per FTP). You can not run the base functionality of Viscacha until this permissions are set correctly.',
-      'admin_explorer_chmod_status_failure_x' => 'Failure*',
-      'admin_explorer_chmod_status_failure_x_info' => 'The permissions are not correct, but these files are only required for changing a couple of things at the Admin Control Panel. You only need to change them before you edit these files.',
-      'admin_explorer_chmod_status_ok' => 'OK',
-      'admin_explorer_chmod_status_ok_info' => 'The permissions are set correctly.',
-      'admin_explorer_current_chmod' => 'Current CHMOD',
-      'admin_explorer_required_chmod' => 'Required CHMOD',
+      'admin_design_copy_standard_css' => 'Create a new directory for stylesheets and use the stylesheets from the standard design as base',
+      'admin_design_create_new_images_directory' => 'Create a new directory for images and use the images from the standard design as base.',
+      'admin_design_create_new_template_directory' => 'Create a new directory for templates and use the templates from the standard design as base.',
     ),
   ),
-  'admin/forums' =>
+  'admin/global' =>
   array (
     'language_de' =>
     array (
-      'admin_forum_bbcode_html' => 'BB-Code ist erlaubt, HTML ist nicht erlaubt!',
+      'admin_gll_docs' => NULL,
+      'admin_gll_pdf' => NULL,
+      'admin_gls_docs' => NULL,
+      'admin_gls_pdf' => NULL,
     ),
     'language' =>
     array (
-      'admin_forum_bbcode_html' => 'BB-Code is allowed; HTML is not allowed!',
-    ),
-  ),
-  'admin/frames' =>
-  array (
-    'language_de' =>
-    array (
-      'admin_spellcheck_manager' => NULL,
-    ),
-    'language' =>
-    array (
-      'admin_spellcheck_manager' => NULL,
+      'admin_gll_docs' => NULL,
+      'admin_gll_pdf' => NULL,
+      'admin_gls_docs' => NULL,
+      'admin_gls_pdf' => NULL,
     ),
   ),
   'admin/javascript' =>
   array (
     'language_de' =>
     array (
-      'bbcodes_note_prompt1' => 'Bitte Erklärung für ein Wort eingeben',
-      'bbcodes_note_prompt2' => 'Bitte das zu erklärende Wort eingeben',
-      'bbcodes_url_prompt1' => 'Bitte geben Sie die URL (mit http://) an',
-      'bbcodes_url_prompt2' => 'Bitte geben Sie den Linktext an',
-      'confirmNotUsed' => 'Wollen Sie die eingegebenen Daten der ausgewählten Sprache beim Speichern wirklich nicht übernehmen?',
-      'js_listpompt1' => 'Bitte geben Sie den ',
-      'js_listpompt2' => '. Listenpunkt an.\\n"Abbrechen" klicken zum Beenden.',
+      'wysiwyg_backcolor' => 'Hintergrundfarbe',
+      'wysiwyg_bold' => 'Fett',
+      'wysiwyg_center' => 'Zentriert ausrichten',
+      'wysiwyg_clean_word' => 'HTML-Code von MS Word säubern?',
+      'wysiwyg_copy' => 'Kopieren',
+      'wysiwyg_cut' => 'Ausscheiden',
+      'wysiwyg_error_text_mode' => 'Sie sind im Text-Modus. Dieses Feature ist deswegen zur Zeit nicht verfügbar.',
+      'wysiwyg_font_face' => 'Schriftart',
+      'wysiwyg_font_size' => 'Schriftgröße',
+      'wysiwyg_forecolor' => 'Vordergrundfarbe',
+      'wysiwyg_headings' => 'Überschrift',
+      'wysiwyg_hr' => 'Horizontale Linie',
+      'wysiwyg_image' => 'Bild',
+      'wysiwyg_indent' => 'Einrücken',
+      'wysiwyg_italic' => 'Kursiv',
+      'wysiwyg_justify' => 'Blocksatz',
+      'wysiwyg_left' => 'Linksbündig ausrichten',
+      'wysiwyg_link' => 'Link',
+      'wysiwyg_maximize' => 'Editor maximieren',
+      'wysiwyg_not_compatible' => 'Der WYSIWYG-Editor wird von Ihrem Browser leider nicht (ausreichend) unterstützt.',
+      'wysiwyg_ordered_list' => 'Geordnete Liste',
+      'wysiwyg_outdent' => 'Ausrücken',
+      'wysiwyg_paste' => 'Einfügen',
+      'wysiwyg_redo' => 'Wiederherstellen',
+      'wysiwyg_remove_formatting' => 'Formatierung entfernen',
+      'wysiwyg_right' => 'Rechtsbündig ausrichten',
+      'wysiwyg_strikethrough' => 'Durchgestrichen',
+      'wysiwyg_strip_word' => 'Word HTML entfernen',
+      'wysiwyg_subscript' => 'Tiefgestellt',
+      'wysiwyg_superscript' => 'Hochgestellt',
+      'wysiwyg_table' => 'Tabelle',
+      'wysiwyg_underline' => 'Unterstrichen',
+      'wysiwyg_undo' => 'Rückgängig',
+      'wysiwyg_unordered_list' => 'Ungeordnete Liste',
+      'wysiwyg_view_source' => 'Quelltext ansehen',
+      'wysiwyg_view_text' => 'Design ansehen',
     ),
     'language' =>
     array (
-      'bbcodes_note_prompt1' => 'Please enter the definition of the word',
-      'bbcodes_note_prompt2' => 'Please enter the word to be defined',
-      'bbcodes_url_prompt1' => 'Please provide URL (with http://)',
-      'bbcodes_url_prompt2' => 'Please provide text for the link',
-      'confirmNotUsed' => 'Do you really want to discard the data specified for this language?',
-      'js_listpompt1' => 'please provide the ',
-      'js_listpompt2' => '. listpoint on.\\nclick "cancel" to quit.',
-    ),
-  ),
-  'admin/language' =>
-  array (
-    'language_de' =>
-    array (
-      'admin_lang_ignored_search_keys_desc' => 'Hier sind die Wörter aufgelistet, die während einer Suchanfrage ignoriert werden sollen, um einerseits die Suchergebnisse gering zu halten und andererseits die Suchgeschwindigkeit zu verbessern.<br /><br />Nur ein Wort pro Zeile. Bitte tippen Sie die Wörter komplett in Kleinbuchstaben. Sonderzeichen sollten in zwei Formen auftauchen. Beispiele:<br />&Auml; = ae und &auml;,<br />&szlig; = ss und &szlig;,<br />&eacute; = e und &eacute;,<br />&Ccedil; = c und &ccedil;',
-      'admin_lang_used_as_original' => 'Sprache die als Original verwendet werden soll:',
-      'admin_lang_used_as_original_info' => 'Ggeben Sie das Verzeichnis/die Sprache an, aus der die Phrase/der Ausdruck kopiert werden soll.',
-    ),
-    'language' =>
-    array (
-      'admin_lang_ignored_search_keys_desc' => '<br /><br />Only one word in each line. Please type the words completly in lower case letters. Special symbols should occur in two forms. Examples: <br />&Auml; = ae and &auml;,<br />&szlig; = ss and &szlig;,<br />&eacute; = e and &eacute;,<br />&Ccedil; = c and &ccedil;',
-      'admin_lang_used_as_original' => 'Language which should be used as original:',
-      'admin_lang_used_as_original_info' => 'Specify the directory/language wherefrom the phrase should be copied.',
+      'wysiwyg_backcolor' => 'Back Color',
+      'wysiwyg_bold' => 'Bold',
+      'wysiwyg_center' => 'Justify Center',
+      'wysiwyg_clean_word' => 'Clean HTML inserted by MS Word?',
+      'wysiwyg_copy' => 'Copy',
+      'wysiwyg_cut' => 'Cut',
+      'wysiwyg_error_text_mode' => 'You are in TEXT Mode. This feature has been disabled.',
+      'wysiwyg_font_face' => 'Font face',
+      'wysiwyg_font_size' => 'Font Size',
+      'wysiwyg_forecolor' => 'Fore Color',
+      'wysiwyg_headings' => 'Headings',
+      'wysiwyg_hr' => 'Horizontal Ruler',
+      'wysiwyg_image' => 'Image',
+      'wysiwyg_indent' => 'Indent',
+      'wysiwyg_italic' => 'Italic',
+      'wysiwyg_justify' => 'Justify',
+      'wysiwyg_left' => 'Justify Left',
+      'wysiwyg_link' => 'Link',
+      'wysiwyg_maximize' => 'Maximize the editor',
+      'wysiwyg_not_compatible' => 'The WYSIWYG-Editor is not (completely) supported by your browser.',
+      'wysiwyg_ordered_list' => 'Ordered List',
+      'wysiwyg_outdent' => 'Outdent',
+      'wysiwyg_paste' => 'Paste',
+      'wysiwyg_redo' => 'Redo',
+      'wysiwyg_remove_formatting' => 'Remove Formatting',
+      'wysiwyg_right' => 'Justify Right',
+      'wysiwyg_strikethrough' => 'Strikethrough',
+      'wysiwyg_strip_word' => 'Strip Word HTML',
+      'wysiwyg_subscript' => 'Subscript',
+      'wysiwyg_superscript' => 'Superscript',
+      'wysiwyg_table' => 'Table',
+      'wysiwyg_underline' => 'Underline',
+      'wysiwyg_undo' => 'Undo',
+      'wysiwyg_unordered_list' => 'Unordered List',
+      'wysiwyg_view_source' => 'View Source',
+      'wysiwyg_view_text' => 'View Design',
     ),
   ),
   'admin/members' =>
   array (
     'language_de' =>
     array (
-      'admin_member_merge_help' => 'Hier können Sie zewi Benutzeraccounts in einem zusammenführen. Das "Basis-Mitglied" belibt bestehen und die Daten des Accounts bleiben als Standard-Werte bestehen. Die Beiträge, privaten Nachrichten etc. werden vom "Überflüssigen Mitglied" zum "Basis-Mitglied" übernommen. Wenn bei dem "Basis-Mitglied" Daten fehlen, werden diese vom "Überflüssigen Mitglied" übernommen. Anschließend wird das "Überflüssigen Mitglied" gelöscht.',
-      'admin_member_nl_mail_manager' => 'Newsletter und E-Mail-Verwaltung',
-      'admin_member_send_nl' => 'Newsletter verfassen',
-      'admin_member_mail_manager_instructions' => 'Hier können Sie die E-Mail-Adressen von Mitgliedern exportieren oder an diese E-Mail-Adressen einen Newsletter schicken. Geben Sie unten bei der Mitgliedersuche die Parameter ein, nach denen die Mitglieder gesucht werden sollen. Auf der darauf folgenden Seite kann man die Mitglieder dann, anhand der Einstellungen zum E-Mail-Empfang in den Profileinstellungen, noch einmal eingrenzen und abschließend auswählen, ob man an die gefundenen Mitglieder einen Newsletter verschicken will oder ob lediglich deren E-Mail-Adressen exportiert werden sollen. Danach ist es dann möglich in der jeweiligen Oberfläche die Export-Optionen anzugeben bzw. einen Newsletter zu verfassen.',
-      'admin_member_name_connected_to_id' => 'Benutzername verknüpft an gelöschte ID',
-      'admin_member_name_not_connected' => 'Nicht verknüpft',
-      'admin_member_reserve_names_add' => 'Benutzernamen reservieren',
-      'admin_member_reserve_names_title' => 'Reservierte Benutzernamen',
-      'admin_member_selected_reserved_names_deleted' => 'Die Reservierung der markierten Benutzernamen wurde aufgehoben.',
-      'admin_member_username_successfully_reserved' => 'Benutzername wurde erfolgreich reserviert.',
+      'admin_member_activate_by_admin' => NULL,
+      'admin_member_activate_via_mail' => NULL,
+      'admin_member_at_least_one_match' => 'oder',
+      'admin_member_not_activated' => NULL,
+      'admin_member_whole_match' => 'und',
+      'admin_member_at_least_one_match_desc' => 'Nur eine der Angaben muss passen, um zu einem Treffer zu führen',
+      'admin_member_whole_match_desc' => 'Alle Angaben müssen passen, um zu einem Treffer zu führen',
     ),
     'language' =>
     array (
-      'admin_member_send_nl' => 'Compose Newsletter',
-      'admin_member_mail_manager_instructions' => 'On this page you can export members\' e-mail addresses or send them a newsletter. Please feed your parameters you want to use to narrow down the results into the member search below. On the following page you are able to narrow down the results again according to the profile settings of the e-mail reception and you can choose whether you want to send out a newsletter to the members found or just export their e-mail adresses.  Once done searching it is possible compose a newsletter or to specify the options for the export of the e-mail adresses in their particular interfaces.',
-      'admin_member_name_connected_to_id' => 'User Name connected to deleted ID',
-      'admin_member_name_not_connected' => 'Not connected',
-      'admin_member_reserve_names_add' => 'Reserve User Name',
-      'admin_member_reserve_names_title' => 'Reserved User Names',
-      'admin_member_selected_reserved_names_deleted' => 'The reservation of the selected user names has been deleted.',
-      'admin_member_username_successfully_reserved' => 'User name has been reserved successfully.',
-    ),
-  ),
-  'admin/misc' =>
-  array (
-    'language_de' =>
-    array (
-      'admin_misc_spellcheck_add_to_list' => NULL,
-      'admin_misc_spellcheck_add_to_list_info' => NULL,
-      'admin_misc_spellcheck_disabled' => NULL,
-    ),
-    'language' =>
-    array (
-      'admin_misc_spellcheck_add_to_list' => NULL,
-      'admin_misc_spellcheck_add_to_list_info' => NULL,
-      'admin_misc_spellcheck_disabled' => NULL,
-    ),
-  ),
-  'admin/packages' =>
-  array (
-    'language_de' =>
-    array (
-      'admin_packages_head_delete_plugin' => 'Plugin löschen',
-    ),
-    'language' =>
-    array (
-      'admin_packages_head_delete_plugin' => 'Delete plugin',
-    ),
-  ),
-  'admin/profilefield' =>
-  array (
-    'language_de' =>
-    array (
-      'admin_editable_change_settings' => '"Optionen ändern"',
-      'admin_editable_change_user_data' => '"Daten ändern"',
+      'admin_member_activate_by_admin' => NULL,
+      'admin_member_activate_via_mail' => NULL,
+      'admin_member_at_least_one_match' => 'or',
+      'admin_member_not_activated' => NULL,
+      'admin_member_whole_match' => 'and',
+      'admin_member_at_least_one_match_desc' => 'at least one of the input have to lead to a match',
+      'admin_member_whole_match_desc' => 'the whole input have to lead to a match',
     ),
   ),
   'admin/settings' =>
   array (
     'language_de' =>
     array (
-      'admin_allow_vcard_dl' => NULL,
-      'admin_allow_vcard_dl_guest' => NULL,
-      'admin_allow_vcard_dl_guest_info' => NULL,
-      'admin_allow_vcard_dl_info' => NULL,
-      'admin_disable_registration_info' => 'Aktivieren Sie diese Option, wenn Sie die Registration neuer Mitglieder (temporär) verbieten möchten. Jeder der versucht sich zu registrieren bekommt die Meldung angezeigt, dass derzeit keine Registrierungen angenommen werden.',
-      'admin_enable_jabber_support' => NULL,
-      'admin_enable_jabber_support_info' => NULL,
-      'admin_enable_spellchecker' => NULL,
-      'admin_enable_spellchecker_info' => NULL,
-      'admin_e_parse' => NULL,
-      'admin_jabber_edit' => NULL,
-      'admin_jabber_password' => NULL,
-      'admin_jabber_password_info' => NULL,
-      'admin_jabber_server' => NULL,
-      'admin_jabber_server_info' => NULL,
-      'admin_jabber_username' => NULL,
-      'admin_jabber_username_info' => NULL,
-      'admin_number_of_smileys' => NULL,
-      'admin_number_of_smileys_info' => NULL,
-      'admin_php_standard' => 'Keine PHP-Fehlermeldungen anzeigen',
-      'admin_profil_avatar_edit' => 'Profilbilder &amp; Avatare',
-      'admin_pspell_available' => NULL,
-      'admin_pspell_not_available' => NULL,
-      'admin_select_spell_check' => NULL,
-      'admin_setting_jabber' => NULL,
-      'admin_setting_jabber_info' => NULL,
-      'admin_setting_profile_edit_info' => 'Profileinstellungen, Feldlängen und mehr.',
-      'admin_setting_spell_check' => NULL,
-      'admin_setting_spell_check_info' => NULL,
-      'admin_spellcheck_edit' => NULL,
-      'admin_spellcheck_mysql_php' => NULL,
-      'admin_spellcheck_pspell_aspell' => NULL,
-      'admin_spellcheck_system' => NULL,
-      'admin_spellcheck_system_info' => NULL,
-      'admin_spellcheck_textfile_php' => NULL,
-      'admin_switch_cms_portal' => 'Welche Datei/Seite soll als Startseite der Homepage benutzt werden:',
-      'admin_test_filesystem_chmods' => NULL,
-      'admin_test_filesystem_chmods_info' => NULL,
-      'admin_doclang_desc' => 'Die Dokumente, die in der vom Mitglied gewählten Sprache nicht zur Verfügung stehen, werden in der hier angegebenen Sprache als Ersatz angezeigt. Hinweis: Wenn von dieser Sprache ebenfalls kein Dokument existiert, so wird das Dokument in der Standard-Foren-Sprache verwendet. Wenn diese Sprache ebenfalls nicht zur Verfügung steht, dann wird ein beliebiges ausgewählt.',
-      'admin_doclang_title' => 'Standard Rückfall-Sprache für Dokumente:',
-      'admin_login_attempts' => 'Anmeldeversuche beschränken',
-      'admin_login_attempts_blocktime' => 'Zeit, die ein Benutzer aus dem Forum ausgeschlossen wird',
-      'admin_login_attempts_blocktime_info' => 'Zeit in Minuten, die ein Benutzer vom Forum ausgesperrt wird, nach dem die oben angegebene Anzahl an Fehlversuchen sich einzuloggen erreicht wird. Die Sperrungen werden in der Übersicht der gesperrten IPs (auch später noch) angezeigt.',
-      'admin_login_attempts_max' => 'Maximale Anzahl der Anmeldeversuche',
-      'admin_login_attempts_max_info' => 'Geben Sie die Anzahl Versuche an, die ein Benutzer ein falsches Passwort angeben kann. Wird dieses Limit überschritten, wird der Benutzer temporär gebannt. Setzen Sie dies auf 0, um das Feature zu deaktivieren.',
-      'admin_login_attempts_time' => 'Zeit bevor die falsch eingegebenen Passwörter zurückgesetzt werden',
-      'admin_login_attempts_time_info' => 'Zeit in Minuten nach denen die falsch eingegebenen Passwörter gelöscht werden. Bitte beachten Sie, dass sobald sich der Nutzer mit korrekten Daten angemeldet hat, die vorherigen vergeblichen Anmeldeversuche gelöscht werden.',
+      'admin_activate_logging_missing_ip' => 'Aktiviert die Protokollierung von IPs und User-Agents:',
+      'admin_activate_pdf_topics' => NULL,
+      'admin_activate_pdf_topics_info' => NULL,
+      'admin_activate_spambot_at_guests' => 'Spam-Bot-Schutz bei Gastbeiträgen',
+      'admin_activate_spambot_registration' => 'Spam-Bot-Schutz bei der Registration:',
+      'admin_compress_pdf' => NULL,
+      'admin_compress_pdf_info' => NULL,
+      'admin_dyeing_letters_captcha' => 'Eingefärbte Buchstaben:',
+      'admin_examples_captcha' => NULL,
+      'admin_examples_captchaimg_textcodes' => NULL,
+      'admin_examples_textcodes' => NULL,
+      'admin_e_all' => 'Alle Fehler, Warnungen und Hinweise',
+      'admin_e_error' => 'Nur schwerewiegende Fehler',
+      'admin_e_notice' => NULL,
+      'admin_e_strict' => NULL,
+      'admin_e_warning' => NULL,
+      'admin_file_typ_captcha' => 'Dateityp:',
+      'admin_ftp_directory_does_not_exist' => 'Verzeichnis "{$ftp_path}" existiert leider nicht!',
+      'admin_image_height_captcha' => 'Standard Bildhöhe:',
+      'admin_image_width_captcha' => 'Standard Bildbreite:',
+      'admin_php_standard' => 'Standardeinstellung von PHP nutzen',
+      'admin_pic_quality_captcha' => 'Qualität der Bilder:',
+      'admin_save_php_errors_info' => 'Diese Option sollte nur zu Debugging-Zwecken aktiviert werden.',
+      'admin_setting_posts_topics_info' => 'Minimale und Maximale Längen, Beitragsänderungen und andere Einstellungen zu Beiträgen.',
+      'admin_spambot_posting' => NULL,
+      'admin_spambot_registration' => NULL,
+      'admin_topics_posts_pdf' => NULL,
+      'admin_wave_filter_captcha' => 'Wende den "Wellen"-Filter auf das Spamschutz-Bild an:',
+      'admin_captcha_type0' => 'Nicht aktiviert',
+      'admin_captcha_type1' => 'Standard (VeriWord)',
+      'admin_captcha_type2' => 'reCaptcha',
+      'admin_enable_change_vote' => 'Erlaubt sich bei einer Umfrage umzuentscheiden',
+      'admin_enable_change_vote_info' => 'Diese Option ermöglicht es Mitgliedern, sich, nach ihrer Stimmabgabe, bei einer Umfrage nochmal umzuentscheiden.',
+      'admin_e_none' => 'Keine Fehlermeldungen ausgeben',
+      'admin_recaptcha_private_key' => 'Interner Schlüssel:',
+      'admin_recaptcha_private_key_info' => '\'Private Key\', der Ihnen von {$re_link} zur Verfügung gestellt wurde.',
+      'admin_recaptcha_public_key' => 'Öffentlicher Schlüssel:',
+      'admin_recaptcha_public_key_info' => '\'Public Key\', der Ihnen von {$re_link} zur Verfügung gestellt wurde.',
+      'admin_spambot_recaptcha' => 'reCaptcha-Einstellungen',
+      'admin_spambot_recaptcha_info' => 'reCaptcha ist ein Online-Service zur Spam-Abwehr. Sie brauchen einen persönlichen Schlüssel um diesen Service in Anspruch zu nehmen (siehe unten). Ein Bild mit zwei Wörtern wird den Nutzern angezeigt. Diese Überprüfung unterstützt Audio und erlaubt blinden Benutzern sich ebenfalls zu registrieren.',
+      'admin_spambot_veriword' => 'VeriWord-Einstellungen',
+      'admin_spambot_veriword_info' => 'VeriWord ist der Standard-Spam-Schutz von Viscacha. Ein Bild, bestehend aus mehreren Zeichen in variierenden Schriften/Farben, wird dem Nutzer angezeigt. Das Verhalten und Aussehen des Bildes wird von diversen Optionen bestimmt, die unten angepasst werden können.',
     ),
     'language' =>
     array (
-      'admin_allow_vcard_dl' => NULL,
-      'admin_allow_vcard_dl_guest' => NULL,
-      'admin_allow_vcard_dl_guest_info' => NULL,
-      'admin_allow_vcard_dl_info' => NULL,
-      'admin_enable_jabber_support' => NULL,
-      'admin_enable_jabber_support_info' => NULL,
-      'admin_enable_spellchecker' => NULL,
-      'admin_enable_spellchecker_info' => NULL,
-      'admin_e_parse' => NULL,
-      'admin_jabber_edit' => NULL,
-      'admin_jabber_password' => NULL,
-      'admin_jabber_password_info' => NULL,
-      'admin_jabber_server' => NULL,
-      'admin_jabber_server_info' => NULL,
-      'admin_jabber_username' => NULL,
-      'admin_jabber_username_info' => NULL,
-      'admin_number_of_smileys' => NULL,
-      'admin_number_of_smileys_info' => NULL,
-      'admin_php_standard' => 'Do not show PHP error messages',
-      'admin_pspell_available' => NULL,
-      'admin_pspell_not_available' => NULL,
-      'admin_select_spell_check' => NULL,
-      'admin_setting_jabber' => NULL,
-      'admin_setting_jabber_info' => NULL,
-      'admin_setting_profile_edit_info' => 'Profile settings, fields lengths and more.',
-      'admin_setting_spell_check' => NULL,
-      'admin_setting_spell_check_info' => NULL,
-      'admin_spellcheck_edit' => NULL,
-      'admin_spellcheck_mysql_php' => NULL,
-      'admin_spellcheck_pspell_aspell' => NULL,
-      'admin_spellcheck_system' => NULL,
-      'admin_spellcheck_system_info' => NULL,
-      'admin_spellcheck_textfile_php' => NULL,
-      'admin_test_filesystem_chmods' => NULL,
-      'admin_test_filesystem_chmods_info' => NULL,
-      'admin_doclang_desc' => 'This setting specifies the fallback language that will be shown if the document is not available in the language chosen by the member. Notice<A[Notice|Tip]>: If there is also no document in the language specified here, the standard forum language is used. If this language is also not available, an arbitrary will be chosen.',
-      'admin_doclang_title' => 'Standard fallback language for documents:',
-      'admin_login_attempts' => 'Limit login attempts',
-      'admin_login_attempts_blocktime' => 'Time a user will be locked out of the forums',
-      'admin_login_attempts_blocktime_info' => 'Enter in minutes the time that a user will not be able to access the forums after entering the above amount of wrong passwords. The bans will be shown on the banned ip overview.',
-      'admin_login_attempts_max' => 'Maximum number of login attempts',
-      'admin_login_attempts_max_info' => 'Insert the number of times a user can submit a wrong password when logging in, before they are unable to access the board temporarily. Set this to 0 to disable the feature completely.',
-      'admin_login_attempts_time' => 'Time before number of wrong passwords is reset',
-      'admin_login_attempts_time_info' => 'Enter in minutes the time before any wrong passwords submitted by a user is reset to 0. Please note also that once a user has successfully logged in, the data is deleted for that person.',
+      'admin_activate_pdf_topics' => NULL,
+      'admin_activate_pdf_topics_info' => NULL,
+      'admin_activate_spambot_at_guests' => 'Spam-Bot-Protection at Posting of guests',
+      'admin_activate_spambot_registration' => 'Spam-Bot-Protection at Registration:',
+      'admin_compress_pdf' => NULL,
+      'admin_compress_pdf_info' => NULL,
+      'admin_dyeing_letters_captcha' => 'Dyeing letters:',
+      'admin_examples_captcha' => NULL,
+      'admin_examples_captchaimg_textcodes' => NULL,
+      'admin_examples_textcodes' => NULL,
+      'admin_e_all' => 'All errors, warnings and notices',
+      'admin_e_error' => 'Only fatal error messages',
+      'admin_e_notice' => NULL,
+      'admin_e_strict' => NULL,
+      'admin_e_warning' => NULL,
+      'admin_file_typ_captcha' => 'File type:',
+      'admin_ftp_directory_does_not_exist' => 'Directory "{$ftp_path}" does not exist!',
+      'admin_image_height_captcha' => 'Standard image height:',
+      'admin_image_width_captcha' => 'Standard image width:',
+      'admin_php_standard' => 'Standardeinstellung von PHP nutzen',
+      'admin_pic_quality_captcha' => 'Quality of the picture:',
+      'admin_save_php_errors_info' => 'This option should be activated only for debugging purposes!',
+      'admin_setting_posts_topics_info' => 'Minimum lengths and maximum lengths, editing and other settings on posts and topics.',
+      'admin_spambot_posting' => NULL,
+      'admin_spambot_registration' => NULL,
+      'admin_topics_posts_pdf' => NULL,
+      'admin_wave_filter_captcha' => 'Use "wave"-filter on Spam-Bot-Protection-Picture:',
+      'admin_captcha_type0' => 'Not active',
+      'admin_captcha_type1' => 'Standard (VeriWord)',
+      'admin_captcha_type2' => 'reCaptcha',
+      'admin_enable_change_vote' => 'Allow to change one\'s mind of a survey',
+      'admin_enable_change_vote_info' => 'This option allows members to change their vote in surveys again.',
+      'admin_e_none' => 'Keine Fehlermeldungen ausgeben',
+      'admin_recaptcha_private_key' => 'Private Key:',
+      'admin_recaptcha_private_key_info' => 'Private key provided to you by {$re_link}.',
+      'admin_recaptcha_public_key' => 'Public Key:',
+      'admin_recaptcha_public_key_info' => 'Public key provided to you by {$re_link}.',
+      'admin_spambot_recaptcha' => 'reCaptcha Settings',
+      'admin_spambot_recaptcha_info' => 'reCaptcha is an online service to protect against spam. You\'ll need to get your personal keys to use this service (see below). An image containing two words will be shown to the user. This verification supports audio, allowing blind users to register.',
+      'admin_spambot_veriword' => 'VeriWord Settings',
+      'admin_spambot_veriword_info' => 'VeriWord is the default spam protection of Viscacha. An image consisting of letters in varying fonts/colors will be shown to the user. The appearance of this image is dictated by several options that you may control below.',
     ),
   ),
-  'admin/spider' =>
+  'classes' =>
   array (
     'language_de' =>
     array (
-      'admin_spider_no_pending_bots' => 'Es sind derzeit leider keine neu erkannten Spider vorhanden.',
-      'admin_spider_bots' => 'Bots',
+      'mailer_signing' => 'Signierungsfehler: ',
     ),
     'language' =>
     array (
-      'admin_spider_bots' => 'Bots',
-    ),
-  ),
-  'bbcodes' =>
-  array (
-    'language_de' =>
-    array (
-      'bbcodes_help' => NULL,
-      'bbcodes_note_prompt1' => NULL,
-      'bbcodes_note_prompt2' => NULL,
-      'bbcodes_url_prompt1' => NULL,
-      'bbcodes_url_promtp2' => NULL,
-      'bbcodes_code_short' => 'Code',
-      'bbcodes_create_table' => 'Neue Tabelle erstellen',
-      'bbcodes_table_cols' => 'Spalten',
-      'bbcodes_table_insert_table' => 'Tabelle einfügen',
-      'bbcodes_table_rows' => 'Zeilen',
-      'bbcodes_table_show_head' => 'Erste Zeile als Titelzeile benutzen',
-      'geshi_bbcode_nohighlighting' => 'Kein Highlighting',
-      'more_smileys' => 'mehr Smileys',
-      'textarea_check_length' => 'Überprüfe Textlänge',
-      'textarea_decrease_size' => 'Verkleinern',
-      'textarea_increase_size' => 'Vergrößern',
-    ),
-    'language' =>
-    array (
-      'bbcodes_help' => NULL,
-      'bbcodes_note_prompt1' => NULL,
-      'bbcodes_note_prompt2' => NULL,
-      'bbcodes_url_prompt1' => NULL,
-      'bbcodes_url_promtp2' => NULL,
-      'bbcodes_code_short' => 'Code',
-      'bbcodes_create_table' => 'Create new table',
-      'bbcodes_table_cols' => 'Columns',
-      'bbcodes_table_insert_table' => 'Insert Table',
-      'bbcodes_table_rows' => 'Rows',
-      'bbcodes_table_show_head' => 'Use first row as header',
-      'geshi_bbcode_nohighlighting' => 'No Syntax Highlighting',
-      'more_smileys' => 'more Smilies',
-      'textarea_check_length' => 'Check length',
-      'textarea_decrease_size' => 'Decrease Size',
-      'textarea_increase_size' => 'Increase Size',
+      'mailer_signing' => 'Signing Error: ',
     ),
   ),
   'global' =>
   array (
     'language_de' =>
     array (
-      'bb_ext_sourcecode' => NULL,
-      'geshi_bbcode_desc' => NULL,
-      'geshi_bbcode_nohighlighting' => NULL,
-      'geshi_bbcode_title' => NULL,
-      'geshi_hlcode_options' => NULL,
-      'geshi_hlcode_title' => '{$lang_name}-Quelltext:',
-      'im_yahoo_2' => NULL,
-      'log_wrong_data' => 'Sie haben falsche Benutzerdaten angegeben oder Sie sind noch nicht freigeschaltet. {$can_try}<br />Benutzen Sie die <a href="log.php?action=pwremind">Passwort vergessen</a>-Funktion wenn Sie Ihr Passwort nicht mehr wissen. Falls Sie keine Freischalt-E-Mail bekommen haben, klicken Sie <a href="register.php?action=resend">hier</a>.',
-      'more_smileys' => NULL,
-      'pages_sep' => '...',
-      'pm_index_old' => 'Gelesene Nachrichten dieser Woche',
-      'post_copy' => NULL,
-      'post_copy_desc' => NULL,
-      'profile_vcard' => NULL,
-      'spellcheck' => NULL,
-      'spellcheck_changeto' => NULL,
-      'spellcheck_close' => NULL,
-      'spellcheck_disabled' => NULL,
-      'spellcheck_ignore' => NULL,
-      'spellcheck_ignore_all' => NULL,
-      'spellcheck_in_progress' => NULL,
-      'spellcheck_notfound' => NULL,
-      'spellcheck_options' => NULL,
-      'spellcheck_replace' => NULL,
-      'spellcheck_replace_all' => NULL,
-      'spellcheck_undo' => NULL,
-      'textarea_check_length' => NULL,
-      'textarea_decrease_size' => NULL,
-      'textarea_increase_size' => NULL,
-      'upload_intro1' => 'Um an diesen Beitrag eine Datei anzufügen, klicken Sie auf die "Durchsuchen" Schaltfläche und wählen Sie eine Datei aus. Klicken Sie dann auf "Senden", um den Vorgang abzuschließen.<br /><br />Erlaubte Dateitypen: {$filetypes}<br />Maximale Dateigröße: {$filesize}',
-      'vcard_note' => NULL,
-      'bbcode_help' => 'Hilfe',
-      'doc_wrong_language_shown' => 'Leider ist kein Dokument in der von Ihnen gewählten Sprache vorhanden, daher wird das Dokument in einer anderen Sprache angezeigt!',
-      'general_notice_title' => 'Hinweis!',
-      'link_rel_atom' => 'Atom Newsfeed',
-      'link_rel_opml' => 'OPML Newsfeed',
-      'link_rel_print' => 'Druckversion',
-      'link_rel_rss' => 'RSS Newsfeed',
-      'login_attempts_banned' => 'Ihre IP-Adresse ({$ip}) wurde temporär gebannt, da Sie zu viele Anmeldeversuche mit falschen Benutzerdaten durchgeführt haben.',
-      'log_wrong_data_block' => 'Sie wurden temporär gebannt, da Sie die maximale Anzahl an Anmeldeversuchen in einer bestimmten Zeit überschritten haben. Mehr Informationen erhalten Sie auf der nächsten Seite...',
-      'log_x_attempts' => 'Sie haben noch {$attempts} Versuche sich anzumelden!',
-      'pages_sep2' => ', ',
-      'upload_intro1b' => 'Maxmimale Bildabmessungen: {@config->tpcwidth} x {@config->tpcheight} Pixel',
+      'pdf_attachments' => NULL,
+      'pdf_attachments_filesize' => NULL,
+      'pdf_footer' => NULL,
+      'pdf_postinfo' => NULL,
+      'pdf_vote' => NULL,
+      'pdf_vote_result' => NULL,
+      'pdf_vote_voters' => NULL,
+      'register_veriword' => 'Bitte geben Sie zum Spamschutz die Zeichenfolge aus dem Bild ein.',
+      'showtopic_options_pdf' => NULL,
+      'error_no_forum_permissions' => 'Sie haben leider keine Berechtigung die versteckten Foren anzusehen. Bitte melden Sie sich mit den nötigen Rechten an!',
+      'vote_change_option' => 'Votum ändern',
+      'vote_go_form' => 'Votum abgeben',
     ),
     'language' =>
     array (
-      'bb_ext_sourcecode' => NULL,
-      'geshi_bbcode_desc' => NULL,
-      'geshi_bbcode_nohighlighting' => NULL,
-      'geshi_bbcode_title' => NULL,
-      'geshi_hlcode_options' => NULL,
-      'geshi_hlcode_title' => 'Source code ({$lang_name}):',
-      'im_yahoo_2' => NULL,
-      'log_wrong_data' => 'You entered invalid login data or your account has not yet been activated. {$can_try}<br />Did you <a href="log.php?action=pwremind">forget your password</a>? If you have not received a validation e-mail click <a href="register.php?action=resend">here</a>.',
-      'more_smileys' => NULL,
-      'pages_sep' => '...',
-      'pm_index_old' => 'Read private messages of this week',
-      'post_copy' => NULL,
-      'post_copy_desc' => NULL,
-      'profile_vcard' => NULL,
-      'spellcheck' => NULL,
-      'spellcheck_changeto' => NULL,
-      'spellcheck_close' => NULL,
-      'spellcheck_disabled' => NULL,
-      'spellcheck_ignore' => NULL,
-      'spellcheck_ignore_all' => NULL,
-      'spellcheck_in_progress' => NULL,
-      'spellcheck_notfound' => NULL,
-      'spellcheck_options' => NULL,
-      'spellcheck_replace' => NULL,
-      'spellcheck_replace_all' => NULL,
-      'spellcheck_undo' => NULL,
-      'textarea_check_length' => NULL,
-      'textarea_decrease_size' => NULL,
-      'textarea_increase_size' => NULL,
-      'upload_intro1' => 'To attach a file to this post, click the file upload button, select a file and press "submit" to start the upload.<br /><br />Allowed filetypes: {$filetypes}<br />max filesize: {$filesize}',
-      'vcard_note' => NULL,
-      'bbcode_help' => 'Help',
-      'doc_wrong_language_shown' => 'Unfortunately the document you requested is not available in the language you have chosen. Therefore the document will be displayed in another language!',
-      'general_notice_title' => 'Notice!',
-      'link_rel_atom' => 'Atom Newsfeed',
-      'link_rel_opml' => 'OPML Newsfeed',
-      'link_rel_print' => 'Print version',
-      'link_rel_rss' => 'RSS Newsfeed',
-      'login_attempts_banned' => 'Your IP-Adress ({$ip}) has been banned temporarily because you have reached the maximum number of failed login attempts.',
-      'log_wrong_data_block' => 'You have been blocked temporarily, because you reached the maximum login attempts allowed in a certain time range. More information you can find on the follwoing page...',
-      'log_x_attempts' => 'You have {$attempts} login attempts left!',
-      'pages_sep2' => ', ',
-      'upload_intro1b' => 'Max. image size: {@config->tpcwidth} x {@config->tpcheight} px',
-    ),
-  ),
-  'javascript' =>
-  array (
-    'language_de' =>
-    array (
-      'js_no_changed' => NULL,
-      'js_no_found' => NULL,
-      'js_no_sug' => NULL,
-      'js_one_changed' => NULL,
-      'js_sc_complete' => NULL,
-      'js_submitted' => NULL,
-      'js_x_changed' => NULL,
-      'bbcodes_note_prompt1' => 'Bitte Erklärung für ein Wort eingeben',
-      'bbcodes_note_prompt2' => 'Bitte das zu erklärende Wort eingeben',
-      'bbcodes_url_prompt1' => 'Bitte geben Sie die URL (mit http://) an',
-      'bbcodes_url_prompt2' => 'Bitte geben Sie den Linktext an',
-      'js_page_jumpto' => 'Geben Sie die Seite ein, zu der Sie springen möchten:',
-    ),
-    'language' =>
-    array (
-      'js_no_changed' => NULL,
-      'js_no_found' => NULL,
-      'js_no_sug' => NULL,
-      'js_one_changed' => NULL,
-      'js_sc_complete' => NULL,
-      'js_submitted' => NULL,
-      'js_x_changed' => NULL,
-      'bbcodes_note_prompt1' => 'Please enter the definition of the word',
-      'bbcodes_note_prompt2' => 'Please enter the word to be defined',
-      'bbcodes_url_prompt1' => 'Please provide URL (with http://)',
-      'bbcodes_url_prompt2' => 'Please provide text for the link',
-      'js_page_jumpto' => 'Enter the page number you wish to go to:',
+      'pdf_attachments' => NULL,
+      'pdf_attachments_filesize' => NULL,
+      'pdf_footer' => NULL,
+      'pdf_postinfo' => NULL,
+      'pdf_vote' => NULL,
+      'pdf_vote_result' => NULL,
+      'pdf_vote_voters' => NULL,
+      'register_veriword' => 'Please enter the chard in the image. This is to avoid spam.',
+      'showtopic_options_pdf' => NULL,
+      'error_no_forum_permissions' => 'Sorry, you haven\'t got the permission to view the hidden forums. Please log in with the necessary permissions!',
+      'vote_change_option' => 'Change vote',
+      'vote_go_form' => 'Cast your vote',
     ),
   ),
   'modules' =>
   array (
     'language_de' =>
     array (
-      'last_posts_info_reply' => 'Dieses Thema enthält mehr als {$num} Beiträge. Klicken Sie <a href=\'showtopic.php?id={@info->id}\' target=\'_blank\'>hier</a>, um das ganze Thema zu lesen.',
+      'ps_nav_package_overview' => NULL,
+      'ps_nav_title' => NULL,
     ),
     'language' =>
     array (
-      'last_posts_info_reply' => 'This topic contains more than {$num} posts. Click <a href="showtopic.php?id={@info->id}" target="_blank">here</a>, to view the complete topic.',
+      'ps_nav_package_overview' => NULL,
+      'ps_nav_title' => NULL,
     ),
   ),
   'settings' =>
   array (
     'language_de' =>
     array (
-      'compatible_version' => '0.8 RC5',
+      'compatible_version' => '0.8 RC6',
     ),
     'language' =>
     array (
-      'compatible_version' => '0.8 RC5',
+      'compatible_version' => '0.8 RC6',
     ),
   ),
   'wwo' =>
   array (
     'language_de' =>
     array (
-      'wwo_fallback' => NULL,
-      'wwo_misc_board_rules' => 'liest die Forenregln eines Forums',
-      'wwo_pdf' => 'Betrachtet die PDF-Version eines Themas: <a href="pdf.php?id={$id}">{$title}</a>',
-      'wwo_popup_hlcode' => NULL,
-      'wwo_profile' => 'Betrachtet ein Profil',
-      'wwo_profile_send' => 'Verschickt über das Profil eine Nachricht',
-      'wwo_showtopic' => 'Liest ein Thema: <a href="showtopic.php?id={$id}">{$title}</a>',
-      'wwo_spellcheck' => NULL,
-      'wwo_addreply_fallback' => 'Schreibt eine Antwort zu einem Thema',
-      'wwo_docs_fallback' => 'Betrachtet eine Seite',
-      'wwo_pdf_fallback' => 'Betrachtet die PDF-Version eines Themas',
-      'wwo_popup_showpost_fallback' => 'Betrachtet einen einzelnen Beitrag',
-      'wwo_print_fallback' => 'Druckt ein Thema',
-      'wwo_showforum_fallback' => 'Betrachtet ein Forum',
-      'wwo_showtopic_fallback' => 'Liest ein Thema',
+      'wwo_pdf' => NULL,
+      'wwo_pdf_fallback' => NULL,
     ),
     'language' =>
     array (
-      'wwo_addreply' => 'is writing a reply to the topic <a href="showtopic.php?id={$id}">{$title}</a>',
-      'wwo_fallback' => NULL,
-      'wwo_misc_board_rules' => 'is reading the rules of a forum',
-      'wwo_pdf' => 'is viewing the PDF file of the following topic: <a href="pdf.php?id={$id}">{$title}</a>',
-      'wwo_popup_hlcode' => NULL,
-      'wwo_popup_showpost' => 'is reading the following post: <a href="popup.php?action=showpost&id={$id}" target="showpost" onclick="showpost(this)">{$title}</a>',
-      'wwo_print' => 'is printing the following topic: <a href="print.php?id={$id}">{$title}</a>',
-      'wwo_profile' => 'is viewing a profile',
-      'wwo_profile_send' => 'is sending a message to a member',
-      'wwo_showforum' => 'is viewing a board',
-      'wwo_showtopic' => 'is reading the following topic: <a href="showtopic.php?id={$id}">{$title}</a>',
-      'wwo_spellcheck' => NULL,
-      'wwo_addreply_fallback' => 'is writing a reply to a topic',
-      'wwo_docs_fallback' => 'is viewing the page',
-      'wwo_pdf_fallback' => 'is viewing the PDF file of a topic',
-      'wwo_popup_showpost_fallback' => 'is reading a post',
-      'wwo_print_fallback' => 'is printing a topic',
-      'wwo_showtopic_fallback' => 'is reading a topic',
+      'wwo_pdf' => NULL,
+      'wwo_pdf_fallback' => NULL,
     ),
   ),
 );
 updateLanguageFiles($ini);
 echo "- Language files updated.<br />";
+
+// MySQL
+$file = 'install/package/update/db/db_changes.sql';
+//$file = 'package/'.$package.'/db/db_changes.sql';
+$sql = file_get_contents($file);
+$sql = str_ireplace('{:=DBPREFIX=:}', $db->prefix(), $sql);
+$db->multi_query($sql);
+echo "- Database tables updated.<br />";
+
+// Old files
+$filesystem->unlink('admin/html/images/captcha.jpg');
+$filesystem->unlink('admin/html/images/captcha2.jpg');
+$filesystem->unlink("pdf.php");
+$filesystem->unlink('templates/editor/wysiwyg-color.js');
+$filesystem->rmdirr("classes/fpdf/");
+$filesystem->rmdirr("temp/pdfimages");
+$filesystem->rmdirr("templates/editor/popups");
+$dir = dir('images');
+while (false !== ($entry = $dir->read())) {
+	$path = "{$dir->path}/{$entry}";
+	if (is_dir($path) && is_id($entry)) {
+		$filesystem->unlink("{$path}/pdf.gif");
+	}
+}
+echo "- Old files deleted.<br />";
 
 // Set incompatible packages inactive
 $db->query("UPDATE {$db->pre}packages SET active = '0' WHERE internal = 'viscacha_quick_reply'");

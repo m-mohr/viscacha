@@ -35,12 +35,15 @@
 	line-height: 2px;
 }
 * html .editor_textarea_outer .popup {
-	border-top-width: 0px;
+	height: expression( this.scrollHeight > 249 ? "250px" : "auto" );
+	overflow-x: expression( this.scrollHeight > 249 && this.scrollWidth <= 200 ? "hidden" : "auto" );
 }
 * html .editor_textarea_outer .popup strong {
-	border-width: 0px;
-	border-top: 1px solid #888888;
+	width: 196px;
 }
 * html .editor_textarea_outer .popup li {
-	border-top: 1px solid #c4c4c4;
+	width: 194px;
+}
+.bb_blockcode li {
+	white-space: normal;
 }

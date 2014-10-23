@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -41,12 +41,12 @@ function admin_customsave($uid) {
 		else {
 			$options = $value;
 		}
-		$upquery[$field] = "{$field} = '($options)'";
+		$upquery[$field] = "{$field} = '{$options}'";
 	}
 
 	if (count($upquery) > 0) {
 		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
-		$upquery['ufid'] = "ufid = '($uid)'";
+		$upquery['ufid'] = "ufid = '{$uid}'";
 		$sqldata = implode(', ', $upquery);
 		if($db->num_rows($query) == 0) {
 			$db->query("INSERT INTO {$db->pre}userfields SET {$sqldata}");
@@ -151,10 +151,68 @@ function admin_customfields($uid) {
 	return $customfields;
 }
 
-function addprofile_customfields() {
+function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'error_customfieldtoolong') {
+	global $db, $gpc, $lang;
+	$error = array();
+	$upquery = array();
+	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
+	while($profilefield = $db->fetch_assoc($query)) {
+		$profilefield['type'] = $gpc->prepare($profilefield['type']);
+		$thing = explode("\n", $profilefield['type'], 2);
+		$type = $thing[0];
+		$field = "fid{$profilefield['fid']}";
+
+		$value = $gpc->get($field, str);
+
+		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
+			$error[] = $lang->phrase($e1);
+		}
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+			$error[] = $lang->phrase($e2);
+		}
+
+		if($type == "multiselect" || $type == "checkbox") {
+			if (is_array($value)) {
+				$upquery[$field] = implode("\n", $value);
+			}
+			else {
+				$upquery[$field] = '';
+			}
+		}
+		else {
+			$upquery[$field] = $value;
+		}
+	}
+	return array(
+		'data' => $upquery,
+		'error' => $error
+	);
+}
+
+function addprofile_customsave($data, $uid) {
+	global $db;
+	if (count($data) > 0) {
+		$fields = $db->list_fields("{$db->pre}userfields");
+		$sqldata = array();
+		foreach ($fields as $field) {
+			if (isset($data[$field])) {
+				$sqldata[$field] = "'{$data[$field]}'";
+			}
+			else {
+				$sqldata[$field] = "''";
+			}
+		}
+		$sqldata['ufid'] = "'{$uid}'";
+		$fields = implode(', ', $fields);
+		$sqldata = implode(', ', $sqldata);
+		$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
+	}
+}
+
+function addprofile_customfields($data = array()) {
 	global $db, $gpc;
 	$customfields = array();
-	$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE required = '1' AND editable != '0' ORDER BY disporder");
+	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE required = '1' AND editable != '0' ORDER BY disporder");
 	while($profilefield = $db->fetch_assoc($query)) {
 		$select = '';
 		$profilefield['type'] = $gpc->prepare($profilefield['type']);
@@ -172,8 +230,14 @@ function addprofile_customfields() {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
+					if (isset($data[$field]) && $data[$field] == $val) {
+						$selected = ' selected="selected"';
+					}
+					else {
+						$selected = '';
+					}
 					$val = str_replace("\n", "\\n", trim($val));
-					$select .= "<option value=\"{$key}\">{$val}</option>";
+					$select .= "<option value=\"{$key}\"{$selected}>{$val}</option>";
 				}
 				if(!$profilefield['length']) {
 					$profilefield['length'] = 3;
@@ -186,8 +250,14 @@ function addprofile_customfields() {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
+					if (isset($data[$field]) && $data[$field] == $val) {
+						$selected = ' selected="selected"';
+					}
+					else {
+						$selected = '';
+					}
 					$val = str_replace("\n", "\\n", trim($val));
-					$select .= "<option value=\"{$key}\">{$val}</option>";
+					$select .= "<option value=\"{$key}\"{$selected}>{$val}</option>";
 				}
 				if(!$profilefield['length']) {
 					$profilefield['length'] = 1;
@@ -200,7 +270,13 @@ function addprofile_customfields() {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\" /> {$val}<br />";
+					if (isset($data[$field]) && $data[$field] == $val) {
+						$checked = ' checked="checked"';
+					}
+					else {
+						$checked = '';
+					}
+					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"{$checked} /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
@@ -210,13 +286,25 @@ function addprofile_customfields() {
 			if(is_array($expoptions)) {
 				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
-					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\" /> {$val}<br />";
+					if (isset($data[$field]) && $data[$field] == $val) {
+						$checked = ' checked="checked"';
+					}
+					else {
+						$checked = '';
+					}
+					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"{$checked} /> {$val}<br />";
 				}
 				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
 			}
 		}
 		elseif($type == "textarea") {
-			$code = "<textarea id=\"{$field}\" class=\"label\" name=\"{$field}\" rows=\"5\" cols=\"40\"></textarea>";
+			if (!empty($data[$field])) {
+				$content = $gpc->prepare($data[$field]);
+			}
+			else {
+				$content = '';
+			}
+			$code = "<textarea id=\"{$field}\" class=\"label\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$content}</textarea>";
 		}
 		else {
 			$code = "<input id=\"{$field}\" class=\"label\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." />";
@@ -233,7 +321,7 @@ function addprofile_customfields() {
 	return $customfields;
 }
 
-function editprofile_customsave($editable, $uid) {
+function editprofile_customsave($editable, $uid, $save = true) {
 	global $db, $lang, $gpc;
 	$error = array();
 	$upquery = array();
@@ -243,7 +331,7 @@ function editprofile_customsave($editable, $uid) {
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
 
-		$value = $gpc->get($field, none);
+		$value = $gpc->get($field, str);
 
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('error_missingrequiredfield');
@@ -254,19 +342,18 @@ function editprofile_customsave($editable, $uid) {
 
 		if(($type == "multiselect" || $type == "checkbox") && is_array($value)) {
 			if (is_array($value)) {
-				$options = implode("\n", $value);
+				$upquery[$field] = implode("\n", $value);
 			}
 			else {
-				$options = '';
+				$upquery[$field] = '';
 			}
 		}
 		else {
-			$options = $value;
+			$upquery[$field] = $value;
 		}
-		$upquery[$field] = $gpc->save_str($options);
 	}
 
-	if (count($error) == 0 && count($upquery) > 0) {
+	if (count($error) == 0 && count($upquery) > 0 && $save == true) {
 		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
 		if($db->num_rows($query) == 0) {
 			$fields = $db->list_fields("{$db->pre}userfields");
@@ -282,7 +369,7 @@ function editprofile_customsave($editable, $uid) {
 			$sqldata['ufid'] = "'{$uid}'";
 			$fields = implode(', ', $fields);
 			$sqldata = implode(', ', $sqldata);
-			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})", __LINE__, __FILE__);
+			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
 		}
 		else {
 			$sqldata = array();
@@ -290,7 +377,7 @@ function editprofile_customsave($editable, $uid) {
 				$sqldata[] = "{$field} = '{$value}'";
 			}
 			$sqldata = implode(', ', $sqldata);
-			$db->query("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1", __LINE__, __FILE__);
+			$db->query("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1");
 		}
 	}
 

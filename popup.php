@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2009  The Viscacha Project
 
-	Author: Matthias Mohr
-	Publisher: http://www.viscacha.org
+	Author: Matthias Mohr (et al.)
+	Publisher: The Viscacha Project, http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ if ($_GET['action'] == "filetypes") {
 		error($lang->phrase('query_string_error'), 'javascript:self.close();');
 	}
 
-	$result = $db->query("SELECT * FROM {$db->pre}filetypes WHERE extension LIKE '%{$_GET['type']}%'",__LINE__,__FILE__);
+	$result = $db->query("SELECT * FROM {$db->pre}filetypes WHERE extension LIKE '%{$_GET['type']}%'");
 	$nr = $db->num_rows($result);
 
 	$cache = array();
@@ -73,7 +73,7 @@ elseif ($_GET['action'] == "showpost") {
 		{$sql_join}
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
-	",__LINE__,__FILE__);
+	");
 
 	$found = $db->num_rows($result);
 	if ($found == 1) {
@@ -104,7 +104,7 @@ elseif ($_GET['action'] == "showpost") {
 
 	($code = $plugins->load('popup_showpost_start')) ? eval($code) : null;
 	if ($config['tpcallow'] == 1) {
-		$uploads = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE tid = ".$_GET['id'],__LINE__,__FILE__);
+		$uploads = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE tid = ".$_GET['id']);
 	}
 	$inner['upload_box'] = '';
 
@@ -193,7 +193,7 @@ elseif ($_GET['action'] == "edithistory") {
 		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
-	",__LINE__,__FILE__);
+	");
 
 	$found = $db->num_rows($result);
 	if ($found == 1) {
@@ -263,7 +263,7 @@ elseif ($_GET['action'] == "postrating") {
 
 	if ($my->vlogin) {
 
-		$result = $db->query("SELECT * FROM {$db->pre}replies WHERE id = '{$_GET['id']}'", __LINE__, __FILE__);
+		$result = $db->query("SELECT * FROM {$db->pre}replies WHERE id = '{$_GET['id']}'");
 		$post = $db->fetch_assoc($result);
 
 		if ($post['name'] == $my->id) {
@@ -274,13 +274,13 @@ elseif ($_GET['action'] == "postrating") {
 		SELECT mid, pid, tid, rating
 		FROM {$db->pre}postratings
 		WHERE mid = '{$my->id}' AND pid = '{$_GET['id']}'
-		", __LINE__, __FILE__);
+		");
 		$rating = $db->fetch_assoc($result);
 		$rating['rating'] = intval($rating['rating']);
 
 		if ($post['name'] != $my->id) {
 			if (!empty($rtg) && $rating['rating'] != 1 && $rating['rating'] != -1) {
-				$result = $db->query("SELECT topic_id, name, email, guest FROM {$db->pre}replies WHERE id = '{$_GET['id']}'", __LINE__, __FILE__);
+				$result = $db->query("SELECT topic_id, name, email, guest FROM {$db->pre}replies WHERE id = '{$_GET['id']}'");
 				$topic = $db->fetch_assoc($result);
 				if ($topic['guest'] == 0) {
 					$aid = $topic['name'];
@@ -289,7 +289,7 @@ elseif ($_GET['action'] == "postrating") {
 					$aid = 0;
 				}
 
-				$db->query("INSERT INTO {$db->pre}postratings SET aid = '{$aid}', mid = '{$my->id}', pid = '{$_GET['id']}', tid = '{$topic['topic_id']}', rating = '{$rtg}'", __LINE__, __FILE__);
+				$db->query("INSERT INTO {$db->pre}postratings SET aid = '{$aid}', mid = '{$my->id}', pid = '{$_GET['id']}', tid = '{$topic['topic_id']}', rating = '{$rtg}'");
 				$rating = array(
 					'rating' => $rtg,
 					'pid' => $_GET['id'],

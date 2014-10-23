@@ -47,8 +47,7 @@ class UniversalCodeCache extends CacheItem {
 			$geshi->set_encoding($lang->charset());
 			$geshi->enable_classes(false);
 			$geshi->set_header_type(GESHI_HEADER_DIV);
-			// Disable keyword linking until the corrupted links in geshi have been fixed
-			$geshi->enable_keyword_links(false);
+			$geshi->enable_keyword_links(true);
 			$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
 			if (!$this->hasLanguage()) {
 				$geshi->enable_highlighting(false);

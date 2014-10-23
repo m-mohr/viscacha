@@ -12,7 +12,7 @@ class cache_cat_bid extends CacheItem {
 		    $result = $db->query("
 			SELECT id, name, parent, position, description, topics, replies, opt, optvalue, forumzahl, topiczahl, prefix, invisible, readonly, auto_status, active_topic, count_posts, reply_notification, topic_notification, message_active, message_title, message_text
 			FROM {$db->pre}forums
-			",__LINE__,__FILE__);
+			");
 		    $this->data = array();
 		    while ($row = $db->fetch_assoc($result)) {
 		    	$row['bid'] = $cat_cache[$row['parent']]['parent'];
