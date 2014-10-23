@@ -25,4 +25,4 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `lid` smallint(4) unsigned NOT NULL default '0',
   `post_order` enum('-1','0','1') NOT NULL DEFAULT '-1',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

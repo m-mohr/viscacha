@@ -4,4 +4,4 @@ CREATE TABLE `{:=DBPREFIX=:}votes` (
   `aid` mediumint(7) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `aid` (`aid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

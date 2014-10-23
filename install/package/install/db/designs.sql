@@ -6,6 +6,6 @@ CREATE TABLE `{:=DBPREFIX=:}designs` (
   `name` varchar(255) NOT NULL default '',
   `publicuse` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM AUTO_INCREMENT=2 ;
 
 INSERT INTO `{:=DBPREFIX=:}designs` (`id`, `template`, `stylesheet`, `images`, `name`, `publicuse`) VALUES (1, 1, 1, 1, 'Viscacha 0.8 Standard', '1');

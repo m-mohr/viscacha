@@ -618,7 +618,6 @@ elseif ($job == 'lang_ignore2') {
 elseif ($job == 'lang_rules') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$rules = $gpc->get('rules', arr_str);
 	$delete = $gpc->get('delete', arr_int);
 	$c = $gpc->get('c', int);
 	$file = "language/{$id}/words/rules.inc.php";

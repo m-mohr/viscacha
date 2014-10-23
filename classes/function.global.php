@@ -200,27 +200,6 @@ function JS_URL($url) {
 	return $url;
 }
 
-function ini_maxupload() {
-	$keys = array(
-		'post_max_size' => 0,
-		'upload_max_filesize' => 0
-	);
-	foreach ($keys as $key => $bytes) {
-		$val = trim(@ini_get($key));
-		$last = strtolower($val{strlen($val)-1});
-		switch($last) {
-			case 'g':
-				$val *= 1024;
-			case 'm':
-				$val *= 1024;
-			case 'k':
-				$val *= 1024;
-		}
-		$keys[$key] = $val;
-	}
-	return min($keys);
-}
-
 /**
  * orders a multidimentional array on the base of a label-key
  *
@@ -408,7 +387,8 @@ function serverload($int = false) {
 }
 
 function convert2path($path, $returnEmptyOnInvalid = false) {
-	$newPath = str_replace (array('\\', '/', '<', '>', ':', '?', '*', '"', "\0", "\r", "\n", "\t"), '_', $path);
+	$newPath = str_replace ('\\', '/', $path);
+	$newPath = str_replace (array('<', '>', ':', '?', '*', '"', "\0", "\r", "\n", "\t"), '_', $newPath);
 	// Replace multiple delimiter chars with only one char
 	$newPath = preg_replace('/_+/', '_', $newPath);
 
@@ -470,10 +450,10 @@ function secure_path($path) {
 		trigger_error('File '.$sd.' does not exist!', E_USER_WARNING);
 	}
 	if (strpos($path, '://') !== FALSE) {
-		die('Hacking attemp (Path: Protocol)');
+		trigger_error('Hacking attemp (Path: Protocol)', E_USER_ERROR);
 	}
 	if (strpos($sd, $dr) === FALSE && file_exists($sd)) {
-		die('Hacking attemp (Path: Not in Document_Root)');
+		trigger_error('Hacking attemp (Path: Not in Document_Root)', E_USER_ERROR);
 	}
 	$sd = str_replace($dr, '', $sd);
 	if (DIRECTORY_SEPARATOR != '/') {
@@ -1059,18 +1039,12 @@ function makecookie($name, $value = '', $expire = 31536000) {
 		return FALSE;
 	}
 
-	if ((isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443') || isset($_SERVER['HTTPS'])) {
-		$secure = true;
-	}
-	else {
-		$secure = false;
-	}
 	if ($expire != null) {
 		$expire = time() + $expire;
 	}
 	else {
 		$expire = 0;
 	}
-	setcookie($name, $value, $expire, null, null, $secure);
+	setcookie($name, $value, $expire, null, null, ini_isSecureHttp());
 }
 ?>

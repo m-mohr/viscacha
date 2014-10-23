@@ -203,6 +203,7 @@ class DB extends DB_Driver { // MySQL
 
 	function escape_string($value) {
 		$this->open();
+		$value = preg_replace("~\\\\(\r|\n)~", "\\ \\1", $value); // NL Hack
 		return mysql_real_escape_string($value, $this->conn);
 	}
 

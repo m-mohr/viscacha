@@ -9,7 +9,7 @@ CREATE TABLE `{:=DBPREFIX=:}spider` (
   `pending_ip` text NOT NULL,
   `bot_ip` text NOT NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  AUTO_INCREMENT=62 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=62 ;
 
 
 INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `name`, `user_agent`, `type`, `last_visit`, `bot_visits`, `pending_agent`, `pending_ip`, `bot_ip`) VALUES

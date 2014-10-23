@@ -1,4 +1,4 @@
-<?php if ($_GET['action'] == 'preview') { ?>
+<?php if (!empty($data['formatted_comment'])) { ?>
 <div class="border">
 <h3><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('preview_title'); ?></h3>
 <div class="bbody">
@@ -71,10 +71,11 @@ if ($p_upload == 1) { ?>
 <hr class="formsep" />
 <label for="digest"><?php echo $lang->phrase('topic_abo'); ?></label>
 <select class="label" name="digest" id="digest" tabindex="10">
-	<option value="0"<?php echo iif($data['digest'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_none'); ?></option>
+	<option value="-1"<?php echo iif($data['digest'] == -1, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_none'); ?></option>
 	<option value="1"<?php echo iif($data['digest'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_s'); ?></option>
 	<option value="2"<?php echo iif($data['digest'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_d'); ?></option>
 	<option value="3"<?php echo iif($data['digest'] == 3, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_w'); ?></option>
+	<option value="9"<?php echo iif($data['digest'] == 9, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_f'); ?></option>
 </select>
 <br class="newinput" />
 <?php } ?>

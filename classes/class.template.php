@@ -67,7 +67,7 @@ class tpl {
 		$this->sent = array();
 
 		if (!$this->setdir()) {
-			die('Template-Directory does not exist');
+			trigger_error('Template-Directory does not exist', E_USER_ERROR);
 		}
 	}
 

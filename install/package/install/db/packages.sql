@@ -6,7 +6,7 @@ CREATE TABLE `{:=DBPREFIX=:}packages` (
   `internal` varchar(100) NOT NULL default '',
   `core` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=10 ;
+) ENGINE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=10 ;
 
 INSERT INTO `{:=DBPREFIX=:}packages` (`id`, `title`, `active`, `version`, `internal`, `core`) VALUES
 (1, 'Related Topics', '1', '0.8', 'viscacha_related_topics', '0'),

@@ -26,7 +26,7 @@ CREATE TABLE `{:=DBPREFIX=:}groups` (
   `core` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `core` (`core`)
-) TYPE=MyISAM AUTO_INCREMENT=6 ;
+) ENGINE=MyISAM AUTO_INCREMENT=6 ;
 
 INSERT INTO `{:=DBPREFIX=:}groups` (`id`, `admin`, `gmod`, `guest`, `members`, `profile`, `pm`, `wwo`, `search`, `team`, `usepic`, `useabout`, `usesignature`, `downloadfiles`, `forum`, `posttopics`, `postreplies`, `addvotes`, `attachments`, `edit`, `voting`, `flood`, `title`, `name`, `core`) VALUES
 (1, '1', '1', '0', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', 1, 'Administrator', 'Administratoren', '1'),

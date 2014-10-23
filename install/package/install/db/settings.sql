@@ -7,7 +7,7 @@ CREATE TABLE `{:=DBPREFIX=:}settings` (
   `value` text NOT NULL,
   `sgroup` smallint(4) unsigned NOT NULL default '0',
   UNIQUE KEY `title` (`title`,`sgroup`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `optionscode`, `value`, `sgroup`) VALUES
 ('relatednum', 'Maximum number of similar topics', 'The maximum number of related topics that will be shown per topic.', 'text', '', '5', 1),

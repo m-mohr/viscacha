@@ -420,7 +420,7 @@ if (!viscacha_function_exists('htmlspecialchars_decode')) {
  * @link		http://php.net/function.array_intersect_key
  * @author		Tom Buskens <ortega@php.net>
  * @version		$Revision: 1.9 $
- * @since		PHP 5.0.2
+ * @since		PHP 5.1.0
  * @require		PHP 4.0.0 (trigger_error)
  */
 if (!viscacha_function_exists('array_intersect_key')) {

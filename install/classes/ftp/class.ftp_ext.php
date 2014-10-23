@@ -3,10 +3,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class ftp extends ftp_base {
 
-	function ftp($verb = false, $le = false) {
-		$this->__construct($verb, $le);
-	}
-
 	function __construct($verb = false, $le = false) {
 		parent::__construct(false, $verb, $le);
 	}

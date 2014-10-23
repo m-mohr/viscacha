@@ -25,7 +25,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
-	die('Error: Hacking Attemp (Config variable)');
+	trigger_error('Error: Hacking Attemp (Config variable)', E_USER_ERROR);
 }
 
 // Gets a file with php-functions

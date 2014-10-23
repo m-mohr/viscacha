@@ -36,7 +36,7 @@ _docs/readme.txt
 <ol class="upd_instr">
  <li>Make sure you have a <b>complete backup of your data</b> (FTP + MySQL)!</li>
  <li><b>You should specified the ftp data in your <a href="../admin.php?addr=<?php echo rawurlencode('admin.php?action=settings&job=ftp'); ?>" target="_blank">Admin Control Panel</a></b> (Viscacha Settings > FTP) before you continue with the next step or the CHMODs may not be set correctly!</li>
- <li>No manual CSS changes this release! All files will be patched automatically. For more information on manual update instructions see _docs/readme.txt.</li>
+ <li>No manual changes this release. All files will be patched automatically. For more information on manual update instructions see _docs/readme.txt.</li>
  <li>After the update <b>check for updates of your installed packages</b> in the ACP!</li>
 </ol>
 </p>

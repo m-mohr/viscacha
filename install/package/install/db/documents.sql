@@ -7,7 +7,7 @@ CREATE TABLE `{:=DBPREFIX=:}documents` (
   `groups` varchar(150) NOT NULL default '',
   `icomment` text NOT NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=2 ;
 
 INSERT INTO `{:=DBPREFIX=:}documents` (`id`, `author`, `date`, `update`, `type`, `groups`, `icomment`) VALUES
 (1, 1, 1205883294, 1205883294, 5, '0', 'Please update your imprint after setup!');

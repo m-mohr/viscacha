@@ -50,11 +50,6 @@ class ftp_base {
 	var $_eol_code;
 	var $AutoAsciiExt;
 
-	/* Constructor */
-	function ftp_base($port_mode=FALSE, $verb=FALSE, $le=FALSE) {
-		$this->__construct($port_mode, $verb, $le);
-	}
-
 	function __construct($port_mode=FALSE, $verb=FALSE, $le=FALSE) {
 		$this->LocalEcho=$le;
 		$this->Verbose=$verb;
@@ -80,7 +75,7 @@ class ftp_base {
 		$this->_login="anonymous";
 		$this->_password="";
 		$this->_features=array();
-	    $this->OS_local=FTP_OS_Unix;
+		$this->OS_local=FTP_OS_Unix;
 		$this->OS_remote=FTP_OS_Unix;
 		$this->features=array();
 		if(isWindows() == true) $this->OS_local=FTP_OS_Windows;

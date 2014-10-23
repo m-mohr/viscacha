@@ -37,10 +37,16 @@ class GPC {
 			define('int', 1);
 		}
 		if (!defined('arr_str')) {
-			define('arr_str', 5);
+			define('arr_str', 5); // keys => int, values => str
 		}
 		if (!defined('arr_int')) {
-			define('arr_int', 4);
+			define('arr_int', 4); // keys and values => int
+		}
+		if (!defined('arr_str_int')) {
+			define('arr_str_int', 9); // keys => str, values => int
+		}
+		if (!defined('arr_str_str')) {
+			define('arr_str_str', 9); // keys and values => str
 		}
 		if (!defined('none')) {
 			define('none', 0);
@@ -65,22 +71,22 @@ class GPC {
 	function get($index, $type = none, $standard = NULL) {
 		if (isset($_REQUEST[$index])) {
 			$value = $_REQUEST[$index];
-			if (is_array($value) && $type != arr_str && $type != arr_int && $type != arr_none) {
+			if (is_array($value) && $type != arr_str && $type != arr_int && $type != arr_none && $type != arr_str_int && $type != arr_str_str) {
 				$value = null;
 			}
-			if ($type == str || $type == arr_str) {
+			if ($type == str || $type == arr_str || $type == arr_str_str) {
 				if ($type == str) {
 					$value = trim($value);
 				}
-				$var = $this->save_str($value);
-				if ($type == arr_str && !is_array($var)) {
+				$var = $this->save_str($value, true, ($type != arr_str_str));
+				if (($type == arr_str || $type == arr_str_str) && !is_array($var)) {
 					$var = array($var);
 				}
 			}
 			else if ($type == path) {
 				$var = convert2path(trim($value));
 			}
-			elseif ($type == int || $type == arr_int) {
+			elseif ($type == int || $type == arr_int || $type == arr_str_int) {
 				if ($type == int && ($value === '' || $value === null)) {
 					if ($standard === null) {
 						$var = 0;
@@ -90,8 +96,8 @@ class GPC {
 					}
 				}
 				else {
-					$var = $this->save_int($value);
-					if ($type == arr_int && !is_array($var)) {
+					$var = $this->save_int($value, ($type != arr_str_int));
+					if (($type == arr_int || $type == arr_str_int) && !is_array($var)) {
 						$var = array($var);
 					}
 				}
@@ -119,7 +125,7 @@ class GPC {
 				elseif ($type == int) {
 					$var = 0;
 				}
-				elseif ($type == arr_int || $type == arr_str || $type == arr_none) {
+				elseif ($type == arr_int || $type == arr_str || $type == arr_none || $type == arr_str_int || $type == arr_str_str) {
 					$var = array();
 				}
 				else {
@@ -164,7 +170,7 @@ class GPC {
 		return $var;
 	}
 
-	function save_str($var, $db_esc = true){
+	function save_str($var, $db_esc = true, $numerated_array = false){
 		if (is_numeric($var) || empty($var)) {
 			// Do nothing to save time
 		}
@@ -172,8 +178,15 @@ class GPC {
 			$cnt = count($var);
 			$keys = array_keys($var);
 			for ($i = 0; $i < $cnt; $i++){
-				$key = $this->save_int($keys[$i]);
-				if (!isset($var[$key]) || $key != $keys[$i]) { die('Error: Hacking Attempt (GPC::save_str)'); }
+				if ($numerated_array) {
+					$key = $this->save_int($keys[$i]);
+				}
+				else {
+					$key = $this->save_str($keys[$i]);
+				}
+				if (!isset($var[$key]) || $key != $keys[$i]) {
+					trigger_error('Error: Hacking Attempt (GPC::save_str)', E_USER_ERROR);
+				}
 				$var[$key] = $this->save_str($var[$key], $db_esc);
 			}
 		}
@@ -199,13 +212,20 @@ class GPC {
 		return $var;
 	}
 
-	function save_int($var){
+	function save_int($var, $numerated_array = false){
 		if (is_array($var)) {
 			$cnt = count($var);
 			$keys = array_keys($var);
 			for ($i = 0; $i < $cnt; $i++){
-				$key = $this->save_int($keys[$i]);
-				if (!isset($var[$key]) || $key != $keys[$i]) { die('Error: Hacking Attempt (GPC::save_int)'); }
+				if ($numerated_array) {
+					$key = $this->save_int($keys[$i]);
+				}
+				else {
+					$key = $this->save_str($keys[$i]);
+				}
+				if (!isset($var[$key]) || $key != $keys[$i]) {
+					trigger_error('Error: Hacking Attempt (GPC::save_int)', E_USER_ERROR);
+				}
 				$var[$key] = $this->save_int($var[$key]);
 			}
 		}
@@ -281,13 +301,8 @@ class GPC {
 	// from php.net
 	// ToDo: Remove in 0.8 RC5
 	function html_entity_decode($string, $mode = ENT_COMPAT) {
-	    static $trans_tbl;
-
-	    // replace numeric entities
-	    $string = preg_replace('~&#x([0-9a-f]+);~ei', 'code2utf(hexdec("\\1"))', $string);
-	    $string = preg_replace('~&#0*([0-9]+);~e', 'code2utf(\\1)', $string);
-
 	    // replace literal entities
+	    static $trans_tbl;
 	    if (!isset($trans_tbl)) {
 	        $trans_tbl = array();
 
@@ -295,6 +310,18 @@ class GPC {
 	            $trans_tbl[$key] = utf8_encode($val);
 	        }
 	    }
+		static $cb1;
+		if (!isset($cb1)) {
+			$cb1 = create_function('$m', 'return code2utf(hexdec($m[1]));');
+		}
+		static $cb2;
+		if (!isset($cb2)) {
+			$cb2 = create_function('$m', 'return code2utf($m[1]);');
+		}
+
+	    // replace numeric entities
+	    $string = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $string);
+	    $string = preg_replace_callback('~&#0*([0-9]+);~', $cb2, $string);
 
 	    return strtr($string, $trans_tbl);
 	}
@@ -318,8 +345,18 @@ class GPC {
 			}
 			else {
 				global $lang;
-				$var = preg_replace('~&#x([0-9a-f]+);~ei', 'chr(hexdec("\\1"))', $var); // ToDo: Convert to correct charset
-				$var = preg_replace('~&#([0-9]+);~e', 'chr("\\1")', $var);
+				
+				static $cb1;
+				if (!isset($cb1)) {
+					$cb1 = create_function('$m', 'return chr(hexdec($m[1]));');
+				}
+				static $cb2;
+				if (!isset($cb2)) {
+					$cb2 = create_function('$m', 'return chr($m[1]);');
+				}
+				
+				$var = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $var); // ToDo: Convert to correct charset
+				$var = preg_replace_callback('~&#([0-9]+);~', $cb2, $var);
 				$var = html_entity_decode($var, ENT_QUOTES, $lang->charset());
 			}
 		}

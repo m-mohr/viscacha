@@ -10,7 +10,7 @@ CREATE TABLE `{:=DBPREFIX=:}menu` (
   `module` int(10) NOT NULL default '0',
   `active` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=7 ;
+) ENGINE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=7 ;
 
 INSERT INTO `{:=DBPREFIX=:}menu` (`id`, `name`, `link`, `param`, `groups`, `position`, `ordering`, `sub`, `module`, `active`) VALUES
 (1, 'lang->navigation', '', '', '0', 'left', 0, 0, 0, '1'),

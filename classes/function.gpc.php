@@ -28,7 +28,7 @@ include('classes/class.gpc.php');
 $gpc = new GPC();
 
 // Thanks to phpBB for this code
-if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals')) == 'on') {
+if (ini_isActive(@ini_get('register_globals'))) {
 	unset($not_used, $input);
 	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES', 'config', 'gpc', 'imagetype_extension', 'var');
 
@@ -62,10 +62,10 @@ if (get_magic_quotes_gpc() == 1) {
 
 // Thanks to phpBB for this 6 lines
 if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-	die("Hacking attempt (Globals)");
+	trigger_error("Hacking attempt (Globals)", E_USER_ERROR);
 }
 if (isset($_SESSION) && !is_array($_SESSION)) {
-	die("Hacking attempt (Session Variable)");
+	trigger_error("Hacking attempt (Session Variable)", E_USER_ERROR);
 }
 
 $http_svars = array(

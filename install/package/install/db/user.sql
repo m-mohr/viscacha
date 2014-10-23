@@ -35,4 +35,4 @@ CREATE TABLE `{:=DBPREFIX=:}user` (
   PRIMARY KEY  (`id`),
   KEY `name` (`name`),
   KEY `pw` (`pw`)
-) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=1 ;

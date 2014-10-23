@@ -4,7 +4,7 @@ CREATE TABLE `{:=DBPREFIX=:}language` (
   `detail` text NOT NULL,
   `publicuse` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=4 ;
+) ENGINE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=4 ;
 
 INSERT INTO `{:=DBPREFIX=:}language` VALUES (1, 'Deutsch (Formell)', 'German (formal) language pack', '1'),
 (2, 'English', 'English language pack', '1');

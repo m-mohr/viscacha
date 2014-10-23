@@ -1,19 +1,24 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
-$lang['mailer_authenticate'] = 'SMTP error: Authentification failed, check username and password.';
-$lang['mailer_connect_host'] = 'SMTP error: Could not connect to SMTP host, please try again later.';
-$lang['mailer_data_not_accepted'] = 'SMTP error: Data not accepted.';
-$lang['mailer_encoding'] = 'Unknown encoding:';
-$lang['mailer_execute'] = 'Could not execute this command:';
-$lang['mailer_file_access'] = 'Access on this file failed:';
-$lang['mailer_file_open'] = 'File error: Could not open file:';
-$lang['mailer_from_failed'] = 'Sender address is not correct:';
-$lang['mailer_instantiate'] = 'Could not initialise mail function.';
-$lang['mailer_mailer_not_supported'] = '-mailer is not supported.';
-$lang['mailer_provide_address'] = 'Please enter at least one e-mail address.';
-$lang['mailer_recipients_failed'] = 'SMTP error: These addresses are not correct:';
+$lang['mailer_authenticate'] = 'SMTP Error: Could not authenticate.';
+$lang['mailer_connect_host'] = 'SMTP Error: Could not connect to SMTP host.';
+$lang['mailer_data_not_accepted'] = 'SMTP Error: Data not accepted.';
+$lang['mailer_empty_message'] = 'Message body empty';
+$lang['mailer_encoding'] = 'Unknown encoding: ';
+$lang['mailer_execute'] = 'Could not execute: ';
+$lang['mailer_file_access'] = 'Could not access file: ';
+$lang['mailer_file_open'] = 'File Error: Could not open file: ';
+$lang['mailer_from_failed'] = 'The following From address failed: ';
+$lang['mailer_instantiate'] = 'Could not instantiate mail function.';
+$lang['mailer_invalid_address'] = 'Invalid address';
+$lang['mailer_mailer_not_supported'] = ' mailer is not supported.';
+$lang['mailer_provide_address'] = 'You must provide at least one recipient email address.';
+$lang['mailer_recipients_failed'] = 'SMTP Error: The following recipients failed: ';
 $lang['mailer_signing'] = 'Signing Error: ';
+$lang['mailer_smtp_connect_failed'] = 'SMTP Connect() failed.';
+$lang['mailer_smtp_error'] = 'SMTP server error: ';
+$lang['mailer_variable_set'] = 'Cannot set or reset variable: ';
 $lang['tne_badtype'] = 'Invalid imagetype.';
 $lang['tne_gd1error'] = 'Could not create GD1-thumbnail.';
 $lang['tne_giferror'] = 'Could not create gif-thumbnail.';

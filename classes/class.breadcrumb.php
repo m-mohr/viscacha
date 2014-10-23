@@ -96,7 +96,7 @@ class breadcrumb {
     }
 
     function getArray() {
-        return $content;
+        return $this->content;
     }
 }
 ?>

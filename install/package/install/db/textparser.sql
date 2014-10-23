@@ -5,7 +5,7 @@ CREATE TABLE `{:=DBPREFIX=:}textparser` (
   `type` enum('censor','word','replace') NOT NULL default 'word',
   `desc` text NOT NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  PACK_KEYS=1 AUTO_INCREMENT=2 ;
+) ENGINE=MyISAM  PACK_KEYS=1 AUTO_INCREMENT=2 ;
 
 INSERT INTO `{:=DBPREFIX=:}textparser` (`search`, `replace`, `type`, `desc`) VALUES
 ('[teaser]', '', 'censor', '');

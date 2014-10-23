@@ -10,4 +10,4 @@ CREATE TABLE `{:=DBPREFIX=:}profilefields` (
   `editable` enum('0','1','2') NOT NULL default '1',
   `viewable` enum('0','1','2','3') NOT NULL default '1',
   PRIMARY KEY  (`fid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

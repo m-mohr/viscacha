@@ -8,4 +8,4 @@ CREATE TABLE `{:=DBPREFIX=:}moderators` (
   `p_mc` enum('0','1') NOT NULL default '1',
   `time` int(10) unsigned default '0',
   UNIQUE KEY `mid` (`mid`,`bid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

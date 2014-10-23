@@ -197,6 +197,40 @@ function isMac() {
 	return ($mac == 'MAC' || $mac == 'DAR');
 }
 
+function ini_isActive($value) {
+	return ($value == 'true' || $value == '1' || strtolower($value) == 'on');
+}
+
+function ini_isSecureHttp() {
+	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')
+		return true;
+	else if (isset($_SERVER['HTTPS']) && ini_isActive($_SERVER['HTTPS']))
+		return true;
+	else
+		return false;
+}
+
+function ini_maxupload() {
+	$keys = array(
+		'post_max_size' => 0,
+		'upload_max_filesize' => 0
+	);
+	foreach ($keys as $key => $bytes) {
+		$val = trim(@ini_get($key));
+		$last = strtolower($val{strlen($val)-1});
+		switch($last) {
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+		$keys[$key] = $val;
+	}
+	return min($keys);
+}
+
 /**
  * getDocRoot fixes a problem with Windows where PHP does not have $_SERVER['DOCUMENT_ROOT']
  * built in. getDocRoot returns what $_SERVER['DOCUMENT_ROOT'] should have. It should work on
@@ -420,7 +454,7 @@ if (!viscacha_function_exists('htmlspecialchars_decode')) {
  * @link		http://php.net/function.array_intersect_key
  * @author		Tom Buskens <ortega@php.net>
  * @version		$Revision: 1.9 $
- * @since		PHP 5.0.2
+ * @since		PHP 5.1.0
  * @require		PHP 4.0.0 (trigger_error)
  */
 if (!viscacha_function_exists('array_intersect_key')) {

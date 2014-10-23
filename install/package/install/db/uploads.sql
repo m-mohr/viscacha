@@ -8,4 +8,4 @@ CREATE TABLE `{:=DBPREFIX=:}uploads` (
   `hits` int(10) unsigned NOT NULL default '0',
   PRIMARY KEY  (`id`),
   KEY `tid` (`tid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

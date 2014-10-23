@@ -310,5 +310,10 @@ class DB_Driver { // abstract class
 		return $value;
 	}
 
+	function fetch_one($result = null) {
+	    $row = $this->fetch_num($result);
+		return isset($row[0]) ? $row[0] : null;
+	}
+
 }
 ?>

@@ -78,7 +78,7 @@ function getRequestURI() {
 		$request_uri = '';
 		$var = parse_url($config['furl']);
 		$request_uri = sprintf('http%s://%s%s',
-			(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == TRUE ? 's': ''),
+			(ini_isSecureHttp() ? 's': ''),
 			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $var['host']),
 			$_SERVER['REQUEST_URI']
 		);
@@ -178,6 +178,8 @@ function DocCodeParser($syntax, $parser = 1) {
 	}
 	elseif ($parser == 3) {
 		BBProfile($bbcode);
+		$bbcode->setSmileys();
+		$bbcode->setReplace();
 		$syntax = $bbcode->parse($syntax);
 	}
 	elseif ($parser == 0) {
@@ -786,6 +788,9 @@ function ok($errormsg = null, $errorurl = null, $EOS = null) {
 
 function forum_opt($array, $check = 'forum') {
 	global $my, $lang, $tpl;
+	if (!is_array($array)) {
+		error($lang->phrase('query_string_error'));
+	}
 	extract($array, EXTR_PREFIX_ALL, 'f');
 	if ($f_opt == 'pw' && (!isset($my->pwfaccess[$f_id]) || $my->pwfaccess[$f_id] != $f_optvalue)) {
 		if (!$tpl->tplsent('header')) {

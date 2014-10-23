@@ -45,7 +45,6 @@ class BBCode {
 	var $index;
 	var $url_regex;
 	var $url_regex2;
-	var $url_protocol;
 	var $currentCBB;
 
 	function BBCode ($profile = 'viscacha') {
@@ -66,17 +65,17 @@ class BBCode {
 		$this->index = 0;
 
 		// See: http://en.wikipedia.org/wiki/URI_scheme
-		$this->url_protocol = "((?:https?|s?ftp|nntp|gopher|ldaps?|snmp|telnet|cvs|svn|ed2k|feed|ircs?|lastfm|mms|callto|ssh|teamspeak)://|www\.)";
+		$url_protocol = "([a-z]{3,9}://|www\.)";
 		$url_word = URL_SPECIALCHARS;
 		$url_auth = "(?:(?:[{$url_word}_\d\-\.]{1,}\:)?[{$url_word}\d\-\._]{1,}@)?"; // Authorisation information
 		$url_host = "(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[{$url_word}\d\.\-]{2,}\.[a-z]{2,7})(?:\:\d+)?"; // Host (domain, tld, ip, port)
-		$url_path = "(?:\/[{$url_word}ß\d\/;\-%\~,\.\+\!&=_]*)?"; // Path
-		$url_query = "(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%\+\~\[\]]*)?"; // Query String
+		$url_path = "(?:\/[{$url_word}ß\d\/;\-%@\~,\.\+\!&=_]*)?"; // Path
+		$url_query = "(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%@\+\~\[\]]*)?"; // Query String
 		$url_fragment = "(?:#[\w\d]*)?"; // Fragment
 
 		// URL RegExp - Two matches predefined: First is whole url, second is URI scheme
-		$this->url_regex = "({$this->url_protocol}{$url_auth}{$url_host}{$url_path}{$url_query}{$url_fragment})";
-		$this->url_regex2 = "({$this->url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
+		$this->url_regex = "({$url_protocol}{$url_auth}{$url_host}{$url_path}{$url_query}{$url_fragment})";
+		$this->url_regex2 = "({$url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
 
 		if (!class_exists('ConvertRoman')) {
 			include_once('classes/class.convertroman.php');
@@ -575,8 +574,8 @@ class BBCode {
 	}
 	function parseDoc ($text) {
 		if ($this->profile['reduceEndChars'] == 1) {
-			$text = preg_replace('/\!{2,}1{0,}/i', "!", $text);
-			$text = preg_replace('/\?{2,}(&szlig;){0,}/i', "?", $text);
+			$text = preg_replace('/\!{2,}/i', "!", $text);
+			$text = preg_replace('/\?{2,}/i', "?", $text);
 			$text = preg_replace('/\.{4,}/i', "...", $text);
 		}
 		if ($this->profile['reduceNL'] == 1) {
@@ -863,7 +862,7 @@ class BBCode {
 						'\"',
 						'"',
 						substr(
-							preg_replace(
+							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
 								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
 								"preg_replace('#\b({$token})\b#i', '<span class=\"{$class}\">\\\\1</span>', '\\0')",
 								">{$text}<"
@@ -888,7 +887,7 @@ class BBCode {
 						'\"',
 						'"',
 						substr(
-							preg_replace(
+							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
 								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
 								"preg_replace(
 									'#\b({$word['search']})\b#i',
@@ -909,7 +908,7 @@ class BBCode {
 						'\"',
 						'"',
 						substr(
-							preg_replace(
+							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
 								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
 								"preg_replace(
 									'#\b({$word['search']})\b#i',

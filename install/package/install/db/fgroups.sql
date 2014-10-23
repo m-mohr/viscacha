@@ -13,4 +13,4 @@ CREATE TABLE `{:=DBPREFIX=:}fgroups` (
   PRIMARY KEY  (`fid`),
   KEY `bid` (`bid`),
   KEY `gid` (`gid`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

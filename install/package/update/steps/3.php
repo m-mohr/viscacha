@@ -7,7 +7,8 @@ if (!class_exists('filesystem')) {
 }
 
 $tar_packs = array(
-	1 => 'update.081.tar'
+	1 => 'update.classes.tar',
+	2 => 'update.misc.tar'
 );
 if (empty($_REQUEST['sub']) || !isset($tar_packs[$_REQUEST['sub']])) {
 	$sub = 1;
@@ -36,16 +37,26 @@ foreach ($replicable as $rep) {
 		$dir->close();
 	}
 
-	$content = file_get_contents($rep[0]);
+	$isDir = is_dir($rep[0]);
+	if (!$isDir) {
+		$content = file_get_contents($rep[0]);
+	}
 	foreach ($dirs[$rep[1]] as $path) {
 		$target = $path.$rep[3];
-		if (file_exists($target)) {
-			$filesystem->chmod($target, 0666);
+		if ($isDir) {
+			if (!@is_dir($target)) {
+				$filesystem->mkdir($target, 0777);
+			}
 		}
-		elseif (!@is_dir(dirname($target))) {
-			$filesystem->mkdir(dirname($target), 0777);
+		else {
+			if (file_exists($target)) {
+				$filesystem->chmod($target, 0666);
+			}
+			elseif (!@is_dir(dirname($target))) {
+				$filesystem->mkdir(dirname($target), 0777);
+			}
+			$filesystem->file_put_contents($target, $content);
 		}
-		$filesystem->file_put_contents($target, $content);
 	}
 }
 ?>

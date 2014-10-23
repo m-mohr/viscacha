@@ -5,4 +5,4 @@ CREATE TABLE `{:=DBPREFIX=:}categories` (
   `parent` smallint(5) unsigned NOT NULL default '0',
   `position` smallint(4) NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

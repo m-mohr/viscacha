@@ -636,18 +636,18 @@ elseif ($job == "credits") {
 		<strong>Used Scripts</strong>:
 		<ul>
 		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Roman Numeral Conversion by Huda M Elmatsani</a> (Roman Numeral Conversion; Freeware)</li>
-		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.8 by Vincent Blavet</a> (Zip File Handling; GNU LPGL)</li>
-		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.8.4 by Nigel McNie and Benny Baumann</a> (Syntax Highlighting; GNU GPL)</li>
-		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing Newsfeeds; GNU GPL)</li>
-		<li><a href="http://phpmailer.sourceforge.net" target="_blank">PHPMailer 2.0.3 (with POP3 and SMTP) by Andy Prevost</a> (Sending E-mails; GNU LGPL)</li>
-		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating Newsfeeds; GNU LGPL)</li>
-		<li><a href="http://pear.php.net/package/PHP_Compat" target="_blank">PHP_Compat 1.6.0a2 by Aidan Lister, Stephan Schmidt</a> (PHP Core Functions; PHP)</li>
+		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.8 by Vincent Blavet</a> (Zip file handling; GNU LPGL)</li>
+		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.8.11 by Nigel McNie and Benny Baumann</a> (Syntax highlighting; GNU GPL)</li>
+		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing newsfeeds; GNU GPL)</li>
+		<li><a href="https://github.com/PHPMailer" target="_blank">PHPMailer 5.2.6 by various authors</a> (Sending e-mails; GNU LGPL)</li>
+		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating newsfeeds; GNU LGPL)</li>
+		<li><a href="http://pear.php.net/package/PHP_Compat" target="_blank">PHP_Compat 1.6.0a2 by Aidan Lister, Stephan Schmidt</a> (PHP core Functions; PHP)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GNU GPL)</li>
-		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR File Handling; GNU GPL)</li>
+		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR file handling; GNU GPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/98157.html" target="_blank">Advanced FTP client class (Build 2008-09-17) by Alexey Dotsenko</a> (PHP FTP Client; Freely Distributable)</li>
-		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.6.3 by phlyLabs</a> (Punycode Converter; GNU LGPL)</li>
-		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG Editor; GNU LGPL)</li>
-		<li><a href="http://snoopy.sourceforge.net" target="_blank">Snoopy 1.2.4 by New Digital Group</a> (HTTP File Access; GNU LGPL)</li>
+		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.8.0 by phlyLabs</a> (Punycode converter; GNU LGPL)</li>
+		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG editor; GNU LGPL)</li>
+		<li><a href="http://snoopy.sourceforge.net" target="_blank">Snoopy 1.2.4 by New Digital Group</a> (HTTP file access; GNU LGPL)</li>
 		<li>and many more code snippets, classes and functions...</li>
 		</ul>
 		<br class="minibr" />

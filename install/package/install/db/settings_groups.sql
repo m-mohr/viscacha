@@ -4,7 +4,7 @@ CREATE TABLE `{:=DBPREFIX=:}settings_groups` (
   `name` varchar(120) NOT NULL default '',
   `description` tinytext NOT NULL,
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=6 ;
+) ENGINE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=6 ;
 
 INSERT INTO `{:=DBPREFIX=:}settings_groups` (`id`, `title`, `name`, `description`) VALUES
 (1, 'Related Topics', 'viscacha_related_topics', 'General settings related to the "Related Topics" package.'),

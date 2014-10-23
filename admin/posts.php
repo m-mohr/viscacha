@@ -229,13 +229,13 @@ elseif ($_GET['job'] == 'reports') {
         <td>
         	<strong><a href="popup.php?action=showpost&amp;id=<?php echo $row->id; ?>" target="showpost" onclick="showpost(this); return false;"><?php echo $row->title; ?></a></strong><br />
         	<span class="stext">
-        		Topic: <a target="_blank" href="showtopic.php?id=<?php echo $row->id; ?>"><?php echo iif($showprefix, '['.$prefix.'] ').$row->topic; ?></a><br />
-        		Forum: <?php echo $row->forumname; ?>
+        		<a target="_blank" href="showtopic.php?id=<?php echo $row->id; ?>"><?php echo iif($showprefix, '['.$prefix.'] ').$row->topic; ?></a><br />
+        		<?php echo $row->forumname; ?>
         	</span>
         </td>
         <td>
         	<?php echo gmdate('d.m.Y H:i', times($row->date)); ?><br />
-        	by <?php echo iif($row->mid, "<a href='admin.php?action=members&amp;job=edit&amp;id=".$row->mid."'>".$row->name."</a>", $row->name); ?>
+        	<?php echo iif($row->mid, "<a href='admin.php?action=members&amp;job=edit&amp;id=".$row->mid."'>".$row->name."</a>", $row->name); ?>
         </td>
         <td align="center"><textarea cols="30" rows="3" style="width: 99%;"><?php echo $row->report; ?></textarea></td>
         </tr>

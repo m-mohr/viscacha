@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 
 chdir('../');
 
-define('VISCACHA_VERSION', '0.8.1.1');
+define('VISCACHA_VERSION', '0.8.1.2');
 define('VISCACHA_CORE', '1');
 define('SCRIPTNAME', 'install');
 define('SCRIPT_LOCKED', file_exists('./locked.txt'));
@@ -16,8 +16,7 @@ if (!SCRIPT_LOCKED) {
 
 	$old_versions = array();
 	if (file_exists("install/package/update/steps.inc.php")) {
-		$old_versions['update'] = '0.8.1';
-		$old_versions['update_0.8'] = '0.8';
+		$old_versions['update'] = '0.8.1.1';
 	}
 
 	$packages = array();
@@ -99,7 +98,9 @@ if (!SCRIPT_LOCKED) {
 		<h3>Packages</h3>
 		<ul class="nav">
 		<?php foreach ($packages as $id => $data) { ?>
+			<?php if(!is_numeric($id)) { ?>
 			<li><a href="index.php?package=<?php echo $id; ?>"><?php echo $data['title']; ?></a></li>
+			<?php } ?>
 		<?php } ?>
 		</ul>
 		<?php } elseif (!SCRIPT_LOCKED) { ?>
@@ -138,7 +139,7 @@ if (!SCRIPT_LOCKED) {
 			<h3>Error: PHP Version mismatch</h3>
 			<div class="bbody">
 			Support for PHP 4 has been discontinued since Viscacha 0.8 RC7.<br />
-			Please consider upgrading to (the latest version of) PHP 5 or you can't use Viscacha.
+			Please consider upgrading to (the latest version of) PHP 5 or you won't be able to use Viscacha.
 			</div>
 			<div class="bfoot center"><a class="submit" href="index.php?skip_php=1">Continue anyway</a></div>
 		</div>

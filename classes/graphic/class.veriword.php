@@ -82,7 +82,7 @@ class VeriWord {
 		return $tpl->parse('main/veriword');
 	}
 
-	function makeImage($session_expired_lang = 'Session Error<br>Refresh the Page') {
+	function makeImage($session_expired_lang = 'Refresh page') {
 		global $config, $gpc;
 		$challenge = $gpc->get('challenge');
 		$this->settings['colortext'] = (bool) $config['botgfxtest_colortext'];

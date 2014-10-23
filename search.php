@@ -405,6 +405,8 @@ elseif ($_GET['action'] == "active") {
    		}
    		else {
 		    $count = 0;
+			echo $tpl->parse("header");
+			echo $tpl->parse("menu");
 	        echo $tpl->parse("search/active");
    		}
 	}
@@ -428,14 +430,14 @@ elseif ($_GET['action'] == "active") {
 		$timestamp = $my->clv;
 	}
 
-	($code = $plugins->load('search_actiev_start')) ? eval($code) : null;
+	($code = $plugins->load('search_active_start')) ? eval($code) : null;
 
 	if (!isset($count)) {
     	$sqlwhere = " last > '{$timestamp}' ";
 
     	$start = ($_GET['page']-1)*$config['activezahl'];
 
-    	($code = $plugins->load('search_actiev_query')) ? eval($code) : null;
+    	($code = $plugins->load('search_active_query')) ? eval($code) : null;
     	$result = $db->query("
     	SELECT COUNT(*)
     	FROM {$db->pre}topics AS t

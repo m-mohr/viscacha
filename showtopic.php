@@ -281,8 +281,8 @@ if ($speeder > $last['topiczahl']) {
 else {
 	$sql_limit = " LIMIT {$speeder}";
 }
-$sql_select = iif($config['pm_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
-$sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
+$sql_select = iif($config['post_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
+$sql_join = iif($config['post_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
 $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("

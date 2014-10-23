@@ -3,4 +3,4 @@ CREATE TABLE `{:=DBPREFIX=:}flood` (
   `mid` mediumint(7) unsigned NOT NULL default '0',
   `time` int(10) unsigned NOT NULL,
   `type` varchar(3) NOT NULL default 'sta'
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

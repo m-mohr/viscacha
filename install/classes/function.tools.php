@@ -1,8 +1,20 @@
 <?php
+function ini_isSecureHttp() {
+	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')
+		return true;
+	else if (isset($_SERVER['HTTPS']) && ini_isActive($_SERVER['HTTPS']))
+		return true;
+	else
+		return false;
+}
+
+function ini_isActive($value) {
+	return ($value == 'true' || $value == '1' || strtolower($value) == 'on');
+}
 function getFUrl() {
 	// HTTP_HOST is having the correct browser url in most cases...
 	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
-	$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
+	$https = ini_isSecureHttp() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
 	if (!$source) {
@@ -290,12 +302,12 @@ function GPC_unescape($var){
 @ini_set('magic_quotes_gpc',0);
 // Start - Thanks to phpBB for this code
 if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-	die("Hacking attempt (Globals)");
+	trigger_error("Hacking attempt (Globals)", E_USER_ERROR);
 }
 if (isset($_SESSION) && !is_array($_SESSION)) {
-	die("Hacking attempt (Session Variable)");
+	trigger_error("Hacking attempt (Session Variable)", E_USER_ERROR);
 }
-if (@ini_get('register_globals') == '1' || strtolower(@ini_get('register_globals')) == 'on') {
+if (ini_isActive(@ini_get('register_globals'))) {
 	unset($not_used, $input);
 	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES');
 

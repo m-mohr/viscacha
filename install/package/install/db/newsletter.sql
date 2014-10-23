@@ -7,4 +7,4 @@ CREATE TABLE `{:=DBPREFIX=:}newsletter` (
   `time` int(10) unsigned NOT NULL default '0',
   `type` enum('p', 'h') default 'p',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

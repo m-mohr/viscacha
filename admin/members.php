@@ -298,7 +298,7 @@ elseif ($job == 'emailsearch2') {
 	$type = $gpc->get('type', int);
 	$sep = ($type == 0) ? ' OR ' : ' AND ';
 
-	$compare = $gpc->get('compare', arr_int);
+	$compare = $gpc->get('compare', arr_str_int);
 	foreach ($compare as $key => $cmp) {
 		if ($cmp == -1) {
 			$compare[$key] = '<';
@@ -341,11 +341,11 @@ elseif ($job == 'emailsearch2') {
 				$input[$key] = DONT_CARE;
 			}
 			else {
-				$value[1] = intval(trim($value[1]));
+				$value[1] = $gpc->save_int($value[1]);
 				if ($value[1] < 1 || $value[1] > 31) {
 					$value[1] = '%';
 				}
-				$value[2] = intval(trim($value[2]));
+				$value[2] = $gpc->save_int($value[2]);
 				if ($value[2] < 1 || $value[2] > 12) {
 					$value[2] = '%';
 				}
@@ -358,7 +358,7 @@ elseif ($job == 'emailsearch2') {
 					}
 				}
 				else {
-					$value[3] = intval(trim($value[3]));
+					$value[3] = $gpc->save_int($value[3]);
 				}
 				if ($value[3] < 1900 || $value[3] > 2100) {
 					$value[3] = '%';
@@ -1966,6 +1966,11 @@ elseif ($job == 'banned') {
   	}
 
   	$crea = gmdate('d.m.Y H:i', times($row[4]));
+
+	$reason = '';
+	if (!empty($row[5])) {
+		$reason = htmlspecialchars($row[5]);
+	}
   	?>
   <tr>
    <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row[0]; ?>#<?php echo $row[1]; ?>#<?php echo $row[4]; ?>" /></td>
@@ -1974,7 +1979,7 @@ elseif ($job == 'banned') {
    <td class="mbox"><?php echo $crea; ?></td>
    <td class="mbox"><?php echo $row[2]; ?></td>
    <td class="mbox"><?php echo $diff; ?></td>
-   <td class="mbox"><?php echo empty($row[5]) ? htmlspecialchars($row[5]) : ''; ?></td>
+   <td class="mbox"><?php echo $reason ?></td>
   </tr>
   <?php } ?>
   <tr>
@@ -2664,7 +2669,7 @@ elseif ($job == 'search2') {
 	$type = $gpc->get('type', int);
 	$sep = ($type == 0) ? ' OR ' : ' AND ';
 
-	$compare = $gpc->get('compare', arr_int);
+	$compare = $gpc->get('compare', arr_str_int);
 	foreach ($compare as $key => $cmp) {
 		if ($cmp == -1) {
 			$compare[$key] = '<';

@@ -4,6 +4,7 @@ var boxes = new Array();
 var MenuTimeout = 500;
 var active = 0;
 var MenuCountHide = 0;
+var LightBoxCallback = null;
 
 ///////////////////////// Global /////////////////////////
 function FetchElement(id) {
@@ -180,37 +181,14 @@ function postrating(Link) {
 }
 function ResizeImg(img, maxwidth) {
 	if(img.width >= maxwidth && maxwidth != 0) {
-		var owidth = img.width;
-		var oheight = img.height;
 		img.width = maxwidth;
-		img.height = Math.round(oheight/(owidth/maxwidth));
+		img.height = Math.round(img.height/(img.width/maxwidth));
 		img.title = lng['imgtitle'];
-
-		HandCursor(img);
-		img.onclick = function() {
-			var width = screen.width-30;
-			if (width > owidth) {
-				width = owidth+40;
-			}
-			var height = screen.height-80;
-			if (height > oheight) {
-				height = oheight+70;
-			}
-			window.open(img.src,"","scrollbars=yes,status=yes,toolbar=no,location=yes,directories=no,resizable=yes,menubar=no,width="+width+",height="+height)
+		if (LightBoxCallback) {
+			HandCursor(img);
+			img.onclick = function() {LightBoxCallback(img);}
 		}
 	}
-}
-function openImageWindow(img, imgwidth, imgheight) {
-    var width = screen.width-30;
-    if (width > imgwidth) {
-        width = imgwidth+40;
-    }
-    var height = screen.height-80;
-    if (height > imgheight) {
-        height = imgheight+70;
-    }
-    window.open(img.href,"","scrollbars=yes,status=yes,toolbar=no,location=yes,directories=no,resizable=yes,menubar=no,width="+width+",height="+height);
-    return false;
 }
 
 ///////////////////////// AJAX /////////////////////////

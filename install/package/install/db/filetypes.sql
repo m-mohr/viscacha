@@ -7,7 +7,7 @@ CREATE TABLE `{:=DBPREFIX=:}filetypes` (
   `mimetype` varchar(100) NOT NULL default 'application/octet-stream',
   `stream` enum('inline','attachment') NOT NULL default 'attachment',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  AUTO_INCREMENT=41 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=41 ;
 
 INSERT INTO `{:=DBPREFIX=:}filetypes` (`id`, `extension`, `program`, `desctxt`, `icon`, `mimetype`, `stream`) VALUES (2, 'gif', '', 'Abkürzung für Graphics Interchange Format. Ein Format für Grafikdateien, das von CompuServe entwickelt wurde. Dieses Format wird für die Übertragung von Rasterbildern im Internet verwendet. Ein Bild kann bis zu 256 Farben (einschließlich einer transparenten Farbe) enthalten. Die Dateigröße hängt von der Anzahl der Farben ab, die tatsächlich verwendet werden. Die Komprimierungsmethode LZW wird verwendet, um die Dateigröße weiter zu verringern.', 'gif', 'image/gif', 'inline'),
 (3, 'ps', 'Adobe Reader, PS View', '', 'pdf', 'application/postscript', 'attachment'),

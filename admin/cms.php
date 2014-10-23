@@ -2169,12 +2169,7 @@ elseif ($job == 'feed_delete') {
 	echo head();
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
-		$deleteids = array();
-		foreach ($delete as $did) {
-			$deleteids[] = 'id = '.$did;
-		}
-
-		$db->query('DELETE FROM '.$db->pre.'grab WHERE '.implode(' OR ',$deleteids));
+		$db->query('DELETE FROM '.$db->pre.'grab WHERE id IN('.implode(',',$delete).')');
 		$anz = $db->affected_rows();
 
 		$delobj = $scache->load('grabrss');

@@ -222,10 +222,11 @@ class lang {
 	}
 
 	function parse_pvar($content) {
-		return preg_replace('#\{(\$|\%|\@|\&)(.+?)\}#ie', "\$this->parse_variable('\\2','\\1')", $content);
+		return preg_replace_callback('~\{(\$|\%|\@|\&)(.+?)\}~i', array($this, 'parse_variable'), $content);
 	}
 
-	function parse_variable($key, $type) {
+	function parse_variable($params) {
+		list(, $type, $key) = $params;
 		$keys = explode('->',$key);
 		if ($type == '&') {
 			if (count($keys) == 1) { // Function

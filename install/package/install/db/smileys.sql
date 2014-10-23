@@ -5,7 +5,7 @@ CREATE TABLE `{:=DBPREFIX=:}smileys` (
   `desc` text NOT NULL,
   `show` enum('0','1') NOT NULL default '0',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM  AUTO_INCREMENT=32 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=32 ;
 
 INSERT INTO `{:=DBPREFIX=:}smileys` (`id`, `search`, `replace`, `desc`, `show`) VALUES
 (1, ':D', '{folder}/biggrin.gif', 'Grinning', '1'),

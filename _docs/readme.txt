@@ -1,5 +1,5 @@
 ########################################
-# Readme for Viscacha 0.8.1.1          #
+# Readme for Viscacha 0.8.1.2          #
 ########################################
 
 == Table of Contents ==
@@ -11,9 +11,9 @@
 
 == 1 == Installation ==
 
-Warning: Since 0.8 RC7 we provide separate packages for installation
-         and update. Please use the package which contains "install"
-         in the name for an installation only.
+Note: Since 0.8 RC7 we provide separate packages for installation
+      and update. Please use the package which contains "install"
+      in the name for an installation only.
 
 1. Download the installation package from the Viscacha homepage!
 2. Upload all files per ftp onto your server.
@@ -22,15 +22,15 @@ Warning: Since 0.8 RC7 we provide separate packages for installation
 4. You have a "fresh" Viscacha-Installation on your server.
 
 Note: More information on how to set up the CHMODs you can get while
-      installing the application. In the ACP you can also see a more
-      detailed list of the required CHMODs.
+      installing the application. In the Admin CP you can also see a
+      more detailed list of the required CHMODs.
 
 
 == 2 == Update ==
 
-Warning: Since 0.8 RC7 we provide separate packages for installation
-         and update. Please use the package which contains "update"
-         in the name for an update only.
+Note: Since 0.8 RC7 we provide separate packages for installation
+      and update. Please use the package which contains "update"
+      in the name for an update only.
 
 1. Make a complete backup of your data (FTP + MySQL)!
 2. Download the update package from the Viscacha homepage!
@@ -40,8 +40,8 @@ Warning: Since 0.8 RC7 we provide separate packages for installation
 6. After the update is ready and you are back in your Admin Control
    Panel, please check for updates of your installed packages!
 
-Note: You can only upgrade from Viscacha 0.8 Gold. To update from a
-      prior version you have to upgrade to Viscacha 0.8 Gold first.
+Note: You can only upgrade from Viscacha 0.8.1.1. To update from a
+      prior version you have to update to Viscacha 0.8.1.1 first.
 
 
 == System requirements ==

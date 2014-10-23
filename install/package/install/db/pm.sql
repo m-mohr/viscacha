@@ -9,4 +9,4 @@ CREATE TABLE `{:=DBPREFIX=:}pm` (
   `dir` enum('1','2','3') NOT NULL default '1',
   PRIMARY KEY  (`id`),
   KEY `pm_to` (`pm_to`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

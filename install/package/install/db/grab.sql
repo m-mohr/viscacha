@@ -5,4 +5,4 @@ CREATE TABLE `{:=DBPREFIX=:}grab` (
   `entries` smallint(2) unsigned NOT NULL default '0',
   `max_age` mediumint(6) unsigned NOT NULL default '720',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

@@ -17,4 +17,4 @@ CREATE TABLE `{:=DBPREFIX=:}replies` (
   PRIMARY KEY  (`id`),
   KEY `topic_id` (`topic_id`),
   KEY `date` (`date`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

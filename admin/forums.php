@@ -1327,7 +1327,7 @@ elseif ($job == 'cat_add2') {
 	$sortx = $gpc->get('sort_where', int);
 	$parent = $gpc->get('parent', int);
 	$name = $gpc->get('name', str);
-	$description = $gpc->get('description', str);
+	$description = $gpc->get('description', db_esc);
 	$position = null;
 
 	if (strlen($name) < 2) {
@@ -1432,7 +1432,7 @@ elseif ($job == 'cat_edit2') {
 	$id = $gpc->get('id', int);
 	$parent = $gpc->get('parent', int);
 	$name = $gpc->get('name', str);
-	$description = $gpc->get('description', str);
+	$description = $gpc->get('description', db_esc);
 
 	$parent_notice = false;
 	if ($parent > 0) {

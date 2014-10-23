@@ -9,4 +9,4 @@ CREATE TABLE `{:=DBPREFIX=:}bbcode` (
   `buttonimage` varchar(255) NOT NULL default '',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uniquetag` (`bbcodetag`,`twoparams`)
-) TYPE=MyISAM AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 ;

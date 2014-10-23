@@ -5,4 +5,4 @@ CREATE TABLE `{:=DBPREFIX=:}postratings` (
   `pid` int(10) NOT NULL default '0',
   `rating` tinyint(1) NOT NULL default '0',
   UNIQUE KEY `mid` (`mid`,`pid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

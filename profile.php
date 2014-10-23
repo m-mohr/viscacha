@@ -212,7 +212,7 @@ elseif ($is_member) {
 
 		$row->posts = numbers($row->posts);
 
-		$row->p = $slog->Permissions(0,$row->groups, true);
+		$row->p = $slog->StrangerPermissions($row->groups, true);
 		$row->level = $slog->getStatus($row->groups);
 
 		$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));

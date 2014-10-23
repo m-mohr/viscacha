@@ -14,4 +14,4 @@ CREATE TABLE `{:=DBPREFIX=:}session` (
   `settings` text NOT NULL,
   KEY `mid` (`mid`),
   KEY `sid` (`sid`)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;

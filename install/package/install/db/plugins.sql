@@ -8,7 +8,7 @@ CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `required` enum('0','1') NOT NULL default '1',
   PRIMARY KEY  (`id`),
   KEY `position` (`position`)
-) TYPE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=23 ;
+) ENGINE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=23 ;
 
 INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active`, `position`, `required`) VALUES
 (1, 'Related Topics', 1, 2, '1', 'showtopic_end', '0'),
