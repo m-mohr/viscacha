@@ -1,0 +1,38 @@
+<div class="border">
+<div class="topfooter bfoot">
+<span class="right"><a href="showtopic.php?id=<?php echo $row->topic_id; ?>" target="_blank"><?php echo $lang->phrase('showpost_show_topic'); ?></a></span>
+<img src="<?php echo $tpl->img('post_'.$new); ?>" alt="" /> <?php echo $row->date; ?>
+</div>
+<div class="inlineheader h3">
+  <div class="viewmembername">
+    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif(empty($row->mail), "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a><br />
+    <span class="stext"><?php echo $row->level; ?></span>
+  </div>
+  <div class="viewmemberdetails stext">
+    <?php echo $lang->phrase('post_info_registered_since').$row->regdate; ?><br />
+    <?php echo $lang->phrase('post_info_location').$row->location; ?>
+  </div>
+  <br class="invclear" /><br class="iefix_br" />
+</div>
+<div class="bbody iefix_left">
+   <span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?><strong><?php echo $row->topic; ?></strong></span>
+   <hr />
+<?php
+echo $row->comment;
+if (!empty($inner['upload_box'])) {
+?>
+   <br /><br />
+   <strong><?php echo $lang->phrase('post_uploads'); ?></strong><br class="uploadbox_br" />
+   <?php echo $inner['upload_box']; ?>
+   <br class="uploadbox_br" />
+<?php } if ($bottom) { ?>
+   <hr />
+  <?php if (!empty($row->fullname)) { ?>
+   <div class="fullname stext"><?php echo $row->fullname; ?></div>
+  <?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
+   <div class="signature"><?php echo $row->signature; ?></div>
+  <?php } if (!empty($row->edit)) { ?>
+   <div class="textright stext"><?php echo $lang->phrase('post_editinfo'); ?></div>
+<?php }} ?>
+</div>
+</div>

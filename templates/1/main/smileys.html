@@ -1,0 +1,25 @@
+<div class="labeldiv center">
+<table class="bbsmileys">
+<?php foreach ($smileys[1] as $row) { ?>
+	<tr>
+	<?php foreach ($row as $bb) { ?>
+		<td class="center"><a href="javascript:InsertTagsMenu(' <?php echo $bb['jssearch'] ?> ', '', 'bbsmileys')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /></a></td>
+	<?php } ?>
+	</tr>
+<?php } ?>
+</table>
+<a id="menu_bbsmileys" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('more_smileys'); ?></a>
+<script type="text/javascript">RegisterMenu('bbsmileys');</script>
+<div class="popup" id="popup_bbsmileys">
+<strong><?php echo $lang->phrase('more_smileys'); ?></strong>
+<table class="tables_bbsmileys">
+<?php foreach ($smileys[0] as $bb) { ?>
+  <tr class="tbody">
+	<td width="20%" class="center"><a href="javascript:InsertTagsMenu(' <?php echo $bb['jssearch'] ?>', ' ', 'bbsmileys')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /></a></td>
+	<td width="20%" class="center"><?php echo $bb['search']; ?></td>
+	<td width="60%"><span class="stext"><?php echo $bb['desc']; ?></span></td>
+  </tr>
+<?php } ?>
+</table>
+</div>
+</div>

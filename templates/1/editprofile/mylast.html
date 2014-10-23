@@ -1,0 +1,26 @@
+<table class="tables">
+ <tr> 
+  <th colspan="3"><img src="<?php echo $tpl->img('last'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_mylast'); ?></th>
+ </tr>
+<?php if ($anz > 0) { ?>				
+ <tr class="tfoot">
+  <td width="5%"><span class="utext">&nbsp;</span></td>
+  <td width="85%"><span class="utext"><?php echo $lang->phrase('forum_topic'); ?></span></td>
+  <td width="10%"><span class="utext"><?php echo $lang->phrase('forum_replies'); ?></span></td> 
+ </tr>
+<?php foreach ($cache as $row) { ?>
+<tr class="tbody">
+  <td width="5%"><img src="<?php echo $row['src']; ?>" alt="<?php echo $row['alt']; ?>" /></td>
+  <td width="85%">
+  	<?php echo iif($row['firstnew'],'<a href="showtopic.php?action=firstnew&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('desc').'" alt="'.$lang->phrase('move_to_first_new_post').'" /></a>'); ?>
+	<?php echo $row['pre']; ?>
+  <a<?php echo iif($row['firstnew'], ' style="font-weight: bold;"'); ?> href='showtopic.php?action=jumpto&amp;topic_id=<?php echo $row['pid']; ?>&amp;id=<?php echo $row['id'].SID2URL_x; ?>'><?php echo $row['topic']; ?></a>
+  </td>
+  <td width="10%"><?php echo $row['posts']; ?></td> 
+</tr>
+<?php } } else { ?>
+ <tr>
+  <td class="tbody center" colspan="3"><?php echo $lang->phrase('forum_empty'); ?></td>
+ </tr>
+<?php } ?>				
+</table>

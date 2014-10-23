@@ -1,0 +1,20 @@
+<form name="form2" method="post" enctype="multipart/form-data" action="attachments.php?action=save&amp;type=<?php echo $_GET['type']; ?>&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>">
+<div class="border">
+<h3><span class="right">[<a href="javascript: self.close();"><?php echo $lang->phrase('close_window'); ?></a>]</span><?php echo $lang->phrase('manage_uploads'); ?></h3>
+<div class="bbody">
+<?php echo $lang->phrase('upload_intro1'); ?><br /><br />
+<?php if ($free > 0) { ?>
+<strong><?php echo $lang->phrase('upload_intro2'); ?></strong>
+<?php for ($i = 0; $i < $free; $i++) { ?>
+	<br /><input type="file" name="upload_<?php echo $i; ?>" size="40" />
+<?php } } ?>
+<br /><br />
+<?php if ($free != $config['tpcmaxuploads']) { ?>
+<strong><?php echo $lang->phrase('upload_intro3'); ?></strong>
+	<?php foreach ($uploads as $row) { ?>
+		<br /><input type="submit" name="delete[<?php echo $row['id']; ?>]" value="<?php echo $lang->phrase('delete_form'); ?>" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $row['file']; ?> (<em><?php echo $row['filesize']; ?></em>)
+<?php } } ?>
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+</form>

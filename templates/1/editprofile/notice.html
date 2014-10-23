@@ -1,0 +1,20 @@
+<form id="notice" method="post" action="editprofile.php?action=notice2<?php echo SID2URL_x; ?>">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('notice'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_notice'); ?></h3>
+<div class="bbody">
+<?php echo $lang->phrase('editprofile_notice_longdesc'); ?>
+<hr />
+<strong><?php echo $lang->phrase('existing_notices'); ?></strong><br />
+<?php for ($i = 0; $i < $notes; $i++) { ?>
+	<p>
+	<textarea name="notice[]" rows="<?php echo $notices[$i]['rows']; ?>" cols="85"><?php echo $notices[$i]['text']; ?></textarea><br />
+	<span class="stext">[<a href="javascript: deletenotice(<?php echo $i; ?>);"><?php echo $lang->phrase('notice_delete'); ?></a>] [<?php echo $notices[$i]['length'].$lang->phrase('notice_chars'); ?>]</span>
+	</p>
+	<hr class="formsep" />
+<?php } ?>
+<strong><?php echo $lang->phrase('new_notice'); ?></strong><br />
+<textarea name="notice[]" rows="7" cols="85"></textarea>
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+</div>
+</form>

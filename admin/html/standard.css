@@ -1,0 +1,111 @@
+body {
+	background-color: #cccccc; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	margin: 5px;
+	font-size: 0.8em;
+}
+form {
+	margin: 0px;
+}
+hr {
+    height: 1px;
+    border: 0; 
+    border-bottom: 1px #839FBC solid;
+}
+li {
+    font-size: 12px;
+}
+ul {
+	margin-bottom: 2px;
+	margin-top: 2px;
+}
+input, select {
+	font-size: 11px;
+	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+	background-color: #F5F8FA; 
+	border: 1px solid #336699;
+}
+textarea {
+	font-size: 12px;
+	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+	background-color: #F5F8FA; 
+	border: 1px solid #336699;
+}
+.texteditor {
+	font-family: Courier New, monospace;
+	white-space: pre;
+	max-width: 100%;
+}
+A {
+	text-decoration: none;
+	color: #336699;
+}
+A:hover {
+	color : #000000;
+}
+font, span {
+	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+	color: #000000;
+}
+.center {
+    text-align: center;
+}
+.border {
+	background-color: #839FBC;
+	max-width: 100%;
+	width: 98%;
+	min-width: 50%;
+	border-collapse: collapse;
+}
+.border td, .border th {
+	border: 1px solid #839FBC;
+	padding: 4px;
+}
+.border td table td {
+	border: 0px solid #839FBC;
+	padding: 3px;
+}
+.minibr {
+	line-height: 5px;
+}
+.box {
+	border: 1px solid #839FBC;
+	background-color: #F5F8FA;
+	margin: 2px;
+	padding: 2px;
+}
+.obox {
+	background-color: #BCCADA;
+	font-size: 13px;
+	color: #336699;
+	font-weight: bold;
+}
+.ubox {
+	background-color: #E1E8EF;
+	font-size: 11px;
+	color: #24486C;
+}
+.mbox {
+	background-color: #ffffff;
+	font-size: 12px; 
+}
+.mmbox {
+	background-color: #F5F8FA;
+	font-size: 12px;
+}
+.stext {
+	font-size: 10px;
+	color: #555;
+}
+#copyright {
+	padding-top: 1em;
+	clear: both;
+	font-size: 8pt;
+	text-align: center;
+}
+.right {
+    float: right;
+}
+.valign {
+	vertical-align: middle;
+}

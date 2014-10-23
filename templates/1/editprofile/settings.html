@@ -1,0 +1,90 @@
+<form name="form2" method="post" action="editprofile.php?action=settings2<?php echo SID2URL_x; ?>">
+<div class="border">
+	<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_settings'); ?></h3>
+	<div class="bbody">
+		<label for=""><?php echo $lang->phrase('timezone'); ?></label>
+			<select class="label" id="location" name="location"> 
+				<option selected="selected" value="<?php echo $my->timezone; ?>"><?php echo $lang->phrase('timezone_current'); ?></option>
+				<option value="-12"><?php echo $lang->phrase('timezone_n12'); ?></option>
+				<option value="-11"><?php echo $lang->phrase('timezone_n11'); ?></option>
+				<option value="-10"><?php echo $lang->phrase('timezone_n10'); ?></option>
+				<option value="-9"><?php echo $lang->phrase('timezone_n9'); ?></option>
+				<option value="-8"><?php echo $lang->phrase('timezone_n8'); ?></option>
+				<option value="-7"><?php echo $lang->phrase('timezone_n7'); ?></option>
+				<option value="-6"><?php echo $lang->phrase('timezone_n6'); ?></option>
+				<option value="-5"><?php echo $lang->phrase('timezone_n5'); ?></option>
+				<option value="-4"><?php echo $lang->phrase('timezone_n4'); ?></option>
+				<option value="-3.5"><?php echo $lang->phrase('timezone_n35'); ?></option>
+				<option value="-3"><?php echo $lang->phrase('timezone_n3'); ?></option>
+				<option value="-2"><?php echo $lang->phrase('timezone_n2'); ?></option>
+				<option value="-1"><?php echo $lang->phrase('timezone_n1'); ?></option>
+				<option value="0"><?php echo $lang->phrase('timezone_0'); ?></option>
+				<option value="+1"><?php echo $lang->phrase('timezone_p1'); ?></option>
+				<option value="+2"><?php echo $lang->phrase('timezone_p2'); ?></option>
+				<option value="+3"><?php echo $lang->phrase('timezone_p3'); ?></option>
+				<option value="+3.5"><?php echo $lang->phrase('timezone_p35'); ?></option>
+				<option value="+4"><?php echo $lang->phrase('timezone_p4'); ?></option>
+				<option value="+4.5"><?php echo $lang->phrase('timezone_p45'); ?></option>
+				<option value="+5"><?php echo $lang->phrase('timezone_p5'); ?></option>
+				<option value="+5.5"><?php echo $lang->phrase('timezone_p55'); ?></option>
+				<option value="+5.75"><?php echo $lang->phrase('timezone_p575'); ?></option>
+				<option value="+6"><?php echo $lang->phrase('timezone_p6'); ?></option>
+				<option value="+6.5"><?php echo $lang->phrase('timezone_p65'); ?></option>
+				<option value="+7"><?php echo $lang->phrase('timezone_p7'); ?></option>
+				<option value="+8"><?php echo $lang->phrase('timezone_p8'); ?></option>
+				<option value="+9"><?php echo $lang->phrase('timezone_p9'); ?></option>
+				<option value="+9.5"><?php echo $lang->phrase('timezone_p95'); ?></option>
+				<option value="+10"><?php echo $lang->phrase('timezone_p10'); ?></option>
+				<option value="+11"><?php echo $lang->phrase('timezone_p11'); ?></option>
+				<option value="+12"><?php echo $lang->phrase('timezone_p12'); ?></option>
+			</select>
+		<br class="newinput" /><hr class="formsep" />
+		<label for=""><?php echo $lang->phrase('editprofile_editor'); ?></label>
+		<select id ="opt_0" class="label" name="opt_0">
+		<option<?php echo iif($my->opt_textarea == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_editor_simple'); ?></option>
+		<option<?php echo iif($my->opt_textarea == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_editor_extended'); ?></option>
+		</select>
+		<br class="newinput" /><hr class="formsep" />
+		<label for="opt_1"><?php echo $lang->phrase('editprofile_emailpn'); ?></label>
+		<input type="checkbox" name="opt_1" id="opt_1" <?php echo iif($my->opt_pmnotify == 1,' checked="checked"'); ?> value="1"></td> 
+		<br class="newinput" /><hr class="formsep" />
+		<label for="opt_2"><?php echo $lang->phrase('editprofile_bad'); ?></label>
+		<input type="checkbox" name="opt_2" id="opt_2" <?php echo iif($my->opt_hidebad == 1,' checked="checked"'); ?> value="1"></td> 
+		<br class="newinput" /><hr class="formsep" />
+		<label for="opt_7"><?php echo $lang->phrase('editprofile_showsig'); ?></label>
+		<input type="checkbox" name="opt_7" id="opt_7" <?php echo iif($my->opt_showsig == 1,' checked="checked"'); ?> value="1"></td> 
+		<br class="newinput" /><hr class="formsep" />
+		<label for=""><?php echo $lang->phrase('editprofile_showmail'); ?></label>
+		<select name="opt_3" id="opt_3" class="label">
+		<option<?php echo iif($my->opt_hidemail == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_showmail_0'); ?></option>
+		<option<?php echo iif($my->opt_hidemail == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_showmail_1'); ?></option>
+		<option<?php echo iif($my->opt_hidemail == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_showmail_2'); ?></option>
+		</select>
+		<br class="newinput" /><hr class="formsep" />
+		<label for=""><?php echo $lang->phrase('editprofile_newsletter'); ?></label>
+		<select name="opt_6" id="opt_6" class="label">
+		<option<?php echo iif($my->opt_newsletter == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_newsletter_0'); ?></option>
+		<option<?php echo iif($my->opt_newsletter == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_newsletter_1'); ?></option>
+		<option<?php echo iif($my->opt_newsletter == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_newsletter_2'); ?></option>
+		</select>
+		<br class="newinput" /><hr class="formsep" />
+		<label for=""><?php echo $lang->phrase('editprofile_design'); ?></label>
+		<select name="opt_4" id="opt_4" class="label">
+			<option selected="selected" value="<?php echo $my->template; ?>"><?php echo $lang->phrase('editprofile_design_current'); ?></option>
+			<?php foreach ($design as $row) { ?>
+			<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+			<?php } ?>
+		</select>
+		<br class="newinput" /><hr class="formsep" />
+		<label for=""><?php echo $lang->phrase('editprofile_language'); ?></label>
+		<select name="opt_5" id="opt_5" class="label">
+			<option selected="selected" value="<?php echo $my->language; ?>"><?php echo $lang->phrase('editprofile_language_current'); ?></option>
+			<?php foreach ($language as $row) { ?>
+			<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?></option>
+			<?php } ?>
+		</select>
+		<br class="newinput" /><br class="iefix_br" />
+	</div>
+	<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+</div>
+</form>

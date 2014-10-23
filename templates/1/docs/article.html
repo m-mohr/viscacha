@@ -1,0 +1,16 @@
+<?php list($content, $pages) = DocCodePagination($info['content']); ?>
+<div class="border">
+	<h3><?php echo $info['title']; ?></h3>
+	<?php if ($pages > 1) { ?>
+	<div class="bfoot">
+	<?php
+	echo $lang->phrase('pages');
+	for ($i = 1; $i <= $pages; $i++) {
+	    echo iif($i != $_GET['page'], ' [<a href="docs.php?id='.$id.'&amp;page='.$i.SID2URL_x.'">'.$i.'</a>]', ' [<strong>'.$i.'</strong>]');
+	}
+	?>
+	</div>
+	<?php } ?>
+	<div class="bbody"><?php echo $content; ?></div>
+	<div class="bfoot"><?php echo $lang->phrase('docs_metadata'); ?></div>
+</div>

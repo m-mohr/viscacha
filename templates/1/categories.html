@@ -1,0 +1,69 @@
+  <table class="tables">
+    <thead>
+	<tr>
+		<th colspan="4">
+			<img id="img_cat_f<?php echo $cat['id']; ?>" name="collapse" src="<?php echo $tpl->img('minus'); ?>" alt="" /> <?php echo $cat['name']; ?>
+			<?php echo iif ($cat['desctxt'], '<br /><span class="stext">'.$cat['desctxt'].'</span>'); ?>
+		</th>
+	</tr>
+	</thead>
+	<tbody id="part_cat_f<?php echo $cat['id']; ?>">
+	<tr class="tfoot">
+		<td width="3%">&nbsp;</td>
+		<td width="45%"><?php echo $lang->phrase('board'); ?></td>
+		<td width="18%"><?php echo $lang->phrase('contentcounter'); ?></td>
+		<td width="34%"><?php echo $lang->phrase('last_post'); ?></td>
+	</tr>
+    <?php
+    foreach ($forums as $forum) {
+    if ($forum['opt'] == 're') {
+    ?>
+	<tr class="tbody">
+		<td width="3%" class="center"><img src="<?php echo $tpl->img('cat_redirect'); ?>" alt="<?php echo $forum['name']; ?>" /></td>
+		<td width="97%" colspan="3">
+		<span class="right" class="stext"><?php echo $forum['optvalue']; ?></span>
+		<strong><a href="<?php echo $forum['optvalue']; ?>"><?php echo $forum['name']; ?></a></strong><?php if ($forum['desc']) echo "<br />".$forum['desc']; ?></span>
+		</td>
+	</tr>
+	<?php } else { ?>
+	<tr class="tbody">
+		<td width="3%" class="center">
+			<img<?php echo iif($forum['new'], ' title="'.$lang->phrase('forum_options_markread').'" onmouseover="HandCursor(this)" onclick="ajax_markforumread('.$forum['id'].',this)"'); ?> src="<?php echo $forum['foldimg']; ?>" alt="<?php echo $forum['name']; ?>" />
+		</td>
+		<td width="45%">
+			<strong><a href="showforum.php?id=<?php echo $forum['id'].SID2URL_x; ?>"><?php echo $forum['name']; ?></a></strong>
+			<?php if ($forum['desc']) echo "<br />".$forum['desc']; ?>
+			<span class='stext'>
+			<?php if (count($forum['mod'])) { ?>
+			<br />
+			<strong><?php echo $lang->phrase('forum_mods'); ?></strong> 
+			<?php foreach($forum['mod'] as $m) { ?>
+			<a href="profile.php?id=<?php echo $m['mid'].SID2URL_x; ?>"><?php echo $m['name']; ?></a><?php echo $m['sep']; ?>
+			<?php } } if (count($forum['sub'])) { ?>
+			<br /><strong>Unterforen:</strong>
+			<?php foreach ($forum['sub'] as $s) { ?>
+			<img<?php echo iif($s['new'], ' title="'.$lang->phrase('forum_options_markread').'" onmouseover="HandCursor(this)" onclick="ajax_markforumread('.$s['id'].',this,1)"'); ?> src="<?php echo $s['foldimg']; ?>" alt="<?php echo $s['name']; ?>" />&nbsp;
+			<a href="<?php echo iif($s['opt'] != 're', 'showforum.php?id='.$s['id'].SID2URL_x, $s['optvalue']); ?>"><?php echo $s['name']; ?></a>&nbsp;&nbsp;
+			<?php } } ?>
+			</span>
+		</td>
+		<td width="18%">
+			<?php echo $forum['topics']; ?> <?php echo $lang->phrase('xtopics'); ?><br />
+			<?php echo $forum['replys']; ?> <?php echo $lang->phrase('xreplies'); ?>
+		</td>
+		<td width="34%" class="stext">
+		<?php if($forum['btopic']) { ?>
+			<a href="showtopic.php?id=<?php echo $forum['tid'].SID2URL_x; ?>&amp;action=last">
+			<strong><?php echo $forum['btopic']; ?></strong>
+			</a><br />
+			<span class="left nowrap">
+			<?php echo $lang->phrase('by'); ?> 
+			<?php echo iif ($forum['lname'][1], '<a href="profile.php?id='.$forum['lname'][1].SID2URL_x.'">'.$forum['lname'][0].'</a>', $forum['lname'][0]); ?>
+			</span>
+			<span class="right nowrap"><?php echo $forum['bdate']; ?></span>
+		<?php } else { echo $lang->phrase('cat_no_lastpost'); } ?>
+		</td>
+	</tr>
+	<?php } } ?>
+	</tbody>
+  </table>

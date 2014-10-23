@@ -1,0 +1,22 @@
+<form name="form2" method="post" action="editprofile.php?action=abos2<?php echo SID2URL_x; ?>">
+<table class="tables">
+<tr> 
+<th colspan="3"><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_abos'); ?></th>
+</tr>
+<tr class="tfoot"> 
+<td width="2%"><?php echo $lang->phrase('delete_title'); ?></td>
+<td width="60%"><?php echo $lang->phrase('forum_topic'); ?></td>
+<td width="38%"><?php echo $lang->phrase('editprofile_digest_type'); ?></td> 
+</tr>
+<?php foreach ($cache as $row) { ?>
+<tr class="tbody"> 
+<td width="2%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
+<td width="60%"><?php echo $row['prefix']; ?><a href="showtopic.php?id=<?php echo $row['tid'].SID2URL_x; ?>"><?php echo $row['topic']; ?></a></td>
+<td width="36%"><?php echo $row['period']; ?></td> 
+</tr>
+<?php } ?>
+<tr> 
+<td class="tfoot center" colspan="3"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></td> 
+</tr>
+</table>
+</form>

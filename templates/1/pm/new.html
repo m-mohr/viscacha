@@ -1,0 +1,48 @@
+<?php if (!empty($data['formatted_comment'])) { ?>
+<div class="border">
+<h3><img src="<?php echo $tpl->img('pm_new'); ?>" alt="" />  <?php echo $lang->phrase('preview_title'); ?></h3>
+<div class="bbody">
+	<span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?> <strong><?php echo $data['topic']; ?></strong></span>
+	<hr />
+	<?php echo $data['formatted_comment']; ?>
+</div>
+<br class="minibr" />
+<?php } ?>
+<form name="form2" method="post" action="pm.php?action=save<?php echo SID2URL_x; ?>">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('pm_new'); ?>" alt="" />  <?php echo $lang->phrase('pm_writenew'); ?></h3>
+<div class="bbody">
+<label>Absender:</label>
+<span class="iefix_left"><?php echo $my->name; ?><input type="hidden" name="id" value="<?php echo $my->id; ?>" /></span>
+<br class="newinput" /><hr class="formsep" />
+<label for="membersuggest_val"><?php echo $lang->phrase('pm_addressee'); ?></label>
+<div class="label">
+  <?php if (!isset($showname)) { ?>
+  <input id="membersuggest_val" type="text" onkeyup="ajax_searchmember(this.value);" name="name" size="40" value="<?php echo $data['name']; ?>" />
+  <?php } else { ?>
+  <input id="membersuggest_val" name="name2" disabled="disabled" type="text" onkeyup="ajax_searchmember(this.value);" size="40" value="<?php echo $showname; ?>" />
+  <span class="stext" id="edit_pmto">[<a href="javascript: edit_pmto();"><?php echo $lang->phrase('pm_addressee_edit'); ?></a>]</span>
+  <input id="membersuggest_val2" type="hidden" name="name" value="<?php echo $data['name']; ?>" />
+  <?php } ?>
+  <br /><span class="stext" id="membersuggest"></span>
+</div>
+<br class="newinput" /><hr class="formsep" />
+<label for="topic">Titel:</label> 
+<input type="text" id="topic" class="label" name="topic" size="30" value="<?php echo $data['topic']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $inner['smileys']; ?></label>
+<?php echo $inner['bbhtml']; ?>
+<br class="newinput" /><hr class="formsep" />
+<label for="comment"><?php echo $lang->phrase('pm_postarea'); ?></label> 
+<textarea id="comment" name="comment" cols="50" rows="10" class="label"><?php echo $data['comment']; ?></textarea>
+<br class="newinput" /><hr class="formsep" />
+<label for="temp"><?php echo $lang->phrase('post_settings'); ?></label> 
+<div class="label"><input type="checkbox" name="temp" value="1"<?php echo iif($data['outgoing'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('pm_saveoutgoing'); ?></div>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center">
+  <input type="submit" accesskey="s" onclick="submit_flood(this)" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /> 
+  <input type="submit" accesskey="p" name="Preview2" value="<?php echo $lang->phrase('preview_form'); ?>" />
+</div>
+</div>
+</form>

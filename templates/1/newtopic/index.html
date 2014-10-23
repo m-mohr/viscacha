@@ -1,0 +1,70 @@
+<?php if ($_GET['action'] == 'preview') { ?>
+<div class="border">
+<h3><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('preview_title'); ?></h3>
+<div class="bbody">
+	<span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?> <strong><?php echo iif(!empty($data['formatted_prefix']), '['.$data['formatted_prefix'].']'); ?> <?php echo $data['topic']; ?></strong></span>
+	<hr />
+	<?php echo $data['formatted_comment']; ?>
+</div>
+</div>
+<br class="minibr" />
+<?php } ?>
+<form name="form2" method="post" action="newtopic.php?id=<?php echo $board.SID2URL_x; ?>&amp;action=save">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('newtopic_title'); ?></h3>
+<div class="bbody">
+<?php if (!$my->vlogin) { ?>
+<label for="name"><?php echo $lang->phrase('name'); ?></label>
+<input type="text" id="name" class="label" name="name" size="40" value="<?php echo $data['name']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="email"><?php echo $lang->phrase('email'); ?></label>
+<input type="text" id="email" class="label" name="email" size="40" value="<?php echo $data['email']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<?php } else { ?>
+<label><?php echo $lang->phrase('logged_in_as'); ?></label> 
+<span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
+<br class="newinput" /><hr class="formsep" />
+<?php } ?>
+<label for="topic"><?php echo $lang->phrase('title'); ?></label> 
+<?php if (empty($inner['index_prefix'])) { ?>
+<input type="text" class="label" id="topic" name="topic" size="40" value="<?php echo $data['topic']; ?>" /> 
+<?php } else { ?>
+<div class="label">
+<?php echo $inner['index_prefix']; ?><input type="text" id="topic" name="topic" size="35" value="<?php echo $data['topic']; ?>" /></td> 
+</div>
+<?php } ?>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $inner['smileys']; ?></label>
+<?php echo $inner['bbhtml']; ?>
+<br class="newinput" /><hr class="formsep" />
+<label for="comment"><?php echo $lang->phrase('post'); ?></label> 
+<textarea id="comment" class="label" name="comment" cols="50" rows="10"><?php echo $data['comment']; ?></textarea>
+<br class="newinput" /><hr class="formsep" />
+<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label> 
+<div class="label">
+	<input type="checkbox" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
+	<input type="checkbox" name="dowords" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
+</div>
+<br class="newinput" />
+<?php if ($p_upload == 1) { ?>
+<hr class="formsep" />
+<label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label> 
+<div class="label">
+	<a href="attachments.php?type=newtopic&amp;id=<?php echo $board.SID2URL_x; ?>" target="_blank" onclick="adduploads(this); return false;"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
+</div>
+<br class="newinput" />
+<?php } if ($my->p['addvotes'] == 1) {  ?>
+<hr class="formsep" />
+<label for="temp"><?php echo $lang->phrase('add_vote'); ?></label> 
+<div class="label">
+  <input type="checkbox" name="opt_2" value="1"<?php echo iif($data['vote'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('yes_add_vote'); ?><br />
+  <?php echo $lang->phrase('vote_replies'); ?> <input type="text" id="temp" name="temp" size="4" value="<?php echo $data['replies']; ?>" />
+</div>
+<br class="newinput" />
+<br class="iefix_br" />
+<?php } ?>
+</div>
+<div class="bfoot center"><input onclick="submit_flood(this)" accesskey="s" type="submit" name="Submit2" value="<?php echo $lang->phrase('submit_form'); ?>"> <input type="submit" name="Preview2" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
+</div>
+</form>

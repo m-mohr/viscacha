@@ -1,0 +1,13 @@
+    <br />
+    <?php echo iif ($config['benchmarkresult'] == 1, $tpl->parse('admin/benchmark')); ?>
+    <div class="center"><a href="docs.php?id=1<?php echo SID2URL_x; ?>">Imprint</a> - <a href="docs.php?id=2<?php echo SID2URL_x; ?>">Credits</a></div>
+    <div class="center stext"><?php echo $lang->phrase('timestamps_gmt_diff'); ?></div>
+</div><br />
+</div>
+<div id="copyright">
+    <strong><a href="http://www.mamo-net.de" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+    Copyright &copy; by MaMo Net
+    <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
+</div>
+</body>
+</html>

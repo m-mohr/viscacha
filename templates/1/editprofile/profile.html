@@ -1,0 +1,85 @@
+<form method="post" action="editprofile.php?action=profile2<?php echo SID2URL_x; ?>">
+<div class="border">
+  <h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_profile'); ?></h3>
+  <div class="bbody">
+	<label for="name"><?php echo $lang->phrase('editprofile_name'); ?></label>
+	  <?php echo iif($config['changename_allowed'] == 1, '<input class="label" id="name" type="text" name="name" size="40" value="'.$my->name.'" />', '<div class="label">'.$my->name.'</div>'); ?> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="fullname"><?php echo $lang->phrase('editprofile_fullname'); ?></label>
+	  <input class="label" id="fullname" type="text" name="fullname" size="40" value="<?php echo $my->fullname; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />											
+	  <label for="email"><?php echo $lang->phrase('editprofile_email'); ?></label> 
+	  <input class="label" id="email" type="text" name="email" size="40" value="<?php echo $my->mail; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="location"><?php echo $lang->phrase('editprofile_location'); ?></label> 
+	  <input class="label" id="location" type="text" name="location" size="40" value="<?php echo $my->location; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="gender"><?php echo $lang->phrase('editprofile_gender'); ?></label> 
+	  <select class="label" id="gender" size="1" name="gender">
+	  <option value=""><?php echo $lang->phrase('no_choice'); ?></option>
+	  <option<?php echo iif($my->gender == 'm',' selected="selected"'); ?> value="m"><?php echo $lang->phrase('gender_m'); ?></option>
+	  <option<?php echo iif($my->gender == 'w',' selected="selected"'); ?> value="w"><?php echo $lang->phrase('gender_w'); ?></option>
+	  </select> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="birthday"><?php echo $lang->phrase('editprofile_birthday'); ?></label> 
+	  <div class="label">
+	  <select id="birthday" size="1" name="birthday">
+	  <option value="00">--</option>
+		<?php
+		for ($i=1;$i<=31;$i++) {
+			if ($bday[2] == $i) $bdsel = ' selected="selected"';
+			else $bdsel = '';
+			echo "<option value='".leading_zero($i)."'".$bdsel.">".$i."</option>\n";
+		}
+		?>
+	  </select>. 
+	  <select size="1" name="birthmonth">
+	  <option value="00">--</option>
+		<?php
+		for ($i=1;$i<=12;$i++) {
+			if ($bday[1] == $i) $bmsel = ' selected="selected"';
+			else $bmsel = '';
+			echo "<option value='".leading_zero($i)."'".$bmsel.">".$lang->phrase('months_'.$i)."</option>\n";
+		}
+		?>
+	  </select> 
+	  <select size="1" name="birthyear">
+	  <option value="0000">----</option>
+		<?php
+		for ($i=$maxy;$i>=$miny;$i--) {
+			if ($bday[0] == $i) $bysel = ' selected="selected"';
+			else $bysel = '';
+			echo "<option value='".$i."'".$bysel.">".$i."</option>\n";
+		}
+		?>
+	  </select>
+	  </div>
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="hp"><?php echo $lang->phrase('editprofile_hp'); ?></label> 
+	  <input class="label" id="hp" type="text" name="hp" size="40" value="<?php echo $my->hp; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="icq"><?php echo $lang->phrase('editprofile_icq'); ?></label> 
+	  <input class="label" id="icq" type="text" name="icq" size="40" value="<?php echo $my->icq; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="aol"><?php echo $lang->phrase('editprofile_aol'); ?></label> 
+	  <input class="label" id="aol" type="text" name="aol" size="40" value="<?php echo $my->aol; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="yahoo"><?php echo $lang->phrase('editprofile_yahoo'); ?></label> 
+	  <input class="label" id="yahoo" type="text" name="yahoo" size="40" value="<?php echo $my->yahoo; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="msn"><?php echo $lang->phrase('editprofile_msn'); ?></label> 
+	  <input class="label" id="msn" type="text" name="msn" size="40" value="<?php echo $my->msn; ?>" /> 
+	<br class="newinput" /><hr class="formsep" />
+	  <label for="jabber"><?php echo $lang->phrase('editprofile_jabber'); ?></label> 
+	  <input class="label" id="jabber" type="text" name="jabber" size="40" value="<?php echo $my->jabber; ?>" /> 
+	<br class="newinput" /><br class="minibr" />
+  </div>
+  <div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+<br class="minibr" />
+<div class="border">
+  <h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?></h3>
+  <div class="bbody center"><textarea name="signature" rows="4" cols="80"><?php echo $my->signature; ?></textarea> </div>
+  <div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+</div>
+</form>

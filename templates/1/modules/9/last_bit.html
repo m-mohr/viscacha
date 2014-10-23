@@ -1,0 +1,9 @@
+<br class="minibr" />
+<div class="border">
+<div class="bfoot topfooter"><strong><?php echo $row->name; ?></strong> (<?php echo $row->date; ?>):</div>
+<div class="bbody">
+	<span class='stext'><strong><?php echo $lang->phrase('subject'); ?> <a href="javascript: showpost('<?php echo $row->board; ?>','<?php echo $row->id; ?>');"><?php echo $row->topic; ?></a></strong></span>
+	<hr />
+	<?php echo $row->comment; ?>
+</div>
+</div>

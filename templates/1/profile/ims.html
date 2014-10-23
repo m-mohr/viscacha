@@ -1,0 +1,54 @@
+<div class="border">
+<h3><img src="<?php echo $tpl->img($_GET['type']); ?>" alt="<?php echo $imtext; ?>" /> <?php echo $imtext; ?></h3>
+<div class="bfoot">
+<span class="right"><strong><?php echo $lang->phrase('im_status'); ?></strong> <?php echo $imstatus;?></span>
+<strong><?php echo $imtext; ?>:</strong> <?php echo $row[$_GET['type']]; ?>
+</div>
+<div class="bbody">
+<?php if ($_GET['type'] == 'icq') { ?>
+<form action="http://wwp.icq.com/scripts/WWPMsg.dll" method="get" target="_blank">
+<a class="iefix_left" href="http://web.icq.com/whitepages/add_me?uin=<?php echo $row['icq']; ?>&amp;action=add"><?php echo $lang->phrase('im_icq_1'); ?></a>
+<br /><hr class="formsep" />
+<label for="subject"><?php echo $lang->phrase('im_msgtitle'); ?></label>
+<input id="subject" class="label" name="subject" size="60" />
+<br class="newinput" /><hr class="formsep" />
+<label for="body">
+    <?php echo $lang->phrase('im_msgtext'); ?><br /><br />
+    <span class="stext"><?php echo $lang->phrase('im_msgtext_info'); ?></span>
+</label>
+<textarea id="body" class="label" name="body" cols="60" rows="6"></textarea>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center">
+   <input type="submit" accesskey="s" name="Send" value="<?php echo $lang->phrase('submit_form'); ?>" />
+   <input type="hidden" name="to" value="<?php echo $row['icq']; ?>" />
+   <input type="hidden" name="from" value="<?php echo $my->name; ?>" />
+   <input type="hidden" name="fromemail" value="<?php echo $my->mail; ?>" />
+</form>
+<?php } elseif ($_GET['type'] == 'aol') { ?>
+   <a href="aim:addbuddy?screenname=<?php echo $row['aol']; ?>"><?php echo $lang->phrase('im_aol_1'); ?></a><br />
+   <a href="aim:goim?screenname=<?php echo $row['aol']; ?>&amp;message=Hi"><?php echo $lang->phrase('im_aol_2'); ?></a><br /><br />
+   <span class='stext'><?php echo $lang->phrase('im_requirements'); ?></span>
+<?php } elseif ($_GET['type'] == 'yahoo') { ?>
+    <a href="http://members.yahoo.com/interests?.oc=t&amp;.kw=<?php echo $row['yahoo']; ?>&amp;.sb=1"><?php echo $lang->phrase('im_yahoo_1'); ?></a><br />
+    <a href="http://edit.yahoo.com/config/send_webmesg?.target=<?php echo $row['yahoo']; ?>&.amp;src=pg"><?php echo $lang->phrase('im_yahoo_2'); ?></a>
+<?php } elseif ($_GET['type'] == 'msn') { ?>
+    <object classid="clsid:B69003B3-C55E-4B48-836C-BC5946FC3B28" codetype="application/x-oleobject" id="MsgrObj" width="0" height="0"></object>
+    <a href="javascript:MsgrObj.AddContact(0,'<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_1'); ?></a><br />
+    <a href="javascript:MsgrObj.InstantMessage('<?php echo $row['msn']; ?>');"><?php echo $lang->phrase('im_msn_2'); ?></a><br /><br />   
+    <span class='stext'><?php echo $lang->phrase('im_requirements'); ?></span>
+<?php } else { ?>
+<form action="profile.php?action=sendjabber&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" method="post">
+<label for="ta">
+    <?php echo $lang->phrase('im_msgtext'); ?><br /><br />
+    <span class="stext"><?php echo $lang->phrase('im_msgtext_info'); ?></span>
+</label>
+<textarea id="ta" class="label" name="comment" cols="60" rows="6"></textarea>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center">
+    <input type="submit" accesskey="s" name="Submit2" value="<?php echo $lang->phrase('submit_form'); ?>">
+</form>
+<?php } ?>
+</div>
+</div>

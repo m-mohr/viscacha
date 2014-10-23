@@ -1,0 +1,14 @@
+http://checker.tdknights.com:1337/
+http://www.funnyweb.dk:8080/
+http://www.mix-networks.net/
+http://adwebhosting.net:8080/
+http://www.1a-network.de:8080/
+http://jualhosting.com:8088/
+http://osi.lishmirror.com:81/
+http://www.electrocity.ca:81/
+http://mactobasics.com.au:9102/
+http://www.the-server.net:8000/
+http://www.the-server.net:8002/
+http://www.the-server.net:8001/
+http://www.the-server.net:8003/
+http://omaha.servehttp.com:8090/

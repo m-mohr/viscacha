@@ -1,0 +1,10 @@
+<div class="border">
+<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('profile'); ?></h3>
+<div class="bbody profiledata">
+    <span class="btext"><?php echo $username; ?></span><br /><br />
+	<h5><?php echo $lang->phrase('profile_group'); ?></h5>
+	<em><?php echo $lang->phrase($group); ?></em>
+	<br />
+	<?php echo iif (!empty($email), '<h5>'.$lang->phrase('email').'</h5><em><img src="profile.php?guest='.$guest.'&amp;action=emailimage" border="0" alt=""></em>'); ?>
+</div>
+</div>

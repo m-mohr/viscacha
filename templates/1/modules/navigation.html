@@ -1,0 +1,21 @@
+<div class="navigation_cat">
+<h3><?php echo $row['name']; ?></h3>
+<ul class="nav">
+<?php foreach ($nav_s as $sub) { ?>
+	<?php if(!empty($sub['link'])) { ?>
+		<li><a href="<?php echo $sub['link']; ?>"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>><?php echo $sub['name']; ?></a>
+	<?php } else { ?>
+		<li><strong><?php echo $sub['name']; ?></strong>
+	<?php } if (count($sub['sub'])) { ?>
+	<ul class="nav_sub">
+	<?php foreach ($sub['sub'] as $subsub) { ?>
+		<li>
+		<a href="<?php echo $subsub['link']; ?>"<?php echo iif(!empty($subsub['param']), ' target="'.$subsub['param'].'"'); ?>><?php echo $subsub['name']; ?></a>
+		</li>
+	<?php } ?>
+	</ul>
+	<?php } ?>
+	</li>
+<?php } ?>
+</ul>
+</div>

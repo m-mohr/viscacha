@@ -1,0 +1,15 @@
+<div class="border">
+<h3><?php echo $lang->phrase('filetype_info_title'); ?></h3>
+<div class="bfoot"><?php echo $lang->phrase('filetype_info_desc'); ?></div>
+</div>
+<br class="minibr" />
+<?php foreach ($cache as $row) { ?>
+<div class="border">
+<h3><?php echo $row['extension']; ?></h3>
+<?php if (!empty($row['program'])) { ?>
+<div class="bfoot"><?php echo $row['program']; ?></div>
+<?php } ?>
+<div class="bbody"><?php echo $row['desctxt']; ?></div>
+</div>
+<br class="minibr" />
+<?php } ?>

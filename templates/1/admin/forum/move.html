@@ -1,0 +1,28 @@
+<form name="form2" method="post" action="manageforum.php?action=move2&amp;id=<?php echo $board.SID2URL_x; ?>">
+<div class="border">
+<h3><?php echo $lang->phrase('admin_mass_move'); ?></h3>
+<div class="bbody">
+<label><?php echo $lang->phrase('admin_where_to'); ?></label>
+<select class="label" size="1" name="opt_0"><?php echo $forums; ?></select>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $lang->phrase('admin_massmove_redirect'); ?></label>
+<div class="label">
+    <input type="radio" value="1" checked="checked" name="temp" /> <?php echo $lang->phrase('confirm_yes'); ?>
+    <input class="sep" type="radio" name="temp" value="0" /> <?php echo $lang->phrase('confirm_no'); ?>
+</div>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $lang->phrase('admin_massmove_email'); ?></label>
+<div class="label">
+    <input type="radio" value="1" checked="checked" name="temp2" /> <?php echo $lang->phrase('confirm_yes'); ?>
+    <input class="sep" type="radio" name="temp2" value="0" /> <?php echo $lang->phrase('confirm_no'); ?>
+</div>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center">
+<?php foreach ($_POST['delete'] as $row) { ?>
+<input type="hidden" name="delete[]" value="<?php echo $row; ?>" />
+<?php } ?>
+<input type="submit" name="Submit1" value="<?php echo $lang->phrase('move_form'); ?>" />
+</div>
+</div>
+</form>

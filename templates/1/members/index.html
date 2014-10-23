@@ -1,0 +1,37 @@
+<table class="tables">
+	<tr> 
+	  <th colspan="6">
+	  <?php if ($my->p['team'] == 1) { ?>
+	  <span class="right">[<a href="team.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('team'); ?></a>]</span>
+	  <?php } ?>
+	  <img src="<?php echo $tpl->img('members'); ?>" alt="" /> <?php echo $lang->phrase('members'); ?>
+	  </th>
+	</tr>
+	<tr> 
+	  <td class="tfoot" colspan="6"><span class="right"><?php echo $temp; ?></span><?php echo $lang->phrase('member_count'); ?></td>
+	</tr>
+	<tr> 
+	  <td class="tbody center" colspan="6"><?php echo $inner['index_letter']; ?></td>
+	</tr>
+	<tr class="tfoot"> 
+	  <td><?php echo $lang->phrase('th_name'); ?></span>
+	  	<a href="members.php?order=0&amp;letter=<?php echo $_GET['letter']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
+	  	<a href="members.php?order=1&amp;page=<?php echo $_GET['page']; ?>&amp;letter=<?php echo $_GET['letter'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
+	  </td>
+	  <td><?php echo $lang->phrase('th_pm'); ?></td>
+	  <td><?php echo $lang->phrase('th_email'); ?></td>
+	  <td><?php echo $lang->phrase('th_homepage'); ?></td>
+	  <td><?php echo $lang->phrase('th_location'); ?>
+	  	<a href="members.php?sort=location&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=0&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
+	  	<a href="members.php?sort=location&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=1&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
+	  </td>
+	  <td><?php echo $lang->phrase('th_registered_since'); ?></span>
+	  	<a href="members.php?sort=regdate&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=0&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
+	  	<a href="members.php?sort=regdate&amp;letter=<?php echo $_GET['letter']; ?>&amp;order=1&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
+	  </td>
+	</tr>
+<?php echo $inner['index_bit']; ?>
+	<tr> 
+	  <td class="tfoot textright" colspan="6"><span class='utext'><?php echo $temp; ?></span></td>
+	</tr>
+</table>

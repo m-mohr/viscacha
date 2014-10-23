@@ -1,0 +1,15 @@
+<div class="uploadbox"><strong>
+<?php if ($my->p['downloadfiles'] == 0) { echo $file['file']; } else { ?>
+<a href="attachments.php?action=attachment&amp;id=<?php echo $file['id'].SID2URL_x; ?>">
+<img src="attachments.php?action=thumbnail&amp;id=<?php echo $file['id'].SID2URL_x; ?>" alt="" />
+</a>
+<?php } ?>
+</strong><br />
+<span class="stext">
+<?php echo $lang->phrase('uploads_filetype'); ?><a href="javascript:filetypeinfo('<?php echo $imginfo; ?>');"><img src="<?php echo $tpl->img("filetypes/$icon"); ?>" alt="<?php echo $lang->phrase('uploads_filetypeinfo').$imginfo; ?>" /> <?php echo get_extension($file['file']); ?></a><br />
+<?php echo $lang->phrase('uploads_hits').$file['hits']; ?><br />
+<?php echo $lang->phrase('uploads_size').$fsize; ?><br />
+<?php echo $lang->phrase('uploads_imgsize'); ?>
+</span>
+</div>
+

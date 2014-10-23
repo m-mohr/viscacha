@@ -1,0 +1,262 @@
+/* Allgemeine Einstellungen */
+body {
+	background-color: #555555; 
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 9pt;
+	margin: 0px;
+	padding: 0px;
+	text-align: center;
+}
+#container {
+	width: 760px;
+	background-image: url(standard/bg.gif);
+	margin: auto;
+	text-align: left;
+	border: 1px solid #222222;
+}
+a {
+	text-decoration: none;
+	color: #2F7202;
+}
+a:hover {
+	color : #000000;
+}
+form {
+	margin: 0px;
+}
+input, select, .submit {
+	font-size: 9pt;
+	font-family: Helvetica, Arial, sans-serif;
+	background-color: #FBFEEE; 
+	border: 1px solid #C8D69A;
+	color: #000000;
+}
+.submit {
+	padding: 1px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+textarea {
+	font-size: 9pt;
+	font-family: Helvetica, Arial, sans-serif;
+	background-color: #FBFEEE; 
+	border: 1px solid #C8D69A;
+
+}
+hr {
+    height: 1px;
+    border: 0; 
+    border-bottom: 1px #C8D69A solid;
+}
+
+p {
+	margin-top: 0.25em;
+	margin-bottom: 0.75em;
+}
+
+.invclear {
+    clear: both;
+    line-height: 0px;
+}
+
+.codearea {
+  font-family: monospace;
+  white-space: pre;
+  width: 580px;
+  height: 300px;
+}
+
+/* Header und Breadcrumb-Navigation */
+h1 {
+	font-family: Trebuchet MS, sans-serif;
+	margin: 0px;
+	padding: 0px;
+	background-image: url(standard/header.jpg);
+	height: 83px;
+	width: 760px;
+	border-top: 5px solid #222222;
+}
+.breadcrumb {
+ 	background-color: #222222;
+	width: 750px;
+	padding: 5px;
+ 	font-size: 8pt;
+ 	color: #bbbbbb;
+}
+.breadcrumb a {
+    color: #bbbbbb;
+    border-bottom: 1px dotted #555555;
+}
+.breadcrumb a:hover {
+    color: #ffffff;
+}
+
+/* Inhalt */
+#content {
+	float: right;
+	width: 595px;
+	padding: 6px;
+}
+.bbody {
+	background-color: #FBFEEE;
+	padding: 4px;
+}
+.bfoot {
+	background-color: #E7EECD;
+	font-size: 8pt;
+	color: #444444;
+	padding: 4px;
+}
+.border {
+	width: 100%;
+}
+.tables {
+	border-collapse: collapse;
+	margin-bottom: 8px;
+	width: 100%;
+}
+.tables td {
+	border: 1px solid #C8D69A;
+	padding: 4px;
+}
+.tables th {
+	text-align: left;
+	font-size: 10pt;
+	color: #F98249;
+	border-bottom: 4px solid #C8D69A;
+	font-weight: bold;
+	padding: 4px;
+}
+.tbody {
+	background-color: #FBFEEE;
+	font-size: 9pt;
+}
+.tfoot {
+	background-color: #E7EECD;
+	font-size: 8pt;
+	color: #444444;
+}
+#content h3, .h3 {
+	padding: 4px;
+	margin: 0px;
+	font-size: 10pt;
+	color: #F98249;
+	border-bottom: 4px solid #C8D69A;
+}
+#content h3 {
+	border-bottom: 4px solid #C8D69A;
+}
+.h3 {
+	font-weight: bold;
+}
+
+/* Navigation */
+#navigation {
+	float: left;
+	width: 153px;
+	color: #ffffff;
+}
+#navigation h3 {
+	padding: 5px;
+	margin: 0px;
+	font-size: 10pt;
+	color: #ffffff;
+	font-weight: bold;
+	border-bottom: 2px solid #689E18;
+}
+#navigation .nav {
+	list-style: none;
+	margin: 0px;
+	margin-left: 10px;
+	padding: 5px;
+	padding-left: 10px;
+	list-style-image: url(standard/list2.gif);
+}
+#navigation li {
+	padding: 2px;
+}
+#navigation a {
+	color: #ffffff;
+	border-bottom: 1px dotted #7ABA1C;
+}
+#navigation a:hover {
+	border-bottom: 1px solid #7ABA1C;
+}
+
+/* Tabellenlose Formulare */
+.label, label, .labeldiv {
+	float: left;
+	display: block;
+	vertical-align: middle;
+}
+.label_inner {
+    width: 100%;
+}
+.label {
+	width: 65%;
+}
+label, .labeldiv {
+	width: 28%;
+	padding-right: 16px;
+	font-weight: bold;
+}
+.newinput {
+	clear: left;
+}
+.formsep {
+    height: 1px;
+    line-height: 1px;
+    border: 0; 
+    border-bottom: 1px #C8D69A dotted;
+}
+
+/* Ausrichtung */
+.center {
+	text-align: center;
+}
+.right {
+	float: right;
+}
+.block {
+	display: block;
+}
+.textright {
+	text-align: right;
+}
+.left {
+	float: left;
+}
+
+/* Sonstiges */
+.stext {
+	font-size: 8pt;
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: normal;
+	color: #444444;
+}
+.btext {
+	font-size: 12pt;
+	color: #F98249;
+	font-weight: bold;
+}
+.minibr {
+	line-height: 8px;
+}
+.sep {
+	margin-left: 16px;
+}
+
+.hl_true {
+	color: #008000;
+}
+.hl_null {
+	color: #ffaa00;
+}
+.hl_false {
+	color: #ff0000;
+}
+
+/* IE Fix */
+.iefix_br {
+    line-height: 0px;
+}

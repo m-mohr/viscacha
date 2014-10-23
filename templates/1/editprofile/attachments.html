@@ -1,0 +1,31 @@
+<form name="form2" method="post" action="editprofile.php?action=attachments2<?php echo SID2URL_x; ?>">
+<table class="tables">
+	<tr> 
+	  <th colspan="5"><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_attachments'); ?></th>
+	</tr>
+	<tr class="tbody"> 
+	  <td width="40%"><?php echo $lang->phrase('forum_topic'); ?></td>
+	  <td width="5%"><?php echo $lang->phrase('delete_title'); ?></td>
+	  <td width="40%"><?php echo $lang->phrase('editprofile_attachments_uploads'); ?></td>
+	  <td width="10%"><?php echo $lang->phrase('editprofile_attachments_size'); ?></td>
+	  <td width="5%"><?php echo $lang->phrase('editprofile_attachments_hits'); ?></td>
+	</tr>
+<?php foreach ($cache as $row) { ?>
+	<tr class="tbody"> 
+	  <td width="40%"><a href="javascript: showpost(<?php echo $row['tid']; ?>);"><?php echo $row['topic']; ?></a></td>
+	  <td class="center" width="5%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>" /></td>
+	  <td width="40%"><a href="attachments.php?action=attachment&amp;id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank"><?php echo $row['file']; ?></a></td>
+	  <td class="textright" width="10%" nowrap="nowrap"><?php echo $row['fsize']; ?></td>
+	  <td class="textright" width="5%"><?php echo $row['hits']; ?></td> 
+	</tr>
+<?php } ?>
+	<tr class="tfoot"> 
+	  <td class="textright" colspan="3"><?php echo $lang->phrase('editprofile_attachments_allfiles'); ?></td> 
+	  <td nowrap="nowrap"><?php echo $all[1]; ?></td> 
+	  <td nowrap="nowrap"><?php echo $all[2]; ?></td> 
+	</tr>
+	<tr> 
+	  <td class="tfoot center" colspan="5"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('delete_form'); ?>" /></td> 
+	</tr>
+</table>
+</form>

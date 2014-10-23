@@ -1,0 +1,32 @@
+<div class="border">
+<div class="topfooter bfoot">
+<span class="right">
+    <a href="pm.php?action=delete&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm_delete'); ?>" alt="" /> <?php echo $lang->phrase('delete_title'); ?></a>
+    <a class="sep" href="pm.php?action=reply&amp;id=<?php echo $row['id']; ?>&amp;name=<?php echo $row['mid'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('forum_replies'); ?></a>
+    <a class="sep" href="pm.php?action=quote&amp;id=<?php echo $row['id']; ?>&amp;name=<?php echo $row['mid'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('quote'); ?>" alt="" /> <?php echo $lang->phrase('post_quote'); ?></a>
+</span>
+<img src="<?php echo $tpl->img('post_'.$row['read']); ?>" alt="" /> <?php echo $row['date']; ?>
+</div>
+<div class="inlineheader h3">
+  <div class="viewmembername">
+    <a href='profile.php?id=<?php echo $row['mid'].SID2URL_x; ?>'><?php echo $row['name']; ?></a><br />
+    <span class="stext"><?php echo $row['level']; ?></span>
+  </div>
+  <div class="viewmemberdetails stext">
+    <?php echo $lang->phrase('post_info_registered_since').$row['regdate']; ?><br />
+    <?php echo $lang->phrase('post_info_location').$row['location']; ?>
+  </div>
+  <br class="invclear" /><br class="iefix_br" />
+</div>
+<div class="bbody">
+<span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?><strong><?php echo $row['topic']; ?></strong></span>
+<hr />
+<?php echo $row['comment']; ?>
+<br class="iefix_left" /><hr />
+<?php if (!empty($row['fullname'])) { ?>
+   <span class="fullname stext"><?php echo $row['fullname']; ?></span>
+<?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
+   <br /><?php echo $row['signature']; ?>
+<?php } ?>
+</div>
+</div>

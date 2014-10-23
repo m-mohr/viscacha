@@ -1,0 +1,109 @@
+<table class="tables">
+	<tr> 
+	  <th colspan="2">
+	  <?php echo iif($vcard,'<span class="right">[<a href="profile.php?action=vcard&amp;id='.$row->id.SID2URL_x.'">'.$lang->phrase('profile_vcard').'</a>]</span>'); ?>
+	  <img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('profile'); ?>
+	  </th>
+	</tr>
+	<tr> 
+	  <td class="tbody" colspan="2" valign="middle">
+	    <?php echo iif(@file_exists($row->pic) && $row->p['usepic'],"<img class='right' src='$row->pic' alt='".$row->name."' />"); ?>
+	    <span class='btext'><?php echo $row->name; ?></span>
+	    <?php echo iif($row->fullname,"<br />".$row->fullname); ?>
+	  </td>
+	</tr>
+	<tr> 
+	  <th width="50%"><?php echo $lang->phrase('profile_board_info'); ?></th>
+	  <th width="50%"><?php echo $lang->phrase('profile_user_info'); ?></th>
+	</tr>
+	<tr class="tbody profiledata"> 
+	  <td valign="top">
+	  <h5><?php echo $lang->phrase('profile_registered_since'); ?></h5>
+	  <em><?php echo $row->regdate; ?></em>
+	  <br />
+	  <h5><?php echo $lang->phrase('profile_group'); ?></h5>
+	  <?php if (count($row->level) == 1) { ?>
+	  <em><?php echo current($row->level); ?></em>
+	  <br />
+	  <?php } else { ?>
+	  <ul>
+	  <?php foreach ($row->level as $level) {?>
+	  <li><em><?php echo $level; ?></em></li>
+	  <?php } ?>
+	  </ul>
+	  <?php } ?>
+	  <h5><?php echo $lang->phrase('profile_lastvisit'); ?></h5>
+	  <em><?php echo $row->lastvisit; ?></em>
+	  <?php if ($config['showpostcounter']) { ?>
+	  <br />
+	  <h5><?php echo $lang->phrase('profile_posts'); ?></h5>
+	  <em><?php echo $anz[0].$lang->phrase('profile_posts_perday'); ?></em>
+	  <?php } if ($config['osi_profile'] == 1) { ?>
+	  <br />
+	  <h5><?php echo $lang->phrase('profile_osi'); ?></h5> 
+	  <?php echo iif($osi, '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online'), '<em>'.$lang->phrase('profile_offline')); ?></em>
+	  <?php } ?>
+	  </td>
+	  <td valign="top">
+	  <h5><?php echo $lang->phrase('profile_homepage'); ?></h5>
+	  <em><?php echo iif($row->hp,"<a href='".$row->hp."' target='_blank'>".$row->hp."</a>",'-'); ?></em>
+	  <br />
+	  <h5><?php echo $lang->phrase('profile_gender'); ?></h5>
+	  <em><?php echo $gender; ?></em>
+	  <br />
+	  <h5><?php echo $lang->phrase('profile_bday'); ?></h5>
+	  <em><?php echo iif( $show_bday, iif( $bday[0] > 0 , $lang->phrase('profile_bday_full') , $lang->phrase('profile_bday_short') ) , $lang->phrase('profile_na') ); ?></em>
+	  <br />
+	  <h5><?php echo $lang->phrase('profile_location'); ?></h5>
+	  <em><?php echo iif($row->location,$row->location,'-'); ?></em>
+      </td>
+	</tr>
+	<tr>
+	  <th><?php echo $lang->phrase('profile_contact'); ?></th>
+	  <th><?php echo $lang->phrase('profile_instantmessenger'); ?></th>
+	</tr>
+	<tr class="tbody profiledata">
+	  <td valign="top">
+	  <ul>
+		<li><?php echo iif($row->opt_hidemail != 1, '<a href="profile.php?action=mail&amp;id='.$row->id.SID2URL_x.'">'.$lang->phrase('profile_mail_2').'</a>', $lang->phrase('profile_mail_1')); ?><br /></li>
+		<li><a href="pm.php?action=new&amp;name=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_pm_send'); ?></a></li>
+      </ul>
+      </td>
+	  <td valign="top">
+    <?php 
+    if($imanz > 0) {
+    	echo iif($row->icq > 0, '<a href="profile.php?action=ims&amp;type=icq&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('icq').'" alt="'.$lang->phrase('im_icq').'" /> '.$row->icq.'</a><br />');
+    	echo iif($row->aol,'<a href="profile.php?action=ims&amp;type=aol&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('aol').'" alt="'.$lang->phrase('im_aol').'" /> '.$row->aol.'</a><br />');
+    	echo iif($row->msn,'<a href="profile.php?action=ims&amp;type=msn&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /> '.$row->msn.'</a><br />');
+    	echo iif($row->yahoo,'<a href="profile.php?action=ims&amp;type=yahoo&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('yahoo').'" alt="'.$lang->phrase('im_yahoo').'" /> '.$row->yahoo.'</a><br />');
+    	echo iif($row->jabber,'<a href="profile.php?action=ims&amp;type=jabber&id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('jabber').'" alt="'.$lang->phrase('im_jabber').'" /> '.$row->jabber.'</a>');
+    } 
+    else {
+        echo $lang->phrase('profile_no_im');
+    }
+    ?>
+      </td>
+	</tr>  
+</table>
+<?php if (strxlen($row->signature) > 3 && $row->p['usesignature']) { ?>
+<br class="minibr" />
+<div class="border">
+<h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?></h3>
+<div class="bbody"><?php echo $row->signature; ?></div>
+</div>
+<?php } if (strxlen($row->about) > 3 && $row->p['useabout']) { ?>
+<br class="minibr" />
+<div class="border">
+<h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('profile_about'); ?></h3>
+<div class="bbody"><?php echo $row->about; ?></div>
+</div>
+<?php } if ($my->p['admin'] == 1) { ?>
+<br class="minibr" />
+<div class="border">
+<h3><?php echo $lang->phrase('admin_options'); ?></h3>
+<div class="bbody">
+	<a href="managemembers.php?action=delete&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_user_delete'); ?></a> | 
+	<a href="managemembers.php?action=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_user_edit'); ?></a>
+</div>
+</div>
+<?php } ?>

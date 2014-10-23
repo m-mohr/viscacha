@@ -1,0 +1,72 @@
+<script src="templates/editor.js" type="text/javascript"></script>
+<div class="label" id="codebuttons">
+<a id="menu_bbcolor" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
+    <script type="text/javascript">RegisterMenu('bbcolor');</script>
+	<DIV class="popup" id="popup_bbcolor">
+	<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
+	<div class="bbody">
+	<script type="text/javascript">document.write(writeRow());</script>
+	</div>
+	</DIV>
+<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<a id="menu_bbsize" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
+	<script type="text/javascript">RegisterMenu('bbsize');</script>
+    <div class="popup" id="popup_bbsize">
+    <strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
+   	<ul>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[size=large]','[/size]','bbsize')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[size=small]','[/size]','bbsize')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[size=extended]','[/size]','bbsize')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
+    </ul>
+    </div>
+<a id="menu_bbalign" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_align'); ?></a>
+	<script type="text/javascript">RegisterMenu('bbalign');</script>
+    <DIV class="popup" id="popup_bbalign">
+   <strong><?php echo $lang->phrase('bbcodes_align_title'); ?></strong>
+    <ul>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[align=left]','[/align]')" style="text-align: left;"><?php echo $lang->phrase('bbcodes_align_left'); ?></span></li>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[align=center]','[/align]')" style="text-align: center;"><?php echo $lang->phrase('bbcodes_align_center'); ?></span></li>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[align=right]','[/align]')" style="text-align: right;"><?php echo $lang->phrase('bbcodes_align_right'); ?></span></li>
+    	<li><span class="popup_line" onclick="InsertTagsMenu('[align=justify]','[/align]')" style="text-align: justify;"><?php echo $lang->phrase('bbcodes_align_justify'); ?></span></li>
+    </ul>
+    </DIV>
+<a id="menu_bbhx" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_header'); ?></a>
+	<script type="text/javascript">RegisterMenu('bbhx');</script>
+	<div class="popup" id="popup_bbhx">
+	<strong><?php echo $lang->phrase('bbcodes_header_title'); ?></strong>
+	<ul>
+		<li><h4 class="popup_line" onclick="InsertTagsMenu('[h=large]','[/h]','bbhx')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
+		<li><h5 class="popup_line" onclick="InsertTagsMenu('[h=middle]','[/h]','bbhx')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
+		<li><h6 class="popup_line" onclick="InsertTagsMenu('[h=small]','[/h]','bbhx')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
+	</ul>
+	</div>
+<?php } ?>
+<a id="menu_help" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" style="cursor: help;" target="_blank"><img src="<?php echo $tpl->img('bbcodes/help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcodes_help'); ?></strong></a>
+<?php if ($config['spellcheck'] == 1) { ?>
+<script type="text/javascript" src="templates/spellChecker.js"></script>
+<a href="javascript:openSpellChecker('comment');"><img src="<?php echo $tpl->img('bbcodes/spellcheck'); ?>" alt="<?php echo $lang->phrase('spellcheck'); ?>" /></a>
+<?php } ?>
+<br />
+<a href="javascript:InsertTags('[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>"><img src="<?php echo $tpl->img('bbcodes/b'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" /></a>
+<a href="javascript:InsertTags('[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>"><img src="<?php echo $tpl->img('bbcodes/i'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" /></a>
+<a href="javascript:InsertTags('[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>"><img src="<?php echo $tpl->img('bbcodes/u'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" /></a>
+<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<a href="javascript:InsertTags('[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>"><img src="<?php echo $tpl->img('bbcodes/hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" /></a>
+<?php } ?>
+<a href="javascript:InsertTags('[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>"><img src="<?php echo $tpl->img('bbcodes/img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" /></a>
+<a title="<?php echo $lang->phrase('bbcodes_url'); ?>" href="javascript:InsertTagsParams('[url={param1}]{param2}','[/url]','<?php echo $lang->phrase('bbcodes_url_prompt1'); ?>','<?php echo $lang->phrase('bbcodes_url_promtp2'); ?>');"><img src="<?php echo $tpl->img('bbcodes/url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" /></a>
+<a href="javascript:InsertTags('[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>"><img src="<?php echo $tpl->img('bbcodes/email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" /></a>
+<a href="javascript:InsertTags('[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>"><img src="<?php echo $tpl->img('bbcodes/quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" /></a>
+<a href="javascript:InsertTags('[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>"><img src="<?php echo $tpl->img('bbcodes/ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" /></a>
+<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<a href="javascript:popup_code();" title="<?php echo $lang->phrase('bbcodes_code'); ?>"><img src="<?php echo $tpl->img('bbcodes/code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" /></a>
+<a href="javascript:InsertTags('[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>"><img src="<?php echo $tpl->img('bbcodes/edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" /></a>
+<?php } ?>
+<a href="javascript:list();" title="<?php echo $lang->phrase('bbcodes_list'); ?>"><img src="<?php echo $tpl->img('bbcodes/ul'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" /></a>
+<?php if (isset($my->opt_textarea) && $my->opt_textarea != 0) { ?>
+<a href="javascript:list('ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>"><img src="<?php echo $tpl->img('bbcodes/ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" /></a>
+<a title="<?php echo $lang->phrase('bbcodes_note'); ?>" href="javascript:InsertTagsParams('[note={param1}]{param2}','[/note]','<?php echo $lang->phrase('bbcodes_note_prompt1'); ?>','<?php echo $lang->phrase('bbcodes_note_prompt2'); ?>');"><img src="<?php echo $tpl->img('bbcodes/note'); ?>" alt="<?php echo $lang->phrase('bbcodes_note'); ?>" /></a>
+<a href="javascript:InsertTags('[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>"><img src="<?php echo $tpl->img('bbcodes/sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" /></a>
+<a href="javascript:InsertTags('[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>"><img src="<?php echo $tpl->img('bbcodes/sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" /></a>
+<?php } ?>
+</div>

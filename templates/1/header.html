@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="<?php echo $lang->phrase('html_read_direction'); ?>">
+<head>
+<title><?php echo $breadcrumb->OutputPLAIN(' &raquo; '); ?></title>
+<meta http-equiv="content-type" content="text/html; charset=<?php echo $lang->phrase('charset'); ?>" />
+<meta name="generator" content="Viscacha (http://www.mamo-net.de)" />
+<link rel="stylesheet" type="text/css" href="designs/<?php echo $my->cssid; ?>/standard.css" />
+<!--[if IE]>
+<link rel="stylesheet" type="text/css" href="designs/<?php echo $my->cssid; ?>/ie.css" />
+<![endif]-->
+<link rel="index" href="index.php" />
+<link rel="search" href="search.php" />
+<link rel="up" href="javascript:self.scrollTo(0,0);" />
+<link rel="copyright" href="http://www.mamo-net.de" />
+<link rel="alternate" type="application/rss+xml" title="RSS Feed" href="external.php?type=RSS" />
+<script src="templates/lang2js.php?id=<?php echo $my->language; ?>" type="text/javascript"></script>
+<script type="text/javascript">
+<!--
+	var imgdir = '<?php echo $my->imagesid; ?>';
+	var cookieprefix = '<?php echo $config['cookie_prefix']; ?>';
+	var sidx = '<?php echo SID2URL_JS_x; ?>';
+	var sid1 = '<?php echo SID2URL_JS_1; ?>';
+	lng['ajax3_0'] = '<?php echo $tpl->img('dir_closed'); ?>'; 
+	lng['ajax4_0'] = '<?php echo $tpl->img('dir_open'); ?>'; 
+	lng['ajax3_1'] = '<?php echo $tpl->img('dir_closed2'); ?>'; 
+	lng['ajax4_1'] = '<?php echo $tpl->img('dir_open2'); ?>';
+	lng['ajax_markforumread'] = '<?php echo $tpl->img('cat_open'); ?>';
+	lng['ajax_markforumread_small'] = '<?php echo $tpl->img('subcat_open'); ?>';
+	var mq_img_on = '<?php echo $tpl->img('mquote'); ?>';
+	var mq_img_off = '<?php echo $tpl->img('no_mquote'); ?>';
+	var box_img_plus = '<?php echo $tpl->img('plus'); ?>';
+	var box_img_minus = '<?php echo $tpl->img('minus'); ?>';
+-->
+</script>
+<script src="templates/global.js" type="text/javascript"></script>
+<script src="templates/menu.js" type="text/javascript"></script>
+
+<?php echo $htmlhead; ?>
+</head>
+
+<body<?php echo $htmlbody; ?>>
+<script type="text/javascript">
+<!--
+	window.onload = function () {
+		initImg(<?php echo $config['resizebigimgwidth']; ?>);
+		mq_init();
+	}
+-->
+</script>
+<div id="container">
+    <h1><a href="index.php"><?php echo $config['fname']; ?></a></h1>
+    <div id="navigation">
+	<?php echo $mymodules->navigation(); ?>
+	</div>
+    <div class="breadcrumb">
+    <?php echo $breadcrumb->outputHTML(' &raquo; '); ?>
+    </div>
+	<div id="content">

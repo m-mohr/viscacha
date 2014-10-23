@@ -1,0 +1,79 @@
+<?php echo iif($subforums, '<br />'); ?>
+<table class="tables">
+  <tr>
+	<td class="tfoot" colspan="5">
+	<span class="right">
+		<a id="menu_forumtools" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /> <?php echo $lang->phrase('forum_options'); ?></a>
+		<script type="text/javascript">RegisterMenu('forumtools');</script>
+		<div class="popup" id="popup_forumtools">
+		<strong><?php echo $lang->phrase('forum_options_search'); ?></strong>
+		<ul>
+		<li>
+		 <?php echo $lang->phrase('forum_options_search_forum'); ?>
+		 <form method="post" action="search.php?action=search<?php echo SID2URL_x; ?>">
+		   <input type="text" name="search" size="22" />
+		   <input type="submit" value="<?php echo $lang->phrase('forum_options_search_submit'); ?>" /><input type="hidden" name="boards[]" value="<?php echo $board; ?>" />
+		 </form>
+		</li>
+		</ul>
+		<strong><?php echo $lang->phrase('forum_options_misc'); ?></strong>
+		<ul>
+		<li><a href="misc.php?action=markforumasread&amp;board=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('forum_options_markread'); ?></a></li>
+		</ul>
+		</div>
+		<?php if ($my->p['posttopics'] == 1) { ?>
+		<a class="sep" href="newtopic.php?id=<?php echo $board.SID2URL_x; ?>"><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('forum_newtopic'); ?></a>
+		<?php } ?>
+	</span>
+	<?php echo $pages; ?>
+	</td>
+  </tr>
+  <tr> 
+	<th width="2%">&nbsp;</th>
+	<th width="48%"><?php echo $lang->phrase('forum_topic'); ?></th>
+	<th width="20%"><?php echo $lang->phrase('forum_start'); ?></th>
+	<th width="10%"><?php echo $lang->phrase('forum_replies'); ?></th>
+	<th width="20%"><?php echo $lang->phrase('forum_last'); ?></th>
+  </tr>
+	<?php echo $inner['index_bit']; ?>
+  <tr> 
+	<td class="tfoot" colspan="5">
+	  <?php if ($my->p['posttopics'] == 1) { ?>
+	  <span class="right"><a href="newtopic.php?id=<?php echo $board.SID2URL_x; ?>"><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('forum_newtopic'); ?></a></span>
+	  <?php } echo $pages; ?>
+	</td>
+  </tr>
+</table>
+<div class="border">
+<h3><?php echo $lang->phrase('forum_filter'); ?></h3>
+<div class="bbody">
+<form method="get" action="showforum.php?id=<?php echo $board.SID2URL_x; ?>">
+  <select size="1" name="sort">
+    <option value='0'<?php echo iif($filter == 0,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt0'); ?></option>
+    <option value="1"<?php echo iif($filter == 1,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt1'); ?></option>
+    <option value="2"<?php echo iif($filter == 2,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt2'); ?></option>
+    <option value="3"<?php echo iif($filter == 3,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt3'); ?></option>
+    <option value="4"<?php echo iif($filter == 4,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt4'); ?></option>
+    <option value="5"<?php echo iif($filter == 5,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt5'); ?></option>
+    <option value="6"<?php echo iif($filter == 6,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt6'); ?></option>
+  </select>
+  <input type="hidden" name="id" value="<?php echo $board; ?>" />
+  <input type="hidden" name="s" value="<?php echo SID2URL; ?>" />
+  <input type="submit" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" />
+</form>
+</div>
+</div>
+<?php if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) { ?>
+<br />
+<div class="border">
+<h3><?php echo $lang->phrase('admin_options'); ?></h3>
+<div class="bbody">
+<a href="manageforum.php?action=index&type=open&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_open'); ?></a> | 
+<a href="manageforum.php?action=index&type=close&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_close'); ?></a> | 
+<a href="manageforum.php?action=index&type=delete&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_delete'); ?></a> | 
+<a href="manageforum.php?action=index&type=move&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_move'); ?></a> | 
+<a href="manageforum.php?action=stat&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_forum_stats'); ?></a>
+</div>
+</div>
+<?php } ?>
+<br />

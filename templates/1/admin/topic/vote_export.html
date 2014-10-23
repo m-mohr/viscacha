@@ -1,0 +1,32 @@
+<form name="form2" method="get" action="managetopic.php">
+<input type="hidden" name="id" value="<?php echo $_GET['id']; ?>" />
+<input type="hidden" name="action" value="vote_export" />
+<div class="border">
+<h3><?php echo $lang->phrase('admin_topic_vote_export'); ?></h3>
+<div class="bbody">
+<label><?php echo $lang->phrase('admin_vote_skin'); ?></label>
+<select name="skin" class="label">
+<?php foreach ($PG->available_skins as $code => $color) { ?>
+    <option value="<?php echo $code; ?>"<?php echo iif($code == $skin, ' selected="selected"'); ?>><?php echo $color; ?></option>
+<?php } ?>
+</select>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $lang->phrase('admin_vote_type'); ?></label>
+<select name="modus" class="label">
+<?php foreach ($PG->available_types as $code => $type) { ?>
+    <option value="<?php echo $code; ?>"<?php echo iif($code == $modus, ' selected="selected"'); ?>><?php echo $type; ?></option>
+<?php } ?>
+</select>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $lang->phrase('admin_vote_preview'); ?></label><br />
+<a href="images.php?action=vote&id=<?php echo $_GET['id']; ?>&skin=<?php echo $skin; ?>&modus=<?php echo $modus; ?>" target="_blank">
+<img src="images.php?action=vote&id=<?php echo $_GET['id']; ?>&skin=<?php echo $skin; ?>&modus=<?php echo $modus; ?>" border="1" alt="" />
+</a>
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $lang->phrase('admin_vote_url'); ?></label>
+<input value="<?php echo $config['furl']; ?>/images.php?action=vote&id=<?php echo $_GET['id']; ?>&skin=<?php echo $skin; ?>&modus=<?php echo $modus; ?>" name="" class="label" type="text" />
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+</form>

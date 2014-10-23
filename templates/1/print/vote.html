@@ -1,0 +1,14 @@
+<table class="post">
+<tr>
+	<th class="tleft"><?php echo $lang->phrase('vote_titlevote').$info['vquestion']; ?></th>
+	<th colspan="2" class="tright"><?php echo $lang->phrase('vote_counter').$votes; ?></th>
+</tr>
+<?php foreach ($cachev as $row) { ?>
+<tr>
+	<td width="60%"><?php echo $row['answer']; ?></td>
+	<td width="20%" class="tright"><?php echo $row['votes']; ?></td>
+	<td width="20%" class="tright"><?php echo $row['percent']; ?>%</td>
+</tr>
+<?php } ?>
+</table>
+<br class="post_separator" />

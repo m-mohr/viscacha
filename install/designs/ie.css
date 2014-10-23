@@ -1,0 +1,7 @@
+/* Some fixes and hacks for this silly IE - hope IE7 will be better */
+.iefix_left {
+	float: left;
+}
+.iefix_br {
+    line-height: 2px;
+}

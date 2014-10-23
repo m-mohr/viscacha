@@ -1,0 +1,108 @@
+body {
+	background-color: #ffffff; 
+	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
+	font-size: 0.8em;
+}
+
+#header {
+	list-style-image: url(print/list.gif);
+	list-style-type: square;
+}
+
+.post {
+	width: 100%;
+	border: 1px solid #000000;
+	border-collapse: collapse;
+}
+.post th {
+	border-bottom: 1px solid #aaaaaa;
+	padding: 0.35em;
+	font-size: 1.1em;
+}
+.post td {
+	padding: 0.35em;
+}
+
+.post .upload {
+	border-top: 1px solid #aaaaaa;
+	padding: 0.35em;
+}
+
+.post_separator {
+	line-height: 0.5em;
+}
+
+.tright {
+	text-align: right;
+}
+.tleft {
+	text-align: left;
+}
+
+#copyright {
+	font-size: 0.85em;
+	text-align: center;
+}
+
+.bb_table {
+    border: 1px solid #cccccc;
+    display: block;
+    padding: 1px;
+}
+.bb_inlinecode {
+	color: #880000;
+}
+.bb_blockcode_header {
+	display: block;
+}
+.bb_blockcode {
+	border-top: 1px solid #000000;
+	border-bottom: 1px solid #000000;
+	padding: 2px;
+	margin: 0px;
+}
+.bb_blockcode td {
+	font-family: Courier New, monospace;
+	font-size: 11px;
+	line-Height: 13px;
+	white-space: nowrap;
+	vertical-align: top;
+}
+.bb_header {
+	margin: 0px;
+	margin-top: 10px;
+}
+.bb_size_extended {
+	letter-spacing: 3px;
+}
+.bb_quote {
+	margin: 0px;
+	width: 98%;
+	padding-left: 5px;
+	display: block;
+}
+.bb_quote cite {
+	border-top: 1px solid #000000;
+	border-bottom: 1px solid #000000;
+	font-size: 0.9em;
+	display: block;
+	margin: 1px;
+}
+.bb_ot span {
+	border-top: 1px solid #000000;
+	border-bottom: 1px solid #000000;
+	color: #dddddd;
+	font-size: 0.9em;
+	display: block;
+}
+.bb_edit ins {
+	display: block;
+	text-decoration: none;
+}
+.bb_hide {
+	color: #aaaaaa;
+	font-size: 9pt;
+}
+.bb_hide span {
+	display: block;
+}

@@ -1,0 +1,17 @@
+<tr class="tbody">
+	<td width='2%'><input type="checkbox" name="delete[]" value="<?php echo $row->id.SID2URL_x; ?>" /></td>
+	<td width='48%'>
+		<?php echo iif($row->vquestion," <img align='right' src='".$tpl->img('vote')."' alt='Umfrage: $row->vquestion' />"); ?>
+		<?php echo $pref; ?>
+		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'><?php echo iif($showprefix, '['.$prefix[$row->prefix].'] ').$row->topic; ?></a>
+    </td>
+	<td width='20%' class='stext'>
+		<?php echo $rstart; ?><br />
+		<?php echo $lang->phrase('written_by'); ?> <?php echo $row->name; ?>
+	</td>
+	<td width='10%' align='center'><?php echo numbers($row->posts); ?></td>
+	<td width='20%' align='right'><span class='stext'>
+		<?php echo $rlast; ?><br />
+		<?php echo $lang->phrase('written_by'); ?> <?php echo $row->last_name; ?>
+	</span></td>
+</tr>

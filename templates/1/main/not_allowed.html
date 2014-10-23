@@ -1,0 +1,30 @@
+<div class="border">
+<h3><?php echo $lang->phrase('re_login_title'); ?></h3>
+<div class="bbody">
+<ul>
+<?php foreach ($errormsg as $error) { ?>
+	<li><?php echo $error; ?></li>
+<?php } ?>
+</ul>
+</div>
+<h3 class="inlineheader"><img src="<?php echo $tpl->img('login'); ?>" alt="" /> <?php echo $lang->phrase('re_login_login'); ?></h3>
+<?php if (!$my->vlogin) { ?>
+<form method="post" action="log.php?action=login2<?php echo SID2URL_x; ?>">
+<div class="bbody">
+	<label for="name"><?php echo $lang->phrase('login_name'); ?></label>
+	<input type="text" name="name" id="name" class="label" size="15" />
+	<br class="newinput" /><hr class="formsep" />
+	<label for="pw"><?php echo $lang->phrase('login_password'); ?></label>
+	<input type="password" name="pw" id="pw" class="label" size="15" />
+	<input type="hidden" name="location" value="<?php echo $errorurl; ?>" />
+	<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</form>
+<?php } else { ?>
+<div class="bbody">
+<label><?php echo $lang->phrase('logged_in_as'); ?></label>
+<?php echo $my->name; ?> [<a href="log.php?action=logout&amp;location=<?php echo rawurlencode($errorurl); ?><?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]
+</div>
+<?php } ?>
+</div>

@@ -1,0 +1,13 @@
+<div class="navigation_cat">
+<h3><?php echo $lang->phrase('mymenu'); ?></h3>
+	<p>
+	<strong><?php echo $lang->phrase('hello_user'); ?></strong><br />
+	<?php if ($my->pms > 0) { echo $lang->phrase('mymenu_newpm_1'); ?> <a href="pm.php<?php echo SID2URL_1; ?>"><?php echo $my->pms; ?> <?php echo $lang->phrase('mymenu_newpm_2'); ?></a>!<br /><?php } ?>
+	</p>
+	<br class="minibr" />
+    <ul class="nav">
+	<li><a href='editprofile.php<?php echo SID2URL_1; ?>'><?php echo $lang->phrase('editprofile_short'); ?></a></li>
+	<li><a href='log.php?action=logout&amp;location=<?php echo $request_uri.SID2URL_x; ?>'><?php echo $lang->phrase('logout'); ?></a></li>
+	<?php if ($my->p['admin'] == 1) { ?><li><a href='admin.php<?php echo SID2URL_1; ?>'><?php echo $lang->phrase('admincp'); ?></a></li><?php } ?>
+	</ul>
+</div>

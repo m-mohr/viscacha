@@ -1,0 +1,17 @@
+<form method="post" action="log.php?action=login2<?php echo SID2URL_x; ?>">
+<div class="navigation_cat">
+<h3><?php echo $lang->phrase('login'); ?></h3>
+<p>
+	<strong><?php echo $lang->phrase('login_name'); ?></strong><br />
+	<input type="text" name="name" size="15" /><br />
+	<strong><?php echo $lang->phrase('login_password'); ?></strong><br />
+	<input type="password" name="pw" size="15" /><br />
+	<input type="submit" name="Submit" value="<?php echo $lang->phrase('mymenu_send'); ?>" />
+	<input type="hidden" name="location" value="<?php echo $request_uri; ?>" />
+</p>
+	<ul class="nav">
+	<li><a href="log.php?action=pwremind<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('login_lost_password'); ?></a></li>
+	<li><a href="register.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('register_title'); ?></a></li>
+	</ul>
+</div>
+</form>

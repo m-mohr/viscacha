@@ -1,0 +1,72 @@
+<div class="border">
+<div class="bfoot topfooter">
+   <span class="right">
+	<a id="menu_threadtools" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('showtopic_options'); ?></a>
+	<script type="text/javascript">RegisterMenu('threadtools');</script>
+	<div class="popup" id="popup_threadtools">
+<?php if($my->vlogin) { ?>
+	 <strong><?php echo $lang->phrase('showtopic_options_manage'); ?></strong>
+	 <ul>
+	 <li><a href="editprofile.php?action=addfav&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_favs'); ?></a></li>
+	 <?php if ($info['status'] == 0) { ?>
+     <li>
+	   <select name="location" onchange="addabo(this.value,'<?php echo $info['id']; ?>')">
+		<option value="x"><?php echo $lang->phrase('showtopic_options_abo'); ?></option>
+		<option value="0"><?php echo $lang->phrase('showtopic_options_abo0'); ?></option>
+		<option value="1"><?php echo $lang->phrase('showtopic_options_abo1'); ?></option>
+		<option value="7"><?php echo $lang->phrase('showtopic_options_abo7'); ?></option>
+	   </select>
+     </li>
+     </ul>
+<?php }} ?>
+	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>
+	 <ul>
+	 <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('print'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_print'); ?></a></li>
+<?php if ($config['pdfdownload'] == 1) { ?>
+	  <li><a href="pdf.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pdf'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_pdf'); ?></a></li>
+<?php } ?>
+	  <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>&amp;action=word"><img src="<?php echo $tpl->img('word'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_word'); ?></a></li>
+	 </ul>
+	</div>
+<?php if($my->p['postreplies'] == 1 && $info['status'] == 0) { ?>
+	<a class="sep" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('box_reply'); ?></a>
+<?php } ?>
+   </span><?php echo $temp; ?>
+</div></div>
+<br class="minibr" />
+<?php echo $inner['vote_result'].$inner['index_bit']; ?>
+<div class="border">
+<div class="bfoot topfooter">
+<span class="right">
+<?php if($my->p['postreplies'] == 1 && $info['status'] == 0) { ?>
+<a href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('box_reply'); ?></a>
+<?php } ?>
+</span><?php echo $temp; ?>
+</div></div>
+<?php if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) { ?>
+<br />
+<div class="border">
+<h3><?php echo $lang->phrase('admin_options'); ?></h3>
+<div class="bbody">
+<?php  if ($info['status'] != 2) { if ($info['status'] == 1) { ?>
+<a href="managetopic.php?action=open&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_open'); ?></a> | 
+<?php } else { ?>
+<a href="managetopic.php?action=close&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_close'); ?></a> | 
+<?php } if ($info['sticky'] == '1') { ?>
+<a href="managetopic.php?action=unpin&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_unpin'); ?></a> | 
+<?php } else { ?>
+<a href="managetopic.php?action=pin&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_pin'); ?></a> | 
+<?php }} ?>
+<a href="managetopic.php?action=delete&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_delete'); ?></a> | 
+<a href="managetopic.php?action=move&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_move'); ?></a> | 
+<a href="managetopic.php?action=status&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_status'); ?></a> | 
+<a href="managetopic.php?action=stat&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_stats'); ?></a> | 
+<?php if (empty($info['vquestion'])) { ?>
+<a href="newtopic.php?action=startvote&amp;id=<?php echo $info['board']; ?>&amp;topic_id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote'); ?></a>
+<?php } else { ?>
+<a href="managetopic.php?action=vote_export&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_export'); ?></a> | 
+<a href="managetopic.php?action=vote_edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote_edit'); ?></a>
+<?php } ?>
+</div>
+</div>
+<?php } ?>

@@ -1,0 +1,18 @@
+<?php echo iif(!isset($newsbox_js_loaded), '<script type="text/javascript" src="templates/newsfeed.js"></script>'); ?>
+<div class="navigation_cat">
+<h3><?php echo $row['name']; ?></h3>
+	<?php if ($slide == 1) { ?>
+		<script type="text/javascript">
+		<!--
+		nf_content[<?php echo $ini['params']['feed']; ?>] = new Array();
+		<?php foreach ($items as $line) { ?>
+		nf_content[<?php echo $ini['params']['feed']; ?>][<?php echo $a; ?>] = '<a href="<?php echo $line['link']; ?>" target="_blank"><?php echo $line['title']; ?></a>';
+		<?php $a++; } ?>
+		setTimeout("registerNF(<?php echo $ini['params']['feed']; ?>, 3)",0);
+		-->
+		</script>
+		<p class="newsfeed_box newsfeed_box_multi" id="nf_<?php echo $ini['params']['feed']; ?>"></p>
+	<?php } else { ?>
+		<p class="newsfeed_box"><a href="<?php echo $item['link']; ?>" target="_blank"><?php echo $item['title']; ?></a></p>
+	<?php } ?>
+</div>

@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
+<html> 
+<head> 
+<script>document.write("<title>"+window.opener.lblAddImage+"</title>");</script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<STYLE>
+body { background: #EFEDDE; margin:10px;}
+table { font-family: Tahoma, Arial, Helvetica, sans-serif; font-size: 12px; }
+legend { font-family: Tahoma, Arial, Helvetica, sans-serif; font-size: 14px; padding-left: 5px; padding-right: 8px; }
+</STYLE>
+<script language="JavaScript" type="text/javascript"> 
+<!-- 
+if(document.all){ window.resizeTo(530, 220); }
+else { window.resizeTo(530, 215); }
+function AddLink() { 
+   var oForm = document.linkForm;
+   if (oForm.imgurl.value == '') {
+      alert(window.opener.lblImageVal0);
+      return false; 
+   } 
+   html = '<img src="http://' + oForm.imgurl.value + '" alt="' + oForm.alttext.value +'" border="' + oForm.border.value + '">';
+   window.opener.insertHTML(html);
+   window.close(); 
+   return true; 
+} 
+//--> 
+</script> 
+</head> 
+<body> 
+<form name="linkForm"> 
+<table cellpadding="0" cellspacing="0" border="0" width=100%> 
+<tr> 
+<td> 
+   <fieldset style="margin-left: 5px;"> 
+   <legend><script>document.write(window.opener.lblAddImage);</script></legend>
+   <table cellpadding="4" cellspacing="0" border="0" width=100%> 
+   <tr> 
+       <td align="right" valign="middle" nowrap><script>document.write(window.opener.lblImageURL);</script>:</td>
+       <td align="left" valign="top" nowrap><font color=#808080>http://</font> <input name="imgurl" type="text" id="imgurl" style="width:208px;height:18px;font-size:14px"></td>
+   </tr> 
+   <tr> 
+     <td align="right" valign="middle" nowrap><script>document.write(window.opener.lblImageAltText);</script>:</td>
+     <td align="left" valign="middle"><input name="alttext" type="text" id="alttext" style="width:250px;height:18px;font-size:14px"></td>
+     </tr> 
+   <tr> 
+     <td align="right" valign="middle" nowrap><script>document.write(window.opener.lblImageBorder);</script>:</td>
+     <td align="left" valign="middle"><input name="border" type="text" id="padding" value="0" style="width:20px;height:18px;font-size:14px"> <script>document.write(window.opener.lblImageBorderPx);</script></td>
+     </tr> 
+   </table> 
+   </fieldset> 
+</td> 
+<td></td> 
+<td align="left" valign="top" style="padding: 8px;"> 
+<input type="button" name="btnsubmit" value="" onClick="AddLink();" style="width:100px;"/>
+<input type="button" name="btncancel" value="" onClick="window.close();" style="width:100px;"/>
+</td> 
+</tr> 
+</table> 
+</form> 
+</body> 
+</html>
+<script>
+document.linkForm.btnsubmit.value = window.opener.lblLinkSubmit;
+document.linkForm.btncancel.value = window.opener.lblLinkCancel;
+</script>

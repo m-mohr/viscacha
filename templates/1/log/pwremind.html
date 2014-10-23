@@ -1,0 +1,16 @@
+<form name="form2" method="post" action="misc.php?action=pwremind2<?php echo SID2URL_x; ?>">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('password'); ?>" alt="" /> <?php echo $lang->phrase('log_pwremind_title'); ?></h3>
+<div class="bbody iefix_left">
+<?php echo $lang->phrase('log_pwremind_desc'); ?>
+<br class="newinput" /><hr />
+<label for="name"><?php echo $lang->phrase('name'); ?></label>
+<input id="name" class="label" type="text" name="name" size="40" />
+<br class="newinput" /><hr class="formsep" />
+<label for="email"><?php echo $lang->phrase('email'); ?></label>
+<input id="email" class="label" type="text" name="email" size="40" />
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+</form>

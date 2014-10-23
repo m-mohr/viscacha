@@ -1,0 +1,68 @@
+<form name="form2" method="post" action="register.php?action=save<?php echo SID2URL_x; ?>">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_title'); ?></h3>
+<div class="bbody">
+<label for="name"><?php echo $lang->phrase('name'); ?><br /><span class="stext"><?php echo $lang->phrase('minmax_name'); ?></span></label>
+<div class="label">
+    <input class="label_inner" type="text" onblur="ajax_doubleudata(this.value);" id="name" name="name" size="40" value="<?php echo $_GET['name']; ?>" /><br />
+    <span id="udata_name" class="stext">&nbsp;</span>
+</div>
+<br class="newinput" /><hr class="formsep" />
+<label for="pw">
+    <?php echo $lang->phrase('login_password'); ?><br />
+    <span class="stext"><?php echo $lang->phrase('minmax_password'); ?></span>
+</label>
+<input class="label" type="password" id="pw" name="pw" size="40" />
+<br class="newinput" /><hr class="formsep" />
+<label for="pwx">
+    <?php echo $lang->phrase('password_repeat'); ?>
+</label>
+<input class="label" type="password" id="pwx" name="pwx" size="40" />
+<br class="newinput" /><hr class="formsep" />
+<label for="email">
+    <?php echo $lang->phrase('email'); ?>
+    <?php if ($config['sessionmails'] == 0) { ?>
+	  <br /><span class="stext"><?php echo $lang->phrase('register_tempmails'); ?></span>
+    <?php } ?>
+</label>
+<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $_GET['email']; ?>" /> 
+<br class="newinput" />
+<?php if ($config['botgfxtest'] == 1) { ?>
+<hr class="formsep" />
+<input type="hidden" name="fid" value="<?php echo $veriid; ?>" />
+<label for="letter">
+    <?php echo $lang->phrase('veriword_check'); ?><br />
+    <span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
+</label>
+<div class="label">
+    <?php if ($config['register_text_verification'] == 0) { ?>
+	  <img alt="" class="right" border="1" width="150" height="33" src="register.php?action=veriword&amp;fid=<?php echo $veriid; ?>" />
+	<?php } else { ?>
+	  <div class="right" style="padding: 2px; font-size: 7px; line-height:7px; font-family: Courier New, monospace">
+	    <?php echo $code; ?>
+	  </div>
+    <?php } ?>
+    <input id="letter" name="letter" type="text" maxlength="5" size="6" />
+</div>
+<br class="newinput" />
+<?php } ?>
+<br class="iefix_br" />
+</div>
+<?php if ($config['acceptrules'] == 1) { ?>
+<h3 class="inlineheader"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('rules'); ?></h3>
+<div class="bbody">
+<ol>
+<?php foreach ($rules as $line) { ?>
+<li class="stext"><?php echo $line; ?></li>
+<?php } ?>
+</ol>
+<hr class="formsep" />
+<label for="temp" class="textright"><input type="checkbox" id="temp" name="temp" value="1" /></label>
+<div class="label"><?php echo $lang->phrase('register_accept_rules'); ?></div>
+<br class="newinput" />
+<br class="iefix_br" />
+</div>
+<?php } ?>
+<div class="bfoot center"><input onclick="submit_flood(this)" type="submit" accesskey="s" name="Submit1" id="submitregister" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+</div>
+</form>

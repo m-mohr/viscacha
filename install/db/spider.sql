@@ -1,0 +1,56 @@
+CREATE TABLE `{:=DBPREFIX=:}spider` (
+  `id` int(8) unsigned NOT NULL auto_increment,
+  `user_agent` varchar(255) NOT NULL default '',
+  `name` varchar(128) NOT NULL default '',
+  `type` enum('b','e','v') NOT NULL default 'b',
+  PRIMARY KEY  (`id`)
+) TYPE=MyISAM COMMENT='Bots' AUTO_INCREMENT=62 ;
+
+-- 
+-- Daten für Tabelle `{:=DBPREFIX=:}spider`
+-- 
+
+INSERT INTO `{:=DBPREFIX=:}spider` (`id`, `user_agent`, `name`, `type`) VALUES 
+(39, 'W3C_Validator', 'W3C (x)HTML-Validator', 'v'),
+(9, 'Googlebot', 'Google', 'b'),
+(10, 'Mediapartners-Google', 'Google AdSense', 'b'),
+(11, 'Googlebot-Image', 'Google Images', 'b'),
+(12, 'Scooter', 'Altavista', 'b'),
+(16, 'Yahoo-MMCrawler', 'Yahoo, Overture', 'b'),
+(14, 'FAST-WebCrawler', 'Overture', 'b'),
+(15, 'msnbot', 'MSN (Microsoft Network)', 'b'),
+(49, 'ConveraCrawler', 'Convera', 'b'),
+(18, 'ArchitextSpider', 'Excite', 'b'),
+(19, 'Mercator', 'Altavista', 'b'),
+(20, 'Lycos_Spider_(T-Rex)', 'Lycos', 'b'),
+(21, 'KIT-Fireball', 'Fireball', 'b'),
+(22, 'Freecrawl', 'Euroseek', 'b'),
+(24, 'Aladin', 'Aladin', 'b'),
+(26, 'Gulliver', 'Northernlight', 'b'),
+(27, 'BackRub', 'Google', 'b'),
+(28, 'AbachoBOT', 'Abacho', 'b'),
+(29, 'Acoon Robot', 'Acoon', 'b'),
+(30, 'ia_archiver', 'Alexa', 'b'),
+(31, 'TurnitinBot', 'Turnitin', 'b'),
+(32, 'Mozilla/2.0 (compatible; NEWT ActiveX; Win32)', 'WebCollector', 'e'),
+(33, 'EmailCollector', 'EmailCollector', 'e'),
+(34, 'EmailSiphon', 'EmailSiphon', 'e'),
+(35, 'EmailWolf', 'emailWolf', 'e'),
+(36, 'ExtractorPro', 'ExtractorPro', 'e'),
+(37, 'CherryPicker', 'CherryPicker', 'e'),
+(38, 'Crescent Internet ToolPak HTTP OLE Control', 'ExtractorPro, WebWeasel, Web Mole', 'e'),
+(40, 'W3C_CSS_Validator_JFouffa', 'W3C CSS-Validator', 'v'),
+(41, 'FeedValidator', 'FEED Validator', 'v'),
+(42, 'Ocelli', 'GlobalSpec', 'b'),
+(43, 'Gigabot', 'Gigablast', 'b'),
+(44, 'ObjectsSearch', 'Objects Search', 'b'),
+(45, 'ZyBorg', 'WiseNut', 'b'),
+(47, 'FAST Enterprise Crawler', 'Fast Search & Transfer', 'b'),
+(50, 'grub-client', 'Grub', 'b'),
+(51, 'Baiduspider', 'Baidu', 'b'),
+(52, 'findlinks/', 'NextLinks', 'b'),
+(53, 'OmniExplorer_Bot', 'OmniExplorer Internet Categorizer', 'b'),
+(54, 'sohu-search', 'Sohu', 'b'),
+(55, 'Twiceler', 'Twiceler', 'b'),
+(61, 'Yahoo! Slurp', 'Yahoo', 'b'),
+(60, 'IRLbot', 'IRL Crawler', 'b');

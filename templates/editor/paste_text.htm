@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html> 
+<head> 
+<script>document.write("<title>"+window.opener.lblPasteText+"</title>");</script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+<!-- 
+body { font-family: Tahoma, Arial, Helvetica, sans-serif; font-size: 12px; background-color: #EFEDDE; margin: 10px;}
+legend { font-family: Tahoma, Arial, Helvetica, sans-serif; font-size: 14px; padding-left: 5px; padding-right: 8px; }
+.style2 {font-size: 18px; background:black; font-wieght:bold; color:white; display:block; width:100%; }
+.show {left:auto;top:auto;position:auto;}
+.hide {left:-1000px;top:-1000px;position:absolute;}
+-->
+</style>
+<script language="JavaScript" type="text/javascript"> 
+<!-- 
+if(document.all){
+  window.resizeTo(360,440);
+} else {
+	window.resizeTo(360,440);
+}
+
+function submitForm(){
+  if (document.frm_obj.content.value==''){ 
+    alert(window.opener.lblPasteTextVal0); 
+  }else{
+    cleaned = formatText(document.frm_obj.content.value); 
+    window.opener.insertHTML(cleaned); 
+    window.close(); 
+  }
+}
+
+function formatText(html){ 
+   html = html.replace(/&/g, "&amp;"); 
+   html = html.replace(/</g, "&lt;"); 
+   html = html.replace(/>/g, "&gt;");
+   html = html.replace(/\n/g,"</p><p>"); 
+   html = html.replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"); 
+   return html; 
+}
+//--> 
+</script> 
+</head> 
+<body> 
+<form name="frm_obj"> 
+<fieldset style="margin:8px;"><legend><script>document.write(window.opener.lblPasteText);</script></legend>
+<div style="padding:8px;"><script>document.write(window.opener.lblPasteTextHint);</script><textarea name="content" type="text" id="cleanText" style="width:280px; height:230px;"></textarea></div>
+</fieldset>
+<center>
+<input type="button" name="btnsubmit" value="" style="width:100px" onclick="submitForm();"/>&nbsp;
+<input type="button" name="btncancel" value="" style="width:100px" onClick="window.close();"/>
+</center></form></body></html>
+<script>
+document.frm_obj.btnsubmit.value = window.opener.lblPasteTextSubmit;
+document.frm_obj.btncancel.value = window.opener.lblPasteTextCancel;
+document.frm_obj.content.focus();
+</script>

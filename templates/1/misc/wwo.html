@@ -1,0 +1,28 @@
+<div class="border">
+<h3><img src="<?php echo $tpl->img('wwo'); ?>" alt="" /> <?php echo $lang->phrase('wiw'); ?></h3>
+<div class="bbody"><?php echo $lang->phrase('active_usercounter'); ?></div>
+</div><br />
+<?php if ($wwo['r'] > 0) { ?>
+<table class="tables">
+	<tr>
+	  <th colspan="2"><?php echo $lang->phrase('wiw_r'); ?> <?php echo $wwo['r'];?></th>
+	</tr>
+	<?php echo $inner['wwo_bit_member']; ?>
+</table>
+<br class="minibr" />
+<?php } if ($wwo['g'] > 0) { ?>
+<table class="tables">
+	<tr>
+	  <th colspan="2"><?php echo $lang->phrase('wiw_g'); ?> <?php echo $wwo['g'];?></th>
+	</tr>
+	<?php echo $inner['wwo_bit_guest']; ?>
+</table>
+<br class="minibr" />
+<?php } if ($wwo['b']) { ?>
+<table class="tables">
+	<tr>
+	  <th colspan="2"><?php echo $lang->phrase('wiw_b'); ?> <?php echo $wwo['b'];?></th>
+	</tr>
+    <?php echo $inner['wwo_bit_bot']; ?>
+</table>
+<?php } ?>

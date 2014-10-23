@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+	<title>Text Color</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script language="JavaScript" type="text/javascript">
+	<!--
+	function selectColor(color) {
+		self.parent.setColor(color);
+	}
+	function InitColorPalette() {
+		if (document.getElementsByTagName)
+			var x = document.getElementsByTagName('TD');
+		else if (document.all)
+			var x = document.all.tags('TD');
+		for (var i=0; i < x.length; i++) {
+			x[i].onmouseover = over;
+			x[i].onmouseout = out;
+			x[i].onclick = click;
+			x[i].style.background = x[i].id;
+			x[i].style.border = '1px solid white';
+		}
+	}
+	function over() {
+		this.style.border = '1px dotted gray';
+	}
+	function out() {
+		this.style.border = '1px solid white';
+	}
+	function click() {
+		selectColor(this.id);
+	}
+	//-->
+	</script>
+<style>
+body{background:white;margin:0px;}
+td{width:14px;height:14px;}
+img{width:1px;height:1px;}
+</style>
+</head>
+<body onLoad="InitColorPalette()">
+<table style="width:140px;height:95px;" cellpadding="0" cellspacing="0" align="center">
+	<tr>
+		<td id="#FFFFFF"><img></td>
+		<td id="#FFCCCC"><img></td>
+		<td id="#FFCC99"><img></td>
+		<td id="#FFFF99"><img></td>
+		<td id="#FFFFCC"><img></td>
+		<td id="#99FF99"><img></td>
+		<td id="#99FFFF"><img></td>
+		<td id="#CCFFFF"><img></td>
+		<td id="#CCCCFF"><img></td>
+		<td id="#FFCCFF"><img></td>
+	</tr>
+	<tr>
+		<td id="#CCCCCC"><img></td>
+		<td id="#FF6666"><img></td>
+		<td id="#FF9966"><img></td>
+		<td id="#FFFF66"><img></td>
+		<td id="#FFFF33"><img></td>
+		<td id="#66FF99"><img></td>
+		<td id="#33FFFF"><img></td>
+		<td id="#66FFFF"><img></td>
+		<td id="#9999FF"><img></td>
+		<td id="#FF99FF"><img></td>
+	</tr>
+	<tr>
+		<td id="#C0C0C0"><img></td>
+		<td id="#FF0000"><img></td>
+		<td id="#FF9900"><img></td>
+		<td id="#FFCC66"><img></td>
+		<td id="#FFFF00"><img></td>
+		<td id="#33FF33"><img></td>
+		<td id="#66CCCC"><img></td>
+		<td id="#33CCFF"><img></td>
+		<td id="#6666CC"><img></td>
+		<td id="#CC66CC"><img></td>
+	</tr>
+	<tr>
+		<td id="#999999"><img></td>
+		<td id="#CC0000"><img></td>
+		<td id="#FF6600"><img></td>
+		<td id="#FFCC33"><img></td>
+		<td id="#FFCC00"><img></td>
+		<td id="#33CC00"><img></td>
+		<td id="#00CCCC"><img></td>
+		<td id="#3366FF"><img></td>
+		<td id="#6633FF"><img></td>
+		<td id="#CC33CC"><img></td>
+	</tr>
+	<tr>
+		<td id="#666666"><img></td>
+		<td id="#990000"><img></td>
+		<td id="#CC6600"><img></td>
+		<td id="#CC9933"><img></td>
+		<td id="#999900"><img></td>
+		<td id="#009900"><img></td>
+		<td id="#339999"><img></td>
+		<td id="#3333FF"><img></td>
+		<td id="#6600CC"><img></td>
+		<td id="#993399"><img></td>
+	</tr>
+	<tr>
+		<td id="#333333"><img></td>
+		<td id="#660000"><img></td>
+		<td id="#993300"><img></td>
+		<td id="#996633"><img></td>
+		<td id="#666600"><img></td>
+		<td id="#006600"><img></td>
+		<td id="#336666"><img></td>
+		<td id="#000099"><img></td>
+		<td id="#333399"><img></td>
+		<td id="#663366"><img></td>
+	</tr>
+	<tr>
+		<td id="#000000"><img></td>
+		<td id="#330000"><img></td>
+		<td id="#663300"><img></td>
+		<td id="#663333"><img></td>
+		<td id="#333300"><img></td>
+		<td id="#003300"><img></td>
+		<td id="#003333"><img></td>
+		<td id="#000066"><img></td>
+		<td id="#330099"><img></td>
+		<td id="#330033"><img></td>
+	</tr>
+</table>
+</body>
+</html>

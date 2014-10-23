@@ -1,0 +1,57 @@
+<?php if ($_GET['action'] == 'preview') { ?>
+<div class="border">
+<h3><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('preview_title'); ?></h3>
+<div class="bbody">
+	<span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?> <strong><?php echo iif(!empty($data['formatted_prefix']), '['.$data['formatted_prefix'].']'); ?> <?php echo $data['topic']; ?></strong></span>
+	<hr />
+	<?php echo $data['formatted_comment']; ?>
+</div>
+</div>
+<br class="minibr" />
+<?php } ?>
+<form name="form2" method="post" action="edit.php?id=<?php echo $_GET['id'].SID2URL_x; ?>&amp;action=save">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('edit'); ?></h3>
+<div class="bbody">
+<label for="topic"><?php echo $lang->phrase('title'); ?></label> 
+<?php if (empty($inner['index_prefix'])) { ?>
+<input type="text" class="label" id="topic" name="topic" size="40" value="<?php echo $data['topic']; ?>" />
+<?php } else { ?>
+<div class="label">
+<?php echo $inner['index_prefix']; ?><input type="text" id="topic" name="topic" size="35" value="<?php echo $data['topic']; ?>" />
+</div>
+<?php } ?>
+<br class="newinput" /><hr class="formsep" />
+<label for="about"><?php echo $lang->phrase('edit_reason'); ?></label> 
+<input class="label" type="text" id="about" name="about" size="40" value="<?php echo $data['about']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label><?php echo $inner['smileys']; ?></label>
+<?php echo $inner['bbhtml']; ?>
+<br class="newinput" /><hr class="formsep" />
+<label for="comment"><?php echo $lang->phrase('post'); ?></label> 
+<textarea id="comment" name="comment" cols="50" rows="10" class="label"><?php echo $data['comment']; ?></textarea>
+<br class="newinput" /><hr class="formsep" />
+<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label> 
+<div class="label">
+  <input type="checkbox" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1,' checked="checked"'); ?>> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
+  <input type="checkbox" name="dowords" value="1"<?php echo iif($data['dowords'] == 1,' checked="checked"'); ?>> <?php echo $lang->phrase('post_settings_words'); ?>
+</div>
+<br class="newinput" />
+<?php if ($p_upload) { ?>
+<hr class="formsep" />
+<label><?php echo $lang->phrase('attachments'); ?></label> 
+<div class="label">
+  <a href="attachments.php?type=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" target="_blank" onclick="adduploads(this); return false;"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+  <span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
+</div>
+<br class="newinput" />
+<?php } if ($del_mod || $del_user) { ?>
+<hr class="formsep" />
+<label for="temp"><?php echo $lang->phrase('edit_del'); ?></label> 
+<div class="label"><input type="checkbox" id="temp" name="temp" onclick="confirmdelete(this);" value="1" /></div>
+<br class="newinput" />
+<?php } ?>
+</div>
+<div class="bfoot center"><input onclick="submit_flood(this)" accesskey="s" type="submit" name="Submit2" value="<?php echo $lang->phrase('submit_form'); ?>" /> <input type="submit" accesskey="p" name="Preview2" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
+</div>
+</form>

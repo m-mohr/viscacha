@@ -1,0 +1,19 @@
+<form name="form" method="post" action="profile.php?action=sendmail&amp;id=<?php echo $row->id.SID2URL_x; ?>">
+<div class="border">
+<h3><?php echo $lang->phrase('profile_mail_2'); ?></h3>
+<div class="bbody">
+<?php if ($row->opt_hidemail == 0) { ?>
+<label><?php echo $lang->phrase('email'); ?></label>
+<span class="iefix_left"><?php echo $row->mail; ?></span>
+<br class="newinput" /><hr class="formsep" />
+<?php } ?>
+<label for="topic"><?php echo $lang->phrase('email_title'); ?></label>
+<input type="text" class="label" id="topic" name="topic" size="60" maxlength="200" value="<?php echo $data['topic']; ?>" /></td>
+<br class="newinput" /><hr class="formsep" />
+<label for="ta"><?php echo $lang->phrase('email_text'); ?></label>
+<textarea id="ta" name="comment" class="label" cols="60" rows="6"><?php echo $data['comment']; ?></textarea>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+</form>

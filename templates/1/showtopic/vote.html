@@ -1,0 +1,16 @@
+<form name="form2" method="post" action="misc.php?action=vote&amp;id=<?php echo $info['id'].SID2URL_x; ?>">
+<div class="border">
+<h3>
+   <span class="right">[<a href="showtopic.php?temp=1&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('vote_showresult'); ?></a>]</span>
+   <img src="<?php echo $tpl->img('vote'); ?>" alt="" /> <?php echo $lang->phrase('vote_titlevote').$info['vquestion']; ?>
+</h3>
+<div class="bbody">
+<?php foreach ($cachev as $row) { ?>
+   <input type="radio" value="<?php echo $row['id']; ?>" name="temp" />&nbsp;&nbsp;&nbsp;<?php echo $row['answer']; ?>
+   <br />
+<?php } ?>
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+</form>
+<br class="minibr" />

@@ -1,0 +1,74 @@
+<div class="border">
+	<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_title'); ?></h3>
+	<div class="bbody editprofile_index">
+		<ul>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_profile'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=profile<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_profile'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_profile_desc'); ?></span>
+		</li>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_settings'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=settings<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_settings'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_settings_desc'); ?></span>
+		</li>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_pw'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=pw<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_pw'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_pw_desc'); ?></span>
+		</li>
+		</ul><ul>
+		<?php if ($my->p['useabout'] == 1) { ?>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_about'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=about<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_about'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_about_desc'); ?></span>
+		</li>
+		<?php } if ($my->p['usepic'] == 1) { ?>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_pic'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=pic<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_pic'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_pic_desc'); ?></span>
+		</li>
+		<?php } ?>
+		<?php if ($config['tpcallow'] == 1) { ?>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_attachments'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=attachments<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_attachments'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_attachments_desc'); ?></span>
+		</li>
+		<?php } ?>
+		</ul><ul>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_abos'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=abos<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_abos'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_abos_desc'); ?></span></li>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_fav'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_fav'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_fav_desc'); ?></span></li>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_notice'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=notice<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_notice'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_notice_desc'); ?></span>
+		</li>
+		</ul><ul>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_mylast'); ?>" alt="" /><br />
+			<strong><a href="editprofile.php?action=mylast<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_mylast'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_mylast_desc'); ?></span>
+		</li>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_pm'); ?>" alt="" /><br />
+			<strong><a href="pm.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('editprofile_pm'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_pm_desc'); ?></span>
+		</li>
+		<li>
+			<img src="<?php echo $tpl->img('ucp_profile_php'); ?>" alt="" /><br />
+			<strong><a href="profile.php?id=<?php echo $my->id.SID2URL_x; ?>"><?php echo $lang->phrase('editprofile_ownprofile'); ?></a></strong><br />
+			<span class="stext"><?php echo $lang->phrase('editprofile_ownprofile_desc'); ?></span>
+		</li>
+		</ul>
+		<br />
+	</div>
+</div>

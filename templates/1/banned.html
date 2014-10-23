@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="<?php echo $lang->phrase('html_read_direction'); ?>">
+<head>
+<title><?php echo $breadcrumb->OutputPLAIN(' &raquo; '); ?></title>
+<meta http-equiv="content-type" content="text/html; charset=<?php echo $lang->phrase('charset'); ?>" />
+<meta name="generator" content="Viscacha (http://www.mamo-net.de)" />
+<link rel="stylesheet" type="text/css" href="designs/<?php echo $my->cssid; ?>/standard.css" />
+<!--[if IE]>
+<link rel="stylesheet" type="text/css" href="designs/<?php echo $my->cssid; ?>/ie.css" />
+<![endif]-->
+<link rel="up" href="javascript:self.scrollTo(0,0);" />
+<link rel="copyright" href="http://www.mamo-net.de" />
+</head>
+
+<body<?php echo $htmlbody; ?>>
+<div id="blank">
+    <h1><?php echo $config['fname']; ?></h1>
+    <br class="minibr" />
+	<div class="border">
+        <h3><?php echo $lang->phrase('banned_head'); ?></h3>
+        <div class="bbody">
+		<?php echo $banned; ?>
+        </div>
+	</div>
+	<br />
+</div>
+<div id="copyright">
+    <strong><a href="http://www.mamo-net.de" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
+    Copyright &copy; by MaMo Net
+</div>
+</body>
+</html>

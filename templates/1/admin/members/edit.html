@@ -1,0 +1,213 @@
+<form name="form2" method="post" action="managemembers.php?action=edit2&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_profile'); ?></h3>
+<div class="bbody">
+<label for="name"><?php echo $lang->phrase('editprofile_name'); ?></label>
+<input type="text" name="name" id="name" class="label" size="40" value="<?php echo $user['name']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="pw"><?php echo $lang->phrase('editprofile_pw_new'); ?></label>
+<input type="password" name="pw" id="pw" class="label" size="40" value="" />
+<br class="newinput" /><hr class="formsep" />
+<label for="groups">
+<img id="img_mmeg" name="collapse" src="<?php echo $tpl->img('minus'); ?>" alt="" />
+<?php echo $lang->phrase('editprofile_groups'); ?><br />
+<span class="stext"><?php echo $lang->phrase('editprofile_groups_desc'); ?></span>
+</label>
+<input type="text" name="groups" id="groups" class="label" size="40" value="<?php echo $user['groups']; ?>" />
+<br class="newinput" />
+<table id="part_mmeg" class="tables">
+<tr>
+<th><?php echo $lang->phrase('managemembers_gid'); ?></th>
+<th><?php echo $lang->phrase('managemembers_gpublic'); ?></th>
+<th><?php echo $lang->phrase('managemembers_gint'); ?></th>
+</tr>
+<?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
+<tr>
+<td><?php echo $row['id']; ?></td>
+<td><?php echo $row['name']; ?></td>
+<td><?php echo $row['title']; ?></td>
+</tr>
+<?php } ?>
+</table>
+<hr class="formsep" />
+<label for="fullname"><?php echo $lang->phrase('editprofile_fullname'); ?></label>
+<input type="text" name="fullname" id="fullname" class="label" size="40" value="<?php echo $user['fullname']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="email"><?php echo $lang->phrase('editprofile_email'); ?></label> 
+<input type="text" name="email" id="email" class="label" size="40" value="<?php echo $user['mail']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="location"><?php echo $lang->phrase('editprofile_location'); ?></label> 
+<input type="text" name="location" id="location" class="label" size="40" value="<?php echo $user['location']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="gender"><?php echo $lang->phrase('editprofile_gender'); ?></label> 
+<select size="1" name="gender" class="label">
+	<option value=""><?php echo $lang->phrase('no_choice'); ?></option>
+	<option<?php echo iif($user['gender'] == 'm',' selected="selected"'); ?> value="m"><?php echo $lang->phrase('gender_m'); ?></option>
+	<option<?php echo iif($user['gender'] == 'w',' selected="selected"'); ?> value="w"><?php echo $lang->phrase('gender_w'); ?></option>
+</select>
+<br class="newinput" /><hr class="formsep" />
+<label for="birthday"><?php echo $lang->phrase('editprofile_birthday'); ?></label>
+<div class="label">
+  <select size="1" name="birthday">
+  <option value="00">--</option>
+	<?php
+	for ($i=1;$i<=31;$i++) {
+		echo "<option value='".leading_zero($i)."'".iif($bday[2] == $i, ' selected="selected"').">".$i."</option>\n";
+	}
+	?>
+  </select>. 
+  <select size="1" name="birthmonth">
+  <option value="00">--</option>
+	<?php
+	for ($i=1;$i<=12;$i++) {
+		echo "<option value='".leading_zero($i)."'".iif($bday[1] == $i, ' selected="selected"').">".$lang->phrase('months_'.$i)."</option>\n";
+	}
+	?>
+  </select> 
+  <select size="1" name="birthyear">
+  <option value="0000">----</option>
+	<?php
+	for ($i=$maxy;$i>=$miny;$i--) {
+		echo "<option value='".$i."'".iif($bday[0] == $i, ' selected="selected"').">".$i."</option>\n";
+	}
+	?>
+  </select>
+</div>
+<br class="newinput" /><hr class="formsep" />
+<label for="hp"><?php echo $lang->phrase('editprofile_hp'); ?></label> 
+<input type="text" name="hp" id="hp" class="label" size="40" value="<?php echo $user['hp']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="icq"><?php echo $lang->phrase('editprofile_icq'); ?></label> 
+<input type="text" name="icq" id="icq" class="label" size="40" value="<?php echo $user['icq']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="aol"><?php echo $lang->phrase('editprofile_aol'); ?></label> 
+<input type="text" name="aol" id="aol" class="label" size="40" value="<?php echo $user['aol']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="yahoo"><?php echo $lang->phrase('editprofile_yahoo'); ?></label> 
+<input type="text" name="yahoo" id="yahoo" class="label" size="40" value="<?php echo $user['yahoo']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="msn"><?php echo $lang->phrase('editprofile_msn'); ?></label> 
+<input type="text" name="msn" id="msn" class="label" size="40" value="<?php echo $user['msn']; ?>" />
+<br class="newinput" /><hr class="formsep" />
+<label for="jabber"><?php echo $lang->phrase('editprofile_jabber'); ?></label> 
+<input type="text" name="jabber" id="jabber" class="label" size="40" value="<?php echo $user['jabber']; ?>" />
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</table>
+</div>
+<br class="minibr" />
+
+<div class="border">
+<h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?></h3>
+<div class="bbody center">
+<textarea name="signature" rows="4" cols="70"><?php echo $user['signature']; ?></textarea>
+</div>
+<div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+<br class="minibr" />
+
+<div class="border">
+<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_pic'); ?></h3>
+<div class="bbody">
+	<label for="pic"><?php echo $lang->phrase('editprofile_pic_url'); ?></label>
+	<input type="text" name="pic" id="pic" class="label" size="70" value="<?php echo $user['pic']; ?>" />
+	<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+<br class="minibr" />
+
+<div class="border">
+<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_settings'); ?></h3>
+<div class="bbody">
+<label for="temp"><?php echo $lang->phrase('timezone'); ?></label>
+<select id="temp" class="label" name="temp"> 
+	<option selected="selected" value="<?php echo $user['timezone']; ?>"><?php echo $lang->phrase('timezone_current'); ?></option>
+	<option value="-12"><?php echo $lang->phrase('timezone_n12'); ?></option>
+	<option value="-11"><?php echo $lang->phrase('timezone_n11'); ?></option>
+	<option value="-10"><?php echo $lang->phrase('timezone_n10'); ?></option>
+	<option value="-9"><?php echo $lang->phrase('timezone_n9'); ?></option>
+	<option value="-8"><?php echo $lang->phrase('timezone_n8'); ?></option>
+	<option value="-7"><?php echo $lang->phrase('timezone_n7'); ?></option>
+	<option value="-6"><?php echo $lang->phrase('timezone_n6'); ?></option>
+	<option value="-5"><?php echo $lang->phrase('timezone_n5'); ?></option>
+	<option value="-4"><?php echo $lang->phrase('timezone_n4'); ?></option>
+	<option value="-3.5"><?php echo $lang->phrase('timezone_n35'); ?></option>
+	<option value="-3"><?php echo $lang->phrase('timezone_n3'); ?></option>
+	<option value="-2"><?php echo $lang->phrase('timezone_n2'); ?></option>
+	<option value="-1"><?php echo $lang->phrase('timezone_n1'); ?></option>
+	<option value="0"><?php echo $lang->phrase('timezone_0'); ?></option>
+	<option value="+1"><?php echo $lang->phrase('timezone_p1'); ?></option>
+	<option value="+2"><?php echo $lang->phrase('timezone_p2'); ?></option>
+	<option value="+3"><?php echo $lang->phrase('timezone_p3'); ?></option>
+	<option value="+3.5"><?php echo $lang->phrase('timezone_p35'); ?></option>
+	<option value="+4"><?php echo $lang->phrase('timezone_p4'); ?></option>
+	<option value="+4.5"><?php echo $lang->phrase('timezone_p45'); ?></option>
+	<option value="+5"><?php echo $lang->phrase('timezone_p5'); ?></option>
+	<option value="+5.5"><?php echo $lang->phrase('timezone_p55'); ?></option>
+	<option value="+5.75"><?php echo $lang->phrase('timezone_p575'); ?></option>
+	<option value="+6"><?php echo $lang->phrase('timezone_p6'); ?></option>
+	<option value="+6.5"><?php echo $lang->phrase('timezone_p65'); ?></option>
+	<option value="+7"><?php echo $lang->phrase('timezone_p7'); ?></option>
+	<option value="+8"><?php echo $lang->phrase('timezone_p8'); ?></option>
+	<option value="+9"><?php echo $lang->phrase('timezone_p9'); ?></option>
+	<option value="+9.5"><?php echo $lang->phrase('timezone_p95'); ?></option>
+	<option value="+10"><?php echo $lang->phrase('timezone_p10'); ?></option>
+	<option value="+11"><?php echo $lang->phrase('timezone_p11'); ?></option>
+	<option value="+12"><?php echo $lang->phrase('timezone_p12'); ?></option>
+</select>		
+<br class="newinput" /><hr class="formsep" />
+<label for="opt_0"><?php echo $lang->phrase('editprofile_editor'); ?></label>
+<select id="opt_0" class="label" name="opt_0">
+	<option<?php echo iif($user['opt_textarea'] == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_editor_simple'); ?></option>
+	<option<?php echo iif($user['opt_textarea'] == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_editor_extended'); ?></option>
+</select>
+<br class="newinput" /><hr class="formsep" />
+<label for="opt_1"><?php echo $lang->phrase('editprofile_emailpn'); ?></label>
+<input id="opt_1" type="checkbox" name="opt_1" <?php echo iif($user['opt_pmnotify'] == 1,' checked="checked"'); ?> value="1" />
+<br class="newinput" /><hr class="formsep" />
+<label for="opt_2"><?php echo $lang->phrase('editprofile_bad'); ?></label>
+<input id="opt_2" type="checkbox" name="opt_2" <?php echo iif($user['opt_hidebad'] == 1,' checked="checked"'); ?> value="1" />
+<br class="newinput" /><hr class="formsep" />
+<label for="opt_3"><?php echo $lang->phrase('editprofile_showmail'); ?></label>
+<select id="opt_3" class="label" name="opt_3">
+	<option<?php echo iif($user['opt_hidemail'] == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_showmail_0'); ?></option>
+	<option<?php echo iif($user['opt_hidemail'] == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_showmail_1'); ?></option>
+	<option<?php echo iif($user['opt_hidemail'] == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_showmail_2'); ?></option>
+</select>
+<br class="newinput" /><hr class="formsep" />
+<label for="opt_4"><?php echo $lang->phrase('editprofile_design'); ?></label>
+<select id="opt_4" class="label" name="opt_4">
+	<option selected="selected" value="<?php echo $user['template']; ?>"><?php echo $lang->phrase('editprofile_design_current'); ?></option>
+	<?php foreach ($design as $row) { ?>
+	<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+	<?php } ?>
+</select>
+<br class="newinput" /><hr class="formsep" />
+<label for="opt_5"><?php echo $lang->phrase('editprofile_language'); ?></label>
+<select id="opt_5" class="label" name="opt_5">
+	<option selected="selected" value="<?php echo $user['language']; ?>"><?php echo $lang->phrase('editprofile_language_current'); ?></option>
+	<?php foreach ($language as $row) { ?>
+	<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?></option>
+	<?php } ?>
+</select>
+<br class="newinput" /><br class="iefix_br" />
+</div>
+<div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+<br class="minibr" />
+
+<div class="border">
+<h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_about'); ?></h3>
+<div class="bbody">
+	<label><?php echo $inner['smileys']; ?></label>
+	<?php echo $inner['bbhtml']; ?>
+	<br class="newinput" /><hr class="formsep" />
+	<label for="comment"></label> 
+	<textarea class="label" name="comment" id="comment" rows="20" cols="65"><?php echo $user['about']; ?></textarea>
+	<br class="newinput" /><br class="iefix_br" />
+</div>	 
+<div class="bfoot center"><input type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+</div>
+</form>

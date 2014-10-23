@@ -1,0 +1,11 @@
+.shortnews {
+	margin: 0px;
+	padding: 0px;
+}
+.shortnews li {
+	margin: 0px;
+	padding: 0px;
+	margin-left: 15px;
+	padding-bottom: 8px;
+	list-style-image: url(standard/list.gif);
+}

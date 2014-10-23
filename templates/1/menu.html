@@ -1,0 +1,56 @@
+<div class="border">
+<h3>
+<span class="right"><?php echo $lang->phrase('hello_user'); ?>
+<?php echo iif (1==1, '&nbsp;(<a href="search.php?action=active&amp;type=lastvisit'.SID2URL_x.'">Neue Beiträge</a>)</span>'); ?>
+<a href="forum.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('forumname'); ?></a>
+</h3>
+<ul class="topmenu">
+	<?php if ($my->p['search'] == 1) { ?>
+		<li><a href="search.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('suchen'); ?>" alt="" /> <?php echo $lang->phrase('search'); ?></a></li>
+	<?php } if ($my->p['members'] == 1) { ?>
+		<li><a href="members.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('members'); ?>" alt="" /> <?php echo $lang->phrase('members_short'); ?></a></li>
+	<?php } if ($my->p['members'] == 0 && $my->p['team'] == 1) { ?>
+		<li><a href="team.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('members'); ?>" alt="" /> <?php echo $lang->phrase('team_short'); ?></a></li>
+	<?php } if ($my->p['pm'] == 1) { ?>
+		<li><a href="pm.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /> <?php echo $lang->phrase('pm_short'); ?></a></li>
+	<?php } if ($my->vlogin) { ?>
+		<li><a href="editprofile.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('profile'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_short'); ?></a></li>
+	<?php } else { ?>
+		<li><a href="register.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_title'); ?></a></li>
+	<?php } ?>
+		<li>
+		<a id="menu_generallinks" href="javascript:Link()"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('menu_links'); ?></a>
+		<script type="text/javascript">RegisterMenu('generallinks');</script>
+		<div class="popup" id="popup_generallinks">
+		<strong><?php echo $lang->phrase('menu_links_misc'); ?></strong>
+		<ul>
+		<li><a href="misc.php?action=markasread<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('mark_all_posts_read'); ?></a></li>
+		<li><a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a></li>
+		</ul>
+		<strong><?php echo $lang->phrase('search_active_topics'); ?></strong>
+		<ul>
+		<li><a href="search.php?action=active&amp;type=days-1<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_24h'); ?></a></li>
+		<?php if ($my->vlogin) { ?>
+		<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
+		<?php } if ($my->clv > 0) { ?>
+		<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
+		<?php } ?>
+		</ul>
+		<?php if ($config['syndication'] == 1) { ?>
+		<strong><?php echo $lang->phrase('choose_newsfeed'); ?></strong>
+		<ul>
+		  <?php foreach (show_feeds() as $key => $name) { ?>
+		  	<li><a href="external.php?action=<?php echo $key; ?>"><?php echo $name; ?></a></li>
+		<?php  } ?>
+		</ul>
+		<?php } ?>
+		</div>
+		</li>
+	<?php if ($my->vlogin) { ?>
+		<li><a href="log.php?action=logout<?php echo SID2URL_x; ?>"><img src="<?php echo $tpl->img('logout'); ?>" alt="" /> <?php echo $lang->phrase('logout'); ?></a></li>
+	<?php } else { ?>
+		<li><a href="log.php?action=login<?php echo SID2URL_x; ?>"><img src="<?php echo $tpl->img('login'); ?>" alt="" /> <?php echo $lang->phrase('login'); ?></a></li>
+	<?php } ?>
+</ul>
+</div>
+<br />

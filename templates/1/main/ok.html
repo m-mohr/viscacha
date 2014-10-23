@@ -1,0 +1,12 @@
+<script type="text/javascript">
+<!--
+    window.setTimeout ('location.href="<?php echo str_replace('&amp;', '&', $errorurl); ?>"', 2000);
+-->
+</script>
+<div class="border">
+<h3><?php echo $lang->phrase('re_ok_title'); ?></h3>
+<div class="bbody">
+<?php echo $errormsg; ?>
+</div>
+<div class="bfoot center"><a href="<?php echo $errorurl; ?>"><?php echo $lang->phrase('re_ok_link'); ?></a></div>
+</div>

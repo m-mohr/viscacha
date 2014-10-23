@@ -1,0 +1,14 @@
+<form name="form2" method="post" action="editprofile.php?action=about2<?php echo SID2URL_x; ?>">
+<div class="border">
+<h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_about'); ?></h3>
+<div class="bbody">
+	<label><?php echo $inner['smileys']; ?></label>
+	<?php echo $inner['bbhtml']; ?>
+	<br class="newinput" /><hr class="formsep" />
+	<label for="comment" class="stext"><?php echo $lang->phrase('editprofile_about_longdesc'); ?></label> 
+	<textarea class="label" name="comment" id="comment" rows="20" cols="65"><?php echo $data; ?></textarea>
+	<br class="newinput" /><br class="iefix_br" />
+</div>	 
+<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div> 
+</div>
+</form>
