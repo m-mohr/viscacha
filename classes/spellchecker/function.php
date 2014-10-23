@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // set the JavaScript variable to the submitted text.
 // textinputs is an array, each element corresponding to the (url-encoded)
@@ -51,9 +52,9 @@ function error_handler( $err ) {
 // for each misspelled word, get suggestions and put in the javascript suggs array
 function print_checker_results() {
 	global $config, $lang;
-	
+
 	$aspell_err = "";
-	
+
 	if ($config['pspell'] == 'pspell') {
 		include('classes/spellchecker/pspell.class.php');
 	}

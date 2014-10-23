@@ -1,5 +1,7 @@
 <?php
-/* 
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
+/*
  Start with:
  new text2image;
  (void) prepare()
@@ -7,7 +9,7 @@
  (str) output(str image_format);
  (str) save(str filename)
  (void) destroy()
- 
+
 */
 
 
@@ -25,12 +27,12 @@ class text2image {
 
 	function prepare($text, $angle=0, $size=10, $font='classes/fonts/trebuchet.ttf') {
 		$this->text = rawurldecode($text); // Line breaks with [nl]
-		
+
 		$this->angle = $angle+0;
 		$this->size = $size+0;
 		$this->font = $font;
 	}
-	
+
 	function imagettfbbox($size, $angle, $font, $text) {
 		// Get the boundingbox from imagettfbbox(), which is correct when angle is 0
 		$bbox = imagettfbbox($size, 0, $font, $text);
@@ -47,7 +49,7 @@ class text2image {
 	    }
 	    return $bbox;
 	}
-	
+
 	function imagecolorallocate($hex) {
 		$color = str_replace('#', '', $hex);
 		if (strlen($color) == 3) {
@@ -67,10 +69,10 @@ class text2image {
 		$gd = imagecolorallocate($this->img, $ret['r'], $ret['g'], $ret['b']);
 		return $gd;
 	}
-	
+
 	function build ($margin = 2, $bg = 'ffffff', $fg = '000000') {
 		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
-		
+
 		$TxtBx_Lwr_L_x = $TextBoxSize[0];
 		$TxtBx_Lwr_L_y = $TextBoxSize[1];
 		$TxtBx_Lwr_R_x = $TextBoxSize[2];
@@ -119,21 +121,21 @@ class text2image {
 		$this->destroy();
 		exit;
 	}
-	
+
 	function base64() {
 		$this->text = base64_decode($this->text);
 	}
-	
+
 	function destroy() {
-		imagedestroy($this->img);	
+		imagedestroy($this->img);
 	}
 
 	// TO DO:
 	function save($file) {
-	
+
 	}
 	function cache() {
-	
+
 	}
 
 }

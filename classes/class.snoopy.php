@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 /*************************************************
 
@@ -38,7 +39,7 @@ http://snoopy.sourceforge.net/
 class Snoopy
 {
 	/**** Public variables ****/
-	
+
 	/* user definable vars */
 
 	var $host			=	"www.php.net";		// host name we are connecting to
@@ -47,7 +48,7 @@ class Snoopy
 	var $proxy_port		=	"";					// proxy port to use
 	var $proxy_user		=	"";					// proxy user to use
 	var $proxy_pass		=	"";					// proxy password to use
-	
+
 	var $agent			=	"Snoopy v1.2.3";	// agent we masquerade as
 	var	$referer		=	"";					// referer info to pass
 	var $cookies		=	array();			// array of cookies to pass
@@ -65,15 +66,15 @@ class Snoopy
 	var $passcookies	=	true;				// pass set cookies back through redirects
 												// NOTE: this currently does not respect
 												// dates, domains or paths.
-	
+
 	var	$user			=	"";					// user for http authentication
 	var	$pass			=	"";					// password for http authentication
-	
+
 	// http accept types
 	var $accept			=	"image/gif, image/x-xbitmap, image/jpeg, image/pjpeg, */*";
-	
+
 	var $results		=	"";					// where the content is put
-		
+
 	var $error			=	"";					// error messages sent here
 	var	$response_code	=	"";					// response code returned from server
 	var	$headers		=	array();			// headers returned from server sent here
@@ -83,7 +84,7 @@ class Snoopy
 												// set to 0 to disallow timeouts
 	var $timed_out		=	false;				// if a read operation timed out
 	var	$status			=	0;					// http request status
-	
+
 	var $temp_dir		=	"./temp";				// temporary directory that the webserver
 												// has permission to write to.
 												// under Windows, this should be C:\temp
@@ -99,14 +100,14 @@ class Snoopy
 												// library functions built into php,
 												// as these functions are not stable
 												// as of this Snoopy release.
-	
+
 	// send Accept-encoding: gzip?
-	var $use_gzip		= true;	
-	
-	/**** Private variables ****/	
-	
+	var $use_gzip		= true;
+
+	/**** Private variables ****/
+
 	var	$_maxlinelen	=	4096;				// max line length (headers)
-	
+
 	var $_httpmethod	=	"GET";				// default http request method
 	var $_httpversion	=	"HTTP/1.0";			// default http request version
 	var $_submit_method	=	"POST";				// default submit method
@@ -116,7 +117,7 @@ class Snoopy
 	var $_redirectdepth	=	0;					// increments on an http redirect
 	var $_frameurls		= 	array();			// frame src urls
 	var $_framedepth	=	0;					// increments on frame depth
-	
+
 	var $_isproxy		=	false;				// set if using a proxy server
 	var $_fp_timeout	=	8;					// timeout for socket connection
 
@@ -131,7 +132,7 @@ class Snoopy
 
 	function fetch($URI)
 	{
-	
+
 		//preg_match("|^([^:]+)://([^:/]+)(:[\d]+)*(.*)|",$URI,$URI_PARTS);
 		$URI_PARTS = parse_url($URI);
 		if (!empty($URI_PARTS["user"]))
@@ -162,7 +163,7 @@ class Snoopy
 						// no proxy, send only the path
 						$this->_httprequest($path, $fp, $URI, $this->_httpmethod);
 					}
-					
+
 					$this->_disconnect($fp);
 
 					if($this->_redirectaddr)
@@ -185,7 +186,7 @@ class Snoopy
 					{
 						$frameurls = $this->_frameurls;
 						$this->_frameurls = array();
-						
+
 						while(list(,$frameurl) = each($frameurls))
 						{
 							if($this->_framedepth < $this->maxframes)
@@ -196,13 +197,13 @@ class Snoopy
 							else
 								break;
 						}
-					}					
+					}
 				}
 				else
 				{
 					return false;
 				}
-				return true;					
+				return true;
 				break;
 			case "https":
 				if(!$this->curl_path)
@@ -256,15 +257,15 @@ class Snoopy
 						else
 							break;
 					}
-				}					
-				return true;					
+				}
+				return true;
 				break;
 			default:
 				// not a valid protocol
 				$this->error	=	'Invalid protocol "'.$URI_PARTS["scheme"].'"\n';
 				return false;
 				break;
-		}		
+		}
 		return true;
 	}
 
@@ -282,9 +283,9 @@ class Snoopy
 	function submit($URI, $formvars="", $formfiles="")
 	{
 		unset($postdata);
-		
+
 		$postdata = $this->_prepare_post_body($formvars, $formfiles);
-			
+
 		$URI_PARTS = parse_url($URI);
 		if (!empty($URI_PARTS["user"]))
 			$this->user = $URI_PARTS["user"];
@@ -314,17 +315,17 @@ class Snoopy
 						// no proxy, send only the path
 						$this->_httprequest($path, $fp, $URI, $this->_submit_method, $this->_submit_type, $postdata);
 					}
-					
+
 					$this->_disconnect($fp);
 
 					if($this->_redirectaddr)
 					{
 						/* url was redirected, check if we've hit the max depth */
 						if($this->maxredirs > $this->_redirectdepth)
-						{						
+						{
 							if(!preg_match("|^".$URI_PARTS["scheme"]."://|", $this->_redirectaddr))
-								$this->_redirectaddr = $this->_expandlinks($this->_redirectaddr,$URI_PARTS["scheme"]."://".$URI_PARTS["host"]);						
-							
+								$this->_redirectaddr = $this->_expandlinks($this->_redirectaddr,$URI_PARTS["scheme"]."://".$URI_PARTS["host"]);
+
 							// only follow redirect if it's on this site, or offsiteok is true
 							if(preg_match("|^http://".preg_quote($this->host)."|i",$this->_redirectaddr) || $this->offsiteok)
 							{
@@ -343,9 +344,9 @@ class Snoopy
 					{
 						$frameurls = $this->_frameurls;
 						$this->_frameurls = array();
-						
+
 						while(list(,$frameurl) = each($frameurls))
-						{														
+						{
 							if($this->_framedepth < $this->maxframes)
 							{
 								$this->fetch($frameurl);
@@ -354,14 +355,14 @@ class Snoopy
 							else
 								break;
 						}
-					}					
-					
+					}
+
 				}
 				else
 				{
 					return false;
 				}
-				return true;					
+				return true;
 				break;
 			case "https":
 				if(!$this->curl_path)
@@ -388,9 +389,9 @@ class Snoopy
 				{
 					/* url was redirected, check if we've hit the max depth */
 					if($this->maxredirs > $this->_redirectdepth)
-					{						
+					{
 						if(!preg_match("|^".$URI_PARTS["scheme"]."://|", $this->_redirectaddr))
-							$this->_redirectaddr = $this->_expandlinks($this->_redirectaddr,$URI_PARTS["scheme"]."://".$URI_PARTS["host"]);						
+							$this->_redirectaddr = $this->_expandlinks($this->_redirectaddr,$URI_PARTS["scheme"]."://".$URI_PARTS["host"]);
 
 						// only follow redirect if it's on this site, or offsiteok is true
 						if(preg_match("|^http://".preg_quote($this->host)."|i",$this->_redirectaddr) || $this->offsiteok)
@@ -412,7 +413,7 @@ class Snoopy
 					$this->_frameurls = array();
 
 					while(list(,$frameurl) = each($frameurls))
-					{														
+					{
 						if($this->_framedepth < $this->maxframes)
 						{
 							$this->fetch($frameurl);
@@ -421,16 +422,16 @@ class Snoopy
 						else
 							break;
 					}
-				}					
-				return true;					
+				}
+				return true;
 				break;
-				
+
 			default:
 				// not a valid protocol
 				$this->error	=	'Invalid protocol "'.$URI_PARTS["scheme"].'"\n';
 				return false;
 				break;
-		}		
+		}
 		return true;
 	}
 
@@ -444,7 +445,7 @@ class Snoopy
 	function fetchlinks($URI)
 	{
 		if ($this->fetch($URI))
-		{			
+		{
 			if($this->lastredirectaddr)
 				$URI = $this->lastredirectaddr;
 			if(is_array($this->results))
@@ -472,9 +473,9 @@ class Snoopy
 
 	function fetchform($URI)
 	{
-		
+
 		if ($this->fetch($URI))
-		{			
+		{
 
 			if(is_array($this->results))
 			{
@@ -483,14 +484,14 @@ class Snoopy
 			}
 			else
 				$this->results = $this->_stripform($this->results);
-			
+
 			return true;
 		}
 		else
 			return false;
 	}
-	
-	
+
+
 /*======================================================================*\
 	Function:	fetchtext
 	Purpose:	fetch the text from a web page, stripping the links
@@ -501,7 +502,7 @@ class Snoopy
 	function fetchtext($URI)
 	{
 		if($this->fetch($URI))
-		{			
+		{
 			if(is_array($this->results))
 			{
 				for($x=0;$x<count($this->results);$x++)
@@ -525,7 +526,7 @@ class Snoopy
 	function submitlinks($URI, $formvars="", $formfiles="")
 	{
 		if($this->submit($URI,$formvars, $formfiles))
-		{			
+		{
 			if($this->lastredirectaddr)
 				$URI = $this->lastredirectaddr;
 			if(is_array($this->results))
@@ -559,7 +560,7 @@ class Snoopy
 	function submittext($URI, $formvars = "", $formfiles = "")
 	{
 		if($this->submit($URI,$formvars, $formfiles))
-		{			
+		{
 			if($this->lastredirectaddr)
 				$URI = $this->lastredirectaddr;
 			if(is_array($this->results))
@@ -583,7 +584,7 @@ class Snoopy
 			return false;
 	}
 
-	
+
 
 /*======================================================================*\
 	Function:	set_submit_multipart
@@ -595,7 +596,7 @@ class Snoopy
 		$this->_submit_type = "multipart/form-data";
 	}
 
-	
+
 /*======================================================================*\
 	Function:	set_submit_normal
 	Purpose:	Set the form submission content type to
@@ -606,14 +607,14 @@ class Snoopy
 		$this->_submit_type = "application/x-www-form-urlencoded";
 	}
 
-	
-	
+
+
 
 /*======================================================================*\
 	Private functions
 \*======================================================================*/
-	
-	
+
+
 /*======================================================================*\
 	Function:	_striplinks
 	Purpose:	strip the hyperlinks from an html document
@@ -622,13 +623,13 @@ class Snoopy
 \*======================================================================*/
 
 	function _striplinks($document)
-	{	
+	{
 		preg_match_all("'<\s*a\s.*?href\s*=\s*			# find <a href=
 						([\"\'])?					# find single or double quote
 						(?(1) (.*?)\\1 | ([^\s\>]+))		# if quote found, match up to next matching
 													# quote, otherwise match up to next space
 						'isx",$document,$links);
-						
+
 
 		// catenate the non-empty matches from the conditional subpattern
 
@@ -636,14 +637,14 @@ class Snoopy
 		{
 			if(!empty($val))
 				$match[] = $val;
-		}				
-		
+		}
+
 		while(list($key,$val) = each($links[3]))
 		{
 			if(!empty($val))
 				$match[] = $val;
-		}		
-		
+		}
+
 		// return the links
 		return $match;
 	}
@@ -656,18 +657,18 @@ class Snoopy
 \*======================================================================*/
 
 	function _stripform($document)
-	{	
+	{
 		preg_match_all("'<\/?(FORM|INPUT|SELECT|TEXTAREA|(OPTION))[^<>]*>(?(2)(.*(?=<\/?(option|select)[^<>]*>[\r\n]*)|(?=[\r\n]*))|(?=[\r\n]*))'Usi",$document,$elements);
-		
+
 		// catenate the matches
 		$match = implode("\r\n",$elements[0]);
-				
+
 		// return the links
 		return $match;
 	}
 
-	
-	
+
+
 /*======================================================================*\
 	Function:	_striptext
 	Purpose:	strip the text from an html document
@@ -677,11 +678,11 @@ class Snoopy
 
 	function _striptext($document)
 	{
-		
+
 		// I didn't use preg eval (//e) since that is only available in PHP 4.0.
 		// so, list your entities one by one here. I included some of the
 		// more common ones.
-								
+
 		$search = array("'<script[^>]*?>.*?</script>'si",	// strip out javascript
 						"'<[\/\!]*?[^<>]*?>'si",			// strip out html tags
 						"'([\r\n])[\s]+'",					// strip out white space
@@ -730,9 +731,9 @@ class Snoopy
 							"Ü",
 							"ß",
 						);
-					
+
 		$text = preg_replace($search,$replace,$document);
-								
+
 		return $text;
 	}
 
@@ -746,7 +747,7 @@ class Snoopy
 
 	function _expandlinks($links,$URI)
 	{
-		
+
 		preg_match("/^[^\?]+/",$URI,$match);
 
 		$match = preg_replace("|/[^\/\.]+\.[^\/\.]+$|","",$match[0]);
@@ -754,21 +755,21 @@ class Snoopy
 		$match_part = parse_url($match);
 		$match_root =
 		$match_part["scheme"]."://".$match_part["host"];
-				
+
 		$search = array( 	"|^http://".preg_quote($this->host)."|i",
 							"|^(\/)|i",
 							"|^(?!http://)(?!mailto:)|i",
 							"|/\./|",
 							"|/[^\/]+/\.\./|"
 						);
-						
+
 		$replace = array(	"",
 							$match_root."/",
 							$match."/",
 							"/",
 							"/"
-						);			
-				
+						);
+
 		$expandedLinks = preg_replace($search,$replace,$links);
 
 		return $expandedLinks;
@@ -781,19 +782,19 @@ class Snoopy
 				$fp			the current open file pointer
 				$URI		the full URI
 				$body		body contents to send if any (POST)
-	Output:		
+	Output:
 \*======================================================================*/
-	
+
 	function _httprequest($url,$fp,$URI,$http_method,$content_type="",$body="")
 	{
 		$cookie_headers = '';
 		if($this->passcookies && $this->_redirectaddr)
 			$this->setcookies();
-			
+
 		$URI_PARTS = parse_url($URI);
 		if(empty($url))
 			$url = "/";
-		$headers = $http_method." ".$url." ".$this->_httpversion."\r\n";		
+		$headers = $http_method." ".$url." ".$this->_httpversion."\r\n";
 		if(!empty($this->agent))
 			$headers .= "User-Agent: ".$this->agent."\r\n";
 		if(!empty($this->host) && !isset($this->rawheaders['Host'])) {
@@ -804,7 +805,7 @@ class Snoopy
 		}
 		if(!empty($this->accept))
 			$headers .= "Accept: ".$this->accept."\r\n";
-		
+
 		if($this->use_gzip) {
 			// make sure PHP was built with --with-zlib
 			// and we can handle gzipp'ed data
@@ -814,18 +815,18 @@ class Snoopy
 			else {
 			   trigger_error(
 			   	"use_gzip is on, but PHP was built without zlib support.".
-				"  Requesting file(s) without gzip encoding.", 
+				"  Requesting file(s) without gzip encoding.",
 				E_USER_NOTICE);
 			}
 		}
-		
+
 		if(!empty($this->referer))
 			$headers .= "Referer: ".$this->referer."\r\n";
 		if(!empty($this->cookies))
-		{			
+		{
 			if(!is_array($this->cookies))
 				$this->cookies = (array)$this->cookies;
-	
+
 			reset($this->cookies);
 			if ( count($this->cookies) > 0 ) {
 				$cookie_headers .= 'Cookie: ';
@@ -833,7 +834,7 @@ class Snoopy
 				$cookie_headers .= $cookieKey."=".urlencode($cookieVal)."; ";
 				}
 				$headers .= substr($cookie_headers,0,-2) . "\r\n";
-			} 
+			}
 		}
 		if(!empty($this->rawheaders))
 		{
@@ -848,31 +849,31 @@ class Snoopy
 				$headers .= "; boundary=".$this->_mime_boundary;
 			$headers .= "\r\n";
 		}
-		if(!empty($body))	
+		if(!empty($body))
 			$headers .= "Content-length: ".strlen($body)."\r\n";
-		if(!empty($this->user) || !empty($this->pass))	
+		if(!empty($this->user) || !empty($this->pass))
 			$headers .= "Authorization: Basic ".base64_encode($this->user.":".$this->pass)."\r\n";
-		
+
 		//add proxy auth headers
-		if(!empty($this->proxy_user))	
+		if(!empty($this->proxy_user))
 			$headers .= 'Proxy-Authorization: ' . 'Basic ' . base64_encode($this->proxy_user . ':' . $this->proxy_pass)."\r\n";
 
 
 		$headers .= "\r\n";
-		
+
 		// set the read timeout if needed
 		if ($this->read_timeout > 0)
 			socket_set_timeout($fp, $this->read_timeout);
 		$this->timed_out = false;
-		
+
 		fwrite($fp,$headers.$body,strlen($headers.$body));
-		
+
 		$this->_redirectaddr = false;
 		unset($this->headers);
-		
+
 		// content was returned gzip encoded?
 		$is_gzipped = false;
-						
+
 		while($currentHeader = fgets($fp,$this->_maxlinelen))
 		{
 			if ($this->read_timeout > 0 && $this->_check_timeout($fp))
@@ -880,10 +881,10 @@ class Snoopy
 				$this->status=-100;
 				return false;
 			}
-				
+
 			if($currentHeader == "\r\n")
 				break;
-						
+
 			// if a header begins with Location: or URI:, set the redirect
 			if(preg_match("/^(Location:|URI:)/i",$currentHeader))
 			{
@@ -903,20 +904,20 @@ class Snoopy
 				else
 					$this->_redirectaddr = $matches[2];
 			}
-		
+
 			if(preg_match("|^HTTP/|",$currentHeader))
 			{
                 if(preg_match("|^HTTP/[^\s]*\s(.*?)\s|",$currentHeader, $status))
 				{
 					$this->status= $status[1];
-                }				
+                }
 				$this->response_code = $currentHeader;
 			}
-				
+
 			if (preg_match("/Content-Encoding: gzip/", $currentHeader) ) {
 				$is_gzipped = true;
 			}
-			
+
 			$this->headers[] = $currentHeader;
 		}
 
@@ -935,19 +936,19 @@ class Snoopy
 			$results = substr($results, 10);
 			$results = gzinflate($results);
 		}
-		
+
 		if ($this->read_timeout > 0 && $this->_check_timeout($fp))
 		{
 			$this->status=-100;
 			return false;
 		}
-		
+
 		// check if there is a a redirect meta tag
-		
+
 		if(preg_match("'<meta[\s]*http-equiv[^>]*?content[\s]*=[\s]*[\"\']?\d+;[\s]*URL[\s]*=[\s]*([^\"\']*?)[\"\']?>'i",$results,$match))
 
 		{
-			$this->_redirectaddr = $this->_expandlinks($match[1],$URI);	
+			$this->_redirectaddr = $this->_expandlinks($match[1],$URI);
 		}
 
 		// have we hit our frame depth and is there frame src to fetch?
@@ -964,7 +965,7 @@ class Snoopy
 		// no framed content
 		else
 			$this->results = $results;
-		
+
 		return true;
 	}
 
@@ -974,21 +975,21 @@ class Snoopy
 	Input:		$url		the url to fetch
 				$URI		the full URI
 				$body		body contents to send if any (POST)
-	Output:		
+	Output:
 \*======================================================================*/
-	
+
 	function _httpsrequest($url,$URI,$http_method,$content_type="",$body="")
 	{
 		if($this->passcookies && $this->_redirectaddr)
 			$this->setcookies();
 
-		$headers = array();		
-					
+		$headers = array();
+
 		$URI_PARTS = parse_url($URI);
 		if(empty($url))
 			$url = "/";
 		// GET ... header not needed for curl
-		//$headers[] = $http_method." ".$url." ".$this->_httpversion;		
+		//$headers[] = $http_method." ".$url." ".$this->_httpversion;
 		if(!empty($this->agent))
 			$headers[] = "User-Agent: ".$this->agent;
 		if(!empty($this->host))
@@ -1001,10 +1002,10 @@ class Snoopy
 		if(!empty($this->referer))
 			$headers[] = "Referer: ".$this->referer;
 		if(!empty($this->cookies))
-		{			
+		{
 			if(!is_array($this->cookies))
 				$this->cookies = (array)$this->cookies;
-	
+
 			reset($this->cookies);
 			if ( count($this->cookies) > 0 ) {
 				$cookie_str = 'Cookie: ';
@@ -1027,45 +1028,45 @@ class Snoopy
 			else
 				$headers[] = "Content-type: $content_type";
 		}
-		if(!empty($body))	
+		if(!empty($body))
 			$headers[] = "Content-length: ".strlen($body);
-		if(!empty($this->user) || !empty($this->pass))	
+		if(!empty($this->user) || !empty($this->pass))
 			$headers[] = "Authorization: BASIC ".base64_encode($this->user.":".$this->pass);
-			
+
 		$c_h = count($headers);
 		for($curr_header = 0; $curr_header < $c_h; $curr_header++) {
 			$safer_header = strtr( $headers[$curr_header], "\"", " " );
 			$cmdline_params .= " -H \"".$safer_header."\"";
 		}
-		
+
 		if(!empty($body))
 			$cmdline_params .= " -d \"$body\"";
-		
+
 		if($this->read_timeout > 0)
 			$cmdline_params .= " -m ".$this->read_timeout;
-		
+
 		$headerfile = tempnam($temp_dir, "sno");
 
 		$safer_URI = strtr( $URI, "\"", " " ); // strip quotes from the URI to avoid shell access
 		exec($this->curl_path." -D \"$headerfile\"".$cmdline_params." \"".$safer_URI."\"",$results,$return);
-		
+
 		if($return)
 		{
 			$this->error = "Error: cURL could not retrieve the document, error $return.";
 			return false;
 		}
-			
-			
+
+
 		$results = implode("\r\n",$results);
-		
+
 		$result_headers = file("$headerfile");
-						
+
 		$this->_redirectaddr = false;
 		unset($this->headers);
-						
+
 		for($currentHeader = 0; $currentHeader < count($result_headers); $currentHeader++)
 		{
-			
+
 			// if a header begins with Location: or URI:, set the redirect
 			if(preg_match("/^(Location: |URI: )/i",$result_headers[$currentHeader]))
 			{
@@ -1085,7 +1086,7 @@ class Snoopy
 				else
 					$this->_redirectaddr = $matches[2];
 			}
-		
+
 			if(preg_match("|^HTTP/|",$result_headers[$currentHeader]))
 				$this->response_code = $result_headers[$currentHeader];
 
@@ -1093,10 +1094,10 @@ class Snoopy
 		}
 
 		// check if there is a a redirect meta tag
-		
+
 		if(preg_match("'<meta[\s]*http-equiv[^>]*?content[\s]*=[\s]*[\"\']?\d+;[\s]*URL[\s]*=[\s]*([^\"\']*?)[\"\']?>'i",$results,$match))
 		{
-			$this->_redirectaddr = $this->_expandlinks($match[1],$URI);	
+			$this->_redirectaddr = $this->_expandlinks($match[1],$URI);
 		}
 
 		// have we hit our frame depth and is there frame src to fetch?
@@ -1114,7 +1115,7 @@ class Snoopy
 			$this->results = $results;
 
 		unlink("$headerfile");
-		
+
 		return true;
 	}
 
@@ -1122,7 +1123,7 @@ class Snoopy
 	Function:	setcookies()
 	Purpose:	set cookies for a redirection
 \*======================================================================*/
-	
+
 	function setcookies()
 	{
 		for($x=0; $x<count($this->headers); $x++)
@@ -1132,7 +1133,7 @@ class Snoopy
 		}
 	}
 
-	
+
 /*======================================================================*\
 	Function:	_check_timeout
 	Purpose:	checks whether timeout has occurred
@@ -1156,13 +1157,13 @@ class Snoopy
 	Purpose:	make a socket connection
 	Input:		$fp	file pointer
 \*======================================================================*/
-	
+
 	function _connect(&$fp)
 	{
 		if(!empty($this->proxy_host) && !empty($this->proxy_port))
 			{
 				$this->_isproxy = true;
-				
+
 				$host = $this->proxy_host;
 				$port = $this->proxy_port;
 			}
@@ -1176,7 +1177,7 @@ class Snoopy
 				$port = $this->port;
 			}
 		}
-	
+
 		$this->status = 0;
 
 		if($fp = fsockopen(
@@ -1214,13 +1215,13 @@ class Snoopy
 	Purpose:	disconnect a socket connection
 	Input:		$fp	file pointer
 \*======================================================================*/
-	
+
 	function _disconnect($fp)
 	{
 		return(fclose($fp));
 	}
 
-	
+
 /*======================================================================*\
 	Function:	_prepare_post_body
 	Purpose:	Prepare post body according to encoding type
@@ -1228,7 +1229,7 @@ class Snoopy
 				$formfiles - form upload files
 	Output:		post body
 \*======================================================================*/
-	
+
 	function _prepare_post_body($formvars, $formfiles)
 	{
 		settype($formvars, "array");
@@ -1237,7 +1238,7 @@ class Snoopy
 
 		if (count($formvars) == 0 && count($formfiles) == 0)
 			return;
-		
+
 		switch ($this->_submit_type) {
 			case "application/x-www-form-urlencoded":
 				reset($formvars);
@@ -1253,7 +1254,7 @@ class Snoopy
 
 			case "multipart/form-data":
 				$this->_mime_boundary = "Snoopy".md5(uniqid(microtime()));
-				
+
 				reset($formvars);
 				while(list($key,$val) = each($formvars)) {
 					if (is_array($val) || is_object($val)) {
@@ -1268,7 +1269,7 @@ class Snoopy
 						$postdata .= "$val\r\n";
 					}
 				}
-				
+
 				reset($formfiles);
 				while (list($field_name, $file_names) = each($formfiles)) {
 					settype($file_names, "array");

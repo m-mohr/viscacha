@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "spider.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 ($code = $plugins->load('admin_spider_jobs')) ? eval($code) : null;
 
@@ -503,7 +503,7 @@ elseif (empty($job) || $job == 'manage') {
 				$last_visit = "<select>";
 				$last_visits = array_reverse($last_visits);
 				foreach ($last_visits as $visit) {
-					$last_visit .= "<option>" . date("d.m.Y @ H:i:s", $visit) . "</option>";
+					$last_visit .= "<option>".gmdate("d.m.Y @ H:i:s", times($visit))."</option>";
 				}
 				$last_visit .= "</select>";
 			}

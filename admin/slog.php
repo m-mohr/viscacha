@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "slog.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 function getmonth($number) {
 	global $months;

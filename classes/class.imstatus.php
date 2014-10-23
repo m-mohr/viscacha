@@ -1,4 +1,6 @@
-<?php 
+<?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*
 *	This script is written by Matthias Mohr, 2005 for Viscacha
 *	Some parts of this script are written by Setec Astronomy - setec@freemail.it
@@ -26,13 +28,13 @@ class IMStatus {
 	var $server = array();
 	var $errno = false;
 	var $errstr = false;
-	
+
 	function IMStatus () {
 		// For Servers see: http://www.onlinestatus.org/usage.html
 		$server = file('data/imservers.php');
 		$this->server = array_map('trim', $server);
 	}
-	
+
 	function error($type) {
 		if ($type == IM_ERRNO) {
 			return $this->errno;
@@ -44,67 +46,67 @@ class IMStatus {
 			return $this->errno.": ".$this->errstr."\n";
 		}
 	}
-	
+
 	function icq ($account) {
 		$host = "status.icq.com";
 		$path = "/online.gif?icq=".$account;
-		
-		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout); 
+
+		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout);
 		if (!$fp) {
 			return $this->fallback($account, IM_ICQ);
-		} 
-		else { 
-			fputs ($fp,"GET ".$path." HTTP/1.1\r\n"); 
-			fputs ($fp,"HOST: ".$host."\r\n"); 
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n"); 
-			fputs ($fp,"Connection: close\r\n\r\n"); 
-			
+		}
+		else {
+			fputs ($fp,"GET ".$path." HTTP/1.1\r\n");
+			fputs ($fp,"HOST: ".$host."\r\n");
+			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
+			fputs ($fp,"Connection: close\r\n\r\n");
+
 			$raw_headers = '';
 			while (!feof ($fp)) {
 				$raw_headers .= fgets ($fp, 128);
 			}
-		} 
+		}
 		fclose ($fp);
-	
+
 		$location = $this->parse_header($raw_headers, 'Location');
-			
+
 		$filename = basename ($location);
-		switch ($filename) { 
-			case "online0.gif": 
-				return IM_OFFLINE;		
-				break; 
-			case "online1.gif": 
+		switch ($filename) {
+			case "online0.gif":
+				return IM_OFFLINE;
+				break;
+			case "online1.gif":
 				return IM_ONLINE;
-				break; 
-			default: 
+				break;
+			default:
 				return IM_UNKNOWN;
-				break; 
+				break;
 		}
 	}
 
 	function skype ($account) {
 		$host = "mystatus.skype.com";
 		$path = "/{$account}.xml";
-		
-		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout); 
+
+		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout);
 		if (!$fp) {
 			$this->errno = 1;
 			$this->errstr = "Unable to connect to http://mystatus.skype.com/{$account}.xml";
 			return IM_ABORT;
-		} 
-		else { 
-			fputs ($fp,"GET ".$path." HTTP/1.1\r\n"); 
-			fputs ($fp,"HOST: ".$host."\r\n"); 
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n"); 
-			fputs ($fp,"Connection: close\r\n\r\n"); 
-			
+		}
+		else {
+			fputs ($fp,"GET ".$path." HTTP/1.1\r\n");
+			fputs ($fp,"HOST: ".$host."\r\n");
+			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
+			fputs ($fp,"Connection: close\r\n\r\n");
+
 			$raw_headers = '';
 			while (!feof ($fp)) {
 				$raw_headers .= fgets ($fp, 128);
 			}
-		} 
+		}
 		fclose ($fp);
-			
+
 		$pattern = "~xml:lang=\"NUM\">(\d)</~";
 		preg_match($pattern, $raw_headers, $match);
 		/*
@@ -118,77 +120,77 @@ class IMStatus {
 		 * 6	INVISIBLE		The user is Invisible or appears Offline
 		 * 7	SKYPE ME		The user is in Skype Me mode
 		 */
-		switch ($match[1]) { 
-			case "1": 
+		switch ($match[1]) {
+			case "1":
 			case "6":
-				return IM_OFFLINE;		
-				break; 
+				return IM_OFFLINE;
+				break;
 			case "2":
 			case "7":
 				return IM_ONLINE;
-				break; 
+				break;
 			case "3":
 			case "4":
 			case "5":
 				return IM_AWAY;
-				break; 
-			default: 
+				break;
+			default:
 				return IM_UNKNOWN;
-				break; 
+				break;
 		}
 	}
-	
+
 	function aol ($account) {
 
 		$host = "big.oscar.aol.com";
 		$path = "/{$account}?on_url=true&off_url=false";
-		
-		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout); 
+
+		$fp = fsockopen ($host, 80, $this->errno, $this->errstr, $this->timeout);
 		if (!$fp) {
 			return $this->fallback($account, IM_AIM);
-		} 
-		else { 
-			fputs ($fp,"GET ".$path." HTTP/1.1\r\n"); 
-			fputs ($fp,"HOST: ".$host."\r\n"); 
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n"); 
-			fputs ($fp,"Connection: close\r\n\r\n"); 
-			
+		}
+		else {
+			fputs ($fp,"GET ".$path." HTTP/1.1\r\n");
+			fputs ($fp,"HOST: ".$host."\r\n");
+			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
+			fputs ($fp,"Connection: close\r\n\r\n");
+
 			$raw_headers = '';
 			while (!feof ($fp)) {
 				$raw_headers .= fgets ($fp, 128);
 			}
-		} 
-		fclose ($fp);
-	
-		$location = $this->parse_header($raw_headers, 'Location');
-			
-		$filename = basename ($location);
-		switch ($filename) { 
-			case "false": 
-				return IM_OFFLINE;		
-				break; 
-			case "true": 
-				return IM_ONLINE;
-				break; 
-			default: 
-				return IM_UNKNOWN;
-				break; 
 		}
-		
+		fclose ($fp);
+
+		$location = $this->parse_header($raw_headers, 'Location');
+
+		$filename = basename ($location);
+		switch ($filename) {
+			case "false":
+				return IM_OFFLINE;
+				break;
+			case "true":
+				return IM_ONLINE;
+				break;
+			default:
+				return IM_UNKNOWN;
+				break;
+		}
+
 	}
-	
+
 	function jabber ($account) {
 		return $this->fallback($account, IM_JABBER);
 	}
-	
+
 	function msn ($account) {
 		return $this->fallback($account, IM_MSN);
 	}
-	
+
 	function yahoo ($account) {
 		// Use fsockopen to set a timeout
 		// if you don't want a timeout use this code:
-		// $lines = @file("http://opi.yahoo.com/online?m=t&u=".$this->account); 
+		// $lines = @file("http://opi.yahoo.com/online?m=t&u=".$this->account);
 		$fp = @fsockopen("opi.yahoo.com", 80, $this->errno, $this->errstr, $this->timeout);
 		if (!$fp) {
 			return $this->fallback($account, IM_YAHOO);
@@ -203,7 +205,7 @@ class IMStatus {
 			}
 			fclose($fp);
 		}
-		
+
 		if ($lines !== false) {
 			$response = implode ("", $lines);
 			if (strpos ($response, "NOT ONLINE") !== false) {
@@ -222,75 +224,75 @@ class IMStatus {
 			return IM_ABORT;
 		}
 	}
-	
+
 	function fallback($account, $medium) {
-	
-		srand((double)microtime()*1000000); 
-		$random = rand(0,count($this->server)-1); 
+
+		srand((double)microtime()*1000000);
+		$random = rand(0,count($this->server)-1);
 		$server = $this->server[$random];
 
 	    $url = parse_url($server);
 		$url["host"] = !isset($url["host"]) ? "localhost" : $url["host"];
 		$url["port"] = !isset($url["port"]) ? "80" : $url["port"];
 		$url["path"] = !isset($url["path"]) ? "/" : trim($url["path"]);
-		
+
 		if (substr ($url["path"], -1) != "/") {
 			$url["path"] .= "/";
 		}
 		$url["path"] .= $medium . "/" . $account . "/onurl=online/offurl=offline";
 
-		$fp = @fsockopen ($url["host"], $url["port"], $this->errno, $this->errstr, $this->timeout); 
+		$fp = @fsockopen ($url["host"], $url["port"], $this->errno, $this->errstr, $this->timeout);
 		if (!$fp) {
 			return IM_ABORT;
-		} 
-		else { 
+		}
+		else {
 			$url["port"] = ':'.$url["port"];
-			
-			fputs ($fp,"GET " . $url["path"] . " HTTP/1.1\r\n"); 
-			fputs ($fp,"HOST: " . $url["host"] . $url["port"] . "\r\n"); 
-			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n"); 
-			fputs ($fp,"Connection: close\r\n\r\n"); 
-			
+
+			fputs ($fp,"GET " . $url["path"] . " HTTP/1.1\r\n");
+			fputs ($fp,"HOST: " . $url["host"] . $url["port"] . "\r\n");
+			fputs ($fp,"User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Viscacha)\r\n");
+			fputs ($fp,"Connection: close\r\n\r\n");
+
 			$raw_headers = '';
 			while (!feof ($fp)) {
 				$raw_headers .= fgets ($fp, 128);
 			}
-		} 
+		}
 		fclose ($fp);
-		
+
 		$location = $this->parse_header($raw_headers, 'Location');
 		$parse_location = parse_url ($location);
 		$parse_location["host"] = !isset($parse_location["host"]) ? "unknown" : $parse_location["host"];
-		switch ($parse_location["host"]) { 
-			case "online": 
-				return IM_ONLINE;		
-				break; 
-			case "offline": 
+		switch ($parse_location["host"]) {
+			case "online":
+				return IM_ONLINE;
+				break;
+			case "offline":
 				return IM_OFFLINE;
-				break; 
-			default: 
+				break;
+			default:
 				return IM_UNKNOWN;
-				break; 
-		}			
+				break;
+		}
 	}
-	
+
 	function parse_header($raw_headers, $index = NULL) {
 		$headers = array ();
 		$tmp_headers = explode ("\n", $raw_headers);
 
-		foreach ($tmp_headers as $header) { 
+		foreach ($tmp_headers as $header) {
 			$tokens = explode (":", $header, 2);
-			if (isset ($tokens[0]) && (trim($tokens[0]) != "")) { 
+			if (isset ($tokens[0]) && (trim($tokens[0]) != "")) {
 				if (!isset ($tokens[1])) { $tokens[1] = ""; }
-				$headers[] = array ($tokens[0] => trim($tokens[1])); 
+				$headers[] = array ($tokens[0] => trim($tokens[1]));
 			}
 		}
-		
+
 		if ($index != NULL) {
 			$i = "";
-			foreach ($headers as $header) { 
-				if (isset($header[$index])) { 
-					$i = $header[$index]; 
+			foreach ($headers as $header) {
+				if (isset($header[$index])) {
+					$i = $header[$index];
 					break;
 				}
 			}
@@ -300,6 +302,6 @@ class IMStatus {
 			return $headers;
 		}
 	}
-	
+
 }
 ?>

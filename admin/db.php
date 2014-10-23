@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "db.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 function highlight_sql_query($sql) {
 	global $lang;
@@ -24,10 +24,10 @@ function exec_query_form ($query = '') {
 ?>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2"><b>Execute Queries</b></td>
   </tr>
-  <tr> 
+  <tr>
 	<td class="mbox" width="90%">
 	<span style="float: right;">semicolon-separated list</span><strong>Queries:</strong>
 	<textarea name="query" id="query" rows="10" cols="90" class="texteditor" style="width: 100%; height: 200px;"><?php echo iif(!empty($query), $query); ?></textarea>
@@ -41,8 +41,8 @@ function exec_query_form ($query = '') {
 	</div>
 	</td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
 </form>
@@ -50,7 +50,7 @@ function exec_query_form ($query = '') {
 <?php if (empty($query)) { ?>
 <form name="form" method="post" action="admin.php?action=db&amp;job=query2&amp;type=1" enctype="multipart/form-data">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox"><b>Import SQL File</b></td>
   </tr>
   <tr>
@@ -59,8 +59,8 @@ function exec_query_form ($query = '') {
   	<span class="stext">Allowed file types: .sql, .zip - Maximum file size: <?php echo formatFilesize(ini_maxupload()); ?></span>
   	</td>
   </tr>
-  <tr> 
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
 </form>
@@ -89,10 +89,10 @@ if ($job == 'optimize') {
 	?>
 <form name="form" method="post" action="admin.php?action=db&job=optimize2">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6">Repair &amp; Optimize</td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" width="7%">Repair</td>
    <td class="ubox" width="7%">Optimize</td>
    <td class="ubox" width="47%">Database</td>
@@ -126,11 +126,11 @@ if ($job == 'optimize') {
 		   <td class="mbox"><?php echo formatFilesize($table['Data_free']); ?></td>
 		</tr>
 	<?php } ?>
-  <tr> 
-   <td class="ubox" colspan="6" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" colspan="6" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
-</form> 
+</form>
 	<?php
 	echo foot();
 }
@@ -154,7 +154,7 @@ elseif ($job == 'backup') {
 	?>
 <form name="form" method="post" action="admin.php?action=db&job=backup2">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="5">
 	<span style="float: right;">
 	<a class="button" href="admin.php?action=db&amp;job=restore">Restore</a>
@@ -162,7 +162,7 @@ elseif ($job == 'backup') {
 	Backup Tables
 	</td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" width="30%">Export</td>
    <td class="ubox" width="70%">Options</td>
   </tr>
@@ -181,11 +181,11 @@ elseif ($job == 'backup') {
    <br /><br /><input type="checkbox" name="zip" value="1" /> <strong>Save as ZIP file</strong>
    </td>
   </tr>
-  <tr> 
-   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
-</form> 
+</form>
 	<?php
 	echo foot();
 }
@@ -203,14 +203,14 @@ elseif ($job == 'backup2') {
 	$ok = "Backup successfully created!";
 	if (!empty($sqldata) && strlen($sqldata) > 0) {
         // Speichern der Backup-Datei
-        $file_path = "admin/backup/".date('d_m_Y-H_i_s');
+        $file_path = "admin/backup/".gmdate('d_m_Y-H_i_s');
         if ($zip == 1) {
         	$filesystem->file_put_contents($file_path.'.sql', $sqldata);
 
 			require_once('classes/class.zip.php');
 			$archive = new PclZip($file_path.".zip");
 			$v_list = $archive->create($file_path.'.sql',PCLZIP_OPT_REMOVE_PATH, "admin/backup");
-            
+
             if ($v_list == 0) {
             	$ok = "Could not create ZIP-File. Saved backup as normal textfile.<br />Error: ".$archive->errorInfo(true);
         		$file_path .= '.sql';
@@ -224,7 +224,7 @@ elseif ($job == 'backup2') {
         	$file_path .= '.sql';
             $filesystem->file_put_contents($file_path, $sqldata);
         }
-        
+
         if (file_exists($file_path)) {
             ok('admin.php?action=db&job=restore',$ok);
         }
@@ -240,7 +240,7 @@ elseif ($job == 'restore') {
 	echo head();
 	$result = array();
 	$dir = "./admin/backup/";
-	
+
 	$mem_limit = @ini_get('memory_limit');
 	if (empty($mem_limit)) {
 		$mem_limit = @get_cfg_var('memory_limit');
@@ -250,16 +250,16 @@ elseif ($job == 'restore') {
 	if ($mem_limit > $maxlimit) {
 		$maxlimit = $mem_limit;
 	}
-	
+
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
-		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {					  
+		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {
 			$nfo = pathinfo($dir.$file);
 			if ($nfo['extension'] == 'zip' || $nfo['extension'] == 'sql') {
-			
+
 				$date = str_replace('.zip', '', $nfo['basename']);
 				$date = str_replace('.sql', '', $date);
-				
+
 				if (filesize($dir.$file) < $maxlimit) {
 			        if ($nfo['extension'] == 'zip') {
 						require_once('classes/class.zip.php');
@@ -298,7 +298,7 @@ elseif ($job == 'restore') {
 		        else {
 		        	$header = 'File is too big for opening.';
 		        }
-				
+
 				$result[] = array(
 					'file' => $nfo['basename'],
 					'size' => filesize($dir.$file),
@@ -312,7 +312,7 @@ elseif ($job == 'restore') {
 ?>
 <form name="form" method="post" action="admin.php?action=db&job=restore2">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="4">
 	<span style="float: right;">
 	<a class="button" href="admin.php?action=db&amp;job=restore">Backup</a>
@@ -320,7 +320,7 @@ elseif ($job == 'restore') {
 	Restore Database
    </td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" width="5%">Restore</td>
    <td class="ubox" width="5%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
    <td class="ubox" width="80%">Information</td>
@@ -337,14 +337,14 @@ elseif ($job == 'restore') {
            <td class="mbox" colspan="2" align="center"><a href="admin.php?action=db&amp;job=download&amp;file=<?php echo $row['file']; ?>">Download</a></td>
         </tr>
 	<?php } ?>
-  <tr> 
-   <td class="ubox" width="100%" colspan="4" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" width="100%" colspan="4" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
 </form><br />
 <form name="form" method="post" enctype="multipart/form-data" action="admin.php?action=explorer&job=upload&cfg=dbrestore">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="4">Upload a Backup</td>
   </tr>
   <tr>
@@ -354,8 +354,8 @@ elseif ($job == 'restore') {
    </td>
    <td class="mbox" width="50%"><input type="file" name="upload_0" size="40" /></td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Upload"></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Upload"></td>
   </tr>
  </table>
 </form>
@@ -366,9 +366,9 @@ elseif ($job == 'restore2') {
 	$delete = $gpc->get('delete', arr_str);
 	$file = $gpc->get('file', str);
 	$dir = "./admin/backup/";
-	
+
 	echo head();
-	
+
 	$d = 0;
 	if (count($delete) > 0) {
 		foreach ($delete as $delfile) {
@@ -380,7 +380,7 @@ elseif ($job == 'restore2') {
 		}
 		ok('admin.php?action=db&job=restore', $d.' backups deleted');
 	}
-	
+
 	$ext = get_extension($file);
 	if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
 		if ($ext == 'zip') {
@@ -398,13 +398,31 @@ elseif ($job == 'restore2') {
 		}
 		if (isset($lines)) {
 			$q = $db->multi_query($lines);
+
+			// Clear Cache
+			if ($dh = @opendir("./cache/")) {
+				while (($file = readdir($dh)) !== false) {
+					if (strpos($file, '.inc.php') !== false) {
+						$fileTrim = str_replace('.inc.php', '', $file);
+						if (file_exists("classes/cache/{$fileTrim}")) {
+							$cache = $scache->load($file);
+							$cache->delete();
+						}
+						else {
+							$filesystem->unlink("./cache/{$file}");
+						}
+					}
+			    }
+				closedir($dh);
+			}
+
 			ok('admin.php?action=db&job=restore', $q['ok'].' queries successfully executed.');
 		}
 		else {
 			error('admin.php?action=db&job=restore', 'Can not read information. This file is maybe damaged.');
 		}
 	}
-	
+
 	error('admin.php?action=db&job=restore');
 }
 elseif ($job == 'download') {
@@ -437,10 +455,10 @@ elseif ($job == 'status') {
 		$result12 = $db->query('DESCRIBE '.$table);
 ?>
   <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Table Information: <?php echo $table; ?></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" width="30%">Name</td>
    <td class="ubox" width="70%">Value</td>
   </tr>
@@ -453,7 +471,7 @@ elseif ($job == 'status') {
            <td class="mbox" width="70%"><?php echo $val; ?></td>
 		</tr>
 	<?php }} ?>
-      <tr> 
+      <tr>
        <td class="ubox" colspan="2">Field Information</td>
       </tr>
 		<tr>
@@ -470,7 +488,7 @@ elseif ($job == 'status') {
                    <td><?php echo $val; ?></td>
                   <?php } ?>
         		</tr>
-        	<?php } ?>	   
+        	<?php } ?>
 		   </table>
 		   </td>
 		</tr>
@@ -482,10 +500,10 @@ elseif ($job == 'status') {
 		$result2 = $db->query('SHOW VARIABLES',__LINE__,__FILE__);
  ?>
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Server Variables<a name="sv">&nbsp;</a></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" width="30%">Name</td>
    <td class="ubox" width="70%">Value</td>
   </tr>
@@ -497,10 +515,10 @@ elseif ($job == 'status') {
 	<?php } ?>
  </table><br />
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Server Status Information<a name="ssi">&nbsp;</a></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="ubox" width="30%">Name</td>
    <td class="ubox" width="70%">Value</td>
   </tr>
@@ -516,10 +534,10 @@ elseif ($job == 'status') {
 	else {
 	?>
 	  <table class="border">
-	  <tr> 
+	  <tr>
 	   <td class="obox">Table of Contents</td>
 	  </tr>
-	  <tr> 
+	  <tr>
 	   <td class="mbox">
 	   <strong>Server Information</strong>:<br />
 	   <ul>
@@ -534,7 +552,7 @@ elseif ($job == 'status') {
 		<?php } ?>
 	   </ul>
 	   </td>
-	  </tr>  
+	  </tr>
 	  </table>
 	<?php
 	}
@@ -554,11 +572,11 @@ elseif ($job == 'query2') {
 		$dir = 'temp/';
 		$inserterrors = array();
 		require("classes/class.upload.php");
-	
+
 		if (empty($_FILES['upload']['name'])) {
 			$inserterrors[] = 'No file specified.';
 		}
-		
+
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(ini_maxupload());
 		$my_uploader->file_types($filetypes);
@@ -574,7 +592,7 @@ elseif ($job == 'query2') {
 		if ($my_uploader->upload_failed()) {
 			array_push($inserterrors,$my_uploader->get_error());
 		}
-		
+
 		if (count($inserterrors) > 0) {
 			error('admin.php?action=db&job=query', $inserterrors);
 		}
@@ -600,11 +618,11 @@ elseif ($job == 'query2') {
 	else {
 		$lines = $gpc->get('query', none);
 	}
-	
+
 	$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $lines);
 	@exec_query_form($lines);
 	$hl = highlight_sql_query($sql);
-	
+
 	if (!empty($lines)) {
 
 		ob_start();
@@ -644,7 +662,7 @@ elseif ($job == 'query2') {
 				}
 			}
 		}
-	
+
 	}
 	echo foot();
 }

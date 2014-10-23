@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "class.phpconfig.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class manageconfig {
 
@@ -38,7 +38,7 @@ class manageconfig {
 
 	function createfile($file, $varname) {
 		global $filesystem;
-		$top = '<?php'."\n".'if (isset($_SERVER[\'PHP_SELF\']) && basename($_SERVER[\'PHP_SELF\']) == "'.basename($file).'") die(\'Error: Hacking Attempt\');'."\n";
+		$top = '<?php'."\nif (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }\n";
 		$top .= '$'.$varname.' = array();'."\n".'?>';
 
 		$filesystem->file_put_contents($file, $top);
@@ -67,7 +67,7 @@ class manageconfig {
 
 	function savedata() {
 		global $filesystem;
-		$top = '<?php'."\n".'if (isset($_SERVER[\'PHP_SELF\']) && basename($_SERVER[\'PHP_SELF\']) == "'.basename($this->file).'") die(\'Error: Hacking Attempt\');'."\n";
+		$top = '<?php'."\nif (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }\n";
 		$top .= '$'.$this->varname.' = array();'."\n";
 
 		$cfg = array();

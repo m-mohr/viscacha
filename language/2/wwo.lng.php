@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "wwo.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['wwo_addreply'] = 'is posting a reply to the topic <a href="showtopic.php?id={$id}">{$title}</a>';
 $lang['wwo_attachments_view'] = 'is viewing an attachment';

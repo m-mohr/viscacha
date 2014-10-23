@@ -11,7 +11,7 @@ class cache_parent_forums extends CacheItem {
 			$categories = $categories_obj->get();
 			$categories_obj = $scache->load('cat_bid');
 			$forums = $categories_obj->get();
-			
+
 			$this->data = array();
 			foreach ($forums as $id => $forum) {
 				$this->data[$id] = array();
@@ -20,6 +20,9 @@ class cache_parent_forums extends CacheItem {
 				while (!empty($c[$forum['parent']]['parent'])) {
 					$temp = $c[$forum['parent']]['parent'];
 					unset($c[$forum['parent']]);
+					if (isset($forums[$temp]) == false) {
+						continue;
+					}
 					$forum['parent'] = $this->data[$id][] = $temp;
 				}
 			}

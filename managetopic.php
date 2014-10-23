@@ -1,8 +1,8 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'managetopic');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -39,9 +40,9 @@ $tpl = new tpl();
 $action = $gpc->get('action', none);
 
 $result = $db->query('
-SELECT board, mark, id, last_name, prefix, topic 
-FROM '.$db->pre.'topics 
-WHERE id = "'.$_GET['id'].'" 
+SELECT board, mark, id, last_name, prefix, topic
+FROM '.$db->pre.'topics
+WHERE id = "'.$_GET['id'].'"
 LIMIT 1
 ',__LINE__,__FILE__);
 if ($db->num_rows($result) != 1) {
@@ -127,9 +128,9 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 		$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
 		$anz += $db->affected_rows();
-		
+
 		($code = $plugins->load('managetopic_delete2_end')) ? eval($code) : null;
-		
+
 		UpdateBoardStats($info['board']);
 		ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
@@ -140,27 +141,27 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 		$forums = BoardSubs();
 		echo $tpl->parse("menu");
-		echo $tpl->parse("admin/topic/move");  
+		echo $tpl->parse("admin/topic/move");
 	}
-	elseif ($action == "move2") {		
+	elseif ($action == "move2") {
 		if ($my->mp[0] == 1 && $my->mp[5] == 0) {
 			errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
-		
+
 		$result = $db->query("SELECT r.date, r.topic, r.name, r.email, r.guest, u.name AS uname, u.mail AS uemail FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON u.id = r.name WHERE topic_id = '{$info['id']}' AND tstart = '1'",__LINE__,__FILE__);
 		$old = $db->fetch_assoc($result);
-		
+
 		$board = $gpc->get('board', int);
-		
-		$db->query("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1",__LINE__,__FILE__);		
+
+		$db->query("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1",__LINE__,__FILE__);
 		$anz = $db->affected_rows();
-		$db->query("UPDATE {$db->pre}replies SET board = '{$board}' WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__); 
+		$db->query("UPDATE {$db->pre}replies SET board = '{$board}' WHERE topic_id = '{$info['id']}'",__LINE__,__FILE__);
 		$anz += $db->affected_rows();
-		
+
 		if ($_POST['temp'] == 1) {
-			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '{$old['topic']}', board='{$info['board']}', name = '{$old['name']}', date = '{$old['date']}', last_name = '{$info['last_name']}', prefix = '{$info['prefix']}', last = '{$old['date']}'",__LINE__,__FILE__);	
+			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}'",__LINE__,__FILE__);
 			$tid = $db->insert_id();
-			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '{$old['topic']}', board='{$info['board']}', name = '{$old['name']}', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);	
+			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);
 		}
 		if ($_POST['temp2'] == 1) {
 			if ($old['guest'] == 0) {
@@ -176,7 +177,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		UpdateBoardStats($board);
 		ok($lang->phrase('x_entries_moved'),'showtopic.php?id='.$info['id']);
 	}
-	
+
 	elseif ($action == "status") {
 		if ($my->mp[0] == 1 && $my->mp[1] == 0 && $my->mp[2] == 0 && $my->mp[3] == 0) {
 			errorLogin($lang->phrase('not_allowed'),'showtopic.php?id='.$info['id'].SID2URL_x);
@@ -189,7 +190,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$notallowed = FALSE;
 		if ($my->mp[0] == 1 && $my->mp[1] == 0 && $my->mp[2] == 0 && $my->mp[3] == 0) {
 			$notallowed = TRUE;
-		}  
+		}
 		if ($_POST['temp'] == '1') {
 			if ($my->mp[1] == 1) {
 				$input = 'g';
@@ -225,7 +226,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if ($notallowed) {
 			errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
-		$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$info['id']}'",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$info['id']}'",__LINE__,__FILE__);
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
@@ -233,8 +234,8 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			error($lang->phrase('admin_failed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
 	}
-	elseif ($action == "pin") {	
-		$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);	
+	elseif ($action == "pin") {
+		$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
@@ -243,16 +244,16 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 	}
 	elseif ($action == "unpin") {
-		$db->query("UPDATE {$db->pre}topics SET sticky = '0' WHERE id = '".$info['id']."'",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET sticky = '0' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
 		else {
 			error($lang->phrase('admin_failed'),'showtopic.php?id='.$info['id'].SID2URL_x);
-		}   
+		}
 	}
 	elseif ($action == "close") {
-		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
@@ -261,13 +262,13 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 	}
 	elseif ($action == "open") {
-		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '".$info['id']."'",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '".$info['id']."'",__LINE__,__FILE__);
 		if ($db->affected_rows() == 1) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 		}
 		else {
 			error($lang->phrase('admin_failed'),'showtopic.php?id='.$info['id'].SID2URL_x);
-		}	   
+		}
 	}
 	elseif ($action == "stat") {
 		UpdateTopicStats($info['id']);
@@ -276,7 +277,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 	elseif ($action == "vote_export") {
 		require_once("classes/class.charts.php");
 		$PG = new PowerGraphic();
-		
+
 		$skin = $gpc->get('skin', int, 1);
 		$modus = $gpc->get('modus', int, 1);
 
@@ -310,7 +311,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 
 
-		
+
 		$i = 0;
 		echo $tpl->parse("menu");
 		echo $tpl->parse("admin/topic/vote_edit");
@@ -375,7 +376,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'",__LINE__,__FILE__);
 		$anz += $db->affected_rows();
 		$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$info['id']}'");
-		
+
 		ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
 	elseif ($action == "pdelete") {
@@ -386,7 +387,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if (count($ids) == 0) {
 			error($lang->phrase('no_data_selected'));
 		}
-		
+
 		$iid = implode(',', $ids);
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
@@ -428,20 +429,20 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			UpdateTopicStats($info['id']);
 			$redirect = "showtopic.php?id=".$info['id'].SID2URL_x;
 		}
-		
+
 		($code = $plugins->load('managetopic_pdelete_end')) ? eval($code) : null;
-		
+
 		UpdateBoardStats($info['board']);
 		ok($lang->phrase('x_entries_deleted'),$redirect);
 	}
-	
+
 	elseif ($action == "pmerge") {
 		$ids = $gpc->get('ids', arr_int);
 		if (count($ids) < 2) {
 			error($lang->phrase('no_data_selected'));
 		}
 		$iid = implode(',', $ids);
-		
+
 		$result = $db->query("SELECT r.*, u.name AS uname, u.id AS uid, u.mail AS umail FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iid}) ORDER BY date ASC", __LINE__, __FILE__);
 		$author = array();
 		$comment = array();
@@ -461,11 +462,11 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$author = array_unique($author);
 		$topic = array_unique($topic);
 		$comment = array_unique($comment);
-		
+
 		BBProfile($bbcode);
 		$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
 		$inner['bbhtml'] = $bbcode->getbbhtml();
-		
+
 		($code = $plugins->load('managetopic_pmerge_prepared')) ? eval($code) : null;
 
 		echo $tpl->parse("admin/topic/post_merge");
@@ -484,7 +485,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if (empty($_POST['topic_id'])) {
 			$error[] = $lang->phrase('title_too_short');
 		}
-		 
+
 		if (count($error) > 0) {
 			error($error);
 		}
@@ -501,7 +502,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 					$base = $row;
 				}
 			}
-			
+
 			$old = array();
 			foreach ($ids as $id) {
 				if ($id != $base['id']) {
@@ -509,7 +510,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				}
 			}
 			$iold = implode(',', $old);
-			
+
 			$topic = $cache[$_POST['topic_id']]['topic'];
 			$name = $cache[$author]['name'];
 			$email = $cache[$author]['email'];
@@ -520,7 +521,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			else {
 				$guest = '1';
 			}
-			
+
 			$rev = array();
 			foreach ($cache as $row) {
 				$row['edit'] = explode("\n", $row['edit']);
@@ -553,7 +554,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				'reason' => $lang->phrase('admin_merge_edit_reason'),
 				'ip' => $my->ip
 			);
-			
+
 			usort($rev, "cmp_edit_date");
 
 			$edit = '';
@@ -565,20 +566,20 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			$db->query ("UPDATE {$db->pre}postratings SET tid = '{$base['id']}' WHERE tid IN ({$iold})",__LINE__,__FILE__);
 			$db->query ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})",__LINE__,__FILE__);
 			$db->query ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})",__LINE__,__FILE__);
-			
+
 			$db->query ("UPDATE {$db->pre}replies SET topic = '{$topic}', name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', dowords = '{$_POST['dowords']}', email = '{$email}', ip = '{$ip}', edit = '{$edit}', guest = '{$guest}' WHERE id = '{$base['id']}'",__LINE__,__FILE__);
 			$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iold})",__LINE__,__FILE__);
-			
+
 			($code = $plugins->load('managetopic_pmerge_end')) ? eval($code) : null;
-			
+
 			UpdateTopicStats($info['id']);
 			UpdateBoardStats($info['board']);
-			
+
 			$anz = count($ids);
 			ok($lang->phrase('x_entries_merged'),"showtopic.php?topic_id=".$base['id']."&action=jumpto&id=".$base['topic_id'].SID2URL_x);
 		}
 	}
-	
+
 	($code = $plugins->load('managetopic_end')) ? eval($code) : null;
 }
 else {
@@ -589,5 +590,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();	
+$db->close();
 ?>

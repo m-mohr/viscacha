@@ -1,31 +1,13 @@
 ########################################
-# Installation Viscacha 0.8 RC 1       #
+# Readme for Viscacha 0.8 RC 2         #
 ########################################
 
 == Table of Contents ==
-1. Preamble
-2. Installation
-3. CHMODs
-4. Update
-5. System requirements
-6. Contact
-
-
-== Preamble ==
-
-This is the fifth public release of Viscacha (0.8). Some of the Feature
-are missing, but I am working to complete these features for version 0.9.
-You can commit bugs and suggestions to the bugtracker (see below) and I
-will check these entries and fix or implement them in most cases.
-
-This version is meant only for testing purposes only and in productive use
-there can occur some problems. This is version 0.8 and not 1.0. Until
-version 1.0 is released there will be some major changes that can affect
-the compatibility and may result in lost data. plugins and components are
-currently on the newest state, but there can be some minor changes in the
-API of plugins and components. All available hooks of the plugin system you
-can find in the file hooks.txt. If there is a hook missing, please contact
-the support and we will implement this hook into the next version of Viscacha.
+1. Installation
+2. CHMODs
+3. Update
+4. System requirements
+5. Contact
 
 
 == Installation ==
@@ -60,7 +42,7 @@ Following directories need CHMOD 777:
 - All subdirectories of "uploads"
 
 Following files need CHMOD 666:
-- All files in the directories "admin/data/"
+- All files in the directory "admin/data/"
 - All files in the directories "data" and "data/cron"
 - All files in the directory "docs"
 - All files in the directory "language" and all files in the subdirectories of
@@ -73,148 +55,173 @@ Following files need CHMOD 666:
 
 First make a backup of your (old) data!
 
-Upload the following files (and maybe overwrite them):
+Upload (and overwrite) the following files (* = an ID):
+
+- All files in the directory "admin":
+   - admin/bbcodes.php
+   - admin/cms.php
+   - admin/cron.php
+   - admin/db.php
+   - admin/designs.php
+   - admin/explorer.php
+   - admin/filetypes.php
+   - admin/forums.php
+   - admin/frames.php
+   - admin/groups.php
+   - admin/language.php
+   - admin/members.php
+   - admin/misc.php
+   - admin/posts.php
+   - admin/profilefield.php
+   - admin/settings.php
+   - admin/slog.php
+   - admin/spider.php
+   - admin/start.php
+
+- All *.php and all .htaccess files in the directory "classes" and all subdirectories of the directory "classes":
+   - classes/cache/parent_forums.inc.php
+   - classes/cron/jobs/dboptimize.php
+   - classes/cron/jobs/deletegeshi.php
+   - classes/cron/jobs/deletesearch.php
+   - classes/cron/jobs/deletetemp.php
+   - classes/cron/jobs/deletethumbnails.php
+   - classes/cron/jobs/digestdaily.php
+   - classes/cron/jobs/digestweekly.php
+   - classes/cron/jobs/recountpostcounts.php
+   - classes/cron/class.parser.php
+   - classes/cron/function.cron.php
+   - classes/database/mysql.inc.php
+   - classes/diff/class.diff.php
+   - classes/diff/function.diff.php
+   - classes/feedcreator/klipfolio.inc.php
+   - classes/feedcreator/rss091.inc.php
+   - classes/feedcreator/rss20.inc.php
+   - classes/fpdf/class.php
+   - classes/fpdf/extension.php
+   - classes/ftp/class.ftp.php
+   - classes/ftp/class.ftp_pure.php
+   - classes/ftp/class.ftp_sockets.php
+   - classes/graphic/class.text2image.php
+   - classes/graphic/class.thumbnail.php
+   - classes/graphic/class.veriword.php
+   - classes/graphic/text2image.php
+   - classes/magpie_rss/rss_cache.inc.php
+   - classes/magpie_rss/rss_fetch.inc.php
+   - classes/magpie_rss/rss_parse.inc.php
+   - classes/magpie_rss/rss_utils.inc.php
+   - classes/mail/class.phpmailer.php
+   - classes/mail/class.smtp.php
+   - classes/mail/extended.phpmailer.php
+   - classes/spellchecker/dict/HERE YOU CAN GET DICTIONARIES
+   - classes/spellchecker/function.php
+   - classes/spellchecker/mysql.class.php
+   - classes/spellchecker/php.class.php
+   - classes/spellchecker/pspell.class.php
+   - classes/class.bbcode.php
+   - classes/class.breadcrumb.php
+   - classes/class.cache.php
+   - classes/class.charts.php
+   - classes/class.convertroman.php
+   - classes/class.docoutput.php
+   - classes/class.feedcreator.php
+   - classes/class.filesystem.php
+   - classes/class.geshi.php
+   - classes/class.gpc.php
+   - classes/class.imageconverter.php
+   - classes/class.imstatus.php
+   - classes/class.ini.php
+   - classes/class.jabber.php
+   - classes/class.language.php
+   - classes/class.permissions.php
+   - classes/class.phpconfig.php
+   - classes/class.plugins.php
+   - classes/class.snoopy.php
+   - classes/class.tar.php
+   - classes/class.template.php
+   - classes/class.upload.php
+   - classes/class.vCard.inc.php
+   - classes/class.zip.php
+   - classes/function.chmod.php
+   - classes/function.flood.php
+   - classes/function.frontend_init.php
+   - classes/function.global.php
+   - classes/function.gpc.php
+   - classes/function.jabber.php
+   - classes/function.phpcore.php
+   - classes/function.profilefields.php
+   - classes/function.viscacha_frontend.php
+   - classes/cache/.htaccess
+   - classes/cron/.htaccess
+   - classes/database/.htaccess
+   - classes/diff/.htaccess
+   - classes/feedcreator/.htaccess
+   - classes/fpdf/.htaccess
+   - classes/ftp/.htaccess
+   - classes/geshi/.htaccess
+   - classes/geshi/cpp-qt.php
+   - classes/geshi/plsql.php
+   - classes/geshi/z80.php
+   - classes/magpie_rss/.htaccess
+   - classes/mail/.htaccess
+
 - admin/html/standard.css
-- admin/html/editor.js
-- admin/lib/function.viscacha_backend.inc.php
-- admin/bbcodes.php
-- admin/cms.php
-- admin/db.php
-- admin/forums.php
-- admin/frames.php
-- admin/groups.php
-- admin/language.php
-- admin/members.php
-- admin/misc.php
-- admin/posts.php
-- admin/settings.php
-- admin/start.php
-- classes/cache/smileys.inc.php
-- classes/cache/version_check.inc.php
-- classes/geshi/bash.php
-- classes/geshi/php.php
-- classes/geshi/thinbasic.php
-- classes/geshi/xml.php
-- classes/geshi/bnf.php
-- classes/geshi/io.php
-- classes/geshi/mirc.php
-- classes/graphic/class.veriword.php
-- classes/magpie_rss/rss_fetch.inc.php
-- classes/class.bbcode.php
-- classes/class.cache.php
-- classes/class.charts.php
-- classes/class.docoutput.php
-- classes/class.geshi.php
-- classes/class.gpc.php
-- classes/class.language.php
-- classes/class.permissions.php
-- classes/class.phpconfig.php
-- classes/class.template.php
-- classes/class.upload.php
-- classes/function.global.php
-- classes/function.phpcore.php
-- classes/function.viscacha_frontend.php
-- data/group_fields.php
-- templates/editor.js
-- templates/global.js
-- templates/menu.js
-- addreply.php
-- admin.php
-- attachments.php
-- edit.php
-- editprofile.php
-- forum.php
-- images.php
-- log.php
-- manageforum.php
-- managemembers.php
-- managetopic.php
-- members.php
-- misc.php
-- newtopic.php
-- pm.php
-- popup.php
-- portal.php
-- profile.php
-- register.php
-- search.php
-- showtopic.php
-- team.php
+- admin/lib/class.servernavigator.php
+- admin/lib/function.viscacha_backend.php
 
-Upload the following files if the plugin is installed (maybe it is in another directory when you have reinstalled the plugin):
-- modules/14/birthday.php
-- modules/3/config.ini
-- modules/3/latestnews.php
-- modules/4/config.ini
-- modules/4/newsfeed.php
-- modules/8/printword.php
+- designs/*/ie.css
+- Only if you are using the standard stylesheet re-upload designs/1/standard.css
 
-Please update all the following files in each image pack: (* = ID of image pack)
-- images/*/bbcodes/tt.gif
-- images/*/mquote.gif
-- images/*/no_mquote.gif
-- images/*/offline.gif
-- images/*/online.gif
+- modules/3/latestnews.php ( The ID [3] can differ at your installation)
 
-Many changes were made in the template files. (* = ID of language pack)
-Please update all the following files in each template pack:
-- templates/*/admin/topic/post_merge.html
-- templates/*/admin/topic/vote_edit.html
-- templates/*/admin/benchmark.html
-- templates/*/edit/edit.html
-- templates/*/editprofile/about.html
-- templates/*/editprofile/signature.html
-- templates/*/log/login.html
-- templates/*/main/bbhtml.html
-- templates/*/main/error.html
-- templates/*/main/ok.html
+- templates/lang2js.php
+
+
+- templates/*/addreply.html
+- templates/*/main/smileys.html
 - templates/*/members/index.html
 - templates/*/members/index_bit.html
-- templates/*/misc/wwo_bit.html
-- templates/*/modules/16/login.html
+- templates/*/modules/11/legend.html
+- templates/*/modules/12/legend.html
+- templates/*/modules/13/legend.html
 - templates/*/newtopic/index.html
-- templates/*/newtopic/startvote.html
-- templates/*/pm/new.html
+- templates/*/pm/delete.html
 - templates/*/pm/show.html
-- templates/*/popup/showpost.html
-- templates/*/register/register.html
-- templates/*/register/resend.html
-- templates/*/showtopic/index_bit.html
-- templates/*/team/index.html
-- templates/*/team/moderator_bit.html
-- templates/*/addreply.html
-- templates/*/categories.html
-- templates/*/footer.html
-- templates/*/menu_noscript.html
-- templates/*/offline.html
+- templates/*/pm/move.html
 
-Either overwrite file design/*/ie.css in each designs-folder or add to each file manually: (* = ID of design pack)
+- All .php files in the main Viscacha folder:
+   - addreply.php
+   - admin.php
+   - ajax.php
+   - attachments.php
+   - components.php
+   - cron.php
+   - docs.php
+   - edit.php
+   - editprofile.php
+   - external.php
+   - forum.php
+   - images.php
+   - index.php
+   - log.php
+   - manageforum.php
+   - managemembers.php
+   - managetopic.php
+   - members.php
+   - misc.php
+   - newtopic.php
+   - pdf.php
+   - pm.php
+   - popup.php
+   - portal.php
+   - print.php
+   - profile.php
+   - register.php
+   - search.php
+   - showforum.php
+   - showtopic.php
+   - spellcheck.php
+   - team.php
 
-#content {
-	width: 603px;
-}
-.border {
-	width: 100%;
-}
-
-
-Either overwrite file design/*/standard.css in each designs-folder or compare the files and make the changes manually.
-The following classes/definitions have been changed:
-- h1
-- h1 a, h1 a:hover
-- .breadcrumb
-- #blank {
-- #content
-- .bbody ul, .bbody ol, .tbody ul, .tbody ol
-- .border
-- .profiledata br
-- .profiledata em br
-- .profiledata em
-- .bb_inlinecode
-- .bb_quote
-- .bb_quote blockquote
-- .bb_ot span
-- .bb_edit ins
 
 Finally upload the install/ directory and execute the update script.
 

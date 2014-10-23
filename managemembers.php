@@ -1,8 +1,8 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'managemembers');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -45,16 +46,16 @@ echo $tpl->parse("header");
 
 ($code = $plugins->load('managemembers_start')) ? eval($code) : null;
 
-if ($my->vlogin && $my->p['admin'] == 1) { 
-	
+if ($my->vlogin && $my->p['admin'] == 1) {
+
 	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$_GET['id']);
 	if ($db->num_rows() != 1) {
 		error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 	}
 	$user = $gpc->prepare($db->fetch_assoc($result));
-	
+
 	($code = $plugins->load('managemembers_prepare')) ? eval($code) : null;
-	
+
 	if ($_GET['action'] == 'delete') {
 		if ($my->id == $user['id']) {
 			error($lang->phrase('member_delete_yourself_error'));
@@ -99,7 +100,10 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		$db->query("DELETE FROM {$db->pre}user WHERE id = '{$user['id']}'");
 		// Step 13: Delete user's custom profilefields
 		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid = '{$user['id']}'");
-		
+
+		$cache = $scache->load('memberdata');
+		$cache = $cache->delete();
+
 		($code = $plugins->load('managemembers_delete_end')) ? eval($code) : null;
 
 		ok($lang->phrase('member_deleted'),'members.php'.SID2URL_1);
@@ -110,9 +114,9 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		BBProfile($bbcode);
 		$inner['bbhtml'] = $bbcode->getbbhtml();
 		$inner['smileys'] = $bbcode->getsmileyhtml($config['smileysperrow']);
-		
+
 		($code = $plugins->load('managemembers_edit_start')) ? eval($code) : null;
-		
+
 		if (empty($user['template'])) {
 		    $user['template'] = $config['templatedir'];
 		}
@@ -120,34 +124,34 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		    $user['language'] = $config['langdir'];
 		}
 		$user['icq'] = iif(empty($user['icq']), '', $user['icq']);
-		
+
 		// Settings
 		$loaddesign_obj = $scache->load('loaddesign');
 		$design = $loaddesign_obj->get();
 		$mydesign = $design[$user['template']]['name'];
-		
+
 		$loadlanguage_obj = $scache->load('loadlanguage');
 		$language = $loadlanguage_obj->get();
 		$mylanguage = $language[$user['language']]['language'];
-		
+
 		// Profile
 	    $bday = explode('-',$user['birthday']);
 	    $year = gmdate('Y');
 	    $maxy = $year-6;
 	    $miny = $year-100;
 	    $result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
-		
+
 		$random = md5(microtime());
-		
+
 		$customfields = admin_customfields($user['id']);
-		
+
 		echo $tpl->parse("menu");
 		($code = $plugins->load('managemembers_edit_prepared')) ? eval($code) : null;
 		echo $tpl->parse("admin/members/edit");
 		($code = $plugins->load('managemembers_edit_end')) ? eval($code) : null;
 	}
 	elseif ($_GET['action'] == 'edit2') {
-	
+
 		$loaddesign_obj = $scache->load('loaddesign');
 		$cache = $loaddesign_obj->get();
 
@@ -262,15 +266,15 @@ if ($my->vlogin && $my->p['admin'] == 1) {
 		}
 		elseif (empty($_POST['pic']) || !file_exists($_POST['pic'])) {
 			$_POST['pic'] = '';
-		}		
+		}
 		($code = $plugins->load('managemembers_edit2_errorhandling')) ? eval($code) : null;
-	
+
 		if (count($error) > 0) {
 			($code = $plugins->load('managemembers_edit2_errordata')) ? eval($code) : null;
 			error($error);
 		}
 		else {
-		    // Now we create the birthday... 
+		    // Now we create the birthday...
 		    if (!$_POST['birthmonth'] && !$_POST['birthday'] && !$_POST['birthyear']) {
 		    	$bday = '0000-00-00';
 		    }
@@ -292,18 +296,21 @@ if ($my->vlogin && $my->p['admin'] == 1) {
             else {
                 $update_sql = ' ';
             }
-			
+
 			admin_customsave($user['id']);
 
 			($code = $plugins->load('managemembers_edit2_savedata')) ? eval($code) : null;
 			$db->query("
-			UPDATE {$db->pre}user 
-			SET groups = '".saveCommaSeparated($_POST['groups'])."', timezone = '".$_POST['temp']."', opt_textarea = '".$_POST['opt_0']."', opt_pmnotify = '".$_POST['opt_1']."', opt_hidebad = '".$_POST['opt_2']."', opt_hidemail = '".$_POST['opt_3']."', template = '".$_POST['opt_4']."', language = '".$_POST['opt_5']."', pic = '".$_POST['pic']."', about = '".$_POST['comment']."', icq = '".$_POST['icq']."', yahoo = '".$_POST['yahoo']."', aol = '".$_POST['aol']."', msn = '".$_POST['msn']."', jabber = '".$_POST['jabber']."', skype = '{$_POST['skype']}', birthday = '".$bday."', gender = '".$_POST['gender']."', hp = '".$_POST['hp']."', signature = '".$_POST['signature']."', location = '".$_POST['location']."', fullname = '".$_POST['fullname']."', mail = '".$_POST['email']."', name = '".$_POST['name']."' {$update_sql} 
-			WHERE id = '".$user['id']."' 
+			UPDATE {$db->pre}user
+			SET groups = '".saveCommaSeparated($_POST['groups'])."', timezone = '".$_POST['temp']."', opt_textarea = '".$_POST['opt_0']."', opt_pmnotify = '".$_POST['opt_1']."', opt_hidebad = '".$_POST['opt_2']."', opt_hidemail = '".$_POST['opt_3']."', template = '".$_POST['opt_4']."', language = '".$_POST['opt_5']."', pic = '".$_POST['pic']."', about = '".$_POST['comment']."', icq = '".$_POST['icq']."', yahoo = '".$_POST['yahoo']."', aol = '".$_POST['aol']."', msn = '".$_POST['msn']."', jabber = '".$_POST['jabber']."', skype = '{$_POST['skype']}', birthday = '".$bday."', gender = '".$_POST['gender']."', hp = '".$_POST['hp']."', signature = '".$_POST['signature']."', location = '".$_POST['location']."', fullname = '".$_POST['fullname']."', mail = '".$_POST['email']."', name = '".$_POST['name']."' {$update_sql}
+			WHERE id = '".$user['id']."'
 			LIMIT 1
-			",__LINE__,__FILE__); 
+			",__LINE__,__FILE__);
 			ok($lang->phrase('data_success'), "profile.php?id=".$user['id']);
 		}
+	}
+	else {
+		error($lang->phrase('docs_not_found'), "profile.php?id={$user['id']}");
 	}
 }
 ($code = $plugins->load('managemembers_end')) ? eval($code) : null;
@@ -312,5 +319,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();	
+$db->close();
 ?>

@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class thumbnail {
 
@@ -7,14 +8,14 @@ var $lang;
 
 function thumbnail () {
     ImageTypes();
-    
+
 	$lang = new lang();
     $lang->group("thumbnail.class");
     $this->lang = $lang->return_array();
 
     $this->path = '';
 	$this->mime = array();
-    
+
     if (function_exists('imagejpeg') && IMG_JPEG) {
     	define('IMAGEJPEG', true);
     }
@@ -55,7 +56,7 @@ function create_image(&$image) {
 
 	if ($image != NULL) {
 		$type = get_extension($this->path);
-	
+
 		imageinterlace ($image, 0);
 		if ($type == 'gif' AND IMAGEGIF) {
 			imagegif($image, $this->path);
@@ -85,7 +86,7 @@ function create_thumbnail($attachment) {
 
 	$ext = get_extension($attachment);
 	if($ext == 'gif' or $ext == 'png' or $ext == 'jpg' or $ext == 'jpeg' or $ext == 'jpe') {
-		
+
 		$imageinfo = getimagesize($attachment);
 		$new_width = $width = $imageinfo[0];
 		$new_height = $height = $imageinfo[1];
@@ -129,7 +130,7 @@ function create_thumbnail($attachment) {
 						$this->create_error($this->lang['tne_truecolorerror']);
 					}
 					@imagecopyresampled($thumbnail, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-					
+
 					if (!version_compare(PHP_VERSION, '4.3.2', 'eq')) {
 						$this->UnsharpMask($thumbnail);
 					}
@@ -175,7 +176,7 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 	if ($radius > 50)	$radius = 50;
 	$radius = $radius * 2;
 	if ($threshold > 255)	$threshold = 255;
-	
+
 	$radius = abs(round($radius)); 	// Only integers make sense.
 	if ($radius == 0) {
 		return $img; imagedestroy($img); break;		}
@@ -186,14 +187,14 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 	$imgBlur2 = imagecreatetruecolor($w, $h);
 	imagecopy ($imgCanvas, $img, 0, 0, 0, 0, $w, $h);
 	imagecopy ($imgCanvas2, $img, 0, 0, 0, 0, $w, $h);
-	
+
 
 	// Gaussian blur matrix:
-	//						
-	//	1	2	1		
-	//	2	4	2		
-	//	1	2	1		
-	//						
+	//
+	//	1	2	1
+	//	2	4	2
+	//	1	2	1
+	//
 	//////////////////////////////////////////////////
 
 	// Move copies of the image around one pixel at the time and merge them with weight
@@ -211,7 +212,7 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 		imagecopy ($imgCanvas, $imgBlur, 0, 0, 0, 0, $w, $h);
 
 		// During the loop above the blurred copy darkens, possibly due to a roundoff
-		// error. Therefore the sharp picture has to go through the same loop to 
+		// error. Therefore the sharp picture has to go through the same loop to
 		// produce a similar image for comparison. This is not a good thing, as processing
 		// time increases heavily.
 		imagecopy ($imgBlur2, $imgCanvas2, 0, 0, 0, 0, $w, $h);
@@ -224,39 +225,39 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 		imagecopymerge ($imgBlur2, $imgCanvas2, 0, 0, 0, 0, $w, $h, 16.666667);
 		imagecopymerge ($imgBlur2, $imgCanvas2, 0, 0, 0, 0, $w, $h, 50);
 		imagecopy ($imgCanvas2, $imgBlur2, 0, 0, 0, 0, $w, $h);
-		
+
 		}
 
 	// Calculate the difference between the blurred pixels and the original
 	// and set the pixels
 	for ($x = 0; $x < $w; $x++)	{ // each row
 		for ($y = 0; $y < $h; $y++)	{ // each pixel
-				
+
 			$rgbOrig = ImageColorAt($imgCanvas2, $x, $y);
 			$rOrig = (($rgbOrig >> 16) & 0xFF);
 			$gOrig = (($rgbOrig >> 8) & 0xFF);
 			$bOrig = ($rgbOrig & 0xFF);
-			
+
 			$rgbBlur = ImageColorAt($imgCanvas, $x, $y);
-			
+
 			$rBlur = (($rgbBlur >> 16) & 0xFF);
 			$gBlur = (($rgbBlur >> 8) & 0xFF);
 			$bBlur = ($rgbBlur & 0xFF);
-			
+
 			// When the masked pixels differ less from the original
 			// than the threshold specifies, they are set to their original value.
-			$rNew = (abs($rOrig - $rBlur) >= $threshold) 
-				? max(0, min(255, ($amount * ($rOrig - $rBlur)) + $rOrig)) 
+			$rNew = (abs($rOrig - $rBlur) >= $threshold)
+				? max(0, min(255, ($amount * ($rOrig - $rBlur)) + $rOrig))
 				: $rOrig;
-			$gNew = (abs($gOrig - $gBlur) >= $threshold) 
-				? max(0, min(255, ($amount * ($gOrig - $gBlur)) + $gOrig)) 
+			$gNew = (abs($gOrig - $gBlur) >= $threshold)
+				? max(0, min(255, ($amount * ($gOrig - $gBlur)) + $gOrig))
 				: $gOrig;
-			$bNew = (abs($bOrig - $bBlur) >= $threshold) 
-				? max(0, min(255, ($amount * ($bOrig - $bBlur)) + $bOrig)) 
+			$bNew = (abs($bOrig - $bBlur) >= $threshold)
+				? max(0, min(255, ($amount * ($bOrig - $bBlur)) + $bOrig))
 				: $bOrig;
-			
-			
-						
+
+
+
 			if (($rOrig != $rNew) || ($gOrig != $gNew) || ($bOrig != $bNew)) {
     				$pixCol = ImageColorAllocate($img, $rNew, $gNew, $bNew);
     				ImageSetPixel($img, $x, $y, $pixCol);
@@ -268,7 +269,7 @@ function UnsharpMask($img, $amount=80, $radius=0.5, $threshold=3)	{
 	imagedestroy($imgCanvas2);
 	imagedestroy($imgBlur);
 	imagedestroy($imgBlur2);
-	
+
 	return $img;
 
 	}

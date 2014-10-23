@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 class breadcrumb {
 
     var $content = array();
@@ -6,7 +8,7 @@ class breadcrumb {
 
     function breadcrumb() {
     }
-    
+
     function Add($title, $url = NULL) {
 		$title = htmlspecialchars_decode($title, ENT_QUOTES);
 		$title = htmlspecialchars($title, ENT_QUOTES);
@@ -23,7 +25,7 @@ class breadcrumb {
     	    'url' => $url
     	);
     }
-    
+
     function ResetUrl() {
         $last = array_pop($this->content);
     	$this->content[] = array(
@@ -31,7 +33,7 @@ class breadcrumb {
     	    'url' => NULL
     	);
     }
-    
+
     function OutputHTML($seperator = ' > ') {
         $cache = array();
         foreach ($this->content as $key => $row) {
@@ -44,7 +46,7 @@ class breadcrumb {
         }
         return implode($seperator, $cache);
     }
-    
+
     function OutputPLAIN($seperator = ' > ') {
         $cache = array();
         foreach ($this->content as $key => $row) {
@@ -52,7 +54,7 @@ class breadcrumb {
         }
         return implode($seperator, $cache);
     }
-    
+
     function OutputPRINT($seperator = ' > ') {
     	global $config;
         $cache = array();
@@ -66,7 +68,7 @@ class breadcrumb {
         }
         return implode($seperator, $cache);
     }
-    
+
     function getArray() {
         return $content;
     }

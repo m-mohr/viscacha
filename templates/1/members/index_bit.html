@@ -39,20 +39,20 @@
   <td class="textright">
    <?php echo $row['posts']; ?>
   </td>
-  <?php } if (isset($row['regdate'])) { ?>
-  <td class="center">
-   <?php echo $row['regdate']; ?>
-  </td>
   <?php } if (isset($row['birthday'])) { ?>
   <td>
    <?php echo $row['birthday']; ?>
+  </td>
+  <?php } if (isset($row['regdate'])) { ?>
+  <td class="center">
+   <?php echo $row['regdate']; ?>
   </td>
   <?php } if (isset($row['lastvisit'])) { ?>
   <td>
    <?php echo $row['lastvisit']; ?>
   </td>
   <?php } if ($im) { ?>
-  <td align="center">&nbsp;<?php
+  <td class="center">&nbsp;<?php
     echo iif(!empty($row->icq),'<a href="profile.php?action=ims&amp;type=icq&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('icq').'" alt="'.$lang->phrase('im_icq').'" /></a>&nbsp;');
     echo iif(!empty($row->aol),'<a href="profile.php?action=ims&amp;type=aol&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('aol').'" alt="'.$lang->phrase('im_aol').'" /></a>&nbsp;');
     echo iif(!empty($row->msn),'<a href="profile.php?action=ims&amp;type=msn&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /></a>&nbsp;');

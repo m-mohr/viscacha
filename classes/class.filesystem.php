@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 if (!class_exists('ftp')) {
 	if (is_dir("classes/ftp/")) {
 		$path = 'classes';
@@ -29,11 +31,11 @@ class filesystem {
 		$this->installed_path = DIRECTORY_SEPARATOR;
 		$this->connected = false;
 	}
-	
+
 	function set_wd($path) {
 		$this->installed_path = $path;
 	}
-	
+
 	function init() {
 		if ($this->connected) {
 			return true;
@@ -53,12 +55,12 @@ class filesystem {
 			}
 			$this->ftp->SetType(FTP_AUTOASCII);
 			$this->ftp->Passive(false);
-			
+
 			if (!$this->ftp->chdir($this->installed_path)) {
 				$this->ftp->chdir(DIRECTORY_SEPARATOR);
 				trigger_error('Could not change working directory for FTP connection.', E_WARNING);
 			}
-			
+
 			$this->connected = true;
 			return true;
 		}
@@ -66,7 +68,7 @@ class filesystem {
 			return false;
 		}
 	}
-	
+
 	function unlink($file) {
 		if (!file_exists($file)) {
 			return false;
@@ -83,7 +85,7 @@ class filesystem {
 			return true;
 		}
 	}
-	
+
 	function file_put_contents($file, $data) {
 		if (is_array($data)) {
 			$data = implode("\n", $data);
@@ -96,7 +98,7 @@ class filesystem {
 				}
 				fwrite($fp, $data);
 				fseek($fp, 0);
-				if ($this->ftp->put(&$fp, $file) == false) {
+				if ($this->ftp->put($fp, $file) == false) {
 					return false;
 				}
 				if (is_resource($fp)) {
@@ -112,7 +114,7 @@ class filesystem {
 			return true;
 		}
 	}
-	
+
 	function copy($src, $dest) {
 		if (!file_exists($src)) {
 			return false;
@@ -124,7 +126,7 @@ class filesystem {
 		}
 		return copy($src, $dest);
 	}
-	
+
 	function mkdir($file, $chmod = 0755) {
 		if (file_exists($file)) {
 			$this->ftp->chmod($file, $chmod);
@@ -143,7 +145,7 @@ class filesystem {
 			return true;
 		}
 	}
-	
+
 	function rename($old, $new) {
 		if (!file_exists($old)) {
 			return false;
@@ -160,7 +162,7 @@ class filesystem {
 			return true;
 		}
 	}
-	
+
 	function chmod($file, $chmod) {
 		if (!file_exists($file)) {
 			return false;
@@ -177,7 +179,7 @@ class filesystem {
 			return true;
 		}
 	}
-	
+
 	function rmdir($file) {
 		if (!file_exists($file)) {
 			return false;

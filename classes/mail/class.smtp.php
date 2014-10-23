@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 ////////////////////////////////////////////////////
 // SMTP - PHP SMTP class
 //
@@ -28,13 +30,13 @@ class SMTP
      *  @var int
      */
     var $SMTP_PORT = 25;
-    
+
     /**
      *  SMTP reply line ending
      *  @var string
      */
     var $CRLF = "\r\n";
-    
+
     /**
      *  Sets whether debugging is turned on
      *  @var bool
@@ -508,7 +510,7 @@ class SMTP
         }
 
         $this->helo_rply = $rply;
-        
+
         return true;
     }
 

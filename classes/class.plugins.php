@@ -1,8 +1,10 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -22,7 +24,7 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "class.plugins.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class PluginSystem {
 
@@ -30,7 +32,7 @@ class PluginSystem {
 	var $pos;
 	var $sqlcache;
 	var $menu;
-	
+
 	function PluginSystem() {
 		$this->cache = array();
 		$this->pos = array();
@@ -56,16 +58,16 @@ class PluginSystem {
 	function install($id) {
 		return $this->_setup('install', $id);
 	}
-	
+
 	function navigation() {
 		global $tpl;
-		
+
 		$group = 'navigation';
 		$this->_load_group($group);
 		$this->_cache_navigation();
-		
+
 		$code = '';
-		
+
 		if (isset($this->menu[0])) {
 			foreach ($this->menu[0] as $row) {
 				if ($row['module'] > 0) {
@@ -85,7 +87,14 @@ class PluginSystem {
 		}
 		return $code;
 	}
-	
+
+	function countPlugins($pos){
+		global $db;
+		$result = $db->query("SELECT COUNT(*) as num FROM {$db->pre}plugins WHERE position = '{$pos}' AND active = '1'");
+		$info = $db->fetch_assoc($result);
+		return $info['num'];
+	}
+
 	function _setup($hook, $id) {
 		global $myini;
 
@@ -102,7 +111,7 @@ class PluginSystem {
 				trigger_error('Setup for Plugin not found! File '.$sourcefile.' could not be loaded while executing '.$hook.'.', E_USER_WARNING);
 			}
     	}
-		
+
 		return $source;
 	}
 
@@ -113,7 +122,7 @@ class PluginSystem {
 			$this->menu = $cache->get();
 		}
 	}
-	
+
 	function _prepare_navigation($id) {
 		if (!isset($this->menu[$id])) {
 			return array();
@@ -129,11 +138,11 @@ class PluginSystem {
 			return $navigation;
 		}
 	}
-	
+
 	function _load_group($pos) {
 		$group = $this->_group($pos);
 		$file = 'cache/modules/'.$group.'.php';
-		
+
 		if (file_exists($file) == true) {
 			$code = file_get_contents($file);
 			$code = unserialize($code);
@@ -143,7 +152,7 @@ class PluginSystem {
 		}
 		$this->cache[$group] = $code;
 	}
-	
+
 	function _build_code($pos) {
 		global $myini, $db;
 		$group = $this->_group($pos);
@@ -188,12 +197,12 @@ class PluginSystem {
 	    	}
 	    }
 
-		$save = serialize($code);		
+		$save = serialize($code);
 		$save = file_put_contents($file, $save);
-		
+
 		return $code;
 	}
-	
+
 	function _group($pos) {
 		$offset = strpos ($pos, '_');
 		if ($offset === false) {
@@ -203,7 +212,7 @@ class PluginSystem {
 			return substr($pos, 0, $offset);
 		}
 	}
-	
+
 	function _check_permissions($groups) {
 	    global $slog;
 	    if ($groups == 0 || count(array_intersect(explode(',', $groups), $slog->groups)) > 0) {

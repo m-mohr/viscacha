@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "designs.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 require_once("admin/lib/class.servernavigator.php");
 $snav = new ServerNavigator();
@@ -7,7 +7,7 @@ $snav = new ServerNavigator();
 function export_template_list ($path, $d = 0) {
    	if (substr($path , strlen($path)-1) != '/') {
 		$path .= '/';
-	}     
+	}
    	$dirlist = array ();
    	if ($handle = opendir($path)) {
        	while (false !== ($file = readdir($handle))) {
@@ -40,7 +40,7 @@ if ($job == 'design') {
 	$result = $db->query('SELECT * FROM '.$db->pre.'designs ORDER BY name');
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=design_import">Import Design</a> <a class="button" href="admin.php?action=designs&amp;job=design_add">Add new Design</a></span>Designs</td>
   </tr>
   <tr>
@@ -73,7 +73,7 @@ if ($job == 'design') {
  <?php if ($my->settings['admin_interface'] == 0) { ?>
  <br class="minibr" />
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox center">
    <a class="button" href="admin.php?action=designs&job=templates">Template Manager</a>
    <a class="button" href="admin.php?action=designs&job=css">Stylesheet Manager</a>
@@ -108,7 +108,7 @@ elseif ($job == 'design_edit') {
 	$id = $gpc->get('id', int);
 	$result = $db->query("SELECT * FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
-	
+
 	$dir = "templates/";
 	$templates = array();
 	$d = dir($dir);
@@ -128,7 +128,7 @@ elseif ($job == 'design_edit') {
 		}
 	}
 	$d->close();
-	
+
 	$dir = "designs/";
 	$stylesheet = array();
 	$d = dir($dir);
@@ -143,7 +143,7 @@ elseif ($job == 'design_edit') {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_edit2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6">Edit Design</td>
   </tr>
   <tr>
@@ -196,7 +196,7 @@ elseif ($job == 'design_edit2') {
 	$use = $gpc->get('publicuse', int);
 	$name = $gpc->get('name', str);
 	$error = '';
-	
+
 	$result = $db->query("SELECT publicuse FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$puse = $db->fetch_assoc($result);
 	if ($puse['publicuse'] == 1 && $use == 0) {
@@ -214,25 +214,35 @@ elseif ($job == 'design_edit2') {
 	$delobj->delete();
 	$db->query("UPDATE {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}' WHERE id = '{$id}' LIMIT 1");
 
-	ok('admin.php?action=designs&job=design&id='.$id, 'Changes were successfully saved'.$error.'.');	
+	ok('admin.php?action=designs&job=design&id='.$id, 'Changes were successfully saved'.$error.'.');
 }
 elseif ($job == 'design_delete') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
+
+	$result = $db->query("SELECT id FROM {$db->pre}designs WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
+	if ($db->num_rows($result) != 1) {
+		error('admin.php?action=designs&job=design', 'You can not delete the last installed design!');
+	}
+
+	$result = $db->query("SELECT publicuse FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
-	
+
+	if ($info['publicuse'] == 1) {
+		error('admin.php?action=designs&job=design', 'You can not unpublish this design until you have defined another default design!');
+	}
+
 	$db->query("DELETE FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
 
 // Do NOT removes data. That "feature" is terrible on account of loosing data!
-	
+
 	echo head();
-	ok('admin.php?action=designs&job=design', 'Design successfully deleted');
+	ok('admin.php?action=designs&job=design', 'Design successfully deleted from database. For security, you have to delete CSS-Files, Template-Files and Image-Files manually!');
 }
 elseif ($job == 'design_add') {
 	$id = $gpc->get('id', int);
-	
+
 	$dir = "templates/";
 	$templates = array();
 	$d = dir($dir);
@@ -252,7 +262,7 @@ elseif ($job == 'design_add') {
 		}
 	}
 	$d->close();
-	
+
 	$dir = "designs/";
 	$stylesheet = array();
 	$d = dir($dir);
@@ -267,7 +277,7 @@ elseif ($job == 'design_add') {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_add2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6">Add a new Design</td>
   </tr>
   <tr>
@@ -318,16 +328,16 @@ elseif ($job == 'design_add2') {
 	$images = $gpc->get('images', int);
 	$use = $gpc->get('publicuse', int);
 	$name = $gpc->get('name', str);
-	
+
 	if (empty($name)) {
 		$name = 'Design '.$id;
 	}
-	
+
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
 	$db->query("INSERT INTO {$db->pre}designs SET template = '{$template}', stylesheet = '{$stylesheet}', images = '{$images}', publicuse = '{$use}', name = '{$name}'", __LINE__, __FILE__);
 
-	ok('admin.php?action=designs&job=design', 'Design was successfully added');	
+	ok('admin.php?action=designs&job=design', 'Design was successfully added');
 }
 elseif ($job == 'design_import') {
 	echo head();
@@ -353,15 +363,15 @@ elseif ($job == 'design_import2') {
 	$server = $gpc->get('server', none);
 	$del = $gpc->get('delete', int);
 	$inserterrors = array();
-	
+
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
 		$filetypes = array('zip');
 		$dir = realpath('temp').DIRECTORY_SEPARATOR;
-	
+
 		$insertuploads = array();
 		require("classes/class.upload.php");
-		 
+
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
@@ -412,10 +422,10 @@ elseif ($job == 'design_import2') {
 			error('admin.php?action=designs&job=design_import', 'ZIP-archive does not contain design.ini.');
 		}
 		$ini = $myini->read($tempdir.'design.ini');
-		
+
 		$result = $db->query("SELECT * FROM `{$db->pre}designs` WHERE id = '{$config['templatedir']}' LIMIT 1");
 		$row = $db->fetch_assoc($result);
-		
+
 		if (!empty($ini['template'])) {
 			$tplid = 1;
 			while(is_dir('templates/'.$tplid)) {
@@ -455,7 +465,7 @@ elseif ($job == 'design_import2') {
 		else {
 			$tplid = $row['images'];
 		}
-		
+
 		if (!empty($ini['template'])) {
 			copyr($tempdir.'templates', $tpldir);
 		}
@@ -465,7 +475,7 @@ elseif ($job == 'design_import2') {
 		if (!empty($ini['images'])) {
 			copyr($tempdir.'images', $imgdir);
 		}
-		
+
 		$db->query("INSERT INTO `{$db->pre}designs` (`template` , `stylesheet` , `images` , `name`) VALUES ('{$tplid}', '{$cssid}', '{$imgid}', '{$ini['name']}')");
 
 		unset($archive);
@@ -477,7 +487,7 @@ elseif ($job == 'design_import2') {
 	$delobj = $scache->load('loaddesign');
 	$delobj->delete();
 	ok('admin.php?action=designs&job=design', 'Design "'.$ini['name'].'" successfully imported!');
-	
+
 }
 elseif ($job == 'design_export') {
 	$id = $gpc->get('id', int);
@@ -485,7 +495,7 @@ elseif ($job == 'design_export') {
 	?>
 <form name="form2" method="post" action="admin.php?action=designs&job=design_export2&id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="6">Export Design</td>
   </tr>
   <tr>
@@ -513,7 +523,7 @@ elseif ($job == 'design_export2') {
 	$tpl = $gpc->get('tpl', int);
 	$img = $gpc->get('img', int);
 	$css = $gpc->get('css', int);
-	
+
 	$columns = array('id', 'name');
 	if ($tpl == 1) {
 		$columns[] = 'template';
@@ -524,10 +534,10 @@ elseif ($job == 'design_export2') {
 	if ($css == 1) {
 		$columns[] = 'stylesheet';
 	}
-	
+
 	$result = $db->query("SELECT ".implode(',', $columns)." FROM {$db->pre}designs WHERE id = '{$id}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
-	
+
 	$file = convert2adress($info['name']).'.zip';
 	$dirs = array();
 	if ($tpl == 1) {
@@ -543,7 +553,7 @@ elseif ($job == 'design_export2') {
 	$error = false;
 	$settings = $tempdir.'design.ini';
 	$myini->write($settings, $info);
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($settings, PCLZIP_OPT_REMOVE_PATH, $tempdir);
@@ -608,7 +618,7 @@ elseif ($job == 'templates') {
 	$d = dir($dir);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=templates_add">Add new Templates</a></span>Template Manager</td>
   </tr>
   <tr>
@@ -616,7 +626,7 @@ elseif ($job == 'templates') {
    <td class="ubox" width="10%">Files</td>
    <td class="ubox" width="40%">Action</td>
   </tr>
-  <?php 
+  <?php
 	while (false !== ($entry = $d->read())) {
 		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$files = count_dir($dir.$entry);
@@ -660,15 +670,15 @@ elseif ($job == 'templates_add2') {
 	$server = $gpc->get('server', none);
 	$del = $gpc->get('delete', int);
 	$inserterrors = array();
-	
+
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
 		$filetypes = array('zip');
 		$dir = realpath('temp').DIRECTORY_SEPARATOR;
-	
+
 		$insertuploads = array();
 		require("classes/class.upload.php");
-		 
+
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
@@ -709,9 +719,9 @@ elseif ($job == 'templates_add2') {
 			error('admin.php?action=designs&job=templates_add', 'Execution stopped: Buffer overflow');
 		}
 	}
-	
+
 	$tempdir = 'templates/'.$n;
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
@@ -729,17 +739,17 @@ elseif ($job == 'templates_add2') {
 		$filesystem->unlink($file);
 	}
 	ok('admin.php?action=designs&job=templates', 'Templates successfully imported into directory '.$n.' .');
-	
+
 }
 elseif ($job == 'templates_export') {
 	$id = $gpc->get('id', int);
-	
+
 	$file = 'templates'.$id.'.zip';
 	$dir = "templates/{$id}/";
 	$tempdir = "temp/";
-	
+
 	$list = export_template_list($dir);
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($list, PCLZIP_OPT_REMOVE_PATH, $dir);
@@ -787,7 +797,7 @@ elseif ($job == 'templates_file_edit') {
 		}
 	}
 	$content = file_get_contents($path.'/'.$file);
-	if (!$readonly) { 
+	if (!$readonly) {
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=templates_file_edit2&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/', '')); ?>&file=<?php echo $file; ?>">
 <?php } ?>
@@ -872,28 +882,28 @@ elseif ($job == 'templates_file_revert') {
 		$filesystem->file_put_contents($path.'/'.$basename, $content);
 		$filesystem->unlink($path.'/'.$file);
 	}
-	
+
 	ok("admin.php?action=designs&job=templates_file_history&id={$id}&dir=" . rawurlencode( iif(!empty($sub), $sub.'/')) . "&file=".$basename);
 }
 elseif ($job == 'templates_file_history') {
 	echo head();
 	$id = $gpc->get('id', int);
-	
+
 	$sub = rawurldecode($gpc->get('dir', none));
 	$path = 'templates/' . $id . iif(!empty($sub), "/{$sub}");
 	$file = rawurldecode($gpc->get('file', none));
-	
+
 	$result = $db->query('SELECT template FROM '.$db->pre.'designs WHERE id = "'.$config['templatedir'].'" LIMIT 1');
 	$design = $db->fetch_assoc($result);
 	$defpath = 'templates/' . $design['template'] . iif(!empty($sub), "/{$sub}");
-	
+
 	if ($id == $design['template']) {
 		$default = true;
 	}
 	else {
 		$default = false;
 	}
-	
+
 	$history = array();
    	if ($dh = opendir($path)) {
 	   	while (($hfile = readdir($dh)) !== false) {
@@ -907,7 +917,7 @@ elseif ($job == 'templates_file_history') {
 	   	closedir($dh);
 	   	rsort($history);
    	}
-	
+
 	$revert = false;
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=templates_file_compare">
@@ -923,7 +933,7 @@ elseif ($job == 'templates_file_history') {
   <?php if (!$default && file_exists($path.'/'.$file)) { $revert = true; ?>
   <tr>
    <td class="mbox">Current Version (ID: <?php echo $id; ?>)</td>
-   <td class="mbox"><?php echo date('d.m.Y H:i', filemtime($path.'/'.$file)); ?></td>
+   <td class="mbox"><?php echo gmdate('d.m.Y H:i', times(filemtime($path.'/'.$file))); ?></td>
    <td class="mbox">&nbsp;</td>
    <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a></td>
    <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Delete</a></td>
@@ -939,7 +949,7 @@ elseif ($job == 'templates_file_history') {
   ?>
   <tr>
    <td class="mbox">Historical <?php echo $i; ?></td>
-   <td class="mbox"><?php echo date('d.m.Y H:i', filemtime($path.'/'.$hfile)); ?></td>
+   <td class="mbox"><?php echo gmdate('d.m.Y H:i', times(filemtime($path.'/'.$hfile))); ?></td>
    <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_revert&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Revert</a></td>
    <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>&readonly=1">View</a></td>
    <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_delete&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($hfile); ?>">Delete</a></td>
@@ -949,7 +959,7 @@ elseif ($job == 'templates_file_history') {
   <?php } ?>
   <tr>
    <td class="mbox">Current Default (ID: <?php echo $design['template']; ?>)</td>
-   <td class="mbox"><?php echo date('d.m.Y H:i', filemtime($defpath.'/'.$file)); ?></td>
+   <td class="mbox"><?php echo gmdate('d.m.Y H:i', times(filemtime($defpath.'/'.$file))); ?></td>
    <td class="mbox">
    <?php echo iif($revert, '<a class="button" href="admin.php?action=designs&job=templates_file_revert&id='.$id.'&dir='.rawurlencode( iif(!empty($sub), $sub.'/')).'&file='.rawurldecode($file).'&default=1">Revert</a>', '&nbsp;'); ?></td>
    <td class="mbox"><a class="button" href="admin.php?action=designs&job=templates_file_edit&id=<?php echo $design['template']; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/')); ?>&file=<?php echo rawurldecode($file); ?>">Edit</a></td>
@@ -959,7 +969,7 @@ elseif ($job == 'templates_file_history') {
   </tr>
   <tr><td class="ubox" colspan="7" align="center"><input accesskey="s" type="submit" value="Compare Versions" /></td></tr>
  </table>
-</form>	
+</form>
 	<?php
 	echo foot();
 }
@@ -971,7 +981,7 @@ elseif ($job == 'templates_file_compare') {
 	$new = $gpc->get('new', none);
 	if (empty($old) || empty($new)) {
 		error('javascript:history.back(-1);','Please choose an old and a new version of the file.');
-	} 
+	}
 	$origText = file_get_contents($old);
 	$finalText = file_get_contents($new);
 	$diff = makeDiff(trim($origText), trim($finalText));
@@ -1039,7 +1049,7 @@ elseif ($job == 'templates_browse') {
 	}
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2">Templates</td>
   </tr>
   <tr>
@@ -1065,7 +1075,7 @@ elseif ($job == 'templates_browse') {
 		  <tr>
 		   <td class="mmbox" colspan="2">
 		   <a style="color: <?php echo $color; ?>" href="admin.php?action=designs&job=templates_browse&id=<?php echo $id; ?>&dir=<?php echo rawurlencode( iif(!empty($sub), $sub.'/') . $dir['name'] ); ?>">
-		   <?php echo $dir['name'].iif($empty, ' (Kein Inhalt)', ' ('.count($dir['content']).')'); ?>
+		   <?php echo $dir['name'].iif($empty, ' (Empty)', ' ('.count($dir['content']).')'); ?>
 		   </a></td>
 		  </tr>
 			<?php
@@ -1097,13 +1107,13 @@ elseif ($job == 'templates_browse') {
 	?>
 	</table><br class="minibr" />
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox">Colors</td>
   </tr>
-  <tr> 
+  <tr>
    <td class="mbox" style="color: black;">Template is <em>unchanged</em> from the default style</td>
   </tr>
-  <tr> 
+  <tr>
    <td class="mbox" style="color: green;">Template is <em>customized</em> in this style</td>
   </tr>
  </table>
@@ -1116,7 +1126,7 @@ elseif ($job == 'css') {
 	$d = dir($dir);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=css_add">Add new Stylesheets</a></span>Stylesheet Manager</td>
   </tr>
   <tr>
@@ -1124,7 +1134,7 @@ elseif ($job == 'css') {
    <td class="ubox" width="10%">Files</td>
    <td class="ubox" width="40%">Action</td>
   </tr>
-  <?php 
+  <?php
 	while (false !== ($entry = $d->read())) {
 		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$files = count_dir($dir.$entry);
@@ -1156,7 +1166,7 @@ elseif ($job == 'css_browse') {
 	$dirs = recur_dir($path);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="3">Images</td>
   </tr>
   <tr>
@@ -1211,15 +1221,15 @@ elseif ($job == 'css_add2') {
 	$server = $gpc->get('server', none);
 	$del = $gpc->get('delete', int);
 	$inserterrors = array();
-	
+
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
 		$filetypes = array('zip');
 		$dir = realpath('temp').DIRECTORY_SEPARATOR;
-	
+
 		$insertuploads = array();
 		require("classes/class.upload.php");
-		 
+
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
@@ -1260,9 +1270,9 @@ elseif ($job == 'css_add2') {
 			error('admin.php?action=designs&job=css_add', 'Execution stopped: Buffer overflow');
 		}
 	}
-	
+
 	$tempdir = 'designs/'.$n;
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
@@ -1280,15 +1290,15 @@ elseif ($job == 'css_add2') {
 		$filesystem->unlink($file);
 	}
 	ok('admin.php?action=designs&job=css', 'Stylesheets successfully imported into directory '.$n.'.');
-	
+
 }
 elseif ($job == 'css_export') {
 	$id = $gpc->get('id', int);
-	
+
 	$file = 'stylesheet'.$id.'.zip';
 	$dir = "designs/{$id}/";
 	$tempdir = "temp/";
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($dir, PCLZIP_OPT_REMOVE_PATH, $dir);
@@ -1332,7 +1342,7 @@ elseif ($job == 'images') {
 	$d = dir($dir);
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="3"><span style="float: right;"><a class="button" href="admin.php?action=designs&amp;job=images_add">Add new Images</a></span>Image Manager</td>
   </tr>
   <tr>
@@ -1340,7 +1350,7 @@ elseif ($job == 'images') {
    <td class="ubox" width="10%">Files</td>
    <td class="ubox" width="40%">Action</td>
   </tr>
-  <?php 
+  <?php
 	while (false !== ($entry = $d->read())) {
 		if ($entry != '..' && $entry != '.' && preg_match('/^\d{1,}$/', $entry) && is_dir($dir.$entry)) {
 			$files = count_dir($dir.$entry);
@@ -1397,15 +1407,15 @@ elseif ($job == 'images_add2') {
 	$server = $gpc->get('server', none);
 	$del = $gpc->get('delete', int);
 	$inserterrors = array();
-	
+
 	if (!empty($_FILES['upload']['name'])) {
 		$filesize = ini_maxupload();
 		$filetypes = array('zip');
 		$dir = realpath('temp').DIRECTORY_SEPARATOR;
-	
+
 		$insertuploads = array();
 		require("classes/class.upload.php");
-		 
+
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
@@ -1446,9 +1456,9 @@ elseif ($job == 'images_add2') {
 			error('admin.php?action=designs&job=images_add', 'Execution stopped: Buffer overflow');
 		}
 	}
-	
+
 	$tempdir = 'images/'.$n;
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
@@ -1460,21 +1470,21 @@ elseif ($job == 'images_add2') {
 		rmdirr($tempdir);
 		error('admin.php?action=designs&job=images_add', 'ZIP-archive could not be read or the folder is empty.');
 	}
-	
+
 	unset($archive);
 	if ($del > 0) {
 		$filesystem->unlink($file);
-	}	
+	}
 	ok('admin.php?action=designs&job=images', 'Images successfully imported into directory '.$n.'.');
-	
+
 }
 elseif ($job == 'images_export') {
 	$id = $gpc->get('id', int);
-	
+
 	$file = 'images'.$id.'.zip';
 	$dir = "images/{$id}/";
 	$tempdir = "temp/";
-	
+
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($dir, PCLZIP_OPT_REMOVE_PATH, $dir);
@@ -1497,5 +1507,8 @@ elseif ($job == 'images_export') {
 		}
 		$filesystem->unlink($tempdir.$file);
 	}
+}
+else {
+	viscacha_header('Location: admin.php?action=designs&job=design&interface=1');
 }
 ?>

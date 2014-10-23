@@ -4,12 +4,12 @@ $teaserlength = $config['module_'.$pluginid]['teaserlength'];
 $intelliCut = version_compare(PHP_VERSION, "4.3.3", ">=");
 
 $result = $db->query("
-SELECT r.dowords, r.dosmileys, t.posts, t.prefix, t.status, t.sticky, t.id, t.board, f.name as forumname, t.topic, r.comment, r.date, r.guest, IF(r.guest = '0', u.name, r.name) AS name 
+SELECT r.dowords, r.dosmileys, t.posts, t.prefix, t.status, t.sticky, t.id, t.board, f.name as forumname, t.topic, r.comment, r.date, r.guest, IF(r.guest = '0', u.name, r.name) AS name
 FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
-	LEFT JOIN {$db->pre}user AS u ON r.name = u.id 
-	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id 
-WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark = '')) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1' 
+	LEFT JOIN {$db->pre}user AS u ON r.name = u.id
+	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
+WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark = '')) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
 ORDER BY r.date DESC
 LIMIT 0,{$anznews}"
 ,__LINE__,__FILE__);
@@ -24,9 +24,9 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 			$row['pre'] = $lang->phrase('showtopic_prefix_title');
 		}
 	}
-	
+
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
-	
+
 	// IntelliCut - Start
 	$row['read_more'] = false;
 	$stack = array();
@@ -65,6 +65,10 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 			}
 		}
 		while(($top = array_shift($stack)) != null) {
+			$top = preg_replace("/(\w+?)(=[^\/\r\n\[\]]+)?/i", "\\1", $top);
+			if ($top == '*' || $top == 'reader') { // Listenelemnte nicht schließen
+				continue;
+			}
 			$row['comment'] = "{$row['comment']}[/{$top}]";
 		}
 	}

@@ -3,7 +3,7 @@
 <div class="bbody">
     <p class="center"><?php echo $lang->phrase('pm_confirmmove'); ?></p>
     <p class="center">
-    	<a href="pm.php?action=massmove&amp;id=<?php echo $_POST['id']; ?>&amp;data=<?php echo $querystr.SID2URL_x; ?>"><img alt="" src="<?php echo $tpl->img('yes'); ?>" /> <?php echo $lang->phrase('confirm_yes'); ?></a>
+    	<a href="pm.php?action=massmove&amp;id=<?php echo $_POST['id']; ?>&amp;data=<?php echo $data.SID2URL_x; ?>"><img alt="" src="<?php echo $tpl->img('yes'); ?>" /> <?php echo $lang->phrase('confirm_yes'); ?></a>
     	<a class="sep" href="javascript:history.back(-1);"><img alt="" src="<?php echo $tpl->img('no'); ?>" /> <?php echo $lang->phrase('confirm_no'); ?></a>
     </p>
 </div>

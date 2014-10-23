@@ -2,8 +2,10 @@
 <div class="topfooter bfoot">
 <span class="right">
     <a href="pm.php?action=delete&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm_delete'); ?>" alt="" /> <?php echo $lang->phrase('delete_title'); ?></a>
-    <a class="sep" href="pm.php?action=reply&amp;id=<?php echo $row['id']; ?>&amp;name=<?php echo $row['mid'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('forum_replies'); ?></a>
-    <a class="sep" href="pm.php?action=quote&amp;id=<?php echo $row['id']; ?>&amp;name=<?php echo $row['mid'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('quote'); ?>" alt="" /> <?php echo $lang->phrase('post_quote'); ?></a>
+    <?php if ($row['dir'] != 2) { ?>
+    <a class="sep" href="pm.php?action=reply&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('forum_replies'); ?></a>
+    <a class="sep" href="pm.php?action=quote&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('quote'); ?>" alt="" /> <?php echo $lang->phrase('post_quote'); ?></a>
+	<?php } ?>
 </span>
 <img src="<?php echo $tpl->img('post_'.$row['read']); ?>" alt="" /> <?php echo $row['date']; ?>
 </div>

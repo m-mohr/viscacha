@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "global.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['about_too_long'] = 'Personal web page is too long';
 $lang['active_members'] = 'Active Members: ';
@@ -554,6 +554,7 @@ $lang['pm_manage'] = 'Manage Message';
 $lang['pm_massmanage'] = 'Manage Messages';
 $lang['pm_newicon'] = 'Read PM';
 $lang['pm_new_title'] = 'Write new Private Message';
+$lang['pm_not_found'] = 'Private Message not found.';
 $lang['pm_oldicon'] = 'Unread PM';
 $lang['pm_outgoing_by'] = 'to';
 $lang['pm_postarea'] = 'Message:';
@@ -586,7 +587,7 @@ $lang['post_quote'] = 'Quote';
 $lang['post_quote_direct'] = 'Quote post directly';
 $lang['post_quote_multi'] = 'Save post for quoting (Multiquote)';
 $lang['post_sent'] = 'Message has been sent successfully!';
-$lang['post_settings'] = 'Oprions:';
+$lang['post_settings'] = 'Options:';
 $lang['post_settings_smileys'] = 'Convert smilies in the post';
 $lang['post_settings_words'] = 'Convert &quot;vocables&quot; in the post';
 $lang['post_thumbnails'] = 'Thumbnails of attached images:';

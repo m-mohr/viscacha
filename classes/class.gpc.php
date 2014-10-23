@@ -1,8 +1,10 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -44,7 +46,7 @@ class GPC {
 			define('arr_none', 3);
 		}
     }
-    
+
     function get($index, $type = none, $standard = NULL) {
         if (isset($_REQUEST[$index])) {
             if ($type == str || $type == arr_str) {
@@ -88,7 +90,7 @@ class GPC {
     	if (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
-    		
+
     		for ($i = 0; $i < $cnt; $i++) {
     			$key = $keys[$i];
     			$var[$key] = $this->prepare($var[$key]);
@@ -98,7 +100,7 @@ class GPC {
     		$ovar = get_object_vars($var);
     		$cnt = count($ovar);
     		$keys = array_keys($ovar);
-    		
+
     		for ($i = 0; $i < $cnt; $i++) {
     			$key = $keys[$i];
     			$var->$key = $this->prepare($ovar[$key]);
@@ -112,7 +114,7 @@ class GPC {
         		$var = str_replace('"', '&quot;', $var);
         		$var = str_replace("'", '&#039;', $var);
         		$var = str_replace('>', '&gt;', $var);
-        		$var = str_replace('<', '&lt;', $var);		
+        		$var = str_replace('<', '&lt;', $var);
     		}
     	}
     	return $var;
@@ -123,13 +125,13 @@ class GPC {
     	if (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
-    		
+
     		for ($i = 0; $i < $cnt; $i++){
     			$key = $keys[$i];
     			$var[$key] = $this->save_str($var[$key]);
     		}
     	}
-    	elseif (is_string($var)){	
+    	elseif (is_string($var)){
     		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
     		$var = $this->secure_null($var);
     		if ($config['asia'] == 1) {
@@ -147,30 +149,30 @@ class GPC {
     	}
     	return $var;
     }
-    
+
     function save_int($var){
     	global $db, $config;
     	if (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
-    		
+
     		for ($i = 0; $i < $cnt; $i++){
     			$key = $keys[$i];
     			$var[$key] = $this->save_int($var[$key]);
     		}
     	}
     	else {
-    		$var = intval(trim($var));	
+    		$var = intval(trim($var));
     	}
-    	
+
     	return $var;
     }
-    
+
     function unescape($var) {
     	if (is_array($var)) {
     		$cnt = count($var);
     		$keys = array_keys($var);
-    		
+
     		for ($i = 0; $i < $cnt; $i++) {
     			$key = $keys[$i];
     			$var[$key] = $this->unescape($var[$key]);
@@ -180,7 +182,7 @@ class GPC {
     		$ovar = get_object_vars($var);
     		$cnt = count($ovar);
     		$keys = array_keys($ovar);
-    		
+
     		for ($i = 0; $i < $cnt; $i++) {
     			$key = $keys[$i];
     			$var->$key = $this->unescape($ovar[$key]);
@@ -195,12 +197,12 @@ class GPC {
     	}
     	return $var;
     }
-    
+
 	function secure_null($data) {
     	if (is_array($data)) {
     		$cnt = count($data);
     		$keys = array_keys($data);
-    		
+
     		for ($i = 0; $i < $cnt; $i++){
     			$key = $keys[$i];
     			$data[$key] = $this->secure_null($data[$key]);
@@ -211,10 +213,10 @@ class GPC {
 		}
 		return $data;
 	}
-	
+
 	function stripslashes($array) {
 		if(is_array($array)) {
-			return array_map(array(&$this, 'stripslashes'), $array); 
+			return array_map(array(&$this, 'stripslashes'), $array);
 		}
 		else {
 			return stripslashes($array);

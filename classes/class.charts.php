@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /**
 *
 *   PowerGraphic
@@ -18,8 +20,8 @@
 *  Authors' comments:
 *
 *  PowerGraphic creates 6 different types of graphics with how many parameters you want. You can
-*  change the appearance of the graphics in 3 different skins, and you can still cross data from 2 
-*  graphics in only 1! It's a powerful script, and I recommend you read all the instructions 
+*  change the appearance of the graphics in 3 different skins, and you can still cross data from 2
+*  graphics in only 1! It's a powerful script, and I recommend you read all the instructions
 *  to learn how to use all of this features. Don't worry, it's very simple to use it.
 *
 *  This script is free. Please keep the credits.
@@ -33,17 +35,17 @@
 
    NOTE: make sure that your PHP is compiled to work with GD Lib.
 
-   NOTE: You may create test images using a form that comes with this script. Just add a "showform" 
+   NOTE: You may create test images using a form that comes with this script. Just add a "showform"
    as a query string. (Example: "graphic.php?showform")
 
 
-   PowerGraphic works with query strings (information sent after the "?" of an URL). Here is an 
-   example of how you will have to send the graphic information. Let's suppose that you want to 
+   PowerGraphic works with query strings (information sent after the "?" of an URL). Here is an
+   example of how you will have to send the graphic information. Let's suppose that you want to
    show a graphic of your user's sex:
 
 	   <img src="graphic.php?title=Sex&type=5&x1=male&y1=50&x2=female&y2=55" />
 
-   This will create a pie graphic (set by type=5) with title as "Sex" and default skin. 
+   This will create a pie graphic (set by type=5) with title as "Sex" and default skin.
    Let's see the other parameters:
 
 	   x1 = male
@@ -53,7 +55,7 @@
 
    See how it's simple! :)
    For those who don't know, to create a query string you have to put an "?" at the end of the URL and join
-   the parameters with "&". Example: "graphic.php?Parameter_1=Value_1&Parameter_2=Value_2" (and so on). You 
+   the parameters with "&". Example: "graphic.php?Parameter_1=Value_1&Parameter_2=Value_2" (and so on). You
    can set how many parameters you want.
 
    The boring step would be to create this query string. Well, "would be", if I didn't create a function to do that. :)
@@ -77,7 +79,7 @@ $PG->y[1]  = "55";
 echo '<img src="graphic.php?' . $PG->create_query_string() . '" />';
 
 
-// If you're going to create more than 1 graphic, it'll be important to reset the values before 
+// If you're going to create more than 1 graphic, it'll be important to reset the values before
 // create the next query string:
 $PG->reset_values();
 
@@ -167,7 +169,7 @@ class PowerGraphic {
 	var $biggest_value;
 	var $biggest_parameter;
 	var $available_types;
-	
+
 	var $scale;
 
 
@@ -243,14 +245,14 @@ class PowerGraphic {
 		$i = 0;
 		// Defines array $temp
 		foreach ($x as $id => $value) {
-			
+
 			if (strlen($value) < 1) {
 				continue;
 			}
 			if (empty($y[$id])) {
 				$y[$id] = 0;
 			}
-			
+
 			if (strlen($value) > strlen($this->biggest_x)) {
 				$this->biggest_x = $value;
 			}
@@ -261,13 +263,13 @@ class PowerGraphic {
 			if ($y[$id] > $this->biggest_y) {
 				$this->biggest_y = number_format(round($y[$id], 1), 1, ".", "");
 			}
-			
+
 			$this->x[$i] = $value;
 			$this->y[$i] = $y[$id];
 
 			if ((!empty($z[$i])) && (ereg("(1|2|3|4)", $this->type))) {
 				$this->graphic_2_exists = true;
-				
+
 				$zvalue		  = (!empty($z[$id])) ? $z[$id] : 0;
 				$this->z[$i] = $zvalue;
 
@@ -276,9 +278,9 @@ class PowerGraphic {
 					$this->biggest_y = number_format(round($zvalue, 1), 1, ".", "");
 				}
 			}
-			
+
 			$i++;
-			
+
 		}
 
 		if (($this->graphic_2_exists == true)  &&  ((!empty($this->graphic_1)) || (!empty($this->graphic_2))))
@@ -310,7 +312,7 @@ class PowerGraphic {
 
 	function create_graphic()
 	{
-	
+
 		$this->img = imagecreatetruecolor($this->width, $this->height);
 		$this->load_color_palette();
 
@@ -442,7 +444,7 @@ class PowerGraphic {
 				imagefilledrectangle($this->img, $x1+1, $y1-1, $x2+1, $y2, $this->color['bars_1_shadow']);
 				imagefilledrectangle($this->img, $x1+2, $y1-2, $x2+2, $y2, $this->color['bars_1_shadow']);
 				imagefilledrectangle($this->img, $x1, $y1, $x2, $y2, $this->color['bars_1']);
-				
+
 				if ($this->biggest_parameter > 85) {
 					imagestringup($this->img, 3, $x1+(10/2), $y2+5+$this->string_width($parameter, 3), $parameter, $this->color['axis_values']);
 				}
@@ -606,7 +608,7 @@ class PowerGraphic {
 				if ($this->sum_total == 0) {
 					for($i=1; $i <= 11; $i++) {
 						imagefilledarc($this->img, $center_x, ($center_y+$i-1), $width, $height, $start, ($start+$size), $this->color['gray_shadow'], IMG_ARC_NOFILL);
-					}	
+					}
 					imagefilledarc($this->img, $center_x, $center_y, ($width+2), $height, $start, ($start+$size), $this->color['gray'], IMG_ARC_PIE);
 				}
 				else {
@@ -619,12 +621,12 @@ class PowerGraphic {
 						$shadowColor = 'arc_' . $num_color . '_shadow';
 						for($i=1; $i <= 10; $i++) {
 							imagefilledarc($this->img, $center_x, ($center_y+$i-1), $width, $height, $start, ($start+$size), $this->color[$shadowColor], IMG_ARC_NOFILL);
-						}	
+						}
 						$start += $size;
 					}
-					
+
 					$start = 270;
-	
+
 					// Draw pieces
 					foreach ($sizes as $i => $size)
 					{
@@ -634,7 +636,7 @@ class PowerGraphic {
 						}
 						$color = 'arc_' . $num_color;
 						imagefilledarc($this->img, $center_x, $center_y, ($width+2), $height, $start, ($start+$size), $this->color[$color], IMG_ARC_PIE);
-						
+
 						$start += $size;
 					}
 				}
@@ -866,7 +868,7 @@ class PowerGraphic {
 
 			foreach ($this->x as $i => $parameter)
 			{
-				
+
 				while (!isset($this->color['arc_' . $num])) {
 					$num = 1;
 				}
@@ -1049,8 +1051,8 @@ class PowerGraphic {
 					);
 				}
 				break;
-				
-				
+
+
 			// Simple (1)
 			default:
 				$background = array(255, 255, 255);
@@ -1103,7 +1105,7 @@ class PowerGraphic {
 
 		$this->color['gray_shadow']	= imagecolorallocate($this->img, $this->get_shadow($this->color['gray'][0]), $this->get_shadow($this->color['gray'][1]), $this->get_shadow($this->color['gray'][2]));
 		$this->color['gray']		= imagecolorallocate($this->img, $this->color['gray'][0], $this->color['gray'][1], $this->color['gray'][2]);
-	
+
  		if (ereg("^(1|2)$", $this->type)) {
 			$i = 1;
 			foreach ($colours as $array) {

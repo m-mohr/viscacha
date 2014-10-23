@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "modules.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['birthdaybox_module'] = 'Wir gratulieren...';
 $lang['last_posts_info_reply'] = 'Dieses Thema enthält mehr als {$num} Antworten. Klicken Sie <a href=\'showtopic.php?id={@indo->id}\' target=\'_blank\'>hier</a>, um das ganze Thema zu lesen.';

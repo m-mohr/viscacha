@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class spellchecker {
 
@@ -35,7 +36,7 @@ class spellchecker {
 			$this->errormsg = 'No connection to database';
 		}
 	}
-	
+
 	function add($word) {
 		$sqlwords = array();
 		if (is_string($word)) {
@@ -61,7 +62,7 @@ class spellchecker {
 			return false;
 		}
 	}
-	
+
 	function get_words() {
 		if (count($this->dir_words) > 0) {
 			return TRUE;
@@ -90,7 +91,7 @@ class spellchecker {
 		}
 		return $this->mistakes;
 	}
-	
+
 	function suggest_text ($mistakes = FALSE) {
 		if ($mistakes == FALSE) {
 			$mistakes = $this->mistakes;
@@ -216,7 +217,7 @@ class spellchecker {
 				$this->errormsg = 'Benchmark was not started yet!';
 				return -1;
 			}
-			$time = $zeitmessung-$this->benchmarktime; 
+			$time = $zeitmessung-$this->benchmarktime;
 			return substr($time,0,6);
 		}
 		else {

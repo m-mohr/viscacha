@@ -7,12 +7,11 @@ if (!class_exists('filesystem')) {
 }
 ?>
 <div class="bbody">
-<?php 
+<?php
 define('CHEX', 777);
 define('CHWR', 666);
 require('lib/function.chmod.php');
 $chmod = array(
-array('path' => 'install', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
 array('path' => 'data', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
 array('path' => 'data/cron', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
 array('path' => 'feeds', 'chmod' => CHEX, 'recursive' => false, 'req' => true),
@@ -61,12 +60,12 @@ while ($file = readdir($dh)) {
 closedir($dh);
 
 ?>
-<p>Some directories and files needs special permissions (CHMOD) to be writable und executable. 
+<p>Some directories and files needs special permissions (CHMOD) to be writable und executable.
 This permissions will be checked and the result will be shown below.</p>
 <p>The following states can appear:<br />
 <strong class="hl_true">OK</strong>: The permissions are set correctly.<br />
 <strong class="hl_null">Failure*</strong>: The permissions are not correct, but these files are only required for changing a couple of things at the Admin Control Panel. You need not to change them until you edit these files.<br />
-<strong class="hl_false">Failure</strong>: The permissions are not correct and you have to set them manually (per FTP). You can not continue this setup until this permissions<br />
+<strong class="hl_false">Failure</strong>: The permissions are not correct and you have to set them manually (per FTP). You can not continue this setup until this permissions are set correctly.<br />
 </p>
 <table class="tables">
 <tr>

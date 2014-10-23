@@ -7,7 +7,7 @@ CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `position` varchar(128) NOT NULL default 'navigation',
   PRIMARY KEY  (`id`),
   KEY `position` (`position`)
-) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=22 ;
+) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=24 ;
 
 INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active`, `position`) VALUES 
 (1, 'Related Topics', 1, 1, '1', 'showtopic_end'),
@@ -29,4 +29,6 @@ INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active
 (17, 'Legend (PM)', 12, 1, '1', 'pm_index_end'),
 (18, 'Legend (Forums)', 13, 4, '1', 'forum_end'),
 (19, 'Birthday-Reminder', 14, 3, '1', 'navigation'),
-(21, 'Login Box', 16, 0, '1', 'forum_end');
+(21, 'Login Box', 16, 0, '1', 'forum_end'),
+(22, 'Quick Reply', 17, 1, '1', 'addreply_save_errorhandling'),
+(23, 'Quick Reply', 17, 2, '1', 'showtopic_end');

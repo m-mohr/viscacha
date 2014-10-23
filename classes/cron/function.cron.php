@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define("PC_MINUTE",		1);
 define("PC_HOUR",		2);
@@ -22,7 +23,7 @@ function logMessage($msg) {
 	if ($useLog) {
 		$logfile = $writeDir."cron.log";
 		$file = fopen($logfile,"a");
-		fputs($file,date("r",time())."  ".$msg);
+		fputs($file,date("r")."  ".$msg);
 		fclose($file);
 	}
 }
@@ -52,7 +53,7 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 	for ($i=0;$i<$numberOfElements;$i++) {
 		$targetArray[$i] = $subelements[0]=="*";
 	}
-	
+
 	for ($i=0;$i<count($subelements);$i++) {
 		if (preg_match("~^(\\*|([0-9]{1,2})(-([0-9]{1,2}))?)(/([0-9]{1,2}))?$~",$subelements[$i],$matches)) {
 			if ($matches[1]=="*") {
@@ -74,11 +75,11 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 
 function incDate(&$dateArr, $amount, $unit) {
 	global $debug;
-	
+
 	if ($debug) {
 		echo sprintf("Increasing from %02d.%02d. %02d:%02d by %d %6s ",$dateArr['mday'],$dateArr['mon'],$dateArr['hours'],$dateArr['minutes'],$amount,$unit);
 	}
-	
+
 	if ($unit == "mday") {
 		$dateArr["hours"] = 0;
 		$dateArr["minutes"] = 0;
@@ -90,15 +91,15 @@ function incDate(&$dateArr, $amount, $unit) {
 		}
 
         // Start: Bug (13. month) fixed by MaMo-Net
-        if ($dateArr["mday"] == date("t")) { 
-            $dateArr["mon"]++; 
+        if ($dateArr["mday"] == date("t")) {
+            $dateArr["mon"]++;
             if ($dateArr["mon"] > 12) {
             	$dateArr["mon"] = 1;
             }
-            $dateArr["mday"] = 1; 
+            $dateArr["mday"] = 1;
         }
         // End: Bug (13. month) fixed by MaMo-Net
-		
+
 	}
 	elseif ($unit == "hour") {
 		if ($dateArr["hours"] == 23) {
@@ -172,16 +173,16 @@ function markLastRun($job, $lastRun, $data = '') {
 function runJob($job) {
 	global $debug, $sendLogToEmail, $resultsSummary, $jobdir;
 	$resultsSummary = "";
-	
+
 	$lastActual = $job["lastActual"];
 	$lastScheduled = $job["lastScheduled"];
-	
+
 	if ($lastScheduled>$lastActual) {
 		logMessage("Running\t".$job[PC_CRONLINE]);
 		logMessage("  Last run:\t".date("r",$lastActual));
 		logMessage("  Last scheduled:\t".date("r",$lastScheduled));
 		$argv = $job[PC_ARGS];
-	
+
 		$jobData = getJobTempData($job);
 		$benchmark = job_benchmark_start();
 	    if ($debug) {
@@ -196,7 +197,7 @@ function runJob($job) {
 		logMessage("  Execution time:\t$seconds seconds");
 
 	    markLastRun($job, $lastScheduled, $jobData);
-	    
+
 		logMessage("Completed\t".$job[PC_CRONLINE]);
 		if ($sendLogToEmail!="") {
 			mail($sendLogToEmail, "[cron] ".$job[PC_COMMENT], $resultsSummary);
@@ -253,9 +254,9 @@ function parseCronFile($cronTabFile) {
 			$jobs[$jobNumber]["lastScheduled"] = getLastScheduledRunTime($jobs[$jobNumber]);
 		}
 	}
-	
+
 	multisort($jobs, "lastScheduled");
-	
+
 	if ($debug) var_dump($jobs);
 	return $jobs;
 }
@@ -289,7 +290,7 @@ function job_benchmark_start() {
 }
 function job_benchmark_end($zeitmessung1) {
 	$zeitmessung2=benchmarktime();
-	$zeitmessung=$zeitmessung2-$zeitmessung1; 
+	$zeitmessung=$zeitmessung2-$zeitmessung1;
 	$zeitmessung=substr($zeitmessung,0,6);
 	return $zeitmessung;
 }

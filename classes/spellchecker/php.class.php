@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class spellchecker {
 
@@ -40,7 +41,7 @@ class spellchecker {
 			$this->errormsg = 'Could not open dictionary "'.$this->langcode.'" at '.$this->file;
 		}
 	}
-	
+
 	function add($word) {
 		$wl = file($this->file);
 		$wl = array_map('trim', $wl);
@@ -60,11 +61,11 @@ class spellchecker {
    		fclose($handle);
    		return true;
 	}
-	
+
 	function lcfirst($p) {
 		return strtolower($p{0}).substr($p, 1);
 	}
-	
+
 	// Need Functions lcfirst
 	function check_text($text) {
 		$words = $this->split_text($text);
@@ -92,13 +93,13 @@ class spellchecker {
 		}
 		return $this->mistakes;
 	}
-	
+
 	function suggest_text ($mistakes = FALSE) {
 		if ($mistakes == FALSE) {
 			$mistakes = $this->mistakes;
 		}
 		$suggestions = array();
-		
+
 		foreach ($mistakes as $mistake) {
 			$suggestions[$mistake] = array();
 			if (strlen($mistake) > $this->ignore) {
@@ -124,7 +125,7 @@ class spellchecker {
 					else {
 						$levenshtein = 3;
 					}
-					
+
 					if (levenshtein($word, $mistake) < $levenshtein) {
 						$suggestions[$mistake][] = $word;
 					}
@@ -204,7 +205,7 @@ class spellchecker {
 				else {
 					$levenshtein = 3;
 				}
-				
+
 				if (levenshtein($word, $mistake) < $levenshtein) {
 					$this->suggest[$mistake][] = $word;
 				}
@@ -231,7 +232,7 @@ class spellchecker {
 				$this->errormsg = 'Benchmark was not started yet!';
 				return -1;
 			}
-			$time = $zeitmessung-$this->benchmarktime; 
+			$time = $zeitmessung-$this->benchmarktime;
 			return substr($time,0,6);
 		}
 		else {

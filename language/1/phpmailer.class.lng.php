@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "phpmailer.class.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['mailer_authenticate'] = 'SMTP Fehler: Authentifizierung fehlgeschlagen.';
 $lang['mailer_connect_host'] = 'SMTP Fehler: Konnte keine Verbindung zum SMTP-Host herstellen.';

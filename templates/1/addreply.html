@@ -26,7 +26,10 @@
 <label for="email"><?php echo $lang->phrase('email'); ?></label>
 <input class="label" type="text" name="email" id="email" size="40" value="<?php echo $data['email']; ?>" />
 <br class="newinput" /><hr class="formsep" />
-<?php if ($config['botgfxtest_posts'] == 1) { ?>
+<?php if ($config['botgfxtest_posts'] == 1) { if ($data['human'] != null) { ?>
+<input type="hidden" name="captcha" value="<?php echo $data['human']['captcha']; ?>" />
+<input type="hidden" name="letter" value="<?php echo $data['human']['letter']; ?>" />
+<?php } else { ?>
 <input type="hidden" name="captcha" value="<?php echo $veriid; ?>" />
 <label for="letter">
     <?php echo $lang->phrase('veriword_check'); ?><br />
@@ -43,7 +46,7 @@
     <input id="letter" name="letter" type="text" size="8" />
 </div>
 <br class="newinput" /><hr class="formsep" />
-<?php } } else { ?>
+<?php } } } else { ?>
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
 <span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
 <br class="newinput" /><hr class="formsep" />

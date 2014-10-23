@@ -242,7 +242,7 @@ class ServerNavigator
 			$html .= "\n".'			 ' . $size;
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 ' . date("d.m.y, H:i", @filectime($this->path . $dir));
+			$html .= "\n".'			 ' . gmdate("d.m.y, H:i", times(filectime($this->path . $dir)));
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox" align="right">';
 			$html .= "\n".'			 ' . $chmod;
@@ -289,13 +289,13 @@ class ServerNavigator
 			$html .= "\n".'			 <a href="' . str_replace('/\\', '/', $this->path) . $file . '">' . $icon . $file . '</a>';
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox" align="right">';
-			$html .= "\n".'			 ' . $this->formatSize(@filesize($this->path . $file));
+			$html .= "\n".'			 ' . $this->formatSize(filesize($this->path . $file));
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 ' . date("d.m.y, H:i", @filemtime($this->path . $file));
+			$html .= "\n".'			 ' . gmdate("d.m.y, H:i", times(filemtime($this->path . $file)));
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 ' . date("d.m.y, H:i", @filectime($this->path . $file));
+			$html .= "\n".'			 ' . gmdate("d.m.y, H:i", times(filectime($this->path . $file)));
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox" align="right">';
 			$html .= "\n".'			 ' . get_chmod($this->path . $file);

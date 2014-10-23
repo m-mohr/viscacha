@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 if(!defined('CRLF')) define('CRLF',"\r\n");
 if(!defined("FTP_AUTOASCII")) define("FTP_AUTOASCII", -1);
 if(!defined("FTP_BINARY")) define("FTP_BINARY", 1);
@@ -13,7 +15,7 @@ class ftp_base {
 	var $LocalEcho=FALSE;
 	var $Verbose=FALSE;
 	var $OS_local;
-	
+
 	/* Private variables */
 	var $_lastaction=NULL;
 	var $_errors;
@@ -104,10 +106,10 @@ class ftp_base {
 			$v["perms"]+=04000*(int)in_array($ret[2]{2}, array("S","s"));
 			$v["perms"]+=02000*(int)in_array($ret[2]{5}, array("S","s"));
 			$v["perms"]+=01000*(int)in_array($ret[2]{8}, array("T","t"));
-		} 
+		}
 		return $v;
 	}
-	
+
 	function SendMSG($message = "", $crlf=true) {
 		if ($this->Verbose) {
 			echo $message.($crlf?CRLF:"");
@@ -377,7 +379,7 @@ class ftp_base {
 		return $out;
 	}
 
-	function put($localfile, $remotefile = null) {
+	function put(&$localfile, $remotefile = null) {
 		if (is_null($remotefile)) {
 			$remotefile=$localfile;
 		}
@@ -464,7 +466,7 @@ class ftp_base {
 		$this->SendMSG($fctname.': '.$msg.$tmp);
 		return(array_push($this->_error_array,$error));
 	}
-	
+
 // Récupère une erreur externe
 	function PopError(){
 		if(count($this->_error_array)) return(array_pop($this->_error_array));

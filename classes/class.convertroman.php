@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 /**
 * Convertion of Roman Numeral
@@ -8,7 +9,7 @@
 * @category Numbers
 * @licence "up2u"
 *
-* example 
+* example
 * $converter = new ConvertRoman("2727");
 * echo $converter->result();
 * result is : MMDCCXXVII
@@ -19,7 +20,7 @@
 
 /*
 *	Matthias Mohr, 02.06.2005:
-*	Added support to convert column numbers in to a letters 
+*	Added support to convert column numbers in to a letters
 */
 
 class ConvertRoman {

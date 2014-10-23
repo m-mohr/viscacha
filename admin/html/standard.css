@@ -2,7 +2,7 @@
 	font-family: MS Sans Serif, Helvetica, Trebuchet MS, Verdana sans-serif;
 }
 body {
-	background-color: #EEEEEE; 
+	background-color: #EEEEEE;
 	margin: 5px;
 	font-size: 9pt;
 	color: #000000;
@@ -14,12 +14,12 @@ em, i {
 	margin-right: 2px;
 }
 hr {
-    height: 1px;
-    border: 0; 
-    border-bottom: 1px #3465A4 solid;
+	height: 1px;
+	border: 0;
+	border-bottom: 1px #3465A4 solid;
 }
 li {
-    font-size: 12px;
+	font-size: 12px;
 }
 ul {
 	margin-bottom: 2px;
@@ -27,13 +27,13 @@ ul {
 }
 input, select, textarea {
 	font-size: 9pt;
-	background-color: #F7F8F9; 
+	background-color: #F7F8F9;
 	border: 1px solid #3465A4;
 	color: #666666;
 	padding: 1px;
 }
 input:focus, select:focus, textarea:focus, input:hover, select:hover, textarea:hover {
-	background-color: #F7F8F9; 
+	background-color: #F7F8F9;
 	border: 1px solid #A40000;
 	color: #000000;
 }
@@ -50,7 +50,7 @@ a:hover {
 	color : #A40000;
 }
 .center {
-    text-align: center;
+	text-align: center;
 }
 .border {
 	width: 98%;
@@ -105,44 +105,43 @@ a:hover {
 	background-image: url(images/obox.gif);
 	color: #ffffff;
 	font-size: 9pt;
-    border-bottom: 1px solid #3465A4;
-    letter-spacing: 1px;
+	border-bottom: 1px solid #3465A4;
+	letter-spacing: 1px;
 	font-weight: bold;
+	vertical-align: middle;
+}
+.obox {
+	line-height: expression('1.4em');;
 }
 .button, .obox a.button {
 	text-Decoration: none;
 	white-space: nowrap;
-	padding: 1px;
-	padding-left: 4px;
-	padding-right: 4px;
+	padding: 1px 4px 1px 4px;
+	margin-right: 5px;
 	border-width: 1px;
 	border-style: solid;
-	border-left-color: #dddddd;
-	border-top-color: #dddddd;
-	border-right-color: #333333;
-	border-bottom-color: #333333;
+	border-color: #dddddd #333333 #333333 #dddddd;
 	line-height: 1.6em;
 }
 .button:hover, .obox a.button:hover {
-	border-left-color: #333333;
-	border-top-color: #333333;
-	border-right-color: #dddddd;
-	border-bottom-color: #dddddd;
+	border-color: #333333 #dddddd #dddddd #333333;
 }
 .obox a.button, .obox a.button:hover {
-	margin-left: 5px;
+	margin: 1px 0px 1px 5px;
 	color: #ffffff;
-	margin-right: 0px;
-	line-height: 1em;
-}
-.button {
-	margin-right: 5px;
+	line-height: 1.1em;
 }
 .ubox {
 	background-color: #94B7DF;
 	font-size: 8pt;
 	font-weight: bold;
 	color: #204a87;
+}
+.ubox a {
+	border-bottom: 1px dotted #204A87;
+}
+.ubox a:hover {
+	border-bottom: 1px dotted #A40000;
 }
 .mbox {
 	background-color: #ffffff;
@@ -163,7 +162,7 @@ a:hover {
 	text-align: center;
 }
 .right {
-    float: right;
+		float: right;
 }
 .valign {
 	vertical-align: middle;
@@ -176,7 +175,7 @@ a:hover {
 	display: block;
 	padding: 1px;
 	margin-top: 5px;
-	margin-bottom: 5px;   
+	margin-bottom: 5px;
 }
 .bb_inlinecode {
 	color: #880000;
@@ -245,14 +244,13 @@ a:hover {
 	display: block;
 }
 
-
 .popup {
-	z-index: 10; 
-	left: 0px; 
-	visibility: hidden; 
+	z-index: 10;
+	left: 0px;
+	visibility: hidden;
 	width: 200px;
-	position: absolute; 
-	top: 0px; 
+	position: absolute;
+	top: 0px;
 	border: 1px solid #336699;
 	border-top: 0px solid;
 	text-align: left;
@@ -263,18 +261,18 @@ a:hover {
 }
 .popup strong {
 	display: block;
-	padding: 2px;  
-	font-size: 9pt; 
+	padding: 2px;
+	font-size: 9pt;
 	color: #336699;
 	background-color: #BCCADA;
 	border-top: 1px solid #336699;
 }
 .popup ul {
-	padding: 0px; 
-	margin: 0px; 
-	list-style-type: none;	
+	padding: 0px;
+	margin: 0px;
+	list-style-type: none;
 }
-.popup li { 
+.popup li {
 	font-size: 9pt;
 	background-color: #ffffff;
 	font-weight: normal;
@@ -288,13 +286,13 @@ a:hover {
 }
 .popup li a, .popup_line {
 	padding: 2px;
-	color: #336699; 
+	color: #336699;
 	text-decoration: none;
 	display: block;
 	cursor: pointer;
 	background-color: #ffffff;
 }
-.popup li a:hover, .popup_line:hover { 
+.popup li a:hover, .popup_line:hover {
 	color: #000000;
 	background-color: #F5F8FA;
 }

@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 DEFINE('V_TEMP_DIR', './temp/pdfimages/');
 
@@ -234,7 +235,7 @@ function CloseTag($tag) {
 		}
 		if ($this->SIZE) {
 			$this->SetFontSize(8);
-			
+
 		}
 	}
 	if($tag=='TT') {

@@ -18,7 +18,7 @@ class RSS091 extends FeedCreator {
 		$this->_setRSSVersion("0.91");
 		$this->contentType = "application/rss+xml";
 	}
-	
+
 	/**
 	 * Sets this RSS feed's version number.
 	 * @access private
@@ -30,13 +30,13 @@ class RSS091 extends FeedCreator {
 	/**
 	 * Builds the RSS feed's text. The feed will be compliant to RDF Site Summary (RSS) 1.0.
 	 * The feed will contain all items previously added in the same order.
-	 * @return    string    the feed's complete text 
+	 * @return    string    the feed's complete text
 	 */
 	function createFeed() {
 		$feed = "<?xml version=\"1.0\" encoding=\"".$this->encoding."\"?>\n";
 		$feed.= $this->_createGeneratorComment();
 		$feed.= $this->_createStylesheetReferences();
-		$feed.= "<rss version=\"".$this->RSSVersion."\">\n"; 
+		$feed.= "<rss version=\"".$this->RSSVersion."\">\n";
 		$feed.= "    <channel>\n";
 		$feed.= "        <title>".FeedCreator::iTrunc(htmlspecialchars($this->title),100)."</title>\n";
 		$this->descriptionTruncSize = 500;
@@ -48,8 +48,8 @@ class RSS091 extends FeedCreator {
 
 		if ($this->image!=null) {
 			$feed.= "        <image>\n";
-			$feed.= "            <url>".$this->image->url."</url>\n"; 
-			$feed.= "            <title>".FeedCreator::iTrunc(htmlspecialchars($this->image->title),100)."</title>\n"; 
+			$feed.= "            <url>".$this->image->url."</url>\n";
+			$feed.= "            <title>".FeedCreator::iTrunc(htmlspecialchars($this->image->title),100)."</title>\n";
 			$feed.= "            <link>".$this->image->link."</link>\n";
 			if ($this->image->width!="") {
 				$feed.= "            <width>".$this->image->width."</width>\n";
@@ -68,7 +68,7 @@ class RSS091 extends FeedCreator {
 		if ($this->copyright!="") {
 			$feed.= "        <copyright>".FeedCreator::iTrunc(htmlspecialchars($this->copyright),100)."</copyright>\n";
 		}
-		if ($this->editor!="") {
+		if (!empty($this->editorEmail) && !empty($this->editor)) {
 			$feed.= "        <managingEditor>".htmlspecialchars($this->editorEmail)." (".FeedCreator::iTrunc(htmlspecialchars($this->editor),100).")</managingEditor>\n";
 		}
 		if ($this->webmaster!="") {
@@ -111,8 +111,8 @@ class RSS091 extends FeedCreator {
 			$feed.= "            <title>".FeedCreator::iTrunc(htmlspecialchars(strip_tags($this->items[$i]->title)),100)."</title>\n";
 			$feed.= "            <link>".htmlspecialchars($this->items[$i]->link)."</link>\n";
 			$feed.= "            <description>".$this->items[$i]->getDescription()."</description>\n";
-			
-			if ($this->items[$i]->author!="") {
+
+			if (!empty($this->items[$i]->authorEmail) && !empty($this->items[$i]->author)) {
 				$feed.= "            <author>".htmlspecialchars($this->items[$i]->author)." &lt;".$this->items[$i]->authorEmail."&gt;</author>\n";
 			}
 			if ($this->items[$i]->category!="") {

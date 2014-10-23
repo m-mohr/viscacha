@@ -1,4 +1,7 @@
 <?php
+define('SCRIPNAME', 'text2image');
+define('VISCACHA_CORE', '1');
+
 require('class.text2image.php');
 if (!empty($_REQUEST['text'])) {
 	$img = new text2image();

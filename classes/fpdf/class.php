@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*******************************************************************************
 * Software: FPDF                                                               *
 * Version:  1.53                                                               *
@@ -929,7 +931,7 @@ function Image($file,$x,$y,$w=0,$h=0,$type='',$link='')
 	}
 	else
 		$info=$this->images[$file];
-		
+
 		// Changed
 		if($w==0 and $h==0)
 		{
@@ -939,7 +941,7 @@ function Image($file,$x,$y,$w=0,$h=0,$type='',$link='')
 		}
 		if($w==0)	$w=$h*$info['w']/$info['h'];
 		if($h==0)	$h=$w*$info['h']/$info['w'];
-		
+
 		// Added
 		//Avoid drawing out of the paper(exceeding width limits). //EDITED
 		if ( ($x + $w) > $this->fw )
@@ -948,20 +950,20 @@ function Image($file,$x,$y,$w=0,$h=0,$type='',$link='')
 			$y += 5;
 		}
 		//Avoid drawing out of the page. //EDITED
-		if ( ($y + $h) > $this->fh ) 
+		if ( ($y + $h) > $this->fh )
 		{
 			$this->AddPage();
 			$y = $tMargin + 10; // +10 to avoid drawing too close to border of page
 			$changedpage = true;
 		}
-		
+
 	// Added
 	//Avoid writing text on top of the image. //EDITED
 	if (isset($changedpage) && $changedpage) $this->y = $y + $h;
 	else $this->y = $y + $h;
 
 	$this->_out(sprintf('q %.2f 0 0 %.2f %.2f %.2f cm /I%d Do Q',$w*$this->k,$h*$this->k,$x*$this->k,($this->h-($y+$h))*$this->k,$info['i']));
-	
+
 	if($link)
 		$this->Link($x,$y,$w,$h,$link);
 
@@ -979,7 +981,7 @@ function Ln($h='')
 		else {
 			$h = $this->lasth;
 		}
-		
+
 	}
 	else {
 		if ($this->maximgheight > $h) {

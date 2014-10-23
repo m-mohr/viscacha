@@ -2,7 +2,7 @@ CREATE TABLE `{:=DBPREFIX=:}packages` (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
   `title` varchar(200) NOT NULL default '',
   PRIMARY KEY  (`id`)
-) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=17 ;
+) TYPE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=18 ;
 
 INSERT INTO `{:=DBPREFIX=:}packages` (`id`, `title`) VALUES (1, 'Related Topics'),
 (2, 'Who-is-Online Box'),
@@ -18,4 +18,5 @@ INSERT INTO `{:=DBPREFIX=:}packages` (`id`, `title`) VALUES (1, 'Related Topics'
 (12, 'Legend (PM)'),
 (13, 'Legend (Forums)'),
 (14, 'Birthday-Reminder'),
-(16, 'Login Box');
+(16, 'Login Box'),
+(17, 'Quick Reply');

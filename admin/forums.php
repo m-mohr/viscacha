@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "forums.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 function ForumSubs ($tree, $cat, $board, $char = '+', $level = 0) {
 	foreach ($tree as $cid => $boards) {
@@ -269,7 +269,7 @@ elseif ($job == 'mods_add2') {
 		error('admin.php?action=forums&job=mods_add'.iif($bid > 0, '&id='.$id), 'Member not found!');
 	}
 	if ($month > 0 && $day > 0 && $weekday > 0) {
-		$timestamp = "'".mktime(0, 0, 0, $month, $day, $weekday, -1)."'";
+		$timestamp = "'".times(gmmktime(0, 0, 0, $month, $day, $weekday, -1))."'";
 	}
 	else {
 		$timestamp = 'NULL';

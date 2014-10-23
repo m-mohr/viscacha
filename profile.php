@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'profile');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -86,13 +87,13 @@ if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$
 	($code = $plugins->load('profile_vcard_start')) ? eval($code) : null;
 
 	$result = $db->query("
-	SELECT id, name, mail, hp, birthday, location, fullname, groups 
-	FROM {$db->pre}user 
+	SELECT id, name, mail, hp, birthday, location, fullname, groups
+	FROM {$db->pre}user
 	WHERE id = '{$_GET['id']}'
 	",__LINE__,__FILE__);
 	$row = $gpc->prepare($db->fetch_object($result));
 	$row->level = $slog->getStatus($row->groups, ', ');
-	
+
 	$vCard = new vCard('','');
 	$vCard->setNickname($row->name);
 	$vCard->setEMail($row->mail);
@@ -106,7 +107,7 @@ if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$
 				$middle .= $middlename;
 			}
 		}
-			
+
 		$vCard->setFirstName($names[0]);
 		$vCard->setMiddleName($middle);
 		$vCard->setLastName($names[$anz-1]);
@@ -119,12 +120,15 @@ if ($_GET['action'] == "vcard" && $is_member && $config['vcard_dl'] == 1 && ((!$
 		$vCard->setURLWork($row->hp);
 	}
 	if (!empty($row->birthday) && $row->birthday != '0000-00-00') {
+		if (substr($row->birthday, 0, 4) == '1000') {
+			$row->birthday = date("Y").substr($row->birthday, 4);
+		}
 		$bday = str_replace('-', '', $row->birthday);
 		$vCard->setBirthday($bday,1);
 	}
-		
+
 	$filename = $row->id . '.vcf';
-	
+
 	($code = $plugins->load('profile_vcard_prepared')) ? eval($code) : null;
 	$text = $vCard->getCardOutput();
 	viscacha_header("Content-Type: text/x-vcard");
@@ -176,7 +180,7 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 				xmail($to, $from, $_POST['topic'], $gpc->unescape($_POST['comment']));
 				ok($lang->phrase('email_sent'),"profile.php?id=".$_GET['id'].SID2URL_x);
 			}
-		
+
 		}
 		else {
 			if ($row->opt_hidemail == 0) {
@@ -184,7 +188,7 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 				$entities = array('&#64;','&#46;');
 				$row->mail = str_replace($chars, $entities, $row->mail);
 			}
-			
+
 			if (strlen($_GET['fid']) == 32) {
 				$data = $gpc->prepare(import_error_data($_GET['fid']));
 			}
@@ -198,7 +202,7 @@ elseif (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_memb
 			($code = $plugins->load('profile_mail_prepared')) ? eval($code) : null;
 			echo $tpl->parse("profile/mail");
 			($code = $plugins->load('profile_mail_end')) ? eval($code) : null;
-			
+
 		}
 	}
 	else {
@@ -243,11 +247,11 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 	if ($my->p['profile'] == 0) {
 		$error[] = $lang->phrase('not_allowed');
 	}
-	
+
 	$sqlfields = '';
-	
+
 	($code = $plugins->load('profile_ims_start')) ? eval($code) : null;
-	
+
 	if ($_GET['type'] == 'icq' || $_GET['type'] == 'aol' || $_GET['type'] == 'yahoo' || $_GET['type'] == 'msn' || $_GET['type'] == 'jabber' || $_GET['type'] == 'skype') {
 		$imtext = $lang->phrase('im_'.$_GET['type']);
 	}
@@ -256,19 +260,19 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 	}
 
 	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'",__LINE__,__FILE__);
-	
+
 	$row = $gpc->prepare($db->fetch_assoc($result));
 	if ($row[$_GET['type']] == NULL || $row[$_GET['type']] == '') {
 		$error[] = $lang->phrase('im_no_data');
 	}
-	
+
 	if (count($error) > 0) {
 		errorLogin($error, 'profile.php?id='.$_GET['id'].SID2URL_x);
 	}
 	else {
 		$t = $_GET['type'];
 		$d = $row[$_GET['type']];
-	
+
 		$breadcrumb->Add($imtext);
 		echo $tpl->parse("header");
 		echo $tpl->parse("menu");
@@ -276,7 +280,7 @@ elseif ($_GET['action'] == "ims" && $is_member) {
 		$imstatus = new IMStatus();
 		$status = $imstatus->$t($d);
 		if ($status) {
-			$imstatus = $lang->phrase('im_status_'.$status);	
+			$imstatus = $lang->phrase('im_status_'.$status);
 		}
 		else {
 			$imstatus = $lang->phrase('im_no_connection').'<!-- Error #'.$imstatus->error(IM_ERRNO).' occurred during query: '.$imstatus->error(IM_ERRSTR).' -->';
@@ -309,16 +313,20 @@ elseif ($is_member) {
 	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
 
 	$result = $db->query("
-	SELECT u.*, f.* 
-	FROM {$db->pre}user AS u 
-		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
-	WHERE id = {$_GET['id']} 
+	SELECT u.*, f.*
+	FROM {$db->pre}user AS u
+		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
+	WHERE id = {$_GET['id']}
 	LIMIT 1
 	",__LINE__,__FILE__);
-	
+
+	$breadcrumb->resetUrl();
+	echo $tpl->parse("header");
+	echo $tpl->parse("menu");
+
 	if ($db->num_rows($result) == 1) {
 		$row = $gpc->prepare($db->fetch_object($result));
-	
+
 		$days2 = null;
 		if ($config['showpostcounter'] == 1) {
 			$days2 = $row->posts / ((times() - $row->regdate) / 86400);
@@ -330,27 +338,23 @@ elseif ($is_member) {
 
 		$row->posts = numbers($row->posts);
 
-		$breadcrumb->resetUrl();
-		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
-		
 		$row->p = $slog->Permissions(0,$row->groups, true);
 		$row->level = $slog->getStatus($row->groups);
-		
+
 		$row->regdate = gmdate($lang->phrase('dformat2'),times($row->regdate));
 		$row->lastvisit = str_date($lang->phrase('dformat1'),times($row->lastvisit));
-		
+
 		$vcard = ($config['vcard_dl'] == 1 && ((!$my->vlogin && $config['vcard_dl_guests'] == 1) || $my->vlogin));
-			
+
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
 		$bbcode->setReplace(0);
 		$bbcode->setAuthor($row->id);
 		$row->about = $bbcode->parse($row->about);
-		
+
 		BBProfile($bbcode, 'signature');
 		$row->signature = $bbcode->parse($row->signature);
-		
+
 		// Set the instant-messengers
 		if ($row->jabber || $row->icq > 0 || $row->aol || $row->msn || $row->yahoo || $row->skype) {
 			$imanz = 1;
@@ -358,7 +362,7 @@ elseif ($is_member) {
 		else {
 			$imanz = 0;
 		}
-		
+
 		if ($row->gender == 'm') {
 			$gender = $lang->phrase('gender_m');
 		}
@@ -370,7 +374,7 @@ elseif ($is_member) {
 		}
 		$bday = explode('-',$row->birthday);
 		if ($row->birthday != NULL && $row->birthday != '0000-00-00') {
-			if ($bday[0] > 0) {
+			if ($bday[0] > 1000) {
 				$bday_age = getAge($bday);
 			}
 			$show_bday = TRUE;
@@ -381,7 +385,7 @@ elseif ($is_member) {
 		if (isset($bday[1]) && $bday[1] > 0 && $bday[1] < 13) {
 			$bday[1] = $lang->phrase('months_'.intval($bday[1]));
 		}
-		
+
 		$osi = '';
 		$vcarddl = '';
 		if ($config['osi_profile'] == 1) {
@@ -481,7 +485,7 @@ elseif ($is_member) {
 			);
 			unset($code, $select, $val, $options, $expoptions, $useropts, $seloptions);
 		}
-		
+
 		if ($config['memberrating'] == 1) {
 			$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE aid = '{$row->id}'");
 			$ratings = array();
@@ -519,5 +523,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();		
+$db->close();
 ?>

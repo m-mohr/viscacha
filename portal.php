@@ -1,8 +1,8 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -25,6 +25,9 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'portal');
+if (!defined('VISCACHA_CORE')) {
+	define('VISCACHA_CORE', '1');
+}
 
 require_once("data/config.inc.php");
 require_once("classes/function.viscacha_frontend.php");
@@ -42,6 +45,19 @@ if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
 }
 $lang->init($my->language);
 $tpl = new tpl();
+
+if ($plugins->countPlugins('portal') == 0) {
+	if ($config['indexpage'] == SCRIPTNAME) {
+		error($lang->phrase('docs_not_found'), 'forum.php'.SID2URL_1);
+	}
+	else {
+		$slog->updatelogged();
+		$db->close();
+		header("HTTP/1.0 301 Moved Permanently");
+	    header('Location: forum.php');
+	    exit;
+	}
+}
 
 $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();

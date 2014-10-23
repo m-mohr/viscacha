@@ -165,6 +165,7 @@ $config['spellcheck_mode'] = 1;
 $config['spider_logvisits'] = 1;
 $config['spider_pendinglist'] = 0;
 $config['syndication'] = 1;
+$config['syndication_insert_email'] = 0;
 $config['syndication_klipfolio_banner'] = 'images/klipfolio_banner.jpeg';
 $config['syndication_klipfolio_icon'] = 'images/klipfolio_icon.gif';
 $config['team_mod_dateuntil'] = 1;
@@ -185,7 +186,7 @@ $config['updateboardstats'] = 1;
 $config['updatepostcounter'] = 1;
 $config['vcard_dl'] = 1;
 $config['vcard_dl_guests'] = 0;
-$config['version'] = '0.8 RC1';
+$config['version'] = '0.8 RC2';
 $config['wordstatus'] = 1;
 $config['wordwrap'] = 1;
 ?>

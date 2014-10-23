@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'external');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 DEFINE('TEMPSHOWLOG', 1);
@@ -61,7 +62,7 @@ else {
 }
 define("TIME_ZONE", $posneg.$tz2.':'.$tz3);
 // Include the Feedcreator class
-include("classes/class.feedcreator.php"); 
+include("classes/class.feedcreator.php");
 
 BBProfile($bbcode);
 
@@ -93,19 +94,25 @@ else {
 }
 
 // Header of feeds
-$rss = new UniversalFeedCreator(); 
+$rss = new UniversalFeedCreator();
 $rss->encoding = $lang->phrase('charset');
 $rss->setDir("feeds/topics_");
 $rss->useCached($action, '', $h);
-$rss->title = $config['fname']; 
-$rss->description = $config['fdesc']; 
-$rss->link = $config['furl']."/forum.php"; 
+$rss->title = $config['fname'];
+$rss->description = $config['fdesc'];
+$rss->link = $config['furl']."/forum.php";
 $rss->language = $lang->phrase('rss_language');
 $rss->ttl = $config['rssttl'];
 $rss->copyright = $config['fname'];
 $rss->lastBuildDate = time();
 $rss->editor = $config['fname'];
-$rss->editorEmail = $config['forenmail'];
+if ($config['syndication_insert_email'] == 1) {
+	$rss->editorEmail = $config['forenmail'];
+}
+else {
+	$rss->editorEmail = '';
+}
+
 
 $sqllimit = 15;
 $sqlwhere = "r.tstart = '1' AND f.invisible != '2' AND f.active_topic = '1' AND f.opt != 'pw' ".$slog->sqlinboards('t.board');
@@ -116,20 +123,20 @@ $sqljoin = $sqlfields = '';
 
 // Get the last 15 topics
 $result = $db->query("
-SELECT r.dowords, r.comment, r.guest, f.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status {$sqlfields} 
-FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id 
-	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
-	LEFT JOIN {$db->pre}forums AS f ON t.board=f.id 
+SELECT r.dowords, r.comment, r.guest, f.name as forum, u.name as uname, u.mail as umail, r.name as gname, r.email as gmail, t.topic, t.id, t.board, t.date, t.status {$sqlfields}
+FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
+	LEFT JOIN {$db->pre}user AS u ON r.name=u.id
+	LEFT JOIN {$db->pre}forums AS f ON t.board=f.id
 	{$sqljoin}
-WHERE {$sqlwhere} 
-ORDER BY {$sqlorder} 
+WHERE {$sqlwhere}
+ORDER BY {$sqlorder}
 LIMIT {$sqllimit}
 ",__LINE__,__FILE__);
 
 // Loop through them if the site is not offline
 if ($config['foffline'] == 0) {
 	while ($row = $db->fetch_object($result)) {
-	
+
 	    // Formats the data
 	    if ($row->guest == 0) {
 	        $row->email = $row->umail;
@@ -153,42 +160,47 @@ if ($config['foffline'] == 0) {
 	        $row->comment = substr($row->comment,0,strpos($row->comment, ' ', $config['rsschars']));
 	        $row->comment .= ' ...';
 	    }
-	
-	    $item = new FeedItem(); 
-	    $item->title = $row->topic; 
+
+	    $item = new FeedItem();
+	    $item->title = $row->topic;
 	   	$item->link = $config['furl']."/showtopic.php?id=".$row->id;
-	    $item->source = $config['furl']."/showforum.php?id=".$row->board; 
-	    $item->description = $row->comment; 
-	    $item->date = gmdate('r', times($row->date));
+	    $item->source = $config['furl']."/showforum.php?id=".$row->board;
+	    $item->description = $row->comment;
+	    $item->date = dateSpec(SPEC_RFC2822, $row->date);
 	    $item->author = $row->name;
-		$item->authorEmail = $row->email;
-	    $item->pubDate = gmdate('r', times($row->date));
+	    if ($config['syndication_insert_email'] == 1) {
+			$item->authorEmail = $row->email;
+		}
+		else {
+			$item->authorEmail = '';
+		}
+	    $item->pubDate = dateSpec(SPEC_RFC2822, $row->date);
 		$item->category = $row->forum;
-		
+
 		($code = $plugins->load('external_item_prepared')) ? eval($code) : null;
-	
-	    $rss->addItem($item); 
+
+	    $rss->addItem($item);
 	}
 }
 else {
-    $item = new FeedItem(); 
-    $item->title = $lang->phrase('offline_head_ext'); 
+    $item = new FeedItem();
+    $item->title = $lang->phrase('offline_head_ext');
     $item->link = $config['furl'];
-    $item->description = $lang->phrase('offline_body_ext'); 
-    $item->date = gmdate('r', time());
+    $item->description = $lang->phrase('offline_body_ext');
+    $item->date = dateSpec(SPEC_RFC_2822);
     $item->author = $config['fname'];
-	
+
 	($code = $plugins->load('external_offline')) ? eval($code) : null;
-	
-    $rss->addItem($item); 
+
+    $rss->addItem($item);
 }
 
 ($code = $plugins->load('external_prepared')) ? eval($code) : null;
 
-$rss->saveFeed($format['class'], '', $h); 
+$rss->saveFeed($format['class'], '', $h);
 
 ($code = $plugins->load('external_end')) ? eval($code) : null;
 
 $phpdoc->Out();
-$db->close();		
+$db->close();
 ?>

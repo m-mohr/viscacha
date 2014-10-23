@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*
 * Scripts are taken from: http://www.php.net/manual/function.parse-ini-file.php
 */
@@ -124,12 +126,12 @@ function search ( $filename, $search_param, $return_section = false ) {
 	}
 	fclose($handle);
 	return $retvalue;
-} 
+}
 
 /**
 * This function reads and parses an ini-file.
 *
-* This function is case-insensitive when reading sections and keys, 
+* This function is case-insensitive when reading sections and keys,
 * returning an array with lower-case keys.
 *
 * @param	string	Filename
@@ -139,7 +141,7 @@ function search ( $filename, $search_param, $return_section = false ) {
 function read ($filename) {
 	$array1 = @file($filename);
 	if (!is_array($array1)) {
-		trigger_error("Could not read ini-file {$filename}", E_NOTICE);
+		trigger_error("Could not read ini-file {$filename}", E_USER_NOTICE);
 		return array();
 	}
 	$array2 = array();
@@ -178,7 +180,7 @@ function read ($filename) {
 					else {
 						$array2[$section][strtolower(trim($dataline))]='';
 					}
-					
+
 				}
 			}
 		}
@@ -191,7 +193,7 @@ function read ($filename) {
 *
 * This function writes sections and keys with first character capitalization.
 * Invalid characters are converted to ASCII dash / hyphen (-).  Values are
-* always enclosed by double-quotes. 
+* always enclosed by double-quotes.
 * This function also provides a method to automatically prepend a comment
 * header from ASCII text with line breaks, regardless of whether CRLF, LFCR,
 * CR, or just LF line break sequences are used!  (All line breaks are
@@ -235,7 +237,7 @@ function write ($filename, $array1, $commenttext = '') {
 				//Write the key/value pairs
 				//$key = ucfirst(preg_replace('/[\0-\37]|=|[\177-\377]/', "-", $keys));
 				$key = preg_replace('/[\0-\37]|=|\177/', "-", $keys);
-	  			if (substr($key, 0, 1)==$this->commentchar) { 
+	  			if (substr($key, 0, 1)==$this->commentchar) {
 	  				$key = '-'.substr($key, 1);
 	  			}
 	  			$value = addcslashes($values,'');
@@ -244,7 +246,7 @@ function write ($filename, $array1, $commenttext = '') {
 		}
 		else {
 			$key = preg_replace('/[\0-\37]|=|\177/', "-", $sections);
-	  		if (substr($key, 0, 1)==$this->commentchar) { 
+	  		if (substr($key, 0, 1)==$this->commentchar) {
 	  			$key = '-'.substr($key, 1);
 	  		}
 	  		$value = addcslashes($items,'');

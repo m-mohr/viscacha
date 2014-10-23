@@ -15,69 +15,69 @@
  </tr>
  <?php if ($count[0] > 0) { ?>
  <tr class="tfoot">
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_name'); ?>
    <a href="members.php?<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
   <?php if ($online) { ?>
-  <td align="center">
+  <td class="center">
    <a href="members.php?sort=online&amp;order=desc&amp;<?php echo $query_th; ?>"><?php echo $lang->phrase('th_status'); ?></a>
   </td>
   <?php } if (in_array('pic', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_pic'); ?>
   </td>
   <?php } if ($pm) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_pm'); ?>
   </td>
   <?php } if (in_array('mail', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_email'); ?>
   </td>
   <?php } if (in_array('hp', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <a href="members.php?sort=hp&amp;order=desc&amp;<?php echo $query_th; ?>"><?php echo $lang->phrase('th_homepage'); ?></a>
   </td>
   <?php } if (in_array('location', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_location'); ?>
    <a href="members.php?sort=location&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?sort=location&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
   <?php } if (in_array('gender', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_gender'); ?>
    <a href="members.php?sort=gender&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?sort=gender&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
-  <?php } if (in_array('birthday', $fields)) { ?>
-  <td align="center">
-   <?php echo $lang->phrase('th_birthday'); ?>
-   <a href="members.php?sort=birthday&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
-   <a href="members.php?sort=birthday&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
-  </td>
   <?php } if (in_array('posts', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_posts'); ?>
    <a href="members.php?sort=posts&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?sort=posts&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
+  <?php } if (in_array('birthday', $fields)) { ?>
+  <td class="center">
+   <?php echo $lang->phrase('th_birthday'); ?>
+   <a href="members.php?sort=birthday&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
+   <a href="members.php?sort=birthday&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
+  </td>
   <?php } if (in_array('regdate', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_registered_since'); ?>
    <a href="members.php?sort=regdate&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?sort=regdate&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
   <?php } if (in_array('lastvisit', $fields)) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_lastvisit'); ?>
    <a href="members.php?sort=lastvisit&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?sort=lastvisit&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
   <?php } if ($im) { ?>
-  <td align="center">
+  <td class="center">
    <?php echo $lang->phrase('th_im'); ?>
   </td>
   <?php } ?>

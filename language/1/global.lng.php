@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "global.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['about_too_long'] = 'Persönliche Seite ist zu lang';
 $lang['active_members'] = 'Aktive Mitglieder: ';
@@ -554,6 +554,7 @@ $lang['pm_manage'] = 'Nachricht verwalten';
 $lang['pm_massmanage'] = 'Nachrichten verwalten';
 $lang['pm_newicon'] = 'Gelesene PN';
 $lang['pm_new_title'] = 'Neue PN schreiben';
+$lang['pm_not_found'] = 'Die PN wurde nicht gefunden.';
 $lang['pm_oldicon'] = 'Ungelesene PN';
 $lang['pm_outgoing_by'] = 'an';
 $lang['pm_postarea'] = 'Beitrag:';
@@ -646,7 +647,7 @@ $lang['register_confirm_01'] = 'Mitglied erfolgreich registriert! Der Admin muss
 $lang['register_confirm_10'] = 'Mitglied erfolgreich registriert! Die Aktivierungs-E-Mail wurde Ihnen zugeschickt.';
 $lang['register_confirm_11'] = 'Mitglied erfolgreich registriert. Sie können sich nun einloggen.';
 $lang['register_disabled'] = 'Die Registration ist zur Zeit deaktiviert.';
-$lang['register_resend_desc'] = 'Solltest Du Dich bereits registriert - aber den Bestätigungslink der Registrierungs-E-Mail noch nicht angeklickt haben, konnte Deine Registrierung nicht vollständig abgeschlossen werden. Du hast hier die Möglichkeit, Dir diese E-Mail erneut zuschicken zu lassen, ohne den Registrierungsvorgang wiederholen zu müssen. Dazu trägst Du lediglich den bereits von Dir beantragten Benutzernamen ein - und die E-Mail wird Dir erneut an Deine bereits bei der Registrierung angegebene E-Mail-Adresse übersandt.';
+$lang['register_resend_desc'] = 'Sollten Sie sich bereits registriert - aber den Bestätigungslink der Registrierungs-E-Mail noch nicht angeklickt haben, konnte Ihre Registrierung nicht vollständig abgeschlossen werden. Sie haben hier die Möglichkeit, Ihnen diese E-Mail erneut zuschicken zu lassen, ohne den Registrierungsvorgang wiederholen zu müssen. Dazu tragen Sie lediglich den bereits von Ihnen beantragten Benutzernamen ein - und die E-Mail wird Ihnen erneut an Ihre bereits bei der Registrierung angegebene E-Mail-Adresse übersandt.';
 $lang['register_resend_no_user'] = 'Es wurde leider kein Benutzer mit diesem Namen oder einer benötigten Freischaltung gefunden. Eventuell muss der Administrator Sie noch freischalten.';
 $lang['register_resend_success'] = 'Die Aktivierungs-E-Mail wurde Ihnen erneut zugeschickt.';
 $lang['register_resend_title'] = 'Registrierungs-E-Mail erneut verschicken';

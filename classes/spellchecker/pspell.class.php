@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class spellchecker {
 
@@ -56,7 +57,7 @@ class spellchecker {
 		}
 		return pspell_save_wordlist($this->resid);
 	}
-	
+
 	function check_text($text) {
 		$words = $this->split_text($text);
 		foreach ($words as $word) {
@@ -66,7 +67,7 @@ class spellchecker {
 		}
 		return $this->mistakes;
 	}
-	
+
 	function suggest_text ($mistakes = FALSE) {
 		if ($mistakes == FALSE) {
 			$mistakes = $this->mistakes;
@@ -111,7 +112,7 @@ class spellchecker {
 				$this->errormsg = 'Benchmark was not started yet!';
 				return -1;
 			}
-			$time = $zeitmessung-$this->benchmarktime; 
+			$time = $zeitmessung-$this->benchmarktime;
 			return substr($time,0,6);
 		}
 		else {

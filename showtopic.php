@@ -1,8 +1,8 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'showtopic');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -38,9 +39,9 @@ $tpl = new tpl();
 
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
 $result = $db->query('
-SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix 
-FROM '.$db->pre.'topics 
-WHERE id = '.$_GET['id'].' 
+SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix
+FROM '.$db->pre.'topics
+WHERE id = '.$_GET['id'].'
 LIMIT 1
 ',__LINE__,__FILE__);
 
@@ -175,18 +176,18 @@ if (!empty($info['vquestion'])) {
 	else {
 		$showresults = FALSE;
 	}
-	
+
 	$cachev = array();
 	$aids = array();
 	$vresult = $db->query("
 	SELECT COUNT(r.id) as votes, v.id, v.answer
-	FROM {$db->pre}vote AS v 
-		LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id 
-	WHERE v.tid = '{$info['id']}' 
-	GROUP BY v.id 
+	FROM {$db->pre}vote AS v
+		LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id
+	WHERE v.tid = '{$info['id']}'
+	GROUP BY v.id
 	ORDER BY v.id
 	",__LINE__,__FILE__);
-	
+
 	while ($row = $db->fetch_assoc($vresult)) {
 		$row['answer'] = $gpc->prepare($row['answer']);
 		$cachev[] = $row;
@@ -208,7 +209,7 @@ if (!empty($info['vquestion'])) {
 			}
 			$voter[$row['aid']][$row['mid']] = $memberdata[$row['mid']]; // Array mit den Namen der Leute und deren Antwort
 		}
-		
+
 		if (!$showresults) {
 		    ($code = $plugins->load('showtopic_vote_prepared')) ? eval($code) : null;
 			$inner['vote_result'] = $tpl->parse("showtopic/vote");
@@ -277,15 +278,15 @@ $sql_select = iif($config['pm_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS onl
 $sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
-SELECT 
-	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, 
-	u.id as mid, u.name as uname, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, 
+SELECT
+	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname,
+	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
 	f.* {$sql_select}
-FROM {$db->pre}replies AS r 
-	LEFT JOIN {$db->pre}user AS u ON r.name=u.id 
-	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid 
+FROM {$db->pre}replies AS r
+	LEFT JOIN {$db->pre}user AS u ON r.name=u.id
+	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
 	{$sql_join}
-WHERE r.topic_id = '{$info['id']}' 
+WHERE r.topic_id = '{$info['id']}'
 ORDER BY date ASC
 {$sql_limit}
 ",__LINE__,__FILE__);
@@ -299,7 +300,7 @@ if ($info['last'] > $my->clv) {
 while ($row = $gpc->prepare($db->fetch_object($result))) {
 	$inner['upload_box'] = '';
 	$inner['image_box'] = '';
-	
+
 	if ($row->guest == 0) {
 		$row->mail = '';
 		$row->name = $row->uname;
@@ -318,9 +319,9 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$firstnew = 1;
 		$firstnew_url = "#firstnew";
 	}
-	
+
 	$new = iif($row->date > $my->clv, 'new', 'old');
-	
+
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);
 	if ($config['wordstatus'] == 0) {
@@ -335,7 +336,7 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$bbcode->setHighlight('highlight', $q);
 	}
 	$row->comment = $bbcode->parse($row->comment);
-	
+
 	if ($my->opt_showsig == 1) {
 		BBProfile($bbcode, 'signature');
 		$row->signature = $bbcode->parse($row->signature);
@@ -357,25 +358,25 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	else {
 		$bottom = FALSE;
 	}
-	
+
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
 			$imginfo = get_extension($uppath);
-			
+
 			if (!isset($fileicons[$imginfo])) {
 				$icon = 'unknown.gif';
 			}
 			else {
 				$icon = $fileicons[$imginfo];
 			}
-			
+
 			// Dateigroesse
 			$fsize = filesize($uppath);
 			$fsize = formatFilesize($fsize);
-			
+
 			$is_img = ($imginfo == 'gif' || $imginfo == 'jpg' || $imginfo == 'jpeg'  || $imginfo == 'jpe' || $imginfo == 'png') ? true : false;
-			
+
 			($code = $plugins->load('showtopic_attachments_prepared')) ? eval($code) : null;
 
 			if ($is_img == true) {
@@ -387,7 +388,7 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 			}
 		}
 	}
-	
+
 	$anz = 0;
 	if (!empty($row->edit)) {
 		$edits = explode("\n", $row->edit);
@@ -415,14 +416,14 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 			$row->rating = round(array_sum($ratings[$row->id])/$ratingcounter*50)+50;
 		}
 	}
-	
+
 	($code = $plugins->load('showtopic_entry_prepared')) ? eval($code) : null;
 	$inner['index_bit'] .= $tpl->parse("showtopic/index_bit");
 }
 
 $abox['id'] = null;
-if ($my->vlogin) { 
-	$result = $db->query('SELECT id FROM '.$db->pre.'abos WHERE mid = '.$my->id.' AND tid = '.$info['id'],__LINE__,__FILE__); 
+if ($my->vlogin) {
+	$result = $db->query('SELECT id FROM '.$db->pre.'abos WHERE mid = '.$my->id.' AND tid = '.$info['id'],__LINE__,__FILE__);
 	$abox = $db->fetch_assoc($result);
 }
 

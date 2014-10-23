@@ -1,7 +1,8 @@
-/* Allgemeine Einstellungen */
+* {
+	font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}
 body {
 	background-color: #cccccc;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 	font-size: 9pt;
 	margin: 5px;
 	padding: 0px;
@@ -25,23 +26,14 @@ form {
 }
 input, select, textarea {
 	z-index: 0;
+	font-size: 9pt;
+	background-color: #F5F8FA;
+	border: 1px solid #336699;
+	padding: auto 2px auto 2px;
 }
 acronym {
 	border-bottom: 1px dotted #8B8060;
 	cursor: help;
-}
-input, select {
-	font-size: 9pt;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
-	background-color: #F5F8FA;
-	border: 1px solid #336699;
-}
-textarea {
-	font-size: 9pt;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
-	background-color: #F5F8FA;
-	border: 1px solid #336699;
-
 }
 img {
 	vertical-align: middle;
@@ -60,10 +52,8 @@ hr {
 	list-style-image: none;
 }
 
-/* Sonstiges */
 .stext {
 	font-size: 8pt;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 	font-weight: normal;
 	color: #000000;
 }
@@ -84,31 +74,29 @@ h1 {
 	margin: 0px;
 	padding: 0px;
 	background-image: url('standard/header.jpg');
-	height: 61px;
+	height: 73px;
 	width: 765px;
 	border: 1px solid #839FBC;
 }
 h1 a, h1 a:hover {
 	font-size: 25px;
+	line-height: 25px;
 	text-align: center;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 	font-weight: normal;
-	padding-top: 27px;
+	padding-top: 15px;
+	padding-bottom: 8px;
 	display: block;
 	text-decoration: none;
 	color: white;
 }
 .breadcrumb {
-	border: 1px solid #839FBC;
- 	border-top: 0px solid;
- 	background-color: #ffffff;
- 	background-image: url(standard/breadcrumb.jpg);
-	float: right;
-	margin-top: -1px;
- 	margin-bottom: 5px;
-	margin-left: 5px;
-	width: 595px;
-	padding: 4px;
+ 	border: 0px;
+	border-top: 1px solid #ffffff;
+	height: 22px;
+	line-height: 17px;
+	margin: -25px auto 0px auto;
+	width: 757px;
+	padding: 3px 4px 4px 4px;
  	font-size: 11px;
  	color: #ffffff;
 }
@@ -139,11 +127,8 @@ h1 a, h1 a:hover {
 	border-top: 1px solid #839FBC;
 }
 .bbody ul, .bbody ol, .tbody ul, .tbody ol {
-	margin: 0px;
-	padding: 0px;
-	margin-bottom: 2px;
-	margin-top: 2px;
-	padding-left: 26px;
+	margin: 2px 0px 2px 0px;
+	padding: 0px 0px 0px 26px;
 }
 .bbody ul, .tbody ul {
 	list-style-image: url(standard/list.gif);
@@ -394,7 +379,6 @@ label, .labeldiv {
 }
 .profiledata h5 {
 	font-weight: bold;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 	font-size: 9pt;
 	margin: 0px;
 	padding: 0px;
@@ -490,7 +474,7 @@ label, .labeldiv {
 	margin: 0px;
 	list-style-type: none;
 }
-.popup li {
+.popup li, .topmenu .popup li {
 	font-size: 9pt;
 	background-color: #ffffff;
 	font-weight: normal;
@@ -563,7 +547,6 @@ label, .labeldiv {
 #menu_bbcolor, #menu_bbsize, #menu_bbhx, #menu_help, #menu_bbalign {
 	font-size: 9pt;
 	font-weight: bold;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 }
 #codebuttons a, #menu_bbcolor, #menu_bbsize, #menu_bbhx, #menu_help, #menu_bbalign {
 	border: 1px solid #336699;
@@ -633,7 +616,7 @@ label, .labeldiv {
 	width: 550px;
 }
 .bb_blockcode td {
-	font-family: Courier New, monospace;
+	font-family: "Courier New", monospace;
 	font-size: 11px;
 	line-Height: 13px;
 	white-space: nowrap;
@@ -686,7 +669,6 @@ label, .labeldiv {
 /* Spellchecker */
 .disabled {
 	font-size: 11px;
-	font-family: Trebuchet MS, Verdana, Arial, Helvetica, sans-serif;
 	background-color: #F5F8FA;
 	border: 1px solid #336699;
 	color: #cccccc;

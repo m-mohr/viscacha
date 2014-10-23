@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "thumbnail.class.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['tne_badtype'] = 'Invalid imagetype.';
 $lang['tne_gd1error'] = 'Could not create GD1-thumbnail.';

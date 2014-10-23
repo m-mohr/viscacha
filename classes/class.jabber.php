@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "class.jabber.php") die('Error: Hacking Attempt');   // MOD: Viscacha cmpliance
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }   // MOD: Viscacha compliance
 
 /***************************************************************************
 
@@ -7,10 +7,10 @@ if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "class.jabb
 	(c) 2004 Nathan "Fritzy" Fritz
 	http://cjphp.netflint.net *** fritzy@netflint.net
 
-	This is a bugfix version, specifically for those who can't get 
-	0.4 to work on Jabberd2 servers. 
+	This is a bugfix version, specifically for those who can't get
+	0.4 to work on Jabberd2 servers.
 
-	last modified: 24.03.2004 13:01:53 
+	last modified: 24.03.2004 13:01:53
 
 	Modified by Yves Goergen
 
@@ -742,7 +742,7 @@ class Jabber
 
 			$count += 0.25;
 			usleep(250000);
-			
+
 			if ($this->last_ping_time + 180 < time())
 			{
 				// Modified by Nathan Fritz
@@ -1622,8 +1622,8 @@ class Jabber
 		}
 	}
 	*/
-	
-	
+
+
 	// ======================================================================
 	// <presence/> handlers
 	// ======================================================================

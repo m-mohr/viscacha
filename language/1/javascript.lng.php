@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "javascript.lng.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['ajax0'] = 'Konnt AJAX nicht initalisieren. Bitte benutzen Sie einen anderen Browser!';
 $lang['ajax1'] = 'Es ist ein unerwarteter Fehler aufgetreten.';

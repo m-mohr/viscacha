@@ -1,7 +1,7 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
@@ -22,7 +22,7 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.global.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // Caching-Class
 require_once('classes/class.cache.php');
@@ -39,7 +39,12 @@ include_once ("classes/class.bbcode.php");
 
 $scache = new CacheServer();
 $myini = new INI();
-$lang = new lang();
+if (SCRIPTNAME == 'admin') {
+	$lang = new lang(false, E_USER_WARNING);
+}
+else {
+	$lang = new lang();
+}
 $plugins = new PluginSystem();
 
 // Database functions
@@ -114,16 +119,16 @@ function checkRemotePic($pic, $id) {
 	if ($height > $config['avheight']) {
 		return REMOTE_IMAGE_HEIGHT_ERROR;
 	}
-    $types = explode(',', $config['avfiletypes']);
-    $ext = image_type_to_extension($type);
+    $types = explode(',', strtolower($config['avfiletypes']));
+    $ext = image_type_to_extension($type, false);
 	if (!in_array($ext, $types)) {
 		return REMOTE_EXTENSION_ERROR;
 	}
 
 	$dir = 'uploads/pics/';
-	$pic = $dir.$id.$ext;
+	$pic = $dir.$id.'.'.$ext;
 	removeOldImages($dir, $id);
-	@$filesystem->copy($origfile, $pic);
+	$filesystem->copy($origfile, $pic);
 
 	return $pic;
 }
@@ -645,6 +650,50 @@ function str_date($format, $time=FALSE) {
 	return $returndate;
 }
 
+define('SPEC_RFC2822', 'rfc2822');
+define('SPEC_RFC822' , 'rfc822');
+define('SPEC_ISO8601', 'iso8601');
+define('SPEC_UNIX'   , 'unix');
+
+/**
+ * Returns a date formatted in a standardized format.
+ *
+ * Possible formats:
+ * - rfc2822 / SPEC_RFC2822
+ * - rfc822 / SPEC_RFC822
+ * - iso8601 / SPEC_ISO8601
+ * - unix / SPEC_UNIX (default)
+ *
+ * @param 	string 	Format for date
+ * @param 	int 	Timestamp in GMT
+ * @return 	mixed
+ */
+function dateSpec($format, $timestamp = null) {
+	global $my;
+	if ($timestamp == null) {
+		$timestamp = time();
+	}
+	if (is_int($timestamp) == false) {
+		trigger_error('dateSpec(): Second argument has to be integer or null.', E_NOTICE);
+	}
+	$timestamp = times($timestamp);
+	$tz = array();
+	$tz[0] = $my->timezone < 0 ? '' : '+';
+	$tz[1] = sprintf("%02d", $my->timezone);
+	$tz[2] = sprintf("%02d", substr($my->timezone*100, -2)*0.6);
+
+	switch($format) {
+		case SPEC_ISO8601:
+		   	return (string) gmdate('Y-m-d\TH:i:s ', $timestamp).$tz[0].$tz[1].':'.$tz[2];
+		case SPEC_RFC822:
+			return (string) gmdate("D, d M y H:i:s ", $timestamp).implode('', $tz);
+		case SPEC_RFC2822:
+			return (string) gmdate("D, d M Y H:i:s ", $timestamp).implode('', $tz);
+		default:
+			return (int) $timestamp;
+	}
+}
+
 // Returns the extension in lower case ( using pathinfo() ) of an file with a leading dot (e.g. '.gif' or '.php') or not ($leading = false)
 function get_extension($url, $include_dot = false) {
 	$path_parts = pathinfo($url);
@@ -690,10 +739,6 @@ function UpdateMemberStats($id) {
 	$count = $db->fetch_num ($result);
 	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}'",__LINE__,__FILE__);
 	return $count[0];
-}
-
-function iif($if, $true, $false = '') {
-	return ($if ? $true : $false);
 }
 
 function check_ip($ip, $allow_private = false) {
@@ -858,7 +903,7 @@ function check_forumperm($forum) {
 
 	$parent_forums = $scache->load('parent_forums');
 	$tree = $parent_forums->get();
-	
+
 	$catbid = $scache->load('cat_bid');
 	$forums = $catbid->get();
 	if (isset($tree[$forum['id']]) && is_array($tree[$forum['id']])) {

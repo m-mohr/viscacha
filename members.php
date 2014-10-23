@@ -1,7 +1,7 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
@@ -24,6 +24,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'members');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -50,14 +51,14 @@ $fields = explode(',', $config['mlist_fields']);
 
 $im = false;
 $colspan = 1+count($fields);
-if (in_array('fullname', $fields)) 	$colspan--;
-if (in_array('icq', $fields)) 		$colspan--; $im = true;
-if (in_array('aol', $fields)) 		$colspan--; $im = true;
-if (in_array('yahoo', $fields))		$colspan--; $im = true;
-if (in_array('msn', $fields)) 		$colspan--; $im = true;
-if (in_array('jabber', $fields))	$colspan--; $im = true;
-if (in_array('skype', $fields)) 	$colspan--; $im = true;
-if ($im == true)					$colspan++;
+if (in_array('fullname', $fields)) {$colspan--; }
+if (in_array('icq', $fields)) {		$colspan--; $im = true; }
+if (in_array('aol', $fields)) {		$colspan--; $im = true; }
+if (in_array('yahoo', $fields))	{	$colspan--; $im = true; }
+if (in_array('msn', $fields)) {		$colspan--; $im = true; }
+if (in_array('jabber', $fields)) {	$colspan--; $im = true; }
+if (in_array('skype', $fields)) {	$colspan--; $im = true; }
+if ($im == true) {					$colspan++; }
 
 $_GET['order'] = strtolower($_GET['order']);
 if ($_GET['order'] != 'desc') {
@@ -81,11 +82,11 @@ if ($config['mlist_showinactive'] == 0) {
 $groups = array();
 $g = $gpc->get('g', arr_int);
 if ($config['mlist_filtergroups'] > 0) {
-	$groups = $scache->load('groups');
-	$statusdata = $groups->status();
-	foreach ($statusdata as $row) {
+	$group_cache = $scache->load('groups');
+	$statusdata = $group_cache->status();
+	foreach ($statusdata as $id => $row) {
 		if ($row['guest'] != 1) {
-			$groups[$row['id']] = $row['title'];
+			$groups[$id] = $row['title'];
 		}
 	}
 	$sqlwhere_findinset = array();
@@ -163,7 +164,12 @@ if ($key !== false) {
 else {
 	$pm = false;
 }
-$sqlselect = implode(',', $fields);
+$sqlselect = $fields;
+$key = array_search('lastvisit', $sqlselect);
+if ($key !== false) {
+	$sqlselect[$key] = 'u.lastvisit';
+}
+$sqlselect = implode(',', $sqlselect);
 if ($online_key !== false) {
 	$sqlselect .= ", IF (s.mid > 0, 1, 0) AS online";
 }

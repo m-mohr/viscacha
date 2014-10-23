@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "misc.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 ($code = $plugins->load('admin_misc_jobs')) ? eval($code) : null;
 
@@ -12,7 +12,7 @@ elseif ($job == 'cache') {
 	$dir = "cache/";
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
-		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {					  
+		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {
 			$nfo = pathinfo($dir.$file);
 			if ($nfo['extension'] == 'php') {
 				$name = str_replace('.inc.php', '', $nfo['basename']);
@@ -29,7 +29,7 @@ elseif ($job == 'cache') {
 	$dir = "classes/cache/";
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
-		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {					  
+		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {
 			$nfo = pathinfo($dir.$file);
 			if ($nfo['extension'] == 'php') {
 				$name = str_replace('.inc.php', '', $nfo['basename']);
@@ -48,7 +48,7 @@ elseif ($job == 'cache') {
 		}
 	}
 	ksort($result);
-	
+
 	$pluginsize = 0;
 	$files = 0;
 	$dir = 'cache/modules/';
@@ -63,7 +63,7 @@ elseif ($job == 'cache') {
 	}
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="4">
    <span style="float: right;">
    	<a class="button" href="admin.php?action=misc&amp;job=cache_refresh_all">Rebuild All</a>
@@ -90,10 +90,10 @@ elseif ($job == 'cache') {
    <td class="mbox" nowrap="nowrap"><?php echo iif($row['cached'], 'approx. '.fileAge($row['age']), '-'); ?></td>
    <td class="mbox">
    <?php if ($row['cached']) { ?>
-   <a class="button" href="admin.php?action=misc&amp;job=cache_view&amp;file=<?php echo $name; ?>">View Contents</a> 
+   <a class="button" href="admin.php?action=misc&amp;job=cache_view&amp;file=<?php echo $name; ?>">View Contents</a>
    <a class="button" href="admin.php?action=misc&amp;job=cache_delete&amp;file=<?php echo $name; ?>">Delete Cache</a>
    <?php } if ($row['rebuild']) { ?>
-   <a class="button" href="admin.php?action=misc&amp;job=cache_refresh&amp;file=<?php echo $name; ?>">Rebuild Cache</a> 
+   <a class="button" href="admin.php?action=misc&amp;job=cache_refresh&amp;file=<?php echo $name; ?>">Rebuild Cache</a>
    <?php } ?>
    </td>
   </tr>
@@ -115,13 +115,13 @@ elseif ($job == 'cache_view') {
 	$out = ob_get_contents();
 	ob_end_clean();
 	$out = htmlspecialchars($out);
-	
+
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox"><b>Cache-Manager &raquo; <?php echo $file; ?></b></td>
   </tr>
-  <tr> 
+  <tr>
    <td class="mbox">
    <pre><?php echo $out; ?></pre>
    </td>
@@ -170,9 +170,9 @@ elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
 			if (strpos($file, '.inc.php') !== false) {
-				$file = str_replace('.inc.php', '', $file);
+				$fileTrim = str_replace('.inc.php', '', $file);
 				if (file_exists($classesdir.$file)) {
-					$cache = $scache->load($file);
+					$cache = $scache->load($fileTrim);
 					$cache->delete();
 					if ($job == 'cache_refresh_all' && $cache->rebuildable() == true) {
 						$cache->load();
@@ -206,7 +206,7 @@ elseif ($job == 'onlinestatus') {
 	?>
 <form name="form" method="post" action="admin.php?action=misc&job=onlinestatus2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2"><b>Online-Status Server</b></td>
   </tr>
   <tr>
@@ -214,16 +214,16 @@ elseif ($job == 'onlinestatus') {
    Server:<br />
    <span class="stext">Per line one server.<br /><a href="http://osi.viscacha.org/" target="_blank">Online-Status Server overview</a></span>
    </td>
-   <td class="mbox" width="70%"><textarea name="servers" rows="10" cols="90"><?php echo $b; ?></textarea></td> 
+   <td class="mbox" width="70%"><textarea name="servers" rows="10" cols="90"><?php echo $b; ?></textarea></td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
 </form>
 <br />
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2"><b>Information concerning the online-status server</b></td>
   </tr>
   <tr>
@@ -235,7 +235,7 @@ elseif ($job == 'onlinestatus') {
    This service provides a programm which can read and return the datas of the messengers. Due to the fact that this program is distributed to several servers which can change freqently, there must be mentioned a list of servers in the field above where the status could read from.<br />
    An overview of available servers and further information you can find here: <a href="http://osi.viscacha.org/" target="_blank">Online-Status-Server-overview</a>.
    </p>
-   </td> 
+   </td>
   </tr>
  </table>
 	<?php
@@ -252,7 +252,7 @@ elseif ($job == 'sessionmails') {
 	?>
 <form name="form" method="post" action="admin.php?action=misc&job=sessionmails2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr> 
+  <tr>
    <td class="obox" colspan="2"><b>Disposable e-mail address provider</b></td>
   </tr>
   <tr>
@@ -260,10 +260,10 @@ elseif ($job == 'sessionmails') {
    Provider-domain:<br />
    <span class="stext">Per line one domain.<br />Format: <code>name.tld</code> (without http, www, @, ...)</span>
    </td>
-   <td class="mbox" width="70%"><textarea name="mails" rows="10" cols="90"><?php echo $mails; ?></textarea></td> 
+   <td class="mbox" width="70%"><textarea name="mails" rows="10" cols="90"><?php echo $mails; ?></textarea></td>
   </tr>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
   </tr>
  </table>
 </form>
@@ -282,12 +282,12 @@ elseif ($job == 'feedcreator') {
 ?>
 <form name="form" method="post" action="admin.php?action=misc&job=feedcreator_delete">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="5">Creation and Export of Newsfeeds (<?php echo count($data); ?>)</b></td>
   </tr>
   <tr>
    <td class="ubox" width="10%">Delete<br /><span class="stext"><input type="checkbox" onclick="check_all('delete[]');" name="all" value="1" /> All</span></td>
-   <td class="ubox" width="30%">Name</td> 
+   <td class="ubox" width="30%">Name</td>
    <td class="ubox" width="30%">File (Class)</td>
    <td class="ubox" width="15%">Shown</td>
    <td class="ubox" width="15%">Download</td>
@@ -305,8 +305,8 @@ foreach ($data as $r) {
    <td class="mbox" width="15%"><?php echo noki($row[4]); ?> <a class="button" href="admin.php?action=misc&job=feedcreator_active&id=<?php echo $row[0]; ?>&key=4">Change</a></td>
   </tr>
 <?php } ?>
-  <tr> 
-   <td class="ubox" width="100%" colspan="5" align="center"><input type="submit" name="Submit" value="Delete"></td> 
+  <tr>
+   <td class="ubox" width="100%" colspan="5" align="center"><input type="submit" name="Submit" value="Delete"></td>
   </tr>
  </table>
 </form>
@@ -351,7 +351,7 @@ elseif ($job == 'feedcreator_add') {
 	$active = $gpc->get('active', str);
 	$dl = $gpc->get('dl', str);
 	$dir = realpath('./classes/feedcreator/').DIRECTORY_SEPARATOR;
-	
+
 	$inserterrors = array();
 	require("classes/class.upload.php");
 	$my_uploader = new uploader();
@@ -375,7 +375,7 @@ elseif ($job == 'feedcreator_add') {
 	else {
 		$data = file('data/feedcreator.inc.php');
 		$data = array_map('trim', $data);
-		
+
 		if (empty($class)) {
 			$source = file_get_contents('classes/feedcreator/'.$file);
 			preg_match('/[\s\t\n\r]+class[\s\t]+([^\s\t\n\r]+)[\s\t]+extends[\s\t]+FeedCreator[\s\t\n\r]+\{/i', $source, $treffer);
@@ -436,7 +436,7 @@ elseif ($job == "captcha") {
 	}
 	?>
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox">Captcha Manager</td>
   </tr>
   <tr>
@@ -485,7 +485,7 @@ elseif ($job == "captcha_noises") {
 	?>
 <form action="admin.php?action=misc&job=captcha_noises_delete" name="form2" method="post">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="3">Captcha Manager &raquo; Background noises</td>
   </tr>
   <tr>
@@ -498,8 +498,8 @@ elseif ($job == "captcha_noises") {
    <td class="mbox"><img border="1" src="admin.php?action=misc&job=captcha_noises_view&file=<?php echo basename($path, ".jpg"); ?>" /></td>
   </tr>
   <?php } ?>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Delete"></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Delete"></td>
   </tr>
  </table>
 </form>
@@ -551,7 +551,7 @@ elseif ($job == "captcha_fonts") {
 	?>
 <form action="admin.php?action=misc&job=captcha_fonts_delete" name="form2" method="post">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox" colspan="3">Captcha Manager &raquo; Fonts</td>
   </tr>
   <tr>
@@ -564,8 +564,8 @@ elseif ($job == "captcha_fonts") {
    <td class="mbox"><img border="1" src="classes/graphic/text2image.php?file=<?php echo basename($path, ".ttf"); ?>&amp;text=1234567890&amp;size=30" /></td>
   </tr>
   <?php } ?>
-  <tr> 
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Delete"></td> 
+  <tr>
+   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Delete"></td>
   </tr>
  </table>
 </form>
@@ -603,7 +603,7 @@ elseif ($job == "spellcheck") {
 	?>
 <form name="form2" method="post" action="admin.php?action=misc&amp;job=spellcheck_add">
  <table class="border">
-  <tr> 
+  <tr>
    <td class="obox">Spell Checker &raquo; Add words to the wordlist</td>
   </tr>
   <tr>
@@ -648,7 +648,7 @@ elseif ($job == "spellcheck_add") {
 	if (!empty($x)) {
 		error('admin.php?action=misc&job=spellcheck', $x);
 	}
-	
+
 	$words = $gpc->get('words', none);
 	$word_seperator = "0-9\\.,;:!\\?\\-\\|\n\r\s\"'\\[\\]\\{\\}\\(\\)\\/\\\\";
 	$words = preg_split('~['.$word_seperator.']+?~', $words, -1, PREG_SPLIT_NO_EMPTY);
@@ -666,7 +666,7 @@ elseif ($job == "spellcheck_add") {
 }
 elseif ($job == "credits") {
 	echo head();
-	
+
 	$ext = get_loaded_extensions();
 	if (in_array("zlib", $ext)) {
 		$zlibext = "<span style='color: green'>OK</span>";
@@ -722,14 +722,14 @@ elseif ($job == "credits") {
 	else {
 		$mhashext = "<span style='color: red'>N/A</span>";
 	}
-	
+
 	if (version_compare(PHP_VERSION, '4.1.0', '>=')) {
 		$phpv = '<span style="color: green">Yes</span>';
 	}
 	else {
 		$phpv = '<span style="color: red">No</span>';
 	}
-	
+
 	$webserver = get_webserver();
 	?>
 <table class="border">

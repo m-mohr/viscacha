@@ -1,7 +1,7 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
@@ -22,7 +22,7 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.viscacha_frontend.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 require_once("classes/function.frontend_init.php");
 
@@ -73,7 +73,7 @@ function getRefererURL() {
 			$url['path'] = '';
 		}
 		$file = basename($url['path']);
-		if (!empty($loc) && file_exists($file) && $file != 'log.php') {
+		if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
 			if (strpos($loc, '?') === false) {
 				$request_uri .= SID2URL_1;
 			}

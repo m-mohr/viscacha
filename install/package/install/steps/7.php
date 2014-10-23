@@ -48,14 +48,14 @@ $db->connect(false);
 if (!is_resource($db->conn)) {
 	?>
 <div class="bbody">Could not connect to database! Pleasy try again later or check the database settings!</div>
-<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?step=<?php echo $step; ?>">Refresh</a></div>
+<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
 	<?php
 }
 else {
 	if (!$db->select_db()) {
 		?>
 <div class="bbody">Could not find database <em><?php echo $db->getcfg('database'); ?></em>! Please create a new database with this name or choose another database!</div>
-<div class="bfoot center"><a class="submit" href="index.php?step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?step=<?php echo $step; ?>">Refresh</a></div>
+<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
 		<?php
 	}
 	else {
@@ -117,8 +117,17 @@ else {
 	?>
 	</table>
 </div>
+<h3>Install Sample Data</h3>
+<div class="bbody">
+	<label for="sample_d1">Posts, Votes, Text parser and Forums:</label>
+	<input class="label" id="sample_d1" name="sample_d1" type="checkbox" value="1" />
+	<br class="newinput" /><hr class="formsep" />
+	<label for="sample_d2">Documents and Navigation:</label>
+	<input class="label" id="sample_d2" name="sample_d2" type="checkbox" value="1" />
+	<br class="newinput" /><br class="iefix_br" />
+</div>
 <div class="bfoot center"><input type="submit" value="Continue" /></div>
-		<?php
+	<?php
 	}
 }
 $db->close();

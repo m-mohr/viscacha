@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 class OutputDoc {
 
 var $enc;
@@ -28,7 +30,7 @@ function ConstructLink($matches) {
 	list(,$prehref,,$url) = $matches;
 	if (substr($url,-1) == '?') {
 		$url = substr($url,0,strlen($url)-1);
-	} 
+	}
 	$info = parse_url($url);
 	if (isset($info['query'])) {
 		$info['query'] = '?'.$info['query'];
@@ -64,7 +66,7 @@ function Out($skip = 1){
 	$Contents = ob_get_contents();
 	ob_end_clean();
 	$Contents = $this->AddSid($Contents);
-	
+
 	($code = $plugins->load('docout_parse')) ? eval($code) : null;
 
 	if ($this->enc != false && $skip == 1 && $this->cfg == 1) {

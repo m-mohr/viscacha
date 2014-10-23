@@ -71,6 +71,18 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				}
 				$done[$value]++;
 			}
+			if (isset($_REQUEST['sample_d1']) && $_REQUEST['sample_d1'] == 1) {
+				$sql = implode('', file('package/install/db/sample1.dat'));
+				$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
+				$db->multi_query($sql);
+				$done[] = 'Sample Data (Forum) have been installed.';
+			}
+			if (isset($_REQUEST['sample_d2']) && $_REQUEST['sample_d2'] == 1) {
+				$sql = implode('', file('package/install/db/sample2.dat'));
+				$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
+				$db->multi_query($sql);
+				$done[] = 'Sample Data (CMS) have been installed.';
+			}
 			echo '<div class="bfoot">';
 			if (array_sum($done) == 0) {
 				echo "<strong>No changes applied!</strong>";
@@ -101,7 +113,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	<input class="label" type="password" id="pwx" name="pwx" size="40" />
 	<br class="newinput" /><hr class="formsep" />
 	<label for="email">E-mail address:</label>
-	<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $config['forenmail']; ?>" /> 
+	<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $config['forenmail']; ?>" />
 	<br class="newinput" /><br class="iefix_br" />
 </div>
 <div class="bfoot center"><input type="submit" value="Continue" /></div>

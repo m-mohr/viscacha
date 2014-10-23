@@ -1,8 +1,8 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "cms.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 require('classes/class.phpconfig.php');
-require('lib/language.inc.php');
+require('admin/lib/language.inc.php');
 
 function SelectPackageLinks ($head) {
 	?>
@@ -3011,9 +3011,10 @@ elseif ($job == 'com_export') {
 	}
 	if ($error) {
 		echo head();
+		$error = $archive->errorInfo(true);
 		unset($archive);
 		$filesystem->unlink($tempdir.$file);
-		error('admin.php?action=cms&job=com', $archive->errorInfo(true));
+		error('admin.php?action=cms&job=com', $error);
 	}
 	else {
 		viscacha_header('Content-Type: application/zip');
@@ -3143,7 +3144,7 @@ elseif ($job == 'doc') {
 			$row['author'] = 'Unknown';
 		}
 		if ($row['update'] > 0) {
-			$row['update'] = date('d.m.Y H:i', $row['update']);
+			$row['update'] = gmdate('d.m.Y H:i', times($row['update']));
 		}
 		else {
 			$row['update'] = 'Unknown';

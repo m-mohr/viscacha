@@ -1,14 +1,16 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*
  * CalitrixWiki (c) Copyright 2004 by Johannes Klose
  * E-Mail: exe@calitrix.de
  * Project page: http://developer.berlios.de/projects/calitrixwiki
- * 
+ *
  * CalitrixWiki is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- * 
+ *
  * CalitrixWiki is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -33,15 +35,15 @@
 	{
 		$lines1 = explode("\n", $text1);
 		$lines2 = explode("\n", $text2);
-		
+
 		$obj   = new Text_Diff($lines2, $lines1);
 		$diff  = $obj->getDiff();
 		$ndiff = array();
 		$lines = 0;
-		
+
 		/**
 		 * Take the array with the differences and strip
-		 * informations (unchanged lines, old values on changed lines) 
+		 * informations (unchanged lines, old values on changed lines)
 		 * we do not need to store in the database to get from the
 		 * new page version to the old one.
 		 **/
@@ -98,13 +100,13 @@
 					$ndiff[$lines + $key] = array('-');
 				}
 			}
-			
+
 			$lines += count($op->orig) > count($op->final) ? count($op->orig) : count($op->final);
 		}
-		
+
 		return $ndiff;
 	}
-	
+
 	/**
 	 * Creates the array which contains two compared page versions
 	 *
@@ -115,12 +117,12 @@
 	 * @return array         Page differences
 	 **/
 	function makeDiff($origText, $finalText) {
-	
+
 		$finalText = preg_replace("/(\r\n|\r|\n)+/", "\n", $finalText);
 		$origText = preg_replace("/(\r\n|\r|\n)/", "\n", $origText);
-	
+
 		$diff = getDiff($finalText, $origText);
-		
+
 		$origLines  = explode("\n", $origText);
 		$finalLines = explode("\n", $finalText);
 		$lineCount  = count($origLines) > count($finalLines) ? count($origLines) : count($finalLines);
@@ -128,13 +130,13 @@
 		$finalTextT = array();
 		$ol         = 0;
 		$fl         = 0;
-		
+
 		for($i = 0; $i <= $lineCount; $i++)
 		{
 			if(isset($diff[$i])) {
 				$opType = $diff[$i][0];
 				$opVal  = isset($diff[$i][1]) ? $diff[$i][1] : '';
-				
+
 				if($opType == '~') {
 					$algo = levenshtein($origLines[$ol], $opVal);
 					$length = ( strlen($origLines[$ol])+strlen($opVal) ) / 2 * 0.5;
@@ -167,17 +169,17 @@
 					$origTextT[] = array('type' => 'none', 'line' => htmlentities($origLines[$ol]));
 					$ol++;
 				}
-				
+
 				if(isset($finalLines[$fl])) {
 					$finalTextT[] = array('type' => 'none', 'line' => htmlentities($finalLines[$fl]));
 					$fl++;
 				}
 			}
 		}
-		
+
 		return array('orig' => $origTextT, 'final' => $finalTextT);
 	}
-	
+
 /* matchlen(): returns the length of matching
  * substrings at beginning of $a and $b
  */
@@ -188,7 +190,7 @@ function matchlen(&$a, &$b) {
 	$d = min($alen, $blen);
 	while(@($a{$c} == $b{$c}) && ($c < $d)) {
   		$c++;
-  	} 
+  	}
   	return $c;
 }
 
@@ -200,9 +202,9 @@ function calcdiffer($a, $b)
   $blen = strlen($b);
   $aptr = 0;
   $bptr = 0;
- 
+
   $ops = array();
- 
+
   while($aptr < $alen && $bptr < $blen)
   {
    $matchlen = matchlen(substr($a, $aptr), substr($b, $bptr));
@@ -214,7 +216,7 @@ function calcdiffer($a, $b)
      continue;
    }
    /* Difference found */
-    
+
    $bestlen=0;
    $bestpos=array(0,0);
    for($atmp = $aptr; $atmp < $alen; $atmp++)
@@ -231,7 +233,7 @@ function calcdiffer($a, $b)
      }
    }
    if(!$bestlen)break;
-  
+
    $adifflen = $bestpos[0] - $aptr;
    $bdifflen = $bestpos[1] - $bptr;
 

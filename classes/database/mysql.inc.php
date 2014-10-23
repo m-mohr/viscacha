@@ -1,7 +1,8 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class DB {
-	
+
 	var $host;
 	var $user;
 	var $pwd;
@@ -37,7 +38,7 @@ class DB {
 		}
 		else {
 			$this->escaper = 'mysql_escape_string';
-		} 
+		}
 		if($open) {
 		   $this->open();
 		}
@@ -51,14 +52,14 @@ class DB {
 	function version () {
 		return @mysql_get_server_info();
 	}
-	
+
     function backup_settings($new_line = "\n", $commentdel = "-- ") {
         $this->new_line = $new_line;
         $this->commentdel = $commentdel;
     }
 
     function backup($tables, $structure = 1, $data = 1, $drop = 1, $gzip = 0) {
-    
+
 	    // Variablen definieren
 	    $table_data = $this->commentdel.' Viscacha '.$this->system.'-Backup'.$this->new_line.
 				      $this->commentdel.' Host: '.$this->host.$this->new_line.
@@ -68,7 +69,7 @@ class DB {
 
 		// Keine Anfuehrungszeichen in mySQL-Namen
 		$this->query('SET SQL_QUOTE_SHOW_CREATE = 1',__LINE__,__FILE__);
-	
+
 		// Werte & Struktur der Tabellen ermitteln
 		foreach ($tables as $mysql_table) {
 		    if ($structure == 1) {
@@ -77,22 +78,22 @@ class DB {
     		        $table_data .= $this->new_line . 'DROP TABLE IF EXISTS '.chr(96).$mysql_table.chr(96).';' .$this->new_line;
     		    }
     		    $table_data .= $this->new_line. $this->commentdel.' Create: ' .$mysql_table . $this->new_line;
-    		    
+
     		    $result = $this->query('SHOW CREATE TABLE ' .$mysql_table, __LINE__, __FILE__);
     		    $show_results = $this->fetch_num($result);
     		    if (!$show_results) {
     			    return false;
     		    }
-    		    
+
     		    $table_data .= str_replace("\n", $this->new_line, $show_results[1]). ';' .$this->new_line;
 		    }
 		    if ($data == 1) {
     		    // Aktuelle Ueberschrift
     		    $table_data .= $this->new_line. $this->commentdel.' Data: ' .$mysql_table . $this->new_line;
-    	      
+
     	     	// Datensaetze vorhanden?
     	     	$result = $this->query('SELECT * FROM ' .$mysql_table,__LINE__,__FILE__);
-    	      	if ($this->num_rows($result) > 0) { 
+    	      	if ($this->num_rows($result) > 0) {
     	      	    while ($select_result = $this->fetch_assoc($result)) {
     	          		// Result-Keys
     	          		$select_result_keys = array_keys($select_result);
@@ -108,7 +109,7 @@ class DB {
     	                    $table_structure .= chr(96).$table_field.chr(96);
     	                    $table_value .= "'".$this->escape_string($select_result[$table_field])."'";
     	  		        }
-    	  		    
+
     	  		        // Aktuelle Werte
     	  		        $table_data .= 'INSERT INTO '.chr(96).$mysql_table.chr(96).' (' .$table_structure. ') VALUES (' .$table_value. ');' .$this->new_line;
 	  		            // Temporaere Werte annulieren
@@ -118,7 +119,7 @@ class DB {
     	        else {
     	            $table_data .= $this->commentdel.' No entries found!' .$this->new_line;
     	        }
-	        } 
+	        }
         }
 	    return $table_data;
     }
@@ -160,7 +161,7 @@ class DB {
 		}
 		return $s;
 	}
-	
+
 	function prefix() {
 		return $this->pre;
 	}
@@ -196,7 +197,7 @@ class DB {
 		$this->connect();
 		$this->select_db();
 	}
-	
+
 	function affected_rows() {
 		return mysql_affected_rows($this->conn);
 	}
@@ -223,7 +224,7 @@ class DB {
 		ob_start();
 		$this->conn = $func($this->host, $this->user, $this->pwd);
 		ob_end_clean();
-		
+
 		if (!is_resource($this->conn)) {
 			if ($die == true) {
 				trigger_error('Could not connect to database! Pleasy try again later or check the database settings: host, username and password!<br /><strong>Database returned</strong>: '.mysql_error(), E_USER_ERROR);
@@ -239,7 +240,7 @@ class DB {
 		}
 		return mysql_select_db($dbname,$this->conn);
 	}
-	
+
 	function error($errline, $errfile, $errcomment) {
 		if ($this->logerrors) {
 			$new = array();
@@ -281,7 +282,7 @@ class DB {
 		else {
 			$func = 'mysql_query';
 		}
-		
+
 		if ($die == true) {
 			$errfunc = E_USER_ERROR;
 		}
@@ -290,13 +291,13 @@ class DB {
 		}
 
 		$this->result = $func($sql, $this->conn) or trigger_error($this->error($line, $file, $sql), $errfunc);
-	    
+
 		$zm2 = $this->benchmarktime();
-		
+
 		$zm=$zm2-$zm1;
-		
+
 		$this->dbqd[] = array('query' => $sql, 'time' => substr($zm,0,7));
-	    
+
 	    return $this->result;
 	}
 	function num_rows($result = '') {

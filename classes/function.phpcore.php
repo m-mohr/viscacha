@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 /*
 This is a file with functions that emulate the needed php-functions for backward compatibility.
 The following functions are emulated:
@@ -18,6 +20,10 @@ if (isset($config['error_reporting']) && $config['error_reporting'] > 0) {
 }
 if (isset($config['error_handler']) && $config['error_handler'] == 1) {
 	set_error_handler('msg_handler');
+}
+
+function iif($if, $true, $false = '') {
+	return ($if ? $true : $false);
 }
 
 /**
@@ -72,7 +78,7 @@ function msg_handler($errno, $errtext, $errfile, $errline) {
 		case E_NOTICE:
 		case E_USER_WARNING:
 		case E_USER_NOTICE:
-			echo "<br /><strong>".$errortype[$errno]."</strong>: ".$errtext." (File: <tt>$errfile</tt> on line <tt>$errline</tt>)";
+			echo "<br /><strong>".$errortype[$errno]."</strong>: ".$errtext." (File: <tt>".$errfile."</tt> on line <tt>".$errline."</tt>)";
 		break;
 		case E_USER_ERROR:
 		case E_ERROR:
@@ -763,7 +769,7 @@ if(!function_exists('checkdnsrr')) {
  * @require     PHP 4.0.0 (trigger_error)
  */
 if(!function_exists('image_type_to_extension')) {
-	function image_type_to_extension($imagetype, $include_dot = false) {
+	function image_type_to_extension($imagetype, $include_dot = true) {
 		if(empty($imagetype)) {
 			return false;
 		}

@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 global $filesystem;
 
 $dir = 'uploads/topics/thumbnails/';

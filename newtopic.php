@@ -1,10 +1,10 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
-	Publisher: http://www.mamo-net.de
+	Publisher: http://www.viscacha.org
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'newtopic');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -47,7 +48,7 @@ if (empty($board) || !isset($fc[$board])) {
 $last = $fc[$board];
 forum_opt($last, 'posttopics');
 
-if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) { 
+if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) {
 	$p_upload = 1;
 }
 else {
@@ -76,21 +77,21 @@ if ($_GET['action'] == "startvote") {
 	}
 
 	($code = $plugins->load('newtopic_startvote_start')) ? eval($code) : null;
-	
+
 	$error = array();
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion']) || ($info['name'] != $my->id && $my->mp[0] == 0)) {
 		$error[] = $lang->phrase('not_allowed');
 	}
-	if ($db->num_rows() != 1) {
+	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('query_string_error');
 	}
 	if (count($error) > 0) {
 		errorLogin($error,"showforum.php?id=".$info['board'].SID2URL_x);
 	}
-	
+
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
-		for ($i = 1; $i <= $temp; $i++) { 
+		for ($i = 1; $i <= $temp; $i++) {
 			if (!isset($data[$i])) {
 				$data[$i] = '';
 			}
@@ -123,14 +124,14 @@ elseif ($_GET['action'] == "savevote") {
 		viscacha_header("Location: newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
 		exit;
 	}
-	
+
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion'])) {
 		errorLogin($lang->phrase('not_allowed'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
-	
+
 	$result = $db->query('SELECT id, vquestion, board FROM '.$db->pre.'topics WHERE id = "'.$topic_id.'" LIMIT 1');
 	$info = $db->fetch_assoc($result);
-	
+
 	$error = $sqlwhere = array();
 	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('query_string_error');
@@ -158,9 +159,9 @@ elseif ($_GET['action'] == "savevote") {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
 
-	
+
 	($code = $plugins->load('newtopic_savevote_errorhandling')) ? eval($code) : null;
-	
+
 	if (count($error) > 0) {
 		$_POST['notice']['question'] = $_POST['question'];
 		($code = $plugins->load('newtopic_savevote_errordata')) ? eval($code) : null;
@@ -176,17 +177,18 @@ elseif ($_GET['action'] == "savevote") {
 		$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES {$sqlwhere}",__LINE__,__FILE__);
 		$inserted = $db->affected_rows();
 		if ($inserted > 1) {
-			ok($lang->phrase('data_success'),"showtopic.php?id={$topic_id}");
+			ok($lang->phrase('data_success'),"showtopic.php?id={$topic_id}".SID2URL_x);
 		}
 		else {
 			$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$topic_id}'",__LINE__,__FILE__);
-			error($lang->phrase('add_vote_failed'),"showtopic.php?id={$topic_id}");
+			error($lang->phrase('add_vote_failed'),"showtopic.php?id={$topic_id}".SID2URL_x);
 		}
 	}
 }
 elseif ($_GET['action'] == "save") {
 
 	$error = array();
+	$human = null;
 
 	if (!$my->vlogin) {
 		if ($config['botgfxtest_posts'] == 1) {
@@ -195,6 +197,12 @@ elseif ($_GET['action'] == "save") {
 			if($_POST['letter']) {
 				if ($vword->check_session($_POST['captcha'], $_POST['letter']) == FALSE) {
 					$error[] = $lang->phrase('veriword_mistake');
+				}
+				else {
+				     $human = array(
+                     		'captcha' => $_POST['captcha'],
+							'letter' => $_POST['letter']
+					 );
 				}
 			}
 			else {
@@ -243,10 +251,10 @@ elseif ($_GET['action'] == "save") {
 	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
-	
+
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($board);
-	
+
 	if (!isset($prefix_arr[$_POST['opt_0']]) && $last['prefix'] == 1) {
 		$error[] = $lang->phrase('prefix_not_optional');
 	}
@@ -265,7 +273,8 @@ elseif ($_GET['action'] == "save") {
 			'dowords' => $_POST['dowords'],
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
-			'guest' => 1
+			'guest' => 1,
+			'human' => $human
 		);
 		if (!$my->vlogin) {
 			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
@@ -302,15 +311,15 @@ elseif ($_GET['action'] == "save") {
 		}
 
 		($code = $plugins->load('newtopic_save_savedata')) ? eval($code) : null;
-		
+
 		$db->query("
-		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix) 
+		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix)
 		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}')
-		",__LINE__,__FILE__); 
+		",__LINE__,__FILE__);
 		$tredirect = $db->insert_id();
-		
+
 		$db->query("
-		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest) 
+		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest)
 		VALUES ('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}')
 		",__LINE__,__FILE__);
 		$rredirect = $db->insert_id();
@@ -332,7 +341,7 @@ elseif ($_GET['action'] == "save") {
 				$db->query("INSERT INTO {$db->pre}abos (mid,tid,type) VALUES ('{$my->id}','{$tredirect}','{$type}')",__LINE__,__FILE__);
 			}
 		}
-		
+
 		$close = $gpc->get('close', int);
 		$pin = $gpc->get('pin', int);
 		$stat = $gpc->get('status', int);
@@ -342,7 +351,7 @@ elseif ($_GET['action'] == "save") {
 				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
 			}
 			if ($pin == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);	
+				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'",__LINE__,__FILE__);
 			}
 			if (($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1)) {
 				if ($stat == 1) {
@@ -378,12 +387,12 @@ elseif ($_GET['action'] == "save") {
 
 
 		($code = $plugins->load('newtopic_save_end')) ? eval($code) : null;
-		
+
 		if ($_POST['opt_2'] == '1') {
 			ok($lang->phrase('new_thread_vote_success'),"newtopic.php?action=startvote&amp;id={$board}&amp;topic_id={$tredirect}&amp;temp={$_POST['temp']}");
 		}
 		else {
-			ok($lang->phrase('data_success'),"showtopic.php?id={$tredirect}");
+			ok($lang->phrase('data_success'),"showtopic.php?id={$tredirect}".SID2URL_x);
 		}
 	}
 
@@ -400,7 +409,7 @@ else {
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($board);
-	
+
 	if (strlen($_GET['fid']) == 32) {
 		$data = $gpc->prepare(import_error_data($_GET['fid']));
 		$info = array($data['topic']);
@@ -430,11 +439,12 @@ else {
 			'comment' => '',
 			'dosmileys' => 1,
 			'dowords' => 1,
-			'topic' => ''
+			'topic' => '',
+			'human' => null
 		);
 		$_GET['action'] = '';
 	}
-	
+
 	if (count($prefix_arr) > 0) {
 		array_columnsort($prefix_arr, "value");
 		if ($last['prefix'] == 0) {
@@ -461,8 +471,8 @@ else {
 	else {
 		$inner['index_prefix'] = '';
 	}
-	
-	if ($config['botgfxtest_posts'] == 1) {
+
+	if ($config['botgfxtest_posts'] == 1 && $data['human'] == null) {
 		include("classes/graphic/class.veriword.php");
 		$vword = new VeriWord();
 		$veriid = $vword->set_veriword($config['botgfxtest_text_verification']);
@@ -470,11 +480,11 @@ else {
 			$textcode = $vword->output_word($veriid);
 		}
 	}
-	
+
 	($code = $plugins->load('newtopic_form_prepared')) ? eval($code) : null;
-	
+
 	echo $tpl->parse("newtopic/index");
-	
+
 	($code = $plugins->load('newtopic_form_end')) ? eval($code) : null;
 }
 
@@ -484,5 +494,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();		
+$db->close();
 ?>

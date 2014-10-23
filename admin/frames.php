@@ -1,6 +1,6 @@
 <?php
 
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "frames.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 if ($job == 'menu') {
 	$interface = $gpc->get('interface', int);

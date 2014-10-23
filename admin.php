@@ -1,7 +1,7 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
 	
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
@@ -24,7 +24,8 @@
 
 error_reporting(E_ALL);
 
-DEFINE('SCRIPTNAME', 'admin');
+define('SCRIPTNAME', 'admin');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("admin/data/config.inc.php");

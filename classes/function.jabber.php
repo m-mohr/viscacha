@@ -1,6 +1,6 @@
 <?php
 
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "function.jabber.php") die('Error: Hacking Attempt');   // MOD: Viscacha compliance
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }   // MOD: Viscacha compliance
 
 require("class.jabber.php"); 
 

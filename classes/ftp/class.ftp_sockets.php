@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 class ftp extends ftp_base {
 	function ftp($verb=FALSE, $le=FALSE) {
 		$this->LocalEcho = $le;

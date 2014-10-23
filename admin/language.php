@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "language.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 include('classes/class.phpconfig.php');
 
@@ -13,7 +13,7 @@ $langbase = array(
 	'custom' => 'Custom Phrases'
 );
 
-require('lib/language.inc.php');
+require('admin/lib/language.inc.php');
 
 ($code = $plugins->load('admin_language_jobs')) ? eval($code) : null;
 
@@ -292,7 +292,21 @@ elseif ($job == 'lang_delete') {
 elseif ($job == 'lang_delete2') {
 	echo head();
 	$id = $gpc->get('id', int);
+
+	$result = $db->query("SELECT id FROM {$db->pre}language WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
+	if ($db->num_rows($result) != 1) {
+		error('admin.php?action=language&job=manage', 'You can not delete the last installed language!');
+	}
+
+	$result = $db->query("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$info = $db->fetch_assoc($result);
+
+	if ($info['publicuse'] == 1) {
+		error('admin.php?action=language&job=manage', 'You can not unpublish this language until you have defined another default language!');
+	}
+
 	$db->query("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+
 	if ($db->affected_rows() == 1) {
 		rmdirr("language/{$id}/");
 		$delobj = $scache->load('loadlanguage');
@@ -1674,5 +1688,8 @@ elseif ($job == 'phrase_add2') {
 	}
 
 	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode($file)));
+}
+else {
+	viscacha_header('Location: admin.php?action=language&job=manage');
 }
 ?>

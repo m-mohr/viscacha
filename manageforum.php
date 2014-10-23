@@ -1,8 +1,8 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'manageforum');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -41,7 +42,7 @@ $tpl = new tpl();
 $catbid = $scache->load('cat_bid');
 $fc = $catbid->get();
 
-if (empty($board) || !isset($fc[$board])) {
+if (empty($board) || !isset($fc[$board]) || empty($_GET['action'])) {
 	error($lang->phrase('query_string_error'));
 }
 $info = $fc[$board];
@@ -58,7 +59,7 @@ $breadcrumb->Add($lang->phrase('teamcp'));
 
 echo $tpl->parse("header");
 
-if ($my->vlogin && $my->mp[0] == 1) { 
+if ($my->vlogin && $my->mp[0] == 1) {
 
 	($code = $plugins->load('manageforum_start')) ? eval($code) : null;
 
@@ -72,35 +73,35 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		else { // 'close' or 'move'
 			$marksql = '';
 		}
-		
+
 		($code = $plugins->load('manageforum_filter_query')) ? eval($code) : null;
-		
+
 		if (!empty($marksql)) {
 			$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '$board' {$marksql}",__LINE__,__FILE__);
 			$vlasttopics = $db->fetch_num($result);
 			$info['topics'] = $vlasttopics[0];
 		}
-		
+
 		$pages = pages($info['topics'], $info['forumzahl'], 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
 		$inner['index_bit'] = '';
 		if ($info['topics'] > 0) {
 			$start = $_GET['page']*$info['forumzahl'];
 			$start = $start-$info['forumzahl'];
-			
+
 			($code = $plugins->load('manageforum_query')) ? eval($code) : null;
 			$result = $db->query("
-			SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name 
+			SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
 			FROM {$db->pre}topics
 			WHERE board = '{$board}' {$marksql}
 			ORDER BY sticky DESC, last DESC LIMIT {$start}, {$info['forumzahl']}
 			",__LINE__,__FILE__);
-			
+
 			$memberdata_obj = $scache->load('memberdata');
 			$memberdata = $memberdata_obj->get();
 
 			$prefix_obj = $scache->load('prefix');
 			$prefix_arr = $prefix_obj->get($board);
-		
+
 			while ($row = $gpc->prepare($db->fetch_object($result))) {
 				$pref = '';
 				$showprefix = false;
@@ -111,7 +112,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				else {
 					$prefix = '';
 				}
-				
+
 				if(is_id($row->name) && isset($memberdata[$row->name])) {
 					$row->mid = $row->name;
 					$row->name = $memberdata[$row->name];
@@ -119,11 +120,11 @@ if ($my->vlogin && $my->mp[0] == 1) {
 				else {
 					$row->mid = FALSE;
 				}
-				
+
 				if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
 					$row->last_name = $memberdata[$row->last_name];
 				}
-				
+
 				$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 				$rlast = str_date($lang->phrase('dformat1'),times($row->last));
 
@@ -135,7 +136,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 						$row->mark = $info['auto_status'];
 					}
 					if ($row->mark == 'n') {
-						$pref .= $lang->phrase('forum_mark_n'); 
+						$pref .= $lang->phrase('forum_mark_n');
 					}
 					elseif ($row->mark == 'a') {
 						$pref .= $lang->phrase('forum_mark_a');
@@ -159,7 +160,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 			($code = $plugins->load('manageforum_empty')) ? eval($code) : null;
 			$inner['index_bit'] .= $tpl->parse("admin/forum/index_bit_empty");
 		}
-		
+
 		echo $tpl->parse("menu");
 		($code = $plugins->load('manageforum_index_prepared')) ? eval($code) : null;
 		echo $tpl->parse("admin/forum/index");
@@ -169,10 +170,16 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if (count($_POST['delete']) == 0) {
 			$slog->updatelogged();
 			$db->close();
-			viscacha_header('Location: manageforum.php?action=index&id='.$board.'&type='.$_GET['type'].SID2URL_JS_x);
+			if (empty($_GET['action'])) {
+				$url = 'showforum.php?id='.$board.SID2URL_JS_x;
+			}
+			else {
+				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
+			}
+			viscacha_header('Location: '.$url);
 			exit;
 		}
-		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
 		if ($db->affected_rows() > 0) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showforum.php?id='.$board.SID2URL_x);
 		}
@@ -184,10 +191,16 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		if (count($_POST['delete']) == 0) {
 			$slog->updatelogged();
 			$db->close();
-			viscacha_header('Location: manageforum.php?action=index&id='.$board.'&type='.$_GET['type'].SID2URL_JS_x);
+			if (empty($_GET['action'])) {
+				$url = 'showforum.php?id='.$board.SID2URL_JS_x;
+			}
+			else {
+				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
+			}
+			viscacha_header('Location: '.$url);
 			exit;
 		}
-		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);	
+		$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")",__LINE__,__FILE__);
 		if ($db->affected_rows() > 0) {
 			ok($lang->phrase('admin_topicstatus_changed'),'showforum.php?id='.$board.SID2URL_x);
 		}
@@ -196,37 +209,46 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		}
 	}
 	elseif ($_GET['action'] == "move") {
+		if (count($_POST['delete']) == 0) {
+			if (empty($_GET['action'])) {
+				$url = 'showforum.php?id='.$board.SID2URL_JS_x;
+			}
+			else {
+				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
+			}
+			viscacha_header('Location: '.$url);
+		}
 		$my->pb = $slog->GlobalPermissions();
 		if ($my->mp[0] == 1 && $my->mp[5] == 0) {
 			errorLogin($lang->phrase('not_allowed'), 'showforum.php?id='.$board.SID2URL_x);
 		}
 		$forums = BoardSubs();
 		echo $tpl->parse("menu");
-		echo $tpl->parse("admin/forum/move");  
+		echo $tpl->parse("admin/forum/move");
 	}
 	elseif ($_GET['action'] == "move2") {
 		if ($my->mp[0] == 1 && $my->mp[5] == 0) {
-			errorLogin($lang->phrase('not_allowed'), 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].SID2URL_x.'&amp;');
+			errorLogin($lang->phrase('not_allowed'), 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 		}
 		$anz = 0;
 		foreach ($_POST['delete'] as $id) {
 			$result = $db->query("
-			SELECT r.date, r.topic, r.name, r.guest, r.email, u.name AS uname, u.mail AS uemail 
-			FROM {$db->pre}replies AS r 
-				LEFT JOIN {$db->pre}user AS u ON u.id = r.name 
+			SELECT r.date, r.topic, r.name, r.guest, r.email, u.name AS uname, u.mail AS uemail
+			FROM {$db->pre}replies AS r
+				LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 			WHERE topic_id = '{$id}' AND tstart = '1'
 			",__LINE__,__FILE__);
 			$old = $db->fetch_assoc($result);
-			$db->query("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);			
+			$db->query("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1",__LINE__,__FILE__);
 			$anz += $db->affected_rows();
-			$db->query("UPDATE {$db->pre}replies SET board = '{$_POST['opt_0']}' WHERE topic_id = '{$id}'",__LINE__,__FILE__); 
+			$db->query("UPDATE {$db->pre}replies SET board = '{$_POST['opt_0']}' WHERE topic_id = '{$id}'",__LINE__,__FILE__);
 			$anz += $db->affected_rows();
-			
+
 			if ($_POST['temp'] == 1) {
 				// Prefix wird nicht übernommen!
-				$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '{$old['topic']}', board='{$board}', name = '{$old['name']}', date = '{$old['date']}', last_name = '{$old['name']}', last = '{$old['date']}'",__LINE__,__FILE__);	
+				$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}'",__LINE__,__FILE__);
 				$tid = $db->insert_id();
-				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '{$old['topic']}', board='{$board}', name = '{$old['name']}', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);	
+				$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}'",__LINE__,__FILE__);
 			}
 			if ($_POST['temp2'] == 1) {
 				if ($old['guest'] == 0) {
@@ -245,12 +267,18 @@ if ($my->vlogin && $my->mp[0] == 1) {
 	}
 	elseif ($_GET['action'] == "delete") {
 		if ($my->mp[0] == 1 && $my->mp[4] == 0) {
-			errorLogin($lang->phrase('not_allowed'),'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].SID2URL_x.'&amp;');
+			errorLogin($lang->phrase('not_allowed'),'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 		}
 		if (count($_POST['delete']) == 0) {
 			$slog->updatelogged();
 			$db->close();
-			viscacha_header('Location: manageforum.php?action=index&id='.$board.'&type='.$_GET['type'].SID2URL_JS_x);
+			if (empty($_GET['action'])) {
+				$url = 'showforum.php?id='.$board.SID2URL_JS_x;
+			}
+			else {
+				$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
+			}
+			viscacha_header('Location: '.$url);
 			exit;
 		}
 		$ids = implode(',', $_POST['delete']);
@@ -290,7 +318,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		$db->query ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})",__LINE__,__FILE__);
 		$anz += $db->affected_rows();
 		($code = $plugins->load('manageforum_delete_end')) ? eval($code) : null;
-		
+
 		UpdateBoardStats($board);
 		ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$board.SID2URL_x);
 	}
@@ -298,7 +326,7 @@ if ($my->vlogin && $my->mp[0] == 1) {
 		UpdateBoardStats($info['id']);
 		ok($lang->phrase('data_success'),'showforum.php?id='.$board.SID2URL_x);
 	}
-	
+
 	($code = $plugins->load('manageforum_end')) ? eval($code) : null;
 }
 else {
@@ -309,5 +337,5 @@ $slog->updatelogged();
 $zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
-$db->close();	
+$db->close();
 ?>

@@ -1,4 +1,5 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define('UPLOAD_ERR_FILE_INDEX', 1);
 define('UPLOAD_ERR_FILE_SIZE', 2);
@@ -34,15 +35,15 @@ class uploader {
 		$this->max_image_height = 0;
 		$this->copy_func = 'move_uploaded_file';
 	}
-	
-	
+
+
 	/**
 	 * Set the maximum file size.
-	 * 
+	 *
 	 * Set the maximum file size in bytes ($size), allowable by the object. 0 = unlimited
 	 * NOTE: PHP's configuration file also can control the maximum upload size.
 	 * To upload larger files, you'll have to change the php.ini file first.
-	 * 
+	 *
 	 * @param	int		file size in bytes
 	 */
 	function max_filesize($size){
@@ -52,30 +53,30 @@ class uploader {
 
 	/**
 	 * Set maximum image dimensions.
-	 * 
-	 * Sets the maximum pixel dimensions. Will only be checked if the 
+	 *
+	 * Sets the maximum pixel dimensions. Will only be checked if the
 	 * uploaded file is an image.
-	 * 
+	 *
 	 * @param	int		maximum pixel width of image uploads
 	 * @param	int		maximum pixel height of image uploads
-	 * 
+	 *
 	 */
 	function max_image_size($width, $height){
 		$this->max_image_width  = intval($width);
 		$this->max_image_height = intval($height);
 	}
-	
+
 
 	/**
 	 * Sets allowed file types.
-	 * 
+	 *
 	 * Sets the allowed file types. Specify the extensions without leading dot!
 	 * If you do not specify any extensions, the followeing will be used:
 	 * zip, rar, doc, pdf, txt, gif, png, jpg
 	 * If you specify an empty array, all extensions are allowed.
-	 * 
+	 *
 	 * @param	array		File types/Extensions
-	 * 
+	 *
 	 */
 	function file_types($accept_type = null){
 		if (is_array($accept_type) == true) {
@@ -85,7 +86,7 @@ class uploader {
 		    $this->file_types = array('zip','rar','doc','pdf','txt','gif','png','jpg');
 		}
 	}
-	
+
 	/**
 	 * Set the upload path
 	 *
@@ -97,21 +98,21 @@ class uploader {
 			$this->path .= '/';
 		}
 	}
-	
+
 	/**
 	 * Rename the uploaded file.
-	 * 
+	 *
 	 * Renames the uploaded file to $newname. Specify the new name without extension!
-	 * 
+	 *
 	 * @param	string	New file name (without extension)
 	 */
 	function rename_file($newname){
 		$this->new_filename = $newname;
 	}
-	
+
 	/**
 	 * Upload a file.
-	 * 
+	 *
 	 * Checks if the file is acceptable and uploads it to PHP's default upload diretory
 	 *
 	 * @param	string	Name of form field
@@ -119,7 +120,7 @@ class uploader {
 	 */
 	function upload($index) {
 		global $imagetype_extension;
-		
+
 		if (!isset($_FILES[$index]) || !is_array($_FILES[$index])) {
 			$this->error = UPLOAD_ERR_FILE_INDEX;
 			return false;
@@ -131,8 +132,8 @@ class uploader {
 		foreach ($indexes as $key) {
 			$this->file[$key] = isset($_FILES[$index][$key]) ? $_FILES[$index][$key] : null;
 		}
-		
-		
+
+
 		// Set input field name
 		$this->file['form'] = $index;
 		// Get extension
@@ -168,7 +169,7 @@ class uploader {
 		// Set raw_name
 		$this->file['raw_name'] = substr($this->file['name'], 0, -(strlen($this->file['extension'])+1) );
 		$this->file['filename'] = $this->file['name'];
-		
+
 		// test max file size
 		if($this->max_filesize > 0 && $this->file['size'] > $this->max_filesize ) {
 			$this->error = UPLOAD_ERR_FILE_SIZE;
@@ -187,12 +188,12 @@ class uploader {
 		}
 		// check to see if the file is of type specified
 		if(count($this->file_types) > 0) {
-			if(in_array($this->file['extension'], $this->file_types) == false) { 
+			if(in_array($this->file['extension'], $this->file_types) == false) {
 				$this->error = UPLOAD_ERR_FILE_TYPE;
 				return false;
 			}
 		}
-		
+
 		if (!is_uploaded_file($this->file['tmp_name'])) {
 			$this->copy_func = 'copy';
 		}
@@ -202,10 +203,10 @@ class uploader {
 
 	/**
 	 * Save uploaded file.
-	 * 
-	 * Cleans up the filename, copies the file from PHP's temp location to $path, 
+	 *
+	 * Cleans up the filename, copies the file from PHP's temp location to $path,
 	 * and checks the overwrite_mode
-	 * 
+	 *
 	 * @param path		  		string	File path to your upload directory
 	 * @param overwrite_mode  	int 	0 = rename if filename already exists (file.txt becomes file_1.txt)
 	 *									1 = overwrite existing file
@@ -216,7 +217,7 @@ class uploader {
 		if ($this->error != null) {
 			return false;
 		}
-		
+
 		if ($path != null && strlen($path) > 0) {
 			$this->path = $path;
 			if ($path[strlen($path)-1] != '/' && $path[strlen($path)-1] != '\\') {
@@ -225,7 +226,7 @@ class uploader {
 		}
 
 		$success = false;
-		
+
 		if ($this->new_filename != null) {
 			$this->file['raw_name'] = $this->new_filename;
 		}
@@ -243,9 +244,9 @@ class uploader {
 			$this->file['raw_name'] = str_replace ('ß', 'ss', $this->file['raw_name']);
 			$this->file['raw_name'] = preg_replace("/[^a-zA-Z0-9\._-]+/i", '', $this->file['raw_name']);
 		}
-		
+
 		$new_path = $this->path.$this->file['raw_name'].'.'.$this->file['extension'];
-			
+
 		switch(intval($overwrite_mode)) {
 			case 1: // overwrite mode
 				if (call_user_func($this->copy_func, $this->file['tmp_name'], $new_path)) {
@@ -312,7 +313,7 @@ class uploader {
 	 * Get information from file-Variable
 	 *
 	 * Gets some information from the $this->file-Variable. There are some information about the uploaded file saved.
-	 * Possible Indices are: 
+	 * Possible Indices are:
 	 * string	'extension'
 	 * int		'size'
 	 * int		'width'
@@ -331,7 +332,7 @@ class uploader {
 	function fileinfo($index) {
 		return isset($this->file[$index]) ? $this->file[$index] : null;
 	}
-	
+
 	/**
 	 * Checks whether an error occured (true) or not (false).
 	 *
@@ -340,12 +341,12 @@ class uploader {
 	function upload_failed() {
 		return ($this->error != null);
 	}
-	
+
 	/**
 	 * Gets the correct error message.
 	 *
 	 * Methoed tries to use $lang-Object. If not available, hardcoded english phrases will be used.
-	 * 
+	 *
 	 * @return	string		error message
 	 */
 	function get_error() {
@@ -380,7 +381,7 @@ class uploader {
 				case UPLOAD_ERR_FILE_EXISTS:
 					$message = $lang->phrase('upload_error_fileexists');
 				break;
-				default: 
+				default:
 					$message = $lang->phrase('upload_error_default');
 			}
 			if (!empty($this->file['name'])) {
@@ -413,7 +414,7 @@ class uploader {
 				case UPLOAD_ERR_FILE_EXISTS:
 					$message = 'File already exists.';
 				break;
-				default: 
+				default:
 					$message = 'An unknown error occured while uploading.';
 			}
 			if (!empty($this->file['name'])) {
@@ -428,7 +429,7 @@ class uploader {
 
 	/**
 	 * Converts line breaks in text files.
-	 * 
+	 *
 	 * Convert Mac (\r) and/or Unix (\n) line breaks to Windows (\r\n) by opening and rewriting the file on the server
 	 */
 	function cleanup_text_file(){

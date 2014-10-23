@@ -1,4 +1,6 @@
 <?php
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+
 ######
 ## ImageConverter
 ## Convert various image type that supported by PHP
@@ -35,7 +37,7 @@
 ## new ImageConverter('jakarta.jpg','gif') => convert to GIF
 ## new ImageConverter('jakarta.gif','png') => convert to PNG
 ## new ImageConverter('jakarta.gif','swf') => convert to SWF
-## 
+##
 ##
 ## Example:
 ## new ImageConverter('jakarta.gif','jpg',1)
@@ -157,7 +159,7 @@ class ImageConverter {
 			else {
 				$this->newimname = $this->imname.'.'.$validtype;
 			}
-			
+
 			/* save the image  */
 			switch($validtype){
 				case 'jpeg' :

@@ -1,8 +1,8 @@
 <?php
 /*
 	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2006  Matthias Mohr, MaMo Net
-	
+	Copyright (C) 2004-2007  Matthias Mohr, MaMo Net
+
 	Author: Matthias Mohr
 	Publisher: http://www.mamo-net.de
 	Start Date: May 22, 2004
@@ -25,6 +25,7 @@
 error_reporting(E_ALL);
 
 DEFINE('SCRIPTNAME', 'search');
+define('VISCACHA_CORE', '1');
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -43,11 +44,6 @@ if ($my->p['search'] == 0) {
 }
 
 $breadcrumb->Add($lang->phrase('search'));
-
-// ToDo:
-// * Suchanfragen längerfristig speichern können!
-// * GooglifyMe
-// * Modularer Aufbau!!
 
 ($code = $plugins->load('search_start')) ? eval($code) : null;
 
@@ -83,7 +79,7 @@ if ($_GET['action'] == "search") {
 			$sw2 = $sw;
 		}
 		if (!is_array($sw2)) {
-			
+
 		}
 		$sw2 = str_replace('*','',$sw2);
 		if (in_array(strtolower($sw2), $ignorewords) || strxlen($sw2) < $config['searchminlength']) {
@@ -110,7 +106,7 @@ if ($_GET['action'] == "search") {
 	}
 
 	$sql_where_like = '';
-	
+
 	if ($_POST['opt_2'] == 1) {
 		$op = 'OR ';
 	}
@@ -123,7 +119,7 @@ if ($_GET['action'] == "search") {
 	else {
 		$binary = '';
 	}
-	
+
 	$range = count($used);
 	for ($i=0;$i<$range;$i++) {
 		$str = $used[$i];
@@ -164,7 +160,7 @@ if ($_GET['action'] == "search") {
 	else {
 		$ignored[] = $_POST['name'];
 	}
-	
+
 	$having = '';
 	if ($_POST['temp'] > 0 && $_POST['temp'] < 366) {
 		$sql_where .= "AND t.last ";
@@ -183,13 +179,13 @@ if ($_GET['action'] == "search") {
 
 	($code = $plugins->load('search_search_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.topic_id 
-	FROM {$db->pre}replies AS r {$having} 
-	WHERE {$sql_where} 
-	GROUP BY r.topic_id 
+	SELECT r.topic_id
+	FROM {$db->pre}replies AS r {$having}
+	WHERE {$sql_where}
+	GROUP BY r.topic_id
 	LIMIT {$config['maxsearchresults']}
 	",__LINE__,__FILE__);
-	
+
 	$searchresult = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$searchresult[] = $row['topic_id'];
@@ -222,7 +218,6 @@ elseif ($_GET['action'] == "result") {
 	echo $tpl->parse("menu");
 
 	$file = 'cache/search/'.$_GET['fid'].'.inc.php';
-	$resfile = 'temp/searchresult/'.$_GET['fid'].'.inc.php';
 	if (!file_exists($file)) {
 		error($lang->phrase('search_doesntexist'), 'search.php'.SID2URL_1);
 	}
@@ -239,64 +234,48 @@ elseif ($_GET['action'] == "result") {
 
 	$start = $_GET['page']*$config['searchzahl'];
 	$start = $start-$config['searchzahl'];
-	
-	if (!file_exists($resfile)) {
-		switch ($data['sort']) {
-			case 'topic':
-			case 'posts':
-			case 'date':
-			case 'last':
-				$order = $data['sort'];
-				break;
-			case 'name':
-			case 'board':
-				$order = $data['sort'].", last";
-				break;
-			default:
-				$order = 'last';
-				break;
-		}
-	
-		if ($data['order'] == 1) {
-			$order .= ' ASC';
-		}
-		else {
-			$order .= ' DESC';
-		}
-		
-		($code = $plugins->load('search_result_query')) ? eval($code) : null;
-		$result = $db->query("
-		SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name 
-		FROM {$db->pre}topics 
-		WHERE id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('board')." 
-		ORDER BY {$order}"
-		,__LINE__,__FILE__);
-		
-		$cache = array();
-		while ($row = $gpc->prepare($db->fetch_object($result))) {
-			($code = $plugins->load('search_result_prepare')) ? eval($code) : null;
-			$cache[] = $row;
-		}
 
-		if (!extension_loaded("zlib") || !function_exists('gzcompress')) {
-			file_put_contents($resfile, serialize($cache));
-		}
-		else {
-			file_put_contents($resfile, gzcompress(serialize($cache), 9));
-		}
-		
+	switch ($data['sort']) {
+		case 'topic':
+		case 'posts':
+		case 'date':
+		case 'last':
+			$order = $data['sort'];
+			break;
+		case 'name':
+		case 'board':
+			$order = $data['sort'].", last";
+			break;
+		default:
+			$order = 'last';
+			break;
+	}
+
+	if ($data['order'] == 1) {
+		$order .= ' ASC';
 	}
 	else {
-		$cache = file_get_contents($resfile);
-		if (!extension_loaded("zlib") || !function_exists('gzcompress')) {
-			$cache = unserialize($cache);
-		}
-		else {
-			$cache = unserialize(gzuncompress($cache));
-		}
+		$order .= ' DESC';
+	}
+
+	($code = $plugins->load('search_result_query')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
+	FROM {$db->pre}topics
+	WHERE id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('board')."
+	ORDER BY {$order}"
+	,__LINE__,__FILE__);
+
+	$cache = array();
+	while ($row = $gpc->prepare($db->fetch_object($result))) {
+		($code = $plugins->load('search_result_prepare')) ? eval($code) : null;
+		$cache[] = $row;
 	}
 
 	$count = count($cache);
+	if ($count == 0) {
+		error($lang->phrase('illegal_search'), 'search.php'.SID2URL_1);
+	}
 	$pages = array_chunk($cache, $config['searchzahl']);
 
 	$temp = pages($count, $config['searchzahl'], "search.php?action=result&amp;fid=".$_GET['fid'].SID2URL_x."&amp;", $_GET['page']);
@@ -307,7 +286,7 @@ elseif ($_GET['action'] == "result") {
 	$memberdata = $memberdata_obj->get();
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
-	
+
 	$inner['index_bit'] = '';
 
 	if (!isset($pages[$_GET['page']-1])) {
@@ -323,7 +302,7 @@ elseif ($_GET['action'] == "result") {
 			$prefix = $prefix_arr[$row->board][$row->prefix]['value'];
 		}
 		$info = $forums[$row->board];
-		
+
 		if(is_id($row->name) && isset($memberdata[$row->name])) {
 			$row->mid = $row->name;
 			$row->name = $memberdata[$row->name];
@@ -331,14 +310,14 @@ elseif ($_GET['action'] == "result") {
 		else {
 			$row->mid = FALSE;
 		}
-		
+
 		if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
 			$row->last_name = $memberdata[$row->last_name];
 		}
-		
+
 		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-		
+
 		if ($row->status == '2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
@@ -347,7 +326,7 @@ elseif ($_GET['action'] == "result") {
 				$row->mark = $info['auto_status'];
 			}
 			if ($row->mark == 'n') {
-				$pref .= $lang->phrase('forum_mark_n'); 
+				$pref .= $lang->phrase('forum_mark_n');
 			}
 			elseif ($row->mark == 'a') {
 				$pref .= $lang->phrase('forum_mark_a');
@@ -397,11 +376,11 @@ elseif ($_GET['action'] == "result") {
 		else {
 			$topic_pages = '';
 		}
-		
+
 		($code = $plugins->load('search_result_entry_prepared')) ? eval($code) : null;
 		$inner['index_bit'] .= $tpl->parse("search/result_bit");
 	}
-	
+
 	($code = $plugins->load('search_result_prepared')) ? eval($code) : null;
 	echo $tpl->parse("search/result");
 	($code = $plugins->load('search_result_end')) ? eval($code) : null;
@@ -459,35 +438,35 @@ elseif ($_GET['action'] == "active") {
 	    }
 		$timestamp = $my->clv;
 	}
-	
+
 	($code = $plugins->load('search_actiev_start')) ? eval($code) : null;
-	
+
 	if (!isset($count)) {
     	$sqlwhere = " last > '{$timestamp}' ";
-    	
+
     	$start = ($_GET['page']-1)*$config['activezahl'];
-    	
+
     	($code = $plugins->load('search_actiev_query')) ? eval($code) : null;
     	$result = $db->query("
-    	SELECT COUNT(*) 
+    	SELECT COUNT(*)
     	FROM {$db->pre}topics AS t
-    		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board 
+    		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')
     	,__LINE__,__FILE__);
     	list($count) = $db->fetch_num($result);
-    	
+
     	$result = $db->query("
-    	SELECT t.prefix, t.vquestion, t.posts, t.mark, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name 
+    	SELECT t.prefix, t.vquestion, t.posts, t.mark, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name
     	FROM {$db->pre}topics AS t
-    		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board 
-    	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')." 
+    		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
+    	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')."
     	ORDER BY t.last DESC
     	LIMIT {$start}, {$config['activezahl']}"
     	,__LINE__,__FILE__);
-    		
+
     	if ($count > 0) {
     		$temp = pages($count, $config['activezahl'], "search.php?action=active&amp;type=".$_GET['type'].SID2URL_x."&amp;", $_GET['page']);
-    		
+
 			$catbid = $scache->load('cat_bid');
 			$forums = $catbid->get();
 			$prefix_obj = $scache->load('prefix');
@@ -504,9 +483,9 @@ elseif ($_GET['action'] == "active") {
     				$showprefix = true;
     				$prefix = $prefix_arr[$row->board][$row->prefix]['value'];
     			}
-    			
+
     			$info = $forums[$row->board];
-    			
+
     			if(is_id($row->name) && isset($memberdata[$row->name])) {
     				$row->mid = $row->name;
     				$row->name = $memberdata[$row->name];
@@ -514,14 +493,14 @@ elseif ($_GET['action'] == "active") {
     			else {
     				$row->mid = FALSE;
     			}
-    			
+
     			if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
     				$row->last_name = $memberdata[$row->last_name];
     			}
-    			
+
     			$rstart = str_date($lang->phrase('dformat1'),times($row->date));
     			$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-    			
+
 				if ($row->status == '2') {
 					$pref .= $lang->phrase('forum_moved');
 				}
@@ -530,7 +509,7 @@ elseif ($_GET['action'] == "active") {
 						$row->mark = $info['auto_status'];
 					}
 					if ($row->mark == 'n') {
-						$pref .= $lang->phrase('forum_mark_n'); 
+						$pref .= $lang->phrase('forum_mark_n');
 					}
 					elseif ($row->mark == 'a') {
 						$pref .= $lang->phrase('forum_mark_a');
@@ -545,7 +524,7 @@ elseif ($_GET['action'] == "active") {
 						$pref .= $lang->phrase('forum_announcement');
 					}
 				}
-    	
+
     			if ((isset($my->mark['t'][$row->id]) && $my->mark['t'][$row->id] > $row->last) || $row->last < $my->clv) {
     		 		$firstnew = 0;
     				if ($row->status == 1 || $row->status == 2) {
@@ -572,19 +551,19 @@ elseif ($_GET['action'] == "active") {
 				if ($info['topiczahl'] < 1) {
 					$info['topiczahl'] = $config['topiczahl'];
 				}
-			
+
 				if ($row->posts > $info['topiczahl']) {
 					$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small');
 				}
 				else {
 					$topic_pages = '';
 				}
-    			
+
     			($code = $plugins->load('search_active_entry_prepared')) ? eval($code) : null;
     			$inner['index_bit'] .= $tpl->parse("search/active_bit");
     		}
     	}
-    	
+
     	($code = $plugins->load('search_active_prepared')) ? eval($code) : null;
     	echo $tpl->parse("search/active");
     	($code = $plugins->load('search_active_end')) ? eval($code) : null;

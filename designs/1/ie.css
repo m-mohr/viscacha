@@ -1,37 +1,36 @@
-body {
+* html body {
 	text-align: center;
 }
-#container {
+* html #container, #window, #blank {
 	text-align: left;
 }
-#window {
-	text-align: left;
-}
-#blank {
-	text-align: left;
-}
-#content {
+* html #content {
 	width: 603px;
 }
-.border {
+.breadcrumb {
+	float: right;
+	margin-left: -170px;
+	margin-right: 1px;
+}
+* html .border {
 	width: 100%;
 }
-.popup li {
+* html .popup li {
 	float: left;
 	width: 100%;
 }
-.editprofile_index li {
+* html .editprofile_index li {
 	width: 30%;
 }
-.editprofile_index ul {
+* html .editprofile_index ul {
 	margin-bottom: 0px;
 }
-.iefix_left {
+* html .iefix_left {
 	float: left;
 }
-.tables_bbsmileys td {
+* html .tables_bbsmileys td {
 	border: 0px;
 }
-.iefix_br {
-    line-height: 2px;
+* html .iefix_br {
+  line-height: 2px;
 }

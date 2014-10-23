@@ -1,5 +1,5 @@
 <?php
-if (isset($_SERVER['PHP_SELF']) && basename($_SERVER['PHP_SELF']) == "settings.php") die('Error: Hacking Attempt');
+if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // Loading Config-Data
 include('classes/class.phpconfig.php');
@@ -309,7 +309,7 @@ elseif ($job == 'profile') {
 	   <td class="mbox" width="50%"><input type="checkbox" name="memberrating" value="1"<?php echo iif($config['memberrating'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Do not shot the rating until a minimum amount of votes are received:</td>
+	   <td class="mbox" width="50%">Do not show the rating until a minimum amount of votes are received:</td>
 	   <td class="mbox" width="50%"><input type="text" name="memberrating_counter" value="<?php echo $config['memberrating_counter']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
@@ -663,7 +663,7 @@ elseif ($job == 'user') {
 	<form name="form" method="post" action="admin.php?action=settings&job=user2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
 	  <tr>
-	   <td class="obox" colspan="2"><b>Memberlist</b></td>
+	   <td class="obox" colspan="2">Memberlist</td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%">Members per Page:<br /><span class="stext">Number of Members in the Memberlist shown per page.</span></td>
@@ -693,7 +693,7 @@ elseif ($job == 'user') {
 	   </td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Show inactive Users:<br /><span class="stext">Show members that has not been activated by admin or per e-mail.</span></td>
+	   <td class="mbox" width="50%">Show inactive Users:<br /><span class="stext">Show members that have not been activated by admin or e-mail.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="mlist_showinactive"<?php echo iif($config['mlist_showinactive'] == 1,' checked="checked"'); ?> value="1" /></td>
 	  </tr>
 	  <tr>
@@ -1444,7 +1444,7 @@ elseif ($job == 'cron') {
 	   <td class="obox" colspan="2"><b>Scheduled Settings</b></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Scheduled Tasks in page:<br><span class="stext">If this option is activated, Viscacha will check if there are Tasks to be done at every page call. For a better Performance you can page out this task, by loading the file <a href="cron.php" target="_blank">cron.php</a>with a scheduled cron job.</span></td>
+	   <td class="mbox" width="50%">Scheduled Tasks in page:<br><span class="stext">If this option is activated Viscacha will check every page call if there are Tasks to be done. For a better Performance you can disable this setting and run the file <a href="cron.php" target="_blank">cron.php</a> with a real cron job that runs at least every hour.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="pccron" value="1"<?php echo iif($config['pccron'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
@@ -1739,8 +1739,8 @@ elseif ($job == 'textprocessing') {
 	   <td class="obox" colspan="2"><b>BB-Code &amp; Text processing</b></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Censor Texts:<br>
-	   <font class="stext">The words to censor can be specified <a href="admin.php?action=bbcodes&job=censor">here</a>. The extended censoring will make the censor more accurate and find out also letters which are separated with eventual characters.</font></td>
+	   <td class="mbox" width="50%">Censor Texts:<br />
+	   <span class="stext">Specify the words to censor <a href="admin.php?action=bbcodes&job=censor">here</a>. The extended censor is more accurate and can even find words that have their letters separated by spaces or other characters.</span></td>
 	   <td class="mbox" width="50%">
 	   <input type="radio" name="censorstatus" value="0"<?php echo iif($config['censorstatus'] == 0,' checked'); ?>> No censor<br>
 	   <input type="radio" name="censorstatus" value="1"<?php echo iif($config['censorstatus'] == 1,' checked'); ?>> Normal censor<br>
@@ -1748,27 +1748,28 @@ elseif ($job == 'textprocessing') {
 	   </td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Mark glossary entries and show explanation:<br><font class="stext">Hereby you can mark the <a href="admin.php?action=bbcodes&job=word">glossary entries</a> and show their explanation.</font></td>
+	   <td class="mbox" width="50%">Mark glossary entries and show explanation:<br />
+	   <span class="stext">Here you can mark the <a href="admin.php?action=bbcodes&job=word">glossary entries</a> and show their explanation.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="dictstatus" value="1"<?php echo iif($config['dictstatus'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Replace vocabulary:<br><font class="stext">You can replace the <a href="admin.php?action=bbcodes&job=replace">vocabulary</a> automatically (however explicit selectable in every thread).</font></td>
+	   <td class="mbox" width="50%">Replace vocabulary:<br><span class="stext">You can replace the <a href="admin.php?action=bbcodes&job=replace">vocabulary</a> automatically (however explicit selectable in every thread).</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="wordstatus" value="1"<?php echo iif($config['wordstatus'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Shorten line break:<br><font class="stext">More than 3 line break can automatically be shorten.</font></td>
+	   <td class="mbox" width="50%">Shorten line break:<br><span class="stext">More than 3 line breaks will be removed.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="reduce_nl" value="1"<?php echo iif($config['reduce_nl'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Improve pointing:<br><font class="stext">You can let more then 2 question marks, 2 exclamation marks or more then 4 points automatically be shorten. </font></td>
+	   <td class="mbox" width="50%">Limit punctuation:<br><span class="stext">Excessive punctuation (more than 2 question marks, 2 exclamation marks or 4 periods) will be reduced.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="reduce_endchars" value="1"<?php echo iif($config['reduce_endchars'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Correct continuous capitalization:<br><font class="stext">If the whole title is capitalized, only the first letter of a word will be thus leaved.<br /> Example: "NEED HELP!" will be "Need Help!".</font></td>
+	   <td class="mbox" width="50%">Correct all caps:<br /><span class="stext">If the whole title is capitalized, only the first letter of each word will be capitalized. Example: "NEED HELP!" will be "Need Help!"</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="topicuppercase" value="1"<?php echo iif($config['topicuppercase'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Decimal places after comma:</td>
+	   <td class="mbox" width="50%">Decimal places after comma (British English) or rather decimal point (American English):</td>
 	   <td class="mbox" width="50%"><input type="text" name="decimals" value="<?php echo $config['decimals']; ?>" size="8"></td>
 	  </tr>
 	  <tr>
@@ -1780,27 +1781,27 @@ elseif ($job == 'textprocessing') {
 	   <td class="obox" colspan="2"><b>BB-Code &amp; Text processing &raquo; Wordwrap</b></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Wordwrap: Separate too long words:<br><font class="stext">You can let too long words, which destroy the design, automatically be separated after a determined amount of characters.</font></td>
+	   <td class="mbox" width="50%">Wordwrap: Separate too long words:<br><span class="stext">You can let too long words, which destroy the design, automatically be separated after a determined amount of characters.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="wordwrap" value="1"<?php echo iif($config['wordwrap'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Wordwrap: Number of characters for separation:</font></td>
+	   <td class="mbox" width="50%">Wordwrap: Number of characters for separation:</span></td>
 	   <td class="mbox" width="50%"><input type="text" name="maxwordlength" value="<?php echo $config['maxwordlength']; ?>" size="4"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">Wordwrap: Character or HTML-Tag with wich too long words will be separated:<br><font class="stext">For example a line break with &lt;br /&gt; or a dash (-).</font></td>
+	   <td class="mbox" width="50%">Wordwrap: Character or HTML-Tag with wich too long words will be separated:<br><span class="stext">For example a line break with &lt;br /&gt; or a dash (-).</span></td>
 	   <td class="mbox" width="50%"><input type="text" name="maxwordlengthchar" value="<?php echo $config['maxwordlengthchar']; ?>" size="8"></td>
 	  </tr>
   	  <tr>
-	   <td class="mbox" width="50%">URL-Wordwrap: Shorten too long URLs automatically:<br><font class="stext">Too long URLs can automatically be shorten, without destroying the link.</font></td>
+	   <td class="mbox" width="50%">URL-Wordwrap: Shorten too long URLs automatically:<br><span class="stext">Too long URLs can automatically be shorten, without destroying the link.</span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="reduce_url" value="1"<?php echo iif($config['reduce_url'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">URL-Wordwrap: Number of characters for separation:</font></td>
+	   <td class="mbox" width="50%">URL-Wordwrap: Number of characters for separation:</td>
 	   <td class="mbox" width="50%"><input type="text" name="maxurllength" value="<?php echo $config['maxurllength']; ?>" size="4"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%">URL-Wordwrap: Character for URL separation:</font></td>
+	   <td class="mbox" width="50%">URL-Wordwrap: Character for URL separation:</td>
 	   <td class="mbox" width="50%"><input type="text" name="maxurltrenner" value="<?php echo $config['maxurltrenner']; ?>" size="8"></td>
 	  </tr>
 	  <tr>
@@ -1876,6 +1877,10 @@ elseif ($job == 'syndication') {
 	   <td class="mbox" width="50%"><input type="checkbox" name="syndication" value="1"<?php echo iif($config['syndication'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
+	   <td class="mbox" width="50%">Insert E-mails into created news feeds:<br /><span class="stext">It is recommended to disable this option to prevent spam.</span></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="syndication_insert_email" value="1"<?php echo iif($config['syndication_insert_email'],' checked'); ?>></td>
+	  </tr>
+	  <tr>
 	   <td class="mbox" width="50%">Maximum number of characters in a text:</td>
 	   <td class="mbox" width="50%"><input type="text" name="rsschars" value="<?php echo $config['rsschars']; ?>" size="4"></td>
 	  </tr>
@@ -1904,6 +1909,7 @@ elseif ($job == 'syndication2') {
 
 	$c->getdata();
 	$c->updateconfig('syndication',int);
+	$c->updateconfig('syndication_insert_email',int);
 	$c->updateconfig('syndication_klipfolio_banner',str);
 	$c->updateconfig('syndication_klipfolio_icon',str);
 	$c->updateconfig('rssttl',int);
