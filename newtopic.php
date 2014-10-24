@@ -273,7 +273,6 @@ elseif ($_GET['action'] == "save") {
 			'dowords' => $_POST['dowords'],
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
-			'guest' => 1,
 			'human' => $human,
 			'digest' => $digest,
 			'name' => null,
@@ -354,18 +353,6 @@ elseif ($_GET['action'] == "save") {
 			if ($pin == 1 && $my->mp[0] == 1) {
 				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
 			}
-		}
-		if ((($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1) || $stat == 9) && $my->vlogin) { // null (Kein Status) ist standard und muss nicht geändert werden
-			if ($stat == 1) {
-				$input = 'a';
-			}
-			elseif ($stat == 2) {
-				$input = 'n';
-			}
-			elseif ($stat == 9) {
-				$input = '';
-			}
-			$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$tredirect}'");
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {

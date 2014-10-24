@@ -50,7 +50,7 @@ elseif ($_GET['job'] == 'postrating2') {
 	$start = ($page-1)*$perpage;
 
 	$result = $db->query("
-	SELECT t.prefix, t.posts, t.mark, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name,
+	SELECT t.prefix, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name,
 	    avg(p.rating) AS ravg, count(*) AS rcount
 	FROM {$db->pre}postratings AS p
 	    LEFT JOIN {$db->pre}topics AS t ON p.tid = t.id
@@ -113,21 +113,6 @@ elseif ($_GET['job'] == 'postrating2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
 		else {
-			if ($row->mark === null && !empty($info['auto_status'])) {
-				$row->mark = $info['auto_status'];
-			}
-			if ($row->mark == 'n') {
-				$pref .= $lang->phrase('admin_mark_news');
-			}
-			elseif ($row->mark == 'a') {
-				$pref .= $lang->phrase('admin_mark_article');
-			}
-			elseif ($row->mark == 'b') {
-				$pref .= $lang->phrase('admin_mark_bad');
-			}
-			elseif ($row->mark == 'g') {
-				$pref .= $lang->phrase('admin_mark_good');
-			}
 			if ($row->sticky == '1') {
 				$pref .= $lang->phrase('admin_mark_sticky');
 			}

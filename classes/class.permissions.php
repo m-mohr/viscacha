@@ -1403,11 +1403,8 @@ function GlobalPermissions() {
  *
  * Returns an array with the following keys and the values:
  * [0] user is moderator in this forum,
- * [1] rate topic,
- * [2] set topic as news,
- * [3] set topic as article,
- * [4] delete posts,
- * [5] move/copy topics
+ * [1] delete posts,
+ * [2] move/copy topics
  *
  * @param integer Board-ID
  * @return array Permissions
@@ -1419,18 +1416,18 @@ function ModPermissions ($bid) {
 			return array(1,1,1,1,1,1);
 		}
 		else {
-			$result = $db->query("SELECT s_rating, s_news, s_article, p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
+			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
 			if ($db->num_rows($result) > 0) {
 				$row = $db->fetch_assoc($result);
-				return array(1, $row['s_rating'], $row['s_news'], $row['s_article'], $row['p_delete'], $row['p_mc']);
+				return array(1, $row['p_delete'], $row['p_mc']);
 			}
 			else {
-				return array(0,0,0,0,0,0);
+				return array(0,0,0);
 			}
 		}
 	}
 	else {
-		return array(0,0,0,0,0,0);
+		return array(0,0,0);
 	}
 }
 

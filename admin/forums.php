@@ -96,7 +96,7 @@ elseif ($job == 'mods') {
 	$orderby = $gpc->get('order', str);
 	$bid = $gpc->get('id', int);
 
-	$colspan = iif($bid > 0, '8', '9');
+	$colspan = iif($bid > 0, '5', '6');
 
 	$result = $db->query("
 	SELECT m.*, u.name as user, c.name as cat, c.id AS cat_id
@@ -125,13 +125,9 @@ elseif ($job == 'mods') {
 	  <td width="30%" rowspan="2"><a<?php echo iif($orderby != 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=board"><?php echo $lang->phrase('admin_forum_order_by_forum'); ?></a> </td>
 	  <?php } ?>
 	  <td width="20%" rowspan="2"><?php echo $lang->phrase('admin_forum_period'); ?></td>
-	  <td width="21%" colspan="3" align="center"><?php echo $lang->phrase('admin_forum_status'); ?></td>
 	  <td width="14%" colspan="2" align="center"><?php echo $lang->phrase('admin_forum_topic'); ?></td>
 	</tr>
 	<tr class="ubox">
-	  <td width="7%"><?php echo $lang->phrase('admin_forum_rating'); ?></td>
-	  <td width="7%"><?php echo $lang->phrase('admin_forum_articles'); ?></td>
-	  <td width="7%"><?php echo $lang->phrase('admin_forum_news'); ?></td>
 	  <td width="7%"><?php echo $lang->phrase('admin_forum_move'); ?></td>
 	  <td width="7%"><?php echo $lang->phrase('admin_forum_delete'); ?></td>
 	</tr>
@@ -153,9 +149,6 @@ elseif ($job == 'mods') {
 	  <td class="mbox" width="30%"><a href="admin.php?action=forums&amp;job=mods&id=<?php echo $row['cat_id']; ?>"><?php echo $row['cat']; ?></a></td>
 	  <?php } ?>
 	  <td class="mbox" width="20%"><?php echo $row['time']; ?></td>
-	  <td class="mbox" width="7%" align="center"><?php echo noki($row['s_rating'], $p1.'s_rating'.$p2); ?></td>
-	  <td class="mbox" width="7%" align="center"><?php echo noki($row['s_article'], $p1.'s_article'.$p2); ?></td>
-	  <td class="mbox" width="7%" align="center"><?php echo noki($row['s_news'], $p1.'s_news'.$p2); ?></td>
 	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_mc'], $p1.'p_mc'.$p2); ?></td>
 	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_delete'], $p1.'p_delete'.$p2); ?></td>
 	</tr>
@@ -239,14 +232,6 @@ elseif ($job == 'mods_add') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_status_allowed_to'); ?></td>
-   <td class="mbox" width="50%">
-   <input type="checkbox" name="ratings" value="1" checked="checked" /> <?php echo $lang->phrase('admin_forum_set_ratings'); ?><br />
-   <input type="checkbox" name="news" value="1" checked="checked" /> <?php echo $lang->phrase('admin_forum_topic_news'); ?><br />
-   <input type="checkbox" name="article" value="1" checked="checked" /> <?php echo $lang->phrase('admin_forum_topic_article'); ?>
-   </td>
-  </tr>
-  <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_manage_posts'); ?></td>
    <td class="mbox" width="50%">
    <input type="checkbox" name="delete" value="1" checked="checked" /> <?php echo $lang->phrase('admin_forum_delete_topics'); ?><br />
@@ -285,15 +270,12 @@ elseif ($job == 'mods_add2') {
 		$timestamp = 'NULL';
 	}
 
-	$news = $gpc->get('news', int);
-	$article = $gpc->get('article', int);
-	$rating = $gpc->get('ratings', int);
 	$move = $gpc->get('move', int);
 	$delete = $gpc->get('delete', int);
 
 	$db->query("
-	INSERT INTO {$db->pre}moderators (mid, bid, s_rating, s_news, s_article, p_delete, p_mc, time)
-	VALUES ('{$uid[0]}', '{$id}', '{$rating}', '{$news}', '{$article}', '{$delete}', '{$move}', {$timestamp})
+	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc, time)
+	VALUES ('{$uid[0]}', '{$id}', '{$delete}', '{$move}', {$timestamp})
 	");
 
 	if ($db->affected_rows() == 1) {
@@ -482,16 +464,6 @@ elseif ($job == 'forum_edit') {
   </tr>
   <tr><td class="ubox" colspan="2"><?php echo $lang->phrase('admin_forum_moderation_options'); ?></td></tr>
   <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_forum_automatic_status'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_info_topic_status'); ?></span></td>
-   <td class="mbox">
-	<select name="auto_status" size="1">
-	 <option value=""<?php echo iif($row['auto_status'] == '', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_no_status'); ?></option>
-	 <option value="a"<?php echo iif($row['auto_status'] == 'a', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_article'); ?></option>
-	 <option value="n"<?php echo iif($row['auto_status'] == 'n', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_forum_news'); ?></option>
-	</select>
-   </td>
-  </tr>
-  <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_forum_email_topic'); ?><br />
    <span class="stext"><?php echo $lang->phrase('admin_forum_info_separate_address'); ?></span></td>
    <td class="mbox"><textarea name="topic_notification" rows="2" cols="70"><?php echo $row['topic_notification']; ?></textarea></td>
@@ -568,7 +540,6 @@ elseif ($job == 'forum_edit2') {
 	$opt_re = $gpc->get('link', str);
 	$topiczahl = $gpc->get('topiczahl', int);
 	$forumzahl = $gpc->get('forumzahl', int);
-	$auto_status = $gpc->get('auto_status', none);
 	$topic_notification = $gpc->get('topic_notification', none);
 	$reply_notification = $gpc->get('reply_notification', none);
 	$opt_pw = $gpc->get('pw', str);
@@ -624,9 +595,6 @@ elseif ($job == 'forum_edit2') {
 		}
 		if ($count_posts != 0 && $count_posts != 1) {
 			$count_posts = 1;
-		}
-		if ($auto_status != 'n' && $auto_status != 'a') {
-			$auto_status = '';
 		}
 		if ($topiczahl < 0) {
 			$topiczahl * -1;
@@ -685,7 +653,6 @@ elseif ($job == 'forum_edit2') {
 		  `topiczahl` = '{$topiczahl}',
 		  `invisible` = '{$invisible}',
 		  `readonly` = '{$readonly}',
-		  `auto_status` = '{$auto_status}',
 		  `reply_notification` = '{$reply_notification}',
 		  `topic_notification` = '{$topic_notification}',
 		  `active_topic` = '{$active_topic}',
@@ -858,7 +825,6 @@ elseif ($job == 'forum_add2') {
 	$opt_re = $gpc->get('link', str);
 	$topiczahl = $gpc->get('topiczahl', int);
 	$forumzahl = $gpc->get('forumzahl', int);
-	$auto_status = $gpc->get('auto_status', none);
 	$topic_notification = $gpc->get('topic_notification', none);
 	$reply_notification = $gpc->get('reply_notification', none);
 	$opt_pw = $gpc->get('pw', str);
@@ -911,9 +877,6 @@ elseif ($job == 'forum_add2') {
 		}
 		if ($count_posts != 0 && $count_posts != 1) {
 			$count_posts = 1;
-		}
-		if ($auto_status != 'n' && $auto_status != 'a') {
-			$auto_status = '';
 		}
 		if ($topiczahl < 0) {
 			$topiczahl * -1;
@@ -997,10 +960,10 @@ elseif ($job == 'forum_add2') {
 		$db->query("
 		INSERT INTO {$db->pre}forums (
 		  `name`,`description`,`parent`,`position`,`opt`,`optvalue`,`forumzahl`,`topiczahl`,`invisible`,`readonly`,`count_posts`,
-		  `auto_status`,`reply_notification`,`topic_notification`,`active_topic`,`message_active`,`message_title`,`message_text`,`post_order`
+		  `reply_notification`,`topic_notification`,`active_topic`,`message_active`,`message_title`,`message_text`,`post_order`
 		) VALUES (
 		  '{$name}','{$description}','{$parent}','{$position}','{$opt}','{$optvalue}','{$forumzahl}','{$topiczahl}','{$invisible}','{$readonly}','{$count_posts}',
-		  '{$auto_status}','{$reply_notification}','{$topic_notification}','{$active_topic}','{$message_active}','{$message_title}','{$message_text}','{$post_order}'
+		  '{$reply_notification}','{$topic_notification}','{$active_topic}','{$message_active}','{$message_title}','{$message_text}','{$post_order}'
 		)
 		");
 		$newid = $db->insert_id();

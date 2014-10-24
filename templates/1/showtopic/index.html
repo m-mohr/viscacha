@@ -94,7 +94,6 @@
 <a href="managetopic.php?action=pin&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_pin'); ?></a> |
 <a href="managetopic.php?action=move&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_move'); ?></a> |
 <?php } ?>
-<a href="managetopic.php?action=status&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topics_status'); ?></a> |
 <a href="managetopic.php?action=stat&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_stats'); ?></a> |
 <?php if (empty($info['vquestion'])) { ?>
 <a href="newtopic.php?action=startvote&amp;id=<?php echo $info['board']; ?>&amp;topic_id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('admin_topic_vote'); ?></a>

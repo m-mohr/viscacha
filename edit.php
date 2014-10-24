@@ -82,7 +82,7 @@ else {
 }
 $delete_seconds = $config['edit_delete_time']*60;
 
-$del_mod = ($my->mp[4] == 1 && ($info['topic_id'] > 0 || $info['posts'] == 0));
+$del_mod = ($my->mp[1] == 1 && ($info['topic_id'] > 0 || $info['posts'] == 0));
 $del_user = ($delete_seconds >= $diff && ($info['topic_id'] > 0 || $info['posts'] == 0));
 $p_upload = ($config['tpcallow'] == 1 && $my->p['attachments'] == 1);
 
@@ -94,7 +94,7 @@ if ($allowed == true) {
 
 	if ($_GET['action'] == "save") {
 
-		if ($_POST['temp'] == '1' && $my->mp[4] == '1') {
+		if ($_POST['temp'] == '1' && $my->mp[1] == '1') {
 			if ($info['tstart'] == 0 || $info['posts'] == 0) {
 				if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
 					if ($info['tstart'] == 1) {

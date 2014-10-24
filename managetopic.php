@@ -33,7 +33,7 @@ include ("classes/function.viscacha_frontend.php");
 $action = $gpc->get('action', none);
 
 $result = $db->query('
-SELECT board, mark, id, last_name, prefix, topic
+SELECT board, id, last_name, prefix, topic
 FROM '.$db->pre.'topics
 WHERE id = "'.$_GET['id'].'"
 LIMIT 1
@@ -78,14 +78,14 @@ if (!$my->vlogin || $my->mp[0] == 0) {
 ($code = $plugins->load('managetopic_start')) ? eval($code) : null;
 
 if ($action == "delete") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/delete");
 }
 elseif ($action == "delete2") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
@@ -136,7 +136,7 @@ elseif ($action == "delete2") {
 }
 elseif ($action == "move") {
 	$my->pb = $slog->GlobalPermissions();
-	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$forums = BoardSubs();
@@ -144,7 +144,7 @@ elseif ($action == "move") {
 	echo $tpl->parse("admin/topic/move");
 }
 elseif ($action == "move2") {
-	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 
@@ -211,65 +211,6 @@ elseif ($action == "reports2") {
 	}
 	else {
 		error($lang->phrase('admin_failed'), 'managetopic.php?action=reports&id='.$info['id'].'&topic_id='.$_GET['topic_id'].SID2URL_x);
-	}
-}
-elseif ($action == "status") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0 && $my->mp[2] == 0 && $my->mp[3] == 0) {
-		errorLogin($lang->phrase('not_allowed'),'showtopic.php?id='.$info['id'].SID2URL_x);
-	}
-	echo $tpl->parse("menu");
-	echo $tpl->parse("admin/topic/status");
-}
-elseif ($action == "status2") {
-	$input = null;
-	$notallowed = false;
-	if ($my->mp[0] == 1 && $my->mp[1] == 0 && $my->mp[2] == 0 && $my->mp[3] == 0) {
-		$notallowed = true;
-	}
-	if ($_POST['temp'] == '1') {
-		if ($my->mp[1] == 1) {
-			$input = 'g';
-		}
-		else {
-			$notallowed = true;
-		}
-	}
-	if ($_POST['temp'] == '2') {
-		if ($my->mp[1] == 1) {
-			$input = 'b';
-		}
-		else {
-			$notallowed = true;
-		}
-	}
-	if ($_POST['temp'] == '3') {
-		if ($my->mp[3] == 1) {
-			$input = 'a';
-		}
-		else {
-			$notallowed = true;
-		}
-	}
-	if ($_POST['temp'] == '4') {
-		if ($my->mp[2] == 1) {
-			$input = 'n';
-		}
-		else {
-			$notallowed = true;
-		}
-	}
-	if ($_POST['temp'] == '9') {
-		$input = '';
-	}
-	if ($notallowed) {
-		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
-	}
-	$db->query("UPDATE {$db->pre}topics SET mark = ".iif($input === null, 'null', "'{$input}'")." WHERE id = '{$info['id']}'");
-	if ($db->affected_rows() == 1) {
-		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
-	}
-	else {
-		error($lang->phrase('admin_failed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 }
 elseif ($action == "pin") {
@@ -404,14 +345,14 @@ elseif ($action == "vote_edit2") {
 	}
 }
 elseif ($action == "vote_delete") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_delete");
 }
 elseif ($action == "vote_delete2") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$anz = 0;
@@ -431,7 +372,7 @@ elseif ($action == "vote_delete2") {
 	ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
 }
 elseif ($action == "pdelete") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$ids = $gpc->get('ids', arr_int);

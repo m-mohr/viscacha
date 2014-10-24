@@ -83,7 +83,7 @@ if ($_GET['action'] == "index") {
 
 		($code = $plugins->load('manageforum_query')) ? eval($code) : null;
 		$result = $db->query("
-		SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
+		SELECT prefix, vquestion, posts,id, board, topic, date, status, last, last_name, sticky, name
 		FROM {$db->pre}topics
 		WHERE board = '{$board}' {$marksql}
 		ORDER BY sticky DESC, last DESC LIMIT {$start}, {$info['forumzahl']}
@@ -124,25 +124,8 @@ if ($_GET['action'] == "index") {
 			if ($row->status == '2') {
 				$pref .= $lang->phrase('forum_moved');
 			}
-			else {
-				if ($row->mark === null && !empty($info['auto_status'])) {
-					$row->mark = $info['auto_status'];
-				}
-				if ($row->mark == 'n') {
-					$pref .= $lang->phrase('forum_mark_n');
-				}
-				elseif ($row->mark == 'a') {
-					$pref .= $lang->phrase('forum_mark_a');
-				}
-				elseif ($row->mark == 'b') {
-					$pref .= $lang->phrase('forum_mark_b');
-				}
-				elseif ($row->mark == 'g') {
-					$pref .= $lang->phrase('forum_mark_g');
-				}
-				if ($row->sticky == '1') {
-					$pref .= $lang->phrase('forum_announcement');
-				}
+			else if ($row->sticky == '1') {
+				$pref .= $lang->phrase('forum_announcement');
 			}
 
 			($code = $plugins->load('manageforum_entry_prepared')) ? eval($code) : null;
@@ -213,7 +196,7 @@ elseif ($_GET['action'] == "move") {
 		sendStatusCode(302, $config['furl'].'/'.$url);
 	}
 	$my->pb = $slog->GlobalPermissions();
-	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showforum.php?id='.$board.SID2URL_x);
 	}
 	$forums = BoardSubs();
@@ -222,7 +205,7 @@ elseif ($_GET['action'] == "move") {
 	echo $tpl->parse("admin/forum/move");
 }
 elseif ($_GET['action'] == "move2") {
-	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 	}
 	$anz = 0;
@@ -268,7 +251,7 @@ elseif ($_GET['action'] == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showforum.php?id='.$board.SID2URL_x);
 }
 elseif ($_GET['action'] == "delete") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'),'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 	}
 	if (count($_POST['delete']) == 0) {

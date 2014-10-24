@@ -1,7 +1,7 @@
 $teaserlength = $config['viscacha_news_boxes']['teaserlength'];
 $cutat = "[".$config['viscacha_news_boxes']['cutat']."]";
-
-$intelliCut = version_compare(PHP_VERSION, "4.3.3", ">=");
+$board = intval($config['viscacha_news_boxes']['board']);
+$limit = intval($config['viscacha_news_boxes']['items']);
 
 $result = $db->query("
 SELECT r.dowords, r.dosmileys, t.posts, t.prefix, t.status, t.sticky, t.id, t.board, f.name as forumname, t.topic, r.comment, r.date, r.guest, IF(r.guest = '0', u.name, r.name) AS name
@@ -9,9 +9,9 @@ FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
-WHERE (t.mark = 'n' OR (f.auto_status = 'n' AND t.mark IS NULL)) AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
+WHERE t.board = '{$board}' AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
 ORDER BY r.date DESC
-LIMIT 0,{$config['viscacha_news_boxes']['items']}"
+LIMIT 0,{$limit}"
 );
 BBProfile($bbcode);
 while ($row = $gpc->prepare($db->fetch_assoc($result))) {
@@ -41,7 +41,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 			$culance = $teaserlength*0.1;
 			$teaserlength -= $culance;
 			$maxlength = $teaserlength+(2*$culance);
-			if ($intelliCut && preg_match("/[\.!\?]+[\s\r\n]+/", $row['comment'], $matches, PREG_OFFSET_CAPTURE, $teaserlength)) {
+			if (preg_match("/[\.!\?]+[\s\r\n]+/", $row['comment'], $matches, PREG_OFFSET_CAPTURE, $teaserlength)) {
 				$pos = $matches[0][1];
 				if ($maxlength > $pos) {
 					$row['comment'] = subxstr($row['comment'], 0, $pos+2);
