@@ -164,9 +164,6 @@ function KillCookie(n) {
 }
 
 ///////////////////////// PopUps /////////////////////////
-function showpost(Link) {
-	window.open(Link.href, "showpost", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes,status=yes");
-}
 function edithistory(Link) {
 	window.open(Link.href, "edithistory", "width=640,height=380,resizable=yes,scrollbars=yes,location=no,status=no");
 }

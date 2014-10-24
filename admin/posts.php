@@ -227,7 +227,7 @@ elseif ($_GET['job'] == 'reports') {
         <tr class="mbox">
         <td><input type="checkbox" value="<?php echo $row->id; ?>" name="delete[]" /></td>
         <td>
-        	<strong><a href="popup.php?action=showpost&amp;id=<?php echo $row->id; ?>" target="showpost" onclick="showpost(this); return false;"><?php echo $row->title; ?></a></strong><br />
+			<strong><a href="showtopic.php?action=jumpto&topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->title; ?></a></strong><br />
         	<span class="stext">
         		<a target="_blank" href="showtopic.php?id=<?php echo $row->id; ?>"><?php echo iif($showprefix, '['.$prefix.'] ').$row->topic; ?></a><br />
         		<?php echo $row->forumname; ?>

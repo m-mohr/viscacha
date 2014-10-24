@@ -70,7 +70,7 @@ $breadcrumb->Add($lang->phrase('edit'));
 echo $tpl->parse("header");
 
 if ($info['status'] != 0 && $my->mp[0] != 1) {
-	error($lang->phrase('topic_closed'), 'showtopic.php?action=jumpto&id='.$info['topic_id'].'&topic_id='.$info['id'].SID2URL_x);
+	error($lang->phrase('topic_closed'), 'showtopic.php?action=jumpto&topic_id='.$info['id'].SID2URL_x);
 }
 
 $diff = time()-$info['date'];
@@ -212,7 +212,7 @@ if ($allowed == true) {
 					");
 
 				}
-				ok($lang->phrase('data_success'),'showtopic.php?action=jumpto&id='.$info['topic_id'].'&topic_id='.$info['id'].SID2URL_x);
+				ok($lang->phrase('data_success'),'showtopic.php?action=jumpto&topic_id='.$info['id'].SID2URL_x);
 			}
 		}
 	}

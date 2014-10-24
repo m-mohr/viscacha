@@ -17,7 +17,7 @@
 		 </ul>
 		</div>
     <?php } ?>
-    <strong class="sep">#<a href="popup.php?action=showpost&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->rel_post_num; ?></a></strong>
+    <strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" onclick="return showpost(this)" target="_blank"><?php echo $row->rel_post_num; ?></a></strong>
     <?php if ($my->mp[0] == 1 && $info['posts'] > 0) { ?>
     	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
     <?php } ?>
@@ -29,7 +29,7 @@
 <div class="inlineheader h3">
   <div class="viewmembername">
     <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a>
-    <?php if ($config['post_user_status'] == 1 && $row->guest == 0) { ?>
+    <?php if ($row->guest == 0) { ?>
     <img src="<?php echo $tpl->img(iif($row->online == 1, 'online', 'offline')); ?>"  title="<?php echo $row->lang_online; ?>" alt="<?php echo $row->lang_online; ?>" />
     <?php } ?>
     <br /><span class="stext"><?php echo $row->level; ?></span>
@@ -53,7 +53,7 @@
     	<?php } echo iif(($ratingcounter >= $config['postrating_counter'] || $showrating), '</span>'); ?>
   <?php } ?>
   <span class="stext">
-    <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="popup.php?action=showpost&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row->topic; ?></a></strong>
+    <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" onclick="return showpost(this)" target="_blank"><?php echo $row->topic; ?></a></strong>
   </span>
   <hr />
   <?php echo $row->comment; ?>
@@ -79,8 +79,6 @@
       	<?php if (!empty($row->edit)) { echo $lang->phrase('post_editinfo1'); ?>
       	<strong><a href="popup.php?action=edithistory&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="edithistory" onclick="edithistory(this)"><?php echo $anz; ?></a></strong>
       	<?php echo $lang->phrase('post_editinfo2'); } ?>
-   		<a class="sep" href="#"><img src="<?php echo $tpl->img('asc'); ?>" alt="&uarr;" /></a>&nbsp;
-   		<a href="#copyright"><img src="<?php echo $tpl->img('desc'); ?>" alt="&darr;" /></a>
       </div>
 </div>
 </div>

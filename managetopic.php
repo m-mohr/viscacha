@@ -199,7 +199,7 @@ elseif ($action == "reports") {
 		error($lang->phrase('query_string_error'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if (empty($data['report'])) {
-		error($lang->phrase('admin_report_not_found'), "showtopic.php?action=jumpto&id={$data['topic_id']}&topic_id={$data['id']}".SID2URL_x);
+		error($lang->phrase('admin_report_not_found'), "showtopic.php?action=jumpto&topic_id={$data['id']}".SID2URL_x);
 	}
 
 	echo $tpl->parse("admin/topic/reports");
@@ -207,7 +207,7 @@ elseif ($action == "reports") {
 elseif ($action == "reports2") {
 	if ($_POST['temp'] == 1) {
 		$db->query("UPDATE {$db->pre}replies SET report = '' WHERE id = '{$_GET['topic_id']}' LIMIT 1");
-		ok($lang->phrase('admin_report_reset_success'), "showtopic.php?action=jumpto&id={$info['id']}&topic_id={$_GET['topic_id']}".SID2URL_x);
+		ok($lang->phrase('admin_report_reset_success'), "showtopic.php?action=jumpto&topic_id={$_GET['topic_id']}".SID2URL_x);
 	}
 	else {
 		error($lang->phrase('admin_failed'), 'managetopic.php?action=reports&id='.$info['id'].'&topic_id='.$_GET['topic_id'].SID2URL_x);
@@ -361,25 +361,24 @@ elseif ($action == "vote_edit2") {
 	if (strxlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
-	$i = 1;
-	foreach ($_POST['notice'] as $id => $uval) {
+	$notices = $gpc->get('notice', arr_str);
+	foreach ($notices as $id => $uval) {
 		$uval = trim($uval);
 		if (strlen($uval) >= 255) {
 			$error[] = $lang->phrase('vote_reply_too_long');
 		}
-		$_POST['notice'][$id] = $uval;
-		$i++;
+		$notices[$id] = $uval;
 	}
-	if (count_filled($_POST['notice']) < 2) {
+	if (count_filled($notices) < 2) {
 		$error[] = $lang->phrase('min_replies_vote');
 	}
-	if (count_filled($_POST['notice']) > 50) {
+	if (count_filled($notices) > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
 	if (count($error) > 0) {
 		$data = array(
 			'question' => $_POST['question'],
-			'answer' => $_POST['notice']
+			'answer' => $notices
 		);
 		$fid = save_error_data($data);
 		error($error,'managetopic.php?action=vote_edit&amp;id='.$_GET['id'].'&amp;fid='.$fid.SID2URL_x);
@@ -388,9 +387,9 @@ elseif ($action == "vote_edit2") {
 		$db->query("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$_GET['id']}' LIMIT 1");
 		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
 		while($row = $db->fetch_assoc($result)) {
-			if ($_POST['notice'][$row['id']] != $row['answer']) {
-				if (strlen($_POST['notice'][$row['id']]) > 0) {
-					$db->query("UPDATE {$db->pre}vote SET answer = '{$_POST['notice'][$row['id']]}' WHERE id = '{$row['id']}'");
+			if ($notices[$row['id']] != $row['answer']) {
+				if (strlen($notices[$row['id']]) > 0) {
+					$db->query("UPDATE {$db->pre}vote SET answer = '{$notices[$row['id']]}' WHERE id = '{$row['id']}'");
 				}
 				else {
 					$db->query("DELETE FROM {$db->pre}vote WHERE id = '{$row['id']}'");
@@ -398,8 +397,8 @@ elseif ($action == "vote_edit2") {
 				}
 			}
 		}
-		if (strlen($_POST['notice'][0]) > 0) {
-			$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES ('{$_GET['id']}','{$_POST['notice'][0]}')");
+		if (strlen($notices[0]) > 0) {
+			$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES ('{$_GET['id']}','{$notices[0]}')");
 		}
 		ok($lang->phrase('data_success'),"showtopic.php?id={$_GET['id']}");
 	}
@@ -637,7 +636,7 @@ elseif ($action == "pmerge2") {
 		}
 
 		$anz = count($ids);
-		ok($lang->phrase('x_entries_merged'),"showtopic.php?topic_id=".$base['id']."&action=jumpto&id=".$base['topic_id'].SID2URL_x);
+		ok($lang->phrase('x_entries_merged'),"showtopic.php?action=jumpto&topic_id=".$base['id'].SID2URL_x);
 	}
 }
 

@@ -110,10 +110,11 @@ elseif ($_GET['action'] == "savevote") {
 
 	$temp = $gpc->get('temp', int);
 	$topic_id = $gpc->get('topic_id', int);
+	$notices = $gpc->get('notice', arr_str);
 
 	if (!empty($_POST['Update'])) {
-		$_POST['notice']['question'] = $_POST['question'];
-		$fid = save_error_data($_POST['notice'], $fid);
+		$notices['question'] = $_POST['question'];
+		$fid = save_error_data($notices, $fid);
 		$slog->updatelogged();
 		$db->close();
 		sendStatusCode(302, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
@@ -138,37 +139,37 @@ elseif ($_GET['action'] == "savevote") {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$i = 1;
-	foreach ($_POST['notice'] as $id => $uval) {
+	foreach ($notices as $id => $uval) {
 		$uval = trim($uval);
 		if (strlen($uval) >= 255) {
 			$error[] = $lang->phrase('vote_reply_too_long');
 		}
 		if (strlen($uval) == 0) {
-			unset($_POST['notice'][$id]);
+			unset($notices[$id]);
 		}
 		else {
-			$_POST['notice'][$id] = $uval;
+			$notices[$id] = $uval;
 		}
 		$i++;
 	}
-	if (count_filled($_POST['notice']) < 2) {
+	if (count_filled($notices) < 2) {
 		$error[] = $lang->phrase('min_replies_vote');
 	}
-	if (count_filled($_POST['notice']) > 50) {
+	if (count_filled($notices) > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
 
 	($code = $plugins->load('newtopic_savevote_errorhandling')) ? eval($code) : null;
 
 	if (count($error) > 0) {
-		$_POST['notice']['question'] = $_POST['question'];
+		$notices['question'] = $_POST['question'];
 		($code = $plugins->load('newtopic_savevote_errordata')) ? eval($code) : null;
-		$fid = save_error_data($_POST['notice'], $fid);
+		$fid = save_error_data($notices, $fid);
 		error($error,"newtopic.php?action=startvote&amp;id={$info['board']}&topic_id={$topic_id}&amp;temp={$temp}&amp;fid=".$fid.SID2URL_x);
 	}
 	else {
 		$sqlwhere = array();
-		foreach ($_POST['notice'] as $uval) {
+		foreach ($notices as $uval) {
 			$sqlwhere[] = "({$topic_id}, '{$uval}')";
 		}
 		$sqlwhere = implode(", ",$sqlwhere);

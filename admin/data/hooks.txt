@@ -103,7 +103,6 @@ editprofile.php
 -editprofile_abos2_end
 -editprofile_pw_start
 -editprofile_pw_end
--editprofile_notice2_query
 -editprofile_prepared
 -editprofile_end
 -editprofile_about2_start
@@ -277,11 +276,6 @@ popup.php
 -popup_filetypes_query
 -popup_filetypes_prepared
 -popup_filetypes_end
--popup_showpost_query
--popup_showpost_start
--popup_showpost_attachments_prepared
--popup_showpost_prepared
--popup_showpost_end
 -popup_edithistory_query
 -popup_edithistory_start
 -popup_edithistory_entry_prepared
@@ -313,9 +307,6 @@ profile.php
 -profile_mail_errordata
 -profile_mail_prepared
 -profile_mail_end
--profile_ims_start
--profile_ims_prepared
--profile_ims_start
 -profile_guest_prepared
 -profile_member_start
 -profile_member_prepared

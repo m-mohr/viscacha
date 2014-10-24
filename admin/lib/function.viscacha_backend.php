@@ -471,7 +471,7 @@ function foot($nocopy = false) {
 		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
 		<div id="copyright">
 			Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
-			Copyright &copy; 2004-2009, The Viscacha Project
+			Copyright &copy; 2004-2014, The Viscacha Project
 			<?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
 		</div>
 	<?php } ?>

@@ -48,7 +48,6 @@ if ($job == 'manage') {
 	<span style="float: right;">
 	<a class="button" href="admin.php?action=packages&amp;job=browser&amp;type=<?php echo IMPTYPE_LANGUAGE; ?>"><?php echo $lang->phrase('admin_lang_browse_langpacks'); ?></a>
 	<a class="button" href="admin.php?action=language&amp;job=import" target="Main"><?php echo $lang->phrase('admin_lang_import_lang'); ?></a>
-	<a class="button" href="admin.php?action=language&amp;job=phrase" target="Main"><?php echo $lang->phrase('admin_lang_phrase_manager'); ?></a>
 	</span>
 	<?php echo $lang->phrase('admin_lang_lang_files'); ?>
    </td>
@@ -106,12 +105,12 @@ elseif ($job == 'ajax_publicuse') {
 }
 elseif ($job == 'import') {
 	echo head();
-	$file = $gpc->get('file', str);
+	$file = $gpc->get('file', path);
 	$result = $db->query('SELECT id, language FROM '.$db->pre.'language ORDER BY language');
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=language&job=import2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
-  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_import_langpack'); ?></td></tr>
+  <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_import_lang'); ?></td></tr>
   <tr><td class="mbox"><?php echo $lang->phrase('admin_lang_either_upload_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_allowed_file_types'); ?></span></td>
   <td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
   <tr><td class="mbox"><?php echo $lang->phrase('admin_lang_or_select_from_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_viscacha_root_path'); ?> <?php echo $config['fpath']; ?></span></td>
@@ -698,58 +697,10 @@ elseif ($job == 'lang_rules2') {
 		ok('admin.php?action=language&job=lang_edit&id='.$id);
 	}
 }
-elseif ($job == 'lang_txttpl') {
-	echo head();
-	$id = $gpc->get('id', int);
-	$file = $gpc->get('file', str);
-	$path = "language/{$id}/texts/{$file}.php";
-	if (!file_exists($path)) {
-		error('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_file_x_does_not_exist'));
-	}
-	$tpl = file_get_contents($path);
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=lang_txttpl2&id=<?php echo $id; ?>&file=<?php echo $file; ?>">
- <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr>
-   <td class="obox"><?php echo $lang->phrase('admin_lang_edit_langfile_text_templates'); ?></td>
-  </tr>
-  <tr>
-   <td class="ubox"><?php echo $lang->phrase('admin_lang_vars_help'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" align="center">
-   <textarea name="tpl" rows="15" cols="120"><?php echo $tpl; ?></textarea>
-   </td>
-  </tr>
-  <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'lang_txttpl2') {
-	echo head();
-
-	$id = $gpc->get('id', int);
-	$file = $gpc->get('file', str);
-	if (!is_dir("language/{$id}/texts/")) {
-		$filesystem->mkdir("language/{$id}/texts/", 0777);
-	}
-	$path = "language/{$id}/texts/{$file}.php";
-	if (!file_exists($path)) {
-		error('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_file_x_does_not_exist'));
-	}
-	$tpl = $gpc->get('tpl', none);
-	$filesystem->file_put_contents($path, $tpl);
-
-	ok('admin.php?action=language&job=lang_edit&id='.$id);
-}
 elseif ($job == 'lang_emailtpl') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$file = $gpc->get('file', str);
+	$file = $gpc->get('file', path);
 	$path = "language/{$id}/mails/{$file}.php";
 	if (!file_exists($path)) {
 		error('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_file_x_does_not_exist'));
@@ -786,7 +737,7 @@ elseif ($job == 'lang_emailtpl2') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$file = $gpc->get('file', str);
+	$file = $gpc->get('file', path);
 	if (!is_dir("language/{$id}/mails/")) {
 		$filesystem->mkdir("language/{$id}/mails/", 0777);
 	}
@@ -807,16 +758,19 @@ elseif ($job == 'lang_array') {
 	echo head(' onload="initTranslateDetails()"');
 	$id = $gpc->get('id', int);
 	$page = $gpc->get('page', int, 1);
-	$file = $gpc->get('file', str);
+	$file = $gpc->get('file', path);
 	$lng = return_array($file, $id);
-	$lng = array_map('htmlspecialchars', $lng);
-	$lng = array_map('nl2whitespace', $lng);
-	ksort($lng);
-	$lng = array_chunk($lng, 50, true);
-	if (isset($lng[$page-1]) == false) {
-		error('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_page_not_found'));
+	$pages = 1;
+	if (count($lng) > 0) {
+		$lng = array_map('htmlspecialchars', $lng);
+		$lng = array_map('nl2whitespace', $lng);
+		ksort($lng);
+		$lng = array_chunk($lng, 50, true);
+		if (isset($lng[$page-1]) == false) {
+			error('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_page_not_found'));
+		}
+		$pages = count($lng);
 	}
-	$pages = count($lng);
 	$pages_html = "Seiten ({$pages}):";
 	// Ersetzen durch Buchstaben (?) -> [A] [B] ...
 	for($i=1;$i<=$pages;$i++) {
@@ -827,7 +781,31 @@ elseif ($job == 'lang_array') {
 <form name="form" method="post" action="admin.php?action=language&job=lang_array2&id=<?php echo $id; ?>&file=<?php echo $file; ?>&page=<?php echo $page; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
   <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_edit_langfile'); ?> &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : ucfirst($file); ?></td>
+   <td class="obox" colspan="2">
+   <span style="float: right;">
+	<a class="button" href="admin.php?action=language&amp;job=phrase_add&amp;file=<?php echo $file; ?>&amp;id=<?php echo $id; ?>"><?php echo $lang->phrase('admin_lang_add_new_phrase'); ?></a>
+	<a class="button" href="#" id="menu_acp_switchlang" onmouseover="RegisterMenu('acp_switchlang');"><?php echo $lang->phrase('admin_lang_switch_to_lang'); ?> &#8628;</a>
+	<div class="popup" id="popup_acp_switchlang"><ul>
+	<?php
+	$result = $db->query('SELECT id, language FROM '.$db->pre.'language ORDER BY language');
+	while($row = $db->fetch_assoc($result)) {
+		if ($row['id'] == $id) {
+			continue;
+		}
+		echo "<li><a href=\"admin.php?action=language&amp;job=lang_array&amp;file={$file}&amp;id={$row['id']}\">";
+		if (file_exists("language/{$row['id']}/{$file}.lng.php")) {
+			echo $row['language'];
+		}
+		else {
+			echo "<s>{$row['language']}</s>";
+		}
+		echo "</a></li>";
+	}
+	?>
+	</ul></div>
+   </span>
+	<?php echo $lang->phrase('admin_lang_edit_langfile'); ?> &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : ucfirst($file); ?>
+   </td>
   </tr>
   <tr>
    <td class="mbox stext" colspan="2"><?php echo $lang->phrase('admin_lang_vars_help'); ?></td>
@@ -835,30 +813,26 @@ elseif ($job == 'lang_array') {
   <tr>
    <td class="ubox" colspan="2"><?php echo $pages_html; ?></td>
   </tr>
-  <?php
-  foreach ($lng[$page-1] as $key => $value) {
-  	$word = explode('_', $key);
-  	$word = array_map('ucfirst', $word);
-  	$word = implode(' ', $word);
-  ?>
+  <?php if (isset($lng[$page-1])) { foreach ($lng[$page-1] as $key => $value) { ?>
   <tr>
-   <td class="mbox" width="50%"><img name="c" id="img_lang_<?php echo $key; ?>" src="admin/html/images/plus.gif" alt=""> <?php echo $word; ?>
+   <td class="mbox" width="50%"><img align="absmiddle" name="c" id="img_lang_<?php echo $key; ?>" src="admin/html/images/plus.gif" alt=""> <?php echo $key; ?>
    <div id="part_lang_<?php echo $key; ?>" class="stext">
-   <strong><?php echo $lang->phrase('admin_lang_variable'); ?></strong> <code>$lang->phrase('<?php echo $key; ?>')</code><br />
-   <strong><?php echo $lang->phrase('admin_lang_original'); ?></strong> <?php echo $value; ?>
+	<strong><?php echo $lang->phrase('admin_lang_original'); ?></strong> <?php echo $value; ?><br>
+	<input type="checkbox" name="delete[]" value="<?php echo $key; ?>"> <?php echo $lang->phrase('admin_lang_delete_phrase'); ?>
    </div>
    </td>
    <td class="mbox" width="50%"><input type="text" name="lang_<?php echo $key; ?>" size="70" value="<?php echo $value ?>" /></td>
   </tr>
   <?php } ?>
   <tr>
-   <td class="ubox" colspan="2" align="right">
+   <td class="ubox" colspan="2">
    <?php echo $pages_html; ?>
    </td>
   </tr>
   <tr>
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
   </tr>
+  <?php } ?>
  </table>
 </form>
 	<?php
@@ -867,8 +841,9 @@ elseif ($job == 'lang_array') {
 elseif ($job == 'lang_array2') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$file = $gpc->get('file', str);
+	$file = $gpc->get('file', path);
 	$page = $gpc->get('page', int);
+	$delete = $gpc->get('delete', arr_str);
 
 	$keys = array_keys($_REQUEST);
 	$sent = array();
@@ -878,6 +853,7 @@ elseif ($job == 'lang_array2') {
 		}
 	}
 
+	// Update texte from currently chosen language
 	$c = new manageconfig();
 	$c->getdata("language/{$id}/{$file}.lng.php", 'lang');
 	foreach ($sent as $post => $key) {
@@ -885,7 +861,22 @@ elseif ($job == 'lang_array2') {
 	}
 	$c->savedata();
 
-	if (strpos($file,  'javascript.lng.php') !== false) {
+	// Delete phrases from all languages
+	if (count($delete) > 0) {
+		$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
+		while($row = $db->fetch_assoc($result)) {
+			$path = "language/{$row['id']}/{$file}.lng.php";
+			if (file_exists($path)) {
+				$c->getdata($path, 'lang');
+				foreach ($delete as $key) {
+					$c->delete($key);
+				}
+				$c->savedata();
+			}
+		}
+	}
+
+	if ($file == 'javascript') {
 		$delobj = $scache->load('loadlanguage');
 		$delobj->delete();
 	}
@@ -912,6 +903,26 @@ elseif ($job == 'lang_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
 	$myini = new INI();
+
+	// Emails
+	$mailcategories = array(
+		'/^(register_\d\d|admin_confirmed)$/i' => $lang->phrase('admin_lang_mail_cat_register'),
+		'/^digest_\w$/i' => $lang->phrase('admin_lang_mail_cat_digest'),
+		'' => $lang->phrase('admin_lang_mail_cat_others')
+	);
+	$mailfiles = array();
+	$mailpath = "language/{$id}/mails/";
+	$result = opendir($mailpath);
+	while (($file = readdir($result)) !== false) {
+		$info = pathinfo($mailpath.$file);
+		if ($info['extension'] == 'php') {
+			$name = substr($info['basename'], 0, -(strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));
+			$mailfiles[$name] = $info;
+		}
+	}
+	closedir($result);
+
+
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -927,11 +938,6 @@ elseif ($job == 'lang_edit') {
    <ul>
    <li><a href="admin.php?action=language&job=lang_settings&id=<?php echo $id; ?>"><?php echo $lang->phrase('admin_lang_settings'); ?></a></li>
    <li><a href="admin.php?action=language&job=lang_rules&id=<?php echo $id; ?>"><?php echo $lang->phrase('admin_lang_terms_of_behaviour'); ?></a></li>
-   <li><strong><?php echo $lang->phrase('admin_lang_text_templates'); ?></strong>
-	  <ul>
-	   	<li><a href="admin.php?action=language&job=lang_txttpl&id=<?php echo $id; ?>&file=moved"><?php echo $lang->phrase('admin_lang_topic_moved'); ?></a></li>
-	  </ul>
-   </li>
    <li><a href="admin.php?action=language&job=lang_ignore&id=<?php echo $id; ?>"><?php echo $lang->phrase('admin_lang_ignored_search_keys'); ?></a></li>
    </ul>
    </td>
@@ -958,11 +964,11 @@ elseif ($job == 'lang_edit') {
    	}
 	$d->close();
 	?>
-	<li><strong><?php echo $lang->phrase('admin_lang_packages_phrases'); ?></strong></li>
+	<li><?php echo $lang->phrase('admin_lang_packages_phrases'); ?></li>
 	 <ul>
 	  <li><a href="admin.php?action=language&job=lang_array&id=<?php echo $id; ?>&file=modules"><?php echo $lang->phrase('admin_lang_plugins'); ?></a></li>
 	 </ul>
-	<li><strong><?php echo $lang->phrase('admin_lang_admin_control_panel'); ?></strong>
+	<li><?php echo $lang->phrase('admin_lang_admin_control_panel'); ?>
    <ul>
    <?php
 	$dir = 'language/'.$id.'/admin/';
@@ -989,23 +995,21 @@ elseif ($job == 'lang_edit') {
    <td valign="top">
    <ul>
 	<?php
-	$path = "language/{$id}/mails/";
-	$i = 0;
-	$result = opendir($path);
-	while (($file = readdir($result)) !== false) {
-		$info = pathinfo($path.$file);
-		if ($info['extension'] == 'php') {
-			$n = substr($info['basename'], 0, -(strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));
-			$i++;
-		?>
-	   	<li>
-	   	<a href="admin.php?action=language&job=lang_emailtpl&id=<?php echo $id; ?>&file=<?php echo $n; ?>"><?php echo $n; ?></a>
-	   	<?php echo isset($mailbase[$n]) ? "<br /><span class=\"stext\">{$mailbase[$n]}</span>" : ''; ?>
-	   	</li>
-		<?php
+	foreach ($mailcategories as $pattern => $title) {
+		echo "<li>{$title}:<ul>";
+		foreach ($mailfiles as $name => $info) {
+			if ($info != null && (empty($pattern) || preg_match($pattern, $name))) {
+				?>
+				<li>
+				<a href="admin.php?action=language&job=lang_emailtpl&id=<?php echo $id; ?>&file=<?php echo $name; ?>"><?php echo $name; ?></a>
+				<?php echo isset($mailbase[$name]) ? "<br /><span class=\"stext\">{$mailbase[$name]}</span>" : ''; ?>
+				</li>
+				<?php
+				$mailfiles[$name] = null;
+			}
 		}
+		echo "</ul></li>";
 	}
-	closedir($result);
 	?>
    </ul>
    </td>
@@ -1013,585 +1017,19 @@ elseif ($job == 'lang_edit') {
  </table>
 	<?php
 	echo foot();
-}
-elseif ($job == 'phrase') {
-	echo head();
-	$cache = array();
-	$diff = array();
-	$complete = array();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	while($row = $db->fetch_assoc($result)) {
-		$cache[$row['id']] = $row;
-		$diff[$row['id']] = dir_array('language/'.$row['id'], 'language/'.$row['id']);
-		$complete = array_merge($complete, array_diff($diff[$row['id']], $complete) );
-	}
-	usort($complete, 'sort_dirlist');
-	$width = floor(75/count($cache));
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_delete">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="<?php echo count($cache)+1; ?>">
-   <span style="float: right;"><a class="button" href="admin.php?action=language&job=phrase_add_lngfile"><?php echo $lang->phrase('admin_lang_add_new_langfile'); ?></a> <a class="button" href="admin.php?action=language&job=phrase_add_mailfile"><?php echo $lang->phrase('admin_lang_add_new_mail_file'); ?></a></span>
-   <?php echo $lang->phrase('admin_lang_phrase_manager'); ?></td>
-  </tr>
-  <tr>
-   <td class="mmbox" width="25%">&nbsp;</td>
-   <?php foreach ($cache as $row) { ?>
-   <td class="mmbox" align="center" width="<?php echo $width; ?>%"><?php echo $row['language']; ?> <a class="button" href="admin.php?action=language&job=lang_edit&id=<?php echo $row['id']; ?>"><?php echo $lang->phrase('admin_lang_edit'); ?></a></td>
-   <?php } ?>
-  </tr>
-  <?php foreach ($complete as $file) { ?>
-  <tr>
-   <td class="mmbox" nowrap="nowrap">
-   <input type="checkbox" name="delete[]" value="<?php echo urlencode(base64_encode($file)); ?>">
-   <?php if (substr($file, -8, 8) == '.lng.php') { ?>
-   <a href="admin.php?action=language&job=phrase_file&file=<?php echo urlencode(base64_encode($file)); ?>"><?php echo $file; ?></a>
-   <?php } else { echo $file; } ?>
-   </td>
-   <?php
-   foreach ($cache as $row) {
-   	$status = in_array($file, $diff[$row['id']]);
-   ?>
-   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' <a class="button" href="admin.php?action=language&job=phrase_copy&file='.urlencode(base64_encode($file)).'&id='.$row['id'].'">'.$lang->phrase('admin_lang_add').'</a>'); ?></td>
-   <?php } ?>
-  </tr>
-  <?php } ?>
-  <tr>
-   <td class="ubox" align="center" colspan="<?php echo count($cache)+1; ?>"><input type="submit" value="<?php echo $lang->phrase('admin_lang_delete_selected_items'); ?>"></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_file_find') {
-	$file = $gpc->get('file', path);
-	echo head();
-?>
-<form name="form" method="get" action="admin.php">
-<input type="hidden" name="action" value="language" />
-<input type="hidden" name="job" value="phrase_file" />
-<input type="hidden" name="show" value="search" />
-<input type="hidden" name="file" value="<?php echo $file; ?>" />
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_amanger_find_phrase'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_lang_keyword'); ?></td>
-   <td class="mbox" width="60%"><input type="text" name="key" size="40" /></td>
-  <tr>
-  <tr>
-   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_lang_search_in'); ?><br /><?php echo $lang->phrase('admin_lang_search_in_info'); ?></td>
-   <td class="mbox" width="60%">
-   	<input type="checkbox" name="keys" value="1" checked="checked" /> <?php echo $lang->phrase('admin_lang_keys'); ?><br />
-   	<input type="checkbox" name="values" value="1" checked="checked" /> <?php echo $lang->phrase('admin_lang_values'); ?>
-   </td>
-  <tr>
-   <td class="ubox" align="center" colspan="2"><input type="submit" value="<?php echo $lang->phrase('admin_lang_find'); ?>"></td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'phrase_file') {
-	echo head();
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$group = substr($encfile, 0, strlen($encfile)-8);
-	$page = $gpc->get('page', int, 1);
-	$show = $gpc->get('show', str);
-	$cache = array();
-	$diff = array();
-	$complete = array();
-	$lang_data = array();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	while($row = $db->fetch_assoc($result)) {
-		$cache[$row['id']] = $row;
-		$lang_data[$row['id']] = return_array($group, $row['id']);
-		$diff[$row['id']] = array_keys($lang_data[$row['id']]);
-		$complete = array_merge($complete, array_diff($diff[$row['id']], $complete) );
-	}
-	$search = $gpc->get('key', none);
-	$keys = $gpc->get('keys', int);
-	$values = $gpc->get('values', int);
-	if ($show == 'diff') {
-		$same = call_user_func_array('array_intersect', $diff);
-		$complete = array_diff($complete, $same);
-	}
-	elseif ($show == 'search') {
-		if (strlen($search) < 3) {
-			error('admin.php?action=language&job=phrase_file_find', $lang->phrase('admin_lang_keyword_too_short'));
-		}
-		$ids = array_keys($cache);
-		foreach ($complete as $index => $key) {
-			$found = false;
-			if ($keys == 1 && stristr($key, $search) !== false) {
-				$found = true;
-			}
-			if ($values == 1 && $found == false) {
-				foreach ($ids as $id) {
-					if (isset($lang_data[$id][$key]) && stristr($lang_data[$id][$key], $search) !== false) {
-						$found = true;
-					}
-				}
-			}
-			if ($found == false) {
-				unset($complete[$index]);
-			}
-		}
-	}
-	sort($complete);
-	$width = floor(75/count($cache));
-	if ($show == 'diff' || $show == 'search') {
-		$perpage = 100;
-	}
-	else {
-		$perpage = 50;
-	}
-	$data = array_chunk($complete, $perpage);
-	if (!isset($data[$page-1])) {
-		$page = 1;
-	}
-	$pages = $anz = count($data);
-	$pages_html = $lang->phrase('admin_pages');
-	// ToDo: Ersetzen durch Buchstaben (?) -> [A] [B] ...
-	for($i=1;$i<=$pages;$i++) {
-   		$pages_html .= ' ['.iif($i == $page, "<strong>{$i}</strong>", "<a href='admin.php?action=language&amp;job=phrase_file&amp;file={$file}&amp;page={$i}&amp;show={$show}&amp;key={$search}&amp;keys={$keys}&amp;values={$values}'>{$i}</a>").']';
-	}
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_file_delete&file=<?php echo $file; ?>">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="<?php echo count($cache)+1; ?>">
-   <span style="float: right;">
-   <?php if ($show == 'diff') { ?>
-	<a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>"><?php echo $lang->phrase('admin_lang_show_all_phrases'); ?></a>
-   <?php } else { ?>
-	<a class="button" href="admin.php?action=language&job=phrase_file&file=<?php echo $file; ?>&show=diff"><?php echo $lang->phrase('admin_lang_show_only_differences'); ?></a>
-   <?php } ?>
-	<a class="button" href="admin.php?action=language&job=phrase_file_find&file=<?php echo $file; ?>"><?php echo $lang->phrase('admin_lang_find_phrases'); ?></a>
-	<a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>"><?php echo $lang->phrase('admin_lang_add_new_phrase'); ?></a>
-   </span>
-   <?php echo $lang->phrase('admin_lang_phrase_manager'); ?> &raquo; <?php echo $encfile; ?></td>
-  </tr>
-  <?php if (count($cache) < 2 && $show == 'diff') { ?>
-  <tr>
-   <td class="mbox" colspan="<?php echo count($cache)+1; ?>"><?php echo $lang->phrase('admin_lang_not_enough_lang_found_to_compare'); ?></td>
-  </tr>
-  <?php } elseif (!isset($data[$page-1]) || count($data[$page-1]) == 0) { ?>
-  <tr>
-   <td class="mbox" colspan="<?php echo count($cache)+1; ?>"><?php echo $lang->phrase('admin_lang_no_phrases_saved_yet'); ?> <a class="button" href="admin.php?action=language&job=phrase_add&file=<?php echo $file; ?>"><?php echo $lang->phrase('admin_lang_add_new_phrase'); ?></a></td>
-  </tr>
-  <?php } else { ?>
-  <tr>
-   <td class="ubox" colspan="<?php echo count($cache)+1; ?>"><?php echo $pages_html; ?></td>
-  </tr>
-  <tr>
-   <td class="mmbox" width="25%">&nbsp;</td>
-   <?php foreach ($cache as $row) { ?>
-   <td class="mmbox" align="center" width="<?php echo $width; ?>%"><?php echo $row['language']; ?></td>
-   <?php } ?>
-  </tr>
-  <?php foreach ($data[$page-1] as $phrase) { ?>
-  <tr>
-   <td class="mmbox" nowrap="nowrap"><input type="checkbox" name="delete[]" value="<?php echo $phrase; ?>">&nbsp;<a class="button" href="admin.php?action=language&job=phrase_file_edit&file=<?php echo $file; ?>&phrase=<?php echo $phrase; ?>"><?php echo $lang->phrase('admin_lang_edit'); ?></a>&nbsp;<?php echo $phrase; ?></td>
-   <?php
-   foreach ($cache as $row) {
-   	$status = in_array($phrase, $diff[$row['id']]);
-   ?>
-   <td class="mbox" align="center"><?php echo noki($status).iif(!$status, ' <a class="button" href="admin.php?action=language&job=phrase_file_copy&file='.$file.'&id='.$row['id'].'&phrase='.$phrase.'">'.$lang->phrase('admin_lang_add').'</a>'); ?></td>
-   <?php } ?>
-  </tr>
-  <?php } ?>
-  <tr>
-   <td class="ubox" colspan="<?php echo count($cache)+1; ?>"><?php echo $pages_html; ?></td>
-  </tr>
-  <tr>
-   <td class="ubox" align="center" colspan="<?php echo count($cache)+1; ?>"><input type="submit" value="<?php echo $lang->phrase('admin_lang_delete_selected_phrases'); ?>"></td>
-  </tr>
-  <?php } ?>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_copy') {
-	$language = $gpc->get('id', int);
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	echo head();
-	?>
-<form name="form" method="post" action="admin.php?action=language&amp;job=phrase_copy2&amp;file=<?php echo $file; ?>&amp;id=<?php echo $language; ?>">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager'); ?> &raquo; <?php echo $encfile; ?> &raquo; <?php echo $lang->phrase('admin_lang_copy_file'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_template_directory'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_directory_from_where_file_should_be_copied'); ?></span></td>
-   <td class="mbox" width="50%"><select name="dir">
-	<?php
-	while($row = $db->fetch_assoc($result)) {
-		if (file_exists('language/'.$row['id'].'/'.$encfile)) {
-	?>
-   	<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?> (ID: <?php echo $row['id']; ?>)</option>
-	<?php } } ?>
-   </select></td>
-  </tr>
-  <tr>
-   <td class="ubox" align="center" colspan="2"><input type="submit" value="<?php echo $lang->phrase('admin_lang_copy_file'); ?>"></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_copy2') {
-	$dest = $gpc->get('id', int);
-	$file = base64_decode($gpc->get('file', path));
-	$source = $gpc->get('dir', int);
-	echo head();
-	createParentDir($file, 'language/'.$dest);
-	$dest = 'language/'.$dest.'/'.$file;
-	$source = 'language/'.$source.'/'.$file;
-	if (file_exists($dest)) {
-		error('admin.php?action=language&job=phrase', $lang->phrase('admin_lang_file_already_exists_not_overwritten'));
-	}
-	if (!file_exists($source)) {
-		error('admin.php?action=language&job=phrase', $lang->phrase('admin_lang_file_does_not_exist'));
-	}
-	$filesystem->copy($source, $dest);
-	if (file_exists($dest)) {
-		ok('admin.php?action=language&job=phrase', $lang->phrase('admin_lang_file_successfully_copied'));
-	}
-	else {
-		error('admin.php?action=language&job=phrase', $lang->phrase('admin_lang_file_could_not_be_copied'));
-	}
-}
-elseif ($job == 'phrase_file_edit') {
-	echo head();
-
-	$phrase = $gpc->get('phrase', none);
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$basefile = substr($encfile, 0, strlen($encfile)-8);
-
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	$cache = array();
-	while($row = $db->fetch_assoc($result)) {
-	  	$phrases = return_array($basefile, $row['id']);
-	  	if (!isset($phrases[$phrase])) {
-	  		$row['phrase'] = '';
-	  	}
-	  	else {
-	  		$row['phrase'] = $phrases[$phrase];
-	  	}
-	  	unset($phrases);
-	  	$cache[$row['id']] = $row;
-	}
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_file_edit2&file=<?php echo $file; ?>">
- <table class="border" border="0" cellspacing="0" cellpediting="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager_edit_new_to_package'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_varname'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_varname_can_only_contain_letters_etc'); ?></span></td>
-   <td class="mbox" width="50%"><input type="hidden" name="varname" size="50" value="<?php echo $phrase; ?>" /><code><?php echo $phrase; ?></code></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_text'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_default_used_lang'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo htmlspecialchars(nl2whitespace($cache[$config['langdir']]['phrase'])); ?>" /></td>
-  </tr>
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_translations'); ?></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2"><ul>
-	<li><?php echo $lang->phrase('admin_lang_when_editing_a_custom_phrase'); ?></li>
-	<li><?php echo $lang->phrase('admin_lang_if_translation_box_left_blank'); ?></li>
-   </ul></td>
-  </tr>
-  <?php foreach ($cache as $row) { ?>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_translation'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_optional_html_not_recommended'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo htmlspecialchars(nl2whitespace($row['phrase'])); ?>" /></td>
-  </tr>
-  <?php } ?>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_file_edit2') {
-	echo head();
-
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$varname = $gpc->get('varname', none);
-	$text = $gpc->get('text', none);
-	$language = $gpc->get('langt', arr_none);
-
-	$c = new manageconfig();
-	foreach ($language as $id => $t) {
-		if (empty($t)) {
-			$t = $text;
-		}
-		$c->getdata("language/{$id}/{$encfile}", 'lang');
-		$c->updateconfig($varname, str, $t);
-		$c->savedata();
-	}
-
-	if (strpos($encfile,  'javascript.lng.php') !== false) {
-		$delobj = $scache->load('loadlanguage');
-		$delobj->delete();
-	}
-
-	ok('admin.php?action=language&job=phrase_file&file='.$file);
-}
-elseif ($job == 'phrase_file_copy') {
-	$language = $gpc->get('id', int);
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$phrase = $gpc->get('phrase', str);
-	$result = $db->query("SELECT * FROM {$db->pre}language WHERE id != '{$language}' ORDER BY language");
-	echo head();
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_file_copy2&phrase=<?php echo $phrase; ?>&file=<?php echo $file; ?>&id=<?php echo $language; ?>">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager'); ?> &raquo; <?php echo $encfile; ?> &raquo; <?php echo $lang->phrase('admin_lang_copy_phrase'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_used_as_original'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_used_as_original_info'); ?></span></td>
-   <td class="mbox" width="50%"><select name="dir">
-	<?php
-	$basefile = substr($encfile, 0, strlen($encfile)-8);
-	while($row = $db->fetch_assoc($result)) {
-		if (file_exists('language/'.$row['id'].'/'.$encfile)) {
-			$langarr = return_array($basefile, $row['id']);
-			if (isset($langarr[$phrase])) {
-	?>
-   	<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?> (ID: <?php echo $row['id']; ?>)</option>
-	<?php } } } ?>
-   </select></td>
-  </tr>
-  <tr>
-   <td class="ubox" align="center" colspan="2"><input type="submit" value="<?php echo $lang->phrase('admin_lang_copy_phrase'); ?>"></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_file_copy2') {
-	echo head();
-	$dest = $gpc->get('id', int);
-	$source = $gpc->get('dir', int);
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$phrase = $gpc->get('phrase', str);
-	$destpath = 'language/'.$dest.'/'.$encfile;
-	$c = new manageconfig();
-	if (!file_exists($destpath)) {
-		createParentDir($encfile, 'language/'.$dest);
-		$c->createfile($destpath, 'lang');
-	}
-	$encfile = substr($encfile, 0, strlen($encfile)-8);
-	$langarr = return_array($encfile, $source);
-	if (!isset($langarr[$phrase])) {
-		error('admin.php?action=language&job=phrase_file&file='.$file, $lang->phrase('admin_lang_phrase_not_found'));
-	}
-	$c->getdata($destpath, 'lang');
-	$c->updateconfig($phrase, str, $langarr[$phrase]);
-	$c->savedata();
-	ok('admin.php?action=language&job=phrase_file&file='.$file, $lang->phrase('admin_lang_phrase_copied'));
-}
-elseif ($job == 'phrase_delete') {
-	echo head();
-	$delete = $gpc->get('delete', arr_none);
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	while($row = $db->fetch_assoc($result)) {
-		foreach ($delete as $base) {
-			$base = base64_decode($base);
-			$path = "language/{$row['id']}/{$base}";
-			if (file_exists($path)) {
-				$filesystem->unlink($path);
-			}
-		}
-	}
-	ok('admin.php?action=language&job=phrase', $lang->phrase('admin_lang_deleted_selected_files'));
-}
-elseif ($job == 'phrase_file_delete') {
-	echo head();
-	$delete = $gpc->get('delete', arr_str);
-	$file = $gpc->get('file', path);
-	$encfile = base64_decode($file);
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	$c = new manageconfig();
-	while($row = $db->fetch_assoc($result)) {
-		$path = "language/{$row['id']}/{$encfile}";
-		if (file_exists($path)) {
-			$c->getdata($path, 'lang');
-			foreach ($delete as $phrase) {
-				$c->delete($phrase);
-			}
-			$c->savedata();
-		}
-	}
-	if (strpos($encfile,  'javascript.lng.php') !== false) {
-		$delobj = $scache->load('loadlanguage');
-		$delobj->delete();
-	}
-	ok('admin.php?action=language&job=phrase_file&file='.$file, $lang->phrase('admin_lang_selected_phrases_deleted'));
-}
-elseif ($job == 'phrase_add_lngfile') {
-	echo head();
-	$myini = new INI();
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_add_lngfile2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager_add_new_langfile'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_filename'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_filename_can_only_contain_letters_etc'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="file" size="50" />.lng.php</td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_directory'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_directory_where_file_is_saved'); ?></span></td>
-   <td class="mbox" width="50%"><select name="dir">
-	<option value="<?php echo base64_decode(''); ?>">language/ID/ <?php echo $lang->phrase('admin_lang_main_dir_langfiles'); ?></option>
-	<option value="<?php echo base64_decode('admin/'); ?>">language/ID/admin/ </option>
-   </select></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_create'); ?>" /></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_add_lngfile2') {
-	$dir = base64_decode($gpc->get('dir', path));
-	$file = $gpc->get('file', path);
-	$c = new manageconfig();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	while($row = $db->fetch_assoc($result)) {
-		$c->createfile("language/{$row['id']}/{$dir}{$file}.lng.php", 'lang');
-	}
-	echo head();
-	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode("{$dir}{$file}.lng.php")), $lang->phrase('admin_lang_langfile_created'));
-}
-elseif ($job == 'phrase_add_mailfile') {
-	echo head();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_add_mailfile2">
- <table class="border" border="0" cellspacing="0" cellpadding="4">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_add_new_mail_file'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_lang_filename'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_filename_can_only_contain_letters_etc'); ?></span></td>
-   <td class="mbox" width="70%"><input type="text" name="file" size="80">.php</td>
-  </tr>
-  <tr>
-   <td class="mmbox" width="30%"><?php echo $lang->phrase('admin_lang_help'); ?></td>
-   <td class="mmbox stext" width="70%"><?php echo $lang->phrase('admin_lang_vars_help'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_lang_title'); ?></td>
-   <td class="mbox" width="70%"><input type="text" name="title" size="80" value="<?php echo $lang->phrase('admin_lang_your_title'); ?>"></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_lang_text'); ?></td>
-   <td class="mbox" width="70%"><textarea name="tpl" rows="8" cols="80"><?php echo $lang->phrase('admin_lang_mailfile_text'); ?></textarea></td>
-  </tr>
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_translations'); ?></td>
-  </tr>
-  <tr>
-   <td class="mmbox" colspan="2">
-   <ul>
-	<li><?php echo $lang->phrase('admin_lang_mailfile_help1'); ?></li>
-	<li><?php echo $lang->phrase('admin_lang_mailfile_help2'); ?></li>
-   </ul>
-   </td>
-  </tr>
-  <?php while($row = $db->fetch_assoc($result)) { ?>
-  <tr>
-   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_lang_translation'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_lang_title'); ?></td>
-   <td class="mbox" width="70%"><input type="text" name="titles[<?php echo $row['id']; ?>]" size="80"></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_lang_text'); ?></td>
-   <td class="mbox" width="70%"><textarea name="texts[<?php echo $row['id']; ?>]" rows="5" cols="80"></textarea></td>
-  </tr>
-  <?php } ?>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_create'); ?>" /></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'phrase_add_mailfile2') {
-	echo head();
-
-	$file = $gpc->get('file', str);
-	$tpl = $gpc->get('tpl', none);
-	$title = $gpc->get('title', none);
-	$titles = $gpc->get('titles', none);
-	$texts = $gpc->get('texts', none);
-
-	foreach ($titles as $id => $tit) {
-		if (!empty($texts[$id])) {
-			$tex = $texts[$id];
-		}
-		else {
-			$tex = $tpl;
-		}
-		if (empty($tit)) {
-			$tit = $title;
-		}
-		$xml = "<mail>\n\t<title>{$tit}</title>\n\t<comment>{$tex}</comment>\n</mail>";
-		$filesystem->file_put_contents("language/{$id}/mails/{$file}.php", $xml);
-	}
-
-	ok('admin.php?action=language&job=phrase');
 }
 elseif ($job == 'phrase_add') {
 	echo head();
-	$file = base64_decode($gpc->get('file', path));
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
+	$id = $gpc->get('id', int);
+	$file = $gpc->get('file', path);
 	?>
-<form name="form" method="post" action="admin.php?action=language&job=phrase_add2&file=<?php echo $gpc->get('file', path); ?>">
+<form name="form" method="post" action="admin.php?action=language&amp;job=phrase_add2&amp;file=<?php echo $file; ?>&amp;id=<?php echo $id; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_phrase_manager'); ?> &raquo; <?php echo $file; ?> &raquo; <?php echo $lang->phrase('admin_lang_add_new_phrase'); ?></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_lang_add_new_phrase'); ?> &raquo; <?php echo $file; ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_varname'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_lang_varname_can_only_contain_letters_etc'); ?></span></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_varname'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_varname_can_only_contain_letters_etc'); ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="varname" size="50" value="" /></td>
   </tr>
   <tr>
@@ -1608,16 +1046,17 @@ elseif ($job == 'phrase_add') {
    </ul></td>
   </tr>
   <?php
+  $result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
   while($row = $db->fetch_assoc($result)) {
-  if (file_exists('language/'.$row['id'].'/'.$file)) {
-  ?>
+    if (file_exists("language/{$row['id']}/{$file}.lng.php")) {
+    ?>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_translation'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_optional_html_not_recommended'); ?></span></td>
    <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" /></td>
   </tr>
   <?php } } ?>
   <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
+   <td class="ubox" colspan="2" align="center"><input type="submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
   </tr>
  </table>
 </form>
@@ -1626,27 +1065,28 @@ elseif ($job == 'phrase_add') {
 }
 elseif ($job == 'phrase_add2') {
 	echo head();
+	$source_id = $gpc->get('id', int);
+	$file = $gpc->get('file', path);
 	$varname = $gpc->get('varname', none);
 	$text = $gpc->get('text', none);
-	$file = base64_decode($gpc->get('file', path));
 	$language = $gpc->get('langt', arr_none);
 
 	$c = new manageconfig();
 	foreach ($language as $id => $t) {
-		if (empty($t)) {
-			$t = $text;
-		}
-		$c->getdata("language/{$id}/{$file}", 'lang');
-		$c->updateconfig($varname, str, $t);
+		$c->getdata("language/{$id}/{$file}.lng.php", 'lang');
+		$c->updateconfig($varname, str, iif(empty($t), $text, $t));
 		$c->savedata();
 	}
 
-	if (strpos($file,  'javascript.lng.php') !== false) {
+	if ($file == 'javascript') {
 		$delobj = $scache->load('loadlanguage');
 		$delobj->delete();
 	}
 
-	ok('admin.php?action=language&job=phrase_file&file='.urlencode(base64_encode($file)));
+	if (is_id($source_id))
+		ok('admin.php?action=language&job=lang_array&id='.$source_id.'&file='.$file);
+	else
+		ok('admin.php?action=language&job=phrase_add&file='.$file);
 }
 else {
 	sendStatusCode(302, $config['furl'].'/admin.php?action=language&job=manage');

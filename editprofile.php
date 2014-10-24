@@ -258,54 +258,6 @@ elseif ($_GET['action'] == "pw") {
 	echo $tpl->parse("editprofile/pw");
 	($code = $plugins->load('editprofile_pw_end')) ? eval($code) : null;
 }
-elseif ($_GET['action'] == "notice2") {
-
-	$notes = array();
-	foreach ($_POST['notice'] as $note) {
-		if (!empty($note) && strxlen($note) > 2) {
-			$notes[] = str_replace('[VSEP]','&#91;VSEP&#93;',$note);
-		}
-	}
-
-	if (strxlen(implode('',$notes)) > $config['maxnoticelength']) {
-		error($lang->phrase('notices_too_long'));
-	}
-	else {
-		$sqlnotes = implode('[VSEP]',$notes);
-		($code = $plugins->load('editprofile_notice2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET notice = '{$sqlnotes}' WHERE id = '{$my->id}' LIMIT 1");
-		ok($lang->phrase('text_to_notice_success'), 'editprofile.php?action=notice'.SID2URL_x);
-	}
-
-}
-elseif ($_GET['action'] == "notice") {
-	$breadcrumb->Add($lang->phrase('editprofile_notice'));
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
-	if (empty($my->notice)) {
-		$notices = array();
-	}
-	else {
-		$notices = explode('[VSEP]',$my->notice);
-		if (!is_array($notices)) {
-			$notices = array($notices);
-		}
-	}
-	foreach ($notices as $key => $note) {
-		$notices[$key] = array(
-			'length' => numbers(strxlen($note)),
-			'text' => $note,
-			'rows' => count_nl($note, 15)+1
-		);
-	}
-	$notes = count($notices);
-	$used_chars = numbers(strxlen(str_replace('[VSEP]', '', $my->notice)));
-	$chars = numbers($config['maxnoticelength']);
-
-	($code = $plugins->load('editprofile_prepared')) ? eval($code) : null;
-	echo $tpl->parse("editprofile/notice");
-	($code = $plugins->load('editprofile_end')) ? eval($code) : null;
-}
 elseif ($_GET['action'] == "signature") {
 	if (!empty($_POST['Submit'])) {
 		$error = array();
@@ -526,7 +478,6 @@ elseif ($_GET['action'] == "profile") {
 	if (empty($bday[2])) {
 		$bday[2] = '00';
 	}
-	$my->icq = iif(empty($my->icq), '', $my->icq);
 	$year = gmdate('Y');
 	$maxy = $year-6;
 	$miny = $year-100;
@@ -612,11 +563,6 @@ elseif ($_GET['action'] == "profile2") {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		$_POST['icq'] = str_replace('-', '', $_POST['icq']);
-		if (!is_id($_POST['icq'])) {
-			$_POST['icq'] = 0;
-		}
-
 		if ($config['changename_allowed'] == 1 && $_POST['name'] != $my->name) {
 			$changename = ", name = '{$_POST['name']}'";
 			$cache = $scache->load('memberdata');
@@ -628,7 +574,7 @@ elseif ($_GET['action'] == "profile2") {
 
 		($code = $plugins->load('editprofile_profile2_query')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
+		$db->query("UPDATE {$db->pre}user SET birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('data_success'), "editprofile.php?action=profile".SID2URL_x);
 	}
 
@@ -690,14 +636,8 @@ elseif ($_GET['action'] == "settings2") {
 	if (intval($_POST['location']) < -12 && intval($_POST['location']) > 12) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('timezone');
 	}
-	if ($_POST['opt_0'] < 0 && $_POST['opt_0'] > 2) {
-		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_editor');
-	}
 	if ($_POST['opt_1'] != 0 && $_POST['opt_1'] != 1) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_emailpn');
-	}
-	if ($_POST['opt_2'] != 0 && $_POST['opt_2'] != 1) {
-		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_bad');
 	}
 	if ($_POST['opt_3'] < 0 && $_POST['opt_3'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_showmail');
@@ -742,9 +682,7 @@ elseif ($_GET['action'] == "settings2") {
 			iif(($config['hidelanguage'] == 0 && $_POST['opt_5'] > 0), "language = '{$_POST['opt_5']}',")
 			."
 			timezone = '{$_POST['location']}',
-			opt_textarea = '{$_POST['opt_0']}',
 			opt_pmnotify = '{$_POST['opt_1']}',
-			opt_hidebad = '{$_POST['opt_2']}',
 			opt_hidemail = '{$_POST['opt_3']}',
 			opt_newsletter = '{$_POST['opt_6']}',
 			opt_showsig = '{$_POST['opt_7']}'

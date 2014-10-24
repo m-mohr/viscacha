@@ -133,54 +133,6 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 		errorLogin();
 	}
 }
-elseif ($_GET['action'] == "ims" && $is_member) {
-	$error = array();
-	if ($my->p['profile'] == 0) {
-		$error[] = $lang->phrase('not_allowed');
-	}
-
-	$sqlfields = '';
-
-	($code = $plugins->load('profile_ims_start')) ? eval($code) : null;
-
-	if ($_GET['type'] == 'icq' || $_GET['type'] == 'aol' || $_GET['type'] == 'yahoo' || $_GET['type'] == 'msn' || $_GET['type'] == 'jabber' || $_GET['type'] == 'skype') {
-		$imtext = $lang->phrase('im_'.$_GET['type']);
-	}
-	else {
-		$error[] = $lang->phrase('query_string_error');
-	}
-
-	$result = $db->query("SELECT id, name, icq, aol, yahoo, msn, jabber, skype {$sqlfields} FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
-
-	$row = $slog->cleanUserData($db->fetch_assoc($result));
-	if (empty($row[$_GET['type']])) {
-		$error[] = $lang->phrase('im_no_data');
-	}
-
-	if (count($error) > 0) {
-		errorLogin($error, 'profile.php?id='.$_GET['id'].SID2URL_x);
-	}
-	else {
-		$t = $_GET['type'];
-		$d = $row[$_GET['type']];
-
-		$breadcrumb->Add($imtext);
-		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
-		include("classes/class.imstatus.php");
-		$imstatus = new IMStatus();
-		$status = $imstatus->$t($d);
-		if ($status) {
-			$imstatus = $lang->phrase('im_status_'.$status);
-		}
-		else {
-			$imstatus = $lang->phrase('im_no_connection').'<!-- Error #'.$imstatus->error(IM_ERRNO).' occurred during query: '.$imstatus->error(IM_ERRSTR).' -->';
-		}
-		($code = $plugins->load('profile_ims_prepared')) ? eval($code) : null;
-		echo $tpl->parse("profile/ims");
-		($code = $plugins->load('profile_ims_start')) ? eval($code) : null;
-	}
-}
 elseif ($is_guest) {
 	$breadcrumb->resetUrl();
 	echo $tpl->parse("header");
@@ -232,14 +184,6 @@ elseif ($is_member) {
 		BBProfile($bbcode, 'signature');
 		$row->signature = $bbcode->parse($row->signature);
 
-		// Set the instant-messengers
-		if ($row->jabber || $row->icq > 0 || $row->aol || $row->msn || $row->yahoo || $row->skype) {
-			$imanz = 1;
-		}
-		else {
-			$imanz = 0;
-		}
-
 		if ($row->gender == 'm') {
 			$gender = $lang->phrase('gender_m');
 		}
@@ -267,17 +211,12 @@ elseif ($is_member) {
 			$bday[1] = $lang->phrase('months_'.intval($bday[1]));
 		}
 
-		$osi = '';
-		if ($config['osi_profile'] == 1) {
-			$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
-			$wwo = $db->fetch_num($result);
-			if ($wwo[0] > 0) {
-				$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
-				$osi = 1;
-			}
-			else {
-				$osi = 0;
-			}
+		$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
+		$wwo = $db->fetch_num($result);
+		$osi = false;
+		if ($wwo[0] > 0) {
+			$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
+			$osi = true;
 		}
 
 		// Custom Profile Fields

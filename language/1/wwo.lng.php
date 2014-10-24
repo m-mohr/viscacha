@@ -34,8 +34,6 @@ $lang['wwo_pm_view'] = 'Liest eine private Nachricht';
 $lang['wwo_pm_write'] = 'Schreibt eine <a href="pm.php?action=new">private Nachricht</a>';
 $lang['wwo_popup'] = 'Liest die Hilfe';
 $lang['wwo_popup_filetypes'] = 'Liest die Beschreibung eines Dateityps';
-$lang['wwo_popup_showpost'] = 'Betrachtet einen einzelnen Beitrag: <a href="popup.php?action=showpost&id={$id}" target="showpost" onclick="showpost(this)">{$title}</a>';
-$lang['wwo_popup_showpost_fallback'] = 'Betrachtet einen einzelnen Beitrag';
 $lang['wwo_portal'] = 'Betrachtet das <a href="index.php">Portal</a>';
 $lang['wwo_print'] = 'Druckt einen Beitrag: <a href="print.php?id={$id}">{$title}</a>';
 $lang['wwo_print_fallback'] = 'Druckt ein Thema';

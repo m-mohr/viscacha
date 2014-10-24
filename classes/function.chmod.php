@@ -124,7 +124,6 @@ function getViscachaCHMODs() {
 		array('path' => 'classes/cron/jobs', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
 		array('path' => 'classes/feedcreator', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
 		array('path' => 'classes/fonts', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
-		array('path' => 'classes/geshi', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
 		array('path' => 'classes/graphic/noises', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
 
 		array('path' => 'feeds', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),

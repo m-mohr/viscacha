@@ -32,13 +32,6 @@ if ($job == 'upload') {
 		$dir = realpath('./classes/cron/jobs/');
 		$url = 'javascript:history.back();';
 	}
-	elseif ($cfg == 'codefiles') {
-		$ups = 1;
-		$filesize = 200; // 200KB
-		$filetypes = 'php';
-		$dir = realpath('./classes/geshi/');
-		$url = 'admin.php?action=bbcodes&job=codefiles';
-	}
 	elseif ($cfg == 'dbrestore') {
 		$ups = 1;
 		$filesize = ini_maxupload();

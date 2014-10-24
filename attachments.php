@@ -122,29 +122,11 @@ elseif ($_GET['action'] == "attachment") {
 		$mime = get_mimetype($uppath);
 
 		($code = $plugins->load('attachments_attachment_prepared')) ? eval($code) : null;
-		if ($config['tpcdownloadspeed'] > 0 && $mime['browser'] == 'attachment') {
-			$rundeslimit = round($config['tpcdownloadspeed']*1024);
+		viscacha_header('Content-Type: '.$mime['mime']);
+		viscacha_header('Content-Length: '.filesize($uppath));
+		viscacha_header('Content-Disposition: '.$mime['browser'].'; filename="'.$row['file'].'"');
+		readfile($uppath);
 
-			viscacha_header('Cache-control: private');
-			viscacha_header('Content-Type: '.$mime['mime']);
-			viscacha_header('Content-Length: '.filesize($uppath));
-			viscacha_header('Content-Disposition: '.$mime['browser'].'; filename="'.$row['file'].'"');
-
-			flush();
-			$fd = fopen($uppath, "r");
-			while(!feof($fd)) {
-				echo fread($fd, $rundeslimit);
-				flush();
-				sleep(1);
-			}
-			fclose ($fd);
-		}
-		else {
-			viscacha_header('Content-Type: '.$mime['mime']);
-			viscacha_header('Content-Length: '.filesize($uppath));
-			viscacha_header('Content-Disposition: '.$mime['browser'].'; filename="'.$row['file'].'"');
-			readfile($uppath);
-		}
 		($code = $plugins->load('attachments_attachment_end')) ? eval($code) : null;
 		$slog->updatelogged();
 		$db->close();

@@ -6,24 +6,6 @@ define('ADMIN_IMPORT_PATH', 'admin/lib/import/');
 // BF: MultiLangAdmin
 $lang->group("admin/db");
 
-function highlight_sql_query($sql) {
-	require_once('classes/class.geshi.php');
-	$path = 'classes/geshi';
-	$language = 'mysql';
-	if (!file_exists($path.'/'.$language.'.php')) {
-		$language = 'sql';
-		if (!file_exists($path.'/'.$language.'.php')) {
-			return null;
-		}
-	}
-	$geshi = new GeSHi($sql, $language, $path);
-	$geshi->enable_classes(false);
-	$geshi->set_header_type(GESHI_HEADER_DIV);
-	$geshi->enable_line_numbers(GESHI_FANCY_LINE_NUMBERS, 5);
-	$geshi->enable_keyword_links(false);
-	return $geshi->parse_code();
-}
-
 function exec_query_form ($query = '') {
 	global $db, $lang;
 	$tables = $db->list_tables();
@@ -79,86 +61,7 @@ function exec_query_form ($query = '') {
 
 ($code = $plugins->load('admin_db_jobs')) ? eval($code) : null;
 
-if ($job == 'optimize') {
-	echo head();
-	$tables = array();
-	$data_length = 0;
-	$index_length = 0;
-	$data_free = 0;
-	$result = $db->query("SHOW TABLE STATUS");
-	while($table = $db->fetch_assoc($result)) {
-		$table['Engine'] = (!empty($table['Type']) ? $table['Type'] : $table['Engine']);
-		$table['possible'] = (!in_array(strtolower($table['Engine']), array('heap', 'memory')));
-		$data_length += $table['Data_length'];
-		$index_length += $table['Index_length'];
-		$data_free += $table['Data_free'];
-		$tables[] = $table;
-	}
-	?>
-<form name="form" method="post" action="admin.php?action=db&job=optimize2">
- <table class="border">
-  <tr>
-   <td class="obox" colspan="6"><?php echo $lang->phrase('admin_db_repair_and_optimize'); ?></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="7%"><?php echo $lang->phrase('admin_db_repair'); ?></td>
-   <td class="ubox" width="7%"><?php echo $lang->phrase('admin_db_optimize'); ?></td>
-   <td class="ubox" width="47%"><?php echo $lang->phrase('admin_db_database'); ?></td>
-   <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_data_length'); ?></td>
-   <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_index_length'); ?></td>
-   <td class="ubox" width="13%"><?php echo $lang->phrase('admin_db_overhead'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><input type="checkbox" onclick="check_all(this)" name="repair_all" value="repair[]" /></td>
-   <td class="mbox"><input type="checkbox" onclick="check_all(this)" name="optimize_all" value="optimize[]" /></td>
-   <td class="mbox"><strong><?php echo $lang->phrase('admin_db_all'); ?></strong></td><?php
-   	$data_length = formatFilesize($data_length);
-   ?>
-   <td class="mbox"><strong><?php echo formatFilesize($data_length); ?></strong></td>
-   <td class="mbox"><strong><?php echo formatFilesize($index_length); ?></strong></td>
-   <td class="mbox"><strong><?php echo formatFilesize($data_free); ?></strong></td>
-  </tr>
-	<?php foreach ($tables as $table) { ?>
-		<tr>
-		   <td class="mbox">
-		   <?php if ($table['possible']) { ?>
-		   	<input type="checkbox" name="repair[]" value="<?php echo $table['Name']; ?>">
-		   <?php } else { echo '-'; } ?>
-		   </td>
-		   <td class="mbox">
-		   <?php if ($table['possible']) { ?>
-			<input<?php echo iif($table['Data_free'] > 0, ' checked="checked"'); ?> type="checkbox" name="optimize[]" value="<?php echo $table['Name']; ?>">
-		   <?php } else { echo '-'; } ?>
-		   </td>
-		   <td class="mbox"><?php echo $table['Name']; ?></td>
-		   <td class="mbox"><?php echo formatFilesize($table['Data_length']); ?></td>
-		   <td class="mbox"><?php echo formatFilesize($table['Index_length']); ?></td>
-		   <td class="mbox"><?php echo formatFilesize($table['Data_free']); ?></td>
-		</tr>
-	<?php } ?>
-  <tr>
-   <td class="ubox" colspan="6" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_db_form_submit'); ?>"></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'optimize2') {
-	echo head();
-
-    $rep = $gpc->get('repair', arr_str);
-	if (count($rep) > 0) {
-		$db->query("REPAIR TABLE ".implode(', ',$rep));
-	}
-	$opt = $gpc->get('optimize', arr_str);
-	if (count($opt) > 0) {
-		$db->query("OPTIMIZE TABLE ".implode(', ', $opt));
-	}
-
-	ok('admin.php?action=db&job=optimize', $lang->phrase('admin_db_tables_repaired_optimized'));
-}
-elseif ($job == 'backup') {
+if ($job == 'backup') {
 	echo head();
 	$result = $db->list_tables();
 	$counts = array(100, 500, 1000, 2000, 3000, 5000, 10000, 20000, 50000);
@@ -649,120 +552,6 @@ elseif ($job == 'download') {
 		error('admin.php?action=db&job=restore', $lang->phrase('admin_db_file_not_found'));
 	}
 }
-elseif ($job == 'status') {
-	echo head();
-	$table = $gpc->get('table', str);
-	$status = $gpc->get('status', int);
-	$result = $db->list_tables();
-
-	if (!empty($table)) {
-		$result11 = $db->query('SHOW TABLE STATUS FROM '.$db->database.' LIKE "'.$table.'"');
-		$result12 = $db->query('DESCRIBE '.$table);
-?>
-  <table class="border">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_table_information'); ?> <?php echo $table; ?></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_name'); ?></td>
-   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_value'); ?></td>
-  </tr>
-	<?php
-		while ($data = $db->fetch_assoc($result11)) {
-			foreach ($data as $key => $val) {
-	?>
-		<tr>
-		   <td class="mbox" width="30%"><?php echo $key; ?></td>
-           <td class="mbox" width="70%"><?php echo $val; ?></td>
-		</tr>
-	<?php }} ?>
-      <tr>
-       <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_db_field_information'); ?></td>
-      </tr>
-		<tr>
-		   <td class="mbox" colspan="2">
-		   <table class="inlinetable">
-        		<tr>
-        		  <?php for ($i = 0; $i < $db->num_fields($result12);$i++) { ?>
-                   <th><?php echo $db->field_name($result12, $i); ?></th>
-                  <?php } ?>
-        		</tr>
-        	<?php while ($data = $db->fetch_assoc($result12)) { ?>
-        		<tr>
-        		  <?php foreach ($data as $key => $val) { ?>
-                   <td><?php echo $val; ?></td>
-                  <?php } ?>
-        		</tr>
-        	<?php } ?>
-		   </table>
-		   </td>
-		</tr>
- </table><br />
- <?php
-	}
-	elseif ($status == 1) {
-		$result1 = $db->query('SHOW STATUS');
-		$result2 = $db->query('SHOW VARIABLES');
- ?>
- <table class="border">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_server_variables'); ?><a name="sv">&nbsp;</a></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_name'); ?></td>
-   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_value'); ?></td>
-  </tr>
-	<?php while ($row = $db->fetch_num($result2)) { ?>
-		<tr>
-		   <td class="mbox" width="30%"><?php echo $row[0]; ?></td>
-           <td class="mbox" width="70%"><?php echo $row[1]; ?></td>
-		</tr>
-	<?php } ?>
- </table><br />
- <table class="border">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_db_server_stat_information'); ?><a name="ssi">&nbsp;</a></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_db_name'); ?></td>
-   <td class="ubox" width="70%"><?php echo $lang->phrase('admin_db_value'); ?></td>
-  </tr>
-	<?php while ($row = $db->fetch_num($result1)) { ?>
-		<tr>
-		   <td class="mbox" width="30%"><?php echo $row[0]; ?></td>
-           <td class="mbox" width="70%"><?php echo $row[1]; ?></td>
-		</tr>
-	<?php } ?>
- </table>
-	<?php
-	}
-	else {
-	?>
-	  <table class="border">
-	  <tr>
-	   <td class="obox"><?php echo $lang->phrase('admin_db_table_of_contents'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox">
-	   <strong><?php echo $lang->phrase('admin_db_server_information'); ?></strong>:<br />
-	   <ul>
-		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#sv"><?php echo $lang->phrase('admin_db_server_variables'); ?></a></li>
-		<li><a href="admin.php?action=db&amp;job=status&amp;status=1#ssi"><?php echo $lang->phrase('admin_db_server_stat_information'); ?></a></li>
-	   </ul>
-	   <br />
-	   <strong><?php echo $lang->phrase('admin_db_table_information'); ?></strong>:<br />
-	   <ul>
-		<?php foreach ($result as $row) { ?>
-		<li><a href="admin.php?action=db&amp;job=status&amp;table=<?php echo $row; ?>"><?php echo $row; ?></a></li>
-		<?php } ?>
-	   </ul>
-	   </td>
-	  </tr>
-	  </table>
-	<?php
-	}
-	echo foot();
-}
 elseif ($job == 'query') {
 	echo head();
 	exec_query_form();
@@ -843,13 +632,10 @@ elseif ($job == 'query2') {
 			<?php
 		}
 		else {
-			if (count($q['queries']) <= 20) { // To avoid reaching max exec. time
-				$hl = highlight_sql_query($sql);
-			}
 			echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$lang->phrase('admin_db_queries_extd');
 			echo iif($q['affected'] > 0, ' - '.$lang->phrase('admin_db_rows_affected'));
 			echo '</td></tr>';
-			echo iif(!empty($hl), '<tr><td class="mbox">'.$hl.'</td></tr>');
+			echo iif(!empty($sql), '<tr><td class="mbox"><pre>'.$sql.'</pre></td></tr>');
 			echo '</table>';
 			foreach ($q['queries'] as $num) {
 				if (count($num) > 0) {
@@ -871,86 +657,6 @@ elseif ($job == 'query2') {
 		}
 
 	}
-	echo foot();
-}
-elseif ($job == 'convert') {
-	echo head();
-	?>
- <table class="border">
-  <tr>
-   <td class="obox" colspan="10">Merge databases</td>
-  </tr>
-  <tr>
-   <td class="mbox" colspan="10">
-    This feature allows you to import and/or convert data from other forum software or Viscacha.<br />
-    <b>This feature is experimental! Please make full backups before you start this tool!</b>
-   </td>
-  </tr>
-  <tr class="ubox">
-   <td width="25%" rowspan="2">Software</td>
-   <td width="12%" rowspan="2">Compatible Versions</td>
-   <td width="63%" colspan="8">Import of the following data...</td>
-  </tr>
-  <tr class="ubox">
-   <td width="7%">Forums</td>
-   <td width="7%">Posts</td>
-   <td width="7%">Members</td>
-   <td width="7%">Passwords</td>
-   <td width="7%">Permissions</td>
-   <td width="7%">PMs</td>
-   <td width="7%">Uploads</td>
-   <td width="14%">Other</td>
-  </tr>
-  <tr class="mbox">
-   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=viscacha">Viscacha</a></td>
-   <td><?php echo $config['version']; ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td>Complete merge</td>
-  </tr>
-  <tr class="mbox">
-   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=cc12">CuteCast</a></td>
-   <td>1.2</td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td>Subscriptions</td>
-  </tr>
-  <tr class="mbox">
-   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=phpbb30">phpBB</a></td>
-   <td>3.0.x</td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td>?</td>
-  </tr>
-  <tr class="mbox">
-   <td><a href="admin.php?action=db&amp;job=convert&amp;mod=wbb23">Woltlab Burning Board</a></td>
-   <td>2.3.x</td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td><?php echo noki(true); ?></td>
-   <td><?php echo noki(false); ?></td>
-   <td>Subscriptions</td>
-  </tr>
- </table>
-	<?php
 	echo foot();
 }
 ?>

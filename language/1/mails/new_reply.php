@@ -4,7 +4,7 @@
 
 soeben wurde eine neue Antwort geschrieben. Die Antwort hat den Titel &quot;{@_POST->topic}&quot; und ist im Forum &quot;{@last->name}&quot; verfasst worden.
 Sie finden die neue Antwort hier:
-{@config->furl}/showtopic.php?action=jumpto&id={@_POST->id}&topic_id={$redirect}
+{@config->furl}/showtopic.php?action=jumpto&topic_id={$redirect}
 
 Mit freundlichen Gr&uuml;&szlig;en,
 Ihr {@config->fname} Team

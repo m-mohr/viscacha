@@ -309,10 +309,6 @@ elseif ($job == 'posts') {
 	   <td class="mbox" width="50%"><input type="checkbox" name="fullname_posts" value="1"<?php echo iif($config['fullname_posts'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_show_online_status_post'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="post_user_status" value="1"<?php echo iif($config['post_user_status'] == 1, ' checked="checked"'); ?> /></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enable_change_vote'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_enable_change_vote_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="vote_change" value="1"<?php echo iif($config['vote_change'] == 1, ' checked="checked"'); ?> /></td>
 	  </tr>
@@ -380,7 +376,6 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('abozahl', int);
 	$c->updateconfig('multiple_instant_notifications', int);
 	$c->updateconfig('fullname_posts', int);
-	$c->updateconfig('post_user_status', int);
 	$c->updateconfig('vote_change', int);
 	$c->updateconfig('post_order', int);
 	$c->savedata();
@@ -417,16 +412,8 @@ elseif ($job == 'profile') {
 	   <td class="mbox" width="50%"><input type="text" name="maxaboutlength" value="<?php echo $config['maxaboutlength']; ?>" size="8"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_notice_length'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_notice_length_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="maxnoticelength" value="<?php echo $config['maxnoticelength']; ?>" size="8"></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_mylast_numer_of_posts'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_mylast_numer_of_posts_info'); ?> &quot;<a href="editprofile.php?action=mylast" target="_blank"><?php echo $lang->phrase('admin_mylast_numer_of_posts_info2'); ?></a>&quot;</span></td>
 	   <td class="mbox" width="50%"><input type="text" name="mylastzahl" value="<?php echo $config['mylastzahl']; ?>" size="5"></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_onlinetstatus_profile'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_onlinetstatus_profile_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="osi_profile" value="1"<?php echo iif($config['osi_profile'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_allow_change_name'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_allow_change_name_info'); ?></span></td>
@@ -468,7 +455,6 @@ elseif ($job == 'profile2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('osi_profile', int);
 	$c->updateconfig('changename_allowed', int);
 	$c->updateconfig('showpostcounter', int);
 	$c->updateconfig('maxnamelength', int);
@@ -476,7 +462,6 @@ elseif ($job == 'profile2') {
 	$c->updateconfig('minpwlength', int);
 	$c->updateconfig('maxpwlength', int);
 	$c->updateconfig('maxaboutlength', int);
-	$c->updateconfig('maxnoticelength', int);
 	$c->updateconfig('memberrating', int);
 	$c->updateconfig('memberrating_counter', int);
 	$c->updateconfig('hidedesign', int);
@@ -694,15 +679,6 @@ elseif ($job == 'session') {
 	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_session_edit'); ?></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_session_id_length'); ?><br /><span class="stext"></span></td>
-	   <td class="mbox" width="50%"><select name="sid_length">
-	   <option value="32"<?php echo iif($config['sid_length'] == '32', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_session_32_charackters'); ?></option>
-	   <option value="64"<?php echo iif($config['sid_length'] == '64', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_session_64_charackters'); ?></option>
-	   <option value="96"<?php echo iif($config['sid_length'] == '96', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_session_96_charackters'); ?></option>
-	   <option value="128"<?php echo iif($config['sid_length'] == '128', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_session_128_charackters'); ?></option>
-	   </select></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_time_check_inactive_users'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_time_check_inactive_users_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="text" name="sessionrefresh" value="<?php echo $config['sessionrefresh']; ?>" size="4"></td>
 	  </tr>
@@ -756,7 +732,6 @@ elseif ($job == 'session2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('sid_length', int);
 	$c->updateconfig('sessionrefresh', int);
 	$c->updateconfig('sessionsave', int);
 	$c->updateconfig('enableflood', int);
@@ -843,12 +818,6 @@ elseif ($job == 'user') {
 	   <input type="checkbox" name="mlistfields[]" value="birthday"<?php echo iif(in_array('birthday', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_birthday'); ?><br />
 	   <input type="checkbox" name="mlistfields[]" value="pic"<?php echo iif(in_array('pic', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_avatar'); ?><br />
 	   <input type="checkbox" name="mlistfields[]" value="lastvisit"<?php echo iif(in_array('lastvisit', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_last_visit'); ?><br />
-	   <input type="checkbox" name="mlistfields[]" value="icq"<?php echo iif(in_array('icq', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_icq'); ?><br />
-	   <input type="checkbox" name="mlistfields[]" value="yahoo"<?php echo iif(in_array('yahoo', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_yahoo'); ?><br />
-	   <input type="checkbox" name="mlistfields[]" value="aol"<?php echo iif(in_array('aol', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_aol'); ?><br />
-	   <input type="checkbox" name="mlistfields[]" value="msn"<?php echo iif(in_array('msn', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_msn'); ?><br />
-	   <input type="checkbox" name="mlistfields[]" value="jabber"<?php echo iif(in_array('jabber', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_jabber'); ?><br />
-	   <input type="checkbox" name="mlistfields[]" value="skype"<?php echo iif(in_array('skype', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_skype'); ?><br />
 	   <input type="checkbox" name="mlistfields[]" value="online"<?php echo iif(in_array('online', $mlistfields), ' checked="checked"'); ?> /> <?php echo $lang->phrase('admin_memberlist_online-status'); ?>
 	   </td>
 	  </tr>
@@ -966,10 +935,6 @@ elseif ($job == 'pm') {
 	   <td class="mbox" width="50%"><input type="text" name="pmzahl" value="<?php echo $config['pmzahl']; ?>" size="4" /></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_online_status_in_pm'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="pm_user_status" value="1"<?php echo iif($config['pm_user_status'] == 1, ' checked="checked"'); ?> /></td>
-	  </tr>
-	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
@@ -982,7 +947,6 @@ elseif ($job == 'pm2') {
 
 	$c->getdata();
 	$c->updateconfig('pmzahl', int);
-	$c->updateconfig('pm_user_status', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');
@@ -1363,10 +1327,6 @@ elseif ($job == 'attupload') {
 	   <td class="mbox" width="50%"><input type="text" name="tpcmaxuploads" value="<?php echo $config['tpcmaxuploads']; ?>" size="4"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_limit_downloadspeed'); ?><br /><font class="stext"><?php echo $lang->phrase('admin_limit_downloadspeed_info'); ?></font></td>
-	   <td class="mbox" width="50%"><input type="text" name="tpcdownloadspeed" value="<?php echo $config['tpcdownloadspeed']; ?>" size="4"></td>
-	  </tr>
-	  <tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
@@ -1386,7 +1346,6 @@ elseif ($job == 'attupload2') {
 	$list = implode(',',$arraylist);
 
 	$c->updateconfig('tpcallow',int);
-	$c->updateconfig('tpcdownloadspeed',int);
 	$c->updateconfig('tpcmaxuploads',int);
 	$c->updateconfig('tpcheight',int);
 	$c->updateconfig('tpcwidth',int);
@@ -1912,14 +1871,6 @@ elseif ($job == 'syndication') {
 	   <td class="mbox" width="50%"><input type="text" name="rssttl" value="<?php echo $config['rssttl']; ?>" size="4"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_newsfeed_icon'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_newsfeed_icon_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="syndication_klipfolio_icon" value="<?php echo $config['syndication_klipfolio_icon']; ?>" size="50"></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_klipfolio_newsfeed_banner'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_klipfolio_newsfeed_banner_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="syndication_klipfolio_banner" value="<?php echo $config['syndication_klipfolio_banner']; ?>" size="50"></td>
-	  </tr>
-	  <tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
@@ -1933,8 +1884,6 @@ elseif ($job == 'syndication2') {
 	$c->getdata();
 	$c->updateconfig('syndication',int);
 	$c->updateconfig('syndication_insert_email',int);
-	$c->updateconfig('syndication_klipfolio_banner',str);
-	$c->updateconfig('syndication_klipfolio_icon',str);
 	$c->updateconfig('rssttl',int);
 	$c->updateconfig('rsschars',int);
 	$c->savedata();
@@ -2407,7 +2356,6 @@ else {
 		  	  <option value="admin.php?action=bbcodes&job=smileys"><?php echo $lang->phrase('admin_select_smiley_manager'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=word"><?php echo $lang->phrase('admin_select_glossary_manager'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=censor"><?php echo $lang->phrase('admin_select_vocabulary_manager'); ?></option>
-		  	  <option value="admin.php?action=bbcodes&job=codefiles"><?php echo $lang->phrase('admin_select_syntax_manager'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=custombb"><?php echo $lang->phrase('admin_select_bb_code_manager'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=custombb_test"><?php echo $lang->phrase('admin_select_test_bb_manager'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
@@ -2457,10 +2405,8 @@ else {
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
 		  	  <option value="admin.php?action=db&amp;job=backup"><?php echo $lang->phrase('admin_select_backup'); ?></option>
 		  	  <option value="admin.php?action=db&amp;job=restore"><?php echo $lang->phrase('admin_select_restore'); ?></option>
-		  	  <option value="admin.php?action=db&amp;job=optimize"><?php echo $lang->phrase('admin_select_optimize_repair'); ?></option>
 		  	  <option value="admin.php?action=db&amp;job=execute"><?php echo $lang->phrase('admin_select_execute_slq'); ?></option>
-		  	  <option value="admin.php?action=db&amp;job=status"><?php echo $lang->phrase('admin_select_status_database'); ?></option>
-		  	  <option value="admin.php?action=slog&amp;job=l_mysqlerror"><?php echo $lang->phrase('admin_select_sys_error_log'); ?></option>
+		  	  <option value="admin.php?action=slog&amp;job=errorlogs"><?php echo $lang->phrase('admin_select_sys_error_log'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
 		  </form>
 		</td>

@@ -81,16 +81,10 @@ $http_vars = array(
 	'location' => str,
 	'signature' => str,
 	'hp' => str,
-	'icq' => str,
 	'pic' => db_esc,
 	'question' => str,
 	'type' => str,
 	'gender' => str,
-	'aol' => db_esc,
-	'msn' => db_esc,
-	'skype' => db_esc,
-	'yahoo' => db_esc,
-	'jabber' => db_esc,
 	'board' => int,
 	'topic_id' => int,
 	'id' => int,
@@ -110,7 +104,6 @@ $http_vars = array(
 	'opt_5' => int,
 	'opt_6' => int,
 	'opt_7' => int,
-	'notice' => arr_str,
 	'delete' => arr_int
 );
 

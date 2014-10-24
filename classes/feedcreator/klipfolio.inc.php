@@ -37,9 +37,6 @@ class KLIPFOLIO extends FeedCreator {
 		$feed .= '	<locations>'."\n";
 		$feed .= '		<defaultlink>'.$this->link.'</defaultlink>'."\n";
 		$feed .= '		<contentsource>'.$config['furl'].'/external.php?action=KLIPFOOD</contentsource>'."\n";
-		$feed .= '		<icon>'.$config['furl'].'/'.$config['syndication_klipfolio_icon'].'</icon>'."\n";
-		$feed .= '		<banner>'.$config['furl'].'/'.$config['syndication_klipfolio_banner'].'</banner>'."\n";
-		$feed .= '		<help></help>'."\n";
 		$feed .= '		<kliplocation>'.$config['furl'].'/external.php?action=KLIPFOLIO</kliplocation>'."\n";
 		$feed .= '	</locations>'."\n";
 

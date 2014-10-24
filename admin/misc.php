@@ -213,50 +213,6 @@ elseif ($job == 'cache_delete_plugins') {
 	}
 	ok('admin.php?action=misc&job=cache', $lang->phrase('admin_misc_cache_deleted_rebuilt_when_needed'));
 }
-elseif ($job == 'onlinestatus') {
-	echo head();
-	$b = file_get_contents('data/imservers.php');
-	?>
-<form name="form" method="post" action="admin.php?action=misc&job=onlinestatus2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_online_status_server'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%">
-   <?php echo $lang->phrase('admin_misc_server'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_misc_per_line_one_user'); ?><br /><a href="http://osi.viscacha.org/" target="_blank"><?php echo $lang->phrase('admin_misc_online_status_server_overview'); ?></a></span>
-   </td>
-   <td class="mbox" width="70%"><textarea name="servers" rows="10" cols="90"><?php echo $b; ?></textarea></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
-  </tr>
- </table>
-</form>
-<br />
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_online_status_server_info'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox">
-   <p><strong><?php echo $lang->phrase('admin_misc_online_status_meaning_title'); ?></strong><br />
-   <?php echo $lang->phrase('admin_misc_online_status_meaning'); ?></p>
-   <p><strong><?php echo $lang->phrase('admin_misc_from_where_data_for_online_status'); ?></strong><br />
-   <?php echo $lang->phrase('admin_misc_from_where_data_for_online_status_info'); ?>
-   </p>
-   </td>
-  </tr>
- </table>
-	<?php
-	echo foot();
-}
-elseif ($job == 'onlinestatus2') {
-	echo head();
-	$filesystem->file_put_contents('data/imservers.php', $gpc->get('servers', none));
-	ok('admin.php?action=misc&job=onlinestatus');
-}
 elseif ($job == 'sessionmails') {
 	echo head();
 	$mails = file_get_contents('data/sessionmails.php');
@@ -603,13 +559,13 @@ elseif ($job == "credits") {
 		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);
 	}
 
-	if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
+	if (version_compare(PHP_VERSION, '5.1.0', '>=')) {
 		$phpv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
 		$phpv = '<span style="color: red">'.$lang->phrase('admin_misc_no').'</span>';
 	}
-	if (version_compare($db->version(), '4.0', '>=')) {
+	if (version_compare($db->version(), '5.0', '>=')) {
 		$sqlv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
@@ -635,13 +591,9 @@ elseif ($job == "credits") {
 	<p>
 		<strong>Used Scripts</strong>:
 		<ul>
-		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Roman Numeral Conversion by Huda M Elmatsani</a> (Roman Numeral Conversion; Freeware)</li>
 		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.8 by Vincent Blavet</a> (Zip file handling; GNU LPGL)</li>
-		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.8.11 by Nigel McNie and Benny Baumann</a> (Syntax highlighting; GNU GPL)</li>
-		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing newsfeeds; GNU GPL)</li>
 		<li><a href="https://github.com/PHPMailer" target="_blank">PHPMailer 5.2.6 by various authors</a> (Sending e-mails; GNU LGPL)</li>
 		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating newsfeeds; GNU LGPL)</li>
-		<li><a href="http://pear.php.net/package/PHP_Compat" target="_blank">PHP_Compat 1.6.0a2 by Aidan Lister, Stephan Schmidt</a> (PHP core Functions; PHP)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GNU GPL)</li>
 		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR file handling; GNU GPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/98157.html" target="_blank">Advanced FTP client class (Build 2008-09-17) by Alexey Dotsenko</a> (PHP FTP Client; Freely Distributable)</li>

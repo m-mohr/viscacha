@@ -504,7 +504,7 @@ function logged () {
 	$this->deleteOldSessions();
 
 	$sessionid = $gpc->get('s', str);
-	if (empty($sessionid) || strlen($sessionid) != $config['sid_length']) {
+	if (empty($sessionid) || strlen($sessionid) != 32) {
 		$sessionid = false;
 		$this->querysid = false;
 	}
@@ -520,7 +520,7 @@ function logged () {
 	}
 	if (isset($vhash)) {
 		$this->cookies = true;
-		if (strlen($vhash) != $config['sid_length']) {
+		if (strlen($vhash) != 32) {
 			$this->sid = '';
 		}
 		else {
@@ -650,9 +650,6 @@ function logged () {
 		$my->clv = 0;
 	}
 
-	if (!isset($my->opt_hidebad)) {
-		$my->opt_hidebad = 0;
-	}
 	if (!isset($my->opt_showsig)) {
 		$my->opt_showsig = 1;
 	}
@@ -1055,8 +1052,8 @@ function sid2url($my = null) {
 function cleanUserData($data) {
 	global $gpc;
 	$trust = array(
-		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'icq', 'opt_textarea', 'language',
-		'opt_pmnotify', 'opt_hidebad', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
+		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'language',
+		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
 		'ufid', // from userfields-table
 		'mid', 'active', 'wiw_id', 'last_visit', 'is_bot', 'mark', 'pwfaccess', 'settings' // from session-table
 	);
@@ -1081,28 +1078,12 @@ function cleanUserData($data) {
 }
 
 /**
- * Creates a Session-ID.
- *
- * The ID has the length specified in $config['sid_length']. Possible lengths are 64, 96, 128 and 32 characters.
- * If the length is invalid, 32 will be used.
+ * Creates a 32 chars long Session-ID.
  *
  * @return String Session-ID
  */
 function construct_sid() {
-	global $config;
-	if ($config['sid_length'] == 64) {
-		$sid = md5(uniqid(mt_rand())).md5(uniqid($this->ip));
-	}
-	elseif ($config['sid_length'] == 96) {
-		$sid = md5(uniqid(mt_rand())).md5(uniqid($this->ip)).md5(mt_rand());
-	}
-	elseif ($config['sid_length'] == 128) {
-		$sid = md5(uniqid(mt_rand())).md5(uniqid($this->ip)).md5(mt_rand()).md5(microtime());
-	}
-	else {		// Falling back to 32 chars
-		$sid = md5(uniqid(mt_rand()));
-	}
-	$this->sid = str_shuffle($sid);
+	$this->sid = str_shuffle(md5(uniqid(mt_rand())));
 	return $this->sid;
 }
 

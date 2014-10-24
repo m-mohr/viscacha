@@ -83,12 +83,7 @@ elseif ($filter == 0) {
 	$marksql = '';
 }
 else {
-	if ($my->opt_hidebad == 1) {
-		$marksql = ' AND mark != "b" ';
-	}
-	else {
-		$marksql = '';
-	}
+	$marksql = '';
 }
 
 ($code = $plugins->load('showforum_filer_query')) ? eval($code) : null;

@@ -146,12 +146,6 @@ function InsertTagsList(id, type) {
 		InsertTags(id, "[list"+type+"]", "[/list]");
 	}
 }
-function InsertTagsNote(id, front, end) {
-	var selection = getSelection(id);
-	var input2 = window.prompt(lng['bbcodes_note_prompt2'], selection); // Def.
-	var input1 = window.prompt(lng['bbcodes_note_prompt1'], ''); // Abbr.
-	InsertTagsParams(id, front, end, input1, input2, empty(selection));
-}
 function InsertTagsURL(id, front, end) {
 	var selection = getSelection(id);
 	var search = selection.search( /^(http:|ftp:|www\.)/i );

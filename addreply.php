@@ -224,7 +224,7 @@ if ($_GET['action'] == "save") {
 		// Set uploads to correct reply
 		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'");
 
-		// Update, insert notifications
+		// Update, insert, delete notifications
 		if ($my->vlogin && in_array($digest, $validDigest)) {
 			switch ($digest) {
 				case 1:  $type = '';  break;

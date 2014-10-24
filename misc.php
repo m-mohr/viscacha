@@ -59,27 +59,6 @@ if ($_GET['action'] == "boardin") {
 	}
 
 }
-elseif ($_GET['action'] == "download_code") {
-	$fid = $gpc->get('fid', str);
-	if (!is_hash($fid)) {
-		error($lang->phrase('query_string_error'));
-	}
-	$scache->loadClass('UniversalCodeCache');
-	$cache = new UniversalCodeCache();
-	if (!$cache->setHash($fid)) {
-		error($lang->phrase('no_upload_found'));
-	}
-	$sourcecode = $cache->get();
-
-	$slog->updatelogged();
-	$db->close();
-
-	viscacha_header('Content-Type: text/plain');
-	viscacha_header('Content-Length: '.strlen($sourcecode['source']));
-	viscacha_header('Content-Disposition: attachment; filename="'.gmdate('d-m-Y_H-i', times()).'.txt"');
-	echo $sourcecode['source'];
-	exit;
-}
 elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
 	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, r.topic AS title, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
@@ -116,14 +95,14 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	$breadcrumb->Add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
 	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
 	if ($info['tstart'] == '0') {
-		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
+		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	}
 	$breadcrumb->Add($lang->phrase('report_post'));
 
 	forum_opt($last);
 
 	if (empty($info['report']) == false) {
-		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
+		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	}
 
 	if ($_GET['action'] == "report_post2") {
@@ -172,7 +151,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			}
 			$lang->setdir($lang_dir);
 
-			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
+			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 		}
 	}
 	else {
@@ -327,30 +306,6 @@ elseif ($_GET['action'] == "wwo") {
 		case 'popup':
 			if ($row->wiw_action == 'filetypes') {
 				$loc = $lang->phrase('wwo_popup_filetypes');
-			}
-			elseif ($row->wiw_action == 'showpost') {// Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
-				$id = $row->wiw_id;
-
-				if (!isset($cache['p'.$id])) {
-					$result2 = $db->query("
-						SELECT t.topic, t.board, r.topic as post
-						FROM {$db->pre}replies AS r
-							LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
-						WHERE r.id = '{$id}'
-						LIMIT 1
-					");
-					if ($db->num_rows($result2) == 1) {
-						$nfo = $db->fetch_assoc($result2);
-						$cache['p'.$id] = $nfo;
-					}
-				}
-				if (!isset($cache['p'.$id]) || (($cat_cache[$cache['p'.$id]['board']]['opt'] == 'pw' && (!isset($my->pwfaccess[$cache['p'.$id]['board']]) || $my->pwfaccess[$cache['p'.$id]['board']] != $cat_cache[$cache['p'.$id]['board']]['optvalue'])) || $my->pb[$cache['p'.$id]['board']]['forum'] == 0)) {
-					$loc = $lang->phrase('wwo_popup_showpost_fallback');
-				}
-				else {
-					$title = $gpc->prepare($cache['p'.$id]['post']);
-					$loc = $lang->phrase('wwo_popup_showpost');
-				}
 			}
 			else {
 				$loc = $lang->phrase('wwo_popup');
@@ -507,16 +462,8 @@ elseif ($_GET['action'] == "bbhelp") {
 		$cbb[$key]['syntax'] = '['.$bb['bbcodetag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['bbcodetag'].']';
 	}
 
-	$codelang = $scache->load('syntaxhighlight');
-	$clang = $codelang->get();
-	$code_hl = array();
-	foreach ($clang as $l) {
-		$code_hl[] = "{$l['short']} ({$l['name']})";
-	}
-	$code_hl = implode(', ', $code_hl);
-
-	$code = '&lt;?php phpinfo(); ?&gt;';
-	$phpcode = '&lt;?php'."\n".'echo phpversion();'."\n".'?&gt;';
+	$code1 = '&lt;?php echo phpversion(); ?&gt;';
+	$code2 = '&lt;?php'."\n".'echo phpversion();'."\n".'?&gt;';
 
 	$lorem_ipsum = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.';
 
@@ -547,7 +494,7 @@ elseif ($_GET['action'] == "bbhelp") {
 		array(
 			'tag' => 'img',
 			'params' => 0,
-			'example' => array('[img]'.$config['furl'].'/images/klipfolio_icon.gif[/img]')
+			'example' => array('[img]'.$tpl->img('help').'[/img]')
 		),
 		array(
 			'tag' => 'url',
@@ -619,16 +566,11 @@ elseif ($_GET['action'] == "bbhelp") {
 		),
 		array(
 			'tag' => 'code',
-			'params' => 2,
+			'params' => 0,
 			'example' => array(
-				'[code]'.$code.'[/code]',
-				'[code]'.$phpcode.'[/code]',
-				'[code=php]'.$phpcode.'[/code]'
+				'[code]'.$code1.'[/code]',
+				'[code]'.$code2.'[/code]'
 			)
-		),
-		array(
-			'tag' => 'note',
-			'params' => 1
 		),
 		array(
 			'tag' => 'edit',
