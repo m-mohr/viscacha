@@ -413,7 +413,7 @@ elseif ($job == "extract2") {
 
 	set_chmod($dir, 0777, CHMOD_EX);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
-	if (!preg_match('#\.(tar\.gz|tar|gz|zip)$#is', $file, $ext)) {
+	if (!preg_match('#\.(gz|zip)$#is', $file, $ext)) {
 		error($redirect, $lang->phrase('admin_explorer_archive_is_not_supported'));
 	}
 	if (isset($ext[1])) {
@@ -423,27 +423,6 @@ elseif ($job == "extract2") {
 			$archive = new PclZip($file);
 			if ($archive->extract(PCLZIP_OPT_PATH, $dir) == 0) {
 				error($redirect, $archive->errorInfo(true));
-			}
-		}
-		elseif ($extension == 'tar.gz') {
-			gzAbortNotLoaded();
-			$temp = gzTempfile($file);
-			$temp = realpath($temp);
-			include('classes/class.tar.php');
-			$tar = new tar(dirname($temp), basename($temp));
-			$tar->extract_files(realpath($dir));
-			$filesystem->unlink($temp);
-			if (!empty($tar->error)) {
-				error($redirect, $tar->error);
-			}
-		}
-		elseif ($extension == 'tar') {
-			$file = realpath($file);
-			include('classes/class.tar.php');
-			$tar = new tar(dirname($file), basename($file));
-			$tar->extract_files($dir);
-			if (!empty($tar->error)) {
-				error($redirect, $tar->error);
 			}
 		}
 		elseif ($extension == 'gz') {

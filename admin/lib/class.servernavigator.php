@@ -37,7 +37,7 @@ class ServerNavigator
 			'pm','log','xml','ini','csv','dat','sql','htc','htaccess','htusers','inf','tex','tsv','xsl','xslt','klip',
 			'food','mbox','phps','py','lua','cfg','sh','c','p','cpp'
 		);
-		$this->extract 				= array('zip', 'tar', 'gz');
+		$this->extract 				= array('zip', 'gz');
 
 		$this->use_image_icons		= (bool)$use_image_icons;
 		$this->show_subfolders_size = (bool)$show_subfolders_size;
