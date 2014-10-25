@@ -58,10 +58,6 @@ $my->p = $slog->Permissions();
 
 $job = $gpc->get('job', str);
 
-if (!isset($my->settings['admin_interface'])) {
-	$my->settings['admin_interface'] = $admconfig['nav_interface'];
-}
-
 // Arrays for Dates
 $months = array($lang->phrase('admin_months_january'),$lang->phrase('admin_months_february'),$lang->phrase('admin_months_march'),$lang->phrase('admin_months_april'),$lang->phrase('admin_months_may'),$lang->phrase('admin_months_june'),$lang->phrase('admin_months_july'),$lang->phrase('admin_months_august'),$lang->phrase('admin_months_september'),$lang->phrase('admin_months_october'),$lang->phrase('admin_months_november'),$lang->phrase('admin_months_december'));
 $days = array($lang->phrase('admin_days_sunday'),$lang->phrase('admin_days_monday'),$lang->phrase('admin_days_tuesday'),$lang->phrase('admin_days_wednesday'),$lang->phrase('admin_days_thursday'),$lang->phrase('admin_days_friday'),$lang->phrase('admin_days_saturday'));

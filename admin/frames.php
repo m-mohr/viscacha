@@ -5,10 +5,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang->group("admin/frames");
 
 if ($job == 'menu') {
-	$interface = $gpc->get('interface', int);
-	if ($interface == 1) {
-		$my->settings['admin_interface'] = invert($my->settings['admin_interface']);
-	}
 	?>
 	<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 	<html>
@@ -23,9 +19,7 @@ if ($job == 'menu') {
 	</head>
 	<body onload="init()">
 	<p class="center"><a href="admin.php?action=index" target="Main"><img src="admin/html/images/logo.png" alt="Viscacha" /></a></p>
-	<p class="stext center"><a href="admin.php?action=frames&amp;job=menu&amp;interface=1" target="_self"><?php echo $lang->phrase(iif($my->settings['admin_interface'] == 1, 'admin_switch_simple', 'admin_switch_extended')); ?></a></p>
 	<p class="stext center"><a href="javascript:All();"><?php echo $lang->phrase("admin_expand_all"); ?></a> | <a href="javascript:All(1);"><?php echo $lang->phrase("admin_collapse_all"); ?></a></p>
-	<?php if ($my->settings['admin_interface'] == 1) { ?>
 	 <div class="border">
 	  <h3><img id="img_admin_menu1" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_settings");?></h3>
 	  <ul id="part_admin_menu1">
@@ -116,7 +110,7 @@ if ($job == 'menu') {
 		<li>&raquo; <a href="admin.php?action=slog&amp;job=errorlogs" target="Main"><?php echo $lang->phrase("admin_sqlerror_log");?></a></li>
 	   </ul>
 	 </div>
-	 <?php ($code = $plugins->load('admin_navigation_extended')) ? eval($code) : null; ?>
+	 <?php ($code = $plugins->load('admin_navigation')) ? eval($code) : null; ?>
 	 <div class="border">
 	   <h3><img id="img_admin_menu14" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_useful_links");?></h3>
 	  <ul id="part_admin_menu14">
@@ -126,74 +120,6 @@ if ($job == 'menu') {
 	   <li>&raquo; <a href="http://www.viscacha.org" target="_blank"><?php echo $lang->phrase("admin_supportlink");?></a></li>
 	  </ul>
 	 </div>
-	 <?php } else { ?>
-	 <div class="border">
-	  <h3><img id="img_admin_menu1_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_settings");?></h3>
-	  <ul id="part_admin_menu1_simple">
-		<li>&raquo; <a href="admin.php?action=settings" target="Main"><?php echo $lang->phrase("admin_viscacha_settings");?></a></li>
-		<li>&raquo; <a href="admin.php?action=designs&amp;job=design" target="Main"><?php echo $lang->phrase("admin_design_manager");?></a></li>
-		<li>&raquo; <a href="admin.php?action=language&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_lang_manager");?></a></li>
-		<li>&raquo; <a href="admin.php?action=settings&amp;job=version" target="Main"><?php echo $lang->phrase("admin_version_check");?></a></li>
-	  </ul>
-	 </div>
-	 <div class="border">
-	  <h3><img id="img_admin_menu2_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_content_manager");?></h3>
-	  <ul id="part_admin_menu2_simple">
-	   <li>&raquo; <a href="admin.php?action=cms&amp;job=doc" target="Main"><?php echo $lang->phrase("admin_documents_pages");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=cms&amp;job=nav" target="Main"><?php echo $lang->phrase("admin_navigation_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=packages&amp;job=package" target="Main"><?php echo $lang->phrase("admin_package_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=explorer" target="Main"><?php echo $lang->phrase("admin_file_manager");?></a></li>
-	  </ul>
-	 </div>
-	 <div class="border">
-	   <h3><img id="img_admin_menu3_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_forums_posts");?></h3>
-	  <ul id="part_admin_menu3_simple">
-	   <li>&raquo; <a href="admin.php?action=forums&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_forum_category_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=forums&amp;job=mods" target="Main"><?php echo $lang->phrase("admin_moderator_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=posts&amp;job=reports" target="Main"><?php echo $lang->phrase("admin_reported_posts");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=posts&amp;job=postrating" target="Main"><?php echo $lang->phrase("admin_rate");?></a></li>
-	  </ul>
-	 </div>
-	 <div class="border">
-	   <h3><img id="img_admin_menu4_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_members");?></h3>
-	  <ul id="part_admin_menu4_simple">
-	   <li>&raquo; <a href="admin.php?action=members&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_members_list");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=members&amp;job=activate" target="Main"><?php echo $lang->phrase("admin_moderate_members");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=groups&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_group_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=profilefield&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_profile_fields");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=members&amp;job=emailsearch" target="Main"><?php echo $lang->phrase("admin_newsletter_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=members&amp;job=banned" target="Main"><?php echo $lang->phrase("admin_blocked_ip");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=members&amp;job=ips" target="Main"><?php echo $lang->phrase("admin_search_ip");?></a></li>
-	  </ul>
-	 </div>
-	 <div class="border">
-	   <h3><img id="img_admin_menu5_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_txtprocessing");?></h3>
-	  <ul id="part_admin_menu5_simple">
-	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=smileys" target="Main"><?php echo $lang->phrase("admin_smiley_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=censor" target="Main"><?php echo $lang->phrase("admin_censorship");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=custombb" target="Main"><?php echo $lang->phrase("admin_bbcodes");?></a></li>
-	  </ul>
-	 </div>
-	 <div class="border">
-	  <h3><img id="img_admin_menu6_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_managing_tools");?></h3>
-	  <ul id="part_admin_menu6_simple">
-	   <li>&raquo; <a href="admin.php?action=db&amp;job=backup" target="Main"><?php echo $lang->phrase("admin_backup_restore");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=filetypes&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_filetype_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=slog&amp;job=s_general" target="Main"><?php echo $lang->phrase("admin_statistics");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=misc&amp;job=cache" target="Main"><?php echo $lang->phrase("admin_cache_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=misc&amp;job=phpinfo" target="Main"><?php echo $lang->phrase("admin_php_info");?></a></li>
-	  </ul>
-	 </div>
-	 <?php ($code = $plugins->load('admin_navigation_simple')) ? eval($code) : null; ?>
-	 <div class="border">
-	   <h3><img id="img_admin_menu7_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_useful_links");?></h3>
-	  <ul id="part_admin_menu7_simple">
-	   <li>&raquo; <a href="index.php<?php echo SID2URL_1; ?>" target="_blank"><?php echo $lang->phrase("admin_goto_forum");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=logout<?php echo SID2URL_x; ?>" target="_top"><?php echo $lang->phrase("admin_signoff");?></a></li>
-	   <li>&raquo; <a href="http://www.viscacha.org" target="_blank"><?php echo $lang->phrase("admin_supportlink");?></a></li>
-	  </ul>
-	 </div>
-	 <?php } ($code = $plugins->load('admin_navigation')) ? eval($code) : null; ?>
 	</body>
 	</html>
 	<?php

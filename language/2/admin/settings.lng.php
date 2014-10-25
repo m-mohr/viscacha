@@ -507,8 +507,6 @@ $lang['admin_user_accept_rules'] = 'User has to accept rules on registration:';
 $lang['admin_user_accept_rules_info'] = 'The <a href="misc.php?action=rules" target="_blank">behaviour conditions</a> must be read and accepted.';
 $lang['admin_user_activation'] = 'User activation:';
 $lang['admin_user_standard_language_for_acp'] = 'Default language of the user';
-$lang['admin_use_extended_navigation_interface'] = 'Use extended Navigation Interface:';
-$lang['admin_use_extended_navigation_interface_info'] = 'Checking this option will enable an advanced navigation interface on the left side.';
 $lang['admin_use_today_yesterday'] = 'Use "today" and "yesterday":';
 $lang['admin_value_not_in_setting_type_values'] = 'Value is not given in Setting Type Values.';
 $lang['admin_version_check'] = 'Version Check';

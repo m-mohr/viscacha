@@ -501,8 +501,6 @@ $lang['admin_user_accept_rules'] = 'Benutzer muss die Regeln während der Registr
 $lang['admin_user_accept_rules_info'] = 'Die <a href="misc.php?action=rules" target="_blank">Verhaltensbedingungen</a> müssen gelesen und akzeptiert werden.';
 $lang['admin_user_activation'] = 'Benutzeraktivierung:';
 $lang['admin_user_standard_language_for_acp'] = 'Standardsprache des Benutzers';
-$lang['admin_use_extended_navigation_interface'] = 'Benutze standardmäßig erweitertes Navigationsmenü:';
-$lang['admin_use_extended_navigation_interface_info'] = 'Wenn diese Option aktiviert wird, wird standardmäßig links im Administrationsbereich die erweiterte Navigation geladen (und nicht die einfache Version des Einsteiger-Modus).';
 $lang['admin_use_today_yesterday'] = 'Benutze "Heute" und "Gestern":';
 $lang['admin_value_not_in_setting_type_values'] = 'Wert ist in Werten für die Einstellung nicht vorhanden.';
 $lang['admin_version_check'] = 'Versionsüberprüfung';

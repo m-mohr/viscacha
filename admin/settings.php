@@ -28,10 +28,6 @@ if ($job == 'admin') {
 	  <td class="obox" colspan="2"><?php echo $lang->phrase('admin_admin_control_panel_settings'); ?></td>
 	 </tr>
 	 <tr>
-	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_use_extended_navigation_interface'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_use_extended_navigation_interface_info'); ?></span></td>
-	  <td class="mbox" width="50%"><input type="checkbox" name="nav_interface" value="1"<?php echo iif($admconfig['nav_interface'] == 1, ' checked="checked"'); ?> /></td>
-	 </tr>
-	 <tr>
 	  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_servers_for_package_browser'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_servers_for_package_browser_info'); ?></span></td>
 	  <td class="mbox" width="50%"><textarea rows="5" cols="60" name="package_server"><?php echo str_replace(";", "\n", $admconfig['package_server']); ?></textarea></td>
 	 </tr>
@@ -83,7 +79,6 @@ elseif ($job == 'admin2') {
 	$server = preg_replace("~(\r\n|\r|\n)~", ";", $server);
 
 	$c->getdata('admin/data/config.inc.php', 'admconfig');
-	$c->updateconfig('nav_interface', int);
 	$c->updateconfig('package_server', str, $server);
 	$c->updateconfig('nav_positions', str);
 	$temp = $gpc->get('temp', int);
