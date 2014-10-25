@@ -1890,47 +1890,6 @@ elseif ($job == 'syndication2') {
 
 	ok('admin.php?action=settings&job=settings');
 }
-elseif ($job == 'spiders') {
-	$config = $gpc->prepare($config);
-	echo head();
-	?>
-	<form name="form" method="post" action="admin.php?action=settings&job=spiders2">
-	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_crawler_robots'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_logging_visits'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_activate_logging_visits_info'); ?></span></td>
-	   <td class="mbox" width="50%">
-	    <select name="spider_logvisits">
-	     <option value="0"<?php echo iif($config['spider_logvisits'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_logvisits_no_logging'); ?></option>
-	     <option value="1"<?php echo iif($config['spider_logvisits'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_logvisits_full_logging'); ?></option>
-	     <option value="2"<?php echo iif($config['spider_logvisits'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_logvisits_count_logging'); ?></option>
-	    </select>
-	   </td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_logging_missing_ip'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_activate_logging_missing_ip_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="spider_pendinglist" value="1"<?php echo iif($config['spider_pendinglist'],' checked'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
-	  </tr>
-	 </table>
-	</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'spiders2') {
-	echo head();
-
-	$c->getdata();
-	$c->updateconfig('spider_pendinglist',int);
-	$c->updateconfig('spider_logvisits',int);
-	$c->savedata();
-
-	ok('admin.php?action=settings&job=settings');
-}
 elseif ($job == 'version') {
 	echo head();
 
@@ -2373,20 +2332,6 @@ else {
 		  	  <option value="admin.php?action=packages&job=packages"><?php echo $lang->phrase('admin_package_manager'); ?></option>
 		  	  <option value="admin.php?action=cms&job=doc"><?php echo $lang->phrase('admin_select_docoments_pages'); ?></option>
 		  	  <option value="admin.php?action=explorer"><?php echo $lang->phrase('admin_select_filemanager'); ?></option>
-	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
-		  </form>
-		</td>
-	  </tr>
-	  <tr class="mbox">
-		<td nowrap="nowrap"><a href="admin.php?action=settings&amp;job=spiders"><?php echo $lang->phrase('admin_setting_crawler_robots'); ?></a></td>
-		<td class="stext"><?php echo $lang->phrase('admin_setting_crawler_robots_info'); ?></td>
-		<td>
-		  <form name="act" action="admin.php?action=locate" method="post">
-		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
-		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
-		  	  <option value="admin.php?action=spider&amp;job=manage"><?php echo $lang->phrase('admin_select_crawler_robot_manager'); ?></option>
-		  	  <option value="admin.php?action=spider&amp;job=pending"><?php echo $lang->phrase('admin_select_pending_manager'); ?></option>
-		  	  <option value="admin.php?action=spider&amp;job=add"><?php echo $lang->phrase('admin_select_add_robot'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
 		  </form>
 		</td>

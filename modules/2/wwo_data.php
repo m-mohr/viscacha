@@ -20,12 +20,11 @@ class WWO_Cache {
 			'i' => 0,
 			'r' => 0,
 			'g' => 0,
-			'b' => 0,
 			'list' => array()
 		);
 		
 		$result = $db->query("
-			SELECT s.mid, s.is_bot, u.name
+			SELECT s.mid, u.name
 			FROM {$db->pre}session AS s 
 				LEFT JOIN {$db->pre}user AS u ON s.mid = u.id
 			ORDER BY u.name
@@ -38,9 +37,6 @@ class WWO_Cache {
 				$wwo['r']++;
 				$row['sep'] = $sep;
 				$wwo['list'][] = $row;
-			}
-			elseif ($row['is_bot'] > 0) {
-				$wwo['b']++;
 			}
 			else {
 				$wwo['g']++;

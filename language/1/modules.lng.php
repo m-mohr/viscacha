@@ -27,6 +27,6 @@ $lang['quickreply_extended'] = 'Erweitert';
 $lang['quickreply_title'] = 'Schnelle Antwort verfassen';
 $lang['related_no_results'] = 'Keine verwandten Themen gefunden';
 $lang['related_topics'] = 'Verwandte Themen';
-$lang['wwo_nav_detail'] = 'Mitglieder: {@wwo->r}<br />Gäste: {@wwo->g}<br />Suchmaschinen: {@wwo->b}';
+$lang['wwo_nav_detail'] = 'Mitglieder: {@wwo->r}<br />Gäste: {@wwo->g}';
 $lang['x_comments'] = 'Kommentare ({@row->posts})';
 ?>

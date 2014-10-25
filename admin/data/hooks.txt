@@ -437,9 +437,6 @@ admin/settings.php
 admin/slog.php
 -admin_slog_jobs
 
-admin/spider.php
--admin_spider_jobs
-
 admin/start.php
 -admin_start_jobs
 -admin_start_tasks

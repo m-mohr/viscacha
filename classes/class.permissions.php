@@ -38,7 +38,6 @@ var $user_agent;
 var $sid;
 var $cookies;
 var $cookiedata;
-var $bots;
 var $gFields;
 var $fFields;
 var $minFields;
@@ -56,16 +55,12 @@ var $change_mid;
  * Constructor for this class.
  *
  * This class manages the user-permissions, login and logout.
- * This function does some initial work: caching search engine user agents, detects the spiders and gets the ip of the user.
+ * This function does some initial work.
  */
 function slog () {
-	global $config, $scache;
-
 	$this->statusdata = array();
 	$this->ip = getip();
 	$this->user_agent = iif(isset($_SERVER['HTTP_USER_AGENT']), $_SERVER['HTTP_USER_AGENT'], getenv('HTTP_USER_AGENT'));
-	$spiders = $scache->load('spiders');
-	$this->bots = $spiders->get();
 	$this->sid = '';
 	$this->cookies = false;
 	$this->cookiedata = array(0, '');
@@ -106,159 +101,6 @@ function SessionDel () {
 	else {
 		return false;
 	}
-}
-
-/**
- * Returns the type of the robot currently visiting this site.
- *
- * Returns 'e' for E-Mail-Collectors, 'v' for Validators (HTML, CSS, ...),
- * 'b' for crawlers/spiders (search engines) and false (boolean) if it is not a robot (or a robot not in database).
- *
- * @return mixed
- */
-function get_robot_type()  {
-	global $db;
-
-	foreach ($this->bots as $row) {
-
-		// check for user agent match
-		foreach (explode('|', $row['user_agent']) as $bot_agent) {
-			if ($row['user_agent'] && !empty($bot_agent) && stristr($this->user_agent, $bot_agent) !== false) {
-				return $row['type'];
-			}
-		}
-
-		// check for ip match
-		foreach (explode('|', $row['bot_ip']) as $bot_ip) {
-			if ($row['bot_ip'] && !empty($bot_ip) && strpos($this->ip, $bot_ip) === 0) {
-				return $row['type'];
-			}
-		}
-	}
-
-	return false;
-}
-
-/**
- * Checks if the visitor is a robot.
- *
- * The id of the robot (set in database) will be returned or 0 on failure/not finding a matching robot.
- *
- * @return integer
- */
-function log_robot()  {
-	global $db, $config;
-
-	foreach ($this->bots as $row) {
-		$agent_match = 0;
-		$ip_match = 0;
-
-		// check for user agent match
-		foreach (explode('|', $row['user_agent']) as $bot_agent) {
-			if ($row['user_agent'] && !empty($bot_agent) && stristr($this->user_agent, $bot_agent) !== false) {
-				$agent_match = 1;
-				break;
-			}
-		}
-
-		// check for ip match
-		foreach (explode('|', $row['bot_ip']) as $bot_ip) {
-			if ($row['bot_ip'] && !empty($bot_ip) && strpos($this->ip, $bot_ip) !== false) {
-				$ip_match = 1;
-				break;
-			}
-		}
-
-		$today = time();
-
-		if ($config['spider_logvisits'] == 2 && $config['spider_pendinglist'] != 1 && ($agent_match == 1 || $ip_match == 1)) {
-			$db->query("UPDATE {$db->pre}spider SET bot_visits = bot_visits + 1 WHERE id = '{$row['id']}'");
-		}
-		if ($agent_match == 1 && $ip_match == 1) {
-			if ($config['spider_logvisits'] == 1) {
-				$result = $db->query("SELECT bot_visits, last_visit FROM {$db->pre}spider WHERE id = '{$row['id']}'");
-				$row = array_merge($row, $db->fetch_assoc($result));
-
-				$row['bot_visits']++;
-
-				$last_visits = explode('|', $row['last_visit']);
-				$last_visits[] = $today;
-				$last_visit = implode("|", array_empty_trim($last_visits));
-
-				$db->query("UPDATE {$db->pre}spider SET last_visit = '{$last_visit}', bot_visits = '{$row['bot_visits']}' WHERE id = '{$row['id']}'");
-			}
-
-			return $row['id'];
-		}
-		elseif ($agent_match == 1 || $ip_match == 1) {
-			$column = ((!$agent_match) ? 'agent' : 'ip');
-			$column2 = ((!$agent_match) ? 'user_agent' : 'bot_ip');
-			$sqlselect = array();
-			if ($config['spider_pendinglist'] == 1) {
-				$sqlselect[] = "pending_{$column}";
-				$sqlselect[] = $column2;
-			}
-			if ($config['spider_logvisits'] == 1) {
-				$sqlselect[] = "bot_visits";
-				$sqlselect[] = "last_visit";
-			}
-			if ($config['spider_logvisits'] == 1 || $config['spider_pendinglist'] == 1) {
-				$result = $db->query("SELECT ".implode(', ', $sqlselect)." FROM {$db->pre}spider WHERE id = '{$row['id']}'");
-				$row = array_merge($row, $db->fetch_assoc($result));
-			}
-
-			if ($config['spider_pendinglist'] == 1 && $db->num_rows($result) > 0) {
-				$func = ((!$agent_match) ? 'stristr' : 'strpos');
-
-				$pending_array = (( $row['pending_'.$column] ) ? explode('|', $row['pending_'.$column]) : array());
-
-				$found = 0;
-				$count = count($pending_array);
-				if ($count > 0) {
-					for ($loop = 0; $loop < $count; $loop+=2) {
-						if ($pending_array[$loop] == ((!$agent_match) ? $this->user_agent : $this->ip)) {
-							$found = 1;
-							foreach (explode('|', $row[$column2]) as $entry) {
-								if ($row[$column2] && !empty($entry) && $func(((!$agent_match) ? $this->user_agent : $this->ip), $entry) !== false) {
-									$found = 0;
-									break;
-								}
-							}
-						}
-					}
-				}
-
-				if ($found == 0)  {
-					$pending_array[] = ((!$agent_match) ? str_replace("|", "&#124;", $this->user_agent) : $this->ip);
-					$pending_array[] = ((!$agent_match) ? $this->ip : str_replace("|", "&#124;", $this->user_agent));
-				}
-				$pending = implode("|", array_empty_trim($pending_array));
-			}
-			if ($config['spider_logvisits'] == 1 && $db->num_rows($result) > 0) {
-				$row['bot_visits']++;
-
-				$last_visits = explode('|', $row['last_visit']);
-				$last_visits[] = $today;
-				$last_visit = implode("|", array_empty_trim($last_visits));
-			}
-
-			$sqlset = array();
-			if ($config['spider_pendinglist'] == 1) {
-				$sqlset[] = "pending_{$column} = '{$pending}'";
-			}
-			if ($config['spider_logvisits'] == 1) {
-				$sqlset[] = "last_visit = '{$last_visit}'";
-				$sqlset[] = "bot_visits = '{$row['bot_visits']}'";
-			}
-			if (count($sqlset) > 0 && ($config['spider_logvisits'] == 1 || $config['spider_pendinglist'] == 1)) {
-				$db->query("UPDATE {$db->pre}spider SET ".implode(', ', $sqlset)." WHERE id = '{$row['id']}' LIMIT 1");
-			}
-
-			return $row['id'];
-		}
-	}
-
-	return 0;
 }
 
 /**
@@ -705,51 +547,46 @@ function banish($reason = null, $until = null) {
  */
 function checkBan() {
 	global $my;
-	if (!empty($this->bots[$my->is_bot]['type']) && $this->bots[$my->is_bot]['type'] == 'e') {
-		$this->banish('lang->bot_banned'); // Ban sucking spam bots
+	// Try to ban other banned people or do nothing
+	if (file_exists('data/bannedip.php')) {
+		$bannedip = file('data/bannedip.php');
+		$bannedip = array_map('trim', $bannedip);
 	}
 	else {
-		// Try to ban other banned people or do nothing
-		if (file_exists('data/bannedip.php')) {
-			$bannedip = file('data/bannedip.php');
-			$bannedip = array_map('trim', $bannedip);
+		$bannedip = array();
+		$filesystem->file_put_contents('data/bannedip.php', '');
+	}
+	$ban = false;
+	foreach ($bannedip as $row) {
+		$row = explode("\t", $row, 6);
+		if ($row[0] == 'ip') {
+			$row[2] = intval($row[2]);
+			if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
+				$ban = true;
+				break;
+			}
+		}
+		elseif ($row[0] == 'user') {
+			$row[2] = intval($row[2]);
+			if ($my->id == $row[1] && ($row[2] > time() || $row[2] == 0)) {
+				$ban = true;
+				break;
+			}
 		}
 		else {
-			$bannedip = array();
-			$filesystem->file_put_contents('data/bannedip.php', '');
+			continue;
 		}
-		$ban = false;
-		foreach ($bannedip as $row) {
-			$row = explode("\t", $row, 6);
-			if ($row[0] == 'ip') {
-				$row[2] = intval($row[2]);
-				if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
-					$ban = true;
-					break;
-				}
-			}
-			elseif ($row[0] == 'user') {
-				$row[2] = intval($row[2]);
-				if ($my->id == $row[1] && ($row[2] > time() || $row[2] == 0)) {
-					$ban = true;
-					break;
-				}
-			}
-			else {
-				continue;
-			}
+	}
+	if ($ban == true) {
+		$reason = null;
+		if (!empty($row[5])) {
+			$reason = $row[5];
 		}
-		if ($ban == true) {
-			$reason = null;
-			if (!empty($row[5])) {
-				$reason = $row[5];
-			}
-			$until = null;
-			if ($row[2] != 0) {
-				$until = $row[2];
-			}
-			$this->banish($reason, $until);
+		$until = null;
+		if ($row[2] != 0) {
+			$until = $row[2];
 		}
+		$this->banish($reason, $until);
 	}
 }
 
@@ -777,15 +614,12 @@ function sid_load() {
 	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
 		$sql = 'u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"';
 	}
-	elseif ($this->get_robot_type() == 'b') {
-		$sql = 's.ip = "'.$this->ip.'" AND s.mid = "0"';
-	}
 	else {
 		$sql = $sid_checkip;
 	}
 
 	$result = $db->query('
-	SELECT u.*, f.*, s.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings, s.is_bot
+	SELECT u.*, f.*, s.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM '.$db->pre.'session AS s
 		LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id
 		LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
@@ -862,8 +696,6 @@ function sid_new() {
 		makecookie($config['cookie_prefix'].'_vdata', "|", -60);
 	}
 
-	$my->is_bot = $this->log_robot();
-
 	$this->sid = $this->construct_sid();
 	$my->sid = &$this->sid;
 	$my->mark = serialize(array());
@@ -874,8 +706,8 @@ function sid_new() {
 	$qid = $gpc->get('id', int);
 
 	$db->query("INSERT INTO {$db->pre}session
-	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings, is_bot) VALUES
-	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."','{$my->is_bot}')");
+	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings) VALUES
+	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."')");
 
 	return $my;
 }
@@ -913,11 +745,11 @@ function sid_login($remember = true) {
 	$pw = $gpc->get('pw', str);
 
 	$result = $db->query("
-	SELECT u.*, f.*, u.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings, s.is_bot
+	SELECT u.*, f.*, u.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM {$db->pre}user AS u
 		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}')
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id
-	WHERE u.name = '{$username}' AND u.pw = MD5('{$pw}') AND s.is_bot = '0'
+	WHERE u.name = '{$username}' AND u.pw = MD5('{$pw}')
 	");
 	$sessions = $db->num_rows($result);
 
@@ -1029,10 +861,9 @@ function sid_login($remember = true) {
 function sid2url($my = null) {
 	if ($my == null) {
 		$my = new stdClass();
-		$my->is_bot = 0;
 	}
 	if (!defined('SID2URL')) {
-		if ($this->cookies || $my->is_bot > 0) {
+		if ($this->cookies) {
 			DEFINE('SID2URL_JS_x', '');
 			DEFINE('SID2URL_JS_1', '');
 			DEFINE('SID2URL_x', '');
@@ -1055,7 +886,7 @@ function cleanUserData($data) {
 		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'language',
 		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
 		'ufid', // from userfields-table
-		'mid', 'active', 'wiw_id', 'last_visit', 'is_bot', 'mark', 'pwfaccess', 'settings' // from session-table
+		'mid', 'active', 'wiw_id', 'last_visit', 'mark', 'pwfaccess', 'settings' // from session-table
 	);
 	if (is_object($data)) {
 		foreach ($data as $key => $value) {

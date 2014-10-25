@@ -168,9 +168,6 @@ elseif ($_GET['action'] == "wwo") {
 		errorLogin();
 	}
 
-	if ($_GET['type'] == 1) {
-		$htmlonload .= "ReloadCountdown(60);";
-	}
 	$breadcrumb->Add($lang->phrase('wwo_detail_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
@@ -178,10 +175,8 @@ elseif ($_GET['action'] == "wwo") {
 	$wwo = array(
 		'i' => 0,
 		'r' => 0,
-		'g' => 0,
-		'b' => 0
+		'g' => 0
 	);
-	$inner['wwo_bit_bot'] = '';
 	$inner['wwo_bit_member'] = '';
 	$inner['wwo_bit_guest'] = '';
 
@@ -202,7 +197,7 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
 	$result=$db->query("
-	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent, is_bot
+	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent
 	FROM {$db->pre}session
 	ORDER BY active DESC
 	");
@@ -211,7 +206,6 @@ elseif ($_GET['action'] == "wwo") {
 		$row->user_agent = strip_tags($row->user_agent);
 		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
-		$bot = 0;
 		$time = gmdate($lang->phrase('dformat3'), times($row->active));
 		if (isset($memberdata[$row->mid])) {
 			$row->name = $memberdata[$row->mid];
@@ -383,11 +377,6 @@ elseif ($_GET['action'] == "wwo") {
 		if ($row->mid >= 1) {
 			$wwo['r']++;
 			$inner['wwo_bit_member'] .= $tpl->parse("misc/wwo_bit");
-		}
-		elseif ($row->is_bot > 0 && isset($slog->bots[$row->is_bot])) {
-			$wwo['b']++;
-			$bot = $slog->bots[$row->is_bot];
-			$inner['wwo_bit_bot'] .= $tpl->parse("misc/wwo_bit");
 		}
 		else {
 			$wwo['g']++;

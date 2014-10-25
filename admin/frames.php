@@ -90,13 +90,6 @@ if ($job == 'menu') {
 	  </ul>
 	 </div>
 	 <div class="border">
-	   <h3><img id="img_admin_menu10" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_crawler");?></h3>
-	  <ul id="part_admin_menu10">
-	   <li>&raquo; <a href="admin.php?action=spider&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_crawler_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=spider&amp;job=pending" target="Main"><?php echo $lang->phrase("admin_pending_robots");?></a></li>
-	  </ul>
-	 </div>
-	 <div class="border">
 	   <h3><img id="img_admin_menu11" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_database");?></h3>
 	  <ul id="part_admin_menu11">
 		<li>&raquo; <a href="admin.php?action=db&amp;job=backup" target="Main"><?php echo $lang->phrase("admin_backup");?></a></li>
@@ -185,7 +178,6 @@ if ($job == 'menu') {
 	  <h3><img id="img_admin_menu6_simple" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_managing_tools");?></h3>
 	  <ul id="part_admin_menu6_simple">
 	   <li>&raquo; <a href="admin.php?action=db&amp;job=backup" target="Main"><?php echo $lang->phrase("admin_backup_restore");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=spider&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_crawler_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=filetypes&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_filetype_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=slog&amp;job=s_general" target="Main"><?php echo $lang->phrase("admin_statistics");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=misc&amp;job=cache" target="Main"><?php echo $lang->phrase("admin_cache_manager");?></a></li>

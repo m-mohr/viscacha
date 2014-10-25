@@ -27,6 +27,6 @@ $lang['quickreply_extended'] = 'Extended';
 $lang['quickreply_title'] = 'Compose Quick Reply';
 $lang['related_no_results'] = 'No related topics found';
 $lang['related_topics'] = 'Related Topics';
-$lang['wwo_nav_detail'] = 'Members: {@wwo->r}<br />Guests: {@wwo->g}<br />Spiders: {@wwo->b}';
+$lang['wwo_nav_detail'] = 'Members: {@wwo->r}<br />Guests: {@wwo->g}';
 $lang['x_comments'] = 'Comments ({@row->posts})';
 ?>
