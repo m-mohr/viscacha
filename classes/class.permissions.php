@@ -387,10 +387,8 @@ function logged () {
 
 	// Checke nun die Session
 	if (empty($this->sid)) {
-		if (SCRIPTNAME != 'external') {
-			$my = $this->sid_new();
-		}
-		else {
+		if (SCRIPTNAME == 'external') {
+			$my = new stdClass();
 			$my->vlogin = false;
 			$fields = $db->list_fields($db->pre.'user');
 			$fields = array_merge($fields, $db->list_fields($db->pre.'session'));
@@ -398,6 +396,9 @@ function logged () {
 			foreach ($fields as $field) {
 				$my->$field = null;
 			}
+		}
+		else {
+			$my = $this->sid_new();
 		}
 	}
 	else {
