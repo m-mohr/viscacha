@@ -197,9 +197,7 @@ while ($row = $db->fetch_object($result)) {
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
-			$info = get_extension($uppath);
 
-			// Dateigroesse
 			$fsize = filesize($uppath);
 			$fsize = formatFilesize($fsize);
 
