@@ -141,15 +141,15 @@ LIMIT {$sqllimit}
 if ($config['foffline'] == 0) {
 	while ($row = $db->fetch_object($result)) {
 
-	    // Formats the data
-	    if ($row->guest == 0) {
-	        $row->email = $row->umail;
-	        $row->name = $row->uname;
-	    }
+		// Formats the data
+		if ($row->guest == 0) {
+			$row->email = $row->umail;
+			$row->name = $row->uname;
+		}
 		else {
-	        $row->email = $row->gmail;
-	        $row->name = $row->gname;
-	    }
+			$row->email = $row->gmail;
+			$row->name = $row->gname;
+		}
 		$bbcode->setSmileys(0);
 		if ($config['wordstatus'] == 0) {
 			$row->dowords = 0;
@@ -158,44 +158,44 @@ if ($config['foffline'] == 0) {
 		if ($row->status == 2) {
 			$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 		}
-       	$row->comment = $bbcode->parse($row->comment, 'plain');
-       	$row->comment = str_replace("\n", ' ', $row->comment);
-	    if (strxlen($row->comment) > $config['rsschars']) {
-	        $row->comment = FeedCreator::iTrunc($row->comment, $config['rsschars']);
-	    }
+	   	$row->comment = $bbcode->parse($row->comment, 'plain');
+	   	$row->comment = str_replace("\n", ' ', $row->comment);
+		if (strxlen($row->comment) > $config['rsschars']) {
+			$row->comment = FeedCreator::iTrunc($row->comment, $config['rsschars']);
+		}
 
-	    $item = new FeedItem();
-	    $item->title = $row->topic;
+		$item = new FeedItem();
+		$item->title = $row->topic;
 	   	$item->link = $config['furl']."/showtopic.php?id=".$row->id;
-	    $item->source = $config['furl']."/showforum.php?id=".$row->board;
-	    $item->description = $row->comment;
-	    $item->date = $row->date;
-	    $item->author = $row->name;
-	    if ($config['syndication_insert_email'] == 1) {
+		$item->source = $config['furl']."/showforum.php?id=".$row->board;
+		$item->description = $row->comment;
+		$item->date = $row->date;
+		$item->author = $row->name;
+		if ($config['syndication_insert_email'] == 1) {
 			$item->authorEmail = $row->email;
 		}
 		else {
 			$item->authorEmail = '';
 		}
-	    $item->pubDate = $row->date;
+		$item->pubDate = $row->date;
 		$item->category = $row->forum;
 
 		($code = $plugins->load('external_item_prepared')) ? eval($code) : null;
 
-	    $rss->addItem($item);
+		$rss->addItem($item);
 	}
 }
 else {
-    $item = new FeedItem();
-    $item->title = $lang->phrase('offline_head_ext');
-    $item->link = $config['furl'];
-    $item->description = $lang->phrase('offline_body_ext');
-    $item->date = time();
-    $item->author = $config['fname'];
+	$item = new FeedItem();
+	$item->title = $lang->phrase('offline_head_ext');
+	$item->link = $config['furl'];
+	$item->description = $lang->phrase('offline_body_ext');
+	$item->date = time();
+	$item->author = $config['fname'];
 
 	($code = $plugins->load('external_offline')) ? eval($code) : null;
 
-    $rss->addItem($item);
+	$rss->addItem($item);
 }
 
 ($code = $plugins->load('external_prepared')) ? eval($code) : null;
