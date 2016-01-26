@@ -33,6 +33,11 @@ class cache_prefix extends CacheItem {
 			return $this->data;
 		}
 	}
+	
+	function addEmptyPrefix(array& $list) {
+		global $lang;
+		array_unshift($list, array('value' => $lang->phrase('prefix_empty'), 'standard' => "0"));
+	}
 
 }
 ?>

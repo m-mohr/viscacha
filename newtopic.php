@@ -457,7 +457,7 @@ else {
 				$sel = 0;
 			}
 			unset($prefix_arr_standard, $standard);
-			$prefix_arr = array($lang->phrase('prefix_empty')) + $prefix_arr;
+			$prefix_obj->addEmptyPrefix($prefix_arr);
 		}
 		else {
 			$sel = -1;
