@@ -690,10 +690,10 @@ function get_extension($url, $include_dot = false) {
 
 function UpdateBoardStats($board) {
 	global $db, $scache;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='{$board}'");
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id WHERE t.board = '{$board}'");
 	$count = $db->fetch_num ($result);
 
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='{$board}'");
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}'");
 	$count2 = $db->fetch_num($result);
 
 	$replies = $count[0]-$count2[0];

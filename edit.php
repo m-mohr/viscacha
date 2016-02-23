@@ -33,7 +33,7 @@ include ("classes/function.viscacha_frontend.php");
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
 $result = $db->query('
-SELECT r.topic, r.board, r.name, r.comment, r.topic_id, r.dosmileys, r.dowords, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status, r.guest
+SELECT r.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, r.dowords, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status, r.guest
 FROM '.$db->pre.'replies AS r
 	LEFT JOIN '.$db->pre.'topics AS t ON r.topic_id = t.id
 WHERE r.id = "'.$_GET['id'].'"

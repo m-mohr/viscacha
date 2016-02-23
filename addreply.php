@@ -216,8 +216,8 @@ if ($_GET['action'] == "save") {
 		");
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest,edit,report)
-		VALUES ('{$info['board']}','{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest,edit,report)
+		VALUES ('{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
 		");
 		$redirect = $db->insert_id();
 
@@ -357,12 +357,7 @@ else {
 
 		if (count($qids) > 0) {
 
-			$result = $db->query('
-			SELECT name, comment, guest
-			FROM '.$db->pre.'replies
-			WHERE id IN('.implode(',',$qids).')
-			LIMIT '.$config['maxmultiquote']
-			);
+			$result = $db->query('SELECT name, comment, guest FROM '.$db->pre.'replies WHERE id IN('.implode(',',$qids).') LIMIT '.$config['maxmultiquote']);
 
 			while($row = $gpc->prepare($db->fetch_assoc($result))) {
 				if ($row['guest'] == 0) {

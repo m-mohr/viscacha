@@ -127,7 +127,7 @@ if ($_GET['action'] == "search") {
 	if (array_empty($boards)) {
 		$boards = $slog->getBoards();
 	}
-	$sql_where = $slog->sqlinboards('r.board', 1, $boards)." ";
+	$sql_where = $slog->sqlinboards('t.board', 1, $boards)." ";
 
 	if (count($used) > 0) {
 		$sql_where .= "({$sql_where_like}) ";
@@ -147,7 +147,6 @@ if ($_GET['action'] == "search") {
 		$ignored[] = $name;
 	}
 
-	$having = '';
 	$temp = $gpc->get('temp', int);
 	$temp2 = $gpc->get('temp2', int);
 	if ($temp > 0 && $temp < 366) {
@@ -160,15 +159,15 @@ if ($_GET['action'] == "search") {
 		}
 		$timestamp = time()-60*60*24*$temp;
 		$sql_where .= " '{$timestamp}' ";
-		$having = " LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id";
 	}
-	$having .= " LEFT JOIN {$db->pre}forums AS f ON f.id = r.board ";
 	$sql_where .= " AND f.invisible != '2' ";
 
 	($code = $plugins->load('search_search_query')) ? eval($code) : null;
 	$result = $db->query("
 	SELECT r.topic_id
-	FROM {$db->pre}replies AS r {$having}
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE {$sql_where}
 	GROUP BY r.topic_id
 	LIMIT {$config['maxsearchresults']}

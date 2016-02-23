@@ -1,6 +1,5 @@
 CREATE TABLE `{:=DBPREFIX=:}replies` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `board` smallint(5) unsigned NOT NULL default '0',
   `topic` text NOT NULL,
   `topic_id` int(10) unsigned NOT NULL default '0',
   `name` varchar(50) NOT NULL default '',

@@ -4,7 +4,7 @@ $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
 
 $result = $db->query('
-SELECT board, dosmileys, dowords, id, topic, comment, date, name, email, guest
+SELECT dosmileys, dowords, id, topic, comment, date, name, email, guest
 FROM '.$db->pre.'replies
 WHERE topic_id = "'.$info['id'].'"
 ORDER BY date DESC

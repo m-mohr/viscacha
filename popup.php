@@ -62,8 +62,9 @@ elseif ($_GET['action'] == "edithistory") {
 
 	($code = $plugins->load('popup_edithistory_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.ip, r.topic_id, r.board, r.edit, r.id, r.topic, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
+	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.topic, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
 	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1

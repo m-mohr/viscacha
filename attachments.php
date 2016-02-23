@@ -158,7 +158,13 @@ else {
 		);
 	}
 	elseif ($_GET['type'] == 'edit' && $_GET['id'] > 0) {
-		$result = $db->query("SELECT id, board, name, topic_id FROM {$db->pre}replies WHERE id = '{$_GET['id']}' LIMIT 1");
+		$result = $db->query("
+				SELECT r.id, t.board, r.name, r.topic_id
+				FROM {$db->pre}replies AS r 
+					LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
+				WHERE r.id = '{$_GET['id']}'
+				LIMIT 1
+		");
 		if ($db->num_rows($result) != 1) {
 			$error = true;
 		}

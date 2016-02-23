@@ -155,7 +155,7 @@ elseif ($_GET['job'] == 'reports') {
 	SELECT t.prefix, r.topic_id, r.id, r.report, t.board, t.topic, r.topic AS title, r.date, r.name, f.name AS forumname
 	FROM {$db->pre}replies AS r
 	    LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
-	    LEFT JOIN {$db->pre}forums AS f ON f.id = r.board
+	    LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE r.report != ''
 	ORDER BY r.topic_id DESC, r.date DESC
 	LIMIT {$start}, {$perpage}"

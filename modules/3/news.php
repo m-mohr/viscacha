@@ -9,7 +9,7 @@ FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
-WHERE t.board = '{$board}' AND t.status != '2' ".$slog->sqlinboards('r.board')." AND r.tstart = '1'
+WHERE t.board = '{$board}' AND t.status != '2' ".$slog->sqlinboards('t.board')." AND r.tstart = '1'
 ORDER BY r.date DESC
 LIMIT 0,{$limit}"
 );

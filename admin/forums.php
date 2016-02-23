@@ -360,7 +360,7 @@ elseif ($job == 'forum_delete2') {
 		}
 		$ids = implode(',', $id);
 
-		$db->query ("DELETE FROM {$db->pre}replies WHERE board = '{$_GET['id']}'");
+		$db->query ("DELETE r FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE t.board = '{$_GET['id']}'");
 		$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
 		while ($urow = $db->fetch_assoc($uresult)) {
 			$filesystem->unlink('uploads/topics/'.$urow['source']);

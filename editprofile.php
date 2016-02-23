@@ -93,9 +93,10 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.board, r.topic, u.id, u.tid, u.file, u.source, u.hits
+	SELECT t.board, r.topic, u.id, u.tid, u.file, u.source, u.hits
 	FROM {$db->pre}uploads AS u
 		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 	WHERE u.mid = '$my->id'
 	ORDER BY u.topic_id, u.tid
 	");

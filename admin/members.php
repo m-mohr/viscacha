@@ -1217,7 +1217,8 @@ elseif ($job == 'recount') {
 				SELECT COUNT(*) AS new, u.posts, u.id
 				FROM {$db->pre}replies AS r
 					LEFT JOIN {$db->pre}user AS u ON u.id = r.name
-				WHERE r.guest = '0'". iif(count($id) > 0, " AND r.board NOT IN (".implode(',', $id).")") ."
+					LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+				WHERE r.guest = '0'". iif(count($id) > 0, " AND t.board NOT IN (".implode(',', $id).")") ."
 				GROUP BY u.id
 			");
 
