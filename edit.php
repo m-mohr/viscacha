@@ -256,7 +256,7 @@ if ($allowed == true) {
 		if (count($prefix_arr) > 0 && $info['tstart'] == 1) {
 			array_columnsort($prefix_arr, "value");
 			if ($last['prefix'] == 0) {
-				$prefix_obj->addEmptyPrefix($prefix_arr);
+				$prefix_arr = $prefix_obj->addEmptyPrefix($prefix_arr);
 			}
 			$sel = $data['prefix'];
 			$inner['index_prefix'] = $tpl->parse("edit/prefix");
