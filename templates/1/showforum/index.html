@@ -59,20 +59,45 @@
 	</td>
   </tr>
 </table>
-<div class="border">
-<h3><?php echo $lang->phrase('forum_filter'); ?></h3>
-<div class="bbody">
 <form method="get" action="showforum.php">
-  <select size="1" name="sort">
-    <option value='0'<?php echo iif($filter == 0,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt0'); ?></option>
-    <option value="6"<?php echo iif($filter == 6,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt6'); ?></option>
-  </select>
-  <input type="hidden" name="id" value="<?php echo $board; ?>" />
-  <input type="hidden" name="s" value="<?php echo SID2URL; ?>" />
-  <input type="submit" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" />
+<input type="hidden" name="id" value="<?php echo $board; ?>" />
+<input type="hidden" name="s" value="<?php echo SID2URL; ?>" />
+<table class="tables">
+	<tr>
+		<th colspan="2"><?php echo $lang->phrase('forum_filter'); ?></th>
+	</tr>
+	<?php if (count($prefix_arr) > 0) { ?>
+	<tr>
+		<td class="tfoot" width="50%"><?php echo $lang->phrase('th_status'); ?></td>
+		<td class="tfoot" width="50%"><?php echo $lang->phrase('prefix'); ?></td>
+	</tr>
+	<?php } ?>
+	<tr>
+		<td class="tbody">
+			<select size="1" name="sort">
+				<option value='0'<?php echo iif($filter == 0,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt0'); ?></option>
+				<option value="6"<?php echo iif($filter == 6,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt6'); ?></option>
+			</select>
+		</td>
+		<?php if (count($prefix_arr) > 0) { ?>
+		<td class="tbody">
+			<select size="1" name="prefix">
+				<option value='-1'<?php echo iif($prefix_filter == -1,' selected="selected"'); ?>><?php echo $lang->phrase('forum_filter_opt0'); ?></option>
+				<option value='0'<?php echo iif($prefix_filter == 0,' selected="selected"'); ?>><?php echo $lang->phrase('prefix_empty_filter'); ?></option>
+				<?php foreach ($prefix_arr as $prefix_id => $prefix_row) { ?>
+				<option value="<?php echo $prefix_id; ?>"<?php echo iif($prefix_filter == $prefix_id,' selected="selected"'); ?>><?php echo $prefix_row['value']; ?></option>
+				<?php } ?>
+			</select>
+		</td>
+		<?php } ?>
+	</tr>
+	<tr>
+		<td class="tfoot" colspan="2">
+			<input type="submit" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" />
+		</td>
+	</tr>
+</table>
 </form>
-</div>
-</div>
 <noscript>
 	<br class="minibr" />
 	<div class="popup_noscript">

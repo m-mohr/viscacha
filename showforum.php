@@ -55,6 +55,10 @@ $breadcrumb->Add($info['name']);
 
 forum_opt($info);
 
+$prefix_obj = $scache->load('prefix');
+$prefix_arr = $prefix_obj->get($board);
+array_columnsort($prefix_arr, "value");
+
 $filter = $gpc->get('sort', int);
 if ($filter == 6) {
 	$marksql = ' AND posts = 0 ';
@@ -64,6 +68,11 @@ elseif ($filter == 0) {
 }
 else {
 	$marksql = '';
+}
+
+$prefix_filter = $gpc->get('prefix', int, -1);
+if ($prefix_filter >= 0) {
+	$marksql .= " AND prefix = '{$prefix_filter}' ";
 }
 
 ($code = $plugins->load('showforum_filer_query')) ? eval($code) : null;
@@ -105,8 +114,6 @@ if ($info['topics'] > 0) {
 	LIMIT {$start}, {$info['forumzahl']}
 	");
 
-	$prefix_obj = $scache->load('prefix');
-	$prefix_arr = $prefix_obj->get($board);
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
 
