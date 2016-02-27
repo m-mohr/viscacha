@@ -119,10 +119,10 @@
 <div class="border">
 <h3><?php echo $lang->phrase('admin_options'); ?></h3>
 <div class="bbody">
-<a href="manageforum.php?action=index&amp;type=open&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_open'); ?></a> |
-<a href="manageforum.php?action=index&amp;type=close&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_close'); ?></a> |
-<a href="manageforum.php?action=index&amp;type=delete&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_delete'); ?></a> |
-<a href="manageforum.php?action=index&amp;type=move&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_move'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=open&amp;page=<?php echo $_GET['page']; ?>&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_open'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=close&amp;page=<?php echo $_GET['page']; ?>&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_close'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=delete&amp;page=<?php echo $_GET['page']; ?>&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_delete'); ?></a> |
+<a href="manageforum.php?action=index&amp;type=move&amp;page=<?php echo $_GET['page']; ?>&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_mass_move'); ?></a> |
 <a href="manageforum.php?action=stat&amp;id=<?php echo $board.SID2URL_x; ?>"><?php echo $lang->phrase('admin_forum_stats'); ?></a>
 </div>
 </div>
