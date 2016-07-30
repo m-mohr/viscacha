@@ -11,7 +11,7 @@ CREATE TABLE `{:=DBPREFIX=:}user` (
   `about` mediumtext NOT NULL,
   `location` varchar(200) NOT NULL default '',
   `gender` enum('','m','w') NOT NULL default '',
-  `birthday` date NOT NULL default '0000-00-00',
+  `birthday` char(10) NOT NULL default '0000-00-00',
   `pic` varchar(255) NOT NULL default '',
   `lastvisit` int(10) unsigned NOT NULL default '0',
   `timezone` varchar(5) default '',
