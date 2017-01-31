@@ -71,7 +71,7 @@ class BBCode {
 		$url_host = "(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[{$url_word}\d\.\-]{2,}\.[a-z]{2,7})(?:\:\d+)?"; // Host (domain, tld, ip, port)
 		$url_path = "(?:\/[{$url_word}ß\d\/;\-%@\~,\.\+\!&=_]*)?"; // Path
 		$url_query = "(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%@\+\~\[\]]*)?"; // Query String
-		$url_fragment = "(?:#[\w\d]*)?"; // Fragment
+		$url_fragment = "(?:#[\w\d\-]*)?"; // Fragment
 
 		// URL RegExp - Two matches predefined: First is whole url, second is URI scheme
 		$this->url_regex = "({$url_protocol}{$url_auth}{$url_host}{$url_path}{$url_query}{$url_fragment})";
