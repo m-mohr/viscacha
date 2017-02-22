@@ -75,7 +75,7 @@ if ($info['status'] != 0 && $my->mp[0] != 1) {
 
 $diff = time()-$info['date'];
 $edit_seconds = ($config['edit_edit_time'] == 0) ? $diff : $config['edit_edit_time']*60;
-$delete_seconds = ($config['edit_edit_time'] == 0) ? $diff : $config['edit_delete_time']*60;
+$delete_seconds = ($config['edit_delete_time'] == 0) ? $diff : $config['edit_delete_time']*60;
 
 $del_post = ($info['topic_id'] > 0 || $info['posts'] == 0);
 $del_mod = ($my->mp[1] == 1 && $del_post);
