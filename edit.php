@@ -74,16 +74,12 @@ if ($info['status'] != 0 && $my->mp[0] != 1) {
 }
 
 $diff = time()-$info['date'];
-if ($config['edit_edit_time'] == 0) {
-    $edit_seconds = $diff;
-}
-else {
-    $edit_seconds = $config['edit_edit_time']*60;
-}
-$delete_seconds = $config['edit_delete_time']*60;
+$edit_seconds = ($config['edit_edit_time'] == 0) ? $diff : $config['edit_edit_time']*60;
+$delete_seconds = ($config['edit_edit_time'] == 0) ? $diff : $config['edit_delete_time']*60;
 
-$del_mod = ($my->mp[1] == 1 && ($info['topic_id'] > 0 || $info['posts'] == 0));
-$del_user = ($delete_seconds >= $diff && ($info['topic_id'] > 0 || $info['posts'] == 0));
+$del_post = ($info['topic_id'] > 0 || $info['posts'] == 0);
+$del_mod = ($my->mp[1] == 1 && $del_post);
+$del_user = ($delete_seconds >= $diff && $del_post);
 $p_upload = ($config['tpcallow'] == 1 && $my->p['attachments'] == 1);
 
 $allowed = ((($info['name'] == $my->id && $info['guest'] == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
@@ -93,56 +89,57 @@ $allowed = ((($info['name'] == $my->id && $info['guest'] == 0 && $edit_seconds >
 if ($allowed == true) {
 
 	if ($_GET['action'] == "save") {
-
-		if ($_POST['temp'] == '1' && ($del_mod || $del_user)) {
-			if ($info['tstart'] == 0 || $info['posts'] == 0) {
-				if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-					if ($info['tstart'] == 1) {
-						$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name");
-						while ($row = $db->fetch_assoc($result)) {
-							$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
-						}
-					}
-					else {
-						if ($info['guest'] == 0 && $last['count_posts'] == 1) {
-							$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}'");
-						}
-					}
-				}
-				$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
-				$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
-				while ($urow = $db->fetch_num($uresult)) {
-				    $filesystem->unlink('uploads/topics/'.$urow[0]);
-				}
-				$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
-				$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'");
-				if ($info['tstart'] == 1) {
-					$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
-					$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
-					$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-					$voteaids = array();
-					while ($row = $db->fetch_num($votes)) {
-						$voteaids[] = $row[0];
-					}
-					if (count($voteaids) > 0) {
-						$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
-					}
-					$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-				}
-				($code = $plugins->load('edit_save_delete')) ? eval($code) : null;
-				if ($config['updateboardstats'] == 1) {
-					UpdateBoardStats($info['board']);
-				}
-				else {
-					UpdateBoardLastStats($info['board']);
-				}
-				UpdateTopicStats($info['topic_id']);
-
-				ok($lang->phrase('edit_postdeleted'),iif($info['tstart'] == 1, "showforum.php?id=".$info['board'], "showtopic.php?action=last&id=".$info['topic_id']).SID2URL_x);
-			}
-			else {
+		if ($_POST['temp'] == '1') {
+			if (!$del_post) {
 				error($lang->phrase('threadstarts_no_delete'),"edit.php?id=".$info['id'].SID2URL_x);
 			}
+			else if (!$del_mod && !$del_user) {
+				errorLogin($lang->phrase('not_allowed_time_exceed'));
+			}
+
+			if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
+				if ($info['tstart'] == 1) {
+					$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name");
+					while ($row = $db->fetch_assoc($result)) {
+						$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
+					}
+				}
+				else {
+					if ($info['guest'] == 0 && $last['count_posts'] == 1) {
+						$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}'");
+					}
+				}
+			}
+			$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
+			$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
+			while ($urow = $db->fetch_num($uresult)) {
+				$filesystem->unlink('uploads/topics/'.$urow[0]);
+			}
+			$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
+			$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'");
+			if ($info['tstart'] == 1) {
+				$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
+				$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
+				$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+				$voteaids = array();
+				while ($row = $db->fetch_num($votes)) {
+					$voteaids[] = $row[0];
+				}
+				if (count($voteaids) > 0) {
+					$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+				}
+				$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+			}
+			($code = $plugins->load('edit_save_delete')) ? eval($code) : null;
+			if ($config['updateboardstats'] == 1) {
+				UpdateBoardStats($info['board']);
+			}
+			else {
+				UpdateBoardLastStats($info['board']);
+			}
+			UpdateTopicStats($info['topic_id']);
+
+			ok($lang->phrase('edit_postdeleted'),iif($info['tstart'] == 1, "showforum.php?id=".$info['board'], "showtopic.php?action=last&id=".$info['topic_id']).SID2URL_x);
 		}
 		else {
 			$error = array();
