@@ -27,47 +27,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 include('classes/class.gpc.php');
 $gpc = new GPC();
 
-// Thanks to phpBB for this code
-if (ini_isActive(@ini_get('register_globals'))) {
-	unset($not_used, $input);
-	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES', 'config', 'gpc', 'imagetype_extension', 'var');
-
-	$input = array_merge($_GET, $_POST, $_COOKIE, $_ENV, $_FILES);
-	if (isset($_SERVER)) {
-		$input = array_merge($input, $_SERVER);
-	}
-	if (isset($_SESSION) && is_array($_SESSION)) {
-		$input = array_merge($input, $_SESSION);
-	}
-
-	unset($input['input'], $input['not_unset']);
-
-	while (list($var,) = @each($input)) {
-		if (!in_array($var, $not_unset)) {
-			unset($$var);
-			if (isset($GLOBALS[$var])) {
-				unset($GLOBALS[$var]);
-			}
-		}
-	}
-
-	unset($input);
-}
-
-if (get_magic_quotes_gpc() == 1) {
-	$_GET = $gpc->stripslashes($_GET);
-	$_POST = $gpc->stripslashes($_POST);
-	$_REQUEST = $gpc->stripslashes($_REQUEST);
-}
-
-// Thanks to phpBB for this 6 lines
-if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-	trigger_error("Hacking attempt (Globals)", E_USER_ERROR);
-}
-if (isset($_SESSION) && !is_array($_SESSION)) {
-	trigger_error("Hacking attempt (Session Variable)", E_USER_ERROR);
-}
-
 $http_svars = array(
 	'PHP_SELF',
 	'HTTP_USER_AGENT',
