@@ -94,7 +94,7 @@ if ($allowed == true) {
 
 	if ($_GET['action'] == "save") {
 
-		if ($_POST['temp'] == '1' && $my->mp[4] == '1') {
+		if ($_POST['temp'] == '1' && ($del_mod || $del_user)) {
 			if ($info['tstart'] == 0 || $info['posts'] == 0) {
 				if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
 					if ($info['tstart'] == 1) {
