@@ -79,7 +79,6 @@ if ($job == 'menu') {
 	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=smileys" target="Main"><?php echo $lang->phrase("admin_smiley_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=word" target="Main"><?php echo $lang->phrase("admin_glossary");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=censor" target="Main"><?php echo $lang->phrase("admin_censorship");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=replace" target="Main"><?php echo $lang->phrase("admin_vocabulary");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=bbcodes&amp;job=custombb" target="Main"><?php echo $lang->phrase("admin_bbcodes");?></a></li>
 	  </ul>
 	 </div>

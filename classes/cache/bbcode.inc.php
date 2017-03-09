@@ -9,8 +9,7 @@ class cache_bbcode extends CacheItem {
 			$this->data = array(
 				'censor' => array(),
 				'bb' => array(),
-				'word' => array(),
-				'replace' => array()
+				'word' => array()
 			);
 			$result = $db->query("SELECT * FROM {$db->pre}textparser");
 			while ($bb = $db->fetch_assoc($result)) {

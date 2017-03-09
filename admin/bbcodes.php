@@ -594,61 +594,12 @@ elseif ($job == 'censor') {
 	<?php
 	echo foot();
 }
-elseif ($job == 'replace') {
-	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}textparser WHERE type = 'replace'");
-?>
-<form name="form" method="post" action="admin.php?action=bbcodes&job=del&tp=replace">
- <table class="border">
-  <tr>
-   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_bbc_manage_vocab'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_bbc_delete_all'); ?></td>
-   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_word'); ?></td>
-   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_bbc_replacement'); ?></td>
-  </tr>
-<?php while ($row = $db->fetch_assoc($result)) { ?>
-  <tr>
-   <td class="mbox" width="10%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td>
-   <td class="mbox" width="45%"><a href="admin.php?action=bbcodes&amp;job=edit&amp;tp=replace&amp;id=<?php echo $row['id']; ?>"><?php echo $row['search']; ?></a></td>
-   <td class="mbox" width="45%"><?php echo $row['replace']; ?></td>
-  </tr>
-<?php } ?>
-  <tr>
-   <td class="ubox" width="100%" colspan=3 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_delete'); ?>"></td>
-  </tr>
- </table>
-</form>
-<br>
-<form name="form" method="post" action="admin.php?action=bbcodes&job=add&tp=replace">
-<input name="tp" value="replace" type="hidden">
- <table class="border">
-  <tr>
-   <td class="obox" colspan=2><?php echo $lang->phrase('admin_bbc_add_word'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_bbc_word'); ?>:<br /><span class="stext"><?php echo $lang->phrase('admin_bbc_max_200_chars'); ?></span></td>
-   <td class="mbox" width="70%"><input type="text" name="temp1" size="70"></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%"><?php echo $lang->phrase('admin_bbc_replacement'); ?>:<br /><span class="stext"><?php echo $lang->phrase('admin_bbc_max_255_chars'); ?></span></td>
-   <td class="mbox" width="70%"><input type="text" name="temp2" size="70"></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan=2 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_bbc_add'); ?>"></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
 elseif ($job == 'add') {
 	echo head();
 	$type = $gpc->get('tp', str);
 
 	$error = array();
-	if ($type != 'word' && $type != 'censor' && $type != 'replace') {
+	if ($type != 'word' && $type != 'censor') {
 		$error[] = $lang->phrase('admin_bbc_no_valid_type');
 	}
 	if (strxlen($gpc->get('temp1', str)) < 2) {
@@ -680,11 +631,7 @@ elseif ($job == 'edit') {
 		error('admin.php?action=bbcodes&job='.$type, $lang->phrase('admin_bbc_no_valid_selection'));
 	}
 	$row = $db->fetch_assoc($result);
-	if ($row['type'] == 'replace') {
-		$label1 = $lang->phrase('admin_bbc_word');
-		$label2 = $lang->phrase('admin_bbc_replacement');
-	}
-	elseif ($row['type'] == 'censor') {
+	if ($row['type'] == 'censor') {
 		$label1 = $lang->phrase('admin_bbc_word');
 		$label2 = $lang->phrase('admin_bbc_censored_word');
 	}
@@ -726,7 +673,7 @@ elseif ($job == 'edit2') {
 	$id = $gpc->get('id', int);
 
 	$error = array();
-	if ($type != 'word' && $type != 'censor' && $type != 'replace') {
+	if ($type != 'word' && $type != 'censor') {
 		error('admin.php?action=index', $lang->phrase('admin_bbc_no_valid_type'));
 	}
 	if (strxlen($gpc->get('temp1', str)) < 2) {
@@ -1154,7 +1101,6 @@ elseif ($job == 'custombb_test') {
 		file_put_contents($file, $test);
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
-		$bbcode->setReplace(0);
 		$bbcode->setAuthor($my->id);
 		$parsed_test = $bbcode->parse($test);
 		$smileys_time = round($bbcode->getBenchmark('smileys'), 3);

@@ -65,7 +65,6 @@ $lang['admin_bbc_including_image'] = 'Ja, mit dem zugehörigen Bild';
 $lang['admin_bbc_manage_censorship'] = 'Zensur verwalten';
 $lang['admin_bbc_manage_glossary'] = 'Glossar-Wörter verwalten';
 $lang['admin_bbc_manage_smileys'] = 'Smileys verwalten ({$res_num_rows} Smileys)';
-$lang['admin_bbc_manage_vocab'] = 'Vokabeln verwalten';
 $lang['admin_bbc_max_200_chars'] = 'Maximal 200 Zeichen';
 $lang['admin_bbc_max_255_chars'] = 'Maximal 255 Zeichen';
 $lang['admin_bbc_no'] = 'Nein';

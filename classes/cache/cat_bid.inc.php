@@ -33,7 +33,6 @@ class cache_cat_bid extends CacheItem {
 				}
 
 				BBProfile($bbcode);
-				$bbcode->setReplace($config['wordstatus']);
 				$row['message_text'] = $bbcode->parse($row['message_text']);
 
 				if ($row['post_order'] == -1) {

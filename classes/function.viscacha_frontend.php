@@ -179,7 +179,6 @@ function DocCodeParser($syntax, $parser = 1) {
 	elseif ($parser == 3) {
 		BBProfile($bbcode);
 		$bbcode->setSmileys();
-		$bbcode->setReplace();
 		$syntax = $bbcode->parse($syntax);
 	}
 	elseif ($parser == 0) {

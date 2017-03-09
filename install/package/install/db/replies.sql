@@ -6,7 +6,6 @@ CREATE TABLE `{:=DBPREFIX=:}replies` (
   `guest` enum('0','1') NOT NULL default '0',
   `comment` longtext NOT NULL,
   `dosmileys` enum('0','1') NOT NULL default '1',
-  `dowords` enum('0','1') NOT NULL default '1',
   `email` varchar(200) NOT NULL default '',
   `ip` varchar(20) NOT NULL default '',
   `date` int(10) unsigned NOT NULL default '0',

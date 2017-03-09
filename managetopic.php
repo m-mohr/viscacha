@@ -561,7 +561,7 @@ elseif ($action == "pmerge2") {
 		$db->query ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 		$db->query ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 
-		$db->query ("UPDATE {$db->pre}replies SET topic = '{$topic}', name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', dowords = '{$_POST['dowords']}', email = '{$email}', ip = '{$ip}', edit = '{$edit}', guest = '{$guest}' WHERE id = '{$base['id']}'");
+		$db->query ("UPDATE {$db->pre}replies SET topic = '{$topic}', name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', email = '{$email}', ip = '{$ip}', edit = '{$edit}', guest = '{$guest}' WHERE id = '{$base['id']}'");
 		$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iold})");
 
 		($code = $plugins->load('managetopic_pmerge_end')) ? eval($code) : null;

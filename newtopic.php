@@ -270,7 +270,6 @@ elseif ($_GET['action'] == "save") {
 			'comment' => $_POST['comment'],
 			'prefix' => $_POST['opt_0'],
 			'dosmileys' => $_POST['dosmileys'],
-			'dowords' => $_POST['dowords'],
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
 			'human' => $human,
@@ -323,8 +322,8 @@ elseif ($_GET['action'] == "save") {
 		$tredirect = $db->insert_id();
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest,edit,report)
-		VALUES ('{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,tstart,ip,guest,edit,report)
+		VALUES ('{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
 		");
 		$rredirect = $db->insert_id();
 
@@ -409,7 +408,6 @@ else {
 		'email' => '',
 		'comment' => '',
 		'dosmileys' => 1,
-		'dowords' => 1,
 		'topic' => '',
 		'human' => false,
 		'digest' => 0
@@ -420,13 +418,6 @@ else {
 		$info = array($data['topic']);
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
-			if ($config['wordstatus'] == 0) {
-				$dowords = 0;
-			}
-			else {
-				$dowords = $data['dowords'];
-			}
-			$bbcode->setReplace($dowords);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
 			$prefix = '';
 			if (isset($prefix_arr[$data['prefix']])) {

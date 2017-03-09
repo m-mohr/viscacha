@@ -92,7 +92,6 @@ $http_vars = array(
 	'temp' => int,
 	'temp2' => int,
 	'dosmileys' => int,
-	'dowords' => int,
 	'birthday' => int,
 	'birthmonth' => int,
 	'birthyear' => int,

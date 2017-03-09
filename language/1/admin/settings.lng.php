@@ -282,8 +282,6 @@ $lang['admin_recaptcha_private_key_info'] = '\'Private Key\', der Ihnen von {$re
 $lang['admin_recaptcha_public_key'] = 'Öffentlicher Schlüssel:';
 $lang['admin_recaptcha_public_key_info'] = '\'Public Key\', der Ihnen von {$re_link} zur Verfügung gestellt wurde.';
 $lang['admin_registration_edit'] = 'Registrierung';
-$lang['admin_replace_vocabulary'] = 'Vokabeln ersetzen:';
-$lang['admin_replace_vocabulary_info'] = 'Die können die <a href="admin.php?action=bbcodes&job=replace">Vokabeln</a> automatisch ersetzen lassen (kann beim Verfassen eines Beitrags explizit geändert werden).';
 $lang['admin_save_php_errors'] = 'Speichere Fehler (PHP und MySQL) in Protokolldatei:';
 $lang['admin_save_php_errors_info'] = 'Diese Option sollte nur zu Debugging-Zwecken aktiviert werden.';
 $lang['admin_scheduled_settings'] = 'Geplante Aufgaben';
@@ -334,7 +332,6 @@ $lang['admin_select_tools'] = '-- Werkzeuge --';
 $lang['admin_select_topic_posts_statistic'] = 'Themen- &amp; Beitrags-Statistiken';
 $lang['admin_select_trash_email'] = 'Wegwerf-E-Mail-Adressen';
 $lang['admin_select_usergroup_manager'] = 'Benutzergruppen-Verwaltung';
-$lang['admin_select_vocabulary_manager'] = 'Vokabeln verwalten';
 $lang['admin_sendmail_host'] = 'Sendmail - Host:';
 $lang['admin_sendmail_host_info'] = 'Nur wenn Sendmail aktiviert wurde.';
 $lang['admin_send_reports_email'] = 'Sende Berichte per E-Mail:';

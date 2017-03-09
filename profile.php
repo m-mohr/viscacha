@@ -177,7 +177,6 @@ elseif ($is_member) {
 
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
-		$bbcode->setReplace(0);
 		$bbcode->setAuthor($row->id);
 		$row->about = $bbcode->parse($row->about);
 

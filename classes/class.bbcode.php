@@ -513,7 +513,6 @@ class BBCode {
 		$text = str_ireplace('[reader]', $this->reader, $text);
 		$text = $this->parseDoc($text);
 		$text = $this->dict($text, $type);
-		$text = $this->replace($text);
 		$text = $this->nl2br($text, $type);
 		$text = $this->replacePID($text);
 		$text = $this->censor($text);
@@ -761,7 +760,6 @@ class BBCode {
 				'useSmileys' => 0,
 				'SmileyUrl' => '',
 				'useDict' => 0,
-				'useReplace' => 1,
 				'useCensor' => 1,
 				'reduceEndChars' => 1,
 				'reduceNL' => 1,
@@ -801,9 +799,6 @@ class BBCode {
 		$this->profile['useDict'] = $dict;
 		$this->profile['useCensor'] = $censor;
 		$this->profile['resizeImg'] = $resizeimg;
-	}
-	function setReplace ($use = 1) {
-		$this->profile['useReplace'] = $use;
 	}
 	function setWordwrap ($use = 1, $wordlength = 70, $char = ' ') {
 		$this->profile['wordwrap'] = $use;
@@ -917,15 +912,6 @@ class BBCode {
 		}
 		elseif ($this->profile['useCensor'] == 1) {
 			foreach ($this->bbcodes['censor'] as $word) {
-				$text = str_ireplace($word['search'], $word['replace'], $text);
-			}
-		}
-		return $text;
-	}
-	function replace ($text) {
-		$this->cache_bbcode();
-		if (isset($this->profile['useReplace']) && $this->profile['useReplace'] == 1) {
-			foreach ($this->bbcodes['replace'] as $word) {
 				$text = str_ireplace($word['search'], $word['replace'], $text);
 			}
 		}
@@ -1061,7 +1047,6 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			}
 			$bbcode->setSmileyDir($config['smileyurl']);
 			$bbcode->setSmileys(1);
-			$bbcode->setReplace($config['wordstatus']);
 			// Disallow some bb-codes
 			if ($config['sig_bbimg'] == 1) {
 				$bbcode->setFunc('img');

@@ -441,7 +441,6 @@ $lang['post_report'] = 'Melden';
 $lang['post_reported'] = 'Gemeldeter Beitrag';
 $lang['post_settings'] = 'Optionen:';
 $lang['post_settings_smileys'] = 'Smileys im Beitrag umwandeln';
-$lang['post_settings_words'] = '&quot;Vokabeln&quot; im Beitrag umwandeln';
 $lang['post_thumbnails'] = 'Miniaturansichten angehängter Bilder:';
 $lang['post_uploads'] = 'Dateianhänge:';
 $lang['prefix'] = 'Präfix';

@@ -165,6 +165,5 @@ $config['viscacha_recent_topics']['topicnum'] = '10';
 $config['viscacha_related_topics']['hide_empty'] = '1';
 $config['viscacha_related_topics']['relatednum'] = '5';
 $config['vote_change'] = 0;
-$config['wordstatus'] = 1;
 $config['wordwrap'] = 1;
 ?>

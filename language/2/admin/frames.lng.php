@@ -58,5 +58,4 @@ $lang['admin_txtprocessing'] = 'Text Processing';
 $lang['admin_useful_links'] = 'Useful Links';
 $lang['admin_version_check'] = 'Version Check';
 $lang['admin_viscacha_settings'] = 'Viscacha Settings';
-$lang['admin_vocabulary'] = 'Vocabulary Manager';
 ?>

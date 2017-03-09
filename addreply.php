@@ -81,7 +81,6 @@ $standard_data = array(
 	'guest' => iif($my->vlogin, 0, 1),
 	'comment' => '',
 	'dosmileys' => 1,
-	'dowords' => 1,
 	'digest' => 0,
 	'topic' => $lang->phrase('reply_prefix').$info['topic'],
 	'human' => false,
@@ -165,7 +164,6 @@ if ($_GET['action'] == "save") {
 			'topic' => $_POST['topic'],
 			'comment' => $_POST['comment'],
 			'dosmileys' => $_POST['dosmileys'],
-			'dowords' => $_POST['dowords'],
 			'id' => $id,
 			'digest' => $digest,
 			'guest' => 0,
@@ -216,8 +214,8 @@ if ($_GET['action'] == "save") {
 		");
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest,edit,report)
-		VALUES ('{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,ip,guest,edit,report)
+		VALUES ('{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
 		");
 		$redirect = $db->insert_id();
 
@@ -328,10 +326,6 @@ else {
 		$info['topic'] = $data['topic'];
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
-			if ($config['wordstatus'] == 0) {
-				$data['dowords'] = 0;
-			}
-			$bbcode->setReplace($data['dowords']);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
 		}
 		foreach ($standard_data as $key => $value) {

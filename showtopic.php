@@ -289,7 +289,7 @@ $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
-	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
+	r.id, r.edit, r.dosmileys, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
 	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups,
 	f.*, IF (s.mid > 0, 1, 0) AS online
 FROM {$db->pre}replies AS r
@@ -359,10 +359,6 @@ while ($row = $db->fetch_object($result)) {
 
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);
-	if ($config['wordstatus'] == 0) {
-		$row->dowords = 0;
-	}
-	$bbcode->setReplace($row->dowords);
 	$bbcode->setAuthor($row->mid);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');

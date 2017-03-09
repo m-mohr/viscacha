@@ -4,7 +4,7 @@ $board = intval($config['viscacha_news_boxes']['board']);
 $limit = intval($config['viscacha_news_boxes']['items']);
 
 $result = $db->query("
-SELECT r.dowords, r.dosmileys, t.posts, t.prefix, t.status, t.sticky, t.id, t.board, f.name as forumname, t.topic, r.comment, r.date, r.guest, IF(r.guest = '0', u.name, r.name) AS name
+SELECT r.dosmileys, t.posts, t.prefix, t.status, t.sticky, t.id, t.board, f.name as forumname, t.topic, r.comment, r.date, r.guest, IF(r.guest = '0', u.name, r.name) AS name
 FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
@@ -90,10 +90,6 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 		// IntelliCut - End
 	}
 	$bbcode->setSmileys($row['dosmileys']);
-	if ($config['wordstatus'] == 0) {
-		$row['dowords'] = 0;
-	}
-	$bbcode->setReplace($row['dowords']);
 	$row['comment'] = $bbcode->parse($row['comment']);
 
 	$row['posts'] = numbers($row['posts']);

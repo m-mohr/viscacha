@@ -85,7 +85,6 @@ if ($_GET['action'] == 'show') {
 		$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
 	}
 	$bbcode->setSmileys(1);
-	$bbcode->setReplace($config['wordstatus']);
 	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
@@ -304,7 +303,6 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		$data = $gpc->unescape(import_error_data($fid));
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys(1);
-			$bbcode->setReplace($config['wordstatus']);
 	   		$data['formatted_comment'] = $bbcode->parse($data['comment']);
 		}
 	}

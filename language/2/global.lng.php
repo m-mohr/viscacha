@@ -441,7 +441,6 @@ $lang['post_report'] = 'Report';
 $lang['post_reported'] = 'Reported Post';
 $lang['post_settings'] = 'Options:';
 $lang['post_settings_smileys'] = 'Convert smilies in the post';
-$lang['post_settings_words'] = 'Convert &quot;vocables&quot; in the post';
 $lang['post_thumbnails'] = 'Thumbnails of attached images:';
 $lang['post_uploads'] = 'Attachments:';
 $lang['prefix'] = 'Prefix';
