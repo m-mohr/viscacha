@@ -16,7 +16,6 @@ $lang['admin_design_manager'] = 'Design Manager';
 $lang['admin_documents_pages'] = 'Documents & Pages';
 $lang['admin_execute_sql_queries'] = 'Execute SQL Queries';
 $lang['admin_expand_all'] = 'Expand All';
-$lang['admin_export_feeds'] = 'Export/Creation of Feeds';
 $lang['admin_filetype_manager'] = 'Filetype Manager';
 $lang['admin_file_manager'] = 'File Manager';
 $lang['admin_forum_categories'] = 'Forum & Categories';

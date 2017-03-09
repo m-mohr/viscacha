@@ -1034,11 +1034,6 @@ function getcookie($name) {
 }
 
 function makecookie($name, $value = '', $expire = 31536000) {
-
-	if (SCRIPTNAME == 'external') {
-		return FALSE;
-	}
-
 	if ($expire != null) {
 		$expire = time() + $expire;
 	}

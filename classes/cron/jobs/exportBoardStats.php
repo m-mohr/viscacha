@@ -33,6 +33,7 @@ $data = array(
 	)
 );
 
+mkdir('feeds/');
 $myini = new INI();
 $myini->write('feeds/board_data.ini', $data);
 

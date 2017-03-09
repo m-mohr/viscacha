@@ -133,14 +133,6 @@ editprofile.php
 -editprofile_index_end
 -editprofile_end
 
-external.php
--external_start
--external_query
--external_item_prepared
--external_offline
--external_prepared
--external_end
-
 forum.php
 -forum_start
 -forum_end

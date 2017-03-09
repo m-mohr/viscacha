@@ -241,18 +241,6 @@ function formatFilesize($byte) {
 	return $byte." ".$string;
 }
 
-function show_feeds() {
-	$data = file('data/feedcreator.inc.php');
-	$data = array_map('trim', $data);
-	foreach ($data as $feed) {
-		$feed = explode("|", $feed);
-		if ($feed[3] == 1 && file_exists('classes/feedcreator/'.$feed[1])) {
-			$f[$feed[0]] = $feed[2];
-		}
-	}
-	return $f;
-}
-
 function get_headboards($fc, $last, $returnids = FALSE) {
 	global $breadcrumb;
 

@@ -13,7 +13,6 @@ $lang['html_read_direction'] = 'ltr';
 $lang['lang_code'] = 'de';
 $lang['lang_description'] = 'German (formal) language pack';
 $lang['lang_name'] = 'Deutsch (Formell)';
-$lang['rss_language'] = 'de';
 $lang['spellcheck_dict'] = 'de';
 $lang['thousandssep'] = '.';
 ?>

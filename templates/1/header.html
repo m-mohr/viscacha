@@ -25,10 +25,6 @@
 	<link rel="next" href="<?php echo LINK_NEXT_PAGE; ?>" />
 <?php } if (defined('LINK_LAST_PAGE')) { ?>
 	<link rel="last" href="<?php echo LINK_LAST_PAGE; ?>" />
-<?php } if ($config['syndication'] == 1) { ?>
-	<link rel="alternate" type="application/rss+xml" title="<?php echo $lang->phrase('link_rel_rss'); ?>" href="external.php?action=RSS20" />
-	<link rel="alternate" type="application/atom+xml" title="<?php echo $lang->phrase('link_rel_atom'); ?>" href="external.php?action=ATOM10" />
-	<link rel="alternate" type="application/xml" title="<?php echo $lang->phrase('link_rel_opml'); ?>" href="external.php?action=OPML" />
 <?php } if (defined('LINK_PRINT_PAGE')) { ?>
 	<link rel="alternate" media="print" title="<?php echo $lang->phrase('link_rel_print'); ?>" href="<?php echo LINK_PRINT_PAGE; ?>" />
 <?php } ?>

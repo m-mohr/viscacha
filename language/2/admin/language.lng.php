@@ -133,7 +133,6 @@ $lang['admin_lang_plugin_phrases'] = 'Phrases for the packages';
 $lang['admin_lang_published'] = 'Published';
 $lang['admin_lang_really_delete_langpack'] = 'Would you really like to delete this language?';
 $lang['admin_lang_regdate_format'] = 'Format for the date of registry:';
-$lang['admin_lang_rss_lang'] = 'RSS language:';
 $lang['admin_lang_rtl'] = 'rtl: From right to left';
 $lang['admin_lang_send'] = 'Send';
 $lang['admin_lang_settings'] = 'Settings';

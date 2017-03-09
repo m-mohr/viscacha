@@ -190,7 +190,7 @@ define('PAGE_IS_GZIPPED', ($config['gzip'] == 1 && $phpdoc->Encoding()));
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
-// Global and important functions (not for cron and external)
+// Global and important functions (not for cron)
 if (defined('TEMPNOFUNCINIT') == false || ($config['foffline'] && defined('TEMPSHOWLOG') == false)) {
 	define('SCRIPT_START_TIME', benchmarktime());
 	$slog = new slog();

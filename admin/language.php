@@ -353,9 +353,6 @@ elseif ($job == 'lang_settings') {
 	if (empty($settings['html_read_direction'])) {
 		$settings['html_read_direction'] = 'ltr';
 	}
-	if (empty($settings['rss_language'])) {
-		$settings['rss_language'] = 'en';
-	}
 	if (empty($settings['lang_code'])) {
 		$settings['lang_code'] = 'en';
 	}
@@ -380,7 +377,6 @@ elseif ($job == 'lang_settings') {
 	$charsets['EUC-JP'] = $lang->phrase('admin_charset_eucjp');
 	$settings['charset'] = isset($settings['charset']) ? $settings['charset'] : $config['asia_charset'];
 
-	$rss = file2array('admin/data/rss.txt');
 	$languages = file2array('admin/data/iso639.txt');
 	$country = file2array('admin/data/iso3166.txt');
 	?>
@@ -458,15 +454,6 @@ function errordefault(box) {
    </select>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_rss_lang'); ?></td>
-   <td class="mbox" width="50%">
-   <select name="rss_language">
-   <?php foreach ($rss as $key => $val) { ?>
-   <option value="<?php echo $key; ?>"<?php echo iif($settings['rss_language'] == $key, ' selected="selected"'); ?>><?php echo $val; ?></option>
-   <?php } ?>
-   </select>
-  </tr>
-  <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_charset'); ?><br /><span class="stest"><?php echo $lang->phrase('admin_character_set_incomming_data_converted_info'); ?></span></td>
    <td class="mbox" width="50%">
 	<select name="charset">
@@ -539,7 +526,6 @@ elseif ($job == 'lang_settings2') {
 	$c = new manageconfig();
 	$c->getdata("language/{$id}/settings.lng.php", 'lang');
 	$c->updateconfig('html_read_direction', str);
-	$c->updateconfig('rss_language', str);
 	$c->updateconfig('spellcheck_dict', str, $scd);
 	$c->updateconfig('lang_code', str);
 	$c->updateconfig('country_code', str);

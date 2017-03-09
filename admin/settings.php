@@ -1840,51 +1840,6 @@ elseif ($job == 'textprocessing2') {
 
 	ok('admin.php?action=settings&job=settings');
 }
-elseif ($job == 'syndication') {
-	$config = $gpc->prepare($config);
-	echo head();
-	?>
-	<form name="form" method="post" action="admin.php?action=settings&job=syndication2">
-	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_content_syndication'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_newsfeed'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_activate_newsfeed_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="syndication" value="1"<?php echo iif($config['syndication'],' checked'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_insert_email_new_feeds'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_insert_email_new_feeds_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="syndication_insert_email" value="1"<?php echo iif($config['syndication_insert_email'],' checked'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_newsfeed_max_characters'); ?></td>
-	   <td class="mbox" width="50%"><input type="text" name="rsschars" value="<?php echo $config['rsschars']; ?>" size="4"></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_newsfeed_time_caching'); ?></td>
-	   <td class="mbox" width="50%"><input type="text" name="rssttl" value="<?php echo $config['rssttl']; ?>" size="4"></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
-	  </tr>
-	 </table>
-	</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'syndication2') {
-	echo head();
-
-	$c->getdata();
-	$c->updateconfig('syndication',int);
-	$c->updateconfig('syndication_insert_email',int);
-	$c->updateconfig('rssttl',int);
-	$c->updateconfig('rsschars',int);
-	$c->savedata();
-
-	ok('admin.php?action=settings&job=settings');
-}
 elseif ($job == 'version') {
 	echo head();
 
@@ -2566,19 +2521,6 @@ else {
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
 		  	  <option value="admin.php?action=misc&amp;job=captcha_noises"><?php echo $lang->phrase('admin_select_captcha_bg'); ?></option>
 		  	  <option value="admin.php?action=misc&amp;job=captcha_fonts"><?php echo $lang->phrase('admin_select_captcha_fonts'); ?></option>
-	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
-		  </form>
-		</td>
-	  </tr>
-	  <tr class="mbox">
-		<td nowrap="nowrap"><a href="admin.php?action=settings&amp;job=syndication"><?php echo $lang->phrase('admin_setting_syndication'); ?></a></td>
-		<td class="stext"><?php echo $lang->phrase('admin_setting_syndication_info'); ?></td>
-		<td>
-		  <form name="act" action="admin.php?action=locate" method="post">
-		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
-		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
-		  	  <option value="admin.php?action=cms&amp;job=feed"><?php echo $lang->phrase('admin_select_import_feeds'); ?></option>
-		  	  <option value="admin.php?action=misc&amp;job=feedcreator"><?php echo $lang->phrase('admin_select_export_feeds'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
 		  </form>
 		</td>
