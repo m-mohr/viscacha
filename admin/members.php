@@ -1041,8 +1041,7 @@ elseif ($job == 'manage') {
 	elseif ($sort == 'lastvisit') $sort = 'lastvisit';
 	else $sort = 'name';
 
-	$start = $page*25;
-	$start = $start-25;
+	$start = ($page - 1) * 25;
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
 	?>
@@ -1123,8 +1122,7 @@ elseif ($job == 'memberrating') {
 	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'postratings WHERE aid != "0" GROUP BY aid'));
 	$temp = pages($count[0], "admin.php?action=members&job=memberrating&amp;", 25);
 
-	$start = $page*25;
-	$start = $start-25;
+	$start = ($page - 1) * 25;
 
 	$change = array('m' => 'male', 'w' => 'female', '' => '-');
 

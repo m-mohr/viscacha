@@ -222,8 +222,7 @@ else {
 	$count = $db->fetch_num($result);
 
 	$temp = pages($count[0], $config['mlistenzahl'], "members.php?{$query_page}&amp;", $_GET['page']);
-	$start = $_GET['page']*$config['mlistenzahl'];
-	$start = $start-$config['mlistenzahl'];
+	$start = ($_GET['page'] - 1) * $config['mlistenzahl'];
 
 	$sqljoin = '';
 	$online_key = array_search('online', $fields);

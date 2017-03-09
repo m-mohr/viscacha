@@ -225,8 +225,7 @@ elseif ($_GET['action'] == "result") {
 	    }
 	}
 
-	$start = $_GET['page']*$config['searchzahl'];
-	$start = $start-$config['searchzahl'];
+	$start = ($_GET['page'] - 1) * $config['searchzahl'];
 
 	switch ($data['sort']) {
 		case 'topic':

@@ -375,8 +375,7 @@ elseif ($_GET['action'] == "browse") {
 	$count = $db->fetch_num($result);
 
 	$temp = pages($count[0], $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
-	$start = $_GET['page']*$config['pmzahl'];
-	$start = $start-$config['pmzahl'];
+	$start = ($_GET['page'] - 1) * $config['pmzahl'];
 
 	$inner['index_bit'] = '';
 

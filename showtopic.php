@@ -150,8 +150,7 @@ forum_opt($last);
 
 // Some speed optimisation
 $speeder = $info['posts']+1;
-$start = $_GET['page']*$last['topiczahl'];
-$start = $start-$last['topiczahl'];
+$start = ($_GET['page'] - 1) * $last['topiczahl'];
 $temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id'].$qUrl2."&amp;", $_GET['page']);
 
 define('LINK_PRINT_PAGE', "print.php?id={$info['id']}&amp;page={$_GET['page']}".SID2URL_x);

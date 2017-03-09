@@ -78,8 +78,7 @@ if ($_GET['action'] == "index") {
 	$pages = pages($info['topics'], $info['forumzahl'], 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
 	$inner['index_bit'] = '';
 	if ($info['topics'] > 0) {
-		$start = $_GET['page']*$info['forumzahl'];
-		$start = $start-$info['forumzahl'];
+		$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
 		($code = $plugins->load('manageforum_query')) ? eval($code) : null;
 		$result = $db->query("

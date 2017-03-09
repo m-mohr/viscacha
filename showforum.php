@@ -102,8 +102,7 @@ $subforums = BoardSelect($board);
 
 $inner['index_bit'] = '';
 if ($info['topics'] > 0) {
-	$start = $_GET['page']*$info['forumzahl'];
-	$start = $start-$info['forumzahl'];
+	$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
 	($code = $plugins->load('showforum_query')) ? eval($code) : null;
 	$result = $db->query("

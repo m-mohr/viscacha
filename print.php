@@ -77,8 +77,7 @@ forum_opt($last);
 
 ($code = $plugins->load('print_start')) ? eval($code) : null;
 
-$start = $_GET['page']*$last['topiczahl'];
-$start = $start-$last['topiczahl'];
+$start = ($_GET['page'] - 1) * $last['topiczahl'];
 
 // Some speed optimisation
 $speeder = $info['posts']+1;
