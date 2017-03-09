@@ -1,5 +1,4 @@
-<span class="pagination_small">
-<?php
+<span class="pagination_small"><?php
 echo $lang->phrase('pages');
 foreach ($pages as $page => $row) {
 	if ($row['type'] == PAGES_CURRENT) {
@@ -15,5 +14,4 @@ foreach ($pages as $page => $row) {
 		echo "<span class='page_separator'>".$lang->phrase('pages_sep2')."</span>";
 	}
 }
-?>
-</span>
+?></span>

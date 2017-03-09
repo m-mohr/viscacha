@@ -703,16 +703,30 @@ elseif ($_GET['action'] == "mylast") {
 
 	($code = $plugins->load('editprofile_mylast_query')) ? eval($code) : null;
 	$result = $db->query("
+	SELECT COUNT(*)
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+		LEFT JOIN {$db->pre}forums AS f ON f.id = r.board
+	WHERE r.name = '{$my->id}' AND f.invisible != '2'");
+	$counter = $db->fetch_num($result);
+	$entry_count = $counter[0];
+	
+	if (ceil($entry_count/$config['mylastzahl']) < $_GET['page']) {
+		$_GET['page'] = 1;
+	}
+	$start = ($_GET['page'] - 1) * $config['mylastzahl'];
+	
+	$result = $db->query("
 	SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, t.status, r.id AS pid
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE r.name = '{$my->id}' AND f.invisible != '2'
-	GROUP BY r.topic_id
 	ORDER BY r.date DESC
-	LIMIT 0, {$config['mylastzahl']}
-	");
+	LIMIT {$start}, {$config['mylastzahl']}");
 	$anz = $db->num_rows($result);
+	
+	$pages = pages($entry_count, $config['mylastzahl'], 'editprofile.php?action=mylast&amp;', $_GET['page']);
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
