@@ -19,7 +19,6 @@ $lang['admin_expand_all'] = 'Expand All';
 $lang['admin_file_manager'] = 'File Manager';
 $lang['admin_forum_categories'] = 'Forum & Categories';
 $lang['admin_forum_category_manager'] = 'Forum & Category Manager';
-$lang['admin_glossary'] = 'Glossary Manager';
 $lang['admin_goto_forum'] = 'Go to forum';
 $lang['admin_group_manager'] = 'Usergroup Manager';
 $lang['admin_inactive_members'] = 'Inactive Members';

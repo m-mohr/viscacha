@@ -2,7 +2,7 @@ class WWO_Cache {
 
 	var $wwo;
 
-	function WWO_Cache() {
+	function __construct() {
 		$this->wwo = null;
 	}
 

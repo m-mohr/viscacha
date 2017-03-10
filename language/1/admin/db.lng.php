@@ -2,6 +2,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['admin_db_add_drop_table'] = 'Füge \'DROP TABLE IF EXISTS\' hinzu';
+$lang['admin_db_all'] = 'Alle';
 $lang['admin_db_allowed_filetypes_max_filesize'] = 'Erlaubte Dateitypen: .sql, .zip - maximale Dateigröße: {$maxfilesize}';
 $lang['admin_db_backup'] = 'Datenbank-Sicherung';
 $lang['admin_db_backup_missing_permissions'] = 'Datenbank-Sicherung wurde auf Grund von fehlenden Rechten nicht erstellt.';

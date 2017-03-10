@@ -60,15 +60,6 @@ if ($last['topiczahl'] < 1) {
 	$last['topiczahl'] = $config['topiczahl'];
 }
 
-$q = urldecode($gpc->get('q', str));
-if (strxlen($q) > 2) {
-	$qUrl = '&q='.urlencode($q);
-	$qUrl2 = '&amp;q='.urlencode($q);
-}
-else {
-	$qUrl = $qUrl2 = '';
-}
-
 if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	$sql_order = iif($last['post_order'] == 1, '>', '<=');
 	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$my->clv}'");
@@ -81,7 +72,7 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#firstnew');
 	exit;
 }
 elseif ($_GET['action'] == 'last') {
@@ -96,7 +87,7 @@ elseif ($_GET['action'] == 'last') {
 		$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
 elseif ($_GET['action'] == 'mylast') {
@@ -111,7 +102,7 @@ elseif ($_GET['action'] == 'mylast') {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 elseif ($_GET['action'] == 'jumpto') {
@@ -126,7 +117,7 @@ elseif ($_GET['action'] == 'jumpto') {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 
@@ -151,7 +142,7 @@ forum_opt($last);
 // Some speed optimisation
 $speeder = $info['posts']+1;
 $start = ($_GET['page'] - 1) * $last['topiczahl'];
-$temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id'].$qUrl2."&amp;", $_GET['page']);
+$temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id']."&amp;", $_GET['page']);
 
 define('LINK_PRINT_PAGE', "print.php?id={$info['id']}&amp;page={$_GET['page']}".SID2URL_x);
 
@@ -159,8 +150,6 @@ echo $tpl->parse("header");
 echo $tpl->parse("menu");
 
 ($code = $plugins->load('showtopic_start')) ? eval($code) : null;
-
-$q = explode(' ', trim($q));
 
 $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
@@ -292,7 +281,7 @@ if ($last['post_order'] == 1) {
 $firstnew = 0;
 $firstnew_url = null;
 if ($info['last'] >= $my->clv) {
-	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].$qUrl2.SID2URL_x;
+	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].SID2URL_x;
 }
 
 // Custom Profile Fields
@@ -347,9 +336,6 @@ while ($row = $db->fetch_object($result)) {
 	$bbcode->setAuthor($row->mid);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
-	}
-	if (count($q) > 0) {
-		$bbcode->setHighlight('highlight', $q);
 	}
 	$row->comment = $bbcode->parse($row->comment);
 

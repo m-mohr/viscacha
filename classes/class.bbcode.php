@@ -512,11 +512,9 @@ class BBCode {
 		}
 		$text = str_ireplace('[reader]', $this->reader, $text);
 		$text = $this->parseDoc($text);
-		$text = $this->dict($text, $type);
 		$text = $this->nl2br($text, $type);
 		$text = $this->replacePID($text);
 		$text = $this->censor($text);
-		$text = $this->highlight($text);
 		$thiszm2=benchmarktime();
 		$this->benchmark['bbcode'] += $thiszm2-$thiszm1;
 		return $text;
@@ -759,7 +757,6 @@ class BBCode {
 				'wordwrap_wordlength' => 70,
 				'useSmileys' => 0,
 				'SmileyUrl' => '',
-				'useDict' => 0,
 				'useCensor' => 1,
 				'reduceEndChars' => 1,
 				'reduceNL' => 1,
@@ -768,8 +765,6 @@ class BBCode {
 				'reducelength' => 60,
 				'reducesep' => ' ... ',
 				'resizeImg' => 0,
-				'highlight_class' => 0,
-				'highlight' => array(),
 				'disallow' => array(
 					'img' => false,
 					'code' => false,
@@ -795,8 +790,7 @@ class BBCode {
 	function setSmileyDir ($url = '') {
 		$this->profile['SmileyUrl'] = $url;
 	}
-	function setMisc ($dict = 1, $censor = 1, $resizeimg = 0) {
-		$this->profile['useDict'] = $dict;
+	function setMisc ($censor = 1, $resizeimg = 0) {
 		$this->profile['useCensor'] = $censor;
 		$this->profile['resizeImg'] = $resizeimg;
 	}
@@ -815,87 +809,8 @@ class BBCode {
 		$this->profile['reducelength'] = $maxurllength;
 		$this->profile['reducesep'] = $maxurltrenner;
 	}
-	function setHighlight ($class, $words) {
-		$this->profile['highlight_class'] = $class;
-		$this->profile['highlight'] = $words;
-	}
 	function ResizeImgSize() {
 		return $this->profile['resizeImg'];
-	}
-	function highlight($text) {
-		if (isset($this->profile['highlight']) && count($this->profile['highlight']) > 0) {
-			$class = htmlspecialchars($this->profile['highlight_class'], ENT_QUOTES);
-			foreach ($this->profile['highlight'] as $token) {
-				if (strxlen($token) > 2) {
-					$token = preg_quote($token, '#');
-					$text = str_replace(
-						'\"',
-						'"',
-						substr(
-							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
-								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
-								"preg_replace('#\b({$token})\b#i', '<span class=\"{$class}\">\\\\1</span>', '\\0')",
-								">{$text}<"
-							),
-							1,
-							-1
-						)
-					);
-				}
-			}
-		}
-		return $text;
-	}
-	function dict($text, $type = 'html') {
-		if ($this->profile['useDict'] == 1) {
-			$this->cache_bbcode();
-			foreach ($this->bbcodes['word'] as $word) {
-				$this->index++;
-				$word['search'] = trim($word['search']);
-				if ($type == 'plain') {
-					$text = str_replace(
-						'\"',
-						'"',
-						substr(
-							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
-								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
-								"preg_replace(
-									'#\b({$word['search']})\b#i',
-									'\\\\1 ({$word['replace']})',
-									'\\0'
-								)",
-								'>' . $text . '<',
-								1 // Only the first occurance
-							)
-							, 1,
-							-1
-						)
-					);
-				}
-				else {
-					$word['search'] = htmlspecialchars($word['search']);
-					$text = str_replace(
-						'\"',
-						'"',
-						substr(
-							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
-								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
-								"preg_replace(
-									'#\b({$word['search']})\b#i',
-									'<acronym title=\"{$word['replace']}\" id=\"menu_tooltip_{$this->index}\" onmouseover=\"RegisterTooltip({$this->index})\">\\\\1</acronym><div class=\"tooltip\" id=\"popup_tooltip_{$this->index}\"><span id=\"header_tooltip_{$this->index}\"></span><div class=\"tooltip_body\">{$word['desc']}</div></div>',
-									'\\0'
-								)",
-								'>' . $text . '<',
-								1 // Only the first occurance
-							),
-							1,
-							-1
-						)
-					);
-				}
-			}
-		}
-		return $text;
 	}
 	function censor ($text) {
 		$this->cache_bbcode();
@@ -1038,7 +953,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 		if ($profile == 'signature') {
 			$bbcode->setProfile('signature', SP_NEW);
 			$bbcode->setProfile($profile, SP_NEW);
-			$bbcode->setMisc($config['dictstatus'], $config['censorstatus'], $config['resizebigimgwidth']);
+			$bbcode->setMisc($config['censorstatus'], $config['resizebigimgwidth']);
 			$bbcode->setWordwrap($config['wordwrap'], $config['maxwordlength'], $config['maxwordlengthchar']);
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);
@@ -1069,7 +984,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 		}
 		else {
 			$bbcode->setProfile($profile, SP_NEW);
-			$bbcode->setMisc($config['dictstatus'], $config['censorstatus'], $config['resizebigimgwidth']);
+			$bbcode->setMisc($config['censorstatus'], $config['resizebigimgwidth']);
 			$bbcode->setWordwrap($config['wordwrap'], $config['maxwordlength'], $config['maxwordlengthchar']);
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);

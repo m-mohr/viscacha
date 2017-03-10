@@ -706,7 +706,7 @@ elseif ($_GET['action'] == "mylast") {
 	SELECT COUNT(*)
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
-		LEFT JOIN {$db->pre}forums AS f ON f.id = r.board
+		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE r.name = '{$my->id}' AND f.invisible != '2'");
 	$counter = $db->fetch_num($result);
 	$entry_count = $counter[0];

@@ -263,8 +263,8 @@ class lang {
 					}
 					return call_user_func_array(array($var, $methodKeys[0]), $args);
 				}
-				elseif (count($methodKeys) == 1 && isset($var->$methodKeys[0])) { // Object property
-					return $var->$methodKeys[0];
+				elseif (count($methodKeys) == 1 && isset($var->{$methodKeys[0]})) { // Object property
+					return $var->{$methodKeys[0]};
 				}
 			}
 

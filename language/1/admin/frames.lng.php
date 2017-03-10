@@ -19,7 +19,6 @@ $lang['admin_expand_all'] = 'Alle ausklappen';
 $lang['admin_file_manager'] = 'Dateiverwaltung';
 $lang['admin_forum_categories'] = 'Foren & Kategorien';
 $lang['admin_forum_category_manager'] = 'Foren & Kategorien';
-$lang['admin_glossary'] = 'Glossar';
 $lang['admin_goto_forum'] = 'Gehe zum Forum';
 $lang['admin_group_manager'] = 'Benutzergruppen-Verwaltung';
 $lang['admin_inactive_members'] = 'Inaktive Mitglieder';

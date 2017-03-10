@@ -55,7 +55,7 @@ elseif ($job == 'errorlogs') {
 
 	$log = null;
 	if ($type == 'cron') {
-		$log = file_get_contents($file);
+		$log = @file_get_contents($file);
 	}
 	else {
 		$log = @file($file);

@@ -1699,11 +1699,6 @@ elseif ($job == 'textprocessing') {
 	   </td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_mark_glossary'); ?><br />
-	   <span class="stext"><?php echo $lang->phrase('admin_mark_glossary_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="dictstatus" value="1"<?php echo iif($config['dictstatus'],' checked'); ?>></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_shorten_line_break'); ?><br><span class="stext"><?php echo $lang->phrase('admin_shorten_line_break_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="reduce_nl" value="1"<?php echo iif($config['reduce_nl'],' checked'); ?>></td>
 	  </tr>
@@ -1781,7 +1776,6 @@ elseif ($job == 'textprocessing2') {
 	$c->getdata();
 	$c->updateconfig('censorstatus',int);
 	$c->updateconfig('decimals',int);
-	$c->updateconfig('dictstatus',int);
 	$c->updateconfig('reduce_nl',int);
 	$c->updateconfig('reduce_endchars',int);
 	$c->updateconfig('wordwrap',int);
@@ -2223,7 +2217,6 @@ else {
 		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=smileys"><?php echo $lang->phrase('admin_select_smiley_manager'); ?></option>
-		  	  <option value="admin.php?action=bbcodes&job=word"><?php echo $lang->phrase('admin_select_glossary_manager'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=custombb"><?php echo $lang->phrase('admin_select_bb_code_manager'); ?></option>
 		  	  <option value="admin.php?action=bbcodes&job=custombb_test"><?php echo $lang->phrase('admin_select_test_bb_manager'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">

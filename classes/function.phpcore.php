@@ -214,7 +214,7 @@ function ini_maxupload() {
 		'upload_max_filesize' => 0
 	);
 	foreach ($keys as $key => $bytes) {
-		$val = trim(@ini_get($key));
+		$val = intval(trim(@ini_get($key)));
 		$last = strtolower($val{strlen($val)-1});
 		switch($last) {
 			case 'g':

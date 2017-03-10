@@ -23,7 +23,7 @@ class ServerNavigator
 	var $plain;
 	var $extract;
 
-	function ServerNavigator($show_subfolders_size = false) {
+	function __construct($show_subfolders_size = false) {
 		global $gpc, $lang;
 
 		// MM: MultiLangAdmin
@@ -176,7 +176,9 @@ class ServerNavigator
 			$html .= "\n".'		 </tr>';
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="ubox" width="30%">'.$lang->phrase('admin_explorer_directory').'</td>';
-			$html .= "\n".'		   <td class="ubox" width="9%">'.$lang->phrase('admin_explorer_size').'</td>';
+			if ($this->show_subfolders_size) {
+				$html .= "\n".'		   <td class="ubox" width="9%">'.$lang->phrase('admin_explorer_size').'</td>';
+			}
 			$html .= "\n".'		   <td class="ubox" width="20%">'.$lang->phrase('admin_explorer_created_on').'</td>';
 			$html .= "\n".'		   <td class="ubox" width="8%">'.$lang->phrase('admin_explorer_chmod').'</td>';
 			$html .= "\n".'		   <td class="ubox" width="33%">'.$lang->phrase('admin_explorer_action').'</td>';
@@ -188,16 +190,17 @@ class ServerNavigator
 
 			$path_url = '&amp;path=' . urlencode(str_replace('/\\', '/', $this->path) . $dir . '/');
 			$link = $this->script_file . $path_url;
-			$size = ($this->show_subfolders_size)  ?  $this->formatSize($subdir_size_list[$dir])  :  "&nbsp;";
 			$chmod = get_chmod($this->path . $dir);
 
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="mbox">';
 			$html .= "\n".'			 <a href="' .  $link . '" target="Main">' . $dir . '</a>';
 			$html .= "\n".'		   </td>';
-			$html .= "\n".'		   <td class="mbox" align="right">';
-			$html .= "\n".'			 ' . $size;
-			$html .= "\n".'		   </td>';
+			if ($this->show_subfolders_size) {
+				$html .= "\n".'		   <td class="mbox" align="right">';
+				$html .= "\n".'			 ' . $this->formatSize($subdir_size_list[$dir]);
+				$html .= "\n".'		   </td>';
+			}
 			$html .= "\n".'		   <td class="mbox">';
 			$html .= "\n".'			 ' . gmdate("d.m.y, H:i", times(filectime($this->path . $dir)));
 			$html .= "\n".'		   </td>';

@@ -1,3 +1,3 @@
-$db->query("INSERT INTO {$db->pre}textparser (`search`,`replace`,`type`,`desc`) VALUES ('[teaser]','','censor','')");
+$db->query("INSERT INTO {$db->pre}textparser (`search`,`replace`) VALUES ('[teaser]','')");
 $delobj = $scache->load('bbcode');
 $delobj->delete();

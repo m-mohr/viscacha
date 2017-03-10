@@ -32,7 +32,6 @@ $config['dbpw'] = '';
 $config['dbsystem'] = 'mysqli';
 $config['dbuser'] = '';
 $config['decimals'] = 2;
-$config['dictstatus'] = 1;
 $config['disableregistration'] = 0;
 $config['doclang'] = 2;
 $config['edit_delete_time'] = 15;

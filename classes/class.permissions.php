@@ -75,7 +75,7 @@ function __construct() {
 	$this->change_mid = null;
 	$data = unserialize(file_get_contents('data/group_fields.php'));
 	foreach ($data as $key => $values) {
-		$this->$key = $values;
+		$this->{$key} = $values;
 	}
 }
 
@@ -880,7 +880,7 @@ function cleanUserData($data) {
 	if (is_object($data)) {
 		foreach ($data as $key => $value) {
 			if (in_array($key, $trust) == false) {
-				$data->$key = $gpc->prepare($value);
+				$data->{$key} = $gpc->prepare($value);
 			}
 		}
 	}
