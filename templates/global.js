@@ -170,9 +170,6 @@ function edithistory(Link) {
 function adduploads(Link) {
 	window.open(Link.href, "adduploads", "width=480,height=480,resizable=yes,scrollbars=yes,location=no,status=yes");
 }
-function postrating(Link) {
-	window.open(Link.href, "postrating", "width=400,height=120,resizable=yes,scrollbars=yes,location=no,status=no");
-}
 function ResizeImg(img, maxwidth) {
 	if(img.width >= maxwidth && maxwidth != 0) {
 		img.width = maxwidth;

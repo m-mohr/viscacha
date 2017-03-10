@@ -224,21 +224,6 @@ elseif ($is_member) {
 		$pfields->setUserData($row);
 		$customfields = $pfields->getAll();
 
-		if ($config['memberrating'] == 1) {
-			$result = $db->query("SELECT rating FROM {$db->pre}postratings WHERE aid = '{$row->id}'");
-			$ratings = array();
-			while ($dat = $db->fetch_assoc($result)) {
-				$ratings[] = $dat['rating'];
-			}
-			$ratingcounter = count($ratings);
-			if ($ratingcounter> 0 && $ratingcounter >= $config['memberrating_counter']) {
-				$row->rating = round(array_sum($ratings)/$ratingcounter*50)+50;
-			}
-			else {
-				$row->rating = $lang->phrase('profile_na');
-			}
-		}
-
 		($code = $plugins->load('profile_member_prepared')) ? eval($code) : null;
 		echo $tpl->parse("profile/index");
 		($code = $plugins->load('profile_member_end')) ? eval($code) : null;

@@ -38,7 +38,6 @@ $lang['admin_package_manager'] = 'Package Manager';
 $lang['admin_php_info'] = 'PHP Info';
 $lang['admin_plugin_manager'] = 'Plugin Manager';
 $lang['admin_profile_fields'] = 'Profile Field Manager';
-$lang['admin_rate'] = 'Postratings';
 $lang['admin_reported_posts'] = 'Reported Posts';
 $lang['admin_restore'] = 'Restore';
 $lang['admin_scheduler'] = 'Scheduled Tasks Manager';

@@ -70,7 +70,6 @@ if ($job == 'menu') {
 	   <h3><img id="img_admin_menu5" src="admin/html/images/plus.gif" alt="collapse" /> <?php echo $lang->phrase("admin_topics_posts");?></h3>
 	  <ul id="part_admin_menu5">
 	   <li>&raquo; <a href="admin.php?action=posts&amp;job=reports" target="Main"><?php echo $lang->phrase("admin_reported_posts");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=posts&amp;job=postrating" target="Main"><?php echo $lang->phrase("admin_rate");?></a></li>
 	  </ul>
 	 </div>
 	 <div class="border">

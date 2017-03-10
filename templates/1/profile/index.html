@@ -34,11 +34,6 @@
 	  <h5><?php echo $lang->phrase('profile_lastvisit'); ?></h5>
 	  <em><?php echo $row->lastvisit; ?></em>
 	  <br />
-	  <?php if ($config['memberrating'] == 1 && $ratingcounter >= $config['memberrating_counter']) { ?>
-	  <h5><?php echo $lang->phrase('profile_rating'); ?></h5>
-	  <em><img src="images.php?action=memberrating&amp;id=<?php echo $row->id.SID2URL_x; ?>" alt="<?php echo $lang->phrase('postrating_rating').$row->rating; ?>" /></em>
-	  <br />
-	  <?php } ?>
 	  <h5><?php echo $lang->phrase('profile_posts'); ?></h5>
 	  <em><?php echo $row->posts.iif($config['showpostcounter'], $lang->phrase('profile_posts_perday')); ?></em>
 	  <br />

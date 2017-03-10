@@ -1050,7 +1050,6 @@ elseif ($job == 'manage') {
 	  <td class="obox button_multiline">
 	   <a class="button" href="admin.php?action=members&amp;job=register"><?php echo $lang->phrase('admin_member_add_new_member'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=reserve"><?php echo $lang->phrase('admin_member_reserve_names_title'); ?></a>
-	   <a class="button" href="admin.php?action=members&amp;job=memberrating"><?php echo $lang->phrase('admin_member_memberratings'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=merge"><?php echo $lang->phrase('admin_member_merge_users'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=recount"><?php echo $lang->phrase('admin_member_recount_post_counts'); ?></a>
 	  </td>
@@ -1109,74 +1108,6 @@ elseif ($job == 'manage') {
 	?>
 		<tr>
 		  <td class="ubox" colspan="8"><span style="float: right;"><?php echo $temp; ?></span><input type="submit" name="submit" value="<?php echo $lang->phrase('admin_member_delete'); ?>"></td>
-		</tr>
-	</table>
-	</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'memberrating') {
-	echo head();
-	$page = $gpc->get('page', int, 1);
-
-	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'postratings WHERE aid != "0" GROUP BY aid'));
-	$temp = pages($count[0], "admin.php?action=members&job=memberrating&amp;", 25);
-
-	$start = ($page - 1) * 25;
-
-	$change = array('m' => 'male', 'w' => 'female', '' => '-');
-
-	$result = $db->query('
-	SELECT u.*, avg(p.rating) AS ravg, count(*) AS rcount
-	FROM '.$db->pre.'postratings AS p
-		LEFT JOIN '.$db->pre.'user AS u ON p.aid = u.id
-	WHERE aid != "0"
-	GROUP BY aid
-	ORDER BY ravg DESC
-	LIMIT '.$start.',25
-	');
-	?>
-	<form name="form" action="admin.php?action=members&job=delete" method="post">
-	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-		<tr>
-		  <td class="obox" colspan="6"><?php echo $lang->phrase('admin_member_memberrating'); ?></td>
-		</tr>
-		<tr>
-		  <td class="ubox" colspan="6"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> <?php echo $lang->phrase('admin_member_rated_members'); ?></td>
-		</tr>
-		<tr>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_username'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_rating_amount'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_mail'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_last_visit'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_reg_date'); ?></td>
-		</tr>
-	<?php
-	while ($row = $db->fetch_object($result)) {
-		$row = $slog->cleanUserData($row);
-		$row->regdate = gmdate('d.m.Y', times($row->regdate));
-		if ($row->lastvisit == 0) {
-			$row->lastvisit = $lang->phrase('admin_member_never');
-		}
-		else {
-			$row->lastvisit = gmdate('d.m.Y H:i', times($row->lastvisit));
-		}
-		$percent = round((($row->ravg*50)+50));
-		?>
-		<tr>
-		  <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row->id; ?>"></td>
-		  <td class="mbox"><a title="<?php echo $lang->phrase('admin_member_edit'); ?>" href="admin.php?action=members&job=edit&id=<?php echo $row->id; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br><i>".$row->fullname."</i>"); ?></td>
-		  <td class="mbox"><img src="images.php?action=memberrating&id=<?php echo $row->id; ?>" alt="<?php echo $percent; ?>%" title="<?php echo $percent; ?>%"  /> <?php echo $percent; ?>% (<?php echo $row->rcount; ?>)</td>
-		  <td class="mbox" align="center"><a href="mailto:<?php echo $row->mail; ?>"><?php echo $lang->phrase('admin_member_mail'); ?></a></td>
-		  <td class="mbox"><?php echo $row->lastvisit; ?></td>
-		  <td class="mbox"><?php echo $row->regdate; ?></td>
-		</tr>
-		<?php
-	}
-	?>
-		<tr>
-		  <td class="ubox" colspan="6"><span style="float: right;"><?php echo $temp; ?></span><input type="submit" name="submit" value="<?php echo $lang->phrase('admin_member_delete'); ?>"></td>
 		</tr>
 	</table>
 	</form>
@@ -1808,14 +1739,10 @@ elseif ($job == 'delete') {
 		$delete = $gpc->get('delete', arr_int);
 		// Step 9: Set uploads from member to guests-group
 		$db->query("UPDATE {$db->pre}uploads SET mid = '0' WHERE mid IN ({$did})");
-		// Step 10: Set post ratings from member to guests-group I
-		$db->query("UPDATE {$db->pre}postratings SET mid = '0' WHERE mid IN ({$did})");
-		// Step 11: Set post ratings from member to guests-group II
-		$db->query("UPDATE {$db->pre}postratings SET aid = '0' WHERE aid IN ({$did})");
-		// Step 12: Delete user himself
+		// Step 10: Delete user himself
 		$db->query("DELETE FROM {$db->pre}user WHERE id IN ({$did})");
 		$anz = $db->affected_rows();
-		// Step 13: Delete user's custom profile fields
+		// Step 11: Delete user's custom profile fields
 		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
 		$cache = $scache->load('memberdata');

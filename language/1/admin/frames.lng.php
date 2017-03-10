@@ -38,7 +38,6 @@ $lang['admin_package_manager'] = 'Paket-Verwaltung';
 $lang['admin_php_info'] = 'PHP Informationen';
 $lang['admin_plugin_manager'] = 'Plugin-Verwaltung';
 $lang['admin_profile_fields'] = 'Benutzerdefinierte Profilfelder';
-$lang['admin_rate'] = 'Beitragsbewertungen';
 $lang['admin_reported_posts'] = 'Gemeldete Beiträge';
 $lang['admin_restore'] = 'Wiederherstellen';
 $lang['admin_scheduler'] = 'Geplante Aufgaben';

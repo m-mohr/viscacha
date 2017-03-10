@@ -104,8 +104,6 @@ elseif ($action == "delete2") {
 			$filesystem->unlink($thumb);
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}postratings WHERE tid = '{$info['id']}'");
-	$anz += $db->affected_rows();
 	$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
 	$anz += $db->affected_rows();
 	$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
@@ -397,7 +395,6 @@ elseif ($action == "pdelete") {
 			$filesystem->unlink($thumb);
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}postratings WHERE pid IN ({$iid})");
 	$db->query ("DELETE FROM {$db->pre}uploads WHERE tid IN ({$iid})");
 
 	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
@@ -557,7 +554,6 @@ elseif ($action == "pmerge2") {
 		}
 		$edit = trim($edit, "\n");
 
-		$db->query ("UPDATE {$db->pre}postratings SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 		$db->query ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 		$db->query ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 

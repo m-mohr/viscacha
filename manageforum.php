@@ -282,8 +282,6 @@ elseif ($_GET['action'] == "delete") {
 	}
 	$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
 	$anz += $db->affected_rows();
-	$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})");
-	$anz += $db->affected_rows();
 	$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
 	$anz += $db->affected_rows();
 	$db->query ("DELETE FROM {$db->pre}topics WHERE id IN({$ids})");

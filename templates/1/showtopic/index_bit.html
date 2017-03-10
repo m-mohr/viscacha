@@ -17,7 +17,7 @@
 		 </ul>
 		</div>
     <?php } ?>
-    <strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" onclick="return showpost(this)" target="_blank"><?php echo $row->rel_post_num; ?></a></strong>
+    <strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->rel_post_num; ?></a></strong>
     <?php if ($my->mp[0] == 1 && $info['posts'] > 0) { ?>
     	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
     <?php } ?>
@@ -43,17 +43,8 @@
   <br class="invclear" /><br class="iefix_br" />
 </div>
 <div class="bbody iefix_left">
-   <?php if ($config['postrating'] == 1) { ?>
-    	<?php echo iif(($ratingcounter >= $config['postrating_counter'] || $showrating), '<span class="right">'.$lang->phrase('postrating_rating')); ?>
-        <?php if ($ratingcounter >= $config['postrating_counter']) { ?>
-        <img src="images.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>" alt="<?php echo $lang->phrase('postrating_rating').$row->rating; ?>" />
-        <?php } if ($showrating) { ?>
-    	<a href="popup.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>&amp;rating=1" target="postrating" onclick="postrating(this)"><img src="<?php echo $tpl->img('positive'); ?>" alt="+" title="<?php echo $lang->phrase('postrating_rate_positive'); ?>" /></a>&nbsp;
-    	<a href="popup.php?action=postrating&amp;id=<?php echo $row->id.SID2URL_x; ?>&amp;rating=-1" target="postrating" onclick="postrating(this)"><img src="<?php echo $tpl->img('negative'); ?>" alt="-" title="<?php echo $lang->phrase('postrating_rate_negative'); ?>" /></a>
-    	<?php } echo iif(($ratingcounter >= $config['postrating_counter'] || $showrating), '</span>'); ?>
-  <?php } ?>
   <span class="stext">
-    <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" onclick="return showpost(this)" target="_blank"><?php echo $row->topic; ?></a></strong>
+    <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->topic; ?></a></strong>
   </span>
   <hr />
   <?php echo $row->comment; ?>

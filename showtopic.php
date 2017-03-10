@@ -263,17 +263,6 @@ if ($config['tpcallow'] == 1) {
 	}
 }
 
-if ($config['postrating'] == 1) {
-	$result = $db->query("SELECT pid, mid, rating FROM {$db->pre}postratings WHERE tid = '{$info['id']}'");
-	$ratings = array();
-	while ($row = $db->fetch_assoc($result)) {
-		if (!isset($ratings[$row['pid']])) {
-			$ratings[$row['pid']] = array();
-		}
-		$ratings[$row['pid']][$row['mid']] = $row['rating'];
-	}
-}
-
 // Speed up the first pages with less than 10 posts
 if ($speeder > $last['topiczahl']) {
 	$sql_limit = " LIMIT {$start},{$last['topiczahl']}";
@@ -426,23 +415,6 @@ while ($row = $db->fetch_object($result)) {
 		$lastdata = end($edit);
 		if ($lastdata != false) {
 			list(, $date, $why, ) = $lastdata;
-		}
-	}
-
-	// Ratings
-	$showrating = false;
-	$row->rating = 50;
-	$ratingcounter = 0;
-	if ($config['postrating'] == 1) {
-		if (!isset($ratings[$row->id])) {
-			$ratings[$row->id] = array();
-		}
-		if ($my->vlogin && $my->id != $row->mid && !isset($ratings[$row->id][$my->id])) {
-			$showrating = true;
-		}
-		$ratingcounter = count($ratings[$row->id]);
-		if (count($ratings[$row->id]) > 0) {
-			$row->rating = round(array_sum($ratings[$row->id])/$ratingcounter*50)+50;
 		}
 	}
 

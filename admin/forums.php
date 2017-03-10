@@ -370,7 +370,6 @@ elseif ($job == 'forum_delete2') {
 			}
 		}
 		$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
-		$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})");
 		$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
 		$db->query ("DELETE FROM {$db->pre}topics WHERE board = '{$_GET['id']}'");
 		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");

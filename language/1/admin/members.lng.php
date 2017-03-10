@@ -155,8 +155,6 @@ $lang['admin_member_means_equal'] = '<b>=</b> bedeutet <i>gleich</i>,';
 $lang['admin_member_means_greater'] = '<b>&gt;</b> bedeutet s <i>größer als</i>,';
 $lang['admin_member_means_less'] = '<b>&lt;</b> bedeutet <i>kleiner als</i>,';
 $lang['admin_member_means_not_equal'] = '<b>!=</b> bedeutet <i>nicht gleich</i>.';
-$lang['admin_member_memberrating'] = 'Mitgliederbewertung';
-$lang['admin_member_memberratings'] = 'Mitgliederbewertungen';
 $lang['admin_member_members'] = 'Mitglieder';
 $lang['admin_member_members_deleted'] = '{$anz} Mitglieder wurden gelöscht';
 $lang['admin_member_members_found'] = 'Mitglieder gefunden.';
@@ -219,8 +217,6 @@ $lang['admin_member_posts_for_recounted'] = 'Der Beitragszähler von {$i} Mitglie
 $lang['admin_member_posts_recounted'] = 'Die Anzahl der Beiträge wurde erfolgreich nachgezählt. Die Different betrug {$diff} Beiträge.';
 $lang['admin_member_progress'] = 'Fortschritt: ';
 $lang['admin_member_public_group_title'] = 'Öffentlicher Gruppentitel';
-$lang['admin_member_rated_members'] = 'bewertete Mitglieder';
-$lang['admin_member_rating_amount'] = 'Bewertung (Anzahl an Bewertungen)';
 $lang['admin_member_reason'] = 'Grund';
 $lang['admin_member_reason_to_show'] = 'Grund, der dem Benutzer anzeigt wird:';
 $lang['admin_member_recipients'] = 'Empfänger:';

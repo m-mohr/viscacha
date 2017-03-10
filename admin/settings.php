@@ -328,23 +328,6 @@ elseif ($job == 'posts') {
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
-	 <br class="minibr" />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_topics_posts_rating'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_enable_postrating'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="postrating" value="1"<?php echo iif($config['postrating'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_postrating_show_only_with_x_votes'); ?></td>
-	   <td class="mbox" width="50%"><input type="text" name="postrating_counter" value="<?php echo $config['postrating_counter']; ?>" size="5"></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
-	  </tr>
-	 </table>
 	</form>
 	<?php
 	echo foot();
@@ -365,8 +348,6 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('edit_delete_time', int);
 	$c->updateconfig('edit_edit_time', int);
 	$c->updateconfig('topiczahl', int);
-	$c->updateconfig('postrating', int);
-	$c->updateconfig('postrating_counter', int);
 	$c->updateconfig('guest_email_optional', int);
 	$c->updateconfig('abozahl', int);
 	$c->updateconfig('multiple_instant_notifications', int);
@@ -431,14 +412,6 @@ elseif ($job == 'profile') {
 	   <td class="mbox" width="50%"><input type="checkbox" name="updatepostcounter" value="1"<?php echo iif($config['updatepostcounter'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_show_memberrating'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_show_memberrating_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="memberrating" value="1"<?php echo iif($config['memberrating'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_not_show_the_rating_before'); ?></td>
-	   <td class="mbox" width="50%"><input type="text" name="memberrating_counter" value="<?php echo $config['memberrating_counter']; ?>" size="5"></td>
-	  </tr>
-	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
@@ -457,8 +430,6 @@ elseif ($job == 'profile2') {
 	$c->updateconfig('minpwlength', int);
 	$c->updateconfig('maxpwlength', int);
 	$c->updateconfig('maxaboutlength', int);
-	$c->updateconfig('memberrating', int);
-	$c->updateconfig('memberrating_counter', int);
 	$c->updateconfig('hidedesign', int);
 	$c->updateconfig('hidelanguage', int);
 	$c->savedata();
@@ -2361,7 +2332,6 @@ else {
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
 		  	  <option value="admin.php?action=members&amp;job=manage"><?php echo $lang->phrase('admin_select_manage_member'); ?></option>
 		  	  <option value="admin.php?action=members&amp;job=search"><?php echo $lang->phrase('admin_select_search_member'); ?></option>
-		  	  <option value="admin.php?action=members&amp;job=memberrating"><?php echo $lang->phrase('admin_select_memberrating'); ?></option>
 		  	  <option value="admin.php?action=members&amp;job=activate"><?php echo $lang->phrase('admin_select_moderate_members'); ?></option>
 		  	  <option value="admin.php?action=groups&amp;job=manage"><?php echo $lang->phrase('admin_select_usergroup_manager'); ?></option>
 		  	  <option value="admin.php?action=profilefield&amp;job=manage"><?php echo $lang->phrase('admin_select_profile_field_manager'); ?></option>
@@ -2380,7 +2350,6 @@ else {
 		  <form name="act" action="admin.php?action=locate" method="post">
 		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
-		  	  <option value="admin.php?action=posts&job=postrating"><?php echo $lang->phrase('admin_select_postratings'); ?></option>
 		  	  <option value="admin.php?action=slog&job=s_general"><?php echo $lang->phrase('admin_select_topic_posts_statistic'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
 		  </form>

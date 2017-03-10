@@ -32,10 +32,7 @@ include ("classes/function.viscacha_frontend.php");
 
 ($code = $plugins->load('popup_start')) ? eval($code) : null;
 
-if ($_GET['action'] == "showpost") {
-	sendStatusCode(302, 'showtopic.php?action=jumpto&topic_id='.$_GET['id'].SID2URL_JS_x);
-}
-elseif ($_GET['action'] == "edithistory") {
+if ($_GET['action'] == "edithistory") {
 	echo $tpl->parse("popup/header");
 
 	($code = $plugins->load('popup_edithistory_query')) ? eval($code) : null;
@@ -101,73 +98,6 @@ elseif ($_GET['action'] == "edithistory") {
 	($code = $plugins->load('popup_edithistory_prepared')) ? eval($code) : null;
 	echo $tpl->parse("popup/edithistory");
 	($code = $plugins->load('popup_edithistory_end')) ? eval($code) : null;
-}
-elseif ($_GET['action'] == "postrating") {
-	$rtg = $gpc->get('rating', int);
-
-	($code = $plugins->load('popup_postrating_start')) ? eval($code) : null;
-
-	if ($my->vlogin) {
-
-		$result = $db->query("SELECT * FROM {$db->pre}replies WHERE id = '{$_GET['id']}'");
-		$post = $db->fetch_assoc($result);
-
-		if ($post['name'] == $my->id) {
-			$error = $lang->phrase('postrating_you_posted');
-		}
-
-		$result = $db->query("
-		SELECT mid, pid, tid, rating
-		FROM {$db->pre}postratings
-		WHERE mid = '{$my->id}' AND pid = '{$_GET['id']}'
-		");
-		$rating = $db->fetch_assoc($result);
-		$rating['rating'] = intval($rating['rating']);
-
-		if ($post['name'] != $my->id) {
-			if (!empty($rtg) && $rating['rating'] != 1 && $rating['rating'] != -1) {
-				$result = $db->query("SELECT topic_id, name, email, guest FROM {$db->pre}replies WHERE id = '{$_GET['id']}'");
-				$topic = $db->fetch_assoc($result);
-				if ($topic['guest'] == 0) {
-					$aid = $topic['name'];
-				}
-				else {
-					$aid = 0;
-				}
-
-				$db->query("INSERT INTO {$db->pre}postratings SET aid = '{$aid}', mid = '{$my->id}', pid = '{$_GET['id']}', tid = '{$topic['topic_id']}', rating = '{$rtg}'");
-				$rating = array(
-					'rating' => $rtg,
-					'pid' => $_GET['id'],
-					'tid' => $_GET['topic_id'],
-					'mid' => $my->id
-				);
-			}
-
-			if ($db->affected_rows() != 1) {
-				$error = $lang->phrase('unknown_error');
-			}
-			elseif ($rating['rating'] == 1) {
-				$error = $lang->phrase('postrating_rated_positive');
-			}
-			elseif ($rating['rating'] == -1) {
-				$error = $lang->phrase('postrating_rated_negative');
-			}
-			else {
-				$error = $lang->phrase('query_string_error');
-			}
-		}
-
-	}
-	else {
-		$error = $lang->phrase('log_not_logged');
-	}
-
-	echo $tpl->parse("popup/header");
-	($code = $plugins->load('popup_postrating_prepared')) ? eval($code) : null;
-	echo $tpl->parse("popup/postrating");
-	($code = $plugins->load('popup_postrating_end')) ? eval($code) : null;
-	echo $tpl->parse("popup/footer");
 }
 
 ($code = $plugins->load('popup_end')) ? eval($code) : null;

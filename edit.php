@@ -116,7 +116,6 @@ if ($allowed == true) {
 				$filesystem->unlink('uploads/topics/'.$urow[0]);
 			}
 			$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
-			$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'");
 			if ($info['tstart'] == 1) {
 				$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
 				$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");

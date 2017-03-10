@@ -155,8 +155,6 @@ $lang['admin_member_means_equal'] = '<b>=</b> means <i>equal</i>,';
 $lang['admin_member_means_greater'] = '<b>&gt;</b> means <i>greater than</i>,';
 $lang['admin_member_means_less'] = '<b>&lt;</b> means <i>less than</i>,';
 $lang['admin_member_means_not_equal'] = '<b>!=</b> means <i>not equal</i>.';
-$lang['admin_member_memberrating'] = 'Memberrating';
-$lang['admin_member_memberratings'] = 'Memberratings';
 $lang['admin_member_members'] = 'Members';
 $lang['admin_member_members_deleted'] = '{$anz} members deleted';
 $lang['admin_member_members_found'] = 'members found.';
@@ -219,8 +217,6 @@ $lang['admin_member_posts_for_recounted'] = 'Number of posts for {$i} members su
 $lang['admin_member_posts_recounted'] = 'Number of posts successfully recounted. The change is {$diff} posts.';
 $lang['admin_member_progress'] = 'Progress: ';
 $lang['admin_member_public_group_title'] = 'Public group title';
-$lang['admin_member_rated_members'] = 'rated members';
-$lang['admin_member_rating_amount'] = 'Rating (amount of ratings)';
 $lang['admin_member_reason'] = 'Reason';
 $lang['admin_member_reason_to_show'] = 'Reason to show the user:';
 $lang['admin_member_recipients'] = 'Recipients:';

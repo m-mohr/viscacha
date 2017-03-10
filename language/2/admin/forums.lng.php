@@ -136,7 +136,6 @@ $lang['admin_forum_prefix_category_status'] = 'If another prefix is standard in 
 $lang['admin_forum_prefix_changed'] = 'Prefix successfully edited!';
 $lang['admin_forum_prefix_value_exists'] = 'This value already exists!';
 $lang['admin_forum_prevent_new_posts'] = 'Check this to prevent any new posts being made in this forum.';
-$lang['admin_forum_rating'] = 'Rating';
 $lang['admin_forum_read_only'] = 'Forum is read only:';
 $lang['admin_forum_really_delete_data'] = 'Do you really want to delete the forum "{@forum->name}" with all data?';
 $lang['admin_forum_recount'] = 'Recount';

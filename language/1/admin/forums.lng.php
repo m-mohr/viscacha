@@ -136,7 +136,6 @@ $lang['admin_forum_prefix_category_status'] = 'Wenn ein anderer Präfix in diesem
 $lang['admin_forum_prefix_changed'] = 'Präfix wurde erfolgreich geändert.';
 $lang['admin_forum_prefix_value_exists'] = 'Dieser Wert existiert bereits.';
 $lang['admin_forum_prevent_new_posts'] = 'Diese Option verhindert neue Beiträge in diesem Forum (Schreibschutz).';
-$lang['admin_forum_rating'] = 'Bewertung';
 $lang['admin_forum_read_only'] = 'Forum ist schreibgeschützt:';
 $lang['admin_forum_really_delete_data'] = 'Möchten Sie das Forum "{@forum->name}" mit allen enthaltenen Daten wirklich löschen?';
 $lang['admin_forum_recount'] = 'Neu zählen';
