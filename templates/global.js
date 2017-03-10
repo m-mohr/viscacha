@@ -164,9 +164,6 @@ function KillCookie(n) {
 }
 
 ///////////////////////// PopUps /////////////////////////
-function edithistory(Link) {
-	window.open(Link.href, "edithistory", "width=640,height=380,resizable=yes,scrollbars=yes,location=no,status=no");
-}
 function adduploads(Link) {
 	window.open(Link.href, "adduploads", "width=480,height=480,resizable=yes,scrollbars=yes,location=no,status=yes");
 }

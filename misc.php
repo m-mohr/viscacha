@@ -714,6 +714,85 @@ elseif ($_GET['action'] == "error") {
 	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
 }
+elseif ($_GET['action'] == "edithistory") {
+	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
+	WHERE r.id = '{$_GET['id']}'
+	LIMIT 1
+	");
+	$found = $db->num_rows($result);
+	if ($found == 0) {
+		error($lang->phrase('query_string_error'));
+	}
+
+	$row = $gpc->prepare($db->fetch_assoc($result));
+	$my->p = $slog->Permissions($row['board']);
+	if ($my->p['forum'] == 0) {
+		errorLogin();
+	}
+	
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
+	$last = $fc[$row['board']];
+	
+	$prefix = '';
+	if ($row['prefix'] > 0) {
+		$prefix_obj = $scache->load('prefix');
+		$prefix_arr = $prefix_obj->get($row['board']);
+		if (isset($prefix_arr[$row['prefix']])) {
+			$prefix = $prefix_arr[$row['prefix']]['value'];
+			$prefix = $lang->phrase('showtopic_prefix_title');
+		}
+	}
+	
+	$topforums = get_headboards($fc, $last, TRUE);
+	$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+	$breadcrumb->Add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
+	if ($row['tstart'] != 1) {
+		$breadcrumb->Add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
+	}
+	$breadcrumb->Add($lang->phrase('edithistory'));
+
+	forum_opt($last);
+
+	($code = $plugins->load('misc_edithistory_start')) ? eval($code) : null;
+
+	if ($row['guest'] == 0) {
+		$row['mail'] = '';
+		$row['name'] = $row['uname'];
+	}
+	else {
+		$row['mail'] = $row['gmail'];
+		$row['name'] = $row['gname'];
+		$row['mid'] = 0;
+		$row['groups'] = GROUP_GUEST;
+	}
+
+	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
+
+	$edit = array();
+	if (!empty($row['edit'])) {
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row['edit'], $edits, PREG_SET_ORDER);
+		foreach ($edits as $e) {
+			$edit[] = array(
+				'date' => str_date($lang->phrase('dformat1'), times($e[2])),
+				'reason' => empty($e[3]) ? $lang->phrase('post_editinfo_na') : $e[3],
+				'name' => $e[1],
+				'ip' => empty($e[4]) ? '-' : $e[4]
+			);
+			($code = $plugins->load('misc_edithistory_entry_prepared')) ? eval($code) : null;
+		}
+	}
+
+	echo $tpl->parse("header");
+	($code = $plugins->load('misc_edithistory_prepared')) ? eval($code) : null;
+	echo $tpl->parse("misc/edithistory");
+	($code = $plugins->load('misc_edithistory_end')) ? eval($code) : null;
+}
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 

@@ -112,6 +112,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	<br class="newinput" /><hr class="formsep" />
 	<label for="email">E-mail address:</label>
 	<input class="label" type="text" id="email" name="email" size="40" value="<?php echo $config['forenmail']; ?>" />
-	<br class="newinput" /><br class="iefix_br" />
+	<br class="newinput" />
 </div>
 <div class="bfoot center"><input type="submit" value="Continue" /></div>

@@ -37,7 +37,7 @@
 <br class="newinput" /><hr class="formsep" />
 <?php } } else { ?>
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
-<span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
+<span><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
 <br class="newinput" /><hr class="formsep" />
 <?php } if ($last['message_active'] == '2') { ?>
 <label><?php echo $lang->phrase('board_rules'); ?>:</label>
@@ -78,7 +78,6 @@ if ($p_upload == 1) { ?>
 </select>
 <br class="newinput" />
 <?php } ?>
-<br class="iefix_br" />
 </div>
 <div class="bfoot center">
   <input type="submit" accesskey="s" tabindex="11" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
@@ -93,7 +92,7 @@ if ($p_upload == 1) { ?>
 <div class="bbody">
 <label for="close"><?php echo $lang->phrase('admin_addpost_close'); ?></label>
 <div class="label"><input type="checkbox" id="close" name="close" value="1" tabindex="13" /> <?php echo $lang->phrase('admin_addpost_close_desc'); ?></div>
-<br class="newinput" /><br class="iefix_br" />
+<br class="newinput" />
 </div>
 </div>
 <?php } ?>

@@ -40,9 +40,9 @@
        <?php echo $lang->phrase('post_info_postcount').numbers($row->posts); ?>
     <?php } ?>
   </div>
-  <br class="invclear" /><br class="iefix_br" />
+  <br class="invclear" />
 </div>
-<div class="bbody iefix_left">
+<div class="bbody">
   <span class="stext">
     <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->topic; ?></a></strong>
   </span>
@@ -68,7 +68,7 @@
   <?php } } ?>
       <div class="textright stext">
       	<?php if (!empty($row->edit)) { echo $lang->phrase('post_editinfo1'); ?>
-      	<strong><a href="popup.php?action=edithistory&amp;id=<?php echo $row->id.SID2URL_x; ?>" target="edithistory" onclick="edithistory(this)"><?php echo $anz; ?></a></strong>
+      	<strong><a href="misc.php?action=edithistory&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $anz; ?></a></strong>
       	<?php echo $lang->phrase('post_editinfo2'); } ?>
       </div>
 </div>

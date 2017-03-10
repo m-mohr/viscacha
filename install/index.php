@@ -74,9 +74,6 @@ if (!SCRIPT_LOCKED) {
 	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
 	<meta name="generator" content="Viscacha (http://www.viscacha.org)" />
 	<link rel="stylesheet" type="text/css" href="designs/standard.css" />
-	<!--[if IE]>
-	<link rel="stylesheet" type="text/css" href="designs/ie.css" />
-	<![endif]-->
 	<link rel="up" href="javascript:self.scrollTo(0,0);" />
 	<link rel="copyright" href="http://www.viscacha.org" />
 </head>

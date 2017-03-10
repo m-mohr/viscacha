@@ -15,7 +15,7 @@
 <div class="bbody">
     <label for="question"><?php echo $lang->phrase('add_vote_question'); ?></label>
     <input type="text" size="40" tabindex="3" id="question" class="label" name="question" value="<?php echo $data['question']; ?>" />
-    <br class="newinput" /><br class="iefix_br" />
+    <br class="newinput" />
 </div>
 <div class="bfoot"><?php echo $lang->phrase('title_vote_replies'); ?></div>
 <div class="bbody">
@@ -28,7 +28,6 @@
     <input type="text" size="40" tabindex="1<?php echo $i; ?>" id="notice_<?php echo $i; ?>" class="label" name="notice[<?php echo $i; ?>]" value="<?php echo $data[$i]; ?>" />
     <br class="newinput" />
     <?php } ?>
-    <br class="iefix_br" />
 </div>
 <div class="bfoot center"><input type="submit" tabindex="200" accesskey="s" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </form>

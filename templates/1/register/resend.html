@@ -1,7 +1,7 @@
 <form name="form2" method="post" action="register.php?action=resend2<?php echo SID2URL_x; ?>">
 <div class="border">
 <h3><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_resend_title'); ?></h3>
-<div class="bbody iefix_left">
+<div class="bbody">
 <?php echo $lang->phrase('register_resend_desc'); ?>
 <br class="newinput" /><hr />
 <label for="name"><?php echo $lang->phrase('name'); ?></label>
@@ -18,7 +18,6 @@
 </div>
 <br class="newinput" />
 <?php } ?>
-<br class="iefix_br" />
 </div>
 <div class="bfoot center"><input tabindex="3" accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
 </div>

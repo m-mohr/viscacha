@@ -37,7 +37,7 @@
 <br class="newinput" /><hr class="formsep" />
 <?php } } else { ?>
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
-<span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
+<span><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
 <br class="newinput" /><hr class="formsep" />
 <?php } if ($last['message_active'] == '2') { ?>
 <label><?php echo $lang->phrase('board_rules'); ?>:</label>
@@ -89,9 +89,7 @@
 	<option value="3"<?php echo iif($data['digest'] == 3, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_w'); ?></option>
 </select>
 <br class="newinput" />
-<?php } ?>
-<br class="iefix_br" />
-<?php } ?>
+<?php }} ?>
 </div>
 <div class="bfoot center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>"> <input tabindex="14" type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
 </div>
@@ -106,7 +104,6 @@
 <label for="pin"><?php echo $lang->phrase('admin_addpost_pin'); ?></label>
 <div class="label"><input type="checkbox" tabindex="16" id="pin" name="pin" value="1" /> <?php echo $lang->phrase('admin_addpost_pin_desc'); ?></div>
 <br class="newinput" />
-<br class="iefix_br" />
 </div>
 </div>
 <?php } ?>

@@ -142,7 +142,7 @@ else {
 	<br class="newinput" /><hr class="formsep" />
 	<label for="sample_d2">Documents and Navigation:</label>
 	<input class="label" id="sample_d2" name="sample_d2" type="checkbox" value="1" />
-	<br class="newinput" /><br class="iefix_br" />
+	<br class="newinput" />
 </div>
 <div class="bfoot center"><input type="submit" value="Continue" /></div>
 	<?php

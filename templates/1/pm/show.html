@@ -19,13 +19,13 @@
     <?php echo $lang->phrase('post_info_registered_since').$row['regdate']; ?><br />
     <?php echo $lang->phrase('post_info_location').$row['location']; ?>
   </div>
-  <br class="invclear" /><br class="iefix_br" />
+  <br class="invclear" />
 </div>
 <div class="bbody">
 <span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?><strong><?php echo $row['topic']; ?></strong></span>
 <hr />
 <?php echo $row['comment']; ?>
-<br class="iefix_left" />
+<br />
 <?php if ($bottom) { ?>
   <hr />
   <?php if (!empty($row['fullname']) && $config['fullname_posts'] == 1) { ?>

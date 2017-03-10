@@ -216,6 +216,11 @@ misc.php
 -misc_board_rules_prepared
 -misc_board_rules_end
 -misc_error_prepared
+-misc_edithistory_query
+-misc_edithistory_start
+-misc_edithistory_entry_prepared
+-misc_edithistory_prepared
+-misc_edithistory_end
 -misc_end
 
 newtopic.php
@@ -260,15 +265,6 @@ pm.php
 -pm_index_prepared
 -pm_index_end
 -pm_end
-
-popup.php
--popup_start
--popup_edithistory_query
--popup_edithistory_start
--popup_edithistory_entry_prepared
--popup_edithistory_prepared
--popup_edithistory_end
--popup_end
 
 portal.php
 -portal
