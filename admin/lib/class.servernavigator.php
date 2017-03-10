@@ -13,7 +13,6 @@
 class ServerNavigator
 {
 
-	var $use_image_icons;	   // (bool)	Sets if should use icons
 	var $show_subfolders_size; // (bool)	Sets if should get subfolders size (makes the processing slower)
 
 	var $script_file;		   // (string)  Script's name
@@ -21,12 +20,10 @@ class ServerNavigator
 	var $root;				   // (string)  Path to root
 	var $path;				   // (string)  Path to showed dir
 
-	var $icon;				   // (array) 	Array with cached data
-
 	var $plain;
 	var $extract;
 
-	function ServerNavigator($use_image_icons = true, $show_subfolders_size = false) {
+	function ServerNavigator($show_subfolders_size = false) {
 		global $gpc, $lang;
 
 		// MM: MultiLangAdmin
@@ -39,7 +36,6 @@ class ServerNavigator
 		);
 		$this->extract 				= array('zip', 'gz');
 
-		$this->use_image_icons		= (bool)$use_image_icons;
 		$this->show_subfolders_size = (bool)$show_subfolders_size;
 		$this->script_file			= $this->realPath('admin.php').'?action=explorer';
 		$this->path = $gpc->get('path', path);
@@ -59,45 +55,6 @@ class ServerNavigator
 		}
 
 	}
-
-	function ext() {
-		global $db;
-		if (count($this->icon) == 0) {
-			$this->icon = array();
-			$result = $db->query('SELECT extension, icon, mimetype, stream FROM '.$db->pre.'filetypes');
-			while ($row = $db->fetch_assoc($result)) {
-				$extension = explode(',', $row['extension']);
-				unset($row['extension']);
-				foreach ($extension as $e) {
-					$e = strtolower($e);
-					$this->icon[$e] = $row;
-				}
-			}
-			$this->icon['directory'] = array(
-			'extension' => 'directory',
-			'icon' => 'folder',
-			'mimetype' => 'text/html',
-			'stream' => 'inline'
-			);
-		}
-	}
-
-	function icons($ext) {
-		global $my, $tpl;
-		$this->ext();
-		$ext = strtolower($ext);
-		if ($this->use_image_icons && is_a($tpl, 'tpl')) {
-			if (isset($this->icon[$ext])) {
-				$row = $this->icon[$ext];
-			}
-			else {
-				return '&nbsp;';
-			}
-			return '<img src="'.$tpl->img("filetypes/".$row['icon']).'" alt="'.$row['mimetype'].'" border="0" />&nbsp;';
-		}
-		return '';
-	}
-
 
 	function checkExtract($file) {
 		$extension = preg_replace("/^.*?\\.(\w{1,8})$/", "\\1", $file);
@@ -234,11 +191,9 @@ class ServerNavigator
 			$size = ($this->show_subfolders_size)  ?  $this->formatSize($subdir_size_list[$dir])  :  "&nbsp;";
 			$chmod = get_chmod($this->path . $dir);
 
-			$icon = $this->icons('directory');
-
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 <a href="' .  $link . '" target="Main">' . $icon . $dir . '</a>';
+			$html .= "\n".'			 <a href="' .  $link . '" target="Main">' . $dir . '</a>';
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox" align="right">';
 			$html .= "\n".'			 ' . $size;
@@ -286,11 +241,9 @@ class ServerNavigator
 			$path_url = '&amp;path=' . urlencode(str_replace('/\\', '/', $this->path) . $file);
 			$link = $this->script_file . $path_url;
 
-			$icon = $this->icons($extension);
-
 			$html .= "\n".'		 <tr>';
 			$html .= "\n".'		   <td class="mbox">';
-			$html .= "\n".'			 <a href="' . str_replace('/\\', '/', $this->path) . $file . '">' . $icon . $file . '</a>';
+			$html .= "\n".'			 <a href="' . str_replace('/\\', '/', $this->path) . $file . '">' . $file . '</a>';
 			$html .= "\n".'		   </td>';
 			$html .= "\n".'		   <td class="mbox" align="right">';
 			$html .= "\n".'			 ' . $this->formatSize(filesize($this->path . $file));
@@ -421,11 +374,6 @@ class ServerNavigator
 	}
 
 	// Configuration
-
-	function useImageIcons($should_use = true)
-	{
-		$this->use_image_icons = (bool)$should_use;
-	}
 
 	function showSubfoldersSize($should_show = true)
 	{
