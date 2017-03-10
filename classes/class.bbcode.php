@@ -47,7 +47,7 @@ class BBCode {
 	var $url_regex2;
 	var $currentCBB;
 
-	function BBCode ($profile = 'viscacha') {
+	function __construct($profile = 'viscacha') {
 		$this->benchmark = array(
 			'smileys' => 0,
 			'bbcode' => 0

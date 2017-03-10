@@ -36,7 +36,7 @@ class ProfileFieldViewer {
 	 *
 	 * @param int $uid
 	 */
-	function ProfileFieldViewer($uid = null) {
+	function __construct($uid = null) {
 		$this->settings = null;
 		$this->data = array();
 		$this->cache = array();

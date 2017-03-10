@@ -3,12 +3,12 @@ class cache_package_browser extends CacheItem {
 
 	var $types;
 
-	function cache_package_browser($filename, $cachedir = "cache/") {
+	function __construct($filename, $cachedir = "cache/") {
 		global $lang;
 		if (SCRIPTNAME != 'admin') {
 			$lang->group('admin/global');
 		}
-		parent::CacheItem($filename, $cachedir);
+		parent::__construct($filename, $cachedir);
 		$this->max_age = 60*60*6;
 		$this->types = array(
 		 	1 => array(

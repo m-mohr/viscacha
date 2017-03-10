@@ -1203,7 +1203,6 @@ elseif ($job == 'db') {
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_database_driver'); ?></td>
 	   <td class="mbox" width="50%">
 	   	<select name="dbsystem">
-	   		<option value="mysql"<?php echo iif($config['dbsystem'] == 'mysql', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_database_mysql_standard'); ?></option>
 	   		<option value="mysqli"<?php echo iif($config['dbsystem'] == 'mysqli', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_database_masql_improved'); ?></option>
 	   	</select>
 	   </td>
@@ -1228,10 +1227,6 @@ elseif ($job == 'db') {
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_important_tabels'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_important_tabels_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="text" name="optimizetables" value="<?php echo $config['optimizetables']; ?>" size="50"></td>
 	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_persistent_connection'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_persistent_connection_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="pconnect" value="1"<?php echo iif($config['pconnect'],' checked'); ?>></td>
-	  </tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
@@ -1243,7 +1238,6 @@ elseif ($job == 'db2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('pconnect',int);
 	$c->updateconfig('dbsystem',str);
 	$c->updateconfig('optimizetables',str);
 	$c->savedata();

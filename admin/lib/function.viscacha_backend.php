@@ -31,7 +31,6 @@ define('IMPTYPE_BBCODE', 5);
 // Database functions
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 // Variables
 require_once ("classes/function.gpc.php");
 $action = $gpc->get('action', none);

@@ -41,10 +41,9 @@ class DB_Driver { // abstract class
 	var $commentdel;
 	var $errlogfile;
 	var $std_limit;
-	var $persistence;
 	var $all_results;
 
-	function DB_Driver($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
+	function __construct($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
 	    $this->host = $host;
 	    $this->user = $user;
 	    $this->pwd = $pwd;
@@ -58,7 +57,6 @@ class DB_Driver { // abstract class
         $this->new_line = "\n";
         $this->commentdel = '-- ';
         $this->std_limit = 5000;
-        $this->persistence = false;
         $this->all_results = array();
 	}
 
@@ -71,11 +69,6 @@ class DB_Driver { // abstract class
 				trigger_error('Could not connect to database!<br /><strong>Database returned</strong>: '.$this->errstr(), E_USER_WARNING);
 			}
 		}
-	}
-
-	function setPersistence($persistence = false) {
-		$persistence = ($persistence == 1 || $persistence == true);
-		$this->persistence = $persistence;
 	}
 
     function getStructure($table, $drop = 1) {
@@ -208,7 +201,7 @@ class DB_Driver { // abstract class
 		// Try to get better results for line and file.
 		if (viscacha_function_exists('debug_backtrace') == true) {
 			$backtraceInfo = debug_backtrace();
-			// 0 is class.mysql.php, 1 is the calling code...
+			// 0 is class.mysqli.php, 1 is the calling code...
 			if (isset($backtraceInfo[1]) == true) {
 				$errline = $backtraceInfo[1]['line'];
 				$errfile = $backtraceInfo[1]['file'];
@@ -293,7 +286,7 @@ class DB_Driver { // abstract class
 		}
 	}
 
-	// mysql(i)_real_escape_string() prepends backslashes to: \x00, \n, \r, \, ', " and \x1a.
+	// mysqli_real_escape_string() prepends backslashes to: \x00, \n, \r, \, ', " and \x1a.
 	function unescape_string($value) { // NL Hack
 		$value = preg_replace_callback(
 			'~(\\\\\\\\|\\\\)(n|r|0|Z)~',

@@ -32,7 +32,7 @@ class PluginSystem {
 	var $menu;
 	var $docs;
 
-	function PluginSystem() {
+	function __construct() {
 		$this->cache = array();
 		$this->pos = array();
 		$this->sqlcache = null;

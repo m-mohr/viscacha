@@ -417,7 +417,7 @@ elseif ($job == "credits") {
 	echo head();
 
 	$loaded_extensions = array_map('strtolower', get_loaded_extensions());
-	$needed_extensions = array('MySQL', 'MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
+	$needed_extensions = array('MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
 	$extensions = array();
 	foreach ($needed_extensions as $needed) {
 		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);

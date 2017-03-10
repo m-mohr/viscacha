@@ -47,7 +47,7 @@ class uploader {
 	/**
 	 * Konstruktor - Initializes the variables.
 	 */
-	function uploader () {
+	function __construct() {
 		$this->file = array();
 		$this->path = dirname(__FILE__).DIRECTORY_SEPARATOR;
 		$this->file_types = array();

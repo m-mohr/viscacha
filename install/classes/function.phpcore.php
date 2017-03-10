@@ -24,10 +24,6 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-/* Viscacha related ini settings */
-@set_magic_quotes_runtime(0);
-@ini_set('magic_quotes_gpc',0);
-
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 

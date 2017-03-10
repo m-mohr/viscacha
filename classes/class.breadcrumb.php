@@ -29,7 +29,7 @@ class breadcrumb {
     var $content = array();
     var $cache = array();
 
-    function breadcrumb() {
+    function __construct() {
     }
 
     function Add($title, $url = NULL) {

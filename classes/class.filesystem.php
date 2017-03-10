@@ -44,7 +44,7 @@ class filesystem {
 	var $installed_path;
 	var $root_path;
 
-	function filesystem($server, $user, $pw, $port = 21) {
+	function __construct($server, $user, $pw, $port = 21) {
 		if (class_exists('ftp', false) == true) {
 			$this->server = $server;
 			$this->port = $port;

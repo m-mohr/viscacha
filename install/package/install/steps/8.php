@@ -12,7 +12,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	}
 	require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
 	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-	$db->setPersistence($config['pconnect']);
 	$db->connect(false);
 	if (!$db->hasConnection()) {
 		?>

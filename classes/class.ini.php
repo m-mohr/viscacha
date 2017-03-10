@@ -25,7 +25,7 @@ class INI {
 	*
 	* @param	string	Charakter to use for Comments
 	*/
-	function INI ($commentchar = ';') {
+	function __construct($commentchar = ';') {
 		$this->commentchar = $commentchar;
 	}
 

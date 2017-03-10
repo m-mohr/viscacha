@@ -28,7 +28,6 @@ echo "- FTP class loaded and initialized.<br />";
 if (!class_exists('DB')) {
 	require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
 	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-	$db->setPersistence($config['pconnect']);
 }
 
 echo "- Database class loaded and initialized.<br />";

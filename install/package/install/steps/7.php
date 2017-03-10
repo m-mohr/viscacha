@@ -20,12 +20,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	if (isset($_REQUEST['database'])) {
 		$config['database'] = $_REQUEST['database'];
 	}
-	if (isset($_REQUEST['pconnect']) && isset($_REQUEST['dbsystem']) && $_REQUEST['dbsystem'] == 'mysql') {
-		$config['pconnect'] = $_REQUEST['pconnect'];
-	}
-	else {
-		$config['pconnect'] = 0;
-	}
 	if (isset($_REQUEST['dbprefix'])) {
 		$config['dbprefix'] = $_REQUEST['dbprefix'];
 	}
@@ -44,7 +38,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbuser',str);
 	$c->updateconfig('dbpw',str);
 	$c->updateconfig('database',str);
-	$c->updateconfig('pconnect',int);
 	$c->updateconfig('dbprefix',str);
 	$c->updateconfig('dbsystem',str);
 	$c->savedata();
@@ -69,7 +62,6 @@ if ($prefix != $config['dbprefix']) {
 else {
 require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 $db->connect(false);
 if (!$db->hasConnection()) {
 	?>

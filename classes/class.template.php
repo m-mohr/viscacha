@@ -37,7 +37,7 @@ class tpl {
 	var $stdimgdir;
 
 
-	function tpl() {
+	function __construct() {
 		global $config, $my, $gpc, $scache;
 
 		$admin = $gpc->get('admin', str);

@@ -57,7 +57,7 @@ var $change_mid;
  * This class manages the user-permissions, login and logout.
  * This function does some initial work.
  */
-function slog () {
+function __construct() {
 	$this->statusdata = array();
 	$this->ip = getip();
 	$this->user_agent = iif(isset($_SERVER['HTTP_USER_AGENT']), $_SERVER['HTTP_USER_AGENT'], getenv('HTTP_USER_AGENT'));

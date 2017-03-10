@@ -56,12 +56,11 @@ $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 // Database functions
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 
 /* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
  	_ENV, _SERVER: Won't be checked, but null-byte is deleted
  	_COOKIE: You can check them in the script ( getcookie() ), won't be checked
- 	_REQUEST: Won't be checked - array has the original values (but without magic_quotes)
+ 	_REQUEST: Won't be checked - array has the original values
  	_POST, _GET with keys specified in http_vars are checked and save
 */
 $http_vars = array(

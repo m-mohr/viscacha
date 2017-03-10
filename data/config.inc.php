@@ -103,7 +103,6 @@ $config['pccron_maxjobs'] = 3;
 $config['pccron_sendlog'] = 0;
 $config['pccron_sendlog_email'] = '';
 $config['pccron_uselog'] = 0;
-$config['pconnect'] = 0;
 $config['pmzahl'] = 15;
 $config['post_order'] = 0;
 $config['reduce_endchars'] = 1;

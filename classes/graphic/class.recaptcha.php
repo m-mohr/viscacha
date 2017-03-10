@@ -35,7 +35,7 @@ class ReCaptcha {
 	var $error;
 	var $extra_params;
 
-	function ReCaptcha() {
+	function __construct() {
 		global $config;
 
 		$this->error = null;

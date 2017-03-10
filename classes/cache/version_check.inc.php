@@ -3,7 +3,7 @@ class cache_version_check extends CacheItem {
 
 	private $tempXml;
 	
-	function cache_version_check ($filename, $cachedir = "cache/") {
+	function __construct($filename, $cachedir = "cache/") {
 		$this->CacheItem($filename, $cachedir);
 		$this->max_age = 60*60*24;
 	}

@@ -251,8 +251,6 @@ $lang['admin_path_forum'] = 'Pfad zum Forum:';
 $lang['admin_path_forum_info'] = 'Pfad zu Ihrer Viscacha-Installation (ohne abschließenden Schrägstrich ("/").<br />Vom Programm ermittelter Pfad:';
 $lang['admin_path_smiley_dir'] = 'Pfad zum Smiley-Verzeichnis:';
 $lang['admin_path_smiley_dir_info'] = 'Pfad zum Verzeichnis, dass die Smiley-Bilder enthält (ohne abschließenden Schrägstrich "/").<br />Vom Programm ermittelter Pfad:';
-$lang['admin_persistent_connection'] = 'Persistente Datenbankverbindungen benutzen';
-$lang['admin_persistent_connection_info'] = 'Nur für "Standard MySQL". Datenbank-Verbindungen werden nach dem Ende des Scripts nicht geschlossen. Wenn eine Verbindung angefordert wird, wird geprüft ob bereits eine Verbindung besteht und diese dann ggf. wieder aufgenommen.<br />Nähere Informationen: <a href="http://www.php.net/manual/features.persistent-connections.php" target="_blank">php.net - Persistente Datenbankverbindungen</a>';
 $lang['admin_php_error_report'] = 'PHP-Fehlerberichte (error_reporting):';
 $lang['admin_php_error_report_info'] = 'Gibt an, welche Fehler von PHP angezeigt werden sollen und welche nicht. Nähere Informationen: <a href="http://www.php.net/manual/ref.errorfunc.php#errorfunc.constants" target="_blank">Fehler Behandlung: Konstanten</a> und <a href="http://www.php.net/error-reporting" target="_blank">error_reporting()</a>.';
 $lang['admin_php_standard'] = 'Standardeinstellung von PHP nutzen';

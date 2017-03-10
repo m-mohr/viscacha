@@ -1895,23 +1895,8 @@ class PHPMailer {
       if (!is_readable($path)) {
         throw new phpmailerException($this->Lang('file_open') . $path, self::STOP_CONTINUE);
       }
-      $magic_quotes = get_magic_quotes_runtime();
-      if ($magic_quotes) {
-        if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-          set_magic_quotes_runtime(0);
-        } else {
-          ini_set('magic_quotes_runtime', 0);
-        }
-      }
       $file_buffer  = file_get_contents($path);
       $file_buffer  = $this->EncodeString($file_buffer, $encoding);
-      if ($magic_quotes) {
-        if (version_compare(PHP_VERSION, '5.3.0', '<')) {
-          set_magic_quotes_runtime($magic_quotes);
-        } else {
-          ini_set('magic_quotes_runtime', $magic_quotes);
-        }
-      }
       return $file_buffer;
     } catch (Exception $e) {
       $this->SetError($e->getMessage());

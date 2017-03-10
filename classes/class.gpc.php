@@ -29,7 +29,7 @@ class GPC {
 	var $prepare_original;
 	var $prepare_entity;
 
-	function GPC() {
+	function __construct() {
 		if (!defined('str')) {
 			define('str', 2);
 		}

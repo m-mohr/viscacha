@@ -29,7 +29,7 @@ class thumbnail {
 var $path;
 var $lang;
 
-function thumbnail () {
+function __construct() {
 	ImageTypes();
 
 	$lang = new lang();

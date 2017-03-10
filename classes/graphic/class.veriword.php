@@ -34,7 +34,7 @@ class VeriWord {
 	var $session;
 	var $settings;
 
-	function VeriWord() {
+	function __construct() {
 		global $config;
 		$this->session = null;
 		$this->dimensions = array(
