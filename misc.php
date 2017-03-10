@@ -297,9 +297,6 @@ elseif ($_GET['action'] == "wwo") {
 				$loc .= ': <a href="profile.php?id='.$id.'">'.$memberdata[$id].'</a>';
 			}
 			break;
-		case 'popup':
-			$loc = $lang->phrase('wwo_popup');
-			break;
 		case 'pm':
 			if ($row->wiw_action == 'show') {
 				$loc = $lang->phrase('wwo_pm_view');
