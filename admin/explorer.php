@@ -509,8 +509,6 @@ elseif ($job == 'all_chmod') {
 	echo foot();
 }
 else {
-	$ServerNavigator->useImageIcons(true);
-	$ServerNavigator->showSubfoldersSize(true);
 	echo head();
 	$ServerNavigator->show();
 	echo '<br />';
