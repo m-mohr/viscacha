@@ -16,7 +16,6 @@ $lang['admin_design_manager'] = 'Designverwaltung';
 $lang['admin_documents_pages'] = 'Dokumente & Seiten';
 $lang['admin_execute_sql_queries'] = 'SQL-Anfrage ausführen';
 $lang['admin_expand_all'] = 'Alle ausklappen';
-$lang['admin_filetype_manager'] = 'Dateitypen';
 $lang['admin_file_manager'] = 'Dateiverwaltung';
 $lang['admin_forum_categories'] = 'Foren & Kategorien';
 $lang['admin_forum_category_manager'] = 'Foren & Kategorien';

@@ -57,9 +57,6 @@ if ($my->p['admin'] == 1) {
 	elseif ($action == 'settings') {
 		include('admin/settings.php');
 	}
-	elseif ($action == 'filetypes') {
-		include('admin/filetypes.php');
-	}
 	elseif ($action == 'cron') {
 		include('admin/cron.php');
 	}

@@ -95,7 +95,6 @@ if ($job == 'menu') {
 	  <ul id="part_admin_menu12">
 	   <li>&raquo; <a href="admin.php?action=misc&amp;job=cache" target="Main"><?php echo $lang->phrase("admin_cache_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=misc&amp;job=captcha" target="Main"><?php echo $lang->phrase("admin_captcha_manager");?></a></li>
-	   <li>&raquo; <a href="admin.php?action=filetypes&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_filetype_manager");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=cron&amp;job=manage" target="Main"><?php echo $lang->phrase("admin_scheduler");?></a></li>
 	   <li>&raquo; <a href="admin.php?action=misc&amp;job=sessionmails" target="Main"><?php echo $lang->phrase("admin_trashmail");?></a></li>
 		<li>&raquo; <a href="admin.php?action=misc&amp;job=phpinfo" target="Main"><?php echo $lang->phrase("admin_php_info");?></a></li>

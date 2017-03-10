@@ -1266,9 +1266,6 @@ elseif ($job == 'doc_select_image') {
 	natcasesort($dirs);
 	natcasesort($files);
 
-	$fileicons_obj = $scache->load('fileicons');
-	$fileicons = $fileicons_obj->get();
-
 	echo head('style="background-color: #ffffff;"');
 	?>
 	<script type="text/javascript">
@@ -1289,27 +1286,21 @@ elseif ($job == 'doc_select_image') {
 			  <?php
 				if($dotdotdir) {
 					?>
-					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<em><?php echo $lang->phrase('admin_wysiwyg_prev_dir'); ?></em></a><br>
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><em><?php echo $lang->phrase('admin_wysiwyg_prev_dir'); ?></em></a><br>
 					<?php
 				}
 				$i = -1;
 				foreach ($dirs as $i => $dirname) {
 					?>
-					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirname); ?>">
-					<img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<?php echo $dirname; ?>
-					</a><br />
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirname); ?>"><?php echo $dirname; ?></a><br />
 					<?php
 				}
 				if ($i >= 0 || $dotdotdir) {
 					echo "</td></tr><tr><td>";
 				}
 				foreach ($files as $filename) {
-					$ext = strtolower(get_extension($filename));
-					$icon = isset($fileicons[$ext]) ? $fileicons[$ext] : 'unknown';
 					?>
-					<a href="javascript:selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');">
-					  <img src="<?php echo $tpl->img("filetypes/{$icon}"); ?>" alt="<?php echo strtoupper($ext); ?>" border="0" />&nbsp;<?php echo $filename; ?>
-					</a><br />
+					<a href="javascript:selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');"><?php echo $filename; ?></a><br />
 					<?php
 				}
 				if (count($files) == 0) {

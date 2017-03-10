@@ -32,29 +32,7 @@ include ("classes/function.viscacha_frontend.php");
 
 ($code = $plugins->load('popup_start')) ? eval($code) : null;
 
-if ($_GET['action'] == "filetypes") {
-
-	($code = $plugins->load('popup_filetypes_query')) ? eval($code) : null;
-
-	if (empty($_GET['type'])) {
-		error($lang->phrase('query_string_error'), 'javascript:self.close();');
-	}
-
-	$result = $db->query("SELECT * FROM {$db->pre}filetypes WHERE extension LIKE '%{$_GET['type']}%'");
-	$nr = $db->num_rows($result);
-
-	$cache = array();
-	while ($row = $db->fetch_assoc($result)) {
-		$row['extension'] = str_replace(',', ', ', $row['extension']);
-		$cache[] = $row;
-	}
-
-	echo $tpl->parse("popup/header");
-	($code = $plugins->load('popup_filetypes_prepared')) ? eval($code) : null;
-	echo $tpl->parse("popup/filetypes");
-	($code = $plugins->load('popup_filetypes_end')) ? eval($code) : null;
-}
-elseif ($_GET['action'] == "showpost") {
+if ($_GET['action'] == "showpost") {
 	sendStatusCode(302, 'showtopic.php?action=jumpto&topic_id='.$_GET['id'].SID2URL_JS_x);
 }
 elseif ($_GET['action'] == "edithistory") {

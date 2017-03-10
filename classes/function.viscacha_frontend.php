@@ -287,24 +287,43 @@ function count_nl($str='',$max=NULL) {
 }
 
 function get_mimetype($file) {
-	global $db, $scache;
-
-	$ext = strtolower(get_extension($file));
-
-	$mimetype_headers = $scache->load('mimetype_headers');
-	$mime = $mimetype_headers->get();
-
-	if (isset($mime[$ext])) {
-		return array(
-		'mime' => $mime[$ext]['mimetype'],
-		'browser' => $mime[$ext]['stream']
-		);
-	}
-	else {
-		return array(
-		'mime' => 'application/octet-stream',
-		'browser' => 'attachment'
-		);
+	$ext = get_extension($file);
+	switch($ext) {
+		case 'gif':
+		case 'png':
+		case 'bmp':
+			return array(
+				'mime' => 'image/'.$ext,
+				'browser' => 'inline'
+			);
+		case 'jpeg':
+		case 'jpe':
+		case 'jpg':
+			return array(
+				'mime' => 'image/jpeg',
+				'browser' => 'inline'
+			);
+		case 'txt':
+			return array(
+				'mime' => 'text/plain',
+				'browser' => 'inline'
+			);
+		case 'html':
+		case 'htm':
+			return array(
+				'mime' => 'text/html',
+				'browser' => 'inline'
+			);
+		case 'pdf':
+			return array(
+				'mime' => 'application/pdf',
+				'browser' => 'inline'
+			);
+		default:
+			return array(
+				'mime' => 'application/octet-stream',
+				'browser' => 'attachment'
+			);
 	}
 }
 

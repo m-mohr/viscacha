@@ -298,12 +298,7 @@ elseif ($_GET['action'] == "wwo") {
 			}
 			break;
 		case 'popup':
-			if ($row->wiw_action == 'filetypes') {
-				$loc = $lang->phrase('wwo_popup_filetypes');
-			}
-			else {
-				$loc = $lang->phrase('wwo_popup');
-			}
+			$loc = $lang->phrase('wwo_popup');
 			break;
 		case 'pm':
 			if ($row->wiw_action == 'show') {

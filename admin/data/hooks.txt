@@ -265,9 +265,6 @@ pm.php
 
 popup.php
 -popup_start
--popup_filetypes_query
--popup_filetypes_prepared
--popup_filetypes_end
 -popup_edithistory_query
 -popup_edithistory_start
 -popup_edithistory_entry_prepared
@@ -379,9 +376,6 @@ admin/designs.php
 
 admin/explorer.php
 -admin_explorer_jobs
-
-admin/filetypes.php
--admin_filetypes_jobs
 
 admin/forums.php
 -admin_forums_jobs

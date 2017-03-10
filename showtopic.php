@@ -261,10 +261,6 @@ if ($config['tpcallow'] == 1) {
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
 	}
-	if (count($uploads) > 0) {
-		$fileicons_obj = $scache->load('fileicons');
-		$fileicons = $fileicons_obj->get();
-	}
 }
 
 if ($config['postrating'] == 1) {
@@ -392,13 +388,6 @@ while ($row = $db->fetch_object($result)) {
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
 			$imginfo = get_extension($uppath);
-
-			if (!isset($fileicons[$imginfo])) {
-				$icon = 'unknown';
-			}
-			else {
-				$icon = $fileicons[$imginfo];
-			}
 
 			// Dateigroesse
 			$fsize = filesize($uppath);
