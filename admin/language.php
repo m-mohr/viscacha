@@ -365,11 +365,9 @@ elseif ($job == 'lang_settings') {
 	$charsets['ISO-8859-15'] = $lang->phrase('admin_charset_iso889515');
 //	$charsets['UTF-8'] = $lang->phrase('admin_charset_utf8');
 	$charsets['cp1252'] = $lang->phrase('admin_charset_cp1252');
-	if (version_compare(PHP_VERSION, '4.3.2', '>=')) {
-		$charsets['cp866'] = $lang->phrase('admin_charset_cp866');
-		$charsets['cp1251'] = $lang->phrase('admin_charset_cp1251');
-		$charsets['KOI8-R'] = $lang->phrase('admin_charset_koi8r');
-	}
+	$charsets['cp866'] = $lang->phrase('admin_charset_cp866');
+	$charsets['cp1251'] = $lang->phrase('admin_charset_cp1251');
+	$charsets['KOI8-R'] = $lang->phrase('admin_charset_koi8r');
 	$charsets['BIG5'] = $lang->phrase('admin_charset_big5');
 	$charsets['GB2312'] = $lang->phrase('admin_charset_gb2312');
 	$charsets['BIG5-HKSCS'] = $lang->phrase('admin_charset_big5hkscs');

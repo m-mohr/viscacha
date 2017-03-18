@@ -261,13 +261,7 @@ function GPC_escape($var, $type = GPC_HTML){
 		if ($type == GPC_HTML) {
 			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 			$var = str_replace("\0", '', $var);
-			if (version_compare(PHP_VERSION, '5.2.3', '>=')) {
-				$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
-			}
-			else {
-				$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1');
-				$var = str_replace('&amp;#', '&#', $var);
-			}
+			$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
 		}
 		if ($type == GPC_DB && isset($db) && is_object($db)) {
 			$var = $db->escape_string($var);

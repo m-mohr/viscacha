@@ -131,7 +131,7 @@ if (!SCRIPT_LOCKED) {
 		</div>
 		</form>
 		<?php } elseif (!SCRIPT_LOCKED) { ?>
-		<?php if (version_compare(PHP_VERSION, '5.0.0', '<') && empty($_REQUEST['skip_php'])) { ?>
+		<?php if (version_compare(PHP_VERSION, '5.6.0', '<') && empty($_REQUEST['skip_php'])) { ?>
 		<div class="border">
 			<h3>Error: PHP Version mismatch</h3>
 			<div class="bbody">
