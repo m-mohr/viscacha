@@ -86,7 +86,6 @@ $lang['admin_member_delete_user'] = 'Benutzer löschen:';
 $lang['admin_member_desc'] = 'Absteigend';
 $lang['admin_member_design'] = 'Design';
 $lang['admin_member_design=not_valid'] = 'Ungültiges Design ausgewählt';
-$lang['admin_member_disposable_mail_not_allowed'] = 'Wegwerf-E-Mail-Adressen sind nicht erlaubt.';
 $lang['admin_member_edit'] = 'Ändern';
 $lang['admin_member_edit_member'] = 'Mitglied ändern';
 $lang['admin_member_edit_options'] = 'Optionen ändern';

@@ -487,16 +487,6 @@ function check_mail($email, $simple = false) {
 	 			return false;
 	 		}
 	 	}
-		if ($config['sessionmails'] == 1 && !$simple) {
-			// get the known domains in lower case
-			$sessionmails = file('data/sessionmails.php');
-			$sessionmails = array_map("trim", $sessionmails);
-			$sessionmails = array_map("strtolower", $sessionmails);
-			// compare the data and return the result
-			if (in_array($domain, $sessionmails)) {
-				return false;
-			}
-		}
 		return true;
 	}
 	else {

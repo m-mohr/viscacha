@@ -114,7 +114,6 @@ $config['searchminlength'] = 3;
 $config['searchzahl'] = 10;
 $config['sendmail'] = 0;
 $config['sendmail_host'] = '';
-$config['sessionmails'] = 1;
 $config['sessionrefresh'] = 180;
 $config['sessionsave'] = 15;
 $config['session_checkip'] = 3;

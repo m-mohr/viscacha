@@ -21,9 +21,6 @@
 <br class="newinput" /><hr class="formsep" />
 <label for="email">
     <?php echo $lang->phrase('email'); ?>
-    <?php if ($config['sessionmails'] == 1) { ?>
-	  <br /><span class="stext"><?php echo $lang->phrase('register_tempmails'); ?></span>
-    <?php } ?>
 </label>
 <input class="label" type="text" id="email" name="email" size="40" value="<?php echo $data['email']; ?>" />
 <?php foreach ($customfields as $row) { ?>

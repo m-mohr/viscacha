@@ -955,10 +955,6 @@ elseif ($job == 'email') {
 	   <td class="mbox" width="50%"><input type="text" name="smtp_password" value="<?php echo $config['smtp_password']; ?>" size="50"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_black_trash_email'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_black_trash_email_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="sessionmails" value="1"<?php echo iif($config['sessionmails'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_check_email_mx_record'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_check_email_mx_record_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="email_check_mx" value="1"<?php echo iif($config['email_check_mx'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
@@ -993,7 +989,6 @@ elseif ($job == 'email2') {
 	$c->updateconfig('smtp_auth', int);
 	$c->updateconfig('smtp_username', str);
 	$c->updateconfig('smtp_password', str);
-	$c->updateconfig('sessionmails', int);
 	$c->updateconfig('email_check_mx', int);
 	$c->savedata();
 
@@ -2265,7 +2260,6 @@ else {
 		  <form name="act" action="admin.php?action=locate" method="post">
 		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
-		  	  <option value="admin.php?action=misc&amp;job=sessionmails"><?php echo $lang->phrase('admin_select_trash_email'); ?></option>
 		  	  <option value="admin.php?action=members&amp;job=emailsearch"><?php echo $lang->phrase('admin_select_newsletter_manager'); ?></option>
 		  	  <option value="admin.php?action=language&amp;job=lang_emails&amp;id=<?php echo $config['langdir']; ?>"><?php echo $lang->phrase('admin_select_email_texts'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
@@ -2390,7 +2384,6 @@ else {
 		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
 		  	  <option value="admin.php?action=misc&amp;job=captcha"><?php echo $lang->phrase('admin_select_captcha_manager'); ?></option>
-		  	  <option value="admin.php?action=misc&amp;job=sessionmails"><?php echo $lang->phrase('admin_select_trash_email'); ?></option>
 		  	  <option value="admin.php?action=slog&job=s_general"><?php echo $lang->phrase('admin_select_registration_statistic'); ?></option>
 		  	  <option value="admin.php?action=language&amp;job=lang_rules&amp;id=<?php echo $config['langdir']; ?>"><?php echo $lang->phrase('admin_select_terms_of_behaviour'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">

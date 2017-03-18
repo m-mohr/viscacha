@@ -50,7 +50,6 @@ $lang['admin_statistics'] = 'Statistics';
 $lang['admin_stats_logs'] = 'Statistics & Logs';
 $lang['admin_supportlink'] = 'Support';
 $lang['admin_topics_posts'] = 'Topics & Posts';
-$lang['admin_trashmail'] = 'Trash-E-Mail addresses';
 $lang['admin_txtprocessing'] = 'Text Processing';
 $lang['admin_useful_links'] = 'Useful Links';
 $lang['admin_version_check'] = 'Version Check';

@@ -491,7 +491,6 @@ $lang['register_resend_desc'] = 'Sollten Sie sich bereits registriert - aber den
 $lang['register_resend_no_user'] = 'Es wurde leider kein Benutzer mit diesem Namen oder einer benötigten Freischaltung gefunden. Eventuell muss der Administrator Sie noch freischalten.';
 $lang['register_resend_success'] = 'Die Aktivierungs-E-Mail wurde Ihnen erneut zugeschickt.';
 $lang['register_resend_title'] = 'Bestätigungslink erneut anfordern';
-$lang['register_tempmails'] = 'Wegwerf-E-Mail-Adressen sind nicht erlaubt!';
 $lang['register_title'] = 'Registrieren';
 $lang['register_veriword'] = 'Bitte geben Sie zum Spamschutz die Zeichenfolge aus dem Bild ein.';
 $lang['reply_prefix'] = 'Re: ';

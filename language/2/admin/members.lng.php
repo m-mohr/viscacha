@@ -86,7 +86,6 @@ $lang['admin_member_delete_user'] = 'Delete user:';
 $lang['admin_member_desc'] = 'Descending';
 $lang['admin_member_design'] = 'Design';
 $lang['admin_member_design=not_valid'] = 'Invalid design selected';
-$lang['admin_member_disposable_mail_not_allowed'] = 'Disposable e-mail accounts are not allowed!';
 $lang['admin_member_edit'] = 'Edit';
 $lang['admin_member_edit_member'] = 'Edit member';
 $lang['admin_member_edit_options'] = 'Edit options';

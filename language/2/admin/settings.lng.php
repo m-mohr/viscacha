@@ -42,8 +42,6 @@ $lang['admin_bb_text_progressing'] = 'BB-Code &amp; Text processing';
 $lang['admin_bb_text_progressing_info'] = 'BB-Codes, wordwrap, smileys, censored words, ...';
 $lang['admin_bb_text_smileys'] = 'BB-Code &amp; Text processing &raquo; Smileys';
 $lang['admin_bb_text_wordwrap'] = 'BB-Code &amp; Text processing &raquo; Wordwrap';
-$lang['admin_black_trash_email'] = 'Block "Trash"-E-Mail Addresses:';
-$lang['admin_black_trash_email_info'] = 'The Domains can be edited <a href="admin.php?action=misc&job=sessionmails">here</a>.';
 $lang['admin_cannot_authenticate_at_ftp_server'] = 'Could not authenticate to ftp server! Pleasy try again later or check the ftp authentication settings (username, password)!';
 $lang['admin_cannot_connect_to_ftp_server'] = 'Could not connect to ftp server! Pleasy check the ftp server settings (server, port)!';
 $lang['admin_captcha_jpeg'] = 'JPEG';
@@ -326,7 +324,6 @@ $lang['admin_select_terms_of_behaviour'] = 'Terms of behaviour (only default lan
 $lang['admin_select_test_bb_manager'] = 'Test BB Codes';
 $lang['admin_select_tools'] = '-- Tools --';
 $lang['admin_select_topic_posts_statistic'] = 'Topic &amp; Posts Statistics';
-$lang['admin_select_trash_email'] = 'Trash E-mail addresses';
 $lang['admin_select_usergroup_manager'] = 'Usergroup Manager';
 $lang['admin_sendmail_host'] = 'Sendmail - Host:';
 $lang['admin_sendmail_host_info'] = 'Only if Sendmail is activated.';

@@ -1220,9 +1220,6 @@ elseif ($job == 'register') {
 	</tr><tr>
 		<td class="mbox">
 		<?php echo $lang->phrase('admin_member_mail_address'); ?>
-			<?php if ($config['sessionmails'] == 1) { ?>
-			  <br /><span class="stext"><?php echo $lang->phrase('admin_member_disposable_mail_not_allowed'); ?></span>
-			<?php } ?>
 		</td>
 		<td class="mbox">
 			<input type="text" name="email" size="40" />

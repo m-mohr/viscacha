@@ -42,8 +42,6 @@ $lang['admin_bb_text_progressing'] = 'BB-Codes &amp; Textverarbeitung';
 $lang['admin_bb_text_progressing_info'] = 'BB-Codes, Zeilenumbruch, Smileys, Zensur, Glossar, ...';
 $lang['admin_bb_text_smileys'] = 'BB-Codes &amp; Textverarbeitung &raquo; Smileys';
 $lang['admin_bb_text_wordwrap'] = 'BB-Codes &amp; Textverarbeitung &raquo; Automatischer Zeilenumbruch (Wordwrap)';
-$lang['admin_black_trash_email'] = 'Sperre Wegwerf-E-Mail-Adressen:';
-$lang['admin_black_trash_email_info'] = 'Domains, die als Wegwerf-E-Mail-Adressen behandelt werden sollen, können <a href="admin.php?action=misc&job=sessionmails">hier</a> geändert werden.';
 $lang['admin_cannot_authenticate_at_ftp_server'] = 'Die Authentifizierung am FTP-Server schlug fehl! Bitte versuchen Sie es später noch einmal oder überprüfen Sie die Daten für die Authentifizierung (Benutzername, Passwort)!';
 $lang['admin_cannot_connect_to_ftp_server'] = 'Konnte nicht zum FTP-Server verbinden! Bitte überprüfen Sie die Daten des FTP-Servers (Server, Port)!';
 $lang['admin_captcha_jpeg'] = 'JPEG';
@@ -320,7 +318,6 @@ $lang['admin_select_terms_of_behaviour'] = 'Verhaltensbedingungen (Nur Standards
 $lang['admin_select_test_bb_manager'] = 'BB-Codes testen';
 $lang['admin_select_tools'] = '-- Werkzeuge --';
 $lang['admin_select_topic_posts_statistic'] = 'Themen- &amp; Beitrags-Statistiken';
-$lang['admin_select_trash_email'] = 'Wegwerf-E-Mail-Adressen';
 $lang['admin_select_usergroup_manager'] = 'Benutzergruppen-Verwaltung';
 $lang['admin_sendmail_host'] = 'Sendmail - Host:';
 $lang['admin_sendmail_host_info'] = 'Nur wenn Sendmail aktiviert wurde.';

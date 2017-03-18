@@ -491,7 +491,6 @@ $lang['register_resend_desc'] = 'Please enter your registered member name below 
 $lang['register_resend_no_user'] = 'Sorry, but not member with this name or a pending registration was found. Maybe the administrator has to activate your account.';
 $lang['register_resend_success'] = 'An e-mail, required for account activation, has been sent to you again.';
 $lang['register_resend_title'] = 'Resend validation email';
-$lang['register_tempmails'] = 'Disposable e-mail accounts are not allowed!';
 $lang['register_title'] = 'Register';
 $lang['register_veriword'] = 'Please enter the chars in the image. This should help to avoid spam.';
 $lang['reply_prefix'] = 'Re: ';
