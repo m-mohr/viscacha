@@ -1605,38 +1605,12 @@ elseif ($job == 'datetime2') {
 elseif ($job == 'http') {
 	$config = $gpc->prepare($config);
 
-	if (!extension_loaded("zlib") || !viscacha_function_exists('gzcompress')) {
-		$gzip = '<span style="color: #aa0000;">'.$lang->phrase('admin_not_enabled').'</span>';
-	}
-	else {
-		$gzip = '<span style="color: #00aa00;">'.$lang->phrase('admin_enabled').'</span>';
-	}
-
 	echo head();
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=http2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	  <tr>
 	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_headers_cookies_gzip'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_gzip_compression'); ?><br><span class="stext"><?php echo $lang->phrase('admin_activate_gzip_compression_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="gzip" value="1"<?php echo iif($config['gzip'],' checked'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_gzip_compression_lvl'); ?><br><span class="stext"><?php echo $lang->phrase('admin_gzip_compression_lvl_info'); ?></span></td>
-	   <td class="mbox" width="50%"><select size="1" name="gzcompression">
-	   <?php
-	   	for($i=0;$i<10;$i++) {
-	   		if ($i == $config['gzcompression']) {
-	   			echo "<option value=\"{$i}\" selected=\"selected\">{$i}</option>";
-	   		}
-			else {
-	   			echo "<option value=\"{$i}\">{$i}</option>";
-			}
-		}
-    	?>
-  		</select></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_prevent_browser_caching'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_prevent_browser_caching_info'); ?></span></td>
@@ -1658,8 +1632,6 @@ elseif ($job == 'http2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('gzip',int);
-	$c->updateconfig('gzcompression',int);
 	$c->updateconfig('nocache',int);
 	$c->updateconfig('cookie_prefix',str);
 	$c->savedata();

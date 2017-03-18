@@ -182,9 +182,7 @@ if (!file_exists('.htaccess')) {
 $breadcrumb = new breadcrumb();
 $breadcrumb->Add($config['fname'], 'index.php');
 
-$phpdoc = new OutputDoc($config['gzip']);
-$phpdoc->Start($config['gzcompression']);
-define('PAGE_IS_GZIPPED', ($config['gzip'] == 1 && $phpdoc->Encoding()));
+$phpdoc = new OutputDoc();
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
