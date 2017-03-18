@@ -130,7 +130,7 @@ function create_thumbnail($attachment) {
 					}
 					break;
 			}
-			if (isset($image)) {
+			if (!empty($image)) {
 				$xratio = $width / $config['tpcthumbwidth'];
 				$yratio = $height /$config['tpcthumbheight'];
 				if ($xratio > $yratio) {
@@ -141,21 +141,19 @@ function create_thumbnail($attachment) {
 					$new_width = round($width / $yratio);
 					$new_height = round($height / $yratio);
 				}
-				if ($config['gdversion'] == 1) {
-					if (!($thumbnail = @imagecreate($new_width, $new_height))) {
-						$this->create_error($this->lang['tne_gd1error']);
+				if (!Viscacha_function_exists('imagecreatetruecolor')) {
+					if (!($thumbnail = imagecreate($new_width, $new_height))) {
+						$this->create_error($this->lang['tne_imageerror']);
 					}
 					imagecopyresized($thumbnail, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
 				}
 				else {
-					if (!($thumbnail = @imagecreatetruecolor($new_width, $new_height))) {
-						$this->create_error($this->lang['tne_truecolorerror']);
+					if (!($thumbnail = imagecreatetruecolor($new_width, $new_height))) {
+						$this->create_error($this->lang['tne_imageerror']);
 					}
 					@imagecopyresampled($thumbnail, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
 
-					if (!version_compare(PHP_VERSION, '4.3.2', 'eq')) {
-						$this->UnsharpMask($thumbnail);
-					}
+					$this->UnsharpMask($thumbnail);
 					if($ext == 'png') {
 						imagetruecolortopalette($thumbnail, true, 256);
 					}

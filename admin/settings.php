@@ -549,25 +549,6 @@ elseif ($job == 'search2') {
 elseif ($job == 'server') {
 	$config = $gpc->prepare($config);
 
-	$gdv = $lang->phrase('admin_gd_not_found');
-	if (viscacha_function_exists('gd_info')) {
-	    $gd = @gd_info();
-	}
-	if (!empty($gd['GD Version'])) {
-		$gdv = $gd['GD Version'];
-	}
-	else {
-    	ob_start();
-    	phpinfo();
-    	$info = ob_get_contents();
-    	ob_end_clean();
-    	foreach(explode("\n", $info) as $line) {
-     		if(strpos($line, "GD Version")!==false) {
-        		$gdv = trim(str_replace("GD Version", "", strip_tags($line)));
-        	}
-    	}
-	}
-
 	$std_err_reporting = ($config['error_reporting'] != '0' && $config['error_reporting'] != 'E_ALL' && $config['error_reporting'] != 'E_ERROR');
 
 	echo head();
@@ -576,13 +557,6 @@ elseif ($job == 'server') {
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
 	  <tr>
 	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_php_web_file_edit'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_gd_version'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_gd_version_info'); ?> <?php echo $gdv; ?></span></td>
-	   <td class="mbox" width="50%"><select name="gdversion">
-	   <option value="1"<?php echo iif($config['gdversion'] == 1, ' selected="selected"'); ?>>1.x</option>
-	   <option value="2"<?php echo iif($config['gdversion'] == 2, ' selected="selected"'); ?>>2.x</option>
-	   </select></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_php_error_report'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_php_error_report_info'); ?></span></td>

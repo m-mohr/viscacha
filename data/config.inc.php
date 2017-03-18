@@ -55,7 +55,6 @@ $config['ftp_server'] = '';
 $config['ftp_user'] = '';
 $config['fullname_posts'] = 1;
 $config['furl'] = '';
-$config['gdversion'] = 2;
 $config['guest_email_optional'] = 0;
 $config['hidedesign'] = 0;
 $config['hidelanguage'] = 0;
