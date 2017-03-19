@@ -38,19 +38,19 @@ function __construct() {
 	$this->path = '';
 	$this->mime = array();
 
-	if (viscacha_function_exists('imagejpeg') && IMG_JPEG) {
+	if (function_exists('imagejpeg') && IMG_JPEG) {
 		define('IMAGEJPEG', true);
 	}
 	else {
 		define('IMAGEJPEG', false);
 	}
-	if (viscacha_function_exists('imagegif') && IMG_GIF) {
+	if (function_exists('imagegif') && IMG_GIF) {
 		define('IMAGEGIF', true);
 	}
 	else {
 		define('IMAGEGIF', false);
 	}
-	if (viscacha_function_exists('imagepng') && IMG_PNG) {
+	if (function_exists('imagepng') && IMG_PNG) {
 		define('IMAGEPNG', true);
 	}
 	else {
@@ -115,17 +115,17 @@ function create_thumbnail($attachment) {
 		if ($width > $config['tpcthumbwidth'] OR $height > $config['tpcthumbheight']) {
 			switch($imageinfo[2]) {
 				case 1:
-					if (!(viscacha_function_exists('imagecreatefromgif') AND $image = @imagecreatefromgif($attachment))) {
+					if (!(function_exists('imagecreatefromgif') AND $image = @imagecreatefromgif($attachment))) {
 						$this->create_error($this->lang['tne_giferror']);
 					}
 					break;
 				case 2:
-					if (!(viscacha_function_exists('imagecreatefromjpeg') AND $image = imagecreatefromjpeg($attachment))) {
+					if (!(function_exists('imagecreatefromjpeg') AND $image = imagecreatefromjpeg($attachment))) {
 						$this->create_error($this->lang['tne_jpgerror']);
 					}
 					break;
 				case 3:
-					if (!(viscacha_function_exists('imagecreatefrompng') AND $image = imagecreatefrompng($attachment))) {
+					if (!(function_exists('imagecreatefrompng') AND $image = imagecreatefrompng($attachment))) {
 						$this->create_error($this->lang['tne_pngerror']);
 					}
 					break;
@@ -141,7 +141,7 @@ function create_thumbnail($attachment) {
 					$new_width = round($width / $yratio);
 					$new_height = round($height / $yratio);
 				}
-				if (!Viscacha_function_exists('imagecreatetruecolor')) {
+				if (!function_exists('imagecreatetruecolor')) {
 					if (!($thumbnail = imagecreate($new_width, $new_height))) {
 						$this->create_error($this->lang['tne_imageerror']);
 					}

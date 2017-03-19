@@ -85,7 +85,7 @@ function checkmx_idna($host) {
 	}
 	$idna = new idna_convert();
 	$host_idna = $idna->encode($host);
-	if (viscacha_function_exists('checkdnsrr')) {
+	if (function_exists('checkdnsrr')) {
 		if (checkdnsrr($host_idna, 'MX') === false) {
 			return false;
 		}
@@ -367,10 +367,10 @@ function serverload($int = false) {
 		$serverload = explode(" ", $load);
 		$serverload[0] = round($serverload[0], 4);
 	}
-	if (viscacha_function_exists('sys_getloadavg')) {
+	if (function_exists('sys_getloadavg')) {
 		$serverload = @sys_getloadavg();
 	}
-	if (empty($serverload[0]) && viscacha_function_exists('exec') == true) {
+	if (empty($serverload[0]) && function_exists('exec') == true) {
 		$load = @exec("uptime");
 		$load = preg_split("~load averages?: ~i", $load);
 		if (isset($load[1])) {

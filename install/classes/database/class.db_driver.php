@@ -199,7 +199,7 @@ class DB_Driver { // abstract class
 
 	function error($errcomment) {
 		// Try to get better results for line and file.
-		if (viscacha_function_exists('debug_backtrace') == true) {
+		if (function_exists('debug_backtrace') == true) {
 			$backtraceInfo = debug_backtrace();
 			// 0 is class.mysqli.php, 1 is the calling code...
 			if (isset($backtraceInfo[1]) == true) {

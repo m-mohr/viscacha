@@ -39,7 +39,7 @@ class cache_version_check extends CacheItem {
 	}
 	
 	function readRssInfo() {
-		if (!viscacha_function_exists('xml_parser_create')) {
+		if (!function_exists('xml_parser_create')) {
 			return false;
 		}
 

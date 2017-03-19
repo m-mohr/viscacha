@@ -498,7 +498,7 @@ elseif ($job == 'design_export2') {
 	else {
 		foreach ($dirs as $dir) {
 			$archive = new PclZip($tempdir.$file);
-			if (!empty($dir['func']) && viscacha_function_exists($dir['func'])) {
+			if (!empty($dir['func']) && function_exists($dir['func'])) {
 				$list = $dir['func']($dir['dir']);
 				$v_list = $archive->add($list, PCLZIP_OPT_REMOVE_PATH, $dir['dir'], PCLZIP_OPT_ADD_PATH, extract_dir($dir['dir'], false));
 			}

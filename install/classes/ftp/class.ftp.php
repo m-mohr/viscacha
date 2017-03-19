@@ -735,7 +735,7 @@ function pemftp_class_module() {
 	else {
 		$mod_sockets = true;
 		if (!extension_loaded('sockets')) {
-			if (!viscacha_function_exists('dl')) {
+			if (!function_exists('dl')) {
 				$mod_sockets = false;
 			}
 			else {
@@ -748,7 +748,7 @@ function pemftp_class_module() {
 		if ($mod_sockets == true) {
 			return 'sockets';
 		}
-		elseif ($mod_sockets == false && viscacha_function_exists('fsockopen')) {
+		elseif ($mod_sockets == false && function_exists('fsockopen')) {
 			return 'pure';
 		}
 		else {

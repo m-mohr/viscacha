@@ -202,9 +202,8 @@ class Snoopy
 			case "https":
 				if(!$this->curl_path)
 					return false;
-				if(viscacha_function_exists("is_executable"))
-				    if (!is_executable($this->curl_path))
-				        return false;
+				if (!is_executable($this->curl_path))
+					return false;
 				$this->host = $URI_PARTS["host"];
 				if(!empty($URI_PARTS["port"]))
 					$this->port = $URI_PARTS["port"];
@@ -361,9 +360,8 @@ class Snoopy
 			case "https":
 				if(!$this->curl_path)
 					return false;
-				if(viscacha_function_exists("is_executable"))
-				    if (!is_executable($this->curl_path))
-				        return false;
+				if (!is_executable($this->curl_path))
+					return false;
 				$this->host = $URI_PARTS["host"];
 				if(!empty($URI_PARTS["port"]))
 					$this->port = $URI_PARTS["port"];
@@ -802,7 +800,7 @@ class Snoopy
 		if(!empty($this->accept))
 			$headers .= "Accept: ".$this->accept."\r\n";
 
-		if($this->use_gzip && viscacha_function_exists('gzinflate')) {
+		if($this->use_gzip && function_exists('gzinflate')) {
 			// make sure PHP was built with --with-zlib
 			// and we can handle gzipp'ed data
 			$headers .= "Accept-encoding: gzip\r\n";

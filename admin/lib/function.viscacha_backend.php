@@ -263,7 +263,7 @@ function array2sqlsetlist($array, $seperator = ', ') {
 }
 
 function gzAbortNotLoaded() {
-	if (!extension_loaded("zlib") || !viscacha_function_exists('readgzfile')) {
+	if (!extension_loaded("zlib") || !function_exists('readgzfile')) {
 		global $lang;
 		error('javascript:history.back(-1);', $lang->phrase('admin_gzip_not_loaded'));
 	}
