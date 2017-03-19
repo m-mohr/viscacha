@@ -70,10 +70,22 @@ if (!$db->hasConnection()) {
 	<?php
 }
 else {
-	if (!$db->select_db()) {
+	$selectDb = $db->select_db();
+	if (!$selectDb) {
+		// Create new database
+		$db->query("CREATE DATABASE `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+		$selectDb = $db->select_db();
+	}
+	if ($selectDb) {
 		?>
-<div class="bbody">Could not find database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
+<div class="bbody">Could not find or create a database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
 <div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
+		<?php
+	}
+	else if (version_compare($db->version(), '5.5.3', '<')) {
+		?>
+<div class="bbody">MySQL (or MariaDB) version 5.5.3 or newer is needed to run Viscacha.</div>
+<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
 		<?php
 	}
 	else {

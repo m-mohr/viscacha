@@ -135,8 +135,7 @@ if (!SCRIPT_LOCKED) {
 		<div class="border">
 			<h3>Error: PHP Version mismatch</h3>
 			<div class="bbody">
-			Support for PHP 4 has been discontinued since Viscacha 0.8 RC7.<br />
-			Please consider upgrading to (the latest version of) PHP 5 or you won't be able to use Viscacha.
+			Please consider upgrading to (the latest version of) PHP 5.6 or PHP 7 or you won't be able to use Viscacha.
 			</div>
 			<div class="bfoot center"><a class="submit" href="index.php?skip_php=1">Continue anyway</a></div>
 		</div>

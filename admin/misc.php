@@ -399,7 +399,7 @@ elseif ($job == "credits") {
 	else {
 		$phpv = '<span style="color: red">'.$lang->phrase('admin_misc_no').'</span>';
 	}
-	if (version_compare($db->version(), '5.0', '>=')) {
+	if (version_compare($db->version(), '5.5.3', '>=')) {
 		$sqlv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
