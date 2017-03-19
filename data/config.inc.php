@@ -45,6 +45,8 @@ $config['fdesc'] = '';
 $config['floodsearch'] = 1;
 $config['fname'] = '';
 $config['foffline'] = 0;
+$config['foffline_message'] = '<p>Sorry, the board is unavailable at the moment while we are doing some maintenance work.</p>
+<p>We will be back soon...</p>';
 $config['forenmail'] = '';
 $config['forumzahl'] = 15;
 $config['fpath'] = '';

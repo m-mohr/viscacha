@@ -1468,7 +1468,6 @@ elseif ($job == 'general2') {
 	ok('admin.php?action=settings&job=settings');
 }
 elseif ($job == 'sitestatus') {
-	$obox = file_get_contents('data/offline.php');
 	echo head();
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=sitestatus2">
@@ -1482,7 +1481,7 @@ elseif ($job == 'sitestatus') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_offline_msg'); ?><br><span class="stext"><?php echo $lang->phrase('admin_offline_msg_info'); ?></span></td>
-	   <td class="mbox" width="50%"><textarea class="texteditor" name="template" rows="5" cols="60"><?php echo $obox; ?></textarea></td>
+	   <td class="mbox" width="50%"><textarea class="texteditor" name="foffline_message" rows="5" cols="60"><?php echo htmlspecialchars($config['foffline_message']); ?></textarea></td>
 	  </tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
@@ -1495,8 +1494,8 @@ elseif ($job == 'sitestatus2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('foffline',int);
-	$filesystem->file_put_contents('data/offline.php',$gpc->get('template', none));
+	$c->updateconfig('foffline', int);
+	$c->updateconfig('foffline_message', none);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');
