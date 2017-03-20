@@ -47,6 +47,19 @@ function is_id ($x) {
 	return (is_numeric($x) && $x >= 1 ? intval($x) == $x : false);
 }
 
+// Generates an alpha-numeric 32 char unique ID
+function generate_uid($value = null) {
+	if (function_exists('random_bytes')) {
+		return bin2hex(random_bytes(16));
+	}
+	else if (function_exists('openssl_random_pseudo_bytes')) {
+		return bin2hex(openssl_random_pseudo_bytes(16));
+	}
+	else {
+		return md5(uniqid(mt_rand(), true));
+	}
+}
+
 // Variable headers are not secure in php (HTTP response Splitting).
 // Better use viscacha_header() instead of header().
 // viscacha_header() removes \r, \n, \0

@@ -63,11 +63,6 @@ function is_hash($string) {
 	return (bool) preg_match("/^[a-f\d]{32}$/i", $string);
 }
 
-// Generates an alpha-numeric 32 char unique ID
-function generate_uid($value = null) {
-	return md5(uniqid($value, true));
-}
-
 function newCAPTCHA($place = null) {
 	global $config;
 	$place = 'botgfxtest'.iif(!empty($place), '_'.$place);
@@ -153,7 +148,7 @@ function checkRemotePic($pic, $id) {
 		return REMOTE_FILESIZE_ERROR;
 	}
 
-	$filename = generate_uid($id);
+	$filename = generate_uid();
 	$origfile = 'temp/'.$filename;
 	$filesystem->file_put_contents($origfile, $avatar_data);
 
@@ -763,9 +758,9 @@ function getip($dots = 4) {
 
 	$ips = array_unique($ips);
 
+	// Try to get a public IP
 	foreach ($ips as $ip) {
-		$found = !(check_ip($ip));
-		if ($found == false) {
+		if (check_ip($ip)) {
 			return ext_iptrim(trim($ip), $dots);
 		}
 	}
