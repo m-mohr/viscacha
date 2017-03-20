@@ -106,6 +106,8 @@ class DB extends DB_Driver { // MySQLi
 		ob_end_clean();
 
 		$this->quitOnError($die);
+		
+		$this->query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
 	}
 
 	function hasConnection(){
@@ -218,7 +220,6 @@ class DB extends DB_Driver { // MySQLi
 
 	function escape_string($value) {
 		$this->open();
-		$value = preg_replace("~\\\\(\r|\n)~", "\\ \\1", $value); // NL Hack
 		return mysqli_real_escape_string($this->conn, $value);
 	}
 
