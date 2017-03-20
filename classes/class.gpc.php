@@ -83,7 +83,8 @@ class GPC {
 				}
 			}
 			else if ($type == path) {
-				$var = convert2path(trim($value));
+				$var = $this->secure_null($value);
+				$var = convert2path(trim($var));
 			}
 			elseif ($type == int || $type == arr_int || $type == arr_str_int) {
 				if ($type == int && ($value === '' || $value === null)) {
@@ -191,7 +192,6 @@ class GPC {
 		}
 		elseif (is_string($var)){
 			global $db, $lang;
-			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var); // TODO: UTF8 - Remove
 			$var = $this->secure_null($var);
 			$var = viscacha_htmlentities($var, ENT_QUOTES, false); // TODO: UTF8 - Check this
 			if ($db_esc == true && is_object($db)) {
@@ -268,6 +268,9 @@ class GPC {
 			}
 		}
 		else {
+			if (!mb_check_encoding($data)) { // TODO: Implement this (prevention against overlong UTF-8) in a better, more central way
+				die('Error: Hacking attempt (Invalid Encoding)');
+			}
 			$data = str_replace("\0", '', $data);
 		}
 		return $data;
