@@ -1,10 +1,10 @@
 CREATE TABLE `{:=DBPREFIX=:}packages` (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
   `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `active` enum('0','1') NOT NULL NOT NULL DEFAULT '',
+  `active` enum('0','1') NOT NULL DEFAULT '0',
   `version` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `internal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `core` enum('0','1') NOT NULL NOT NULL DEFAULT '',
+  `core` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 

@@ -1,14 +1,14 @@
 CREATE TABLE `{:=DBPREFIX=:}menu` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `link` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `link` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `param` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `groups` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL NOT NULL DEFAULT '',
+  `groups` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `position` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'left',
-  `ordering` smallint(4) NOT NULL NOT NULL DEFAULT '',
-  `sub` int(10) NOT NULL NOT NULL DEFAULT '',
-  `module` int(10) NOT NULL NOT NULL DEFAULT '',
-  `active` enum('0','1') NOT NULL NOT NULL DEFAULT '',
+  `ordering` smallint(4) NOT NULL DEFAULT 0,
+  `sub` int(10) NOT NULL DEFAULT 0,
+  `module` int(10) NOT NULL DEFAULT 0,
+  `active` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 

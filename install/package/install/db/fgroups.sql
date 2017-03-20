@@ -8,8 +8,8 @@ CREATE TABLE `{:=DBPREFIX=:}fgroups` (
   `f_attachments` enum('0','1','-1') NOT NULL DEFAULT '-1',
   `f_edit` enum('0','1','-1') NOT NULL DEFAULT '-1',
   `f_voting` enum('0','1','-1') NOT NULL DEFAULT '-1',
-  `gid` smallint(5) unsigned NOT NULL NOT NULL DEFAULT '',
-  `bid` smallint(5) unsigned NOT NULL NOT NULL DEFAULT '',
+  `gid` smallint(5) unsigned NOT NULL,
+  `bid` smallint(5) unsigned NOT NULL,
   PRIMARY KEY  (`fid`),
   KEY `bid` (`bid`),
   KEY `gid` (`gid`)

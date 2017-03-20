@@ -259,7 +259,7 @@ function GPC_escape($var, $type = GPC_HTML){
 	elseif (is_string($var)){
 		$var = str_replace("\0", '', $var);
 		if ($type == GPC_HTML) {
-			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
+			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var); // TODO: UTF8 - Remove
 			$var = str_replace("\0", '', $var);
 			$var = viscacha_htmlentities($var, ENT_QUOTES, false);
 		}

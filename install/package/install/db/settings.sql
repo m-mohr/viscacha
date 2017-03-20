@@ -1,11 +1,11 @@
 CREATE TABLE `{:=DBPREFIX=:}settings` (
   `name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `type` enum('text','textarea','select','checkbox') NOT NULL DEFAULT 'text',
-  `optionscode` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL ,
+  `optionscode` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `sgroup` smallint(4) unsigned NOT NULL NOT NULL DEFAULT '',
+  `sgroup` smallint(4) unsigned NOT NULL DEFAULT 0,
   UNIQUE KEY `title` (`title`,`sgroup`)
 ) ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 

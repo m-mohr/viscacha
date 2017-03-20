@@ -191,7 +191,7 @@ class GPC {
 		}
 		elseif (is_string($var)){
 			global $db, $lang;
-			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
+			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var); // TODO: UTF8 - Remove
 			$var = $this->secure_null($var);
 			$var = viscacha_htmlentities($var, ENT_QUOTES, false); // TODO: UTF8 - Check this
 			if ($db_esc == true && is_object($db)) {

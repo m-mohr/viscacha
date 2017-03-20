@@ -1,7 +1,7 @@
 CREATE TABLE `{:=DBPREFIX=:}abos` (
   `id` bigint(12) unsigned NOT NULL auto_increment,
-  `mid` mediumint(7) unsigned NOT NULL NOT NULL DEFAULT '',
-  `tid` int(10) unsigned NOT NULL NOT NULL DEFAULT '',
+  `mid` mediumint(7) unsigned NOT NULL,
+  `tid` int(10) unsigned NOT NULL,
   `type` enum('','d','w','f') NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`),
   KEY `mid` (`mid`)
