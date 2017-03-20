@@ -73,7 +73,7 @@ class breadcrumb {
     function OutputPLAIN($seperator = ' > ') {
         $cache = array();
         foreach ($this->content as $key => $row) {
-        	$row['title'] = viscacha_viscacha_htmlspecialchars_decode($row['title']);
+        	$row['title'] = viscacha_htmlspecialchars_decode($row['title']); // TODO: UTF8 - Remove
             $cache[$key] = strip_tags($row['title']);
             $row['title'] = viscacha_htmlspecialchars($row['title']);
         }
