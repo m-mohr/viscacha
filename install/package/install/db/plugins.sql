@@ -1,10 +1,10 @@
 CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `module` mediumint(7) unsigned NOT NULL,
   `ordering` smallint(4) NOT NULL DEFAULT 0,
   `active` enum('0','1') NOT NULL DEFAULT '0',
-  `position` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'navigation',
+  `position` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'navigation',
   `required` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`),
   KEY `position` (`position`)

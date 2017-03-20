@@ -2,7 +2,7 @@ CREATE TABLE `{:=DBPREFIX=:}replies` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `topic` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `topic_id` int(10) unsigned NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `guest` enum('0','1') NOT NULL DEFAULT '0',
   `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `dosmileys` enum('0','1') NOT NULL DEFAULT '1',

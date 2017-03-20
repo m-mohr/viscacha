@@ -4,7 +4,7 @@ CREATE TABLE `{:=DBPREFIX=:}documents` (
   `date` int(10) unsigned NOT NULL DEFAULT 0,
   `update` int(10) unsigned NOT NULL DEFAULT 0,
   `type` tinyint(2) NOT NULL DEFAULT 0,
-  `groups` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `groups` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `icomment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;

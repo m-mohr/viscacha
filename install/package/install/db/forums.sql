@@ -9,7 +9,7 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `last_topic` int(10) unsigned NOT NULL DEFAULT 0,
   `count_posts` enum('0','1') NOT NULL DEFAULT '1',
   `opt` enum('','re','pw') NOT NULL DEFAULT '',
-  `optvalue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `optvalue` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `forumzahl` tinyint(3) unsigned NOT NULL DEFAULT 0,
   `topiczahl` tinyint(3) unsigned NOT NULL DEFAULT 0,
   `prefix` enum('0','1') NOT NULL DEFAULT '0',

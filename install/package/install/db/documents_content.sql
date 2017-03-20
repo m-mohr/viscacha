@@ -1,7 +1,7 @@
 CREATE TABLE `{:=DBPREFIX=:}documents_content` (
   `did` int(10) unsigned NOT NULL,
   `lid` smallint(4) unsigned NOT NULL,
-  `title` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `content` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `active` enum('0','1') NOT NULL DEFAULT '0',
   UNIQUE KEY `id` (`did`,`lid`)
