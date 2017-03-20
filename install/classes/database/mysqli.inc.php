@@ -24,7 +24,7 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-include_once(dirname(__FILE__)."/class.db_driver.php");
+include_once(__DIR__."/class.db_driver.php");
 
 class DB extends DB_Driver { // MySQLi
 

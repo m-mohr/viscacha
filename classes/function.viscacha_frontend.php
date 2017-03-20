@@ -312,7 +312,7 @@ function get_mimetype($file) {
 		case 'htm':
 			return array(
 				'mime' => 'text/html',
-				'browser' => 'inline'
+				'browser' => 'attachment' // inline might lead to an XSS attack
 			);
 		case 'pdf':
 			return array(

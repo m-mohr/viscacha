@@ -135,7 +135,7 @@ elseif ($_GET['action'] == 'edit') {
 		$user['timezone'] = $config['timezone'];
 	}
 
-	$random = md5(microtime());
+	$random = generate_uid();
 
 	$customfields = admin_customfields($user['id']);
 
@@ -276,9 +276,9 @@ elseif ($_GET['action'] == 'edit2') {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		if (!empty($_POST['pw']) && mb_strxlen($_POST['pw']) >= $config['minpwlength']) {
-			$md5 = md5($_POST['pw']);
-			$update_sql = ", pw = '{$md5}' ";
+		if (!empty($_POST['pw']) && mb_strlen($_POST['pw']) >= $config['minpwlength']) {
+			$hashed_pw = hash_pw($_POST['pw']);
+			$update_sql = ", pw = '{$hashed_pw}' ";
 		}
 		else {
 			$update_sql = ' ';

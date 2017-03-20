@@ -1253,8 +1253,8 @@ elseif ($job == 'register2') {
 
 	$name = $gpc->get('name', str);
 	$email = $gpc->get('email', db_esc);
-	$pw = $gpc->get('pw', str);
-	$pwx = $gpc->get('pwx', str);
+	$pw = $gpc->get('pw', none);
+	$pwx = $gpc->get('pwx', none);
 
 	$error = array();
 	if (double_udata('name', $name) == false) {
@@ -1269,10 +1269,10 @@ elseif ($job == 'register2') {
 	if (mb_strxlen($name) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_short');
 	}
-	if (strxlen($pw) > $config['maxpwlength']) {
+	if (mb_strlen($pw) > $config['maxpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_long');
 	}
-	if (mb_strxlen($pw) < $config['minpwlength']) {
+	if (mb_strlen($pw) < $config['minpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_short');
 	}
 	if (strlen($email) > 200) {
@@ -1295,9 +1295,8 @@ elseif ($job == 'register2') {
 	}
 	else {
 		$reg = time();
-		$pw_md5 = md5($pwx);
 
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$name}', '{$pw_md5}', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '')");
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$name}', '".hash_pw($pw)."', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '')");
 		$redirect = $db->insert_id();
 
 		addprofile_customsave($custom['data'], $redirect);
@@ -1568,7 +1567,7 @@ elseif ($job == 'edit2') {
 	else {
 		$query['name'] = $name;
 	}
-	$query['pw'] = $gpc->get('pw_'.$random, str);
+	$query['pw'] = $gpc->get('pw_'.$random, none);
 
 	$query['hp'] = trim($query['hp']);
 	if (mb_strtolower(mb_substr($query['hp'], 0, 4)) == 'www.') {
@@ -1686,8 +1685,7 @@ elseif ($job == 'edit2') {
 		$bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
 
 		if (!empty($query['pw']) && mb_strlen($query['pw']) >= $config['minpwlength']) {
-			$md5 = md5($query['pw']);
-			$update_sql = ", pw = '{$md5}' ";
+			$update_sql = ", pw = '{".hash_pw($query['pw'])."}' ";
 		}
 		else {
 			$update_sql = ' ';

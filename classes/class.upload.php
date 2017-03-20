@@ -49,7 +49,7 @@ class uploader {
 	 */
 	function __construct() {
 		$this->file = array();
-		$this->path = dirname(__FILE__).DIRECTORY_SEPARATOR;
+		$this->path = __DIR__.DIRECTORY_SEPARATOR;
 		$this->file_types = array();
 		$this->new_filename = null;
 		$this->error = null;
@@ -237,6 +237,8 @@ class uploader {
 	 * @return	boolean
 	 */
 	function save_file($path = null, $overwrite_mode = 0){
+		global $filesystem;
+
 		if ($this->error != null) {
 			return false;
 		}
@@ -288,11 +290,8 @@ class uploader {
 				}
 			break;
 			default: // create new with incremental extension
-				$n = 0;
-				while(file_exists($new_path) == true) {
-					$n++;
-					$new_path =  $this->path.$this->file['raw_name'].'_'.$n.'.'.$this->file['extension'];
-				}
+				
+				$new_path = $filesystem->new_filename($new_path);
 				if ($n > 0) {
 					$this->file['raw_name'] .= '_'.$n;
 				}
@@ -311,13 +310,8 @@ class uploader {
 		if(mb_substr($this->file['type'], 0, 4) == 'text') {
 			$this->cleanup_text_file();
 		}
-		if (isset($GLOBALS['filesystem'])) {
-			global $filesystem;
-			$filesystem->chmod($this->file['tmp_name'], 0666);
-		}
-		else {
-			@chmod($this->file['tmp_name'], 0666);
-		}
+
+		$filesystem->chmod($this->file['tmp_name'], 0666);
 
 		return $success;
 	}

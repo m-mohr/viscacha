@@ -30,7 +30,7 @@ date_default_timezone_set(@date_default_timezone_get());
 /* Fixed php functions */
 
 // IDNA Convert Class
-include_once (dirname(__FILE__).'/class.idna.php');
+include_once (__DIR__.'/class.idna.php');
 
 function convert_host_to_idna($host) {
 	$idna = new idna_convert();
@@ -48,7 +48,7 @@ function is_id ($x) {
 }
 
 // Generates an alpha-numeric 32 char unique ID
-function generate_uid($value = null) {
+function generate_uid() {
 	if (function_exists('random_bytes')) {
 		return bin2hex(random_bytes(16));
 	}

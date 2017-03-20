@@ -112,18 +112,12 @@ if ($job == 'upload') {
 	}
 	else {
 		if ($cfg == 'captcha_fonts') {
-			$n = 1;
-			while(file_exists($dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf')) {
-				$n++;
-			}
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf');
+			$new_file = $filesystem->new_filename($dir.DIRECTORY_SEPARATOR.'captcha.ttf');
+			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $new_file);
 		}
 		elseif ($cfg == 'captcha_noises') {
-			$n = 1;
-			while(file_exists($dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg')) {
-				$n++;
-			}
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg');
+			$new_file = $filesystem->new_filename($dir.DIRECTORY_SEPARATOR.'noise.jpg');
+			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $new_file);
 		}
 		ok($url, $lang->phrase('admin_explorer_upload_ready'));
 	}

@@ -194,7 +194,7 @@ if ($_GET['action'] == "search") {
 			'sort' => $gpc->get('sort', str),
 			'order' => $gpc->get('order', str)
 		);
-		$fid = md5(microtime());
+		$fid = generate_uid();
 		file_put_contents('cache/search/'.$fid.'.inc.php', serialize($data));
 		$slog->updatelogged();
 		$db->close();

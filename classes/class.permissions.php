@@ -731,38 +731,18 @@ function sid_logout() {
 function sid_login($remember = true) {
 	global $my, $config, $db, $gpc, $scache;
 	$username = $gpc->get('name', str);
-	$pw = $gpc->get('pw', str);
+	$pw = $gpc->get('pw', none);
 
 	$result = $db->query("
 	SELECT u.*, f.*, u.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM {$db->pre}user AS u
 		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}')
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id
-	WHERE u.name = '{$username}' AND u.pw = MD5('{$pw}')
+	WHERE u.name = '{$username}'
 	");
-	$sessions = $db->num_rows($result);
-
-	if ($sessions > 1) {
-		while ($row = $db->fetch_object($result)) {
-			if ($row->sid == $this->sid) {
-				$mytemp = $this->cleanUserData($row);
-				break;
-			}
-		}
-		if (!isset($mytemp)) {
-			$mytemp = $this->cleanUserData($row);
-			unset($row);
-		}
-		else {
-			unset($row);
-			$db->query("DELETE FROM {$db->pre}session WHERE mid = '{$mytemp->id}' AND sid != '{$mytemp->sid}'");
-		}
-	}
-	else {
-		$mytemp = $this->cleanUserData($db->fetch_object($result));
-	}
-
-	if ($sessions > 0 && $mytemp->confirm == '11') {
+	$mytemp = $db->fetch_object($result);
+	if (is_object($mytemp) && check_pw($pw, $mytemp->pw) && $mytemp->confirm == '11') {
+		$mytemp = $this->cleanUserData($mytemp);
 
 		$mytemp->mark = $my->mark;
 		$mytemp->pwfaccess = $my->pwfaccess;

@@ -1,7 +1,7 @@
 CREATE TABLE `{:=DBPREFIX=:}user` (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `pw` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pw` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `regdate` int(10) unsigned NOT NULL DEFAULT 0,
   `posts` mediumint(7) unsigned NOT NULL DEFAULT 0,

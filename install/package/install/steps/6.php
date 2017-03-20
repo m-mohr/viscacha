@@ -22,7 +22,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('langdir', int);
 	$langdir = $c->data['langdir'];
 	if (empty($c->data['cryptkey']) == true) {
-		$c->updateconfig('cryptkey', str, md5(microtime()));
+		$c->updateconfig('cryptkey', str, generate_uid());
 	}
 	$c->updateconfig('foffline', int, 1);
 	$c->updateconfig('version', str, VISCACHA_VERSION);
