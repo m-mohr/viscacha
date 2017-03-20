@@ -107,7 +107,7 @@ class DB extends DB_Driver { // MySQLi
 
 		$this->quitOnError($die);
 		
-		$this->query("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+		mysqli_set_charset($this->conn, 'utf8mb4');
 	}
 
 	function hasConnection(){
