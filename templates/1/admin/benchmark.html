@@ -20,9 +20,9 @@
 	<td width="25%"><?php echo $db->benchmark('time'); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
 </tr><tr class="tbody">
 	<td width="25%"><strong><?php echo $lang->phrase('benchmark_templates'); ?></strong></td>
-	<td width="25%"><?php echo $this->benchmark['all']; ?> (<?php echo $this->benchmark['error']; ?> <?php echo $lang->phrase('benchmark_failed'); ?>)</td>
+	<td width="25%"><?php echo $tpl->benchmark['all']; ?> (<?php echo $tpl->benchmark['error']; ?> <?php echo $lang->phrase('benchmark_failed'); ?>)</td>
 	<td width="25%"><strong><?php echo $lang->phrase('benchmark_templates_time'); ?></strong></td>
-	<td width="25%"><?php echo round($this->benchmark['time'], 5); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
+	<td width="25%"><?php echo round($tpl->benchmark['time'], 5); ?> <?php echo $lang->phrase('benchmark_sec'); ?></td>
 </tr>
 <?php if ($bbcode->existsProfile('standard')) { ?>
 <tr class="tbody">
@@ -36,7 +36,7 @@
 	<td width="50%" colspan="2" valign="top" class='stext'>
 	<strong><?php echo $lang->phrase('benchmark_templates'); ?></strong><br />
 	<?php
-	foreach ($this->benchmark['detail'] as $row) {
+	foreach ($tpl->benchmark['detail'] as $row) {
 	    echo '<i'.iif(($zeitmessung/33) < $row['time'], ' style="color: red;"').'>'.$row['time'].'</i>: '.$row['file'].'<br />';
 	}
 	?>

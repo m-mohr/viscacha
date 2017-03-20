@@ -24,163 +24,109 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+require "classes/class.bladeone.php";
+
 class tpl {
 
-	var $dir;
-	var $altdir;
-	var $contents;
-	var $vars;
-	var $oldvars;
-	var $benchmark;
-	var $sent;
-	var $imgdir;
-	var $stdimgdir;
+	private $dir;
+	private $vars;
+	public $benchmark;
+	private $sent;
+	private $imgdir;
+	private $blade;
 
-
-	function __construct() {
+	public function __construct() {
 		global $config, $my, $gpc, $scache;
 
 		$admin = $gpc->get('admin', str);
 
 		if ($admin != $config['cryptkey']) {
 			$fresh = false;
-		}
-		else {
+		} else {
 			$fresh = true;
 		}
 		$loaddesign_obj = $scache->load('loaddesign');
 		$cache = $loaddesign_obj->get($fresh);
 
-		$this->dir = '';
-		$this->altdir = './templates/'.$cache[$config['templatedir']]['template'].'/';
-		if (!empty($my->imagesid) && $my->imagesid != $cache[$config['templatedir']]['images']) {
-			$this->imgdir = './images/'.$cache[$my->template]['images'].'/';
+		if (!empty($my->templateid) && $my->templateid != $cache[$config['templatedir']]['template']) {
+			$this->dir = 'templates/' . $cache[$my->template]['template'];
+		} else {
+			$this->dir = 'templates/' . $cache[$config['templatedir']]['template'];
 		}
-		else {
-			$this->imgdir = false;
+		if (!is_dir($this->dir)) {
+			trigger_error('Template directory does not exist', E_USER_ERROR);
 		}
-		$this->stdimgdir = './images/'.$cache[$config['templatedir']]['images'].'/';
 
-		$this->contents = '';
-		$this->benchmark = array('all' => 0, 'ok' => 0, 'error' => 0, 'time' => 0, 'detail' => array('0' => array('time' => 'N/A', 'file' => 'footer.html')) );
-		$this->vars = $this->oldvars = array();
+		if (!empty($my->imagesid) && $my->imagesid != $cache[$config['templatedir']]['images']) {
+			$this->imgdir = 'images/' . $cache[$my->template]['images'] . '/';
+		} else {
+			$this->imgdir = 'images/' . $cache[$config['templatedir']]['images'] . '/';
+		}
+		if (!is_dir($this->imgdir)) {
+			trigger_error('Image directory does not exist', E_USER_WARNING);
+		}
+
+		$this->benchmark = array('all' => 0, 'ok' => 0, 'error' => 0, 'time' => 0, 'detail' => array('0' => array('time' => 'N/A', 'file' => 'footer.html')));
+		$this->vars = array();
 		$this->sent = array();
 
-		if (!$this->setdir()) {
-			trigger_error('Template-Directory does not exist', E_USER_ERROR);
-		}
+		$this->blade = new eftec\bladeone\BladeOne($this->dir, 'cache/' . $this->dir);
+		$this->blade->setFileExtension('.html');
 	}
 
-	function img ($name) {
+	public function img($name) {
 		$gif = '.gif';
 		$png = '.png';
-		if ($this->imgdir != false && file_exists($this->imgdir.$name.$gif)) {
-			return $this->imgdir.$name.$gif;
-		}
-		elseif ($this->imgdir != false && file_exists($this->imgdir.$name.$png)) {
-			return $this->imgdir.$name.$png;
-		}
-		elseif (file_exists($this->stdimgdir.$name.$gif)) {
-			return $this->stdimgdir.$name.$gif;
-		}
-		elseif (file_exists($this->stdimgdir.$name.$png)) {
-			return $this->stdimgdir.$name.$png;
-		}
-		else {
+		if ($this->imgdir != false && file_exists($this->imgdir . $name . $gif)) {
+			return $this->imgdir . $name . $gif;
+		} elseif ($this->imgdir != false && file_exists($this->imgdir . $name . $png)) {
+			return $this->imgdir . $name . $png;
+		} else {
 			return 'images/empty.gif';
 		}
 	}
 
-    function globalvars ($vars) {
-    	$this->oldvars = array_merge($this->vars, $this->oldvars);
-        $this->vars = $vars;
-    }
+	public function globalvars($vars) {
+		$this->vars = array_merge($this->vars, $vars);
+	}
 
-    function exists($thisfile, $thisext='html') {
-		$thisext = '.'.$thisext;
-		if (file_exists($this->dir.$thisfile.$thisext) || file_exists($this->altdir.$thisfile.$thisext)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-    }
+	public function exists($file) {
+		return file_exists($this->getPath($file));
+	}
 
-	function parse($thisfile, $thisext='html') {
+	public function parse($file) {
+		$start = benchmarktime();
+		$this->benchmark['all'] ++;
 
-    	$thiszm1=benchmarktime();
-		$this->benchmark['all']++;
-
-		$file_unique = FALSE;
-		$thisext = '.'.$thisext;
-
-		if (file_exists($this->dir.$thisfile.$thisext)) {
-			$file_unique = $this->dir.$thisfile.$thisext;
-		}
-		elseif (file_exists($this->altdir.$thisfile.$thisext)) {
-			$file_unique = $this->altdir.$thisfile.$thisext;
+		$tplpath = $this->getPath($file);
+		if (!file_exists($tplpath)) {
+			$this->benchmark['error'] ++;
+			$this->benchmark['detail'][] = array('time' => 0, 'file' => $tplpath);
+			return "<!-- File does not exist: {$tplpath} -->";
 		}
 
-		if ($file_unique == FALSE) {
-		    $this->benchmark['error']++;
-		    $this->benchmark['detail'][] = array('time' => 0, 'file' => $thisfile.$thisext);
-			return '<!-- File does not exist: '.$this->dir.$thisfile.$thisext.' and '.$this->altdir.$thisfile.$thisext.' -->';
-		}
+		$content = $this->blade->run(
+			str_replace('/', '.', $file),
+			array_merge($GLOBALS, $this->vars)
+		);
 
-		extract($GLOBALS, EXTR_SKIP);
-		extract($this->oldvars, EXTR_SKIP);
-		extract($this->vars);
-
-        $this->benchmark['ok']++;
-
-		ob_start();
-		include($file_unique);
-		$this->contents = ob_get_contents();
-		ob_end_clean();
-
-		$this->sent[] = $thisfile.$thisext;
-		$this->oldvars = array_merge($this->vars, $this->oldvars);
+		$this->sent[] = $tplpath;
 		$this->vars = array();
 
-    	$thiszm2=benchmarktime();
+		$delta = benchmarktime() - $start;
+		$this->benchmark['ok'] ++;
+		$this->benchmark['time'] += $delta;
+		$this->benchmark['detail'][] = array('time' => mb_substr($delta, 0, 7), 'file' => $tplpath);
 
-    	$this->benchmark['time'] += $thiszm2-$thiszm1;
-
-    	$this->benchmark['detail'][] = array('time' => mb_substr($thiszm2-$thiszm1,0,7), 'file' => $file_unique);
-
-        return $this->contents;
+		return $content;
 	}
 
-	function setdir($dirv = null) {
-		if ($dirv == null) {
-			global $my;
-			$dirv = $my->templateid;
-		}
-
-		$dir = "./templates/{$dirv}/";
-		if (is_dir($dir)) {
-			$this->dir = $dir;
-			return true;
-		}
-		else {
-			$this->dir = $this->altdir;
-			return false;
-		}
+	public function tplsent($file) {
+		return in_array($this->getPath($file), $this->sent);
 	}
-
-	function getdir() {
-		return $this->dir;
-	}
-
-	function tplsent($file,$ext='html') {
-		$tpl = $file.'.'.$ext;
-		if(in_array($tpl, $this->sent)) {
-			return TRUE;
-		}
-		else {
-			return FALSE;
-		}
+	
+	protected function getPath($file) {
+		return $this->dir . DIRECTORY_SEPARATOR . $file . $this->blade->getFileExtension();
 	}
 
 }
-?>
