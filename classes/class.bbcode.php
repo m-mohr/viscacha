@@ -281,7 +281,7 @@ class BBCode {
 			$i++;
 			if (!empty($type)) {
 				if ($type == 'a' || $type == 'A') {
-					$a = $this->convertNumToLetter(i);
+					$a = $this->convertNumToLetter($i);
 					if ($type == 'a') {
 						$a = strtolower($a);
 					}
