@@ -143,7 +143,7 @@
 </tr>
 <?php foreach ($smileys as $smiley) { ?>
 <tr class="tbody">
-	<td class="center"><img src="<?php echo $smiley['replace']; ?>" alt="<?php echo htmlspecialchars($smiley['desc']); ?>" /></td>
+	<td class="center"><img src="<?php echo $smiley['replace']; ?>" alt="<?php echo viscacha_htmlspecialchars($smiley['desc']); ?>" /></td>
 	<td class="center"><input type="text" class="center" size="10" value=" <?php echo $smiley['search']; ?> " /></td>
 	<td><?php echo $smiley['desc']; ?></td>
 </tr>

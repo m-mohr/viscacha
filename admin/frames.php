@@ -10,7 +10,7 @@ if ($job == 'menu') {
 	<html>
 	<head>
 	<title><?php echo $lang->phrase("admin_navigationtitle");?></title>
-	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta http-equiv="pragma" content="no-cache">
 	<link rel="stylesheet" type="text/css" href="admin/html/menu.css">
 	<link rel="copyright" href="http://www.viscacha.org">
@@ -135,7 +135,7 @@ else {
 <html>
  <head>
   <title><?php echo $lang->phrase("admin_navigationtitle");?></title>
-  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
   <meta http-equiv="pragma" content="no-cache" />
   <link rel="copyright" href="http://www.viscacha.org" />
  </head>

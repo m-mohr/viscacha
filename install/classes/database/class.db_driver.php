@@ -93,7 +93,7 @@ class DB_Driver { // abstract class
     }
 
     // offset = -1 => Alle Zeilen
-    // offset >= 0 => Ab offset die nächsten $this->std_limit Zeilen
+    // offset >= 0 => Ab offset die nÃ¤chsten $this->std_limit Zeilen
     function getData($table, $offset = -1) {
 	    $table_data = $this->new_line. $this->commentdel.' Data: ' .$table . iif ($offset != -1, ' {'.$offset.', '.($offset+$this->std_limit).'}' ). $this->new_line;
      	// Datensaetze vorhanden?
@@ -127,15 +127,15 @@ class DB_Driver { // abstract class
 		$lines = array_map("trim", $lines);
 		$line = '';
 		foreach ($lines as $h) {
-			$comment = substr($h, 0, 2);
-			if ($comment == '--' || $comment == '//' || strlen($h) <= 10) {
+			$comment = mb_substr($h, 0, 2);
+			if ($comment == '--' || $comment == '//' || mb_strlen($h) <= 10) {
 				continue;
 			}
 			$line .= $h."\n";
 		}
 		$lines = explode(";\n", $line);
 		foreach ($lines as $h) {
-			if (strlen($h) > 10) {
+			if (mb_strlen($h) > 10) {
 				unset($result);
 				$result = $this->query($h, $die);
 				if ($this->isResultSet($result)) {
@@ -266,41 +266,6 @@ class DB_Driver { // abstract class
 			$columns[] = $row['Field'];
 		}
 		return $columns;
-	}
-
-	function cb_unescape_string($m) { // NL Hack
-		if ($m[1] == '\\\\') {
-			return '\\'.$m[2];
-		}
-		else {
-			switch($m[2]) {
-				case 'n':
-					return "\n";
-				case 'r':
-					return "\r";
-				case '0':
-					return "\0";
-				default:
-					return "\Z";
-			}
-		}
-	}
-
-	// mysqli_real_escape_string() prepends backslashes to: \x00, \n, \r, \, ', " and \x1a.
-	function unescape_string($value) { // NL Hack
-		$value = preg_replace_callback(
-			'~(\\\\\\\\|\\\\)(n|r|0|Z)~',
-			array(&$this, 'cb_unescape_string'),
-			$value
-		);
-
-		$value = str_replace(
-			array("\\'", '\\"', '\\\\'),
-			array("'",   '"',   '\\'),
-			$value
-		);
-
-		return $value;
 	}
 
 	function fetch_one($result = null) {

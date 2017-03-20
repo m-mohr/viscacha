@@ -10,7 +10,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('fname', html_enc);
 	$c->updateconfig('fdesc', html_enc);
 	$_REQUEST['furl'] = empty($_REQUEST['furl']) ? getFUrl() : $_REQUEST['furl'];
-	if (strtolower(substr($_REQUEST['furl'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($_REQUEST['furl'], 0, 4)) == 'www.') {
 		$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
 		$_REQUEST['furl'] = $https.$_REQUEST['furl'];
 	}

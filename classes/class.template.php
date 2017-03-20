@@ -146,7 +146,7 @@ class tpl {
 
     	$this->benchmark['time'] += $thiszm2-$thiszm1;
 
-    	$this->benchmark['detail'][] = array('time' => substr($thiszm2-$thiszm1,0,7), 'file' => $file_unique);
+    	$this->benchmark['detail'][] = array('time' => mb_substr($thiszm2-$thiszm1,0,7), 'file' => $file_unique);
 
         return $this->contents;
 	}

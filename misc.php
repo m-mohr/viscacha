@@ -110,7 +110,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 		if (flood_protect() == false) {
 			$error[] = $lang->phrase('flood_control');
 		}
-		if (strxlen($_POST['comment']) < $config['minpostlength']) {
+		if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
 			$error[] = $lang->phrase('comment_too_short');
 		}
 		if (count($error) > 0) {
@@ -214,7 +214,7 @@ elseif ($_GET['action'] == "wwo") {
 			$row->name = $lang->phrase('fallback_no_username');
 		}
 
-		switch (strtolower($row->wiw_script)) {
+		switch (mb_strtolower($row->wiw_script)) {
 		case 'managetopic':
 		case 'managemembers':
 		case 'manageforum':
@@ -640,8 +640,8 @@ elseif ($_GET['action'] == "markasread") {
 	$my->p = $slog->Permissions();
 	if (check_hp($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
-		if (strpos($config['furl'], $url['host']) !== FALSE) {
-			$loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
+		if (mb_strpos($config['furl'], $url['host']) !== FALSE) {
+			$loc = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);
 		}
 	}
 	if (empty($loc)) {

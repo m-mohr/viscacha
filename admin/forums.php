@@ -557,19 +557,19 @@ elseif ($job == 'forum_edit2') {
 		$error[] = $lang->phrase('admin_forum_invalid_id');
 	}
 	$data = $db->fetch_assoc($result);
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		$error[] = $lang->phrase('admin_forum_name_short');
 	}
-	if (strlen($name) > 200) {
+	if (mb_strlen($name) > 200) {
 		$error[] = $lang->phrase('admin_forum_name_long');
 	}
-	if ($message_active > 0 && strlen($message_title) < 2) {
+	if ($message_active > 0 && mb_strlen($message_title) < 2) {
 		$error[] = $lang->phrase('admin_forum_rules_title_short');
 	}
-	if ($message_active > 0 && strlen($message_title) > 200) {
+	if ($message_active > 0 && mb_strlen($message_title) > 200) {
 		$error[] = $lang->phrase('admin_forum_rules_title_long');
 	}
-	if (strlen($opt_re) > 255) {
+	if (mb_strlen($opt_re) > 255) {
 		$error[] = $lang->phrase('admin_forum_link_too_long');
 	}
 	$result = $db->query("SELECT id FROM {$db->pre}categories WHERE id = '{$parent}' LIMIT 1");
@@ -622,14 +622,14 @@ elseif ($job == 'forum_edit2') {
 		}
 		$topic_notification = implode("\n", $topic_notification);
 
-		if (strlen($opt_re) > 0) {
+		if (mb_strlen($opt_re) > 0) {
 			$opt = 're';
 			$optvalue = $opt_re;
 			if ($invisible == 1) {
 				$invisible = 0;
 			}
 		}
-		elseif (strlen($opt_pw) > 0) {
+		elseif (mb_strlen($opt_pw) > 0) {
 			$opt = 'pw';
 			$optvalue = $opt_pw;
 			if ($invisible == 1) {
@@ -839,19 +839,19 @@ elseif ($job == 'forum_add2') {
 	$post_order = $gpc->get('post_order', int);
 
 	$error = array();
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		$error[] = $lang->phrase('admin_forum_name_short');
 	}
-	if (strlen($name) > 200) {
+	if (mb_strlen($name) > 200) {
 		$error[] = $lang->phrase('admin_forum_name_long');
 	}
-	if ($message_active > 0 && strlen($message_title) < 2) {
+	if ($message_active > 0 && mb_strlen($message_title) < 2) {
 		$error[] = $lang->phrase('admin_forum_rules_title_short');
 	}
-	if ($message_active > 0 && strlen($message_title) > 200) {
+	if ($message_active > 0 && mb_strlen($message_title) > 200) {
 		$error[] = $lang->phrase('admin_forum_rules_title_long');
 	}
-	if (strlen($opt_re) > 255) {
+	if (mb_strlen($opt_re) > 255) {
 		$error[] = $lang->phrase('admin_forum_link_too_long');
 	}
 	$result = $db->query("SELECT id FROM {$db->pre}categories WHERE id = '{$parent}' LIMIT 1");
@@ -937,14 +937,14 @@ elseif ($job == 'forum_add2') {
 			}
 		}
 
-		if (strlen($opt_re) > 0) {
+		if (mb_strlen($opt_re) > 0) {
 			$opt = 're';
 			$optvalue = $opt_re;
 			if ($invisible == 1) {
 				$invisible = 0;
 			}
 		}
-		elseif (strlen($opt_pw) > 0) {
+		elseif (mb_strlen($opt_pw) > 0) {
 			$opt = 'pw';
 			$optvalue = $opt_pw;
 			if ($invisible == 1) {
@@ -1292,10 +1292,10 @@ elseif ($job == 'cat_add2') {
 	$description = $gpc->get('description', db_esc);
 	$position = null;
 
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		error('admin.php?action=forums&job=cat_add', $lang->phrase('admin_forum_name_short'));
 	}
-	elseif (strlen($name) > 200) {
+	elseif (mb_strlen($name) > 200) {
 		error('admin.php?action=forums&job=cat_add', $lang->phrase('admin_forum_name_long'));
 	}
 
@@ -1415,10 +1415,10 @@ elseif ($job == 'cat_edit2') {
 		}
 	}
 
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		error('admin.php?action=forums&job=cat_edit&id='.$id, $lang->phrase('admin_forum_name_short'));
 	}
-	elseif (strlen($name) > 200) {
+	elseif (mb_strlen($name) > 200) {
 		error('admin.php?action=forums&job=cat_edit&id='.$id, $lang->phrase('admin_forum_name_long'));
 	}
 
@@ -1526,7 +1526,7 @@ elseif ($job == 'prefix_edit') {
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_value'); ?></td>
-   <td class="mbox" width="50%"><input type="text" name="name" size="50" value="<?php echo htmlspecialchars($row['value']); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="name" size="50" value="<?php echo viscacha_htmlspecialchars($row['value']); ?>" /></td>
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_standard'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_prefix_category_status'); ?></span></td>

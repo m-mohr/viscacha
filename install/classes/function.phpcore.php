@@ -29,20 +29,12 @@ date_default_timezone_set(@date_default_timezone_get());
 
 /* Fixed php functions */
 
-define('ENCODING_LIST', 'ISO-8859-1, ISO-8859-15, UTF-8, ASCII, cp1252, cp1251, GB2312, SJIS, KOI8-R');
 // IDNA Convert Class
 include_once (dirname(__FILE__).'/class.idna.php');
 
 function convert_host_to_idna($host) {
 	$idna = new idna_convert();
-	if (function_exists('mb_convert_encoding')) {
-		$host = mb_convert_encoding($host, 'UTF-8', ENCODING_LIST);
-	}
-	else {
-		$host = utf8_encode($host);
-	}
-	$host = $idna->encode($host);
-	return $host;
+	return $idna->encode($host);
 }
 
 function fsockopen_idna($host, $port, $timeout) {
@@ -68,6 +60,22 @@ function viscacha_header($header, $replace = true, $code = 0) {
 	else {
 		header($header, $replace);
 	}
+}
+
+function viscacha_htmlentities($text, $quote = ENT_QUOTES, $double_encode = TRUE) {
+	return htmlentities($text, $quote, 'UTF-8', $double_encode);
+}
+
+function viscacha_html_entity_decode($text, $quote = ENT_QUOTES) {
+	return html_entity_decode($text, $quote, 'UTF-8');
+}
+
+function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES, $double_encode = TRUE) {
+	return htmlspecialchars($text, $quote, 'UTF-8', $double_encode);
+}
+
+function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES) {
+	return htmlspecialchars_decode($text, $quote);
 }
 
 /**
@@ -163,13 +171,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+	if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
-	elseif (isset($_SERVER['OS']) && strpos(strtolower($_SERVER['OS']), 'Windows') !== false) {
+	elseif (isset($_SERVER['OS']) && mb_strpos(mb_strtolower($_SERVER['OS']), 'Windows') !== false) {
 		return true;
 	}
-	elseif (function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
+	elseif (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows')) {
 		return true;
 	}
 	else {
@@ -177,7 +185,7 @@ function isWindows() {
 	}
 }
 function isMac() {
-	$mac = strtoupper(substr(PHP_OS, 0, 3));
+	$mac = mb_strtoupper(mb_substr(PHP_OS, 0, 3));
 	return ($mac == 'MAC' || $mac == 'DAR');
 }
 
@@ -199,7 +207,7 @@ function isMac() {
 function getDocumentRoot(){
 	//sets up the localpath
 	$localpath = getenv("SCRIPT_NAME");
- 	$localpath = substr($localpath, strpos($localpath, '/', iif(strlen($localpath) >= 1, 1, 0)), strlen($localpath));
+ 	$localpath = mb_substr($localpath, mb_strpos($localpath, '/', iif(mb_strlen($localpath) >= 1, 1, 0)), mb_strlen($localpath));
 
 	//realpath sometimes doesn't work, but gets the full path of the file
 	$absolutepath = realpath($localpath);
@@ -213,7 +221,7 @@ function getDocumentRoot(){
 	}
 
 	//prepares the document root string
-	$docroot = substr($absolutepath,0,strpos($absolutepath,$localpath));
+	$docroot = mb_substr($absolutepath,0,mb_strpos($absolutepath,$localpath));
 	return $docroot;
 }
 
@@ -230,27 +238,15 @@ function extract_dir($source, $realpath = true) {
 	else {
 		$source = rtrim($source, '/\\');
 	}
-	$pos = strrpos($source, '/');
+	$pos = mb_strrpos($source, '/');
 	if ($pos === false) {
-		$pos = strrpos($source, '\\');
+		$pos = mb_strrpos($source, '\\');
 	}
 	if ($pos > 0) {
-		$dest = substr($source, 0, $pos+1);
+		$dest = mb_substr($source, 0, $pos+1);
 	}
 	else {
 		$dest = '';
 	}
 	return $dest;
 }
-
-/* Error constants */
-if (!defined('E_RECOVERABLE_ERROR')) {
-	define('E_RECOVERABLE_ERROR', 4096);
-}
-if (!defined('E_DEPRECATED')) {
-	define('E_DEPRECATED', 8192);
-}
-if (!defined('E_USER_DEPRECATED')) {
-	define('E_USER_DEPRECATED', 16384);
-}
-?>

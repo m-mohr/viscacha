@@ -102,7 +102,7 @@ $ini = array (
   array (
     'language_de' => 
     array (
-      'digest_d' => 'Tägliche E-Mail-Benachrichtigung',
+      'digest_d' => 'TÃ¤gliche E-Mail-Benachrichtigung',
       'digest_none' => 'Keine Benachrichtigung',
       'img_captcha_session_expired_error' => 'Seite aktualisieren',
       'digest_f' => 'Nur Favorit',
@@ -132,7 +132,7 @@ while (false !== ($entry = $dir->read())) {
 		}
 		if (empty($css)) {
 			echo "<br />!!! <strong>Warning:</strong> Updating {$path} failed. Plase add the following CSS code to your main css file in designs/{$entry}:<br /><code>";
-			echo htmlentities($newCss);
+			echo viscacha_htmlentities($newCss);
 			echo "</code><br /><br />";
 		}
 	}
@@ -148,7 +148,7 @@ $dirs = array('cache/', 'cache/modules/');
 foreach ($dirs as $dir) {
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (strpos($file, '.php') !== false) {
+			if (mb_strpos($file, '.php') !== false) {
 				$filesystem->unlink($dir.$file);
 			}
 	    }

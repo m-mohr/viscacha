@@ -144,14 +144,14 @@ function ajax_searchmember(name, key) {
 		inline.innerHTML = '';
 	}
 }
-// Sucht nach Nutzernamen (PN) - Einfügen d. Nutzernamens
+// Sucht nach Nutzernamen (PN) - EinfÃ¼gen d. Nutzernamens
 function ajax_smIns(name) {
 	inline = FetchElement('membersuggest_name');
 	inline.value = name;
 	inline2 = FetchElement('membersuggest');
 	inline2.innerHTML = '';
 }
-// Sucht nach ignorierten Wörtern
+// Sucht nach ignorierten WÃ¶rtern
 function ajax_search(words, key) {
 	if (typeof key == 'number') { // undefined on blur
 		// Space (32), DEL (46), Backspace (8), "," (188)

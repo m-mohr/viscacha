@@ -109,7 +109,7 @@ else {
 	while (($file = readdir($dh)) !== false) {
 		$info = pathinfo($path.$file);
 		if ($info['extension'] == 'sql') {
-			$basename = substr($info['basename'], 0, -(strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));;
+			$basename = mb_substr($info['basename'], 0, -(mb_strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));;
 			$t = $db->pre.$basename;
 			unset($counter);
 			$select = array();

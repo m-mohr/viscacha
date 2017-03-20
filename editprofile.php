@@ -55,7 +55,7 @@ if ($_GET['action'] == "pw2") {
 	if (strlen($_POST['pwx']) > 200) {
 		$error[] = $lang->phrase('pw_too_long');
 	}
-	if (strxlen($_POST['pwx']) < 3) {
+	if (mb_strxlen($_POST['pwx']) < 3) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
 	($code = $plugins->load('editprofile_pw2_errorhandling')) ? eval($code) : null;
@@ -300,7 +300,7 @@ elseif ($_GET['action'] == "about2") {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
 	$error = array();
-	if (strxlen($_POST['about']) > $config['maxaboutlength']) {
+	if (mb_strxlen($_POST['about']) > $config['maxaboutlength']) {
 		$error[] = $lang->phrase('about_too_long');
 	}
 	($code = $plugins->load('editprofile_about2_start')) ? eval($code) : null;
@@ -492,7 +492,7 @@ elseif ($_GET['action'] == "profile") {
 elseif ($_GET['action'] == "profile2") {
 
 	$_POST['hp'] = trim($_POST['hp']);
-	if (strtolower(substr($_POST['hp'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($_POST['hp'], 0, 4)) == 'www.') {
 		$_POST['hp'] = "http://{$_POST['hp']}";
 	}
 
@@ -506,10 +506,10 @@ elseif ($_GET['action'] == "profile2") {
 	if ($config['changename_allowed'] == 1 && strxlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if ($config['changename_allowed'] == 1 && strxlen($_POST['name']) < $config['minnamelength']) {
+	if ($config['changename_allowed'] == 1 && mb_strxlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
-	if ($config['changename_allowed'] == 1 && strtolower($my->name) != strtolower($_POST['name']) && double_udata('name',$_POST['name']) == false) {
+	if ($config['changename_allowed'] == 1 && mb_strtolower($my->name) != mb_strtolower($_POST['name']) && double_udata('name',$_POST['name']) == false) {
 		$error[] = $lang->phrase('username_registered');
 	}
 	if (strlen($_POST['email']) > 200) {

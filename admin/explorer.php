@@ -306,7 +306,7 @@ elseif ($job == "delete") {
 	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
 	if (!file_exists($path)) {
-		$name = ucfirst($name);
+		$name = mb_ucfirst($name);
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($path, false)), $lang->phrase('admin_explorer_x_does_not_exist'));
 	}
 	?>
@@ -332,7 +332,7 @@ elseif ($job == "delete2") {
 
 	$repath = urlencode(extract_dir($path, false));
 	if (@$filesystem->rmdirr($path)) {
-		$name = ucfirst($name);
+		$name = mb_ucfirst($name);
 		ok('admin.php?action=explorer&path='.$repath, $lang->phrase('admin_explorer_x_successfully_deleted'));
 	}
 	else {
@@ -358,7 +358,7 @@ elseif ($job == "edit") {
   </tr>
   <tr>
    <td class="mbox" width="15%"><?php echo $lang->phrase('admin_explorer_edit_content'); ?></td>
-   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo htmlspecialchars($content); ?></textarea></td>
+   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo viscacha_htmlspecialchars($content); ?></textarea></td>
   </tr>
   <tr>
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_save'); ?>" /></td>

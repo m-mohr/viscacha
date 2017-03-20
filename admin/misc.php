@@ -60,7 +60,7 @@ elseif ($job == 'cache') {
 	$dir = 'cache/modules/';
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (strpos($file, '.php') !== false) {
+			if (mb_strpos($file, '.php') !== false) {
 				$files++;
 				$pluginsize += filesize($dir.$file);
 			}
@@ -120,7 +120,7 @@ elseif ($job == 'cache_view') {
 	print_r($data);
 	$out = ob_get_contents();
 	ob_end_clean();
-	$out = htmlspecialchars($out);
+	$out = viscacha_htmlspecialchars($out);
 
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -182,7 +182,7 @@ elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 	$dir = iif ($job == 'cache_refresh_all', $classesdir, $cachedir);
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (strpos($file, '.inc.php') !== false) {
+			if (mb_strpos($file, '.inc.php') !== false) {
 				$fileTrim = str_replace('.inc.php', '', $file);
 				if (file_exists($classesdir.$file)) {
 					$cache = $scache->load($fileTrim);
@@ -205,7 +205,7 @@ elseif ($job == 'cache_delete_plugins') {
 	$dir = 'cache/modules/';
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (strpos($file, '.php') !== false) {
+			if (mb_strpos($file, '.php') !== false) {
 				$filesystem->unlink($dir.$file);
 			}
 		}
@@ -386,11 +386,11 @@ elseif ($job == "captcha_fonts") {
 elseif ($job == "credits") {
 	echo head();
 
-	$loaded_extensions = array_map('strtolower', get_loaded_extensions());
-	$needed_extensions = array('MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
+	$loaded_extensions = array_map('mb_strtolower', get_loaded_extensions());
+	$needed_extensions = array('mysqli', 'sockets', 'ftp', 'pcre', 'gd', 'zlib', 'xml', 'mbstring');
 	$extensions = array();
 	foreach ($needed_extensions as $needed) {
-		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);
+		$extensions[$needed] = in_array(mb_strtolower($needed), $loaded_extensions);
 	}
 
 	if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
@@ -490,8 +490,8 @@ elseif ($job == 'license') {
 	echo head();
 	?>
 <table class="border">
-<tr><td class="obox"><?php echo $lang->phrase('admin_misc_license'); ?> <?php echo strtoupper($license); ?></td></tr>
-<tr><td class="mbox"><pre><?php echo htmlspecialchars($content); ?></pre></td></tr>
+<tr><td class="obox"><?php echo $lang->phrase('admin_misc_license'); ?> <?php echo mb_strtoupper($license); ?></td></tr>
+<tr><td class="mbox"><pre><?php echo viscacha_htmlspecialchars($content); ?></pre></td></tr>
 </table>
 	<?php
 	echo foot();

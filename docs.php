@@ -71,9 +71,9 @@ while ($row = $db->fetch_assoc($result)) {
 Parser:
  0 = None, 1 = HTML, 2 = PHP+HTML, 3 = BB-Code
 Template:
- Leer = Ausgabe, Vorhanden = Einfügen
+ Leer = Ausgabe, Vorhanden = EinfÃ¼gen
 Inline:
- 0 = Template hinzufügen, 1 = Template in der Datei
+ 0 = Template hinzufÃ¼gen, 1 = Template in der Datei
 */
 
 if (GroupCheck($info['groups'])) {

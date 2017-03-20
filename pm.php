@@ -210,18 +210,18 @@ elseif ($_GET['action'] == "save") {
 	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (strxlen($_POST['comment']) < $config['minpostlength']) {
+	if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('title_too_long');
 	}
-	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+	if (mb_strxlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
 
 	$name_id = 0;
-	if (strxlen($_POST['name']) > 0) {
+	if (mb_strxlen($_POST['name']) > 0) {
 		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_POST['name'].'" LIMIT 1');
 		$user = $db->fetch_num($result);
 		if (!empty($user[0])) {

@@ -115,8 +115,8 @@ if ($my->p['admin'] == 1) {
 		}
 		else {
 			echo head();
-			if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'action=locate') === false) {
-				$url = htmlspecialchars($_SERVER['HTTP_REFERER']);
+			if (!empty($_SERVER['HTTP_REFERER']) && mb_strpos($_SERVER['HTTP_REFERER'], 'action=locate') === false) {
+				$url = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$url = 'javascript:history.back(-1);';
@@ -125,7 +125,7 @@ if ($my->p['admin'] == 1) {
 		}
 	}
 	else {
-		if (strlen($action) == 0) {
+		if (empty($action)) {
 			include('admin/frames.php');
 		}
 		else {

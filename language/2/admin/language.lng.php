@@ -1,19 +1,6 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
-$lang['admin_character_set_incomming_data_converted_info'] = 'Information: ISO-8895-15 is the same character set as ISO-8895-1, however completed with the Euro-character as well as French and Finnish characters.';
-$lang['admin_charset_big5'] = 'Traditional Chinese, mainly used in Taiwan';
-$lang['admin_charset_big5hkscs'] = 'Big5 with Hong Kong extensions, Traditional Chinese.';
-$lang['admin_charset_cp866'] = 'DOS-specific Cyrillic charset';
-$lang['admin_charset_cp1251'] = 'Windows-specific Cyrillic charset';
-$lang['admin_charset_cp1252'] = 'Windows specific charset for Western European';
-$lang['admin_charset_eucjp'] = 'Japanese (EUC-JP)';
-$lang['admin_charset_gb2312'] = 'Simplified Chinese, national standard character set';
-$lang['admin_charset_iso88591'] = 'Western European, Latin-1';
-$lang['admin_charset_iso889515'] = 'Western European, Latin-9';
-$lang['admin_charset_koi8r'] = 'Russian';
-$lang['admin_charset_shiftjis'] = 'Japanese (Shift JIS)';
-$lang['admin_charset_utf8'] = 'ASCII compatible multi-byte 8-bit Unicode';
 $lang['admin_lang_action'] = 'Action';
 $lang['admin_lang_add_new_phrase'] = 'Add new Phrase';
 $lang['admin_lang_add_new_rules'] = 'Add new rule(s):';
@@ -30,7 +17,6 @@ $lang['admin_lang_cannot_unpublish_lang_until_unpublish'] = 'You can not delete 
 $lang['admin_lang_cannot_unpublish_until_defined_other'] = 'You can not unpublish this language until you have defined another default language.';
 $lang['admin_lang_cannot_unpublish_until_defined_other_lang'] = 'You can not unpublish this language until you have defined another default language.';
 $lang['admin_lang_changes_successful'] = 'Changes were successfully made';
-$lang['admin_lang_charset'] = 'Charset:';
 $lang['admin_lang_classes_phrases'] = 'Phrases used by some classes';
 $lang['admin_lang_code'] = 'Code';
 $lang['admin_lang_compatible_with'] = 'Compatible with version:';

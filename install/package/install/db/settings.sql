@@ -1,13 +1,13 @@
 CREATE TABLE `{:=DBPREFIX=:}settings` (
-  `name` varchar(120) NOT NULL default '',
-  `title` varchar(255) NOT NULL default '',
-  `description` text NOT NULL,
-  `type` enum('text','textarea','select','checkbox') NOT NULL default 'text',
-  `optionscode` text NOT NULL ,
-  `value` text NOT NULL,
-  `sgroup` smallint(4) unsigned NOT NULL default '0',
+  `name` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` enum('text','textarea','select','checkbox') NOT NULL DEFAULT 'text',
+  `optionscode` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL ,
+  `value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sgroup` smallint(4) unsigned NOT NULL NOT NULL DEFAULT '',
   UNIQUE KEY `title` (`title`,`sgroup`)
-) ENGINE=MyISAM;
+) ENGINE=MyISAM CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
 INSERT INTO `{:=DBPREFIX=:}settings` (`name`, `title`, `description`, `type`, `optionscode`, `value`, `sgroup`) VALUES
 ('relatednum', 'Maximum number of similar topics', 'The maximum number of related topics that will be shown per topic.', 'text', '', '5', 1),

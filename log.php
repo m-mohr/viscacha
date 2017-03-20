@@ -169,7 +169,7 @@ else {
 	if (empty($loc)) {
 		$loc = getRefererURL();
 	}
-	$loc = htmlspecialchars($loc);
+	$loc = viscacha_htmlspecialchars($loc);
 	if ($my->vlogin) {
 		error($lang->phrase('log_already_logged'), $loc);
 	}

@@ -1,6 +1,8 @@
 <?php
 error_reporting(E_ALL);
 
+viscacha_header('Content-type: text/html; charset=utf-8');
+
 chdir('../');
 
 define('VISCACHA_VERSION', '0.8.1.2');
@@ -71,7 +73,7 @@ if (!SCRIPT_LOCKED) {
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 <head>
 	<title>Viscacha Setup</title>
-	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<meta name="generator" content="Viscacha (http://www.viscacha.org)" />
 	<link rel="stylesheet" type="text/css" href="designs/standard.css" />
 	<link rel="up" href="javascript:self.scrollTo(0,0);" />

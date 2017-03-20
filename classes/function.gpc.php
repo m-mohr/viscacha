@@ -50,8 +50,8 @@ else {
 }
 foreach ($http_svars as $http_var) {
 	$func_key = '';
-	if (substr($http_var, 0, 5) == 'HTTP_') {
-		$func_key = strtolower(str_replace('_', ' ', substr($http_var, 5)));
+	if (mb_substr($http_var, 0, 5) == 'HTTP_') {
+		$func_key = mb_strtolower(str_replace('_', ' ', mb_substr($http_var, 5)));
 		$func_key = str_replace(' ', '-', ucwords($func_key));
 	}
 	if (empty($_SERVER[$http_var]) && !empty($ref[$func_key])) {

@@ -211,7 +211,7 @@ elseif ($job == 'package_update2') {
 	else {
 		$c = new manageconfig();
 
-		$tdir = "temp/".md5(microtime()).'/';
+		$tdir = "temp/".generate_uid().'/';
 		$filesystem->mkdir($tdir, 0777);
 		if (!is_dir($tdir)) {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_err_temporary_directory_could_not_be_created'));
@@ -304,13 +304,13 @@ elseif ($job == 'package_update2') {
 		// Abgleich von Einstellungen
 		$c->getdata();
 		foreach ($settings as $section) {
-			if (substr($section, 0, 8) == 'setting_') {
-				$name = substr($section, 8);
+			if (mb_substr($section, 0, 8) == 'setting_') {
+				$name = mb_substr($section, 8);
 				if ($sg != null && isset($old[$section]) && isset($package[$section])) { // Nur aktualisieren
 					$values = $package[$section];
 					$db->query("UPDATE {$db->pre}settings SET title = '{$values['title']}', description = '{$values['description']}', type = '{$values['type']}', optionscode = '{$values['optionscode']}', value = '{$values['value']}' WHERE name = '{$name}' AND sgroup = '{$sg}'");
 				}
-				elseif ($sg != null && !isset($old[$section]) && isset($package[$section])) { // Hinzufügen
+				elseif ($sg != null && !isset($old[$section]) && isset($package[$section])) { // HinzufÃ¼gen
 					$values = $package[$section];
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
@@ -318,7 +318,7 @@ elseif ($job == 'package_update2') {
 					");
 					$c->updateconfig(array($package['info']['internal'], $name), none, $values['value']);
 				}
-				else { // Löschen
+				else { // LÃ¶schen
 					$c->delete(array($package['info']['internal'], $name));
 					$db->query("DELETE FROM {$db->pre}settings WHERE sgroup = '{$sg}' AND name = '{$name}'");
 				}
@@ -726,7 +726,7 @@ elseif ($job == 'package_import2') {
 	else {
 		$c = new manageconfig();
 
-		$tdir = "temp/".md5(microtime()).'/';
+		$tdir = "temp/".generate_uid().'/';
 		$filesystem->mkdir($tdir, 0777);
 		if (!is_dir($tdir)) {
 			error('admin.php?action=packages&job=package_import', $lang->phrase('admin_packages_err_temporary_directory_could_not_be_created'));
@@ -786,9 +786,9 @@ elseif ($job == 'package_import2') {
 			$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')");
 			$sg = $db->insert_id();
 			foreach ($package as $section => $values) {
-				if (substr($section, 0, 8) == 'setting_') {
+				if (mb_substr($section, 0, 8) == 'setting_') {
 					// TODO: Check data for completeness, e.q. optionscode might be missing
-					$name = $gpc->save_str(substr($section, 8));
+					$name = $gpc->save_str(mb_substr($section, 8));
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
 					VALUES ('{$name}', '{$values['title']}', '{$values['description']}', '{$values['type']}', '{$values['optionscode']}', '{$values['value']}', '{$sg}')
@@ -1398,7 +1398,7 @@ elseif ($job == 'package_edit2') {
 	$url = $gpc->get('url', none);
 	$dependency = $gpc->get('dependency', arr_none);
 
-	if (strlen($title) < 4) {
+	if (mb_strlen($title) < 4) {
 		error('admin.php?action=packages&job=package_edit&id='.$id, $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($title) > 200) {
@@ -1710,13 +1710,13 @@ elseif ($job == 'package_add2') {
 	$url = $gpc->get('url', none);
 	$dependency = $gpc->get('dependency', arr_none);
 
-	if (strlen($title) < 4) {
+	if (mb_strlen($title) < 4) {
 		error('admin.php?action=packages&job=package_add', $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($title) > 200) {
 		error('admin.php?action=packages&job=package_add', $lang->phrase('admin_packages_err_maximum_number_of_characters_for_title'));
 	}
-	if (strlen($internal) < 10) {
+	if (mb_strlen($internal) < 10) {
 		error('admin.php?action=packages&job=package_add', $lang->phrase('admin_packages_err_internal_name_is_too_short'));
 	}
 
@@ -2144,10 +2144,10 @@ elseif ($job == 'plugins_hook_pos') {
 	  <td class="mbox">
 	  <?php
 	  if (file_exists($file)) {
-		$data = htmlspecialchars(file_get_contents($file));
+		$data = viscacha_htmlspecialchars(file_get_contents($file));
 		$data = str_replace("\t", "	", $data);
 		$data = str_replace("  ", "&nbsp;&nbsp;", $data);
-		$search = preg_quote(htmlspecialchars('$plugins->load(\''.$hook.'\')'), '~');
+		$search = preg_quote(viscacha_htmlspecialchars('$plugins->load(\''.$hook.'\')'), '~');
 		$data = preg_replace('~('.$search.')~i', '<a name="key"><span style="font-weight: bold; color: maroon;">\1</span></a>', $data);
 		$data = preg_split("~(\r\n|\r|\n)~", $data);
 		echo "<ol style='width: 560px;'>";
@@ -2277,7 +2277,7 @@ elseif ($job == 'plugins_edit') {
 	  </ul>
 	  <?php } ?>
 	  </td>
-	  <td><textarea name="code" rows="10" cols="80" class="texteditor"><?php echo htmlspecialchars($code); ?></textarea></td>
+	  <td><textarea name="code" rows="10" cols="80" class="texteditor"><?php echo viscacha_htmlspecialchars($code); ?></textarea></td>
 	 </tr>
 	 <tr class="mbox">
 	  <td width="25%">
@@ -2339,7 +2339,7 @@ elseif ($job == 'plugins_edit2') {
 		$ini = $myini->read($dir."plugin.ini");
 	}
 
-	if (strlen($name) < 4) {
+	if (mb_strlen($name) < 4) {
 		error('admin.php?action=packages&job=plugins_edit&id='.$id, $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($name) > 200) {
@@ -2453,7 +2453,7 @@ elseif ($job == 'plugins_add2') {
 		error('admin.php?action=packages&job=plugins_add', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
 	}
 	$package = $db->fetch_assoc($result);
-	if (strlen($title) < 4) {
+	if (mb_strlen($title) < 4) {
 		error('admin.php?action=packages&job=plugins_add&id='.$package['id'], $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($title) > 200) {
@@ -2488,7 +2488,7 @@ elseif ($job == 'plugins_add2') {
 	 </tr>
 	 <tr class="mbox">
 	  <td width="25%"><?php echo $lang->phrase('admin_packages_plugins_edit_title_for_plugin'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_edit_title_text'); ?></span></td>
-	  <td width="75%"><input type="text" name="title" size="40" value="<?php echo htmlspecialchars($title); ?>" /></td>
+	  <td width="75%"><input type="text" name="title" size="40" value="<?php echo viscacha_htmlspecialchars($title); ?>" /></td>
 	 </tr>
 	 <tr class="mbox">
 	  <td><?php echo $lang->phrase('admin_packages_plugins_edit_package'); ?></td>
@@ -2567,7 +2567,7 @@ elseif ($job == 'plugins_add3') {
 		$hook = $data['position'];
 		$dir = "modules/{$data['module']}/";
 
-		if (strlen($title) < 4 || strlen($title) > 200) {
+		if (mb_strlen($title) < 4 || strlen($title) > 200) {
 			$title = $data['title'];
 		}
 		if ($required == 1) {
@@ -2654,7 +2654,7 @@ elseif ($job == 'plugins_template') {
 	$standardDesign = $designs[$config['templatedir']]['template'];
 	$tpldir = "templates/{$standardDesign}/modules/{$data['id']}/";
 
-	// ToDo: Prüfen ob .html variabel sein sollte (class.template.php => Endung der Templates ist variabel, nur standardmäßig html)
+	// ToDo: PrÃ¼fen ob .html variabel sein sollte (class.template.php => Endung der Templates ist variabel, nur standardmÃ¤ÃŸig html)
 	$filetitle = convert2adress($data['title']);
 	$codefile = "{$filetitle}.html";
 	$i = 1;
@@ -2923,7 +2923,7 @@ elseif ($job == 'plugins_language') {
 	}
 
 	$file = 'modules.lng.php';
-	$group = substr($file, 0, strlen($file)-8);
+	$group = mb_substr($file, 0, mb_strlen($file)-8);
 	$page = $gpc->get('page', int, 1);
 	$cache = array();
 	$diff = array();
@@ -3096,7 +3096,7 @@ elseif ($job == 'plugins_language_delete') {
 	$ini = $myini->read("modules/{$data['id']}/plugin.ini");
 	$langkeys = array();
 	foreach ($ini as $key => $x) {
-		if (substr($key, 0, 8) == 'language') {
+		if (mb_substr($key, 0, 8) == 'language') {
 			$langkeys[] = $key;
 		}
 	}
@@ -3154,7 +3154,7 @@ elseif ($job == 'plugins_language_edit') {
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_packages_language_edit_text'); ?><br />
    <span class="stext"><?php echo $lang->phrase('admin_packages_language_edit_text_text'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo htmlspecialchars(nl2whitespace($ini['language'][$phrase])); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo viscacha_htmlspecialchars(nl2whitespace($ini['language'][$phrase])); ?>" /></td>
   </tr>
   <tr>
    <td class="obox" colspan="2"><?php echo $lang->phrase('admin_packages_language_edit_translations'); ?></td>
@@ -3174,7 +3174,7 @@ elseif ($job == 'plugins_language_edit') {
   ?>
   <tr>
    <td class="mbox" width="50%"><em><?php echo $row['language']; ?></em> <?php echo $lang->phrase('admin_packages_language_edit_translation'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_language_edit_translation_text'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo htmlspecialchars(nl2whitespace($phrases[$phrase])); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo viscacha_htmlspecialchars(nl2whitespace($phrases[$phrase])); ?>" /></td>
   </tr>
   <?php } ?>
   <tr>
@@ -3318,7 +3318,7 @@ elseif ($job == 'browser') {
    </td>
   </tr>
   <tr>
-   <td class="ubox" valign="top"><?php $foo = ucfirst($types[$type]['name2']); echo $lang->phrase('admin_packages_browser_foo_of_the_moment');?></td>
+   <td class="ubox" valign="top"><?php $foo = mb_ucfirst($types[$type]['name2']); echo $lang->phrase('admin_packages_browser_foo_of_the_moment');?></td>
   </tr>
   <tr>
    <td class="mbox" valign="top">

@@ -327,7 +327,7 @@ elseif ($job == 'restore_info') {
 	$file = $gpc->get('file', path);
 
 	$nfo = pathinfo($dir.$file);
-    if (strtolower($nfo['extension']) == 'zip') {
+    if (mb_strtolower($nfo['extension']) == 'zip') {
 		require_once('classes/class.zip.php');
 		$archive = new PclZip($dir.$file);
 		if (($list = $archive->listContent()) != 0) {
@@ -337,9 +337,9 @@ elseif ($job == 'restore_info') {
 				if (count($data[0]['content']) > 0) {
 					$header = array();
 		            foreach ($data[0]['content'] as $h) {
-		            	$comment = substr($h, 0, 2);
+		            	$comment = mb_substr($h, 0, 2);
 		            	if ($comment == '--' || $comment == '//') {
-		            		$header[] = substr($h, 2);
+		            		$header[] = mb_substr($h, 2);
 		            	}
 		            	elseif (count($header) > 0) {
 		            		break;
@@ -358,15 +358,15 @@ elseif ($job == 'restore_info') {
     		$header = $lang->phrase('admin_db_file_damaged');
     	}
     }
-    elseif (strtolower($nfo['extension']) == 'sql') {
+    elseif (mb_strtolower($nfo['extension']) == 'sql') {
     	if (filesize($dir.$file) < $sqllimit) {
 			$fd = fopen($dir.$file, "r");
 			$header = array();
 			while (!feof($fd)) {
 				$str = fgets($fd);
-				$comment = substr($str, 0, 2);
+				$comment = mb_substr($str, 0, 2);
 				if ($comment == '--' || $comment == '//') {
-					$header[] = substr($str, 2);
+					$header[] = mb_substr($str, 2);
 				}
 				elseif (count($header) > 0) {
 					break;
@@ -509,7 +509,7 @@ elseif ($job == 'restore2') {
 			// Clear Cache
 			if ($dh = @opendir("./cache/")) {
 				while (($file = readdir($dh)) !== false) {
-					if (strpos($file, '.inc.php') !== false) {
+					if (mb_strpos($file, '.inc.php') !== false) {
 						$fileTrim = str_replace('.inc.php', '', $file);
 						if (file_exists("classes/cache/{$fileTrim}")) {
 							$cache = $scache->load($file);
@@ -648,7 +648,7 @@ elseif ($job == 'query2') {
 					foreach ($num as $row) {
 						echo "<tr>";
 						foreach ($keys as $field) {
-							echo '<td class="mbox">'.nl2br(htmlentities($row[$field])).'</td>';
+							echo '<td class="mbox">'.nl2br(viscacha_htmlentities($row[$field])).'</td>';
 						}
 					}
 					echo '</table>';

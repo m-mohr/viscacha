@@ -47,8 +47,8 @@ class OutputDoc {
 
 	function ConstructLink($matches) {
 		list(, $prehref,, $url) = $matches;
-		if (substr($url, -1) == '?') {
-			$url = substr($url, 0, strlen($url) - 1);
+		if (mb_substr($url, -1) == '?') {
+			$url = mb_substr($url, 0, mb_strlen($url) - 1);
 		}
 		$info = parse_url($url);
 		if (isset($info['query'])) {

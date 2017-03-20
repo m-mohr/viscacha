@@ -136,11 +136,11 @@ else {
 	$colspan = 1+count($fields);
 	if (in_array('fullname', $fields)) {$colspan--; }
 
-	$_GET['order'] = strtolower($_GET['order']);
+	$_GET['order'] = mb_strtolower($_GET['order']);
 	if ($_GET['order'] != 'desc') {
 		$_GET['order'] = 'asc';
 	}
-	$_GET['sort'] = strtolower($_GET['sort']);
+	$_GET['sort'] = mb_strtolower($_GET['sort']);
 	if ($_GET['sort'] != 'hp' && $_GET['sort'] != 'online' && $_GET['sort'] != 'posts' && $_GET['sort'] != 'regdate' && $_GET['sort'] != 'location' && $_GET['sort'] != 'gender' && $_GET['sort'] != 'birthday' && $_GET['sort'] != 'lastvisit') {
 		$sqlorderby = "name {$_GET['order']}";
 	}
@@ -150,7 +150,7 @@ else {
 
 	$sqlwhere = array();
 	$_GET['letter'] = $gpc->get('letter', db_esc);
-	if (strxlen($_GET['letter']) == 1) {
+	if (mb_strxlen($_GET['letter']) == 1) {
 		if ($_GET['letter'] == '#') {
 			$sqlwhere[] = "LEFT(name, 1) REGEXP '^[^".implode('', $available)."]'";
 		}

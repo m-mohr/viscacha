@@ -295,7 +295,7 @@ elseif ($action == "vote_edit2") {
 	if (strxlen($_POST['question']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('question_too_long');
 	}
-	if (strxlen($_POST['question']) < $config['mintitlelength']) {
+	if (mb_strxlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$notices = $gpc->get('notice', arr_str);
@@ -325,7 +325,7 @@ elseif ($action == "vote_edit2") {
 		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
 		while($row = $db->fetch_assoc($result)) {
 			if ($notices[$row['id']] != $row['answer']) {
-				if (strlen($notices[$row['id']]) > 0) {
+				if (mb_strlen($notices[$row['id']]) > 0) {
 					$db->query("UPDATE {$db->pre}vote SET answer = '{$notices[$row['id']]}' WHERE id = '{$row['id']}'");
 				}
 				else {

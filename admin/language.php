@@ -179,7 +179,7 @@ elseif ($job == 'import2') {
 		error('admin.php?action=language&job=import', $inserterrors);
 	}
 
-	$tempdir = 'temp/'.md5(microtime()).'/';
+	$tempdir = 'temp/'.generate_uid().'/';
 
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
@@ -360,21 +360,6 @@ elseif ($job == 'lang_settings') {
 		$settings['country_code'] = '';
 	}
 
-	$charsets = array();
-	$charsets['ISO-8859-1'] = $lang->phrase('admin_charset_iso88591');
-	$charsets['ISO-8859-15'] = $lang->phrase('admin_charset_iso889515');
-//	$charsets['UTF-8'] = $lang->phrase('admin_charset_utf8');
-	$charsets['cp1252'] = $lang->phrase('admin_charset_cp1252');
-	$charsets['cp866'] = $lang->phrase('admin_charset_cp866');
-	$charsets['cp1251'] = $lang->phrase('admin_charset_cp1251');
-	$charsets['KOI8-R'] = $lang->phrase('admin_charset_koi8r');
-	$charsets['BIG5'] = $lang->phrase('admin_charset_big5');
-	$charsets['GB2312'] = $lang->phrase('admin_charset_gb2312');
-	$charsets['BIG5-HKSCS'] = $lang->phrase('admin_charset_big5hkscs');
-	$charsets['Shift_JIS'] = $lang->phrase('admin_charset_shiftjis');
-	$charsets['EUC-JP'] = $lang->phrase('admin_charset_eucjp');
-	$settings['charset'] = isset($settings['charset']) ? $settings['charset'] : $config['asia_charset'];
-
 	$languages = file2array('admin/data/iso639.txt');
 	$country = file2array('admin/data/iso3166.txt');
 	?>
@@ -452,16 +437,6 @@ function errordefault(box) {
    </select>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_charset'); ?><br /><span class="stest"><?php echo $lang->phrase('admin_character_set_incomming_data_converted_info'); ?></span></td>
-   <td class="mbox" width="50%">
-	<select name="charset">
-	   <?php foreach ($charsets as $key => $opt) { ?>
-	   <option value="<?php echo $key; ?>"<?php echo iif($settings['charset'] == $key, ' selected="selected"'); ?>><?php echo $key.': '.$opt; ?></option>
-	   <?php } ?>
-	</select>
-   </td>
-  </tr>
-  <tr>
    <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_lang_date_and_time'); ?></td>
   </tr>
   <tr>
@@ -536,15 +511,7 @@ elseif ($job == 'lang_settings2') {
 	$c->updateconfig('dformat2',str);
 	$c->updateconfig('dformat3',str);
 	$c->updateconfig('dformat4',str);
-	$c->updateconfig('charset',str);
 	$c->savedata();
-
-	if ($config['langdir'] == $id) {
-		$c = new manageconfig();
-		$c->getdata();
-		$c->updateconfig('asia_charset', str, $gpc->get('charset', str));
-		$c->savedata();
-	}
 
 	$delobj = $scache->load('loadlanguage');
 	$delobj->delete();
@@ -588,7 +555,7 @@ elseif ($job == 'lang_ignore2') {
 	$ignore = $gpc->get('ignore', none);
 	$lines = preg_split('`[\n\r]+`', trim($ignore)) ;
 	$lines = array_map('trim', $lines);
-	$lines = array_map('strtolower', $lines);
+	$lines = array_map('mb_strtolower', $lines);
 	$lines = array_unique($lines);
 	sort($lines);
 	if (!is_dir("language/{$id}/words/")) {
@@ -746,7 +713,7 @@ elseif ($job == 'lang_array') {
 	$lng = return_array($file, $id);
 	$pages = 1;
 	if (count($lng) > 0) {
-		$lng = array_map('htmlspecialchars', $lng);
+		$lng = array_map('viscacha_htmlspecialchars', $lng);
 		$lng = array_map('nl2whitespace', $lng);
 		ksort($lng);
 		$lng = array_chunk($lng, 50, true);
@@ -788,7 +755,7 @@ elseif ($job == 'lang_array') {
 	?>
 	</ul></div>
    </span>
-	<?php echo $lang->phrase('admin_lang_edit_langfile'); ?> &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : ucfirst($file); ?>
+	<?php echo $lang->phrase('admin_lang_edit_langfile'); ?> &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : mb_ucfirst($file); ?>
    </td>
   </tr>
   <tr>
@@ -832,8 +799,8 @@ elseif ($job == 'lang_array2') {
 	$keys = array_keys($_REQUEST);
 	$sent = array();
 	foreach ($keys as $key) {
-		if (substr($key, 0, 5) == 'lang_') {
-			$sent[$key] = substr($key, 5, strlen($key));
+		if (mb_substr($key, 0, 5) == 'lang_') {
+			$sent[$key] = mb_substr($key, 5, mb_strlen($key));
 		}
 	}
 
@@ -874,8 +841,6 @@ elseif ($job == 'lang_default') {
 	$c = new manageconfig();
 	$c->getdata();
 	$c->updateconfig('langdir', int, $id);
-	$data = return_array('settings', $id);
-	$c->updateconfig('asia_charset', str, $data['charset']);
 	$c->savedata();
 
 	$delobj = $scache->load('loadlanguage');
@@ -900,7 +865,7 @@ elseif ($job == 'lang_edit') {
 	while (($file = readdir($result)) !== false) {
 		$info = pathinfo($mailpath.$file);
 		if ($info['extension'] == 'php') {
-			$name = substr($info['basename'], 0, -(strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));
+			$name = mb_substr($info['basename'], 0, -(mb_strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));
 			$mailfiles[$name] = $info;
 		}
 	}
@@ -932,11 +897,11 @@ elseif ($job == 'lang_edit') {
 	$files = array();
 	$d = dir($dir);
 	while (FALSE !== ($entry = $d->read())) {
-		if (substr($entry, -8, 8) == '.lng.php') {
-			$basename = substr($entry, 0, strlen($entry)-8);
+		if (mb_substr($entry, -8, 8) == '.lng.php') {
+			$basename = mb_substr($entry, 0, mb_strlen($entry)-8);
 			if ($basename != 'settings' && $basename != 'modules') {
 				$name = preg_replace("/[^\w\d]/i", " ", $basename);
-				$name = ucfirst($name);
+				$name = mb_ucfirst($name);
 			?>
 			<li>
 				<a href="admin.php?action=language&job=lang_array&id=<?php echo $id; ?>&file=<?php echo $basename; ?>"><?php echo $name; ?></a>
@@ -959,10 +924,10 @@ elseif ($job == 'lang_edit') {
 	$files = array();
 	$d = dir($dir);
 	while (FALSE !== ($entry = $d->read())) {
-		if (substr($entry, -8, 8) == '.lng.php') {
-			$basename = substr($entry, 0, strlen($entry)-8);
+		if (mb_substr($entry, -8, 8) == '.lng.php') {
+			$basename = mb_substr($entry, 0, mb_strlen($entry)-8);
 			$name = preg_replace("/[^\w\d]/i", " ", $basename);
-			$name = ucfirst($name);
+			$name = mb_ucfirst($name);
 			?>
 			<li>
 				<a href="admin.php?action=language&job=lang_array&id=<?php echo $id; ?>&file=admin%2F<?php echo $basename; ?>"><?php echo $name; ?></a>

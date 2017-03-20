@@ -80,7 +80,7 @@ elseif ($action == 'markforumread') {
 	echo '1';
 }
 elseif ($action == 'doubleudata') {
-	if (strlen($_GET['name']) > 3) {
+	if (mb_strlen($_GET['name']) > 3) {
 		$request = 1;
 		if (!$my->vlogin) {
 			if (double_udata('name',$_GET['name']) == false) {
@@ -98,7 +98,7 @@ elseif ($action == 'doubleudata') {
 }
 elseif ($action == 'searchmember') {
 	$request = 1;
-	if (strlen($_GET['name']) > 2) {
+	if (mb_strlen($_GET['name']) > 2) {
 		$result = $db->query('SELECT name FROM '.$db->pre.'user WHERE name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
 		$user = array();
 		while ($row = $db->fetch_assoc($result)) {
@@ -113,7 +113,7 @@ elseif ($action == 'searchmember') {
 }
 elseif ($action == 'search') {
 	$search = $gpc->get('search', str);
-	if (strlen($search) > 2) {
+	if (mb_strlen($search) > 2) {
 		$search = urldecode($search);
 		$search = preg_replace("/(\s){1,}/is"," ",$search);
 	    $search = preg_replace("/\*{1,}/is",'*',$search);
@@ -123,13 +123,13 @@ elseif ($action == 'search') {
 		foreach ($searchwords as $sw) {
 			$sw = trim($sw);
 			if ($sw{0} == '-') {
-				$sw2 = substr($sw, 1);
+				$sw2 = mb_substr($sw, 1);
 			}
 			else {
 				$sw2 = $sw;
 			}
 			$sw2 = str_replace('*','',$sw2);
-			if (in_array(strtolower($sw2), $ignorewords) || strxlen($sw2) < $config['searchminlength']) {
+			if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strxlen($sw2) < $config['searchminlength']) {
 				$ignored[] = $sw2;
 			}
 		}

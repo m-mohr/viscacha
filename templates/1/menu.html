@@ -38,7 +38,7 @@
 		</div>
 		</li>
 	<?php if ($my->vlogin) { ?>
-		<li><a href="log.php?action=logout<?php echo SID2URL_x; ?>&amp;redirect=<?php echo htmlspecialchars(getRequestURI()); ?>"><img src="<?php echo $tpl->img('logout'); ?>" alt="" /> <?php echo $lang->phrase('logout'); ?></a></li>
+		<li><a href="log.php?action=logout<?php echo SID2URL_x; ?>&amp;redirect=<?php echo viscacha_htmlspecialchars(getRequestURI()); ?>"><img src="<?php echo $tpl->img('logout'); ?>" alt="" /> <?php echo $lang->phrase('logout'); ?></a></li>
 	<?php } else { ?>
 		<li><a href="log.php?action=login<?php echo SID2URL_x; ?>"><img src="<?php echo $tpl->img('login'); ?>" alt="" /> <?php echo $lang->phrase('login'); ?></a></li>
 	<?php } ?>

@@ -62,7 +62,7 @@ class VeriWord {
 				continue;
 			}
 			$data = explode("\t", $row);
-			if ($data[0] == $this->session['id'] && strcasecmp($data[2], $this->session['word']) == 0){
+			if ($data[0] == $this->session['id'] && mb_strcasecmp($data[2], $this->session['word']) == 0){
 				return CAPTCHA_OK;
 			}
 		}
@@ -143,7 +143,7 @@ class VeriWord {
 	function _newSession() {
 		global $filesystem;
 
-		$id = md5(microtime());
+		$id = generate_uid();
 		$word = '';
 		for ($i=1; $i <= rand(5,6); $i++) {
 			$word .= substr($this->chars, mt_rand(0,strlen($this->chars)-1), 1);
@@ -287,12 +287,12 @@ class VeriWord {
 		if ($this->settings['colortext']) {
 			$color_array	= array();
 			$color_array[]  = array(mt_rand(200,255), mt_rand(0,50), mt_rand(0,50)); // Rot
-			$color_array[]  = array(mt_rand(0,50), mt_rand(200,255), mt_rand(0,50)); // Grün
+			$color_array[]  = array(mt_rand(0,50), mt_rand(200,255), mt_rand(0,50)); // GrÃ¼n
 			$color_array[]  = array(mt_rand(0,50), mt_rand(0,50), mt_rand(200,255)); // Blau
 			$color_array[]  = array(mt_rand(200,255), mt_rand(0,50), mt_rand(200,255)); // Pink/Violett
-			$color_array[]  = array(mt_rand(0,50), mt_rand(170,230), mt_rand(170,230)); // Türkis
+			$color_array[]  = array(mt_rand(0,50), mt_rand(170,230), mt_rand(170,230)); // TÃ¼rkis
 			$color_array[]  = array(mt_rand(0,50), mt_rand(0,50), mt_rand(0,50)); // Grey
-			$color_array[]  = array(mt_rand(150,200), mt_rand(40,150), mt_rand(0,40)); // Braun-ähnlich
+			$color_array[]  = array(mt_rand(150,200), mt_rand(40,150), mt_rand(0,40)); // Braun-Ã¤hnlich
 
 			$text_color = array();
 			$entries = strlen($this->session['word']);

@@ -122,7 +122,7 @@ if ($_GET['action'] == "save") {
 		if (strxlen($_POST['name']) > $config['maxnamelength']) {
 			$error[] = $lang->phrase('name_too_long');
 		}
-		if (strxlen($_POST['name']) < $config['minnamelength']) {
+		if (mb_strxlen($_POST['name']) < $config['minnamelength']) {
 			$error[] = $lang->phrase('name_too_short');
 		}
 		if (strlen($_POST['email']) > 200) {
@@ -143,15 +143,15 @@ if ($_GET['action'] == "save") {
 	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (strxlen($_POST['comment']) < $config['minpostlength']) {
+	if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	// Add some chars for reply title prefix
-	$maxlength = $config['maxtitlelength'] + strxlen($lang->phrase('reply_prefix'));
+	$maxlength = $config['maxtitlelength'] + mb_strxlen($lang->phrase('reply_prefix'));
 	if (strxlen($_POST['topic']) > $maxlength) {
 		$error[] = $lang->phrase('title_too_long');
 	}
-	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+	if (mb_strxlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
 	($code = $plugins->load('addreply_save_errorhandling')) ? eval($code) : null;
@@ -234,13 +234,13 @@ if ($_GET['action'] == "save") {
 			
 			$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 			$row = $db->fetch_assoc($result);
-			if ($row && $type === null) { // Lösche Abo
+			if ($row && $type === null) { // LÃ¶sche Abo
 				$db->query("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'");
 			}
-			else if ($row && $type != $row['type']) { // Aktualisiere Abo, wenn veränderter Typ
+			else if ($row && $type != $row['type']) { // Aktualisiere Abo, wenn verÃ¤nderter Typ
 				$db->query("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'");
 			}
-			else if (!$row && $type !== null) { // Füge Abo hinzu
+			else if (!$row && $type !== null) { // FÃ¼ge Abo hinzu
 				$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')");
 			}
 		}

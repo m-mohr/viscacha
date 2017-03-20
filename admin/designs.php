@@ -354,7 +354,7 @@ elseif ($job == 'design_import2') {
 	if (count($inserterrors) > 0) {
 		error('admin.php?action=designs&job=design_import', $inserterrors);
 	}
-	$tempdir = 'temp/'.md5(microtime()).'/';
+	$tempdir = 'temp/'.generate_uid().'/';
 	$filesystem->mkdir($tempdir, 0777);
 	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);

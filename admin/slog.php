@@ -72,11 +72,11 @@ elseif ($job == 'errorlogs') {
 	<a class="button" href="#" id="menu_acp_switchlog" onmouseover="RegisterMenu('acp_switchlog');"><?php echo $lang->phrase('admin_slog_switch_log'); ?> &#8628;</a>
 	<div class="popup" id="popup_acp_switchlog"><ul>
 	<?php foreach($logfiles as $t => $file) { if ($t != $type) { ?>
-		<li><a href="admin.php?action=slog&amp;job=errorlogs&amp;type=<?php echo $t; ?>"><?php echo strtoupper($t); ?></a></li>
+		<li><a href="admin.php?action=slog&amp;job=errorlogs&amp;type=<?php echo $t; ?>"><?php echo mb_strtoupper($t); ?></a></li>
 	<?php }} ?>
 	</ul></div>
     </span>
-    <?php echo $lang->phrase('admin_slog_sql_error_logfile').' '.strtoupper($type); ?>
+    <?php echo $lang->phrase('admin_slog_sql_error_logfile').' '.mb_strtoupper($type); ?>
    </td>
   </tr>
   <?php if (!is_array($log)) { ?>
@@ -103,7 +103,7 @@ elseif ($job == 'errorlogs') {
 				$row['class'] = (!isset($row['class'])) ? '' : $row['class'];
 				$row['type'] = (!isset($row['type'])) ? '' : $row['type'];
 
-				$data[6] .= "<b>#{$i}:</b> ".htmlspecialchars($row['file']).":{$row['line']}&nbsp;".htmlspecialchars($row['class'].$row['type'].$row['function'])."(...)<br />";
+				$data[6] .= "<b>#{$i}:</b> ".viscacha_htmlspecialchars($row['file']).":{$row['line']}&nbsp;".viscacha_htmlspecialchars($row['class'].$row['type'].$row['function'])."(...)<br />";
 			}
 		}
 	?>
@@ -177,7 +177,7 @@ elseif ($job == 's_general_image') {
 
 	$sort = $gpc->get('sortorder', str);
 	if ($sort == 'asc' || $sort == 'desc') {
-		$sort = strtoupper($sort);
+		$sort = mb_strtoupper($sort);
 	}
 	else {
 		$sort = 'ASC';

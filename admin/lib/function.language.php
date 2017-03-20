@@ -2,8 +2,8 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 function sort_dirlist($a, $b) {
-	$ai = substr_count($a, '/');
-	$bi = substr_count($b, '/');
+	$ai = mb_substr_count($a, '/');
+	$bi = mb_substr_count($b, '/');
 	if ($ai  == $bi) {
 		$test = array($a, $b);
 		sort($test);
@@ -15,10 +15,10 @@ function sort_dirlist($a, $b) {
 function dir_array($dir, $chop = false) {
 	$array = array();
 	$d = dir($dir);
-	if ($chop != false && substr($dir, -1, 1) != '/') {
+	if ($chop != false && mb_substr($dir, -1, 1) != '/') {
 		$dir .= '/';
 	}
-	if ($chop != false && substr($chop, -1, 1) != '/') {
+	if ($chop != false && mb_substr($chop, -1, 1) != '/') {
 		$chop .= '/';
 	}
 	while (FALSE !== ($entry = $d->read())) {
@@ -58,8 +58,8 @@ function arrayFromFile($file, $varname = 'lang') {
 function createParentDir($parentfile, $path) {
 	global $filesystem;
 	$parents = array();
-	while(($pos = strrpos($parentfile, DIRECTORY_SEPARATOR)) !== false) {
-		$parentfile = substr($parentfile, 0, $pos);
+	while(($pos = mb_strrpos($parentfile, DIRECTORY_SEPARATOR)) !== false) {
+		$parentfile = mb_substr($parentfile, 0, $pos);
 		$parents[] = $parentfile;
 	}
 	$parents = array_reverse($parents);

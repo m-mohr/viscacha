@@ -50,7 +50,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$t = $db->pre.$table;
 				$file = 'install/package/'.$package.'/db/'.$table.'.sql';
 				if ($value == 0) {
-					$sql = implode('', file($file));
+					$sql = file_get_contents($file);
 					$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
 					$db->multi_query($sql);
 				}
@@ -58,7 +58,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 					$db->query("TRUNCATE TABLE `{$t}`");
 				}
 				elseif ($value == 3) {
-					$sql = implode('', file($file));
+					$sql = file_get_contents($file);
 					$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
 					$drop = "DROP TABLE IF EXISTS `{$t}`;\n";
 					$db->multi_query($drop.$sql);
@@ -70,13 +70,13 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$done[$value]++;
 			}
 			if (isset($_REQUEST['sample_d1']) && $_REQUEST['sample_d1'] == 1) {
-				$sql = implode('', file('install/package/install/db/sample1.dat'));
+				$sql = file_get_contents('install/package/install/db/sample1.sql');
 				$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
 				$db->multi_query($sql);
 				$done[] = 'Sample Data (Forum) have been installed.';
 			}
 			if (isset($_REQUEST['sample_d2']) && $_REQUEST['sample_d2'] == 1) {
-				$sql = implode('', file('install/package/install/db/sample2.dat'));
+				$sql = file_get_contents('install/package/install/db/sample2.sql');
 				$sql = str_replace('{:=DBPREFIX=:}', $db->pre, $sql);
 				$db->multi_query($sql);
 				$done[] = 'Sample Data (CMS) have been installed.';

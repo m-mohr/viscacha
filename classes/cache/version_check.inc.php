@@ -64,7 +64,7 @@ class cache_version_check extends CacheItem {
 	}
 	
 	function startRssElement($parser, $name, $attrs) {
-		$name = strtolower($name);
+		$name = mb_strtolower($name);
 		switch($name) {
 			case 'item':
 				$this->tempXml = array(
@@ -89,7 +89,7 @@ class cache_version_check extends CacheItem {
 	}
 
 	function endRssElement($parser, $name) {
-		$name = strtolower($name);
+		$name = mb_strtolower($name);
 		if (is_array($this->tempXml)) {
 			switch($name) {
 				case 'item':
@@ -106,7 +106,7 @@ class cache_version_check extends CacheItem {
 				case 'link':
 				case 'description':
 				case 'pubDate':
-					$this->tempXml['elements']['description'] = htmlentities(trim($this->tempXml['elements']['description']));
+					$this->tempXml['elements']['description'] = viscacha_htmlentities(trim($this->tempXml['elements']['description']));
 					$this->tempXml['currentElement'] = null;
 					break;
 			}

@@ -715,13 +715,13 @@ class Snoopy
 							chr(176),
 							chr(39),
 							chr(128),
-							"ä",
-							"ö",
-							"ü",
-							"Ä",
-							"Ö",
-							"Ü",
-							"ß",
+							"Ã¤",
+							"Ã¶",
+							"Ã¼",
+							"Ã„",
+							"Ã–",
+							"Ãœ",
+							"ÃŸ",
 						);
 
 		$text = preg_replace($search,$replace,$document);
@@ -910,7 +910,7 @@ class Snoopy
 		$results = '';
 		do {
     		$_data = fread($fp, $this->maxlength);
-    		if (strlen($_data) == 0) {
+    		if (emÃ¼ty($_data)) {
         		break;
     		}
     		$results .= $_data;
@@ -1239,7 +1239,7 @@ class Snoopy
 				break;
 
 			case "multipart/form-data":
-				$this->_mime_boundary = "Snoopy".md5(uniqid(microtime()));
+				$this->_mime_boundary = "Snoopy".generate_uid();
 
 				reset($formvars);
 				while(list($key,$val) = each($formvars)) {

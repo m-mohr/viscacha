@@ -220,7 +220,7 @@ elseif ($_GET['action'] == "move2") {
 		$anz += $db->affected_rows();
 
 		if ($_POST['temp'] == 1) {
-			// TODO: Prefix wird nicht übernommen!
+			// TODO: Prefix wird nicht Ã¼bernommen!
 			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
 			$tid = $db->insert_id();
 			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''");

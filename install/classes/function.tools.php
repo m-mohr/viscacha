@@ -9,11 +9,11 @@ function ini_isSecureHttp() {
 }
 
 function ini_isActive($value) {
-	return ($value == 'true' || $value == '1' || strtolower($value) == 'on');
+	return ($value == 'true' || $value == '1' || mb_strtolower($value) == 'on');
 }
 function getFUrl() {
 	// HTTP_HOST is having the correct browser url in most cases...
-	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
 	$https = ini_isSecureHttp() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
@@ -198,7 +198,7 @@ function setPackagesInactive() {
 }
 function removeHook(&$array, $value) {
 	foreach($array as $key => $val) {
-		if(strpos($val, $value) !== false) {
+		if(mb_strpos($val, $value) !== false) {
 			unset($array[$key]);
 		}
 	}
@@ -217,7 +217,7 @@ function insertHookAfter(&$array, $value, $after) {
     if (is_array($array)) {
 		$offset = 0;
 		foreach($array as $key => $val) {
-			if(strpos($val, $after) !== false) {
+			if(mb_strpos($val, $after) !== false) {
 				break;
 			}
     		$offset++;
@@ -261,7 +261,7 @@ function GPC_escape($var, $type = GPC_HTML){
 		if ($type == GPC_HTML) {
 			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 			$var = str_replace("\0", '', $var);
-			$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
+			$var = viscacha_htmlentities($var, ENT_QUOTES, false);
 		}
 		if ($type == GPC_DB && isset($db) && is_object($db)) {
 			$var = $db->escape_string($var);

@@ -21,7 +21,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			unset($cbb[$key]);
 			continue;
 		}
-		$cbb[$key]['title'] = htmlspecialchars($bb['title']);
+		$cbb[$key]['title'] = viscacha_htmlspecialchars($bb['title']);
 		if ($bb['twoparams']) {
 			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}=]','[/{$bb['bbcodetag']}]');";
 		}
@@ -171,7 +171,7 @@ function getNavTitle() {
 	$title = trim($title);
 	$parts = explode('->', $title);
 	if (!empty($parts[0])) {
-		$parts[0] = strtolower($parts[0]);
+		$parts[0] = mb_strtolower($parts[0]);
 		if ($parts[0] == 'doc' || $parts[0] == 'lang') {
 			$title = $db->escape_string($title);
 		}
@@ -407,7 +407,7 @@ if ($data['sub'] > 0) {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+	   		echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 	   	}
    		$select = iif($row['id'] == $data['sub'], ' selected="selected"');
    		echo '<option style="font-weight: bold;" value="'.$row['id'].'"'.$select.'>'.$plugins->navLang($row['name'], true).'</option>';
@@ -458,7 +458,7 @@ if ($data['sub'] == 0) {
 	   		if (!isset($pos[$last])) {
 	   			$pos[$last] = $row['position'];
 	   		}
-		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'"'.iif($row['id'] == $data['id'], ' selected="selected"').'">'.$plugins->navLang($row['name'], true).'</option>';
@@ -466,7 +466,7 @@ if ($data['sub'] == 0) {
 	foreach ($pos as $key => $name) {
 		?>
 		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<optgroup label="<?php echo viscacha_htmlspecialchars($name); ?>">
 		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
 		<?php
 	}
@@ -528,10 +528,10 @@ elseif ($job == 'nav_edit2') {
 	}
 	else {
 		$sort = $gpc->get('sort', str);
-		if (substr($sort, 0, 4) == 'pos_') {
+		if (mb_substr($sort, 0, 4) == 'pos_') {
 			$sort = array(
 				'ordering' => 0,
-				'position' => substr($sort, 4)
+				'position' => mb_substr($sort, 4)
 			);
 		}
 		else {
@@ -688,7 +688,7 @@ elseif ($job == 'nav_addplugin') {
 	   		if (!isset($pos[$last])) {
 	   			$pos[$last] = $row['position'];
 	   		}
-		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
@@ -696,7 +696,7 @@ elseif ($job == 'nav_addplugin') {
 	foreach ($pos as $key => $name) {
 		?>
 		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<optgroup label="<?php echo viscacha_htmlspecialchars($name); ?>">
 		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
 		<?php
 	}
@@ -731,10 +731,10 @@ elseif ($job == 'nav_addplugin2') {
 		$title = $data['name'];
 	}
 	$sort = $gpc->get('sort', str);
-	if (substr($sort, 0, 4) == 'pos_') {
+	if (mb_substr($sort, 0, 4) == 'pos_') {
 		$sort = array(
 			'ordering' => 0,
-			'position' => substr($sort, 4)
+			'position' => mb_substr($sort, 4)
 		);
 	}
 	else {
@@ -801,7 +801,7 @@ elseif ($job == 'nav_add') {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+	   		echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 	   	}
    		echo '<option style="font-weight: bold;" value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
    		if (isset($cache[$row['id']])) {
@@ -912,7 +912,7 @@ elseif ($job == 'nav_addbox') {
 	   		if (!isset($pos[$last])) {
 	   			$pos[$last] = $row['position'];
 	   		}
-		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
@@ -920,7 +920,7 @@ elseif ($job == 'nav_addbox') {
 	foreach ($pos as $key => $name) {
 		?>
 		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<optgroup label="<?php echo viscacha_htmlspecialchars($name); ?>">
 		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
 		<?php
 	}
@@ -954,15 +954,15 @@ elseif ($job == 'nav_addbox2') {
 
 
 	$sort = $gpc->get('sort', str);
-	if (substr($sort, 0, 4) == 'pos_') {
+	if (mb_substr($sort, 0, 4) == 'pos_') {
 		$sort = array(
 			'ordering' => 0,
-			'position' => substr($sort, 4)
+			'position' => mb_substr($sort, 4)
 		);
 	}
 	else {
 		$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
-		$sort = $db->fetch_assoc($result); // Keine Erhöhung des Prioritätswerts nötig, da ID der neuen Box > ID gewählten Box
+		$sort = $db->fetch_assoc($result); // Keine ErhÃ¶hung des PrioritÃ¤tswerts nÃ¶tig, da ID der neuen Box > ID gewÃ¤hlten Box
 	}
 
 	$groups = $gpc->get('groups', arr_int);
@@ -1014,7 +1014,7 @@ elseif ($job == 'nav_comslist') {
 	  <tr>
 	   <td class="mbox">
 	   <?php while ($row = $db->fetch_assoc($result)) { ?>
-	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo htmlentities($row['title']); ?>')"> <?php echo $row['name']; ?> (<?php echo $lang->phrase('admin_cms_nav_package').' '.$row['title']; ?>)<br />
+	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo viscacha_htmlentities($row['title']); ?>')"> <?php echo $row['name']; ?> (<?php echo $lang->phrase('admin_cms_nav_package').' '.$row['title']; ?>)<br />
 	   <?php } ?>
 	   </td>
 	 </table>
@@ -1253,7 +1253,7 @@ elseif ($job == 'doc_select_image') {
 				$dirs[] = $file;
 			}
 			else if (is_file($leadon.$file) == true) {
-				$ext = strtolower(get_extension($file));
+				$ext = mb_strtolower(get_extension($file));
 				if(in_array($ext, $supportedextentions)) {
 					$files[] = $file;
 				}
@@ -1492,8 +1492,8 @@ elseif ($job == 'doc') {
 		else {
 			$row['update'] = $lang->phrase('admin_cms_unknown');
 		}
-		if (strlen($row['icomment']) > 100) {
-			$row['icomment'] = substr($row['icomment'], 0, 100).'...';
+		if (mb_strlen($row['icomment']) > 100) {
+			$row['icomment'] = mb_substr($row['icomment'], 0, 100).'...';
 		}
 		$newRow = array(
 			'title' => $row['title'],
@@ -1756,14 +1756,14 @@ elseif ($job == 'doc_add3') {
 
 	foreach ($use as $lid => $usage) {
 		if ($usage == 1) {
-			if (strlen($content[$lid]) < 20) {
+			if (mb_strlen($content[$lid]) < 20) {
 				$content[$lid] = trim(strip_tags($content[$lid]));
 			}
 			if (empty($content[$lid]) && $format['remote'] != 1) {
 				continue;
 			}
 			if (empty($title[$lid])) {
-				$title[$lid] = substr(strip_tags($content[$lid]), 0, 50).'...';
+				$title[$lid] = mb_substr(strip_tags($content[$lid]), 0, 50).'...';
 			}
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
@@ -1986,7 +1986,7 @@ elseif ($job == 'doc_edit2') {
 			$usage = 1;
 		}
 		$lid = $gpc->save_int($lid);
-		if (strlen($content[$lid]) < 20) {
+		if (mb_strlen($content[$lid]) < 20) {
 			$content[$lid] = trim(strip_tags($content[$lid]));
 		}
 		if (empty($content[$lid]) || $usage != 1) {
@@ -1994,7 +1994,7 @@ elseif ($job == 'doc_edit2') {
 		}
 		elseif ($usage == 1) {
 			if (empty($title[$lid])) {
-				$title[$lid] = substr(strip_tags($content[$lid]), 0, 50).'...';
+				$title[$lid] = mb_substr(strip_tags($content[$lid]), 0, 50).'...';
 			}
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;

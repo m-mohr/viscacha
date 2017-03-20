@@ -1,14 +1,14 @@
 CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `name` varchar(200) NOT NULL default '',
-  `module` mediumint(7) unsigned NOT NULL default '0',
-  `ordering` smallint(4) NOT NULL default '0',
-  `active` enum('0','1') NOT NULL default '1',
-  `position` varchar(128) NOT NULL default 'navigation',
-  `required` enum('0','1') NOT NULL default '1',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `module` mediumint(7) unsigned NOT NULL NOT NULL DEFAULT '',
+  `ordering` smallint(4) NOT NULL NOT NULL DEFAULT '',
+  `active` enum('0','1') NOT NULL DEFAULT '1',
+  `position` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'navigation',
+  `required` enum('0','1') NOT NULL DEFAULT '1',
   PRIMARY KEY  (`id`),
   KEY `position` (`position`)
-) ENGINE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=23 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
 INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active`, `position`, `required`) VALUES
 (1, 'Related Topics', 1, 2, '1', 'showtopic_end', '0'),

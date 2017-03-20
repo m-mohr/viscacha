@@ -29,20 +29,12 @@ date_default_timezone_set(@date_default_timezone_get());
 
 /* Fixed php functions */
 
-define('ENCODING_LIST', 'ISO-8859-1, ISO-8859-15, UTF-8, ASCII, cp1252, cp1251, GB2312, SJIS, KOI8-R');
 // IDNA Convert Class
 include_once (dirname(__FILE__).'/class.idna.php');
 
 function convert_host_to_idna($host) {
 	$idna = new idna_convert();
-	if (function_exists('mb_convert_encoding')) {
-		$host = mb_convert_encoding($host, 'UTF-8', ENCODING_LIST);
-	}
-	else {
-		$host = utf8_encode($host);
-	}
-	$host = $idna->encode($host);
-	return $host;
+	return $idna->encode($host);
 }
 
 function fsockopen_idna($host, $port, $timeout) {
@@ -68,6 +60,102 @@ function viscacha_header($header, $replace = true, $code = 0) {
 	else {
 		header($header, $replace);
 	}
+}
+
+function viscacha_htmlentities($text, $quote = ENT_QUOTES, $double_encode = TRUE) {
+	return htmlentities($text, $quote, 'UTF-8', $double_encode);
+}
+
+function viscacha_html_entity_decode($text, $quote = ENT_QUOTES) {
+	return html_entity_decode($text, $quote, 'UTF-8');
+}
+
+function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES, $double_encode = TRUE) {
+	return htmlspecialchars($text, $quote, 'UTF-8', $double_encode);
+}
+
+function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES) {
+	return htmlspecialchars_decode($text, $quote);
+}
+
+if (!function_exists('mb_strcasecmp')) {
+	function mb_strcasecmp($str1, $str2, $encoding = 'UTF-8') {
+	  return strcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+	}
+}
+
+if (!function_exists('mb_strnatcasecmp')) {
+	function mb_strnatcasecmp($str1, $str2, $encoding = 'UTF-8') {
+	  return strnatcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+	}
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_ucwords')) {
+    /**
+     * @param string $str
+     * @param string $encoding
+     * @return string Uc Words
+     */
+    function mb_ucwords($str, $encoding = 'UTF-8')
+    {
+        $upper = true;
+        $res = '';
+        for ($i = 0; $i < mb_strlen($str, $encoding); $i++) {
+            $c = mb_substr($str, $i, 1, $encoding);
+            if ($upper) {
+                $c = mb_convert_case($c, MB_CASE_UPPER, $encoding);
+                $upper = false;
+            }
+            if ($c == ' ') {
+                $upper = true;
+            }
+            $res .= $c;
+        }
+        return $res;
+    }
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_ucfirst')) {
+    /**
+     * @param string $str
+     * @param string $encoding
+     * @return string Uc first
+     */
+    function mb_ucfirst($str, $encoding = 'UTF-8')
+    {
+        $firstLetter = mb_substr($str, 0, 1, $encoding);
+        $rest = mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
+        return mb_strtoupper($firstLetter, $encoding) . $rest;
+    }
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_str_split')) {
+    /**
+     * @param string $string
+     * @param int $split_length
+     * @param string $encoding
+     * @return array
+     * @throws Exception
+     */
+    function mb_str_split($string, $split_length = 1, $encoding = 'UTF-8')
+    {
+        if ($split_length == 0) {
+            throw new \Exception('The length of each segment must be greater than zero');
+        }
+        $ret = array();
+        $len = mb_strlen($string, $encoding);
+        for ($i = 0; $i < $len; $i += $split_length) {
+            $ret[] = mb_substr($string, $i, $split_length, $encoding);
+        }
+        if (!$ret) {
+            // behave like str_split() on empty input
+            return array("");
+        }
+        return $ret;
+    }
 }
 
 /**
@@ -163,13 +251,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+	if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
-	elseif (isset($_SERVER['OS']) && strpos(strtolower($_SERVER['OS']), 'Windows') !== false) {
+	elseif (isset($_SERVER['OS']) && mb_strpos(mb_strtolower($_SERVER['OS']), 'Windows') !== false) {
 		return true;
 	}
-	elseif (function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
+	elseif (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows')) {
 		return true;
 	}
 	else {
@@ -177,12 +265,12 @@ function isWindows() {
 	}
 }
 function isMac() {
-	$mac = strtoupper(substr(PHP_OS, 0, 3));
+	$mac = mb_strtoupper(mb_substr(PHP_OS, 0, 3));
 	return ($mac == 'MAC' || $mac == 'DAR');
 }
 
 function ini_isActive($value) {
-	return ($value == 'true' || $value == '1' || strtolower($value) == 'on');
+	return ($value == 'true' || $value == '1' || mb_strtolower($value) == 'on');
 }
 
 function ini_isSecureHttp() {
@@ -201,7 +289,7 @@ function ini_maxupload() {
 	);
 	foreach ($keys as $key => $bytes) {
 		$val = intval(trim(@ini_get($key)));
-		$last = strtolower($val{strlen($val)-1});
+		$last = mb_strtolower($val{mb_strlen($val)-1});
 		switch($last) {
 			case 'g':
 				$val *= 1024;
@@ -233,7 +321,7 @@ function ini_maxupload() {
 function getDocumentRoot(){
 	//sets up the localpath
 	$localpath = getenv("SCRIPT_NAME");
- 	$localpath = substr($localpath, strpos($localpath, '/', iif(strlen($localpath) >= 1, 1, 0)), strlen($localpath));
+ 	$localpath = mb_substr($localpath, mb_strpos($localpath, '/', iif(mb_strlen($localpath) >= 1, 1, 0)), mb_strlen($localpath));
 
 	//realpath sometimes doesn't work, but gets the full path of the file
 	$absolutepath = realpath($localpath);
@@ -247,7 +335,7 @@ function getDocumentRoot(){
 	}
 
 	//prepares the document root string
-	$docroot = substr($absolutepath,0,strpos($absolutepath,$localpath));
+	$docroot = mb_substr($absolutepath,0,mb_strpos($absolutepath,$localpath));
 	return $docroot;
 }
 
@@ -264,27 +352,15 @@ function extract_dir($source, $realpath = true) {
 	else {
 		$source = rtrim($source, '/\\');
 	}
-	$pos = strrpos($source, '/');
+	$pos = mb_strrpos($source, '/');
 	if ($pos === false) {
-		$pos = strrpos($source, '\\');
+		$pos = mb_strrpos($source, '\\');
 	}
 	if ($pos > 0) {
-		$dest = substr($source, 0, $pos+1);
+		$dest = mb_substr($source, 0, $pos+1);
 	}
 	else {
 		$dest = '';
 	}
 	return $dest;
 }
-
-/* Error constants */
-if (!defined('E_RECOVERABLE_ERROR')) {
-	define('E_RECOVERABLE_ERROR', 4096);
-}
-if (!defined('E_DEPRECATED')) {
-	define('E_DEPRECATED', 8192);
-}
-if (!defined('E_USER_DEPRECATED')) {
-	define('E_USER_DEPRECATED', 16384);
-}
-?>

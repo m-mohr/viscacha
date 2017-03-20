@@ -103,7 +103,7 @@ class uploader {
 	 */
 	function file_types($accept_type = null){
 		if (is_array($accept_type) == true) {
-		    $this->file_types = array_map('strtolower', $accept_type);
+		    $this->file_types = array_map('mb_strtolower', $accept_type);
 		}
 		else {
 		    $this->file_types = array('zip','rar','doc','pdf','txt','gif','png','jpg');
@@ -117,7 +117,7 @@ class uploader {
 	 */
 	function set_path($path) {
 		$this->path = $path;
-		if ($path[strlen($path)-1] != '/' && $path[strlen($path)-1] != '\\') {
+		if ($path[mb_strlen($path)-1] != '/' && $path[mb_strlen($path)-1] != '\\') {
 			$this->path .= '/';
 		}
 	}
@@ -160,7 +160,7 @@ class uploader {
 		// Set input field name
 		$this->file['form'] = $index;
 		// Get extension
-		$this->file['extension'] = strtolower(get_extension($this->file['name']));
+		$this->file['extension'] = mb_strtolower(get_extension($this->file['name']));
 		// Get file size
 		if (empty($this->file['size']) == true) {
 			$this->file['size'] = filesize($this->file['tmp_name']);
@@ -168,7 +168,7 @@ class uploader {
 		// Set mime type
 		if (empty($this->file['type']) == true) {
 			if (function_exists('mime_content_type') == true) {
-				$this->file['type'] = mime_content_type($this->file['name']);
+				$this->file['type'] = @mime_content_type($this->file['name']);
 			}
 		}
 		// Check image data (height, width, image)
@@ -190,7 +190,7 @@ class uploader {
 			$this->file['image'] = false;
 		}
 		// Set raw_name
-		$this->file['raw_name'] = substr($this->file['name'], 0, -(strlen($this->file['extension'])+1) );
+		$this->file['raw_name'] = mb_substr($this->file['name'], 0, -(mb_strlen($this->file['extension'])+1) );
 		$this->file['filename'] = $this->file['name'];
 
 		// test max file size
@@ -241,9 +241,9 @@ class uploader {
 			return false;
 		}
 
-		if ($path != null && strlen($path) > 0) {
+		if ($path != null && mb_strlen($path) > 0) {
 			$this->path = $path;
-			if ($path[strlen($path)-1] != '/' && $path[strlen($path)-1] != '\\') {
+			if ($path[mb_strlen($path)-1] != '/' && $path[mb_strlen($path)-1] != '\\') {
 				$this->path .= '/';
 			}
 		}
@@ -308,7 +308,7 @@ class uploader {
 		$this->file['filename'] = $this->file['raw_name'].'.'.$this->file['extension'];
 
 		// Clean up text file line breaks
-		if(substr($this->file['type'], 0, 4) == 'text') {
+		if(mb_substr($this->file['type'], 0, 4) == 'text') {
 			$this->cleanup_text_file();
 		}
 		if (isset($GLOBALS['filesystem'])) {

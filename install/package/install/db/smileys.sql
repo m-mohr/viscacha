@@ -1,11 +1,11 @@
 CREATE TABLE `{:=DBPREFIX=:}smileys` (
   `id` smallint(5) unsigned NOT NULL auto_increment,
-  `search` varchar(255) NOT NULL default '',
-  `replace` text NOT NULL,
-  `desc` text NOT NULL,
-  `show` enum('0','1') NOT NULL default '0',
+  `search` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `replace` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `desc` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `show` enum('0','1') NOT NULL NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  AUTO_INCREMENT=32 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
 INSERT INTO `{:=DBPREFIX=:}smileys` (`id`, `search`, `replace`, `desc`, `show`) VALUES
 (1, ':D', '{folder}/biggrin.gif', 'Grinning', '1'),

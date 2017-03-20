@@ -132,7 +132,7 @@ if (!empty($info['vquestion']) && $_GET['page'] == 1) {
 		if ($votes > 0) {
 			$row['percent2'] = ceil($row['votes'] / $votes * 200);
 			$row['percent'] = $row['votes'] / $votes * 100;
-			if (strstr($row['percent'], '.') > 0) {
+			if (mb_strstr($row['percent'], '.') > 0) {
 				$row['percent'] = sprintf("%01.1f", $row['percent']);
 			}
 		}

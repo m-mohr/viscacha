@@ -78,13 +78,13 @@ if ($_GET['action'] == "save") {
 	if (strxlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (strxlen($_POST['name']) < $config['minnamelength']) {
+	if (mb_strxlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
 	if (strxlen($_POST['pw']) > $config['maxpwlength']) {
 		$error[] = $lang->phrase('pw_too_long');
 	}
-	if (strxlen($_POST['pw']) < $config['minpwlength']) {
+	if (mb_strxlen($_POST['pw']) < $config['minpwlength']) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {

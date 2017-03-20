@@ -1,12 +1,12 @@
 CREATE TABLE `{:=DBPREFIX=:}packages` (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
-  `title` varchar(200) NOT NULL default '',
-  `active` enum('0','1') NOT NULL default '0',
-  `version` varchar(64) NOT NULL default '',
-  `internal` varchar(100) NOT NULL default '',
-  `core` enum('0','1') NOT NULL default '0',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `active` enum('0','1') NOT NULL NOT NULL DEFAULT '',
+  `version` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `internal` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `core` enum('0','1') NOT NULL NOT NULL DEFAULT '',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM PACK_KEYS=0 AUTO_INCREMENT=10 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
 INSERT INTO `{:=DBPREFIX=:}packages` (`id`, `title`, `active`, `version`, `internal`, `core`) VALUES
 (1, 'Related Topics', '1', '0.8', 'viscacha_related_topics', '0'),

@@ -1,6 +1,6 @@
 $request_uri = getRequestURI();
 if (!$my->vlogin) {
-	$request_uri = htmlspecialchars($request_uri);
+	$request_uri = viscacha_htmlspecialchars($request_uri);
 	$tpl->globalvars(compact("request_uri"));
 	echo $tpl->parse("modules/{$pluginid}/nav_guest");
 }

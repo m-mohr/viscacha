@@ -13,9 +13,6 @@ require_once("classes/class.filesystem.php");
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 
-@ini_set('default_charset', '');
-header('Content-type: text/html; charset=iso-8859-1');
-
 // Colours
 $txt2img_fg = '204a87';
 $txt2img_bg = '94B7DF';
@@ -210,7 +207,7 @@ function getHookArray() {
 			continue;
 		}
 		if ($group != null && $line{0} == '-') {
-			$hooks[$group][] = substr($line, 1);
+			$hooks[$group][] = mb_substr($line, 1);
 		}
 	}
 	return $hooks;
@@ -276,7 +273,7 @@ function gzTempfile($file, $new = null) {
 	$data = ob_get_contents();
 	ob_end_clean();
 	if (empty($new)) {
-		$new = 'temp/'.md5(microtime()).'.enc.tar';
+		$new = 'temp/'.generate_uid().'.enc.tar';
 	}
 	$filesystem->file_put_contents($new, $data);
 	return $new;
@@ -293,7 +290,7 @@ function get_webserver() {
 	elseif (preg_match('#Zeus/([0-9\.]+)#siU', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Zeus v$wsregs[1]";
 	}
-	elseif (strtoupper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {
+	elseif (mb_strtoupper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {
 		$webserver = 'Apache';
 	}
 	elseif (defined('SAPI_NAME')) {
@@ -435,7 +432,7 @@ function head($onload = '') {
 <html>
 <head>
 	<title><?php echo $config['fname']; ?>: Administration Control Panel - powered by Viscacha</title>
-	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta http-equiv="Pragma" content="no-cache" />
 	<meta http-equiv="Expires" content="-1" />
 	<meta http-equiv="Cache-Control" content="no-cache" />

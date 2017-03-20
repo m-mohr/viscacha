@@ -42,12 +42,12 @@ function getRedirectURL($standard = true) {
 	else {
 		$file = basename($loc);
 	}
-	if (strpos($file, '?') !== false) {
+	if (mb_strpos($file, '?') !== false) {
 		$parts = explode('?', $file, 2);
 		$file = $parts[0];
 		if (!empty($parts[1])) {
 			parse_str($parts[1], $q);
-			if (!empty($q['action']) && substr($q['action'], -1) == '2') {
+			if (!empty($q['action']) && mb_substr($q['action'], -1) == '2') {
 				$loc = ''; // When the last char of the value of action is 2 we have in most cases a "POST" form
 			}
 		}
@@ -61,7 +61,7 @@ function getRedirectURL($standard = true) {
  		}
 	}
 	if (!empty($loc)) {
-		if (strpos($loc, '?') === false) {
+		if (mb_strpos($loc, '?') === false) {
 			$loc .= SID2URL_1;
 		}
 		else {
@@ -73,7 +73,7 @@ function getRedirectURL($standard = true) {
 
 function getRequestURI() {
 	global $config;
-	$method = (isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) == 'GET');
+	$method = (isset($_SERVER['REQUEST_METHOD']) && mb_strtoupper($_SERVER['REQUEST_METHOD']) == 'GET');
 	if (empty($_SERVER['REQUEST_URI']) == false && $method == true) {
 		$request_uri = '';
 		$var = parse_url($config['furl']);
@@ -90,7 +90,7 @@ function getRequestURI() {
 			}
 			$file = basename($url['path']);
 			if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
-				if (strpos($loc, '?') === false) {
+				if (mb_strpos($loc, '?') === false) {
 					$request_uri .= SID2URL_1;
 				}
 				else {
@@ -110,11 +110,11 @@ function getRefererURL() {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
 		if (!empty($url['query'])) {
 			parse_str($url['query'], $q);
-			if (!empty($q['action']) && substr($q['action'], -1) == '2') {
+			if (!empty($q['action']) && mb_substr($q['action'], -1) == '2') {
 				return ''; // When the last char of the value of action is 2 we have in most cases a "POST" form
 			}
 		}
-		if (!empty($url['host']) && strpos($config['furl'], $url['host']) !== FALSE) {
+		if (!empty($url['host']) && mb_strpos($config['furl'], $url['host']) !== FALSE) {
 			$request_uri = $_SERVER['HTTP_REFERER'];
 		}
 		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
@@ -123,7 +123,7 @@ function getRefererURL() {
 		}
 		$file = basename($url['path']);
 		if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
-			if (strpos($loc, '?') === false) {
+			if (mb_strpos($loc, '?') === false) {
 				$request_uri .= SID2URL_1;
 			}
 			else {
@@ -150,7 +150,7 @@ function cmp_edit_date($a, $b) {
 }
 
 function DocCodePagination($cc) {
-	$pos1 = stripos($cc, '{pagebreak}');
+	$pos1 = mb_stripos($cc, '{pagebreak}');
 	if ($pos1 === false) {
 		return array($cc, 1);
 	}
@@ -182,7 +182,7 @@ function DocCodeParser($syntax, $parser = 1) {
 		$syntax = $bbcode->parse($syntax);
 	}
 	elseif ($parser == 0) {
-		$syntax = htmlspecialchars($syntax, ENT_NOQUOTES);
+		$syntax = viscacha_htmlspecialchars($syntax, ENT_NOQUOTES);
 	}
 	return $syntax;
 }
@@ -207,7 +207,7 @@ function numbers ($nvar,$deci=null) {
 	if ($deci == null) {
 		$deci = $config['decimals'];
 	}
-	if (strpos($nvar, '.') === false) {
+	if (mb_strpos($nvar, '.') === false) {
 		$deci = 0;
 	}
 
@@ -599,7 +599,7 @@ function BoardSelect($board = 0) {
 							$forum['l_prefix'] = '';
 						}
 
-						if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
+						if (mb_strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
 							$forum['l_topic_full'] = $forum['l_prefix'].$forum['l_topic'];
 							$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
 							$forum['l_topic'] .= "...";
@@ -718,7 +718,7 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	}
 
 	if (!empty($errorurl)) {
-		$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
+		$js_errorurl = viscacha_html_entity_decode($errorurl, ENT_NOQUOTES);
 		$errorurl = preg_replace('~&(?!amp;)~i', '&amp;', $errorurl);
 	}
 	else {
@@ -765,7 +765,7 @@ function errorLogin($errormsg = null, $errorurl = null, $EOS = null) {
 	}
 
 	if ($errorurl == null) {
-		$errorurl = htmlspecialchars(getRequestURI());
+		$errorurl = viscacha_htmlspecialchars(getRequestURI());
 	}
 
 	general_message('not_allowed', 'errorlogin', $errormsg, $errorurl, $EOS);
@@ -831,7 +831,7 @@ function import_error_data($fid) {
 function save_error_data($fc, $fid = '') {
 	global $gpc;
 	if (!is_hash($fid)) {
-		$fid = md5(microtime());
+		$fid = generate_uid();
 	}
 
 	$cache = new CacheItem($fid, 'temp/errordata/');
@@ -843,7 +843,7 @@ function save_error_data($fc, $fid = '') {
 function count_filled($array) {
 	$int = 0;
 	foreach ($array as $val) {
-		if (!empty($val) || strlen($val) > 0) {
+		if (!empty($val)) {
 			$int++;
 		}
 	}

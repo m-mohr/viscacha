@@ -135,7 +135,7 @@ elseif ($_GET['action'] == "savevote") {
 	if (strxlen($_POST['question']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('question_too_long');
 	}
-	if (strxlen($_POST['question']) < $config['mintitlelength']) {
+	if (mb_strxlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$i = 1;
@@ -144,7 +144,7 @@ elseif ($_GET['action'] == "savevote") {
 		if (strlen($uval) >= 255) {
 			$error[] = $lang->phrase('vote_reply_too_long');
 		}
-		if (strlen($uval) == 0) {
+		if (empty($uval)) {
 			unset($notices[$id]);
 		}
 		else {
@@ -221,7 +221,7 @@ elseif ($_GET['action'] == "save") {
 		if (strxlen($_POST['name']) > $config['maxnamelength']) {
 			$error[] = $lang->phrase('name_too_long');
 		}
-		if (strxlen($_POST['name']) < $config['minnamelength']) {
+		if (mb_strxlen($_POST['name']) < $config['minnamelength']) {
 			$error[] = $lang->phrase('name_too_short');
 		}
 		if (strlen($_POST['email']) > 200) {
@@ -242,13 +242,13 @@ elseif ($_GET['action'] == "save") {
 	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (strxlen($_POST['comment']) < $config['minpostlength']) {
+	if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('title_too_long');
 	}
-	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+	if (mb_strxlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
 

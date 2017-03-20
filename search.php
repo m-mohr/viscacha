@@ -59,13 +59,13 @@ if ($_GET['action'] == "search") {
 	$used = array();
 	foreach ($searchwords as $sw) {
 		if ($sw{0} == '-') {
-			$sw2 = substr($sw, 1);
+			$sw2 = mb_substr($sw, 1);
 		}
 		else {
 			$sw2 = $sw;
 		}
 		$sw2 = str_replace('*', '', $sw2);
-		if (in_array(strtolower($sw2), $ignorewords) || strxlen($sw2) < $config['searchminlength']) {
+		if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strxlen($sw2) < $config['searchminlength']) {
 			$ignored[] = $sw2;
 		}
 		else {
@@ -74,7 +74,7 @@ if ($_GET['action'] == "search") {
 	}
 
 	$name = $gpc->get('name', str);
-	if (strxlen($name) >= $config['searchminlength']) {
+	if (mb_strxlen($name) >= $config['searchminlength']) {
 		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$name}' LIMIT 1");
 		if ($db->num_rows($result) == 1) {
 			list($rname) = $db->fetch_num($result);
@@ -108,7 +108,7 @@ if ($_GET['action'] == "search") {
 		$str = $used[$i];
 		if ($str{0} == '-') {
 			$not = 'NOT ';
-			$str = substr($str, 1);
+			$str = mb_substr($str, 1);
 		}
 		else {
 			$not = '';
@@ -140,7 +140,7 @@ if ($_GET['action'] == "search") {
 		$sql_where .= "r.name = '{$rname}' ";
 	}
 
-	if (strxlen($name) >= $config['searchminlength']) {
+	if (mb_strxlen($name) >= $config['searchminlength']) {
 		$used[] = $name;
 	}
 	else {
@@ -392,7 +392,7 @@ elseif ($_GET['action'] == "active") {
    		}
 	}
 	elseif (preg_match("/(days|hours)-(\d{1,2})/i", $_GET['type'], $type)) {
-		$type[1] = strtolower($type[1]);
+		$type[1] = mb_strtolower($type[1]);
 		if (empty($type[1])) {
 			$type[1] = 'days';
 		}

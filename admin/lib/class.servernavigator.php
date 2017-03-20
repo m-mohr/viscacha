@@ -42,7 +42,7 @@ class ServerNavigator
 		if (empty($this->path)) {
 			$this->path = './';
 		}
-		if (substr($this->path, strlen($this->path)-1, strlen($this->path) ) != DIRECTORY_SEPARATOR) {
+		if (mb_substr($this->path, mb_strlen($this->path)-1, mb_strlen($this->path) ) != DIRECTORY_SEPARATOR) {
 			$this->path .= DIRECTORY_SEPARATOR;
 		}
 
@@ -349,17 +349,17 @@ class ServerNavigator
 	function formatSize($size_bytes)
 	{
 		if ($size_bytes < 1024) {
-			$size	 = number_format($size_bytes, 0, ".", ",");
+			$size	 = numbers($size_bytes, 0);
 			$measure = 'B';
 		}
 		else if (($size_bytes/1024) < 1024) {
-			$size	 = number_format(  ($size_bytes/1024)  , 2, ".", ",");
+			$size	 = numbers(($size_bytes/1024), 2);
 			$measure = 'KB';
 		} else if (($size_bytes/(1024*1024)) < 1024) {
-			$size	 = number_format(  ($size_bytes/(1024*1024))  , 2, ".", ",");
+			$size	 = numbers(($size_bytes/(1024*1024)), 2);
 			$measure = 'MB';
 		} else {
-			$size	 = number_format(  ($size_bytes/(1024*1024*1024))  , 2, ".", ",");
+			$size	 = numbers(($size_bytes/(1024*1024*1024)), 2);
 			$measure = 'GB';
 		}
 

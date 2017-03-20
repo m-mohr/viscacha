@@ -74,8 +74,8 @@ function chmod_str2oct($mode) {
 }
 
 function check_chmod($min, $given) {
-	$min = explode("\r\n", chunk_split($min, 1));
-	$given = explode("\r\n", chunk_split($given, 1));
+	$min = str_split($min);
+	$given = str_split($given);
 
 	if (count($given) < 3 || count($min) < 3) {
 		return false;

@@ -24,8 +24,8 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
-define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('URL_SPECIALCHARS', 'a-zA-ZÃ¡Ã Ã¢ÃÃ€Ã‚Ã§Ã‡Ã©Ã¨Ã«ÃªÃ‰ÃˆÃ‹ÃŠÃ­Ã¬Ã®Ã¯ÃÃŒÃŽÃÃ³Ã²Ã´Ã“Ã’Ã”ÃºÃ¹Ã»ÃšÃ™Ã›Ã¤Ã„Ã¶Ã–Ã¼Ãœ');
+define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ÃŸ\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ÃŸ\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
 define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
 
 define('REMOTE_INVALID_URL', 100);
@@ -63,12 +63,17 @@ function is_hash($string) {
 	return (bool) preg_match("/^[a-f\d]{32}$/i", $string);
 }
 
+// Generates an alpha-numeric 32 char unique ID
+function generate_uid($value = null) {
+	return md5(uniqid($value, true));
+}
+
 function newCAPTCHA($place = null) {
 	global $config;
 	$place = 'botgfxtest'.iif(!empty($place), '_'.$place);
 	$cfg = $config[$place];
 	$type = constant('CAPTCHA_TYPE_'.$cfg);
-	$filename = strtolower($type);
+	$filename = mb_strtolower($type);
 	require_once("classes/graphic/class.{$filename}.php");
 	$obj = new $type();
 	return $obj;
@@ -148,7 +153,7 @@ function checkRemotePic($pic, $id) {
 		return REMOTE_FILESIZE_ERROR;
 	}
 
-	$filename = md5(uniqid($id));
+	$filename = generate_uid($id);
 	$origfile = 'temp/'.$filename;
 	$filesystem->file_put_contents($origfile, $avatar_data);
 
@@ -168,7 +173,7 @@ function checkRemotePic($pic, $id) {
 	if ($height > $config['avheight']) {
 		return REMOTE_IMAGE_HEIGHT_ERROR;
 	}
-	$types = explode(',', strtolower($config['avfiletypes']));
+	$types = explode(',', mb_strtolower($config['avfiletypes']));
 	$ext = image_type_to_extension($type, false);
 	if (!in_array($ext, $types)) {
 		return REMOTE_EXTENSION_ERROR;
@@ -205,11 +210,10 @@ function JS_URL($url) {
  *
  * @param $arr, the array to be ordered
  * @param $l the "label" identifing the field
- * @param $f the ordering function to be used,
- *	strnatcasecmp() by default
+ * @param $f the ordering function to be used, mb_strnatcasecmp() by default
  * @return  TRUE on success, FALSE on failure.
  */
-function array_columnsort(&$arr, $l , $f='strnatcasecmp') {
+function array_columnsort(&$arr, $l , $f='mb_strnatcasecmp') {
 	return uasort($arr, create_function('$a, $b', "return $f(\$a['$l'], \$b['$l']);"));
 }
 
@@ -265,7 +269,7 @@ function double_udata ($opt,$val) {
 				$row = trim($row);
 				if (!empty($row)) {
 					$row = explode("\t", $row);
-					if (strtolower($row[1]) == strtolower($val)) {
+					if (mb_strtolower($row[1]) == mb_strtolower($val)) {
 						return false;
 					}
 				}
@@ -296,7 +300,7 @@ function getDocLangID($data) {
 }
 
 function send_nocache_header() {
-	if (!empty($_SERVER['SERVER_SOFTWARE']) && strstr($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
+	if (!empty($_SERVER['SERVER_SOFTWARE']) && mb_strstr($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
 		header ('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0');
 	}
 	else {
@@ -400,21 +404,21 @@ function convert2path($path, $returnEmptyOnInvalid = false) {
 
 function convert2adress($url, $toLower = true, $spacer = '-') {
 	if ($toLower == true) {
-		$url = strtolower($url);
+		$url = mb_strtolower($url);
 	}
 
 	// International umlauts
-	$url = str_replace (array('á', 'à', 'â', 'Á', 'À', 'Â'),			'a', $url);
-	$url = str_replace (array('ç', 'Ç'), 								'c', $url);
-	$url = str_replace (array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ë', 'Ê'),	'e', $url);
-	$url = str_replace (array('í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï'),	'i', $url);
-	$url = str_replace (array('ó', 'ò', 'ô', 'Ó', 'Ò', 'Ô'), 			'o', $url);
-	$url = str_replace (array('ú', 'ù', 'û', 'Ú', 'Ù', 'Û'), 			'u', $url);
+	$url = str_replace (array('Ã¡', 'Ã ', 'Ã¢', 'Ã', 'Ã€', 'Ã‚'),			'a', $url);
+	$url = str_replace (array('Ã§', 'Ã‡'), 								'c', $url);
+	$url = str_replace (array('Ã©', 'Ã¨', 'Ã«', 'Ãª', 'Ã‰', 'Ãˆ', 'Ã‹', 'ÃŠ'),	'e', $url);
+	$url = str_replace (array('Ã­', 'Ã¬', 'Ã®', 'Ã¯', 'Ã', 'ÃŒ', 'ÃŽ', 'Ã'),	'i', $url);
+	$url = str_replace (array('Ã³', 'Ã²', 'Ã´', 'Ã“', 'Ã’', 'Ã”'), 			'o', $url);
+	$url = str_replace (array('Ãº', 'Ã¹', 'Ã»', 'Ãš', 'Ã™', 'Ã›'), 			'u', $url);
 	// German umlauts
-	$url = str_replace (array('ä', 'Ä'), 'ae', $url);
-	$url = str_replace (array('ö', 'Ö'), 'oe', $url);
-	$url = str_replace (array('ü', 'Ü'), 'ue', $url);
-	$url = str_replace (array('ß'), 'ss', $url);
+	$url = str_replace (array('Ã¤', 'Ã„'), 'ae', $url);
+	$url = str_replace (array('Ã¶', 'Ã–'), 'oe', $url);
+	$url = str_replace (array('Ã¼', 'Ãœ'), 'ue', $url);
+	$url = str_replace (array('ÃŸ'), 'ss', $url);
 	// Replace some special chars with delimiter
 	$url = preg_replace('/[\+\s\r\n\t]+/', $spacer, $url);
 	// Replace multiple delimiter chars with only one char
@@ -449,17 +453,17 @@ function secure_path($path) {
 	if (!file_exists($sd)) {
 		trigger_error('File '.$sd.' does not exist!', E_USER_WARNING);
 	}
-	if (strpos($path, '://') !== FALSE) {
+	if (mb_strpos($path, '://') !== FALSE) {
 		trigger_error('Hacking attemp (Path: Protocol)', E_USER_ERROR);
 	}
-	if (strpos($sd, $dr) === FALSE && file_exists($sd)) {
+	if (mb_strpos($sd, $dr) === FALSE && file_exists($sd)) {
 		trigger_error('Hacking attemp (Path: Not in Document_Root)', E_USER_ERROR);
 	}
 	$sd = str_replace($dr, '', $sd);
 	if (DIRECTORY_SEPARATOR != '/') {
 		$sd = str_replace(DIRECTORY_SEPARATOR, '/', $sd);
 	}
-	$char = substr($sd, strlen($sd)-1, 1);
+	$char = mb_substr($sd, mb_strlen($sd)-1, 1);
 	if (!is_file($sd) && $char != '/') {
 		$sd .= '/';
 	}
@@ -479,7 +483,7 @@ function check_mail($email, $simple = false) {
 	global $config;
 	if(preg_match("~^".EMAIL_REGEXP."$~i", $email)) {
 	 	list(, $domain) = explode('@', $email);
-	 	$domain = strtolower($domain);
+	 	$domain = mb_strtolower($domain);
 		// Check MX record.
 	 	// The idea for this is from UseBB/phpBB
 	 	if ($config['local_mode'] == 0 && $config['email_check_mx'] == 1 && !$simple) {
@@ -499,23 +503,28 @@ function benchmarktime() {
    return ((float)$usec + (float)$sec);
 }
 
-function strxlen($string) {
+function strxlen($string) { // TODO: UTF8 - Can probably be removed
 	$string = preg_replace('~&(#[0-9]+|#x[0-9a-f]+|[a-z]{1}[0-9a-z]+);~i', '-', $string);
 	return strlen($string);
 }
 
-function subxstr($str, $start, $length = null) {
+function mb_strxlen($string) { // TODO: UTF8 - Can probably be removed
+	$string = preg_replace('~&(#[0-9]+|#x[0-9a-f]+|[a-z]{1}[0-9a-z]+);~i', '-', $string);
+	return mb_strlen($string);
+}
+
+function subxstr($str, $start, $length = null) { // TODO: UTF8 - Can probably be removed
 	if ($length === 0) {
 		return ""; //stop wasting our time ;)
 	}
 
 	//check if we can simply use the built-in functions
-	if (strpos($str, '&') === false) { //No entities. Use built-in functions
+	if (mb_strpos($str, '&') === false) { //No entities. Use built-in functions
 		if ($length === null) {
-			return substr($str, $start);
+			return mb_substr($str, $start);
 		}
 		else {
-			return substr($str, $start, $length);
+			return mb_substr($str, $start, $length);
 		}
 	}
 
@@ -538,18 +547,18 @@ function subxstr($str, $start, $length = null) {
 	}
 
 	if (!isset($length)) { // no $length argument passed, return all remaining characters
-		return substr($str, $real_start);
+		return mb_substr($str, $real_start);
 	}
 	else if ($length > 0) { // copy $length chars
 		if ($start+$length >= $html_length) { // return all remaining characters
-			return substr($str, $real_start);
+			return mb_substr($str, $real_start);
 		}
 		else { //return $length characters
-			return substr($str, $real_start, $chars[max($start,0)+$length][1] - $real_start);
+			return mb_substr($str, $real_start, $chars[max($start,0)+$length][1] - $real_start);
 		}
 	}
 	else { //negative $length. Omit $length characters from end
-		return substr($str, $real_start, $chars[$html_length+$length][1] - $real_start);
+		return mb_substr($str, $real_start, $chars[$html_length+$length][1] - $real_start);
 	}
 
 }
@@ -559,7 +568,7 @@ function random_word($laenge=8) {
 	$string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-_?!.";
 
 	for ($i=1; $i <= $laenge; $i++) {
-		$newpass .= substr($string, mt_rand(0,strlen($string)-1), 1);
+		$newpass .= mb_substr($string, mt_rand(0,mb_strlen($string)-1), 1);
 	}
 
 	return $newpass;
@@ -652,7 +661,7 @@ function dateSpec($format, $timestamp = null) {
 	$tz = array();
 	$tz[0] = $my->timezone < 0 ? '' : '+';
 	$tz[1] = sprintf("%02d", $my->timezone);
-	$tz[2] = sprintf("%02d", substr($my->timezone*100, -2)*0.6);
+	$tz[2] = sprintf("%02d", mb_substr($my->timezone*100, -2)*0.6);
 
 	switch($format) {
 		case SPEC_ISO8601:
@@ -671,10 +680,10 @@ function get_extension($url, $include_dot = false) {
 		$path_parts["extension"] = '';
 	}
 	if ($include_dot == false) {
-		return strtolower($path_parts["extension"]);
+		return mb_strtolower($path_parts["extension"]);
 	}
 	else {
-		return '.'.strtolower($path_parts["extension"]);
+		return '.'.mb_strtolower($path_parts["extension"]);
 	}
 }
 
@@ -778,7 +787,7 @@ function _EnvValToInt($x) {
 			$y = 7;
 		}
 	}
-	$length = strlen($y)-1;
+	$length = mb_strlen($y)-1;
 	if ($length > 0) {
 		$i = ord($y{$length});
 	}

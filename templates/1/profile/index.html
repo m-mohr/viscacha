@@ -80,13 +80,13 @@
       </td>
 	</tr>
 </table>
-<?php if (strxlen($row->signature) > 3 && $row->p['usesignature']) { ?>
+<?php if (mb_strxlen($row->signature) > 3 && $row->p['usesignature']) { ?>
 <br class="minibr" />
 <div class="border">
 <h3><img src="<?php echo $tpl->img('signature'); ?>" alt="" /> <?php echo $lang->phrase('profile_signature'); ?></h3>
 <div class="bbody"><?php echo $row->signature; ?></div>
 </div>
-<?php } if (strxlen($row->about) > 3 && $row->p['useabout']) { ?>
+<?php } if (mb_strxlen($row->about) > 3 && $row->p['useabout']) { ?>
 <br class="minibr" />
 <div class="border">
 <h3><img src="<?php echo $tpl->img('about'); ?>" alt="" /> <?php echo $lang->phrase('profile_about'); ?></h3>

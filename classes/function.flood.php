@@ -72,9 +72,9 @@ function set_flood($type = FLOOD_TYPE_STANDARD) {
 	}
 	$time = time();
 	$limit = $time - $my->p['flood'];
-	// Alte Daten löschen (zu alte oder eigene)
+	// Alte Daten lÃ¶schen (zu alte oder eigene)
 	$db->query("DELETE FROM {$db->pre}flood WHERE (time <= '{$limit}' AND type != '".FLOOD_TYPE_LOGIN."') OR (type = '{$type}' AND {$field} = '{$value}')");
-	// Daten einfügen
+	// Daten einfÃ¼gen
 	$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', {$field} = '{$value}', type = '{$type}'");
 	return true;
 }

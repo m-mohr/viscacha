@@ -28,16 +28,16 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 
 	$row['read_more'] = false;
-	$pos = stripos($row['comment'], $cutat);
+	$pos = mb_stripos($row['comment'], $cutat);
 	if ($pos !== false) {
-		$row['comment'] = substr($row['comment'], 0, $pos);
+		$row['comment'] = mb_substr($row['comment'], 0, $pos);
 		$row['comment'] = rtrim($row['comment'], "\r\n").$lang->phrase('dot_more');
 		$row['read_more'] = true;
 	}
 	else {
 		// IntelliCut - Start
 		$stack = array();
-		if (strxlen($row['comment']) > $teaserlength) {
+		if (mb_strxlen($row['comment']) > $teaserlength) {
 			$culance = $teaserlength*0.1;
 			$teaserlength -= $culance;
 			$maxlength = $teaserlength+(2*$culance);
@@ -51,7 +51,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 			}
 			if ($row['read_more'] == false) {
 				$pos = $teaserlength+$culance;
-				if (($offset = strpos($row['comment'], ' ', $pos)) !== false) {
+				if (($offset = mb_strpos($row['comment'], ' ', $pos)) !== false) {
 					$newpos = $pos+$offset+1;
 					if ($maxlength > $newpos) {
 						$pos = $newpos;
@@ -62,7 +62,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 			}
 			$token = preg_split('/(\[[^\/\r\n\[\]]+?\]|\[\/[^\/\s\r\n\[\]]+?\])/', $row['comment'], -1, PREG_SPLIT_DELIM_CAPTURE);
 			foreach ($token as $t) {
-				if (substr($t, 0, 1) == '[' && preg_match('/(\[([^\/\r\n\[\]]+?)\]|\[\/([^\/\s\r\n\[\]]+?)\])/', $t, $match)) {
+				if (mb_substr($t, 0, 1) == '[' && preg_match('/(\[([^\/\r\n\[\]]+?)\]|\[\/([^\/\s\r\n\[\]]+?)\])/', $t, $match)) {
 					if (isset($match[3])) {
 						$top = array_shift($stack);
 					}
@@ -77,11 +77,11 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 									// reader, tab, hr, *, br
 			$custom = $bbcode->getCustomBB();
 			foreach ($custom as $re) {
-				$bbcodes[] = strtolower($re['bbcodetag']);
+				$bbcodes[] = mb_strtolower($re['bbcodetag']);
 			}
 			while(($top = array_shift($stack)) != null) {
 				$top = preg_replace("/(\w+?)(=[^\/\r\n\[\]]+)?/i", "\\1", $top);
-				$top = strtolower($top);
+				$top = mb_strtolower($top);
 				if (in_array($top, $bbcodes) == true) {
 					$row['comment'] = "{$row['comment']}[/{$top}]";
 				}

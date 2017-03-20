@@ -166,7 +166,7 @@ elseif ($job == 'smileys_import2') {
 		error('admin.php?action=bbcodes&job=smileys_import', $inserterrors);
 	}
 
-	$tempdir = 'temp/'.md5(microtime()).'/';
+	$tempdir = 'temp/'.generate_uid().'/';
 
 	// Exract
 	require_once('classes/class.zip.php');
@@ -242,21 +242,21 @@ elseif ($job == 'smileys_import2') {
 		// Get existing smiley codes from database
 		$result = $db->query('SELECT search FROM '.$db->pre.'smileys');
 		while ($row = $db->fetch_assoc($result)) {
-			$codes[] = strtolower($row['search']);
+			$codes[] = mb_strtolower($row['search']);
 		}
 	}
 
 	// Copy files and prepare for inserting smileys
 	$sqlinsert = array();
 	foreach ($package as $ini) {
-		if (strpos($ini['replace'], '{folder}') !== false) {
+		if (mb_strpos($ini['replace'], '{folder}') !== false) {
 			$ini['replace_temp'] = str_replace('{folder}', $tempdir, $ini['replace']);
 			$ini['replace_new'] = str_replace('{folder}', $config['smileypath'], $ini['replace']);
 			$n = 0;
 			while(file_exists($ini['replace_new'])) {
 				$ext = get_extension($ini['replace_new'], true);
-				$length = strlen($ext);
-				$base = substr($ini['replace_new'], $length*(-1), $length);
+				$length = mb_strlen($ext);
+				$base = mb_substr($ini['replace_new'], $length*(-1), $length);
 				$n++;
 				$base .= '_'.$n;
 				$ini['replace_new'] = $base.$ext;
@@ -461,13 +461,13 @@ elseif ($job == 'smileys_add') {
 		}
 	}
 
-	if (strlen($gpc->get('code', str)) < 2) {
+	if (mb_strlen($gpc->get('code', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_code_too_short');
 	}
 	if (empty($has_upload) && empty($img)) {
 		$error[] = $lang->phrase('admin_bbc_path_too_short');
 	}
-	if (strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
+	if (mb_strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
 		$error[] = $lang->phrase('admin_bbc_wrong_spec');
 	}
 	if (count($error) > 0) {
@@ -478,7 +478,7 @@ elseif ($job == 'smileys_add') {
 		$img = '{folder}/'.$has_upload;
 	}
 	else {
-		if (stripos(realpath($img), realpath($config['fpath'])) !== false) {
+		if (mb_stripos(realpath($img), realpath($config['fpath'])) !== false) {
 			$img = str_replace(realpath($config['fpath']), '{folder}', realpath($img));
 		}
 		else {
@@ -544,7 +544,7 @@ elseif ($job == 'add') {
 	echo head();
 
 	$error = array();
-	if (strxlen($gpc->get('temp1', str)) < 2) {
+	if (mb_strxlen($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
 	if (count($error) > 0) {
@@ -593,13 +593,13 @@ elseif ($job == 'edit2') {
 	$id = $gpc->get('id', int);
 
 	$error = array();
-	if (strxlen($gpc->get('temp1', str)) < 2) {
+	if (mb_strxlen($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
 	if (strxlen($gpc->get('temp1', str)) > 200) {
 		$error[] = $lang->phrase('admin_bbc_word_too_long');
 	}
-	if (strlen($gpc->get('temp2', none)) > 255) {
+	if (mb_strlen($gpc->get('temp2', none)) > 255) {
 		$error[] = $lang->phrase('admin_bbc_something_else_too_long');
 	}
 	if (count($error) > 0) {
@@ -664,7 +664,7 @@ elseif ($job == 'custombb_export') {
 	$content = serialize($data);
 
 	viscacha_header('Content-Type: text/plain');
-	viscacha_header('Content-Length: '.strlen($content));
+	viscacha_header('Content-Length: '.mb_strlen($content));
 	viscacha_header('Content-Disposition: attachment; filename="'.$data['bbcodetag'].'.bbc"');
 
 	print($content);
@@ -946,7 +946,7 @@ elseif ($job == 'custombb_edit2') {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	if (strtolower($query['bbcodetag']) != strtolower($query['bbcodetag_old'])) {
+	if (mb_strtolower($query['bbcodetag']) != mb_strtolower($query['bbcodetag_old'])) {
 		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}' AND ");
 		if ($db->num_rows($result) > 0) {
 			$bbcodetag = $query['bbcodetag'];

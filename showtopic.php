@@ -76,7 +76,7 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	exit;
 }
 elseif ($_GET['action'] == 'last') {
-	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
+	// Todo: Resourcen sparender wÃ¤re es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wÃ¤re diese Query gespart
 	// For post_order = 1: Query could be saved, we can just jump to the first page, first post is the post we are looking for...
 	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' ORDER BY date DESC LIMIT 1");
 	$new = $db->fetch_num($result);
@@ -217,7 +217,7 @@ if (!empty($info['vquestion'])) {
 			foreach ($vote['entries'] as $key => $row) {
 				if ($row['votes'] > 0) {
 					$row['percent'] = $row['votes'] / $vote['count'] * 100;
-					if (strstr($row['percent'], '.') > 0) {
+					if (mb_strstr($row['percent'], '.') > 0) {
 						$row['percent'] = numbers($row['percent'], 1);
 					}
 				}

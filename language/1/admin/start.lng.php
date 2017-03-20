@@ -2,7 +2,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['admin_button_save'] = 'Speichern';
-$lang['admin_checked_package_updates'] = 'Sie haben Ihre Viscacha-Version aktualisiert. Um auch die aktuellen Pakete zu installieren, sollten Sie die Versionsüberprüfung für Pakete starten! ';
+$lang['admin_checked_package_updates'] = 'Sie haben Ihre Viscacha-Version aktualisiert. Um auch die aktuellen Pakete zu installieren, sollten Sie die VersionsÃ¼berprÃ¼fung fÃ¼r Pakete starten! ';
 $lang['admin_checked_package_updates_link'] = 'Klicken Sie hier um nach neuen Paket-Versionen zu suchen!';
 $lang['admin_database_version'] = 'Datenbank-Version:';
 $lang['admin_notes'] = 'Administrative Notizen';
@@ -14,12 +14,12 @@ $lang['admin_sign_off'] = 'Abmelden';
 $lang['admin_task_backup_recommended'] = 'Es wird empfohlen eine neue Sicherung der Datenbank anzulegen!';
 $lang['admin_task_backup_too_old'] = 'Die letzte Sicherung ist {$last} Tage alt.';
 $lang['admin_task_currently_offline1'] = 'Die Webseite ist zur Zeit im Offline-Modus. Nur Mitglieder der Administration haben Zugriff auf die Seite.';
-$lang['admin_task_currently_offline2'] = 'Um die Einstellung zu ändern, klicken Sie hier.';
+$lang['admin_task_currently_offline2'] = 'Um die Einstellung zu Ã¤ndern, klicken Sie hier.';
 $lang['admin_task_moderate_members'] = '{@user->activate} Benutzer warten auf die Freischaltung.';
 $lang['admin_task_no_backup_found'] = 'Es wurde keine Datenbank-Sicherung gefunden.';
-$lang['admin_task_remove_installdir1'] = 'Bitte lösche das Installations-Verzeichnis ({$path}) inklusive aller enthaltenen Dateien und Unterverzeichnissen. Es besteht eine <strong>Gefährdung Ihres Systems</strong> wenn Sie die Installations-Datein auf dem Server belassen!';
-$lang['admin_task_remove_installdir2'] = 'Klicken Sie hier um das Installations-Verzeichnis zu löschen.';
-$lang['admin_task_version_check'] = 'Die letzte <a href="{$vcurl}">Versionsüberprüfung Ihrer Viscacha-Installation</a> war vor über 14 Tagen. Bitte prüfen Sie, ob eine neue Version verfügbar ist.';
+$lang['admin_task_remove_installdir1'] = 'Bitte lÃ¶sche das Installations-Verzeichnis ({$path}) inklusive aller enthaltenen Dateien und Unterverzeichnissen. Es besteht eine <strong>GefÃ¤hrdung Ihres Systems</strong> wenn Sie die Installations-Datein auf dem Server belassen!';
+$lang['admin_task_remove_installdir2'] = 'Klicken Sie hier um das Installations-Verzeichnis zu lÃ¶schen.';
+$lang['admin_task_version_check'] = 'Die letzte <a href="{$vcurl}">VersionsÃ¼berprÃ¼fung Ihrer Viscacha-Installation</a> war vor Ã¼ber 14 Tagen. Bitte prÃ¼fen Sie, ob eine neue Version verfÃ¼gbar ist.';
 $lang['admin_upcoming_tasks'] = 'Anstehende Aufgaben:';
 $lang['admin_viscacha_version'] = 'Viscacha-Version:';
 $lang['admin_webserver'] = 'Webserver:';

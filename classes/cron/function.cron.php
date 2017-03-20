@@ -15,7 +15,7 @@ define("CRON_PATH", 'classes/cron/jobs/');
 
 function logMessage($msg) {
 	global $writeDir, $useLog, $resultsSummary;
-	if ($msg[strlen($msg)-1]!="\n") {
+	if ($msg[mb_strlen($msg)-1]!="\n") {
 		$msg.="\n";
 	}
 	$resultsSummary.= $msg;
@@ -29,7 +29,7 @@ function logMessage($msg) {
 
 function lTrimZeros($number) {
 	while ($number[0] == '0') {
-		$number = substr($number,1);
+		$number = mb_substr($number,1);
 	}
 	return $number;
 }
@@ -214,7 +214,7 @@ function parseCronFile($cronTabFile) {
 						$jobs[$jobNumber][PC_DOW]);
 				}
 				$jobs[$jobNumber][PC_CMD] = trim($job[PC_CMD]);
-				$jobs[$jobNumber][PC_COMMENT] = trim(substr($job[PC_COMMENT],1));
+				$jobs[$jobNumber][PC_COMMENT] = trim(mb_substr($job[PC_COMMENT],1));
 				$jobs[$jobNumber][PC_ARGS] = Array();
 				if (preg_match_all('~(("([^"]*)")|(\S+))\s*~i', $jobs[$jobNumber][PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
 					for($ii=0; $ii<count($jobArgs[1]); $ii++){

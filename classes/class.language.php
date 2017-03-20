@@ -35,7 +35,7 @@ class lang {
 	var $cache;
 	var $js;
 
-	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
+	// ToDo: Alternatives Verzeichnis fï¿½r den Fall, dass eine ID ï¿½bergeben wurde, die nichtmehr aktiv ist...
 	function __construct($js = false, $level = E_USER_ERROR) {
 		$this->file = '';
 		$this->vars = array();
@@ -69,9 +69,10 @@ class lang {
 		$this->group('modules');
 		$this->group('custom');
 
-		@ini_set('default_charset', '');
+		@ini_set('default_charset', 'utf-8');
+		mb_internal_encoding('UTF-8');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset='.$this->charset());
+			viscacha_header('Content-type: text/html; charset=utf-8');
 		}
 
 		global $slog;
@@ -103,9 +104,10 @@ class lang {
 		$this->group('modules');
 		$this->group('custom');
 
-		@ini_set('default_charset', '');
+		@ini_set('default_charset', 'utf-8');
+		mb_internal_encoding('UTF-8');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset='.$this->charset());
+			viscacha_header('Content-type: text/html; charset=utf-8');
 		}
 	}
 
@@ -133,16 +135,6 @@ class lang {
 		}
 		trigger_error('Array from language file can\'t be returned.', E_USER_NOTICE);
 		return false;
-	}
-
-	function charset() {
-		if (empty($this->lngarray['charset'])) {
-			global $config;
-			return $config['asia_charset'];
-		}
-		else {
-			return $this->lngarray['charset'];
-		}
 	}
 
 	function get_mail($file) {
@@ -194,7 +186,7 @@ class lang {
 	function phrase($phrase) {
 		if (isset($this->lngarray[$phrase])) {
 			$pphrase = $this->lngarray[$phrase];
-			if (strpos($pphrase, '{') !== false) {
+			if (mb_strpos($pphrase, '{') !== false) {
         		$pphrase = $this->parse_pvar($pphrase);
 			}
 			return $pphrase;
@@ -217,8 +209,8 @@ class lang {
 		$keys = explode('->',$key);
 		if ($type == '&') {
 			if (count($keys) == 1) { // Function
-				if (substr($keys[0], -1) == ')') {
-					$keys[0] = substr($keys[0], 0, -1);
+				if (mb_substr($keys[0], -1) == ')') {
+					$keys[0] = mb_substr($keys[0], 0, -1);
 				}
 				$methodKeys = explode('(', $keys[0], 2);
 				if (function_exists($methodKeys[0])) {
@@ -231,9 +223,9 @@ class lang {
 			}
 			elseif (count($keys) == 2 && class_exists($keys[0])) { // Class property / method
 				$methodKeys = explode('(', $keys[1], 2);
-				if (count($methodKeys) > 1 && substr($methodKeys[1], -1) == ')' && method_exists($keys[0], $methodKeys[0])) { // Object method
+				if (count($methodKeys) > 1 && mb_substr($methodKeys[1], -1) == ')' && method_exists($keys[0], $methodKeys[0])) { // Object method
 					$args = array();
-					$arg = substr($methodKeys[1], 0, -1);
+					$arg = mb_substr($methodKeys[1], 0, -1);
 					if (!empty($arg)) {
 						$args = array($arg);
 					}
@@ -255,9 +247,9 @@ class lang {
 
 			if (count($keys) == 2 && isset($var) && is_object($var)) {
 				$methodKeys = explode('(', $keys[1], 2);
-				if (count($methodKeys) > 1 && substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
+				if (count($methodKeys) > 1 && mb_substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
 					$args = array();
-					$arg = substr($methodKeys[1], 0, -1);
+					$arg = mb_substr($methodKeys[1], 0, -1);
 					if (!empty($arg)) {
 						$args = array($arg);
 					}

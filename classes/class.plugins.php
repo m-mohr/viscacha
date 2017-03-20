@@ -124,8 +124,8 @@ class PluginSystem {
 			$cache = $scache->load('wraps');
 			$this->docs = $cache->get();
 		}
-		@list($prefix, $suffix) = explode('->', $gpc->plain_str($key, false), 2);
-		$prefix = strtolower($prefix);
+		@list($prefix, $suffix) = explode('->', $gpc->plain_str($key), 2);
+		$prefix = mb_strtolower($prefix);
 		if ($prefix == 'lang' && $suffix != null) {
 			return $lang->phrase($suffix).iif($show_key, " [{$key}]");
 		}
@@ -255,12 +255,12 @@ class PluginSystem {
 	}
 
 	function _group($pos) {
-		$offset = strpos ($pos, '_');
+		$offset = mb_strpos ($pos, '_');
 		if ($offset === false) {
 			return $pos;
 		}
 		else {
-			return substr($pos, 0, $offset);
+			return mb_substr($pos, 0, $offset);
 		}
 	}
 

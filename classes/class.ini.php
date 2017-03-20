@@ -74,22 +74,22 @@ class INI {
 		$section = '';
 		foreach ($array1 as $filedata) {
 			$dataline = trim($filedata);
-			$firstchar = substr($dataline, 0, 1);
+			$firstchar = mb_substr($dataline, 0, 1);
 			if ($firstchar != $this->commentchar && $dataline != '') {
 				//It's an entry (not a comment and not a blank line)
-				if ($firstchar == '[' && substr($dataline, -1, 1) == ']') {
+				if ($firstchar == '[' && mb_substr($dataline, -1, 1) == ']') {
 					//It's a section
-					$section = strtolower(substr($dataline, 1, -1));
+					$section = mb_strtolower(mb_substr($dataline, 1, -1));
 				}
 				else{
 					//It's a key...
-					$delimiter = strpos($dataline, '=');
+					$delimiter = mb_strpos($dataline, '=');
 					if ($delimiter > 0) {
 						//...with a value
-						$key = strtolower(trim(substr($dataline, 0, $delimiter)));
-						$value = trim(substr($dataline, $delimiter + 1));
-						if (substr($value, 0, 1) == '"' && substr($value, -1, 1) == '"') {
-							$value = substr($value, 1, -1);
+						$key = mb_strtolower(trim(mb_substr($dataline, 0, $delimiter)));
+						$value = trim(mb_substr($dataline, $delimiter + 1));
+						if (mb_substr($value, 0, 1) == '"' && mb_substr($value, -1, 1) == '"') {
+							$value = mb_substr($value, 1, -1);
 							$value = str_replace('\\r', "\r", $value);
 							$value = str_replace('\\n', "\n", $value);
 						}
@@ -103,10 +103,10 @@ class INI {
 					else{
 						//...without a value
 						if (empty($section)) {
-							$array2[strtolower(trim($dataline))]='';
+							$array2[mb_strtolower(trim($dataline))]='';
 						}
 						else {
-							$array2[$section][strtolower(trim($dataline))]='';
+							$array2[$section][mb_strtolower(trim($dataline))]='';
 						}
 
 					}
@@ -148,8 +148,8 @@ class INI {
 					)
 				)
 			;
-			if (substr($comtext, -1, 1)==$this->commentchar && substr($comtext, -1, 1)!=$this->commentchar) {
-				$comtext = substr($comtext, 0, -1);
+			if (mb_substr($comtext, -1, 1)==$this->commentchar && mb_substr($comtext, -1, 1)!=$this->commentchar) {
+				$comtext = mb_substr($comtext, 0, -1);
 			}
 			$data .= $comtext."\r\n";
 		}
@@ -158,16 +158,14 @@ class INI {
 			if (isset($section)) {
 				$data .= "\r\n";
 			}
-			//$section = ucfirst(preg_replace('/[\0-\37]|[\177-\377]/', "-", $sections));
 			if (is_array($items)) {
 				$section = preg_replace('/[\0-\37]|\177/', "-", $sections);
 				$data .= "[".$section."]\r\n";
 				foreach ($items as $keys => $values) {
 					//Write the key/value pairs
-					//$key = ucfirst(preg_replace('/[\0-\37]|=|[\177-\377]/', "-", $keys));
 					$key = preg_replace('/[\0-\37]|=|\177/', "-", $keys);
-		  			if (substr($key, 0, 1)==$this->commentchar) {
-		  				$key = '-'.substr($key, 1);
+		  			if (mb_substr($key, 0, 1)==$this->commentchar) {
+		  				$key = '-'.mb_substr($key, 1);
 		  			}
 			  		$values = str_replace("\r", '\r', $values);
 			  		$values = str_replace("\n", '\n', $values);
@@ -177,8 +175,8 @@ class INI {
 			}
 			else {
 				$key = preg_replace('/[\0-\37]|=|\177/', "-", $sections);
-		  		if (substr($key, 0, 1) == $this->commentchar) {
-		  			$key = '-'.substr($key, 1);
+		  		if (mb_substr($key, 0, 1) == $this->commentchar) {
+		  			$key = '-'.mb_substr($key, 1);
 		  		}
 		  		$items = str_replace("\r", '\r', $items);
 		  		$items = str_replace("\n", '\n', $items);

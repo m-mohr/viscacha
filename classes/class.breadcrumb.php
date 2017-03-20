@@ -73,9 +73,9 @@ class breadcrumb {
     function OutputPLAIN($seperator = ' > ') {
         $cache = array();
         foreach ($this->content as $key => $row) {
-        	$row['title'] = htmlspecialchars_decode($row['title']);
+        	$row['title'] = viscacha_viscacha_htmlspecialchars_decode($row['title']);
             $cache[$key] = strip_tags($row['title']);
-            $row['title'] = htmlspecialchars($row['title']);
+            $row['title'] = viscacha_htmlspecialchars($row['title']);
         }
         return implode($seperator, $cache);
     }

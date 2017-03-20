@@ -190,7 +190,7 @@ function msg_handler($errno, $errtext, $errfile, $errline) {
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" dir="ltr">
 	<head>
-		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>Viscacha <?php echo $config['version']; ?> &raquo; Error</title>
 		<style type="text/css">
 		<!--
@@ -213,7 +213,7 @@ function msg_handler($errno, $errtext, $errfile, $errline) {
 		<p class="center">
 			[<a href="<?php echo $config['furl']; ?>/index.php">Return to Index</a>]
 			<?php if (check_hp($_SERVER['HTTP_REFERER'])) { ?>
-			&nbsp;&nbsp;[<a href="<?php echo htmlspecialchars($_SERVER['HTTP_REFERER']); ?>">Return to last Page</a>]
+			&nbsp;&nbsp;[<a href="<?php echo viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']); ?>">Return to last Page</a>]
 			<?php } ?>
 		</p>
 		<h3>Error Message</h3>
@@ -280,7 +280,7 @@ function get_backtrace($skip) {
 		if (isset($trace['file'])) {
 			// Strip the current directory from path
 			$trace['file'] = str_replace(array($path, '\\'), array('', '/'), $trace['file']);
-			$trace['file'] = substr($trace['file'], 1);
+			$trace['file'] = mb_substr($trace['file'], 1);
 		}
 
 		$args = array();
@@ -293,7 +293,7 @@ function get_backtrace($skip) {
 					break;
 
 					case 'string':
-						$argument = htmlspecialchars(substr($argument, 0, 64)) . ((strlen($argument) > 64) ? '...' : '');
+						$argument = viscacha_htmlspecialchars(mb_substr($argument, 0, 64)) . ((mb_strlen($argument) > 64) ? '...' : '');
 						$args[] = "'{$argument}'";
 					break;
 
@@ -306,7 +306,7 @@ function get_backtrace($skip) {
 					break;
 
 					case 'resource':
-						$args[] = 'Resource(' . strstr($a, '#') . ')';
+						$args[] = 'Resource(' . mb_strstr($a, '#') . ')';
 					break;
 
 					case 'boolean':
@@ -329,9 +329,9 @@ function get_backtrace($skip) {
 		$trace['type'] = (!isset($trace['type'])) ? '' : $trace['type'];
 
 		$output .= '<ul class="code">';
-		$output .= '<li class="linetwo"><b>File:</b> ' . htmlspecialchars($trace['file']) . '</li>';
+		$output .= '<li class="linetwo"><b>File:</b> ' . viscacha_htmlspecialchars($trace['file']) . '</li>';
 		$output .= '<li class="lineone"><b>Line:</b> ' . $trace['line'] . '</li>';
-		$output .= '<li class="linetwo"><b>Call:</b> ' . htmlspecialchars($trace['class'] . $trace['type'] . $trace['function']) . '(' . ((count($args)) ? implode(', ', $args) : '') . ')</li>';
+		$output .= '<li class="linetwo"><b>Call:</b> ' . viscacha_htmlspecialchars($trace['class'] . $trace['type'] . $trace['function']) . '(' . ((count($args)) ? implode(', ', $args) : '') . ')</li>';
 		$output .= '</ul>';
 	}
 	return $output;
@@ -349,7 +349,7 @@ function getErrorCodeSnippet($file, $line) {
 
 	for($i = $line - 5; $i <= $line + 5; $i++) {
 		if(($i >= 1) && ($i <= $total)) {
-            $codeline = @rtrim(htmlentities($lines[$i - 1]));
+            $codeline = @rtrim(viscacha_htmlentities($lines[$i - 1]));
             $codeline = str_replace("\t", '&nbsp;&nbsp;&nbsp;&nbsp;', $codeline);
             $codeline = str_replace(' ',  '&nbsp;',                   $codeline);
 

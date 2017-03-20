@@ -153,7 +153,7 @@ elseif ($_GET['action'] == 'edit2') {
 	$cache2 = $loadlanguage_obj->get();
 
 	$_POST['hp'] = trim($_POST['hp']);
-	if (strtolower(substr($_POST['hp'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($_POST['hp'], 0, 4)) == 'www.') {
 		$_POST['hp'] = "http://{$_POST['hp']}";
 	}
 
@@ -180,7 +180,7 @@ elseif ($_GET['action'] == 'edit2') {
 	if (strxlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (strxlen($_POST['name']) < $config['minnamelength']) {
+	if (mb_strxlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {
@@ -276,7 +276,7 @@ elseif ($_GET['action'] == 'edit2') {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		if (!empty($_POST['pw']) && strxlen($_POST['pw']) >= $config['minpwlength']) {
+		if (!empty($_POST['pw']) && mb_strxlen($_POST['pw']) >= $config['minpwlength']) {
 			$md5 = md5($_POST['pw']);
 			$update_sql = ", pw = '{$md5}' ";
 		}

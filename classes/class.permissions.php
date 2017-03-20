@@ -28,7 +28,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 include_once("classes/function.flood.php");
 
 // TODO: Dieser Code sollte nicht auf $my basieren, da sonst bei der Abfrage von fremden Rechten
-// eine gefährliche Vermischung stattfindet.
+// eine gefÃ¤hrliche Vermischung stattfindet.
 
 class slog {
 
@@ -311,7 +311,7 @@ function updatelogged () {
 	}
 
 	if ($my->vlogin) {
-		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
+		// Eigentlich kÃ¶nnten wir uns das Updaten der User-Lastvisit-Spalte sparen, fÃ¼r alle User die Cookies nutzen. Einmal, am Anfang der Session wÃ¼rde dann reichen
 		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'");
 	}
 
@@ -504,15 +504,15 @@ function logged () {
 function banish($reason = null, $until = null) {
 	global $config, $db, $phpdoc, $lang, $plugins, $tpl, $my, $breadcrumb;
 
-	if (substr($reason, 0, 6) == 'lang->') {
-		$key = substr($reason, 6);
+	if (mb_substr($reason, 0, 6) == 'lang->') {
+		$key = mb_substr($reason, 6);
 		$reason = $lang->phrase($key);
 	}
 	if ($reason == null) {
 		$reason = $lang->phrase('banned_no_reason');
 	}
 	else {
-		$reason = htmlspecialchars($reason);
+		$reason = viscacha_htmlspecialchars($reason);
 	}
 	if ($until > 0) {
 		$until = gmdate($lang->phrase('dformat1'), times($until));
@@ -550,7 +550,7 @@ function checkBan() {
 		$row = explode("\t", $row, 6);
 		if ($row[0] == 'ip') {
 			$row[2] = intval($row[2]);
-			if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
+			if (mb_strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
 				$ban = true;
 				break;
 			}
@@ -903,7 +903,7 @@ function cleanUserData($data) {
  * @return String Session-ID
  */
 function construct_sid() {
-	$this->sid = str_shuffle(md5(uniqid(mt_rand())));
+	$this->sid = generate_uid();
 	return $this->sid;
 }
 
@@ -1089,7 +1089,7 @@ function Permissions ($board = 0, $groups = null, $defaultToMemberPerms = null) 
 
 		$permissions3 = array();
 		foreach ($this->fFields as $key) {
-			$orig_key = substr($key, 2, strlen($key));
+			$orig_key = mb_substr($key, 2, mb_strlen($key));
 			foreach ($permissions2 as $bid => $arr) {
 				if (isset($permissions2[$bid][$key]) && $permissions2[$bid][$key] != -1 && !isset($permissions3[$orig_key])) {
 					$permissions3[$orig_key] = $arr[$key];
@@ -1157,7 +1157,7 @@ function GlobalPermissions() {
 
 	$fFieldValues = array();
 	foreach ($this->fFields as $key) {
-		$key = substr($key, 2, strlen($key));
+		$key = mb_substr($key, 2, mb_strlen($key));
 		$fFieldValues[$key] = $this->permissions[$key];
 	}
 	if (count($boardid) > 0) {
@@ -1193,7 +1193,7 @@ function GlobalPermissions() {
 
 		$permissions3 = array();
 		foreach ($this->fFields as $key) {
-			$orig_key = substr($key, 2, strlen($key));
+			$orig_key = mb_substr($key, 2, mb_strlen($key));
 			foreach ($permissions2 as $bid => $arr) {
 				if (isset($permissions2[$bid][$key]) && $permissions2[$bid][$key] != -1 && !isset($permissions3[$orig_key])) {
 					$permissions3[$orig_key] = $arr[$key];
@@ -1329,7 +1329,7 @@ function setTopicRead($tid, $parents) {
 	global $my, $db;
 	$my->mark['t'][$tid] = time();
 
-	// Erstelle ein Array mit schon gelesenen Beiträgen
+	// Erstelle ein Array mit schon gelesenen BeitrÃ¤gen
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");

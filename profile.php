@@ -83,13 +83,13 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 			if (strxlen($_POST['comment']) > $config['maxpostlength']) {
 				$error[] = $lang->phrase('comment_too_long');
 			}
-			if (strxlen($_POST['comment']) < $config['minpostlength']) {
+			if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
 				$error[] = $lang->phrase('comment_too_short');
 			}
 			if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
 				$error[] = $lang->phrase('title_too_long');
 			}
-			if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+			if (mb_strxlen($_POST['topic']) < $config['mintitlelength']) {
 				$error[] = $lang->phrase('title_too_short');
 			}
 			($code = $plugins->load('profile_mail_errorhandling')) ? eval($code) : null;

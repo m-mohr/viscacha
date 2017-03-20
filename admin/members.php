@@ -68,7 +68,7 @@ elseif ($job == 'reserve_add') {
 	if (strxlen($name) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_long');
 	}
-	if (strxlen($name) < $config['minnamelength']) {
+	if (mb_strxlen($name) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_short');
 	}
 	if (count($error) > 0) {
@@ -97,7 +97,7 @@ elseif ($job == 'reserve_delete') {
 		list($id, $username) = explode("\t", $name);
 		$save = true;
 		foreach ($del as $username2) {
-			if (strtolower($username2) == strtolower($username)) {
+			if (mb_strtolower($username2) == mb_strtolower($username)) {
 				$save = false;
 			}
 		}
@@ -278,7 +278,7 @@ elseif ($job == 'emailsearch') {
 elseif ($job == 'emailsearch2') {
 	echo head();
 
-	define('DONT_CARE', md5(microtime()));
+	define('DONT_CARE', generate_uid());
 	$fields = 	array(
 		'id' => int,
 		'mail' => str,
@@ -349,7 +349,7 @@ elseif ($job == 'emailsearch2') {
 				if ($value[2] < 1 || $value[2] > 12) {
 					$value[2] = '%';
 				}
-				if (strlen($value[3]) == 2) {
+				if (mb_strlen($value[3]) == 2) {
 					if ($value[3] > 40) {
 						$value[3] += 1900;
 					}
@@ -410,7 +410,7 @@ elseif ($job == 'emailsearch2') {
 				$sqlwhere[] = " ({$groupwhere}) ";
 			}
 			else {
-				if (strpos($input[$key], '%') !== false || strpos($input[$key], '_') !== false) {
+				if (mb_strpos($input[$key], '%') !== false || mb_strpos($input[$key], '_') !== false) {
 					if ($compare[$key] == '=') {
 						$compare[$key] = 'LIKE';
 					}
@@ -1266,13 +1266,13 @@ elseif ($job == 'register2') {
 	if (strxlen($name) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_long');
 	}
-	if (strxlen($name) < $config['minnamelength']) {
+	if (mb_strxlen($name) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_short');
 	}
 	if (strxlen($pw) > $config['maxpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_long');
 	}
-	if (strxlen($pw) < $config['minpwlength']) {
+	if (mb_strxlen($pw) < $config['minpwlength']) {
 		$error[] = $lang->phrase('admin_member_password_too_short');
 	}
 	if (strlen($email) > 200) {
@@ -1343,7 +1343,7 @@ elseif ($job == 'edit') {
 	$maxy = $year-6;
 	$miny = $year-100;
 	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC , guest ASC , core ASC");
-	$random = md5(microtime());
+	$random = generate_uid();
 
 	$customfields = admin_customfields($user['id']);
 ?>
@@ -1571,7 +1571,7 @@ elseif ($job == 'edit2') {
 	$query['pw'] = $gpc->get('pw_'.$random, str);
 
 	$query['hp'] = trim($query['hp']);
-	if (strtolower(substr($query['hp'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($query['hp'], 0, 4)) == 'www.') {
 		$query['hp'] = "http://{$query['hp']}";
 	}
 
@@ -1585,7 +1585,7 @@ elseif ($job == 'edit2') {
 	if (strxlen($query['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_many_chars');
 	}
-	if (strxlen($query['name']) < $config['minnamelength']) {
+	if (mb_strxlen($query['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_too_less_chars');
 	}
 	if (strlen($query['email']) > 200) {
@@ -1685,7 +1685,7 @@ elseif ($job == 'edit2') {
 		$query['birthyear'] = leading_zero($query['birthyear'], 4);
 		$bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
 
-		if (!empty($query['pw']) && strlen($query['pw']) >= $config['minpwlength']) {
+		if (!empty($query['pw']) && mb_strlen($query['pw']) >= $config['minpwlength']) {
 			$md5 = md5($query['pw']);
 			$update_sql = ", pw = '{$md5}' ";
 		}
@@ -1829,7 +1829,7 @@ elseif ($job == 'banned') {
 
 	$reason = '';
 	if (!empty($row[5])) {
-		$reason = htmlspecialchars($row[5]);
+		$reason = viscacha_htmlspecialchars($row[5]);
 	}
   	?>
   <tr>
@@ -1912,7 +1912,7 @@ elseif ($job == 'ban_add2') {
 	echo head();
 
 	$data = $gpc->get('data', none);
-	$type = strtolower($gpc->get('type', none));
+	$type = mb_strtolower($gpc->get('type', none));
 	$until = $gpc->get('until', none);
 	$reason = $gpc->get('reason', none);
 
@@ -1943,7 +1943,7 @@ elseif ($job == 'ban_add2') {
 	}
 	if (!(is_numeric($until) && intval($until) === 0)) { // WTF? $until != 0 won't work?!
 		$until = explode('_', $until);
-		$until[0] = strtoupper($until[0]);
+		$until[0] = mb_strtoupper($until[0]);
 		if (($until[0] != 'D' && $until[0] != 'M') || !isset($until[1])) {
 			$error[] = $lang->phrase('admin_member_time_not_valid');
 		}
@@ -1957,7 +1957,7 @@ elseif ($job == 'ban_add2') {
 		$row = explode("\t", $row, 6);
 		// Check if there is a ban that is currently(!) active
 		// If there are expired bans, don't print an error
-		if ($row[0] == $type && strcasecmp($row[1], $data) == 0 && $row[2] > time()) {
+		if ($row[0] == $type && mb_strcasecmp($row[1], $data) == 0 && $row[2] > time()) {
 			$error[] = $lang->phrase('admin_member_user_or_ip_already_banned');
 		}
 	}
@@ -2071,7 +2071,7 @@ elseif ($job == 'inactive') {
 elseif ($job == 'inactive2') {
 	echo head();
 
-	define('DONT_CARE', md5(microtime()));
+	define('DONT_CARE', generate_uid());
 
 	$fields = 	array(
 		'name' => array($lang->phrase('admin_member_user_name'), str, null),
@@ -2449,7 +2449,7 @@ elseif ($job == 'search') {
 elseif ($job == 'search2') {
 	echo head();
 
-	define('DONT_CARE', md5(microtime()));
+	define('DONT_CARE', generate_uid());
 	$fields = 	array(
 		'id' => array('ID', int),
 		'name' => array($lang->phrase('admin_member_user_name'), str),
@@ -2538,7 +2538,7 @@ elseif ($job == 'search2') {
 				if ($value[2] < 1 || $value[2] > 12) {
 					$value[2] = '%';
 				}
-				if (strlen($value[3]) == 2) {
+				if (mb_strlen($value[3]) == 2) {
 					if ($value[3] > 40) {
 						$value[3] += 1900;
 					}
@@ -2599,7 +2599,7 @@ elseif ($job == 'search2') {
 				$sqlwhere[] = " ({$groupwhere}) ";
 			}
 			else {
-				if (strpos($input[$key], '%') !== false || strpos($input[$key], '_') !== false) {
+				if (mb_strpos($input[$key], '%') !== false || mb_strpos($input[$key], '_') !== false) {
 					if ($compare[$key] == '=') {
 						$compare[$key] = 'LIKE';
 					}
@@ -2841,7 +2841,7 @@ elseif ($job == 'ips') {
 			</tr>
 			<tr>
 				<td class="ubox">
-				<a href="http://ripe.net/fcgi-bin/whois?searchtext=<?php echo $ipaddress; ?>" target="_blank" title="<?php echo $lang->phrase('admin_member_visit_ripe'); ?>"><?php echo $ipaddress; ?></a>: <b><?php echo htmlspecialchars($hostname); ?></b>
+				<a href="http://ripe.net/fcgi-bin/whois?searchtext=<?php echo $ipaddress; ?>" target="_blank" title="<?php echo $lang->phrase('admin_member_visit_ripe'); ?>"><?php echo $ipaddress; ?></a>: <b><?php echo viscacha_htmlspecialchars($hostname); ?></b>
 				</td>
 			</tr>
 			<tr>
@@ -2929,7 +2929,7 @@ elseif ($job == 'iphost') {
 		$host = '<i>'.$lang->phrase('admin_member_iphost_na').'</i>';
 	}
 	else {
-		$host = htmlspecialchars($resolvedip);
+		$host = viscacha_htmlspecialchars($resolvedip);
 	}
 	echo head();
 	?>
