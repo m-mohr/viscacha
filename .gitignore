@@ -4,6 +4,7 @@
 /admin/html/language_*.js
 /cache/
 /data/cron/*.job
+/data/errlog_*
 /feeds/
 /templates/language_*.js
 /temp/
