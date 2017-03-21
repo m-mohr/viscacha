@@ -281,34 +281,29 @@ function updatelogged () {
 	$serialized = $db->escape_string(serialize($my->mark));
 	$serializedpwf = $db->escape_string(serialize($my->pwfaccess));
 	$serializedstg = $db->escape_string(serialize($my->settings));
-	$sqlwhere = $sqlset = array();
 	if ($my->id > 0 && !is_id($this->change_mid)) {
-		$sqlwhere[] = "mid = '{$my->id}'";
+		$sqlwhere = "mid = '{$my->id}'";
 	}
 	else {
-		$sqlwhere[] = "sid = '{$this->sid}'";
+		$sqlwhere = "sid = '{$this->sid}'";
 	}
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
 
+	$sqlset = '';
 	if (is_id($this->change_mid)) {
-		$sqlset[] = "mid = '{$this->change_mid}'";
+		$sqlset = ", mid = '{$this->change_mid}'";
 	}
 
 	($code = $plugins->load('permissions_updatelogged_query')) ? eval($code) : null;
-
-	$sqlset = iif(count($sqlset) > 0, ', ').implode(', ', $sqlset);
-	$sqlwhere2 = implode(', ', $sqlwhere);
-
-	if (count($sqlwhere) > 0) {
-		$db->query ("
-		UPDATE {$db->pre}session
-		SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."',
-			pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}', lastvisit = '{$my->clv}' {$sqlset}
-		WHERE {$sqlwhere2}
-		LIMIT 1
-		");
-	}
+	
+	$db->query ("
+	UPDATE {$db->pre}session
+	SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."',
+		pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}', lastvisit = '{$my->clv}' {$sqlset}
+	WHERE {$sqlwhere}
+	LIMIT 1
+	");
 
 	if ($my->vlogin) {
 		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
