@@ -1,5 +1,5 @@
 <select name="opt_0" size="1">
-<?php foreach ($prefix_arr as $id => $value) { ?>
-<option@selected($sel == $id) value="{{ $id }}">{{ $value['value'] }}</option>
-<?php } ?>
+	@foreach ($prefix_arr as $id => $value)
+	<option@selected($sel == $id) value="{{ $id }}">{{ $value['value'] }}</option>
+	@endforeach
 </select>&nbsp;

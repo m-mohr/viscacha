@@ -1,199 +1,203 @@
 <form name="form_{{ $random }}" method="post" action="managemembers.php?action=edit2&amp;random={{ $random }}&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
-<div class="border">
-<h3><img src="@img(user)" alt="" /> @lang(editprofile_profile)</h3>
-<div class="bbody">
-<label for="name_{{ $random }}">@lang(editprofile_name)</label>
-<input type="text" name="name_{{ $random }}" id="name_{{ $random }}" class="label" size="40" value="{{ $user['name'] }}" />
-<br class="newinput" /><hr class="formsep" />
-<label for="pw_{{ $random }}">@lang(editprofile_pw_new)</label>
-<input type="password" name="pw_{{ $random }}" id="pw_{{ $random }}" class="label" size="40" value="" />
-<br class="newinput" /><hr class="formsep" />
-<label for="groups">
-<img id="img_mmeg" alt="switch" src="@img(minus)" title="@lang(box_collapse)" />
-@lang(editprofile_groups)<br />
-<span class="stext">@lang(editprofile_groups_desc)</span>
-</label>
-<input type="text" name="groups" id="groups" class="label" size="40" value="{{ $user['groups'] }}" />
-<br class="newinput" />
-<table id="part_mmeg" class="tables">
-<tr>
-<th>@lang(managemembers_gid)</th>
-<th>@lang(managemembers_gpublic)</th>
-<th>@lang(managemembers_gint)</th>
-</tr>
-<?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
-<tr>
-<td>{{ $row['id'] }}</td>
-<td>{{ $row['name'] }}</td>
-<td>{{ $row['title'] }}</td>
-</tr>
-<?php } ?>
-</table>
-<hr class="formsep" />
-<label for="fullname">@lang(editprofile_fullname)</label>
-<input type="text" name="fullname" id="fullname" class="label" size="40" value="{{ $user['fullname'] }}" />
-<br class="newinput" /><hr class="formsep" />
-<label for="email">@lang(editprofile_email)</label>
-<input type="text" name="email" id="email" class="label" size="40" value="{{ $user['mail'] }}" />
-<br class="newinput" /><hr class="formsep" />
-<label for="location">@lang(editprofile_location)</label>
-<input type="text" name="location" id="location" class="label" size="40" value="{{ $user['location'] }}" />
-<br class="newinput" /><hr class="formsep" />
-<label for="gender">@lang(editprofile_gender)</label>
-<select size="1" name="gender" class="label">
-	<option value="">@lang(no_choice)</option>
-	<option@selected($user['gender'] == 'm') value="m">@lang(gender_m)</option>
-	<option@selected($user['gender'] == 'w') value="w">@lang(gender_w)</option>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="birthday">@lang(editprofile_birthday)</label>
-<div class="label">
-  <select size="1" name="birthday">
-  <option value="00">--</option>
-	<?php
-	for ($i=1;$i<=31;$i++) {
-		echo "<option value='".leading_zero($i)."'".iif($bday[2] == $i, ' selected="selected"').">".$i."</option>\n";
-	}
-	?>
-  </select>.
-  <select size="1" name="birthmonth">
-  <option value="00">--</option>
-	<?php
-	for ($i=1;$i<=12;$i++) {
-		echo "<option value='".leading_zero($i)."'".iif($bday[1] == $i, ' selected="selected"').">".$lang->phrase('months_'.$i)."</option>\n";
-	}
-	?>
-  </select>
-  <select size="1" name="birthyear">
-  <option value="0000">----</option>
-	<?php
-	for ($i=$maxy;$i>=$miny;$i--) {
-		echo "<option value='".$i."'".iif($bday[0] == $i, ' selected="selected"').">".$i."</option>\n";
-	}
-	?>
-  </select>
-</div>
-<br class="newinput" /><hr class="formsep" />
-<label for="hp">@lang(editprofile_hp)</label>
-<input type="text" name="hp" id="hp" class="label" size="40" value="{{ $user['hp'] }}" />
-<?php foreach ($customfields['1'] as $row1) { ?>
-<br class="newinput" /><hr class="formsep" />
-  <label for="{{ $row1['field'] }}"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
-  <?php echo $row1['input']; } ?>
-<br class="newinput" />
-</div>
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</table>
-</div>
-<br class="minibr" />
+	<div class="border">
+		<h3><img src="@img(user)" alt="" /> @lang(editprofile_profile)</h3>
+		<div class="bbody">
+			<label for="name_{{ $random }}">@lang(editprofile_name)</label>
+			<input type="text" name="name_{{ $random }}" id="name_{{ $random }}" class="label" size="40" value="{{ $user['name'] }}" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="pw_{{ $random }}">@lang(editprofile_pw_new)</label>
+			<input type="password" name="pw_{{ $random }}" id="pw_{{ $random }}" class="label" size="40" value="" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="groups">
+				<img id="img_mmeg" alt="switch" src="@img(minus)" title="@lang(box_collapse)" />
+				@lang(editprofile_groups)<br />
+				<span class="stext">@lang(editprofile_groups_desc)</span>
+			</label>
+			<input type="text" name="groups" id="groups" class="label" size="40" value="{{ $user['groups'] }}" />
+			<br class="newinput" />
+			<table id="part_mmeg" class="tables">
+				<tr>
+					<th>@lang(managemembers_gid)</th>
+					<th>@lang(managemembers_gpublic)</th>
+					<th>@lang(managemembers_gint)</th>
+				</tr>
+				@foreach($groups as $group)
+				<tr>
+					<td>{{ $group['id'] }}</td>
+					<td>{{ $group['name'] }}</td>
+					<td>{{ $group['title'] }}</td>
+				</tr>
+				@endforeach
+			</table>
+			<hr class="formsep" />
+			<label for="fullname">@lang(editprofile_fullname)</label>
+			<input type="text" name="fullname" id="fullname" class="label" size="40" value="{{ $user['fullname'] }}" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="email">@lang(editprofile_email)</label>
+			<input type="text" name="email" id="email" class="label" size="40" value="{{ $user['mail'] }}" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="location">@lang(editprofile_location)</label>
+			<input type="text" name="location" id="location" class="label" size="40" value="{{ $user['location'] }}" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="gender">@lang(editprofile_gender)</label>
+			<select size="1" name="gender" class="label">
+				<option value="">@lang(no_choice)</option>
+				<option@selected($user['gender'] == 'm') value="m">@lang(gender_m)</option>
+				<option@selected($user['gender'] == 'w') value="w">@lang(gender_w)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="birthday">@lang(editprofile_birthday)</label>
+			<div class="label">
+				<select size="1" name="birthday">
+					<option value="0">--</option>
+					@foreach(range(1,31) as $i)
+					<option value="{{ $i }}"@selected($bday[2] == $i)>{{ $i }}</option>\n";
+					@endforeach
+				</select>.
+				<select size="1" name="birthmonth">
+					<option value="0">--</option>
+					@foreach(range(1,12) as $i)
+					<option value="{{ $i }}"@selected($bday[1] == $i)>@lang(months_$i)</option>
+					@endforeach
+				</select>
+				<select size="1" name="birthyear">
+					<option value="0">----</option>
+					@foreach(range($maxy,$miny) as $i)
+					<option value="{{ $i }}"@selected($bday[1] == $i)>{{ $i }}</option>
+					@endforeach
+				</select>
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="hp">@lang(editprofile_hp)</label>
+			<input type="text" name="hp" id="hp" class="label" size="40" value="{{ $user['hp'] }}" />
+			@foreach ($customfields['1'] as $row1)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row1['field'] }}">
+				{{ $row1['name'] }}
+				<?php echo iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?>
+			</label>
+			{{ $row1['input'] }}
+			@endforeach
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
+		</table>
+	</div>
+	<br class="minibr" />
 
-<div class="border">
-<h3>
-	<span class="right textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></span>
-	<img src="@img(signature)" alt="" /> @lang(profile_signature)
-</h3>
-<div class="bbody">
-	{!! $bbcode->getEditorArea('signature', $user['signature'], 'cols="80" rows="6"', $config['maxsiglength']) !!}
-</div>
-<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</div>
-<br class="minibr" />
+	<div class="border">
+		<h3>
+			<span class="right textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></span>
+			<img src="@img(signature)" alt="" /> @lang(profile_signature)
+		</h3>
+		<div class="bbody">
+			{!! $bbcode->getEditorArea('signature', $user['signature'], 'cols="80" rows="6"', $config['maxsiglength']) !!}
+		</div>
+		<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
+	</div>
+	<br class="minibr" />
 
-<div class="border">
-<h3><img src="@img(user)" alt="" /> @lang(editprofile_pic)</h3>
-<div class="bbody">
-	<label for="pic">@lang(editprofile_pic_url)</label>
-	<input type="text" name="pic" id="pic" class="label" size="70" value="{{ $user['pic'] }}" />
-	<br class="newinput" />
-</div>
-<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</div>
-<br class="minibr" />
+	<div class="border">
+		<h3><img src="@img(user)" alt="" /> @lang(editprofile_pic)</h3>
+		<div class="bbody">
+			<label for="pic">@lang(editprofile_pic_url)</label>
+			<input type="text" name="pic" id="pic" class="label" size="70" value="{{ $user['pic'] }}" />
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
+	</div>
+	<br class="minibr" />
 
-<div class="border">
-<h3><img src="@img(user)" alt="" /> @lang(editprofile_settings)</h3>
-<div class="bbody">
-<label for="temp">@lang(timezone)</label>
-<select id="temp" class="label" name="temp">
-	<option value="-12"{{ selectTz(-12, $user['timezone']) }}>@lang(timezone_n12)</option>
-	<option value="-11"{{ selectTz(-11, $user['timezone']) }}>@lang(timezone_n11)</option>
-	<option value="-10"{{ selectTz(-10, $user['timezone']) }}>@lang(timezone_n10)</option>
-	<option value="-9"{{ selectTz(-9, $user['timezone']) }}>@lang(timezone_n9)</option>
-	<option value="-8"{{ selectTz(-8, $user['timezone']) }}>@lang(timezone_n8)</option>
-	<option value="-7"{{ selectTz(-7, $user['timezone']) }}>@lang(timezone_n7)</option>
-	<option value="-6"{{ selectTz(-6, $user['timezone']) }}>@lang(timezone_n6)</option>
-	<option value="-5"{{ selectTz(-5, $user['timezone']) }}>@lang(timezone_n5)</option>
-	<option value="-4"{{ selectTz(-4, $user['timezone']) }}>@lang(timezone_n4)</option>
-	<option value="-3.5"{{ selectTz(-3.5, $user['timezone']) }}>@lang(timezone_n35)</option>
-	<option value="-3"{{ selectTz(-3, $user['timezone']) }}>@lang(timezone_n3)</option>
-	<option value="-2"{{ selectTz(-2, $user['timezone']) }}>@lang(timezone_n2)</option>
-	<option value="-1"{{ selectTz(-1, $user['timezone']) }}>@lang(timezone_n1)</option>
-	<option value="0"{{ selectTz(0, $user['timezone']) }}>@lang(timezone_0)</option>
-	<option value="+1"{{ selectTz(1, $user['timezone']) }}>@lang(timezone_p1)</option>
-	<option value="+2"{{ selectTz(2, $user['timezone']) }}>@lang(timezone_p2)</option>
-	<option value="+3"{{ selectTz(3, $user['timezone']) }}>@lang(timezone_p3)</option>
-	<option value="+3.5"{{ selectTz(3.5, $user['timezone']) }}>@lang(timezone_p35)</option>
-	<option value="+4"{{ selectTz(4, $user['timezone']) }}>@lang(timezone_p4)</option>
-	<option value="+4.5"{{ selectTz(4.5, $user['timezone']) }}>@lang(timezone_p45)</option>
-	<option value="+5"{{ selectTz(5, $user['timezone']) }}>@lang(timezone_p5)</option>
-	<option value="+5.5"{{ selectTz(5.5, $user['timezone']) }}>@lang(timezone_p55)</option>
-	<option value="+5.75"{{ selectTz(5.75, $user['timezone']) }}>@lang(timezone_p575)</option>
-	<option value="+6"{{ selectTz(6, $user['timezone']) }}>@lang(timezone_p6)</option>
-	<option value="+6.5"{{ selectTz(6.5, $user['timezone']) }}>@lang(timezone_p65)</option>
-	<option value="+7"{{ selectTz(7, $user['timezone']) }}>@lang(timezone_p7)</option>
-	<option value="+8"{{ selectTz(8, $user['timezone']) }}>@lang(timezone_p8)</option>
-	<option value="+9"{{ selectTz(9, $user['timezone']) }}>@lang(timezone_p9)</option>
-	<option value="+9.5"{{ selectTz(9.5, $user['timezone']) }}>@lang(timezone_p95)</option>
-	<option value="+10"{{ selectTz(10, $user['timezone']) }}>@lang(timezone_p10)</option>
-	<option value="+11"{{ selectTz(11, $user['timezone']) }}>@lang(timezone_p11)</option>
-	<option value="+12"{{ selectTz(12, $user['timezone']) }}>@lang(timezone_p12)</option>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_1">@lang(editprofile_emailpn)</label>
-<input id="opt_1" type="checkbox" name="opt_1" @checked($user['opt_pmnotify'] == 1) value="1" />
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_3">@lang(editprofile_showmail)</label>
-<select id="opt_3" class="label" name="opt_3">
-	<option @selected($user['opt_hidemail'] == 0) value="0">@lang(editprofile_showmail_0)</option>
-	<option@selected($user['opt_hidemail'] == 1) value="1">@lang(editprofile_showmail_1)</option>
-	<option@selected($user['opt_hidemail'] == 2) value="2">@lang(editprofile_showmail_2)</option>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_4">@lang(editprofile_design)</label>
-<select id="opt_4" class="label" name="opt_4">
-	<?php foreach ($design as $row) { ?>
-	<option value="{{ $row['id'] }}"@selected($user['template'] == $row['id'])>{{ $row['name'] }}</option>
-	<?php } ?>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_5">@lang(editprofile_language)</label>
-<select id="opt_5" class="label" name="opt_5">
-	<?php foreach ($language as $row) { ?>
-	<option value="{{ $row['id'] }}"@selected($user['language'] == $row['id'])>{{ $row['language'] }}</option>
-	<?php } ?>
-</select>
-<?php foreach ($customfields['2'] as $row1) { ?>
-<br class="newinput" /><hr class="formsep" />
-  <label for="{{ $row1['field'] }}"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
-<?php echo $row1['input']; } ?>
-<?php foreach ($customfields['0'] as $row1) { ?>
-<br class="newinput" /><hr class="formsep" />
-  <label for="{{ $row1['field'] }}"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
-  <?php echo $row1['input']; } ?>
-<br class="newinput" />
-</div>
-<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</div>
-<br class="minibr" />
+	<div class="border">
+		<h3><img src="@img(user)" alt="" /> @lang(editprofile_settings)</h3>
+		<div class="bbody">
+			<label for="temp">@lang(timezone)</label>
+			<select id="temp" class="label" name="temp">
+				<option value="-12"{{ selectTz(-12, $user['timezone']) }}>@lang(timezone_n12)</option>
+				<option value="-11"{{ selectTz(-11, $user['timezone']) }}>@lang(timezone_n11)</option>
+				<option value="-10"{{ selectTz(-10, $user['timezone']) }}>@lang(timezone_n10)</option>
+				<option value="-9"{{ selectTz(-9, $user['timezone']) }}>@lang(timezone_n9)</option>
+				<option value="-8"{{ selectTz(-8, $user['timezone']) }}>@lang(timezone_n8)</option>
+				<option value="-7"{{ selectTz(-7, $user['timezone']) }}>@lang(timezone_n7)</option>
+				<option value="-6"{{ selectTz(-6, $user['timezone']) }}>@lang(timezone_n6)</option>
+				<option value="-5"{{ selectTz(-5, $user['timezone']) }}>@lang(timezone_n5)</option>
+				<option value="-4"{{ selectTz(-4, $user['timezone']) }}>@lang(timezone_n4)</option>
+				<option value="-3.5"{{ selectTz(-3.5, $user['timezone']) }}>@lang(timezone_n35)</option>
+				<option value="-3"{{ selectTz(-3, $user['timezone']) }}>@lang(timezone_n3)</option>
+				<option value="-2"{{ selectTz(-2, $user['timezone']) }}>@lang(timezone_n2)</option>
+				<option value="-1"{{ selectTz(-1, $user['timezone']) }}>@lang(timezone_n1)</option>
+				<option value="0"{{ selectTz(0, $user['timezone']) }}>@lang(timezone_0)</option>
+				<option value="+1"{{ selectTz(1, $user['timezone']) }}>@lang(timezone_p1)</option>
+				<option value="+2"{{ selectTz(2, $user['timezone']) }}>@lang(timezone_p2)</option>
+				<option value="+3"{{ selectTz(3, $user['timezone']) }}>@lang(timezone_p3)</option>
+				<option value="+3.5"{{ selectTz(3.5, $user['timezone']) }}>@lang(timezone_p35)</option>
+				<option value="+4"{{ selectTz(4, $user['timezone']) }}>@lang(timezone_p4)</option>
+				<option value="+4.5"{{ selectTz(4.5, $user['timezone']) }}>@lang(timezone_p45)</option>
+				<option value="+5"{{ selectTz(5, $user['timezone']) }}>@lang(timezone_p5)</option>
+				<option value="+5.5"{{ selectTz(5.5, $user['timezone']) }}>@lang(timezone_p55)</option>
+				<option value="+5.75"{{ selectTz(5.75, $user['timezone']) }}>@lang(timezone_p575)</option>
+				<option value="+6"{{ selectTz(6, $user['timezone']) }}>@lang(timezone_p6)</option>
+				<option value="+6.5"{{ selectTz(6.5, $user['timezone']) }}>@lang(timezone_p65)</option>
+				<option value="+7"{{ selectTz(7, $user['timezone']) }}>@lang(timezone_p7)</option>
+				<option value="+8"{{ selectTz(8, $user['timezone']) }}>@lang(timezone_p8)</option>
+				<option value="+9"{{ selectTz(9, $user['timezone']) }}>@lang(timezone_p9)</option>
+				<option value="+9.5"{{ selectTz(9.5, $user['timezone']) }}>@lang(timezone_p95)</option>
+				<option value="+10"{{ selectTz(10, $user['timezone']) }}>@lang(timezone_p10)</option>
+				<option value="+11"{{ selectTz(11, $user['timezone']) }}>@lang(timezone_p11)</option>
+				<option value="+12"{{ selectTz(12, $user['timezone']) }}>@lang(timezone_p12)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_1">@lang(editprofile_emailpn)</label>
+			<input id="opt_1" type="checkbox" name="opt_1" @checked($user['opt_pmnotify'] == 1) value="1" />
+				   <br class="newinput" /><hr class="formsep" />
+			<label for="opt_3">@lang(editprofile_showmail)</label>
+			<select id="opt_3" class="label" name="opt_3">
+				<option @selected($user['opt_hidemail'] == 0) value="0">@lang(editprofile_showmail_0)</option>
+				<option@selected($user['opt_hidemail'] == 1) value="1">@lang(editprofile_showmail_1)</option>
+				<option@selected($user['opt_hidemail'] == 2) value="2">@lang(editprofile_showmail_2)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_4">@lang(editprofile_design)</label>
+			<select id="opt_4" class="label" name="opt_4">
+				@foreach ($design as $row)
+				<option value="{{ $row['id'] }}"@selected($user['template'] == $row['id'])>{{ $row['name'] }}</option>
+				@endforeach
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_5">@lang(editprofile_language)</label>
+			<select id="opt_5" class="label" name="opt_5">
+				@foreach ($language as $row)
+				<option value="{{ $row['id'] }}"@selected($user['language'] == $row['id'])>{{ $row['language'] }}</option>
+				@endforeach
+			</select>
+			@foreach ($customfields['2'] as $row1)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row1['field'] }}">
+				{{ $row1['name'] }}
+				<?php echo iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
+				{{ $row1['input'] }}
+			@endforeach
+			@foreach ($customfields['0'] as $row1)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row1['field'] }}">
+				{{ $row1['name'] }}
+				<?php echo iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></label>
+				{{ $row1['input'] }}
+			@endforeach
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
+	</div>
+	<br class="minibr" />
 
-<div class="border">
-<h3>
-  	<span class="right textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></span>
-	<img src="@img(about)" alt="" /> @lang(editprofile_about)
-</h3>
-<div class="bbody">
-	{!! $bbcode->getEditorArea('comment', $user['about'], 'cols="80" rows="18"', $config['maxaboutlength']) !!}
-</div>
-<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</div>
+	<div class="border">
+		<h3>
+			<span class="right textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></span>
+			<img src="@img(about)" alt="" /> @lang(editprofile_about)
+		</h3>
+		<div class="bbody">
+			{!! $bbcode->getEditorArea('comment', $user['about'], 'cols="80" rows="18"', $config['maxaboutlength']) !!}
+		</div>
+		<div class="bfoot center"><input type="submit" name="Submit1" value="@lang(submit_form)" /></div>
+	</div>
 </form>

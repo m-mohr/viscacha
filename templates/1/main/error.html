@@ -1,18 +1,18 @@
 <script type="text/javascript">
 <!--
-    window.setTimeout('<?php echo JS_URL($js_errorurl); ?>', 10000);
+	window.setTimeout('{{ JS_URL($js_errorurl) }}', 10000);
 -->
 </script>
 <div class="border">
-<h3>@lang(re_error_title)</h3>
-<div class="bbody">
-<ul>
-<?php foreach ($errormsg as $error) { ?>
-	<li>{{ $error }}</li>
-<?php } ?>
-</ul>
-</div>
-<?php if (!empty($errorurl)) { ?>
-<div class="bfoot center"><a href="{{ $errorurl }}">@lang(re_error_link)</a></div>
-<?php } ?>
+	<h3>@lang(re_error_title)</h3>
+	<div class="bbody">
+		<ul>
+			@foreach ($errormsg as $error)
+			<li>{{ $error }}</li>
+			@endforeach
+		</ul>
+	</div>
+	@if(!empty($errorurl))
+	<div class="bfoot center"><a href="{{ $errorurl }}">@lang(re_error_link)</a></div>
+	@endif
 </div>

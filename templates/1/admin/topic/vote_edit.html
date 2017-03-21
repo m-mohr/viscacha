@@ -1,25 +1,23 @@
 <div class="border">
-<h3>@lang(admin_topic_vote_edit)</h3>
-<form name="form2" method="post" action="managetopic.php?action=vote_edit2&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
-<div class="bbody">
-    <label for="question">@lang(add_vote_question)</label>
-    <input type="text" size="40" id="question" class="label" name="question" value="{{ $data['question'] }}" />
-    <br class="newinput" />
-</div>
-<div class="bfoot">@lang(title_vote_replies)</div>		  
-<div class="bbody">
-    <?php 
-    foreach ($data['answer'] as $id => $answer) {
-        $lang->assign('i', $data['original'][$id]);
-    ?>
-    <label for="notice_{{ $id }}">@lang(managetopic_vote_reply)</label>
-    <input type="text" size="40" id="notice_{{ $id }}" class="label" name="notice[{{ $id }}]" value="{{ $answer }}" />
-    <br class="newinput" /><hr class="formsep" />
-    <?php } ?>
-    <label for="notice_0">@lang(managetopic_vote_reply_new)</label>
-    <input type="text" size="40" id="notice_0" class="label" name="notice[0]" value="{{ $data[0] }}" />
-    <br class="newinput" />
-</div>
-<div class="bfoot center"><input type="submit" name="Submit2" value="@lang(submit_form)" /></div>
-</form>
+	<h3>@lang(admin_topic_vote_edit)</h3>
+	<form name="form2" method="post" action="managetopic.php?action=vote_edit2&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
+		<div class="bbody">
+			<label for="question">@lang(add_vote_question)</label>
+			<input type="text" size="40" id="question" class="label" name="question" value="{{ $data['question'] }}" />
+			<br class="newinput" />
+		</div>
+		<div class="bfoot">@lang(title_vote_replies)</div>		  
+		<div class="bbody">
+			@foreach ($data['answer'] as $id => $answer)
+			<?php $lang->assign('i', $data['original'][$id]); ?>
+			<label for="notice_{{ $id }}">@lang(managetopic_vote_reply)</label>
+			<input type="text" size="40" id="notice_{{ $id }}" class="label" name="notice[{{ $id }}]" value="{{ $answer }}" />
+			<br class="newinput" /><hr class="formsep" />
+			@endforeach
+			<label for="notice_0">@lang(managetopic_vote_reply_new)</label>
+			<input type="text" size="40" id="notice_0" class="label" name="notice[0]" value="{{ $data[0] }}" />
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input type="submit" name="Submit2" value="@lang(submit_form)" /></div>
+	</form>
 </div>

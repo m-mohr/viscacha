@@ -1,116 +1,116 @@
 <form name="form2" method="post" action="search.php?action=search{{ SID2URL_x }}">
-<div class="border">
-<div class="h3">
-  <a class="right" tabindex="4000" id="menu_activetopics" href="#activetopics" onmouseover="RegisterMenu('activetopics');"><img src="@img(desc)" alt="@lang(box_collapse)" /> @lang(search_presets)</a>
-  <div class="popup" id="popup_activetopics">
-	<strong>@lang(search_active_topics)</strong>
-	<ul>
-	<li><a tabindex="4001" href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}">@lang(sat_24h)</a></li>
-	<li><a tabindex="4002" href="search.php?action=active&amp;type=days-2{{ SID2URL_x }}">@lang(sat_2d)</a></li>
-	<li><a tabindex="4003" href="search.php?action=active&amp;type=days-3{{ SID2URL_x }}">@lang(sat_3d)</a></li>
-	<li><a tabindex="4004" href="search.php?action=active&amp;type=days-7{{ SID2URL_x }}">@lang(sat_7d)</a></li>
-	<li><a tabindex="4005" href="search.php?action=active&amp;type=days-14{{ SID2URL_x }}">@lang(sat_14d)</a></li>
-	<?php if ($my->vlogin) { ?>
-	<li><a tabindex="4006" href="search.php?action=active&amp;type=abo{{ SID2URL_x }}">@lang(sat_abo)</a></li>
-	<li><a tabindex="4007" href="search.php?action=active&amp;type=fav{{ SID2URL_x }}">@lang(sat_fav)</a></li>
-	<?php } ?>
-	<li><a tabindex="4008" href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}">@lang(sat_lastvisit)</a></li>
-	</ul>
-  </div>
-  <img src="@img(suchen)" alt="" /> @lang(search)
-</div>
-<div class="bbody">
-<label for="searchsuggest_val">@lang(search_keywords)</label>
-<div class="label">
-    <input tabindex="1" class="label_inner" id="searchsuggest_val" type="text" name="search" onkeyup="ajax_search(this.value, key(event))" onblur="ajax_search(this.value)" size="40" />
-    <span class="stext" id="searchsuggest"></span>
-</div>
-<br class="newinput" /><hr class="formsep" />
-<label for="membersuggest_val">@lang(search_username)</label>
-<div class="label">
-    <input tabindex="2" class="label_inner" id="membersuggest_val" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" name="name" size="40" />
-    <span class="stext" id="membersuggest"></span>
-</div>
-<br class="newinput" />
-</div>
-<div class="h3"><img id="img_searchopt" alt="switch" src="@img(minus)" title="@lang(box_collapse)" /> @lang(search_soptions)</div>
-<div class="bbody" id="part_searchopt">
-<label for="boards">@lang(search_boards)</label>
-<select tabindex="2001" class="label" id="boards" name="boards[]" multiple="multiple" size="10">
- <option value="" selected="selected">@lang(search_boards_all)</option>
- {{ $forums }}
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_0">@lang(search_scontent)</label>
-<select tabindex="2002" id="opt_0" class="label" name="opt_0">
-	<option value="0" selected="selected">@lang(search_scontent_pt)</option>
-	<option value="1">@lang(search_scontent_t)</option>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_1">@lang(search_match_case)</label>
-<select tabindex="2003" name="opt_1" id="opt_1" class="label">
-    <option value="0" selected="selected">@lang(search_match_case1)</option>
-	<option value="1">@lang(search_match_case2)</option>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="opt_2">@lang(search_linking)</label>
-<select tabindex="2004" id="opt_2" class="label" name="opt_2">
-	<option value="0" selected="selected">@lang(search_linking_and)</option>
-	<option value="1">@lang(search_linking_or)</option>
-</select>
-<br class="newinput" /><hr class="formsep" />
-<label for="temp">@lang(search_sdate)</label>
-<div class="label">
-<select tabindex="2005" name="temp" id="temp">
-	<option value="0" selected="selected">@lang(search_sdate0)</option>
-	<option value="1">@lang(search_sdate1)</option>
-	<option value="7">@lang(search_sdate7)</option>
-	<option value="14">@lang(search_sdate14)</option>
-	<option value="30">@lang(search_sdate30)</option>
-	<option value="90">@lang(search_sdate90)</option>
-	<option value="180">@lang(search_sdate180)</option>
-	<option value="365">@lang(search_sdate365)</option>
-</select>
-<select tabindex="2006" name="temp2">
-	<option value="0" selected="selected">@lang(search_sdate_order0)</option>
-	<option value="1">@lang(search_sdate_order1)</option>
-</select>
-</div>
-<br class="newinput" /><hr class="formsep" />
-<label for="sort">@lang(search_sortby)</label>
-<div class="label">
-<select tabindex="2007" name="sort" id="sort">
-	<option value="topic">@lang(search_sortby_topic)</option>
-	<option value="posts">@lang(search_sortby_posts)</option>
-	<option value="date">@lang(search_sortby_date)</option>
-	<option value="last" selected="selected">@lang(search_sortby_last)</option>
-	<option value="name">@lang(search_sortby_name)</option>
-	<option value="board">@lang(search_sortby_board)</option>
-</select>
-<select tabindex="2008" name="order">
-	<option value="0" selected="selected">@lang(search_sortby_desc)</option>
-	<option value="1">@lang(search_sortby_asc)</option>
-</select>
-</div>
-<br class="newinput" />
-</div>
-<div class="bfoot center"><input type="submit" tabindex="2008" name="Submit3" value="@lang(submit_form)" /></div>
-</div>
+	<div class="border">
+		<div class="h3">
+			<a class="right" tabindex="4000" id="menu_activetopics" href="#activetopics" onmouseover="RegisterMenu('activetopics');"><img src="@img(desc)" alt="@lang(box_collapse)" /> @lang(search_presets)</a>
+			<div class="popup" id="popup_activetopics">
+				<strong>@lang(search_active_topics)</strong>
+				<ul>
+					<li><a tabindex="4001" href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}">@lang(sat_24h)</a></li>
+					<li><a tabindex="4002" href="search.php?action=active&amp;type=days-2{{ SID2URL_x }}">@lang(sat_2d)</a></li>
+					<li><a tabindex="4003" href="search.php?action=active&amp;type=days-3{{ SID2URL_x }}">@lang(sat_3d)</a></li>
+					<li><a tabindex="4004" href="search.php?action=active&amp;type=days-7{{ SID2URL_x }}">@lang(sat_7d)</a></li>
+					<li><a tabindex="4005" href="search.php?action=active&amp;type=days-14{{ SID2URL_x }}">@lang(sat_14d)</a></li>
+					@if($my->vlogin)
+					<li><a tabindex="4006" href="search.php?action=active&amp;type=abo{{ SID2URL_x }}">@lang(sat_abo)</a></li>
+					<li><a tabindex="4007" href="search.php?action=active&amp;type=fav{{ SID2URL_x }}">@lang(sat_fav)</a></li>
+					@endif
+					<li><a tabindex="4008" href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}">@lang(sat_lastvisit)</a></li>
+				</ul>
+			</div>
+			<img src="@img(suchen)" alt="" /> @lang(search)
+		</div>
+		<div class="bbody">
+			<label for="searchsuggest_val">@lang(search_keywords)</label>
+			<div class="label">
+				<input tabindex="1" class="label_inner" id="searchsuggest_val" type="text" name="search" onkeyup="ajax_search(this.value, key(event))" onblur="ajax_search(this.value)" size="40" />
+				<span class="stext" id="searchsuggest"></span>
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="membersuggest_val">@lang(search_username)</label>
+			<div class="label">
+				<input tabindex="2" class="label_inner" id="membersuggest_val" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" name="name" size="40" />
+				<span class="stext" id="membersuggest"></span>
+			</div>
+			<br class="newinput" />
+		</div>
+		<div class="h3"><img id="img_searchopt" alt="switch" src="@img(minus)" title="@lang(box_collapse)" /> @lang(search_soptions)</div>
+		<div class="bbody" id="part_searchopt">
+			<label for="boards">@lang(search_boards)</label>
+			<select tabindex="2001" class="label" id="boards" name="boards[]" multiple="multiple" size="10">
+				<option value="" selected="selected">@lang(search_boards_all)</option>
+				{{ $forums }}
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_0">@lang(search_scontent)</label>
+			<select tabindex="2002" id="opt_0" class="label" name="opt_0">
+				<option value="0" selected="selected">@lang(search_scontent_pt)</option>
+				<option value="1">@lang(search_scontent_t)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_1">@lang(search_match_case)</label>
+			<select tabindex="2003" name="opt_1" id="opt_1" class="label">
+				<option value="0" selected="selected">@lang(search_match_case1)</option>
+				<option value="1">@lang(search_match_case2)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_2">@lang(search_linking)</label>
+			<select tabindex="2004" id="opt_2" class="label" name="opt_2">
+				<option value="0" selected="selected">@lang(search_linking_and)</option>
+				<option value="1">@lang(search_linking_or)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="temp">@lang(search_sdate)</label>
+			<div class="label">
+				<select tabindex="2005" name="temp" id="temp">
+					<option value="0" selected="selected">@lang(search_sdate0)</option>
+					<option value="1">@lang(search_sdate1)</option>
+					<option value="7">@lang(search_sdate7)</option>
+					<option value="14">@lang(search_sdate14)</option>
+					<option value="30">@lang(search_sdate30)</option>
+					<option value="90">@lang(search_sdate90)</option>
+					<option value="180">@lang(search_sdate180)</option>
+					<option value="365">@lang(search_sdate365)</option>
+				</select>
+				<select tabindex="2006" name="temp2">
+					<option value="0" selected="selected">@lang(search_sdate_order0)</option>
+					<option value="1">@lang(search_sdate_order1)</option>
+				</select>
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="sort">@lang(search_sortby)</label>
+			<div class="label">
+				<select tabindex="2007" name="sort" id="sort">
+					<option value="topic">@lang(search_sortby_topic)</option>
+					<option value="posts">@lang(search_sortby_posts)</option>
+					<option value="date">@lang(search_sortby_date)</option>
+					<option value="last" selected="selected">@lang(search_sortby_last)</option>
+					<option value="name">@lang(search_sortby_name)</option>
+					<option value="board">@lang(search_sortby_board)</option>
+				</select>
+				<select tabindex="2008" name="order">
+					<option value="0" selected="selected">@lang(search_sortby_desc)</option>
+					<option value="1">@lang(search_sortby_asc)</option>
+				</select>
+			</div>
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input type="submit" tabindex="2008" name="Submit3" value="@lang(submit_form)" /></div>
+	</div>
 </form>
 <noscript>
- <br class="minibr" />
-  <div class="popup_noscript">
+<br class="minibr" />
+<div class="popup_noscript">
 	<a name="activetopics"></a><strong>@lang(search_active_topics)</strong>
 	<ul>
-	<li><a href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}">@lang(sat_24h)</a></li>
-	<li><a href="search.php?action=active&amp;type=days-2{{ SID2URL_x }}">@lang(sat_2d)</a></li>
-	<li><a href="search.php?action=active&amp;type=days-3{{ SID2URL_x }}">@lang(sat_3d)</a></li>
-	<li><a href="search.php?action=active&amp;type=days-7{{ SID2URL_x }}">@lang(sat_7d)</a></li>
-	<li><a href="search.php?action=active&amp;type=days-14{{ SID2URL_x }}">@lang(sat_14d)</a></li>
-	<?php if ($my->vlogin) { ?>
-	<li><a href="search.php?action=active&amp;type=abo{{ SID2URL_x }}">@lang(sat_abo)</a></li>
-	<?php } ?>
-	<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}">@lang(sat_lastvisit)</a></li>
+		<li><a href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}">@lang(sat_24h)</a></li>
+		<li><a href="search.php?action=active&amp;type=days-2{{ SID2URL_x }}">@lang(sat_2d)</a></li>
+		<li><a href="search.php?action=active&amp;type=days-3{{ SID2URL_x }}">@lang(sat_3d)</a></li>
+		<li><a href="search.php?action=active&amp;type=days-7{{ SID2URL_x }}">@lang(sat_7d)</a></li>
+		<li><a href="search.php?action=active&amp;type=days-14{{ SID2URL_x }}">@lang(sat_14d)</a></li>
+		@if($my->vlogin)
+		<li><a href="search.php?action=active&amp;type=abo{{ SID2URL_x }}">@lang(sat_abo)</a></li>
+		@endif
+		<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}">@lang(sat_lastvisit)</a></li>
 	</ul>
-  </div>
+</div>
 </noscript>

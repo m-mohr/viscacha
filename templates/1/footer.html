@@ -1,7 +1,7 @@
-	<?php echo iif ($tpl->tplsent('menu'), $tpl->parse('menu_noscript')); ?><br />
-    <?php echo iif ($config['debug'], $tpl->parse('admin/benchmark')); ?>
-    <div class="center"><?php ($code = $plugins->navigation('bottom')) ? eval($code) : null; ?></div>
-    <div class="center stext">@lang(timestamps_gmt_diff) @lang(timezone_desc)</div>
+<?php echo iif ($tpl->tplsent('menu'), $tpl->parse('menu_noscript')); ?><br />
+<?php echo iif ($config['debug'], $tpl->parse('admin/benchmark')); ?>
+<div class="center"><?php ($code = $plugins->navigation('bottom')) ? eval($code) : null; ?></div>
+<div class="center stext">@lang(timestamps_gmt_diff) @lang(timezone_desc)</div>
 </div><br class="invclear" />
 </div>
 <div id="copyright">

@@ -1,34 +1,34 @@
 <table class="tables">
- <tr> 
-  <th colspan="3"><img src="@img(last)" alt="" /> @lang(editprofile_mylast)</th>
- </tr>
-<?php if ($anz > 0) { ?>
- <tr>
-  <td class="tfoot textright" colspan="3">{!! $pages !!}</td>
- </tr>
- <tr>
-  <th width="5%">&nbsp;</th>
-  <th width="85%">@lang(forum_topic)</th>
-  <th width="10%">@lang(forum_replies)</th> 
- </tr>
-<?php foreach ($cache as $row) { ?>
- <tr class="tbody">
-  <td width="5%"><img src="{{ $row['src'] }}" alt="{{ $row['alt'] }}" /></td>
-  <td width="85%">
-   <?php echo iif($row['firstnew'],'<a href="showtopic.php?action=firstnew&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('desc').'" alt="'.$lang->phrase('move_to_first_new_post').'" /></a>'); ?>
-   {{ $row['pre'] }}
-   <a<?php echo iif($row['firstnew'], ' style="font-weight: bold;"'); ?> href='showtopic.php?action=jumpto&amp;topic_id={{ $row['pid'] }}{{ SID2URL_x }}'>{{ $row['topic'] }}</a>
-   <?php echo iif (!empty($row['topic_pages']), ' (<span class="stext" style="white-space: nowrap;">'.$row['topic_pages'].'</span>)'); ?>
-  </td>
-  <td width="10%">{{ $row['posts'] }}</td> 
- </tr>
-<?php } ?>
-<tr>
-  <td class="tfoot textright" colspan="3">{!! $pages !!}</td>
-</tr>
-<?php } else { ?>
- <tr>
-  <td class="tbody center" colspan="3">@lang(forum_empty)</td>
- </tr>
-<?php } ?>				
+	<tr> 
+		<th colspan="3"><img src="@img(last)" alt="" /> @lang(editprofile_mylast)</th>
+	</tr>
+	@if($anz > 0)
+	<tr>
+		<td class="tfoot textright" colspan="3">{!! $pages !!}</td>
+	</tr>
+	<tr>
+		<th width="5%">&nbsp;</th>
+		<th width="85%">@lang(forum_topic)</th>
+		<th width="10%">@lang(forum_replies)</th> 
+	</tr>
+	@foreach ($cache as $row)
+	<tr class="tbody">
+		<td width="5%"><img src="{{ $row['src'] }}" alt="{{ $row['alt'] }}" /></td>
+		<td width="85%">
+			<?php echo iif($row['firstnew'],'<a href="showtopic.php?action=firstnew&amp;id='.$row['id'].SID2URL_x.'"><img src="'.$tpl->img('desc').'" alt="'.$lang->phrase('move_to_first_new_post').'" /></a>'); ?>
+			{{ $row['pre'] }}
+			<a<?php echo iif($row['firstnew'], ' style="font-weight: bold;"'); ?> href='showtopic.php?action=jumpto&amp;topic_id={{ $row['pid'] }}{{ SID2URL_x }}'>{{ $row['topic'] }}</a>
+			<?php echo iif (!empty($row['topic_pages']), ' (<span class="stext" style="white-space: nowrap;">'.$row['topic_pages'].'</span>)'); ?>
+		</td>
+		<td width="10%">{{ $row['posts'] }}</td> 
+	</tr>
+	@endforeach
+	<tr>
+		<td class="tfoot textright" colspan="3">{!! $pages !!}</td>
+	</tr>
+	@else
+	<tr>
+		<td class="tbody center" colspan="3">@lang(forum_empty)</td>
+	</tr>
+	@endif				
 </table>

@@ -6,14 +6,14 @@
 		{{ $pref }}
 		<a href='showtopic.php?id={{ $row->id }}{{ SID2URL_x }}'>@if($showprefix) @lang(showtopic_prefix_title) @endif {{ $row->topic }}</a>
 		<?php echo iif (!empty($topic_pages), '<br /><span class="stext">'.$topic_pages.'</span>'); ?>
-		<br /><span class="stext">@lang(result_board) <a href="showforum.php?id={{ $row->board }}{{ SID2URL_x }}" target="_blank"><?php echo $forums[$row->board]['name']; ?></a></span></td>
+		<br /><span class="stext">@lang(result_board) <a href="showforum.php?id={{ $row->board }}{{ SID2URL_x }}" target="_blank">{{ $forums[$row->board]['name'] }}</a></span></td>
 	<td><span class="stext">
-		{{ $rstart }}<br />
-		@lang(written_by) <?php echo iif($row->mid,"<a href='profile.php?id=".$row->mid.SID2URL_x."'>".$row->name."</a>",$row->name); ?>
-	</span></td>
-	<td class="center"><?php echo numbers($row->posts); ?></td>
+			{{ $rstart }}<br />
+			@lang(written_by) <?php echo iif($row->mid,"<a href='profile.php?id=".$row->mid.SID2URL_x."'>".$row->name."</a>",$row->name); ?>
+		</span></td>
+	<td class="center">{{ numbers($row->posts) }}</td>
 	<td class="textright"><span class="stext">
-		<a title="@lang(jump_to_last_post)" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $rlast }}</a><br />
-		@lang(written_by) {{ $row->last_name }}</span>
+			<a title="@lang(jump_to_last_post)" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $rlast }}</a><br />
+			@lang(written_by) {{ $row->last_name }}</span>
 	</td>
 </tr>

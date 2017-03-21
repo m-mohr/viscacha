@@ -129,7 +129,12 @@ elseif ($_GET['action'] == 'edit') {
 	$year = gmdate('Y');
 	$maxy = $year-6;
 	$miny = $year-100;
+	
+	$groups = array();
 	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	while ($row = $db->fetch_assoc($result)) {
+		$groups[] = $row;
+	}
 
 	if (!isset($user['timezone']) || $user['timezone'] === null) {
 		$user['timezone'] = $config['timezone'];

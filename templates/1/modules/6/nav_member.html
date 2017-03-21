@@ -1,15 +1,19 @@
 <div class="navigation_cat">
-<h3>@lang(mymenu)</h3>
-<div class="navigation_inner">
-	<p>
-	<strong>@lang(hello_user)</strong><br />
-	<?php if ($my->pms > 0) { ?><a href="pm.php{{ SID2URL_1 }}"> @lang(mymenu_newpm)</a><br /><?php } ?>
-	</p>
-	<br class="minibr" />
-    <ul class="nav">
-	<li><a href="editprofile.php{{ SID2URL_1 }}">@lang(editprofile_short)</a></li>
-	<li><a href="log.php?action=logout&amp;redirect={{ $request_uri }}{{ SID2URL_x }}">@lang(logout)</a></li>
-	<?php if ($my->p['admin'] == 1) { ?><li><a href="admin.php{{ SID2URL_1 }}">@lang(admincp)</a></li><?php } ?>
-	</ul>
-</div>
+	<h3>@lang(mymenu)</h3>
+	<div class="navigation_inner">
+		<p>
+			<strong>@lang(hello_user)</strong><br />
+			@if($my->pms > 0)
+			<a href="pm.php{{ SID2URL_1 }}"> @lang(mymenu_newpm)</a><br />
+			@endif
+		</p>
+		<br class="minibr" />
+		<ul class="nav">
+			<li><a href="editprofile.php{{ SID2URL_1 }}">@lang(editprofile_short)</a></li>
+			<li><a href="log.php?action=logout&amp;redirect={{ $request_uri }}{{ SID2URL_x }}">@lang(logout)</a></li>
+			@if($my->p['admin'] == 1)
+			<li><a href="admin.php{{ SID2URL_1 }}">@lang(admincp)</a></li>
+			@endif
+		</ul>
+	</div>
 </div>

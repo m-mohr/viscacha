@@ -1,35 +1,35 @@
 <div class="border">
-<h3><img src="@img(vote)" alt="" /> @lang(add_vote_to_thread)</h3>
-<div class="bfoot">@lang(title_refresh_vote_replies)</div>
-<form method="post" action="newtopic.php?action=savevote&amp;id={{ $board }}&amp;topic_id={{ $_GET['topic_id'] }}{{ SID2URL_x }}">
-<div class="bbody">
-    <label for="temp">@lang(add_vote_replies)<br /><span class="stext">@lang(add_vote_replies_desc)</span></label>
-    <div class="label">
-    <input type="text" tabindex="1" size="3" id="temp" name="temp" value="{{ $temp }}" />
-    <input type="submit" tabindex="2" name="Update" value="@lang(refresh_form)" />
-    </div>
-    <br class="newinput" />
-</div>
-<?php if (count($error) == 0) { ?>
-<div class="bfoot">@lang(title_vote_question_replies)</div>
-<div class="bbody">
-    <label for="question">@lang(add_vote_question)</label>
-    <input type="text" size="40" tabindex="3" id="question" class="label" name="question" value="{{ $data['question'] }}" />
-    <br class="newinput" />
-</div>
-<div class="bfoot">@lang(title_vote_replies)</div>
-<div class="bbody">
-    <?php
-    for ($i = 1; $i <= $temp; $i++) {
-        echo iif($i > 1, '<hr class="formsep" />');
-        $lang->assign('i', $i);
-    ?>
-    <label for="notice_{{ $i }}">@lang(add_vote_reply)</label>
-    <input type="text" size="40" tabindex="1{{ $i }}" id="notice_{{ $i }}" class="label" name="notice[{{ $i }}]" value="{{ $data[$i] }}" />
-    <br class="newinput" />
-    <?php } ?>
-</div>
-<div class="bfoot center"><input type="submit" tabindex="200" accesskey="s" value="@lang(submit_form)" /></div>
-</form>
-<?php } ?>
+	<h3><img src="@img(vote)" alt="" /> @lang(add_vote_to_thread)</h3>
+	<div class="bfoot">@lang(title_refresh_vote_replies)</div>
+	<form method="post" action="newtopic.php?action=savevote&amp;id={{ $board }}&amp;topic_id={{ $_GET['topic_id'] }}{{ SID2URL_x }}">
+		<div class="bbody">
+			<label for="temp">@lang(add_vote_replies)<br /><span class="stext">@lang(add_vote_replies_desc)</span></label>
+			<div class="label">
+				<input type="text" tabindex="1" size="3" id="temp" name="temp" value="{{ $temp }}" />
+				<input type="submit" tabindex="2" name="Update" value="@lang(refresh_form)" />
+			</div>
+			<br class="newinput" />
+		</div>
+		@if(count($error) == 0)
+		<div class="bfoot">@lang(title_vote_question_replies)</div>
+		<div class="bbody">
+			<label for="question">@lang(add_vote_question)</label>
+			<input type="text" size="40" tabindex="3" id="question" class="label" name="question" value="{{ $data['question'] }}" />
+			<br class="newinput" />
+		</div>
+		<div class="bfoot">@lang(title_vote_replies)</div>
+		<div class="bbody">
+			@foreach(range($i, $temp) as $i)
+			@if($i > 1)
+			<hr class="formsep" />
+			@endif
+			<?php $lang->assign('i', $i); ?>
+			<label for="notice_{{ $i }}">@lang(add_vote_reply)</label>
+			<input type="text" size="40" tabindex="1{{ $i }}" id="notice_{{ $i }}" class="label" name="notice[{{ $i }}]" value="{{ $data[$i] }}" />
+			<br class="newinput" />
+			@endforeach
+		</div>
+		<div class="bfoot center"><input type="submit" tabindex="200" accesskey="s" value="@lang(submit_form)" /></div>
+	</form>
+	@endif
 </div>

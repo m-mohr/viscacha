@@ -1,23 +1,23 @@
 <table class="tables">
-<tr><th colspan="3">@lang(edithistory)</th></tr>
-<tr><td class="tbody" colspan="3">
-	@lang(showtopic_subject) <strong>{{ $row['topic'] }}</strong>
-</td></tr>
-<tr class="tfoot">
-	<td width="20%">@lang(date)</td>
-	<td width="30%">@lang(author)</td>
-	<td width="50%">@lang(edithistory_reason)</td>
-</tr>
-<tr class="tbody">
-	<td>{{ $row['date'] }}</td>
-	<td>{{ $row['name'] }}<?php echo iif($my->p['admin'] == 1, '<br /><span class="stext">'.$lang->phrase('ipadress').$row['ip'].'</span>'); ?></td>
-	<td><em>@lang(edithistory_topicstart)</em></td>
-</tr>
-<?php foreach ($edit as $line) { ?>
-<tr class="tbody">
-	<td>{{ $line['date'] }}</td>
-	<td>{{ $line['name'] }}<?php echo iif($my->p['admin'] == 1, '<br /><span class="stext">'.$lang->phrase('ipadress').$line['ip'].'</span>'); ?></td>
-	<td>{{ $line['reason'] }}</td>
-</tr>
-<?php } ?>
+	<tr><th colspan="3">@lang(edithistory)</th></tr>
+	<tr><td class="tbody" colspan="3">
+			@lang(showtopic_subject) <strong>{{ $row['topic'] }}</strong>
+		</td></tr>
+	<tr class="tfoot">
+		<td width="20%">@lang(date)</td>
+		<td width="30%">@lang(author)</td>
+		<td width="50%">@lang(edithistory_reason)</td>
+	</tr>
+	<tr class="tbody">
+		<td>{{ $row['date'] }}</td>
+		<td>{{ $row['name'] }}<?php echo iif($my->p['admin'] == 1, '<br /><span class="stext">'.$lang->phrase('ipadress').$row['ip'].'</span>'); ?></td>
+		<td><em>@lang(edithistory_topicstart)</em></td>
+	</tr>
+	@foreach ($edit as $line)
+	<tr class="tbody">
+		<td>{{ $line['date'] }}</td>
+		<td>{{ $line['name'] }}<?php echo iif($my->p['admin'] == 1, '<br /><span class="stext">'.$lang->phrase('ipadress').$line['ip'].'</span>'); ?></td>
+		<td>{{ $line['reason'] }}</td>
+	</tr>
+	@endforeach
 </table>

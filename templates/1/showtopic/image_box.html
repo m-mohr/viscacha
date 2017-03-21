@@ -1,15 +1,17 @@
 <div class="uploadbox"><strong>
-<?php if ($my->p['downloadfiles'] == 0) { echo $file['file']; } else { ?>
-<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}" target="_blank" rel="lightbox[{{ $row->id }}]">
-<img src="attachments.php?action=thumbnail&amp;id={{ $file['id'] }}{{ SID2URL_x }}" alt="{{ $file['file'] }}" title="{{ $file['file'] }}" />
-</a>
-<?php } ?>
-</strong><br />
-<span class="stext">
-@lang(uploads_filetype) <?php echo get_extension($file['file']); ?><br />
-@lang(uploads_hits){{ $file['hits'] }}<br />
-@lang(uploads_size){{ $fsize }}<br />
-@lang(uploads_imgsize)
-</span>
+		@if($my->p['downloadfiles'] == 0)
+		{{ $file['file'] }}
+		@else
+		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}" target="_blank" rel="lightbox[{{ $row->id }}]">
+			<img src="attachments.php?action=thumbnail&amp;id={{ $file['id'] }}{{ SID2URL_x }}" alt="{{ $file['file'] }}" title="{{ $file['file'] }}" />
+		</a>
+		@endif
+	</strong><br />
+	<span class="stext">
+		@lang(uploads_filetype) {{ get_extension($file['file']) }}<br />
+		@lang(uploads_hits){{ $file['hits'] }}<br />
+		@lang(uploads_size){{ $fsize }}<br />
+		@lang(uploads_imgsize)
+	</span>
 </div>
 

@@ -1,13 +1,13 @@
 <div class="uploadbox">
-<strong>
-<?php if ($my->p['downloadfiles'] == 0) { ?>
-{ $file['file'] }} 
-<?php } else { ?>
-<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}">{{ $file['file'] }}</a>
-<?php } ?>
-</strong><br />
-<span class="stext">
-@lang(uploads_hits){{ $file['hits'] }}<br />
-@lang(uploads_size){{ $fsize }}
-</span>
+	<strong>
+		@if($my->p['downloadfiles'] == 0)
+		{ $file['file'] }} 
+		@else
+		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}">{{ $file['file'] }}</a>
+		@endif
+	</strong><br />
+	<span class="stext">
+		@lang(uploads_hits){{ $file['hits'] }}<br />
+		@lang(uploads_size){{ $fsize }}
+	</span>
 </div>

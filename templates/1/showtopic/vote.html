@@ -1,15 +1,15 @@
 <form name="form2" method="post" action="misc.php?action=vote&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">
-<div class="border">
-<h3>
-	<span class="right">[<a href="showtopic.php?temp=1&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">@lang(vote_showresult)</a>]</span>
-	<img src="@img(vote)" alt="" /> @lang(vote_titlevote){{ $vote['question'] }}
-</h3>
-<div class="bbody">
-<?php foreach ($vote['entries'] as $row) { ?>
-	<input type="radio" id="vote_{{ $row['id'] }}" value="{{ $row['id'] }}" name="temp"@checked($vote['voted'] == $row['id']) /><label class="plainlabel sep" for="vote_{{ $row['id'] }}">{{ $row['answer'] }}</label><br />
-<?php } ?>
-</div>
-<div class="bfoot center"><input type="submit" value="@lang(submit_form)" /></div>
-</div>
+	<div class="border">
+		<h3>
+			<span class="right">[<a href="showtopic.php?temp=1&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">@lang(vote_showresult)</a>]</span>
+			<img src="@img(vote)" alt="" /> @lang(vote_titlevote){{ $vote['question'] }}
+		</h3>
+		<div class="bbody">
+			@foreach ($vote['entries'] as $row)
+			<input type="radio" id="vote_{{ $row['id'] }}" value="{{ $row['id'] }}" name="temp"@checked($vote['voted'] == $row['id']) /><label class="plainlabel sep" for="vote_{{ $row['id'] }}">{{ $row['answer'] }}</label><br />
+			@endforeach
+		</div>
+		<div class="bfoot center"><input type="submit" value="@lang(submit_form)" /></div>
+	</div>
 </form>
 <br class="minibr" />

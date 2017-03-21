@@ -1,15 +1,17 @@
 <?php list($content, $pages) = DocCodePagination($info['content']); ?>
 <div class="border">
 	<h3>{{ $info['title'] }}</h3>
-	<?php if ($pages > 1) { ?>
+	@if($pages > 1)
 	<div class="bfoot pagination">
-	<?php
-	for ($i = 1; $i <= $pages; $i++) {
-	    echo iif($i != $_GET['page'], '<a class="page_number" href="docs.php?id='.$id.'&amp;page='.$i.SID2URL_x.'">'.$i.'</a>', ' <strong class=""page_number_current">'.$i.'</strong>');
-	}
-	?>
+		@foreach(range(1,$pages) as $i)
+		@if($i != $_GET['page'])
+		<a class="page_number" href="docs.php?id={{ $id }}&amp;page={{ $i }}{{ SID2URL_x }}">{{ $i }}</a>
+		@else
+		<strong class="page_number_current">{{ $i }}</strong>
+		@endif
+		@endforeach
 	</div>
-	<?php } ?>
+	@endif
 	<div class="bbody">{!! $content !!}</div>
 	<div class="bfoot">@lang(docs_metadata)</div>
 </div>

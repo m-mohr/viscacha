@@ -1,21 +1,23 @@
 <form name="form2" method="post" enctype="multipart/form-data" action="attachments.php?action=save&amp;type={{ $_GET['type'] }}&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
-<div class="border">
-<h3><span class="right">[<a href="javascript:self.close();">@lang(close_window)</a>]</span>@lang(manage_uploads)</h3>
-<div class="bbody">
-@lang(upload_intro1)<br />
-<?php echo iif((!empty($config['tpcwidth']) || !empty($config['tpcheight'])), $lang->phrase('upload_intro1b')); ?><br /><br />
-<?php if ($free > 0) { ?>
-<strong>@lang(upload_intro2)</strong>
-<?php for ($i = 0; $i < $free; $i++) { ?>
-	<br /><input type="file" name="upload_{{ $i }}" size="40" />
-<?php } } ?>
-<br /><br />
-<?php if ($free != $config['tpcmaxuploads']) { ?>
-<strong>@lang(upload_intro3)</strong>
-	<?php foreach ($uploads as $row) { ?>
-		<br /><input type="submit" name="delete[{{ $row['id'] }}]" value="@lang(delete_form)" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $row['file'] }} (<em>{{ $row['filesize'] }}</em>)
-<?php } } ?>
-</div>
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</div>
+	<div class="border">
+		<h3><span class="right">[<a href="javascript:self.close();">@lang(close_window)</a>]</span>@lang(manage_uploads)</h3>
+		<div class="bbody">
+			@lang(upload_intro1)<br />
+			<?php echo iif((!empty($config['tpcwidth']) || !empty($config['tpcheight'])), $lang->phrase('upload_intro1b')); ?><br /><br />
+			@if($free > 0)
+			<strong>@lang(upload_intro2)</strong>
+			@foreach(range(0, $free) as $i)
+			<br /><input type="file" name="upload_{{ $i }}" size="40" />
+			@endforeach
+			@endif
+			<br /><br />
+			@if($free != $config['tpcmaxuploads'])
+			<strong>@lang(upload_intro3)</strong>
+			@foreach ($uploads as $row)
+			<br /><input type="submit" name="delete[{{ $row['id'] }}]" value="@lang(delete_form)" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $row['file'] }} (<em>{{ $row['filesize'] }}</em>)
+			@endforeach
+			@endif
+		</div>
+		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
+	</div>
 </form>

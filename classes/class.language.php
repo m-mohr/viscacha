@@ -183,7 +183,8 @@ class lang {
 		}
 	}
 
-	function phrase($phrase) {
+	function phrase($phrase, $vars = array()) {
+		$this->massAssign($vars);
 		if (isset($this->lngarray[$phrase])) {
 			$pphrase = $this->lngarray[$phrase];
 			if (mb_strpos($pphrase, '{') !== false) {
@@ -193,6 +194,12 @@ class lang {
 		}
 		else {
 			return $phrase;
+		}
+	}
+
+	function massAssign(array $vars) {
+		foreach($vars as $key => $value) {
+			$this->assign($key, $value);
 		}
 	}
 

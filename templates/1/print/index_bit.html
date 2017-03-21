@@ -5,12 +5,12 @@
 	</tr>
 	<tr>
 		<td colspan="2">
-		<em>@lang(showtopic_subject)<strong>{{ $row->topic }}</strong></em><br /><br />
-	    {{ $row->comment }}
-	    </td>
+			<em>@lang(showtopic_subject)<strong>{{ $row->topic }}</strong></em><br /><br />
+			{{ $row->comment }}
+		</td>
     </tr>
-    <?php if (!empty($inner['upload_box'])) { ?>
+    @if(!empty($inner['upload_box']))
     <tr><td colspan="2" class="upload"><strong>@lang(post_uploads)</strong><br />{!! $inner['upload_box'] !!}</td></tr>
-    <?php } ?>
+    @endif
 </table>
 <br class="post_separator" />

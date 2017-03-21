@@ -1,23 +1,25 @@
 <div class="navigation_cat">
-<h3>{{ $row['name'] }}</h3>
-<ul class="navigation_inner">
-<?php foreach ($navigation as $sub) { ?>
-	<?php if(!empty($sub['link'])) { ?>
+	<h3>{{ $row['name'] }}</h3>
+	<ul class="navigation_inner">
+		@foreach ($navigation as $sub)
+		@if(!empty($sub['link']))
 		<li><a href="{{ $sub['link'] }}"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>>{{ $sub['name'] }}</a>
-	<?php } else { ?>
+		@else
 		<li><strong>{{ $sub['name'] }}</strong>
-	<?php } ?><?php if(count($sub['navigation']) > 0) { ?>
-	<ul>
-	<?php foreach ($sub['navigation'] as $sub) { ?>
-		<?php if(!empty($sub['link'])) { ?>
+		@endif
+		@if(count($sub['navigation']) > 0)
+		<ul>
+			@foreach ($sub['navigation'] as $sub)
+			@if(!empty($sub['link']))
 			<li><a href="{{ $sub['link'] }}"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>>{{ $sub['name'] }}</a>
-		<?php } else { ?>
+			@else
 			<li><strong>{{ $sub['name'] }}</strong>
-		<?php } ?>
+			@endif
+			</li>
+			@endforeach
+		</ul>
+		@endif
 		</li>
-	<?php } ?>
+		@endforeach
 	</ul>
-	<?php } ?></li>
-<?php } ?>
-</ul>
 </div>

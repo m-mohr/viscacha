@@ -1,11 +1,11 @@
 <form name="form2" method="post" action="editprofile.php?action=settings2{{ SID2URL_x }}">
-<div class="border">
-	<h3><img src="@img(user)" alt="" /> @lang(editprofile_settings)</h3>
-	<div class="bbody">
-		<label for="location">
-			@lang(timezone)<br />
-			<span class="stext">@lang(timezone_desc)</span>
-		</label>
+	<div class="border">
+		<h3><img src="@img(user)" alt="" /> @lang(editprofile_settings)</h3>
+		<div class="bbody">
+			<label for="location">
+				@lang(timezone)<br />
+				<span class="stext">@lang(timezone_desc)</span>
+			</label>
 			<select class="label" id="location" name="location">
 				<option value="-12"{{ selectTz(-12, $my->timezone) }}>@lang(timezone_n12)</option>
 				<option value="-11"{{ selectTz(-11, $my->timezone) }}>@lang(timezone_n11)</option>
@@ -40,48 +40,53 @@
 				<option value="+11"{{ selectTz(11, $my->timezone) }}>@lang(timezone_p11)</option>
 				<option value="+12"{{ selectTz(12, $my->timezone) }}>@lang(timezone_p12)</option>
 			</select>
-		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_1">@lang(editprofile_emailpn)</label>
-		<input type="checkbox" name="opt_1" id="opt_1" @checked($my->opt_pmnotify == 1) value="1" />
-		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_7">@lang(editprofile_showsig)</label>
-		<input type="checkbox" name="opt_7" id="opt_7" @checked($my->opt_showsig == 1) value="1" />
-		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_3">@lang(editprofile_showmail)</label>
-		<select name="opt_3" id="opt_3" class="label">
-		<option@selected($my->opt_hidemail == 0) value="0">@lang(editprofile_showmail_0)</option>
-		<option@selected($my->opt_hidemail == 1) value="1">@lang(editprofile_showmail_1)</option>
-		<option@selected($my->opt_hidemail == 2) value="2">@lang(editprofile_showmail_2)</option>
-		</select>
-		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_6">@lang(editprofile_newsletter)</label>
-		<select name="opt_6" id="opt_6" class="label">
-		<option@selected($my->opt_newsletter == 0) value="0">@lang(editprofile_newsletter_0)</option>
-		<option@selected($my->opt_newsletter == 1) value="1">@lang(editprofile_newsletter_1)</option>
-		<option@selected($my->opt_newsletter == 2) value="2">@lang(editprofile_newsletter_2)</option>
-		</select>
-		<?php if (count($design) > 0 && $config['hidedesign'] == 0) { ?>
-		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_4">@lang(editprofile_design)</label>
-		<select name="opt_4" id="opt_4" class="label">
-			<?php foreach ($design as $row) { ?>
-			<option value="{{ $row['id'] }}"@selected($my->template == $row['id'])>{{ $row['name'] }}</option>
-			<?php } ?>
-		</select>
-		<?php } ?><?php if(count($language) > 0 && $config['hidelanguage'] == 0) { ?>
-		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_5">@lang(editprofile_language)</label>
-		<select name="opt_5" id="opt_5" class="label">
-			<?php foreach ($language as $row) { ?>
-			<option value="{{ $row['id'] }}"@selected($my->language == $row['id'])>{{ $row['language'] }}</option>
-			<?php } ?>
-		</select>
-		<?php } ?><?php foreach($customfields as $row) { ?>
-		<br class="newinput" /><hr class="formsep" />
-		  <label for="{{ $row['field'] }}"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
-		  <?php echo $row['input']; } ?>
-		<br class="newinput" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_1">@lang(editprofile_emailpn)</label>
+			<input type="checkbox" name="opt_1" id="opt_1" @checked($my->opt_pmnotify == 1) value="1" />
+				   <br class="newinput" /><hr class="formsep" />
+			<label for="opt_7">@lang(editprofile_showsig)</label>
+			<input type="checkbox" name="opt_7" id="opt_7" @checked($my->opt_showsig == 1) value="1" />
+				   <br class="newinput" /><hr class="formsep" />
+			<label for="opt_3">@lang(editprofile_showmail)</label>
+			<select name="opt_3" id="opt_3" class="label">
+				<option@selected($my->opt_hidemail == 0) value="0">@lang(editprofile_showmail_0)</option>
+				<option@selected($my->opt_hidemail == 1) value="1">@lang(editprofile_showmail_1)</option>
+				<option@selected($my->opt_hidemail == 2) value="2">@lang(editprofile_showmail_2)</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_6">@lang(editprofile_newsletter)</label>
+			<select name="opt_6" id="opt_6" class="label">
+				<option@selected($my->opt_newsletter == 0) value="0">@lang(editprofile_newsletter_0)</option>
+				<option@selected($my->opt_newsletter == 1) value="1">@lang(editprofile_newsletter_1)</option>
+				<option@selected($my->opt_newsletter == 2) value="2">@lang(editprofile_newsletter_2)</option>
+			</select>
+			@if(count($design) > 0 && $config['hidedesign'] == 0)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_4">@lang(editprofile_design)</label>
+			<select name="opt_4" id="opt_4" class="label">
+				@foreach ($design as $row)
+				<option value="{{ $row['id'] }}"@selected($my->template == $row['id'])>{{ $row['name'] }}</option>
+				@endforeach
+			</select>
+			@endif
+			@if(count($language) > 0 && $config['hidelanguage'] == 0)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_5">@lang(editprofile_language)</label>
+			<select name="opt_5" id="opt_5" class="label">
+				@foreach ($language as $row)
+				<option value="{{ $row['id'] }}"@selected($my->language == $row['id'])>{{ $row['language'] }}</option>
+				@endforeach
+			</select>
+			@endif
+			@foreach($customfields as $row)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row['field'] }}">
+				{{ $row['name'] }}
+				<?php echo iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
+				{{ $row['input'] }}
+			@endforeach
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
 	</div>
-	<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
-</div>
 </form>

@@ -1,37 +1,41 @@
 <form method="post" action="managetopic.php?action=pmerge2&amp;id={{ $info['id'] }}{{ SID2URL_x }}">
-<?php foreach ($ids as $id) { ?>
-<input type="hidden" name="ids[]" value="{{ $id }}" />
-<?php } ?>
-<div class="border">
-<h3>@lang(admin_merge_title)</h3>
-<div class="bbody">
-<label for="author">@lang(admin_merge_author)</label>
-<div class="label" id="author">
-<?php foreach ($posts as $row) { if (isset($author[$row['id']])) { ?>
-<input type="radio" name="author" value="{{ $row['id'] }}" /> {{ $row['uname'] }} (ID: {{ $row['uid'] }})<br />
-<?php }} ?>
-</div>
-<br class="newinput" /><hr class="formsep" />
-<label for="topic">@lang(title)</label>
-<div class="label" id="topic">
-<?php foreach ($posts as $row) { if (isset($topic[$row['id']])) { ?>
-<input type="radio" name="topic_id" value="{{ $row['id'] }}" /> {{ $row['topic'] }}<br />
-<?php }} ?>
-</div>
-<br class="newinput" /><hr class="formsep" />
-<label for="comment">@lang(post)</label>
-<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></div>
-<br class="newinput" /><br class="minibr" />
-<?php echo $bbcode->getEditorArea('comment', implode("\r\n\r\n", $comment), 'cols="75" rows="12"'); ?>
-<hr class="formsep" />
-<label for="dosmileys">@lang(post_settings)</label>
-<div class="label">
-	<input type="checkbox" name="dosmileys" value="1" checked="checked" /> @lang(post_settings_smileys)
-</div>
-<br class="newinput" />
-</div>
-<div class="bfoot center">
-  <input type="submit" accesskey="s" name="Submit1" value="@lang(submit_form)" />
-</div>
-</div>
+	@foreach ($ids as $id)
+	<input type="hidden" name="ids[]" value="{{ $id }}" />
+	@endforeach
+	<div class="border">
+		<h3>@lang(admin_merge_title)</h3>
+		<div class="bbody">
+			<label for="author">@lang(admin_merge_author)</label>
+			<div class="label" id="author">
+				@foreach ($posts as $row)
+				@if(isset($author[$row['id']]))
+				<input type="radio" name="author" value="{{ $row['id'] }}" /> {{ $row['uname'] }} (ID: {{ $row['uid'] }})<br />
+				@endif
+				@endforeach
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="topic">@lang(title)</label>
+			<div class="label" id="topic">
+				@foreach ($posts as $row)
+				@if(isset($topic[$row['id']]))
+				<input type="radio" name="topic_id" value="{{ $row['id'] }}" /> {{ $row['topic'] }}<br />
+				@endif
+				@endforeach
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="comment">@lang(post)</label>
+			<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></div>
+			<br class="newinput" /><br class="minibr" />
+			{!! $bbcode->getEditorArea('comment', implode("\r\n\r\n", $comment), 'cols="75" rows="12"') !!}
+			<hr class="formsep" />
+			<label for="dosmileys">@lang(post_settings)</label>
+			<div class="label">
+				<input type="checkbox" name="dosmileys" value="1" checked="checked" /> @lang(post_settings_smileys)
+			</div>
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center">
+			<input type="submit" accesskey="s" name="Submit1" value="@lang(submit_form)" />
+		</div>
+	</div>
 </form>

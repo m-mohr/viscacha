@@ -1,11 +1,14 @@
-<?php foreach ($navigation as $sub) { ?>
-	<?php if(!empty($sub['link'])) { ?>
-		<a class="sep" href="{{ $sub['link'] }}"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>>{{ $sub['name'] }}</a>
-	<?php } else { ?>
-		<strong class="sep">{{ $sub['name'] }}</strong>
-	<?php } ?><?php foreach($sub['navigation'] as $sub) { ?>
-		<?php if(!empty($sub['link'])) { ?>
-			<a class="sep" href="{{ $sub['link'] }}"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>>{{ $sub['name'] }}</a>
-		<?php } else { ?>
-			<strong class="sep">{{ $sub['name'] }}</strong>
-<?php } } } ?>
+@foreach ($navigation as $sub)
+@if(!empty($sub['link']))
+<a class="sep" href="{{ $sub['link'] }}"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>>{{ $sub['name'] }}</a>
+@else
+<strong class="sep">{{ $sub['name'] }}</strong>
+@endif
+@foreach($sub['navigation'] as $sub)
+@if(!empty($sub['link']))
+<a class="sep" href="{{ $sub['link'] }}"<?php echo iif(!empty($sub['param']), ' target="'.$sub['param'].'"'); ?>>{{ $sub['name'] }}</a>
+@else
+<strong class="sep">{{ $sub['name'] }}</strong>
+@endif
+@endforeach
+@endforeach

@@ -1,55 +1,65 @@
- <tr class="tbody">
-  <td>
-   <a href="profile.php?id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
-   <?php if(!empty($row['fullname'])) { ?>
-   	<br /><em>{{ $row['fullname'] }}</em>
-   	<?php } ?>
-  </td>
-  <?php if ($online) { ?>
-  <td class="center">
-   <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="{{ $row['lang_online'] }}" alt="{{ $row['lang_online'] }}" />
-  </td>
-  <?php } ?><?php if(isset($row['pic'])) { ?>
-  <td class="center">
-   <?php if (!empty($row['pic'])) { ?>
-   <img src="{{ $row['pic'] }}" alt="{{ $row['name'] }}" />
-   <?php } ?>
-  </td>
-  <?php } ?><?php if($pm) { ?>
-  <td class="center">
-   <a href="pm.php?action=new&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(pm)" alt="" /></a>
-  </td>
-  <?php } ?><?php if(isset($row['mail'])) { ?>
-  <td class="center">
-   <a href="profile.php?action=mail&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(email)" alt="" /></a>
-  </td>
-  <?php } ?><?php if(isset($row['hp'])) { ?>
-  <td class="center">
-   <?php echo iif($row['hp'], '<a href="'.$row['hp'].'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>', $lang->phrase('homepage_no_data')); ?>
-  </td>
-  <?php } ?><?php if(isset($row['location'])) { ?>
-  <td>
-   {{ $row['location'] }}
-  </td>
-  <?php } ?><?php if(isset($row['gender'])) { ?>
-  <td class="center">
-   {{ $row['gender'] }}
-  </td>
-  <?php } ?><?php if(isset($row['posts'])) { ?>
-  <td class="textright">
-   {{ $row['posts'] }}
-  </td>
-  <?php } ?><?php if(isset($row['birthday'])) { ?>
-  <td>
-   {{ $row['birthday'] }}
-  </td>
-  <?php } ?><?php if(isset($row['regdate'])) { ?>
-  <td class="center">
-   {{ $row['regdate'] }}
-  </td>
-  <?php } ?><?php if(isset($row['lastvisit'])) { ?>
-  <td>
-   {{ $row['lastvisit'] }}
-  </td>
-  <?php } ?>
- </tr>
+<tr class="tbody">
+	<td>
+		<a href="profile.php?id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
+		@if(!empty($row['fullname']))
+		<br /><em>{{ $row['fullname'] }}</em>
+		@endif
+	</td>
+	@if($online)
+	<td class="center">
+		<img src="<?php echo iif($row['online'] == 1, $tpl->img('online'), $tpl->img('offline')); ?>"  title="{{ $row['lang_online'] }}" alt="{{ $row['lang_online'] }}" />
+	</td>
+	@endif
+	@if(isset($row['pic']))
+	<td class="center">
+		@if(!empty($row['pic']))
+		<img src="{{ $row['pic'] }}" alt="{{ $row['name'] }}" />
+		@endif
+	</td>
+	@endif
+	@if($pm)
+	<td class="center">
+		<a href="pm.php?action=new&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(pm)" alt="" /></a>
+	</td>
+	@endif
+	@if(isset($row['mail']))
+	<td class="center">
+		<a href="profile.php?action=mail&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(email)" alt="" /></a>
+	</td>
+	@endif
+	@if(isset($row['hp']))
+	<td class="center">
+		<?php echo iif($row['hp'], '<a href="'.$row['hp'].'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>', $lang->phrase('homepage_no_data')); ?>
+	</td>
+	@endif
+	@if(isset($row['location']))
+	<td>
+		{{ $row['location'] }}
+	</td>
+	@endif
+	@if(isset($row['gender']))
+	<td class="center">
+		{{ $row['gender'] }}
+	</td>
+	@endif
+	@if(isset($row['posts']))
+	<td class="textright">
+		{{ $row['posts'] }}
+	</td>
+	@endif
+	@if(isset($row['birthday']))
+	<td>
+		{{ $row['birthday'] }}
+	</td>
+	@endif
+	@if(isset($row['regdate']))
+	<td class="center">
+		{{ $row['regdate'] }}
+	</td>
+	@endif
+	@if(isset($row['lastvisit']))
+	<td>
+		{{ $row['lastvisit'] }}
+	</td>
+	@endif
+</tr>
