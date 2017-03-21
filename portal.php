@@ -52,7 +52,7 @@ if ($plugins->countPlugins('portal') == 0) {
 $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();
 
-$breadcrumb->Add($lang->phrase('portal_title'));
+Breadcrumb::universal()->add($lang->phrase('portal_title'));
 echo $tpl->parse("header");
 
 BBProfile($bbcode);

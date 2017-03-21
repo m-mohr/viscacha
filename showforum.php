@@ -51,7 +51,7 @@ else {
 }
 
 $topforums = get_headboards($fc, $info);
-$breadcrumb->Add($info['name']);
+Breadcrumb::universal()->add($info['name']);
 
 forum_opt($info);
 

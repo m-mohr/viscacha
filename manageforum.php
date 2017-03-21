@@ -48,7 +48,7 @@ $my->mp = $slog->ModPermissions($info['id']);
 
 forum_opt($info);
 
-$breadcrumb->Add($lang->phrase('teamcp'));
+Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
 ($code = $plugins->load('manageforum_start')) ? eval($code) : null;
 

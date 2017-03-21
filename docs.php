@@ -131,7 +131,7 @@ if (GroupCheck($info['groups'])) {
 		else { // Only for backward compatibility of templates
 			$info['file'] = $info['content'];
 		}
-		$breadcrumb->Add($info['title']);
+		Breadcrumb::universal()->add($info['title']);
 		echo $tpl->parse("header");
 		($code = $plugins->load('docs_body_start')) ? eval($code) : null;
 		echo $notice_box;
@@ -160,7 +160,7 @@ if (GroupCheck($info['groups'])) {
 			if (!empty($match_title[1])) {
 				$info['title'] = $match_title[1];
 			}
-			$breadcrumb->Add($info['title']);
+			Breadcrumb::universal()->add($info['title']);
 			if (!empty($match_body[1])) {
 				$info['content'] = $match_body[1];
 			}
@@ -170,7 +170,7 @@ if (GroupCheck($info['groups'])) {
 			echo DocCodeParser($info['content'], $typedata['parser']);
 		}
 		else {
-			$breadcrumb->Add($info['title']);
+			Breadcrumb::universal()->add($info['title']);
 			$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
 			echo $tpl->parse("header");
 			($code = $plugins->load('docs_html_template_prepared')) ? eval($code) : null;

@@ -36,7 +36,7 @@ if ($my->p['pm'] == 0 || !$my->vlogin) {
 	errorLogin();
 }
 
-$breadcrumb->Add($lang->phrase('editprofile_pm'), 'pm.php'.SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('editprofile_pm'), 'pm.php'.SID2URL_x);
 
 if ($_GET['action'] == 'show') {
 
@@ -113,8 +113,8 @@ if ($_GET['action'] == 'show') {
 
 	($code = $plugins->load('pm_show_prepared')) ? eval($code) : null;
 
-	$breadcrumb->Add(get_pmdir($row['dir']), 'pm.php?action=browse&amp;id='.$row['dir'].SID2URL_x);
-	$breadcrumb->Add($lang->phrase('pm_show'));
+	Breadcrumb::universal()->add(get_pmdir($row['dir']), 'pm.php?action=browse&amp;id='.$row['dir'].SID2URL_x);
+	Breadcrumb::universal()->add($lang->phrase('pm_show'));
 
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
@@ -123,7 +123,7 @@ if ($_GET['action'] == 'show') {
 	($code = $plugins->load('pm_show_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "massmanage") {
-	$breadcrumb->Add($lang->phrase('pm_massmanage'));
+	Breadcrumb::universal()->add($lang->phrase('pm_massmanage'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
@@ -144,7 +144,7 @@ elseif ($_GET['action'] == "massmanage") {
 	}
 }
 elseif ($_GET['action'] == "massdelete") {
-	$breadcrumb->Add($lang->phrase('pm_massmanage'));
+	Breadcrumb::universal()->add($lang->phrase('pm_massmanage'));
 	$deleteids = explode(',', $_GET['data']);
 	$deleteids = $gpc->save_int($deleteids);
 	if (count($deleteids) > 0) {
@@ -159,7 +159,7 @@ elseif ($_GET['action'] == "massdelete") {
 	}
 }
 elseif ($_GET['action'] == "massmove") {
-	$breadcrumb->Add($lang->phrase('pm_massmanage'));
+	Breadcrumb::universal()->add($lang->phrase('pm_massmanage'));
 	$deleteids = explode(',', $_GET['data']);
 	$deleteids = $gpc->save_int($deleteids);
 	if ($_GET['id'] == 3) {
@@ -185,7 +185,7 @@ elseif ($_GET['action'] == "delete") {
 		error($lang->phrase('pm_not_found'));
 	}
 	$info = $db->fetch_assoc($result);
-	$breadcrumb->Add($lang->phrase('pm_manage'));
+	Breadcrumb::universal()->add($lang->phrase('pm_manage'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
@@ -193,7 +193,7 @@ elseif ($_GET['action'] == "delete") {
 	echo $tpl->parse("pm/delete");
 }
 elseif ($_GET['action'] == "delete2") {
-	$breadcrumb->Add($lang->phrase('pm_manage'));
+	Breadcrumb::universal()->add($lang->phrase('pm_manage'));
 	if (empty($_GET['id'])) {
 		error($lang->phrase('query_string_error'));
 	}
@@ -291,7 +291,7 @@ elseif ($_GET['action'] == "save") {
 	}
 }
 elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['action'] == "quote" || $_GET['action'] == 'reply') {
-	$breadcrumb->Add($lang->phrase('pm_new_title'));
+	Breadcrumb::universal()->add($lang->phrase('pm_new_title'));
 	echo $tpl->parse("header");
 
 	BBProfile($bbcode);
@@ -357,7 +357,7 @@ elseif ($_GET['action'] == "browse") {
 	if (!$dir_name) {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
-	$breadcrumb->Add($dir_name);
+	Breadcrumb::universal()->add($dir_name);
 
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
@@ -414,7 +414,7 @@ elseif ($_GET['action'] == "browse") {
 	($code = $plugins->load('pm_browse_end')) ? eval($code) : null;
 }
 else {
-	$breadcrumb->resetUrl();
+	Breadcrumb::universal()->resetUrl();
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");

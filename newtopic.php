@@ -51,8 +51,8 @@ else {
 }
 
 $topforums = get_headboards($fc, $last, true);
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($lang->phrase('newtopic_title'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('newtopic_title'));
 
 ($code = $plugins->load('newtopic_start')) ? eval($code) : null;
 
@@ -97,7 +97,7 @@ if ($_GET['action'] == "startvote") {
 		$data['question'] = '';
 	}
 
-	$breadcrumb->Add($lang->phrase('add_vote_to_thread'));
+	Breadcrumb::universal()->add($lang->phrase('add_vote_to_thread'));
 
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");

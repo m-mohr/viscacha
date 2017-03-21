@@ -64,9 +64,9 @@ if ($info['prefix'] > 0) {
 	}
 }
 get_headboards($fc, $last);
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$info['topic_id'].SID2URL_x);
-$breadcrumb->Add($lang->phrase('edit'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($prefix.$info['topic'], 'showtopic.php?id='.$info['topic_id'].SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('edit'));
 echo $tpl->parse("header");
 
 if ($info['status'] != 0 && $my->mp[0] != 1) {

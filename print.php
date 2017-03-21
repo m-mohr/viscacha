@@ -70,8 +70,8 @@ if ($info['prefix'] > 0) {
 }
 
 $topforums = get_headboards($fc, $last, TRUE);
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$_GET['id']}&amp;page=".$_GET['page'].SID2URL_x);
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id={$_GET['id']}&amp;page=".$_GET['page'].SID2URL_x);
 
 forum_opt($last);
 

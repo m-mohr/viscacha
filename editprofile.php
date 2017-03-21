@@ -39,7 +39,7 @@ if (!$my->vlogin) {
 
 include_once ("classes/function.profilefields.php");
 
-$breadcrumb->Add($lang->phrase('editprofile_title'), 'editprofile.php'.SID2URL_1);
+Breadcrumb::universal()->add($lang->phrase('editprofile_title'), 'editprofile.php'.SID2URL_1);
 
 ($code = $plugins->load('editprofile_start')) ? eval($code) : null;
 
@@ -87,7 +87,7 @@ elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 
 }
 elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
-	$breadcrumb->Add($lang->phrase('editprofile_attachments'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_attachments'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -206,7 +206,7 @@ elseif ($_GET['action'] == "abos") {
 		$count = 0;
 	}
 
-	$breadcrumb->Add($lang->phrase('editprofile_abos'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_abos'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -252,7 +252,7 @@ elseif ($_GET['action'] == "abos2") {
 }
 
 elseif ($_GET['action'] == "pw") {
-	$breadcrumb->Add($lang->phrase('editprofile_pw'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_pw'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_pw_start')) ? eval($code) : null;
@@ -275,7 +275,7 @@ elseif ($_GET['action'] == "signature") {
 		}
 	}
 	else {
-		$breadcrumb->Add($lang->phrase('editprofile_signature'));
+		Breadcrumb::universal()->add($lang->phrase('editprofile_signature'));
 		echo $tpl->parse("header");
 		echo $tpl->parse("menu");
 		BBProfile($bbcode);
@@ -327,7 +327,7 @@ elseif ($_GET['action'] == "about") {
 	if ($my->p['useabout'] == 0) {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
-	$breadcrumb->Add($lang->phrase('editprofile_about'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_about'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_abos_Start')) ? eval($code) : null;
@@ -439,7 +439,7 @@ elseif ($_GET['action'] == "pic") {
 	if ($my->p['usepic'] == 0) {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
-	$breadcrumb->Add($lang->phrase('editprofile_pic'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_pic'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	$filetypes = str_replace(",", $lang->phrase('listspacer'), $config['avfiletypes']);
@@ -463,7 +463,7 @@ elseif ($_GET['action'] == "pic") {
 	echo $tpl->parse("editprofile/pic");
 }
 elseif ($_GET['action'] == "profile") {
-	$breadcrumb->Add($lang->phrase('editprofile_profile'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_profile'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -583,7 +583,7 @@ elseif ($_GET['action'] == "profile2") {
 elseif ($_GET['action'] == "settings") {
 	$lang->group("timezones");
 
-	$breadcrumb->Add($lang->phrase('editprofile_settings'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_settings'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -695,7 +695,7 @@ elseif ($_GET['action'] == "settings2") {
 
 }
 elseif ($_GET['action'] == "mylast") {
-	$breadcrumb->Add($lang->phrase('editprofile_mylast'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_mylast'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -850,7 +850,7 @@ elseif ($_GET['action'] == "removeabo") {
 	ok($lang->phrase('unsubscribed_successfully'));
 }
 else {
-	$breadcrumb->ResetUrl();
+	Breadcrumb::universal()->resetUrl();
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_index_start')) ? eval($code) : null;

@@ -37,7 +37,7 @@ if ($my->p['search'] == 0) {
 	error($lang->phrase('query_string_error'));
 }
 
-$breadcrumb->Add($lang->phrase('search'));
+Breadcrumb::universal()->add($lang->phrase('search'));
 
 ($code = $plugins->load('search_start')) ? eval($code) : null;
 
@@ -365,8 +365,8 @@ elseif ($_GET['action'] == "result") {
 }
 elseif ($_GET['action'] == "active") {
 
-	$breadcrumb->AddUrl('search.php'.SID2URL_1);
-	$breadcrumb->Add($lang->phrase('active_topics_title'));
+	Breadcrumb::universal()->addUrl('search.php'.SID2URL_1);
+	Breadcrumb::universal()->add($lang->phrase('active_topics_title'));
 
     unset($count);
 

@@ -92,12 +92,12 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	}
 
 	$topforums = get_headboards($fc, $last, TRUE);
-	$breadcrumb->Add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
-	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
+	Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
+	Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
 	if ($info['tstart'] == '0') {
-		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
+		Breadcrumb::universal()->add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	}
-	$breadcrumb->Add($lang->phrase('report_post'));
+	Breadcrumb::universal()->add($lang->phrase('report_post'));
 
 	forum_opt($last);
 
@@ -168,7 +168,7 @@ elseif ($_GET['action'] == "wwo") {
 		errorLogin();
 	}
 
-	$breadcrumb->Add($lang->phrase('wwo_detail_title'));
+	Breadcrumb::universal()->add($lang->phrase('wwo_detail_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -629,7 +629,7 @@ elseif ($_GET['action'] == "bbhelp") {
 		}
 	}
 
-	$breadcrumb->Add($lang->phrase('bbhelp_title'));
+	Breadcrumb::universal()->add($lang->phrase('bbhelp_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	($code = $plugins->load('misc_bbhelp_prepared')) ? eval($code) : null;
@@ -663,7 +663,7 @@ elseif ($_GET['action'] == "markforumasread") {
 }
 elseif ($_GET['action'] == "rules") {
 	$my->p = $slog->Permissions();
-	$breadcrumb->Add($lang->phrase('rules_title'));
+	Breadcrumb::universal()->add($lang->phrase('rules_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	$rules = $lang->get_words('rules');
@@ -687,8 +687,8 @@ elseif ($_GET['action'] == "board_rules") {
 	($code = $plugins->load('misc_board_rules_start')) ? eval($code) : null;
 
 	$topforums = get_headboards($fc, $info);
-	$breadcrumb->Add($info['name'], "showforum.php?id=".$info['id'].SID2URL_x);
-	$breadcrumb->Add($lang->phrase('board_rules'));
+	Breadcrumb::universal()->add($info['name'], "showforum.php?id=".$info['id'].SID2URL_x);
+	Breadcrumb::universal()->add($lang->phrase('board_rules'));
 
 	forum_opt($info);
 
@@ -707,7 +707,7 @@ elseif ($_GET['action'] == "error") {
 	}
 	sendStatusCode($errid);
 	($code = $plugins->load('misc_error_prepared')) ? eval($code) : null;
-	$breadcrumb->Add($lang->phrase('htaccess_error_'.$errid));
+	Breadcrumb::universal()->add($lang->phrase('htaccess_error_'.$errid));
 	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
 }
@@ -747,12 +747,12 @@ elseif ($_GET['action'] == "edithistory") {
 	}
 	
 	$topforums = get_headboards($fc, $last, TRUE);
-	$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-	$breadcrumb->Add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
+	Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+	Breadcrumb::universal()->add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
 	if ($row['tstart'] != 1) {
-		$breadcrumb->Add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
+		Breadcrumb::universal()->add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
 	}
-	$breadcrumb->Add($lang->phrase('edithistory'));
+	Breadcrumb::universal()->add($lang->phrase('edithistory'));
 
 	forum_opt($last);
 

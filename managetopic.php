@@ -63,9 +63,9 @@ if ($info['prefix'] > 0) {
 	}
 }
 
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
-$breadcrumb->Add($lang->phrase('teamcp'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
 echo $tpl->parse("header");
 

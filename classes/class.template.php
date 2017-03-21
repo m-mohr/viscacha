@@ -89,7 +89,7 @@ class tpl {
         });
         $this->blade->directive('breadcrumb', function ($expression) {
 			$expression = trim($expression, '()');
-			return "<?php echo \$breadcrumb->build({$expression}) ?>";
+			return "<?php echo \Breadcrumb::universal()->build({$expression}) ?>";
         });
 }
 

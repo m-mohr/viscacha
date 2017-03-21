@@ -39,11 +39,11 @@ elseif ($_GET['action'] != 'team' && $my->p['members'] == 0) {
 }
 
 if ($_GET['action'] == 'team') {
-	$breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
-	$breadcrumb->Add($lang->phrase('team'));
+	Breadcrumb::universal()->add($lang->phrase('members'), 'members.php'.SID2URL_1);
+	Breadcrumb::universal()->add($lang->phrase('team'));
 }
 else {
-	$breadcrumb->Add($lang->phrase('members'));
+	Breadcrumb::universal()->add($lang->phrase('members'));
 }
 
 if ($_GET['action'] == 'team') {

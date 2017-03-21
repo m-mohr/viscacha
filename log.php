@@ -95,7 +95,7 @@ elseif ($_GET['action'] == "pwremind") {
 	if ($my->vlogin) {
 		error($lang->phrase('log_already_logged'));
 	}
-	$breadcrumb->Add($lang->phrase('log_pwremind_title'));
+	Breadcrumb::universal()->add($lang->phrase('log_pwremind_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	($code = $plugins->load('log_pwremind_form_start')) ? eval($code) : null;
@@ -174,7 +174,7 @@ else {
 		error($lang->phrase('log_already_logged'), $loc);
 	}
 
-	$breadcrumb->Add($lang->phrase('log_title'));
+	Breadcrumb::universal()->add($lang->phrase('log_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 

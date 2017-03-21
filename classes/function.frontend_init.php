@@ -179,8 +179,7 @@ if (!file_exists('.htaccess')) {
 	$filesystem->file_put_contents('.htaccess', implode("\r\n", $htaccess));
 }
 
-$breadcrumb = new breadcrumb();
-$breadcrumb->Add($config['fname'], 'index.php');
+Breadcrumb::universal()->add($config['fname'], 'index.php');
 
 $phpdoc = new OutputDoc();
 

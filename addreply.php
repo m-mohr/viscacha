@@ -61,9 +61,9 @@ if ($info['prefix'] > 0) {
 }
 
 $topforums = get_headboards($fc, $last, true);
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$id.SID2URL_x);
-$breadcrumb->Add($lang->phrase('addreply_title'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($prefix.$info['topic'], 'showtopic.php?id='.$id.SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('addreply_title'));
 
 if ($info['status'] != 0) {
 	error($lang->phrase('topic_closed'));

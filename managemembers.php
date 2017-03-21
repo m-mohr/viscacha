@@ -34,7 +34,7 @@ $my->p = $slog->Permissions();
 
 include_once ("classes/function.profilefields.php");
 
-$breadcrumb->Add($lang->phrase('teamcp'));
+Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
 echo $tpl->parse("header");
 

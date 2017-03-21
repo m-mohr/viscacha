@@ -257,7 +257,7 @@ function get_headboards($fc, $last, $returnids = FALSE) {
 	$bc_cache = array_reverse($bc_cache);
 
 	foreach ($bc_cache as $row) {
-		$breadcrumb->Add($row['title'], $row['url']);
+		Breadcrumb::universal()->add($row['title'], $row['url']);
 	}
 
 	if ($returnids == TRUE) {
@@ -729,7 +729,7 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 		$my->p = $slog->Permissions();
 	}
 
-	$breadcrumb->Add($lang->phrase('breadcrumb_errorok'));
+	Breadcrumb::universal()->add($lang->phrase('breadcrumb_errorok'));
 	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
 		echo $tpl->parse('header');
 	}
