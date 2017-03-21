@@ -1,18 +1,18 @@
 <br />
 <div class="border">
-<h3><?php echo $lang->phrase('last_posts_reply'); ?></h3>
+<h3>@lang(last_posts_reply)</h3>
 <?php if ($info['posts'] >= $num) { ?>
-	<div class="bfoot"><?php echo $lang->phrase('last_posts_info_reply'); ?></div>
+	<div class="bfoot">@lang(last_posts_info_reply)</div>
 <?php } ?>
 </div>
 <?php foreach ($data as $row) { ?>
 <br class="minibr" />
 <div class="border">
-<div class="bfoot topfooter"><strong><?php echo $row->name; ?></strong> (<?php echo $row->date; ?>):</div>
+<div class="bfoot topfooter"><strong>{{ $row->name }}</strong> ({{ $row->date }}):</div>
 <div class="bbody">
-	<span class="stext"><?php echo $lang->phrase('subject'); ?> <strong><?php echo $row->topic; ?></strong></span>
+	<span class="stext">@lang(subject) <strong>{{ $row->topic }}</strong></span>
 	<hr />
-	<?php echo $row->comment; ?>
+	{{ $row->comment }}
 </div>
 </div>
 <?php } ?>

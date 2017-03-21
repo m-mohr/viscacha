@@ -1,87 +1,87 @@
-<form name="form2" method="post" action="editprofile.php?action=settings2<?php echo SID2URL_x; ?>">
+<form name="form2" method="post" action="editprofile.php?action=settings2{{ SID2URL_x }}">
 <div class="border">
-	<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_settings'); ?></h3>
+	<h3><img src="@img(user)" alt="" /> @lang(editprofile_settings)</h3>
 	<div class="bbody">
 		<label for="location">
-			<?php echo $lang->phrase('timezone'); ?><br />
-			<span class="stext"><?php echo $lang->phrase('timezone_desc'); ?></span>
+			@lang(timezone)<br />
+			<span class="stext">@lang(timezone_desc)</span>
 		</label>
 			<select class="label" id="location" name="location">
-				<option value="-12"<?php selectTZ($my->timezone, -12); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
-				<option value="-11"<?php selectTZ($my->timezone, -11); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
-				<option value="-10"<?php selectTZ($my->timezone, -10); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
-				<option value="-9"<?php selectTZ($my->timezone, -9); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
-				<option value="-8"<?php selectTZ($my->timezone, -8); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
-				<option value="-7"<?php selectTZ($my->timezone, -7); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
-				<option value="-6"<?php selectTZ($my->timezone, -6); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
-				<option value="-5"<?php selectTZ($my->timezone, -5); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
-				<option value="-4"<?php selectTZ($my->timezone, -4); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
-				<option value="-3.5"<?php selectTZ($my->timezone, -3.5); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
-				<option value="-3"<?php selectTZ($my->timezone, -3); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
-				<option value="-2"<?php selectTZ($my->timezone, -2); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
-				<option value="-1"<?php selectTZ($my->timezone, -1); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
-				<option value="0"<?php selectTZ($my->timezone, 0); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
-				<option value="+1"<?php selectTZ($my->timezone, 1); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
-				<option value="+2"<?php selectTZ($my->timezone, 2); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
-				<option value="+3"<?php selectTZ($my->timezone, 3); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
-				<option value="+3.5"<?php selectTZ($my->timezone, 3.5); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
-				<option value="+4"<?php selectTZ($my->timezone, 4); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
-				<option value="+4.5"<?php selectTZ($my->timezone, 4.5); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
-				<option value="+5"<?php selectTZ($my->timezone, 5); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
-				<option value="+5.5"<?php selectTZ($my->timezone, 5.5); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
-				<option value="+5.75"<?php selectTZ($my->timezone, 5.75); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
-				<option value="+6"<?php selectTZ($my->timezone, 6); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
-				<option value="+6.5"<?php selectTZ($my->timezone, 6.5); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
-				<option value="+7"<?php selectTZ($my->timezone, 7); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
-				<option value="+8"<?php selectTZ($my->timezone, 8); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
-				<option value="+9"<?php selectTZ($my->timezone, 9); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
-				<option value="+9.5"<?php selectTZ($my->timezone, 9.5); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
-				<option value="+10"<?php selectTZ($my->timezone, 10); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
-				<option value="+11"<?php selectTZ($my->timezone, 11); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
-				<option value="+12"<?php selectTZ($my->timezone, 12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
+				<option value="-12"{{ selectTz(-12, $my->timezone) }}>@lang(timezone_n12)</option>
+				<option value="-11"{{ selectTz(-11, $my->timezone) }}>@lang(timezone_n11)</option>
+				<option value="-10"{{ selectTz(-10, $my->timezone) }}>@lang(timezone_n10)</option>
+				<option value="-9"{{ selectTz(-9, $my->timezone) }}>@lang(timezone_n9)</option>
+				<option value="-8"{{ selectTz(-8, $my->timezone) }}>@lang(timezone_n8)</option>
+				<option value="-7"{{ selectTz(-7, $my->timezone) }}>@lang(timezone_n7)</option>
+				<option value="-6"{{ selectTz(-6, $my->timezone) }}>@lang(timezone_n6)</option>
+				<option value="-5"{{ selectTz(-5, $my->timezone) }}>@lang(timezone_n5)</option>
+				<option value="-4"{{ selectTz(-4, $my->timezone) }}>@lang(timezone_n4)</option>
+				<option value="-3.5"{{ selectTz(-3.5, $my->timezone) }}>@lang(timezone_n35)</option>
+				<option value="-3"{{ selectTz(-3, $my->timezone) }}>@lang(timezone_n3)</option>
+				<option value="-2"{{ selectTz(-2, $my->timezone) }}>@lang(timezone_n2)</option>
+				<option value="-1"{{ selectTz(-1, $my->timezone) }}>@lang(timezone_n1)</option>
+				<option value="0"{{ selectTz(0, $my->timezone) }}>@lang(timezone_0)</option>
+				<option value="+1"{{ selectTz(1, $my->timezone) }}>@lang(timezone_p1)</option>
+				<option value="+2"{{ selectTz(2, $my->timezone) }}>@lang(timezone_p2)</option>
+				<option value="+3"{{ selectTz(3, $my->timezone) }}>@lang(timezone_p3)</option>
+				<option value="+3.5"{{ selectTz(3.5, $my->timezone) }}>@lang(timezone_p35)</option>
+				<option value="+4"{{ selectTz(4, $my->timezone) }}>@lang(timezone_p4)</option>
+				<option value="+4.5"{{ selectTz(4.5, $my->timezone) }}>@lang(timezone_p45)</option>
+				<option value="+5"{{ selectTz(5, $my->timezone) }}>@lang(timezone_p5)</option>
+				<option value="+5.5"{{ selectTz(5.5, $my->timezone) }}>@lang(timezone_p55)</option>
+				<option value="+5.75"{{ selectTz(5.75, $my->timezone) }}>@lang(timezone_p575)</option>
+				<option value="+6"{{ selectTz(6, $my->timezone) }}>@lang(timezone_p6)</option>
+				<option value="+6.5"{{ selectTz(6.5, $my->timezone) }}>@lang(timezone_p65)</option>
+				<option value="+7"{{ selectTz(7, $my->timezone) }}>@lang(timezone_p7)</option>
+				<option value="+8"{{ selectTz(8, $my->timezone) }}>@lang(timezone_p8)</option>
+				<option value="+9"{{ selectTz(9, $my->timezone) }}>@lang(timezone_p9)</option>
+				<option value="+9.5"{{ selectTz(9.5, $my->timezone) }}>@lang(timezone_p95)</option>
+				<option value="+10"{{ selectTz(10, $my->timezone) }}>@lang(timezone_p10)</option>
+				<option value="+11"{{ selectTz(11, $my->timezone) }}>@lang(timezone_p11)</option>
+				<option value="+12"{{ selectTz(12, $my->timezone) }}>@lang(timezone_p12)</option>
 			</select>
 		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_1"><?php echo $lang->phrase('editprofile_emailpn'); ?></label>
-		<input type="checkbox" name="opt_1" id="opt_1" <?php echo iif($my->opt_pmnotify == 1,' checked="checked"'); ?> value="1" />
+		<label for="opt_1">@lang(editprofile_emailpn)</label>
+		<input type="checkbox" name="opt_1" id="opt_1" @checked($my->opt_pmnotify == 1) value="1" />
 		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_7"><?php echo $lang->phrase('editprofile_showsig'); ?></label>
-		<input type="checkbox" name="opt_7" id="opt_7" <?php echo iif($my->opt_showsig == 1,' checked="checked"'); ?> value="1" />
+		<label for="opt_7">@lang(editprofile_showsig)</label>
+		<input type="checkbox" name="opt_7" id="opt_7" @checked($my->opt_showsig == 1) value="1" />
 		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_3"><?php echo $lang->phrase('editprofile_showmail'); ?></label>
+		<label for="opt_3">@lang(editprofile_showmail)</label>
 		<select name="opt_3" id="opt_3" class="label">
-		<option<?php echo iif($my->opt_hidemail == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_showmail_0'); ?></option>
-		<option<?php echo iif($my->opt_hidemail == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_showmail_1'); ?></option>
-		<option<?php echo iif($my->opt_hidemail == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_showmail_2'); ?></option>
+		<option@selected($my->opt_hidemail == 0) value="0">@lang(editprofile_showmail_0)</option>
+		<option@selected($my->opt_hidemail == 1) value="1">@lang(editprofile_showmail_1)</option>
+		<option@selected($my->opt_hidemail == 2) value="2">@lang(editprofile_showmail_2)</option>
 		</select>
 		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_6"><?php echo $lang->phrase('editprofile_newsletter'); ?></label>
+		<label for="opt_6">@lang(editprofile_newsletter)</label>
 		<select name="opt_6" id="opt_6" class="label">
-		<option<?php echo iif($my->opt_newsletter == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('editprofile_newsletter_0'); ?></option>
-		<option<?php echo iif($my->opt_newsletter == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('editprofile_newsletter_1'); ?></option>
-		<option<?php echo iif($my->opt_newsletter == 2,' selected="selected"'); ?> value="2"><?php echo $lang->phrase('editprofile_newsletter_2'); ?></option>
+		<option@selected($my->opt_newsletter == 0) value="0">@lang(editprofile_newsletter_0)</option>
+		<option@selected($my->opt_newsletter == 1) value="1">@lang(editprofile_newsletter_1)</option>
+		<option@selected($my->opt_newsletter == 2) value="2">@lang(editprofile_newsletter_2)</option>
 		</select>
 		<?php if (count($design) > 0 && $config['hidedesign'] == 0) { ?>
 		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_4"><?php echo $lang->phrase('editprofile_design'); ?></label>
+		<label for="opt_4">@lang(editprofile_design)</label>
 		<select name="opt_4" id="opt_4" class="label">
 			<?php foreach ($design as $row) { ?>
-			<option value="<?php echo $row['id']; ?>"<?php echo iif($my->template == $row['id'], ' selected="selected"'); ?>><?php echo $row['name']; ?></option>
+			<option value="{{ $row['id'] }}"@selected($my->template == $row['id'])>{{ $row['name'] }}</option>
 			<?php } ?>
 		</select>
-		<?php } if (count($language) > 0 && $config['hidelanguage'] == 0) { ?>
+		<?php } ?><?php if(count($language) > 0 && $config['hidelanguage'] == 0) { ?>
 		<br class="newinput" /><hr class="formsep" />
-		<label for="opt_5"><?php echo $lang->phrase('editprofile_language'); ?></label>
+		<label for="opt_5">@lang(editprofile_language)</label>
 		<select name="opt_5" id="opt_5" class="label">
 			<?php foreach ($language as $row) { ?>
-			<option value="<?php echo $row['id']; ?>"<?php echo iif($my->language == $row['id'], ' selected="selected"'); ?>><?php echo $row['language']; ?></option>
+			<option value="{{ $row['id'] }}"@selected($my->language == $row['id'])>{{ $row['language'] }}</option>
 			<?php } ?>
 		</select>
-		<?php } foreach ($customfields as $row) { ?>
+		<?php } ?><?php foreach($customfields as $row) { ?>
 		<br class="newinput" /><hr class="formsep" />
-		  <label for="<?php echo $row['field']; ?>"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
+		  <label for="{{ $row['field'] }}"><?php echo $row['name'] . iif(!empty($row['description']), '<br /><span class="stext">'.$row['description'].'</span>'); ?></label>
 		  <?php echo $row['input']; } ?>
 		<br class="newinput" />
 	</div>
-	<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+	<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
 </div>
 </form>

@@ -1,15 +1,15 @@
 <div class="navigation_cat">
-<h3><?php echo $lang->phrase('mymenu'); ?></h3>
+<h3>@lang(mymenu)</h3>
 <div class="navigation_inner">
 	<p>
-	<strong><?php echo $lang->phrase('hello_user'); ?></strong><br />
-	<?php if ($my->pms > 0) { ?><a href="pm.php<?php echo SID2URL_1; ?>"> <?php echo $lang->phrase('mymenu_newpm'); ?></a><br /><?php } ?>
+	<strong>@lang(hello_user)</strong><br />
+	<?php if ($my->pms > 0) { ?><a href="pm.php{{ SID2URL_1 }}"> @lang(mymenu_newpm)</a><br /><?php } ?>
 	</p>
 	<br class="minibr" />
     <ul class="nav">
-	<li><a href="editprofile.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('editprofile_short'); ?></a></li>
-	<li><a href="log.php?action=logout&amp;redirect=<?php echo $request_uri.SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a></li>
-	<?php if ($my->p['admin'] == 1) { ?><li><a href="admin.php<?php echo SID2URL_1; ?>"><?php echo $lang->phrase('admincp'); ?></a></li><?php } ?>
+	<li><a href="editprofile.php{{ SID2URL_1 }}">@lang(editprofile_short)</a></li>
+	<li><a href="log.php?action=logout&amp;redirect={{ $request_uri }}{{ SID2URL_x }}">@lang(logout)</a></li>
+	<?php if ($my->p['admin'] == 1) { ?><li><a href="admin.php{{ SID2URL_1 }}">@lang(admincp)</a></li><?php } ?>
 	</ul>
 </div>
 </div>

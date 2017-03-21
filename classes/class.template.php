@@ -70,9 +70,28 @@ class tpl {
 		$this->vars = array();
 		$this->sent = array();
 
+		define("BLADEONE_MODE", $config['debug']);
 		$this->blade = new eftec\bladeone\BladeOne($this->dir, 'cache/' . $this->dir);
 		$this->blade->setFileExtension('.html');
-	}
+        $this->blade->directive('lang', function ($expression) {
+			$expression = trim($expression, '()');
+            return "<?php echo \$lang->phrase('{$expression}'); ?>";
+        });
+        $this->blade->directive('img', function ($expression) {
+			$expression = trim($expression, '()');
+            return "<?php echo \$tpl->img('{$expression}'); ?>";
+        });
+        $this->blade->directive('selected', function ($expression) {
+			return "<?php if{$expression} { echo ' selected=\"selected\"'; } ?>";
+        });
+        $this->blade->directive('checked', function ($expression) {
+			return "<?php if{$expression} { echo ' checked=\"checked\"'; } ?>";
+        });
+        $this->blade->directive('breadcrumb', function ($expression) {
+			$expression = trim($expression, '()');
+			return "<?php echo \$breadcrumb->build({$expression}) ?>";
+        });
+}
 
 	public function img($name) {
 		$gif = '.gif';

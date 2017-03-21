@@ -1,9 +1,9 @@
 <div class="border">
-<h3><img src="<?php echo $tpl->img('user'); ?>" alt="" /> <?php echo $lang->phrase('profile'); ?></h3>
+<h3><img src="@img(user)" alt="" /> @lang(profile)</h3>
 <div class="bbody profiledata">
-    <span class="btext"><?php echo $username; ?></span><br /><br />
-	<h5><?php echo $lang->phrase('profile_group'); ?></h5>
-	<em><?php echo $lang->phrase($group); ?></em>
+    <span class="btext">{{ $username }}</span><br /><br />
+	<h5>@lang(profile_group)</h5>
+	<em>{{ $lang->phrase($group) }}</em>
 	<br />
 	<?php echo iif (!empty($guest_data['email']), '<h5>'.$lang->phrase('email').'</h5><em><img src="images.php?id='.$guest.'&amp;action=g_email" alt=""></em>'); ?>
 </div>

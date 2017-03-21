@@ -1,11 +1,11 @@
 	<?php echo iif ($tpl->tplsent('menu'), $tpl->parse('menu_noscript')); ?><br />
-    <?php echo iif ($config['benchmarkresult'] == 1, $tpl->parse('admin/benchmark')); ?>
+    <?php echo iif ($config['debug'], $tpl->parse('admin/benchmark')); ?>
     <div class="center"><?php ($code = $plugins->navigation('bottom')) ? eval($code) : null; ?></div>
-    <div class="center stext"><?php echo $lang->phrase('timestamps_gmt_diff'); ?> <?php echo $lang->phrase('timezone_desc'); ?></div>
+    <div class="center stext">@lang(timestamps_gmt_diff) @lang(timezone_desc)</div>
 </div><br class="invclear" />
 </div>
 <div id="copyright">
-    Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong>
+    Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha {{ $config['version'] }}</a></strong>
     <?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
 </div>
 </body>

@@ -1449,38 +1449,38 @@ elseif ($job == 'edit') {
 <tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_edit_options'); ?></td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_time_zone'); ?></td><td class="mbox">
 <select id="temp" name="temp">
-	<option value="-12"<?php selectTZ($user['timezone'], -12); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
-	<option value="-11"<?php selectTZ($user['timezone'], -11); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
-	<option value="-10"<?php selectTZ($user['timezone'], -10); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
-	<option value="-9"<?php selectTZ($user['timezone'], -9); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
-	<option value="-8"<?php selectTZ($user['timezone'], -8); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
-	<option value="-7"<?php selectTZ($user['timezone'], -7); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
-	<option value="-6"<?php selectTZ($user['timezone'], -6); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
-	<option value="-5"<?php selectTZ($user['timezone'], -5); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
-	<option value="-4"<?php selectTZ($user['timezone'], -4); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
-	<option value="-3.5"<?php selectTZ($user['timezone'], -3.5); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
-	<option value="-3"<?php selectTZ($user['timezone'], -3); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
-	<option value="-2"<?php selectTZ($user['timezone'], -2); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
-	<option value="-1"<?php selectTZ($user['timezone'], -1); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
-	<option value="0"<?php selectTZ($user['timezone'], 0); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
-	<option value="+1"<?php selectTZ($user['timezone'], 1); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
-	<option value="+2"<?php selectTZ($user['timezone'], 2); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
-	<option value="+3"<?php selectTZ($user['timezone'], 3); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
-	<option value="+3.5"<?php selectTZ($user['timezone'], 3.5); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
-	<option value="+4"<?php selectTZ($user['timezone'], 4); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
-	<option value="+4.5"<?php selectTZ($user['timezone'], 4.5); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
-	<option value="+5"<?php selectTZ($user['timezone'], 5); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
-	<option value="+5.5"<?php selectTZ($user['timezone'], 5.5); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
-	<option value="+5.75"<?php selectTZ($user['timezone'], 5.75); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
-	<option value="+6"<?php selectTZ($user['timezone'], 6); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
-	<option value="+6.5"<?php selectTZ($user['timezone'], 6.5); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
-	<option value="+7"<?php selectTZ($user['timezone'], 7); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
-	<option value="+8"<?php selectTZ($user['timezone'], 8); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
-	<option value="+9"<?php selectTZ($user['timezone'], 9); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
-	<option value="+9.5"<?php selectTZ($user['timezone'], 9.5); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
-	<option value="+10"<?php selectTZ($user['timezone'], 10); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
-	<option value="+11"<?php selectTZ($user['timezone'], 11); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
-	<option value="+12"<?php selectTZ($user['timezone'], 12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
+	<option value="-12"<?php echo selectTZ(-12, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
+	<option value="-11"<?php echo selectTZ(-11, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
+	<option value="-10"<?php echo selectTZ(-10, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
+	<option value="-9"<?php echo selectTZ(-9, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
+	<option value="-8"<?php echo selectTZ(-8, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
+	<option value="-7"<?php echo selectTZ(-7, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
+	<option value="-6"<?php echo selectTZ(-6, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
+	<option value="-5"<?php echo selectTZ(-5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
+	<option value="-4"<?php echo selectTZ(-4, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
+	<option value="-3.5"<?php echo selectTZ(-3.5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
+	<option value="-3"<?php echo selectTZ(-3, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
+	<option value="-2"<?php echo selectTZ(-2, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
+	<option value="-1"<?php echo selectTZ(-1, $user['timezone']); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
+	<option value="0"<?php echo selectTZ(0, $user['timezone']); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
+	<option value="+1"<?php echo selectTZ(1, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
+	<option value="+2"<?php echo selectTZ(2, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
+	<option value="+3"<?php echo selectTZ(3, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
+	<option value="+3.5"<?php echo selectTZ(3.5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
+	<option value="+4"<?php echo selectTZ(4, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
+	<option value="+4.5"<?php echo selectTZ(4.5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
+	<option value="+5"<?php echo selectTZ(5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
+	<option value="+5.5"<?php echo selectTZ(5.5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
+	<option value="+5.75"<?php echo selectTZ(5.75, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
+	<option value="+6"<?php echo selectTZ(6, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
+	<option value="+6.5"<?php echo selectTZ(6.5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
+	<option value="+7"<?php echo selectTZ(7, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
+	<option value="+8"<?php echo selectTZ(8, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
+	<option value="+9"<?php echo selectTZ(9, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
+	<option value="+9.5"<?php echo selectTZ(9.5, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
+	<option value="+10"<?php echo selectTZ(10, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
+	<option value="+11"<?php echo selectTZ(11, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
+	<option value="+12"<?php echo selectTZ(12, $user['timezone']); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
 </select>
 </td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_sending_mail_receiving_pn'); ?></td><td class="mbox">

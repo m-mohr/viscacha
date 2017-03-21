@@ -1,42 +1,42 @@
 <?php if (!empty($data['formatted_comment'])) { ?>
 <div class="border">
-<h3><img src="<?php echo $tpl->img('pm_new'); ?>" alt="" />  <?php echo $lang->phrase('preview_title'); ?></h3>
+<h3><img src="@img(pm_new)" alt="" />  @lang(preview_title)</h3>
 <div class="bbody">
-	<span class="stext"><?php echo $lang->phrase('showtopic_subject'); ?> <strong><?php echo $data['topic']; ?></strong></span>
+	<span class="stext">@lang(showtopic_subject) <strong>{{ $data['topic'] }}</strong></span>
 	<hr />
-	<?php echo $data['formatted_comment']; ?>
+	{{ $data['formatted_comment'] }}
 </div>
 </div>
 <br class="minibr" />
 <?php } ?>
-<form name="form2" method="post" action="pm.php?action=save<?php echo SID2URL_x; ?>">
+<form name="form2" method="post" action="pm.php?action=save{{ SID2URL_x }}">
 <div class="border">
-<h3><img src="<?php echo $tpl->img('pm_new'); ?>" alt="" /> <?php echo $lang->phrase('pm_writenew'); ?></h3>
+<h3><img src="@img(pm_new)" alt="" /> @lang(pm_writenew)</h3>
 <div class="bbody">
-<label><?php echo $lang->phrase('pm_sender'); ?>:</label>
-<span><?php echo $my->name; ?></span>
+<label>@lang(pm_sender):</label>
+<span>{{ $my->name }}</span>
 <br class="newinput" /><hr class="formsep" />
-<label for="membersuggest_name"><?php echo $lang->phrase('pm_addressee'); ?></label>
+<label for="membersuggest_name">@lang(pm_addressee)</label>
 <div class="label">
-  <input id="membersuggest_name" name="name" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" size="40" value="<?php echo $data['name']; ?>" />
+  <input id="membersuggest_name" name="name" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" size="40" value="{{ $data['name'] }}" />
   <br /><span class="stext" id="membersuggest"></span>
 </div>
 <br class="newinput" /><hr class="formsep" />
-<label for="topic"><?php echo $lang->phrase('pm_title'); ?>:</label>
-<input type="text" tabindex="2000" id="topic" class="label" name="topic" size="30" value="<?php echo $data['topic']; ?>" />
+<label for="topic">@lang(pm_title):</label>
+<input type="text" tabindex="2000" id="topic" class="label" name="topic" size="30" value="{{ $data['topic'] }}" />
 <br class="newinput" /><hr class="formsep" />
-<label for="comment"><?php echo $lang->phrase('pm_postarea'); ?></label>
-<div class="label textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></div>
+<label for="comment">@lang(pm_postarea)</label>
+<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></div>
 <br class="newinput" /><br class="minibr" />
-<?php echo $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="2001"'); ?>
+{!! $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="2001"') !!}
 <hr class="formsep" />
-<label for="temp"><?php echo $lang->phrase('post_settings'); ?></label>
-<div class="label"><input tabindex="2002" type="checkbox" name="temp" value="1"<?php echo iif($data['outgoing'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('pm_saveoutgoing'); ?></div>
+<label for="temp">@lang(post_settings)</label>
+<div class="label"><input tabindex="2002" type="checkbox" name="temp" value="1"@checked($data['outgoing'] == 1) /> @lang(pm_saveoutgoing)</div>
 <br class="newinput" />
 </div>
 <div class="bfoot center">
-  <input type="submit" tabindex="2003" accesskey="s" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />
-  <input type="submit" tabindex="2004" accesskey="p" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" />
+  <input type="submit" tabindex="2003" accesskey="s" name="Submit" value="@lang(submit_form)" />
+  <input type="submit" tabindex="2004" accesskey="p" name="Preview" value="@lang(preview_form)" />
 </div>
 </div>
 </form>

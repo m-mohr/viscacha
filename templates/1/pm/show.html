@@ -1,37 +1,37 @@
 <div class="border">
 <div class="topfooter bfoot">
 <span class="right">
-    <a href="pm.php?action=delete&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm_delete'); ?>" alt="" /> <?php echo $lang->phrase('delete_title'); ?></a>
+    <a href="pm.php?action=delete&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(pm_delete)" alt="" /> @lang(delete_title)</a>
     <?php if ($row['dir'] != 2) { ?>
-    <a class="sep" href="pm.php?action=reply&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('forum_replies'); ?></a>
-    <a class="sep" href="pm.php?action=quote&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('quote'); ?>" alt="" /> <?php echo $lang->phrase('post_quote'); ?></a>
+    <a class="sep" href="pm.php?action=reply&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(addreply)" alt="" /> @lang(forum_replies)</a>
+    <a class="sep" href="pm.php?action=quote&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(quote)" alt="" /> @lang(post_quote)</a>
 	<?php } ?>
 </span>
-<img src="<?php echo $tpl->img('post_'.$row['read']); ?>" alt="" /> <?php echo $row['date']; ?>
+<img src="{{ $tpl->img('post_'.$row['read']) }}" alt="" /> {{ $row['date'] }}
 </div>
 <div class="inlineheader h3">
   <div class="viewmembername">
-    <a href='profile.php?id=<?php echo $row['mid'].SID2URL_x; ?>'><?php echo $row['name']; ?></a>
-    <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="<?php echo $row['lang_online']; ?>" alt="<?php echo $row['lang_online']; ?>" />
-    <br /><span class="stext"><?php echo $row['level']; ?></span>
+    <a href='profile.php?id={{ $row['mid'] }}{{ SID2URL_x }}'>{{ $row['name'] }}</a>
+    <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="{{ $row['lang_online'] }}" alt="{{ $row['lang_online'] }}" />
+    <br /><span class="stext">{{ $row['level'] }}</span>
   </div>
   <div class="viewmemberdetails stext">
-    <?php echo $lang->phrase('post_info_registered_since').$row['regdate']; ?><br />
-    <?php echo $lang->phrase('post_info_location').$row['location']; ?>
+    @lang(post_info_registered_since){{ $row['regdate'] }}<br />
+    @lang(post_info_location){{ $row['location'] }}
   </div>
   <br class="invclear" />
 </div>
 <div class="bbody">
-<span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?><strong><?php echo $row['topic']; ?></strong></span>
+<span class='stext'>@lang(showtopic_subject)<strong>{{ $row['topic'] }}</strong></span>
 <hr />
-<?php echo $row['comment']; ?>
+{{ $row['comment'] }}
 <br />
 <?php if ($bottom) { ?>
   <hr />
   <?php if (!empty($row['fullname']) && $config['fullname_posts'] == 1) { ?>
-  <div class="fullname stext"><?php echo $row['fullname']; ?></div>
-  <?php } if (!empty($row['signature']) && $my->opt_showsig == 1) { ?>
-  <div class="signature"><?php echo $row['signature']; ?></div>
+  <div class="fullname stext">{{ $row['fullname'] }}</div>
+  <?php } ?><?php if(!empty($row['signature']) && $my->opt_showsig == 1) { ?>
+  <div class="signature">{{ $row['signature'] }}</div>
 <?php } } ?>
 </div>
 </div>

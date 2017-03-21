@@ -1,24 +1,24 @@
-<form name="form2" method="post" action="register.php?action=resend2<?php echo SID2URL_x; ?>">
+<form name="form2" method="post" action="register.php?action=resend2{{ SID2URL_x }}">
 <div class="border">
-<h3><img src="<?php echo $tpl->img('register'); ?>" alt="" /> <?php echo $lang->phrase('register_resend_title'); ?></h3>
+<h3><img src="@img(register)" alt="" /> @lang(register_resend_title)</h3>
 <div class="bbody">
-<?php echo $lang->phrase('register_resend_desc'); ?>
+@lang(register_resend_desc)
 <br class="newinput" /><hr />
-<label for="name"><?php echo $lang->phrase('name'); ?></label>
-<input tabindex="1" id="name" class="label" type="text" name="name" value="<?php echo $name; ?>" size="40" />
+<label for="name">@lang(name)</label>
+<input tabindex="1" id="name" class="label" type="text" name="name" value="{{ $name }}" size="40" />
 <br class="newinput" />
 <?php if ($captcha !== null) { ?>
 <hr class="formsep" />
 <label for="letter">
-	<?php echo $lang->phrase('veriword_check'); ?><br />
-	<span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
+	@lang(veriword_check)<br />
+	<span class="stext">@lang(register_veriword)</span>
 </label>
 <div class="label">
-	<?php echo $captcha->generateCode(2); ?>
+	{{ $captcha->generateCode(2) }}
 </div>
 <br class="newinput" />
 <?php } ?>
 </div>
-<div class="bfoot center"><input tabindex="3" accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+<div class="bfoot center"><input tabindex="3" accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></div>
 </div>
 </form>

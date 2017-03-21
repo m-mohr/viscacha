@@ -1,55 +1,55 @@
  <tr class="tbody">
   <td>
-   <a href="profile.php?id=<?php echo $row['id'].SID2URL_x; ?>"><?php echo $row['name']; ?></a>
+   <a href="profile.php?id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
    <?php if(!empty($row['fullname'])) { ?>
-   	<br /><em><?php echo $row['fullname']; ?></em>
+   	<br /><em>{{ $row['fullname'] }}</em>
    	<?php } ?>
   </td>
   <?php if ($online) { ?>
   <td class="center">
-   <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="<?php echo $row['lang_online']; ?>" alt="<?php echo $row['lang_online']; ?>" />
+   <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="{{ $row['lang_online'] }}" alt="{{ $row['lang_online'] }}" />
   </td>
-  <?php } if (isset($row['pic'])) { ?>
+  <?php } ?><?php if(isset($row['pic'])) { ?>
   <td class="center">
    <?php if (!empty($row['pic'])) { ?>
-   <img src="<?php echo $row['pic']; ?>" alt="<?php echo $row['name']; ?>" />
+   <img src="{{ $row['pic'] }}" alt="{{ $row['name'] }}" />
    <?php } ?>
   </td>
-  <?php } if ($pm) { ?>
+  <?php } ?><?php if($pm) { ?>
   <td class="center">
-   <a href="pm.php?action=new&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a>
+   <a href="pm.php?action=new&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(pm)" alt="" /></a>
   </td>
-  <?php } if (isset($row['mail'])) { ?>
+  <?php } ?><?php if(isset($row['mail'])) { ?>
   <td class="center">
-   <a href="profile.php?action=mail&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a>
+   <a href="profile.php?action=mail&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(email)" alt="" /></a>
   </td>
-  <?php } if (isset($row['hp'])) { ?>
+  <?php } ?><?php if(isset($row['hp'])) { ?>
   <td class="center">
    <?php echo iif($row['hp'], '<a href="'.$row['hp'].'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>', $lang->phrase('homepage_no_data')); ?>
   </td>
-  <?php } if (isset($row['location'])) { ?>
+  <?php } ?><?php if(isset($row['location'])) { ?>
   <td>
-   <?php echo $row['location']; ?>
+   {{ $row['location'] }}
   </td>
-  <?php } if (isset($row['gender'])) { ?>
+  <?php } ?><?php if(isset($row['gender'])) { ?>
   <td class="center">
-   <?php echo $row['gender']; ?>
+   {{ $row['gender'] }}
   </td>
-  <?php } if (isset($row['posts'])) { ?>
+  <?php } ?><?php if(isset($row['posts'])) { ?>
   <td class="textright">
-   <?php echo $row['posts']; ?>
+   {{ $row['posts'] }}
   </td>
-  <?php } if (isset($row['birthday'])) { ?>
+  <?php } ?><?php if(isset($row['birthday'])) { ?>
   <td>
-   <?php echo $row['birthday']; ?>
+   {{ $row['birthday'] }}
   </td>
-  <?php } if (isset($row['regdate'])) { ?>
+  <?php } ?><?php if(isset($row['regdate'])) { ?>
   <td class="center">
-   <?php echo $row['regdate']; ?>
+   {{ $row['regdate'] }}
   </td>
-  <?php } if (isset($row['lastvisit'])) { ?>
+  <?php } ?><?php if(isset($row['lastvisit'])) { ?>
   <td>
-   <?php echo $row['lastvisit']; ?>
+   {{ $row['lastvisit'] }}
   </td>
   <?php } ?>
  </tr>

@@ -1,108 +1,108 @@
 <?php if ($_GET['action'] == 'preview') { ?>
 <div class="border">
-<h3><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('preview_title'); ?></h3>
+<h3><img src="@img(newtopic)" alt="" /> @lang(preview_title)</h3>
 <div class="bbody">
-	<span class='stext'><?php echo $lang->phrase('showtopic_subject'); ?> <?php echo iif(!empty($prefix), $lang->phrase('showtopic_prefix_title')); ?><strong><?php echo $data['topic']; ?></strong></span>
+	<span class='stext'>@lang(showtopic_subject) @if($showprefix) @lang(showtopic_prefix_title) @endif <strong>{{ $data['topic'] }}</strong></span>
 	<hr />
-	<?php echo $data['formatted_comment']; ?>
+	{{ $data['formatted_comment'] }}
 </div>
 </div>
 <br class="minibr" />
 <?php } else { if ($last['message_active'] == '1') { ?>
 <div class="border">
-<h3><img id="img_rules_<?php echo $board; ?>" alt="switch" src="<?php echo $tpl->img('minus'); ?>" title="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $last['message_title']; ?></h3>
-<div id="part_rules_<?php echo $board; ?>" class="bbody"><?php echo $last['message_text']; ?></div>
+<h3><img id="img_rules_{{ $board }}" alt="switch" src="@img(minus)" title="@lang(box_collapse)" /> {{ $last['message_title'] }}</h3>
+<div id="part_rules_{{ $board }}" class="bbody">{{ $last['message_text'] }}</div>
 </div>
 <br class="minibr" />
 <?php }} ?>
-<form name="form2" method="post" action="newtopic.php?id=<?php echo $board; ?>&amp;fid=<?php echo $fid.SID2URL_x; ?>&amp;action=save">
+<form name="form2" method="post" action="newtopic.php?id={{ $board }}&amp;fid={{ $fid }}{{ SID2URL_x }}&amp;action=save">
 <div class="border">
-<h3><img src="<?php echo $tpl->img('newtopic'); ?>" alt="" /> <?php echo $lang->phrase('newtopic_title'); ?></h3>
+<h3><img src="@img(newtopic)" alt="" /> @lang(newtopic_title)</h3>
 <div class="bbody">
 <?php if (!$my->vlogin) { ?>
-<label for="name"><?php echo $lang->phrase('name'); ?></label>
-<input tabindex="1" type="text" id="name" class="label" name="name" size="40" value="<?php echo $data['name']; ?>" />
+<label for="name">@lang(name)</label>
+<input tabindex="1" type="text" id="name" class="label" name="name" size="40" value="{{ $data['name'] }}" />
 <br class="newinput" /><hr class="formsep" />
-<label for="email"><?php echo $lang->phrase('email'); ?></label>
-<input tabindex="2" type="text" id="email" class="label" name="email" size="40" value="<?php echo $data['email']; ?>" />
+<label for="email">@lang(email)</label>
+<input tabindex="2" type="text" id="email" class="label" name="email" size="40" value="{{ $data['email'] }}" />
 <br class="newinput" /><hr class="formsep" />
 <?php if ($captcha !== null) { ?>
 <label for="letter">
-	<?php echo $lang->phrase('veriword_check'); ?><br />
-	<span class="stext"><?php echo $lang->phrase('register_veriword'); ?></span>
+	@lang(veriword_check)<br />
+	<span class="stext">@lang(register_veriword)</span>
 </label>
 <div class="label">
-	<?php echo $captcha->generateCode(3); ?>
+	{{ $captcha->generateCode(3) }}
 </div>
 <br class="newinput" /><hr class="formsep" />
 <?php } } else { ?>
-<label><?php echo $lang->phrase('logged_in_as'); ?></label>
-<span><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
+<label>@lang(logged_in_as)</label>
+<span>{{ $my->name }} [<a href="log.php?action=logout{{ SID2URL_x }}">@lang(logout)</a>]</span>
 <br class="newinput" /><hr class="formsep" />
-<?php } if ($last['message_active'] == '2') { ?>
-<label><?php echo $lang->phrase('board_rules'); ?>:</label>
-<a class="label" href="misc.php?action=board_rules&amp;id=<?php echo $board.SID2URL_x; ?>" target="_blank"><?php echo $last['message_title']; ?></a>
+<?php } ?><?php if($last['message_active'] == '2') { ?>
+<label>@lang(board_rules):</label>
+<a class="label" href="misc.php?action=board_rules&amp;id={{ $board }}{{ SID2URL_x }}" target="_blank">{{ $last['message_title'] }}</a>
 <br class="newinput" /><hr class="formsep" />
 <?php } ?>
-<label for="topic"><?php echo $lang->phrase('title'); ?></label>
+<label for="topic">@lang(title)</label>
 <?php if (empty($inner['index_prefix'])) { ?>
-<input type="text" tabindex="4" class="label" id="topic" name="topic" size="40" value="<?php echo $data['topic']; ?>" />
+<input type="text" tabindex="4" class="label" id="topic" name="topic" size="40" value="{{ $data['topic'] }}" />
 <?php } else { ?>
 <div class="label">
-<?php echo $inner['index_prefix']; ?><input tabindex="5" type="text" id="topic" name="topic" size="35" value="<?php echo $data['topic']; ?>" />
+{!! $inner['index_prefix'] !!}<input tabindex="5" type="text" id="topic" name="topic" size="35" value="{{ $data['topic'] }}" />
 </div>
 <?php } ?>
 <br class="newinput" /><hr class="formsep" />
-<label for="comment"><?php echo $lang->phrase('post'); ?></label>
-<div class="label textright"><a href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><img src="<?php echo $tpl->img('help'); ?>" alt="" /> <strong><?php echo $lang->phrase('bbcode_help'); ?></strong></a></div>
+<label for="comment">@lang(post)</label>
+<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></div>
 <br class="newinput" /><br class="minibr" />
-<?php echo $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="6"'); ?>
+{!! $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="6"') !!}
 <hr class="formsep" />
-<label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
+<label for="dosmileys">@lang(post_settings)</label>
 <div class="label">
-	<input type="checkbox" tabindex="7" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?>
+	<input type="checkbox" tabindex="7" name="dosmileys" value="1"@checked($data['dosmileys'] == 1) /> @lang(post_settings_smileys)
 </div>
 <br class="newinput" />
 <?php if ($p_upload == 1) { ?>
 <hr class="formsep" />
-<label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label>
+<label>@lang(attachments)&nbsp;</label>
 <div class="label">
-	<a tabindex="9" href="attachments.php?type=newtopic&amp;id=<?php echo $board.SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
-	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
+	<a tabindex="9" href="attachments.php?type=newtopic&amp;id={{ $board }}{{ SID2URL_x }}" target="adduploads" onclick="adduploads(this);"><strong>@lang(manage_uploads)</strong></a><br />
+	<span class="stext">@lang(max_uploads)</span>
 </div>
 <br class="newinput" />
-<?php } if ($my->p['addvotes'] == 1) {  ?>
+<?php } ?><?php if($my->p['addvotes'] == 1) {  ?>
 <hr class="formsep" />
-<label for="temp"><?php echo $lang->phrase('add_vote'); ?></label>
+<label for="temp">@lang(add_vote)</label>
 <div class="label">
-  <input type="checkbox" tabindex="10" name="opt_2" value="1"<?php echo iif($data['vote'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('yes_add_vote'); ?><br />
-  <?php echo $lang->phrase('vote_replies'); ?> <input tabindex="11" type="text" id="temp" name="temp" size="4" value="<?php echo $data['replies']; ?>" />
+  <input type="checkbox" tabindex="10" name="opt_2" value="1"@checked($data['vote'] == 1) /> @lang(yes_add_vote)<br />
+  @lang(vote_replies) <input tabindex="11" type="text" id="temp" name="temp" size="4" value="{{ $data['replies'] }}" />
 </div>
 <br class="newinput" />
 <?php if ($my->vlogin) { ?>
 <hr class="formsep" />
-<label for="digest"><?php echo $lang->phrase('topic_abo'); ?></label>
+<label for="digest">@lang(topic_abo)</label>
 <select class="label" name="digest" id="digest" tabindex="12">
-	<option value="0"<?php echo iif($data['digest'] == 0, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_none'); ?></option>
-	<option value="1"<?php echo iif($data['digest'] == 1, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_s'); ?></option>
-	<option value="2"<?php echo iif($data['digest'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_d'); ?></option>
-	<option value="3"<?php echo iif($data['digest'] == 3, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_w'); ?></option>
+	<option value="0"@selected($data['digest'] == 0)>@lang(digest_none)</option>
+	<option value="1"@selected($data['digest'] == 1)>@lang(digest_s)</option>
+	<option value="2"@selected($data['digest'] == 2)>@lang(digest_d)</option>
+	<option value="3"@selected($data['digest'] == 3)>@lang(digest_w)</option>
 </select>
 <br class="newinput" />
 <?php }} ?>
 </div>
-<div class="bfoot center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>"> <input tabindex="14" type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
+<div class="bfoot center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="@lang(submit_form)"> <input tabindex="14" type="submit" name="Preview" value="@lang(preview_form)" /></div>
 </div>
 <?php if ($my->mp[0] == 1) { ?>
 <br class="minibr" />
 <div class="border">
-<h3><?php echo $lang->phrase('admin_options'); ?></h3>
+<h3>@lang(admin_options)</h3>
 <div class="bbody">
-<label for="close"><?php echo $lang->phrase('admin_addpost_close'); ?></label>
-<div class="label"><input type="checkbox" tabindex="15" id="close" name="close" value="1" /> <?php echo $lang->phrase('admin_addpost_close_desc'); ?></div>
+<label for="close">@lang(admin_addpost_close)</label>
+<div class="label"><input type="checkbox" tabindex="15" id="close" name="close" value="1" /> @lang(admin_addpost_close_desc)</div>
 <br class="newinput" /><hr class="formsep" />
-<label for="pin"><?php echo $lang->phrase('admin_addpost_pin'); ?></label>
-<div class="label"><input type="checkbox" tabindex="16" id="pin" name="pin" value="1" /> <?php echo $lang->phrase('admin_addpost_pin_desc'); ?></div>
+<label for="pin">@lang(admin_addpost_pin)</label>
+<div class="label"><input type="checkbox" tabindex="16" id="pin" name="pin" value="1" /> @lang(admin_addpost_pin_desc)</div>
 <br class="newinput" />
 </div>
 </div>

@@ -938,17 +938,17 @@ function check_forumperm($forum) {
 	}
 }
 
-function selectTZ($user, $compare) {
+function selectTZ($compare, $value = null) {
 	global $config;
-	if ($user === null) {
-		$user = $config['timezone'];
+	if ($value === null) {
+		$value = $config['timezone'];
 	}
-	$user = (int) str_replace('+', '', $user);
-	if ($user == $compare) {
-		echo ' selected="selected"';
+	$value = (int) str_replace('+', '', $value);
+	if ($value == $compare) {
+		return ' selected="selected"';
 	}
 	else {
-		echo '';
+		return '';
 	}
 }
 

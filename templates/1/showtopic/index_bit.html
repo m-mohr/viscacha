@@ -2,41 +2,41 @@
 <div class="bfoot topfooter">
     <span class="right">
     <?php if($my->vlogin && empty($row->report)) { ?>
-	    <a class="sep" href="misc.php?action=report_post&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('post_report'); ?></a>
-	<?php } elseif ($my->mp[0] == 1 && !empty($row->report)) { ?>
-		<a class="sep" href="managetopic.php?action=reports&amp;topic_id=<?php echo $row->id; ?>&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('post_reported'); ?></a>
-	<?php } if($can_edit) { ?>
-	    <a class="sep" href="edit.php?id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('edit'); ?>" alt="" /> <?php echo $lang->phrase('post_edit'); ?></a>
-    <?php } if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0) { ?>
-	    <a class="sep" id="menu_mquote_<?php echo $row->id; ?>" onmouseover="RegisterMenu('mquote_<?php echo $row->id; ?>');" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>"><img src="<?php echo $tpl->img('no_mquote'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" id="mq_<?php echo $row->id; ?>" /> <?php echo $lang->phrase('post_quote'); ?></a>
-		<div class="popup" id="popup_mquote_<?php echo $row->id; ?>">
-		 <strong><?php echo $lang->phrase('post_quote'); ?></strong>
+	    <a class="sep" href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(rules)" alt="" /> @lang(post_report)</a>
+	<?php } elseif($my->mp[0] == 1 && !empty($row->report)) { ?>
+		<a class="sep" href="managetopic.php?action=reports&amp;topic_id={{ $row->id }}&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img(rules)" alt="" /> @lang(post_reported)</a>
+	<?php } ?><?php if($can_edit) { ?>
+	    <a class="sep" href="edit.php?id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(edit)" alt="" /> @lang(post_edit)</a>
+    <?php } ?><?php if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0) { ?>
+	    <a class="sep" id="menu_mquote_{{ $row->id }}" onmouseover="RegisterMenu('mquote_{{ $row->id }}');" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}"><img src="@img(no_mquote)" alt="@lang(box_collapse)" id="mq_{{ $row->id }}" /> @lang(post_quote)</a>
+		<div class="popup" id="popup_mquote_{{ $row->id }}">
+		 <strong>@lang(post_quote)</strong>
 		 <ul>
-		  <li><a href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>&amp;qid[]=<?php echo $row->id; ?>"><?php echo $lang->phrase('post_quote_direct'); ?></a></li>
-		  <li><a href="javascript:multiquote(<?php echo $row->id; ?>);" id="mq_<?php echo $row->id; ?>_link"><?php echo $lang->phrase('post_quote_multi'); ?></a></li>
+		  <li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang(post_quote_direct)</a></li>
+		  <li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang(post_quote_multi)</a></li>
 		 </ul>
 		</div>
     <?php } ?>
-    <strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->rel_post_num; ?></a></strong>
+    <strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
     <?php if ($my->mp[0] == 1 && $info['posts'] > 0) { ?>
-    	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
+    	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="{{ $row->id }}" />
     <?php } ?>
     </span>
-    <img src="<?php echo $tpl->img('post_'.$new); ?>" alt="" /> <?php echo $row->date; ?>
+    <img src="{{ $tpl->img('post_'.$new) }}" alt="" /> {{ $row->date }}
     <?php echo iif($firstnew == 1,'<a name="firstnew" id="firstnew"></a>'); ?>
-    <a name="p<?php echo $row->id; ?>" id="p<?php echo $row->id; ?>"></a>
+    <a name="p{{ $row->id }}" id="p{{ $row->id }}"></a>
 </div>
 <div class="inlineheader h3">
   <div class="viewmembername">
-    <a href="profile.php?id=<?php echo $row->mid.SID2URL_x.iif($row->guest == 1, "&amp;guest=".$row->id); ?>"><?php echo $row->name; ?></a>
+	  <a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}<?php echo iif($row->guest == 1, "&amp;guest=".$row->id); ?>">{{ $row->name }}</a>
     <?php if ($row->guest == 0) { ?>
-    <img src="<?php echo $tpl->img(iif($row->online == 1, 'online', 'offline')); ?>"  title="<?php echo $row->lang_online; ?>" alt="<?php echo $row->lang_online; ?>" />
+    <img src="<?php echo $tpl->img(iif($row->online == 1, 'online', 'offline')); ?>"  title="{{ $row->lang_online }}" alt="{{ $row->lang_online }}" />
     <?php } ?>
-    <br /><span class="stext"><?php echo $row->level; ?></span>
+    <br /><span class="stext">{{ $row->level }}</span>
   </div>
   <div class="viewmemberdetails stext">
     <?php if ($row->guest == 0) { ?>
-       <?php echo $lang->phrase('post_info_registered_since').$row->regdate; ?><br />
+       @lang(post_info_registered_since){{ $row->regdate }}<br />
        <?php echo $lang->phrase('post_info_postcount').numbers($row->posts); ?>
     <?php } ?>
   </div>
@@ -44,31 +44,31 @@
 </div>
 <div class="bbody">
   <span class="stext">
-    <?php echo $lang->phrase('showtopic_subject'); ?><strong><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->topic; ?></a></strong>
+    @lang(showtopic_subject)<strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
   </span>
   <hr />
-  <?php echo $row->comment; ?>
+  {{ $row->comment }}
   <?php if (!empty($inner['image_box'])) { ?>
   <br /><br />
-  <strong><?php echo $lang->phrase('post_thumbnails'); ?></strong><br />
-  <?php echo $inner['image_box']; ?>
+  <strong>@lang(post_thumbnails)</strong><br />
+  {{ $inner['image_box'] }}
   <br class="uploadbox_br" />
-  <?php } if (!empty($inner['upload_box'])) { ?>
+  <?php } ?><?php if(!empty($inner['upload_box'])) { ?>
   <br class="uploadbox_br" />
   <br />
-  <strong><?php echo $lang->phrase('post_uploads'); ?></strong><br />
-  <?php echo $inner['upload_box']; ?>
+  <strong>@lang(post_uploads)</strong><br />
+  {{ $inner['upload_box'] }}
   <br class="uploadbox_br" />
-  <?php } if ($bottom) { ?>
+  <?php } ?><?php if($bottom) { ?>
       <hr />
       <?php if (!empty($row->fullname) && $config['fullname_posts'] == 1) { ?>
-      <div class="fullname stext"><?php echo $row->fullname; ?></div>
-      <?php } if (!empty($row->signature) && $my->opt_showsig == 1) { ?>
-      <div class="signature"><?php echo $row->signature; ?></div>
+      <div class="fullname stext">{{ $row->fullname }}</div>
+      <?php } ?><?php if(!empty($row->signature) && $my->opt_showsig == 1) { ?>
+      <div class="signature">{{ $row->signature }}</div>
   <?php } } ?>
       <div class="textright stext">
       	<?php if (!empty($row->edit)) { echo $lang->phrase('post_editinfo1'); ?>
-      	<strong><a href="misc.php?action=edithistory&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $anz; ?></a></strong>
+      	<strong><a href="misc.php?action=edithistory&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $anz }}</a></strong>
       	<?php echo $lang->phrase('post_editinfo2'); } ?>
       </div>
 </div>

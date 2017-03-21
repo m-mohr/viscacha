@@ -54,46 +54,20 @@ class breadcrumb {
     	    'url' => NULL
     	);
     }
-
-    function OutputHTML($seperator = ' > ') {
-    	global $gpc;
+	
+	function build($divider = ' > ', $linked = false) {
         $cache = array();
         foreach ($this->content as $key => $row) {
-        	$row['title'] = $gpc->prepare($row['title']);
-            if (!empty($row['url'])) {
+        	$row['title'] = viscacha_htmlspecialchars($row['title']);
+            if (!empty($row['url']) && $linked) {
                 $cache[$key] = '<a href="'.$row['url'].'">'.$row['title'].'</a>';
             }
             else {
                 $cache[$key] = $row['title'];
             }
         }
-        return implode($seperator, $cache);
-    }
-
-    function OutputPLAIN($seperator = ' > ') {
-        $cache = array();
-        foreach ($this->content as $key => $row) {
-        	$row['title'] = viscacha_htmlspecialchars_decode($row['title']); // TODO: UTF8 - Remove
-            $cache[$key] = strip_tags($row['title']);
-            $row['title'] = viscacha_htmlspecialchars($row['title']);
-        }
-        return implode($seperator, $cache);
-    }
-
-    function OutputPRINT($seperator = ' > ') {
-    	global $config, $gpc;
-        $cache = array();
-        foreach ($this->content as $key => $row) {
-        	$row['title'] = $gpc->prepare($row['title']);
-        	if (!empty($row['url'])) {
-            	$cache[$key] = "{$row['title']} (<a href=\"{$config['furl']}/{$row['url']}\">{$config['furl']}/{$row['url']}</a>)";
-            }
-            else {
-            	$cache[$key] = $row['title'];
-            }
-        }
-        return implode($seperator, $cache);
-    }
+        return implode($divider, $cache);
+	}
 
     function getArray() {
         return $this->content;

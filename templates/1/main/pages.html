@@ -1,22 +1,18 @@
 <span class="pagination">
-<?php
-echo $lang->phrase('pages_x');
-foreach ($pages as $page => $row) {
-	if ($row['type'] == PAGES_CURRENT) {
-		echo "<strong class='page_number_current'>{$page}</strong>";
-	}
-	elseif ($row['type'] == PAGES_SEPARATOR) {
-		echo " <span class='page_more'>".$lang->phrase('pages_sep')."</span> ";
-	}
-	elseif ($row['type'] == PAGES_NUM) {
-		echo "<a class='page_number' href='{$row['url']}'>{$page}</a>";
-	}
-	if ($row['separator']) {
-		echo "<span class='page_separator'>".$lang->phrase('pages_sep2')."</span>";
-	}
-	if ($page == $anz && $anz > 10) {
-		echo "<a class='page_number' href='javascript:jumptopage(\"{$uri}\");'><img src='".$tpl->img('desc')."' alt='' /></a>";
-	}
-}
-?>
+@lang(pages_x)
+<?php foreach ($pages as $page => $row) { ?>
+	<?php if ($row['type'] == PAGES_CURRENT) { ?>
+		<strong class="page_number_current">{{ $page }}</strong>
+	<?php } else if ($row['type'] == PAGES_SEPARATOR) { ?>
+		<span class="page_more">@lang(pages_sep)</span>
+	<?php } else if ($row['type'] == PAGES_NUM) { ?>
+		<a class="page_number" href="{{ $row['url'] }}">{{ $page }}</a>
+	<?php } ?>
+	<?php if ($row['separator']) { ?>
+		<span class="page_separator">@lang(pages_sep2)</span>
+	<?php } ?>
+	<?php if ($page == $anz && $anz > 10) { ?>
+		<a class="page_number" href="javascript:jumptopage('{{ $uri }}');"><img src='@img(desc)' alt='' /></a>
+	<?php } ?>
+<?php } ?>
 </span>
