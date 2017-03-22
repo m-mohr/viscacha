@@ -39,6 +39,7 @@ class cache_version_check extends CacheItem {
 	}
 	
 	function readRssInfo() {
+		// TODO: Move over to JSON - removes the xml-extension dependency
 		if (!function_exists('xml_parser_create')) {
 			return false;
 		}
