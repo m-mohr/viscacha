@@ -575,7 +575,6 @@ $lang['team'] = 'The Team';
 $lang['teamcp'] = 'team control center';
 $lang['team_admins'] = 'Administrators';
 $lang['team_gmods'] = 'Global Moderators';
-$lang['team_moderator_until'] = 'until';
 $lang['team_mods'] = 'Moderators';
 $lang['team_mod_boards'] = 'responsible for';
 $lang['team_short'] = 'Team';

@@ -397,8 +397,6 @@ $lang['admin_short_page_description'] = 'Kurze Seitenbeschreibung:';
 $lang['admin_short_page_description_info'] = 'HTML ist erlaubt';
 $lang['admin_show_inactive_user'] = 'Zeige inaktive Benutzer:';
 $lang['admin_show_inactive_user_info'] = 'Zeige Mitglieder, die noch nicht aktiviert sind, also bei denen die Freischaltung durch einen Administrator oder per E-Mail fehlt (oder beides).';
-$$lang['admin_show_mod_rights'] = 'Zeige Zeitspanne, in dem ein Moderator seine Rechte besitzt:';
-$lang['admin_show_mod_rights_info'] = 'Zeige in der Moderatorenliste der Teamliste, wie lange ein Moderator die Moderatorenrechte übertragen bekommen hat.';
 $lang['admin_show_posts_per_day'] = 'Zeige Beiträge pro Tag (Durchschnitt) im Profil:';
 $lang['admin_show_real_name_post'] = 'Zeige bürgerlichen Namen unter Beiträgen:';
 $lang['admin_show_subforums_in_overview'] = 'Zeige Unterforen in der Forenübersicht:';
@@ -431,7 +429,6 @@ $lang['admin_sync_forumstatistic'] = 'Synchronisiere Forenstatistiken sofort nac
 $lang['admin_sync_forumstatistic_info'] = 'Nicht empfohlen für große Foren! Wenn diese Option aktiviert ist, werden die Forenstatistiken (Anzahl Beiträge und Themen) bei jeder Datenänderung neu gezählt. Wenn diese Option inaktiv ist, werden die Statistiken manuell gezählt.';
 $lang['admin_task_log_file'] = 'Protokollierung der geplante Aufgaben aktivieren:';
 $lang['admin_task_log_file_info'] = 'Die Protokolldatei kann <a href="admin.php?action=slog&job=l_cron" target="_blank">hier</a> eingesehen werden.';
-$lang['admin_teamlist_edit'] = 'Teamliste';
 $lang['admin_test_ftp_connection'] = 'Daten speichern und FTP-Verbindung ggf. testen';
 $lang['admin_thread_upload_edit'] = 'Themen-Anhänge';
 $lang['admin_timelimit_post_delete'] = 'Zeitbegrenzung um Beiträge löschen zu können:';

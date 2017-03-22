@@ -82,7 +82,7 @@ if ($_GET['action'] == 'team') {
 	}
 
 	$result = $db->query('
-	SELECT m.time, m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname, f.invisible
+	SELECT m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname, f.invisible
 	FROM '.$db->pre.'moderators AS m
 		LEFT JOIN '.$db->pre.'user AS u ON u.id = m.mid
 		LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
@@ -105,12 +105,6 @@ if ($_GET['action'] == 'team') {
 		foreach ($board_cache[$mid] as $bid => $bdata) {
 			if ($bdata->invisible == 1 && isset($my->pb[$bid]) && $my->pb[$bid]['forum'] == 0) {
 				continue;
-			}
-			if ($config['team_mod_dateuntil'] == 1 && !empty($bdata->time)) {
-				$bdata->time = gmdate($lang->phrase('dformat2'), times($bdata->time));
-			}
-			else {
-				$bdata->time = 0;
 			}
 			$inner['moderator_bit_forum'][] = $bdata;
 		}
