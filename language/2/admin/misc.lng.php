@@ -55,6 +55,5 @@ $lang['admin_misc_upload_new_bg_noises_info'] = 'To add a file, click on the "Br
 $lang['admin_misc_upload_new_font'] = 'Upload new font file';
 $lang['admin_misc_upload_new_font_info'] = 'To add a file, click on the "Browse"-button and select an file. Afterwards click on "Upload" to finish the process.<br /><br />Allowed file types: .ttf<br />Maximum file size: 500 KB';
 $lang['admin_misc_upload_shown'] = 'Shown:';
-$lang['admin_misc_view_contents'] = 'View Contents';
 $lang['admin_misc_yes'] = 'Yes';
 ?>

@@ -96,7 +96,6 @@ elseif ($job == 'cache') {
    <td class="mbox" nowrap="nowrap"><?php echo iif($row['cached'], $lang->phrase('admin_misc_approx_x'), '-'); ?></td>
    <td class="mbox">
    <?php if ($row['cached']) { ?>
-   <a class="button" href="admin.php?action=misc&amp;job=cache_view&amp;file=<?php echo $name; ?>"><?php echo $lang->phrase('admin_misc_view_contents'); ?></a>
    <a class="button" href="admin.php?action=misc&amp;job=cache_delete&amp;file=<?php echo $name; ?>"><?php echo $lang->phrase('admin_misc_delete_cache'); ?></a>
    <?php } if ($row['rebuild']) { ?>
    <a class="button" href="admin.php?action=misc&amp;job=cache_refresh&amp;file=<?php echo $name; ?>"><?php echo $lang->phrase('admin_misc_rebuild_cache'); ?></a>
@@ -108,34 +107,7 @@ elseif ($job == 'cache') {
 	<?php
 	echo foot();
 }
-elseif ($job == 'cache_view') {
-	$file = $gpc->get('file', str);
-	echo head();
-	$cache = new CacheItem($file);
-	$cache->import();
-	$data = $cache->get();
 
-	// ToDo: Better appearance
-	ob_start();
-	print_r($data);
-	$out = ob_get_contents();
-	ob_end_clean();
-	$out = viscacha_htmlspecialchars($out);
-
-	?>
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox"><b><?php echo $lang->phrase('admin_misc_cache_manager'); ?> &raquo; <?php echo $file; ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox">
-   <pre><?php echo $out; ?></pre>
-   </td>
-  </tr>
- </table>
-	<?php
-	echo foot();
-}
 elseif ($job == 'cache_delete' || $job == 'cache_refresh') {
 	$name = $gpc->get('file', str);
 	$file = $name.'.inc.php';

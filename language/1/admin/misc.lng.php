@@ -55,6 +55,5 @@ $lang['admin_misc_upload_new_bg_noises_info'] = 'Um eine Datei hinzuzufügen kli
 $lang['admin_misc_upload_new_font'] = 'Neue Schriftart hochladen';
 $lang['admin_misc_upload_new_font_info'] = 'Um eine Datei hinzuzufügen klicken Sie den "Durchsuchen"-Button und wählen eine Datei von Ihrer Festplatte. Abschließend klicken Sie den "Hochladen"-Button um den Prozess abzuschließen.<br /><br />Erlaubte Dateitypen: .ttf<br />Maximale Dateigröße: 500 KB';
 $lang['admin_misc_upload_shown'] = 'Angezeigt:';
-$lang['admin_misc_view_contents'] = 'Zeige Inhalt';
 $lang['admin_misc_yes'] = 'Ja';
 ?>
