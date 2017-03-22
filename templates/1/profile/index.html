@@ -1,26 +1,30 @@
 <table class="tables">
 	<tr>
 		<th colspan="2">
-			<img src="@img(user)" alt="" /> @lang(profile)
+			<img src="@img('user')" alt="" /> @lang('profile')
 		</th>
 	</tr>
 	<tr>
 		<td class="tbody" colspan="2" valign="middle">
-			<?php echo iif(@file_exists($row->pic) && $row->p['usepic'],"<img class='right' src='$row->pic' alt='".$row->name."' />"); ?>
-			<span class='btext'>{{ $row->name }}</span>
-			<?php echo iif($row->fullname,"<br />".$row->fullname); ?>
+			@if(@file_exists($row->pic) && $row->p['usepic'])
+			<img class="right" src="{{ $row->pic }}" alt="{{ $row->name }}" />
+			@endif
+			<span class="btext">{{ $row->name }}</span>
+			@if($row->fullname)
+			<br />{{ $row->fullname }}
+			@endif
 		</td>
 	</tr>
 	<tr>
-		<th width="50%">@lang(profile_board_info)</th>
-		<th width="50%">@lang(profile_user_info)</th>
+		<th width="50%">@lang('profile_board_info')</th>
+		<th width="50%">@lang('profile_user_info')</th>
 	</tr>
 	<tr class="tbody profiledata">
 		<td valign="top" rowspan="3">
-			<h5>@lang(profile_registered_since)</h5>
+			<h5>@lang('profile_registered_since')</h5>
 			<em>{{ $row->regdate }}</em>
 			<br />
-			<h5>@lang(profile_group)</h5>
+			<h5>@lang('profile_group')</h5>
 			@if(count($row->level) == 1)
 			<em>{{ current($row->level) }}</em>
 			<br />
@@ -31,17 +35,21 @@
 				@endforeach
 			</ul>
 			@endif
-			<h5>@lang(profile_lastvisit)</h5>
+			<h5>@lang('profile_lastvisit')</h5>
 			<em>{{ $row->lastvisit }}</em>
 			<br />
-			<h5>@lang(profile_posts)</h5>
+			<h5>@lang('profile_posts')</h5>
 			<em>
 				{{ $row->posts }}
-				<?php echo iif($config['showpostcounter'], $lang->phrase('profile_posts_perday')); ?>
+				@if($config['showpostcounter']) @lang('profile_posts_perday') @endif
 			</em>
 			<br />
-			<h5>@lang(profile_osi)</h5>
-			<?php echo iif($osi, '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online'), '<em>'.$lang->phrase('profile_offline')); ?></em>
+			<h5>@lang('profile_osi')</h5>
+			@if($osi)
+			<em class="highlight_pos" title="@lang('profile_osi_lastactivity') {{ $wwo[1] }}">@lang('profile_online')</em>
+			@else
+			<em>@lang('profile_offline')</em>
+			@endif
 			@foreach ($customfields['2'] as $field)
 			<br />
 			<h5>{{ $field['name'] }}:</h5>
@@ -49,17 +57,31 @@
 			@endforeach
 		</td>
 		<td valign="top">
-			<h5>@lang(profile_homepage)</h5>
-			<em><?php echo iif($row->hp,"<a href='".$row->hp."' target='_blank'>".$row->hp."</a>",'-'); ?></em>
+			<h5>@lang('profile_homepage')</h5>
+			<em>
+				@if($row->hp)
+				<a href="{{ $row->hp }}" target="_blank">{{ $row->hp }}</a>
+				@elselang('profile_na')
+			</em>
 			<br />
-			<h5>@lang(profile_gender)</h5>
+			<h5>@lang('profile_gender')</h5>
 			<em>{{ $gender }}</em>
 			<br />
-			<h5>@lang(profile_bday)</h5>
-			<em><?php echo iif($show_bday, iif( $bday[0] > 0 , $lang->phrase('profile_bday_full') , $lang->phrase('profile_bday_short') ) , $lang->phrase('profile_na') ); ?></em>
+			<h5>@lang('profile_bday')</h5>
+			<em>
+				@if($show_bday)
+					@if($bday[0] > 0)
+					@lang('profile_bday_full')
+					@elselang('profile_bday_short')
+				@elselang('profile_na')
+			</em>
 			<br />
-			<h5>@lang(profile_location)</h5>
-			<em><?php echo iif($row->location,$row->location,'-'); ?></em>
+			<h5>@lang('profile_location')</h5>
+			<em>
+				@if($row->location)
+				{{ $row->location }}
+				@elselang('profile_na')
+			</em>
 			@foreach ($customfields['1'] as $field)
 			<br />
 			<h5>{{ $field['name'] }}:</h5>
@@ -68,18 +90,16 @@
 		</td>
 	</tr>
 	<tr>
-		<th>@lang(profile_contact)</th>
+		<th>@lang('profile_contact')</th>
 	</tr>
 	<tr class="tbody profiledata">
 		<td valign="top">
-			<strong>@lang(profile_mail):</strong>
+			<strong>@lang('profile_mail'):</strong>
 			@if($row->opt_hidemail != 1)
-			<a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}">@lang(profile_mail_2)</a>
-			@else
-			@lang(profile_mail_1)
-			@endif
+			<a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}">@lang('profile_mail_2')</a>
+			@elselang('profile_mail_1')
 			<br />
-			<strong>@lang(profile_pm):</strong> <a href="pm.php?action=new&amp;name={{ $row->id }}{{ SID2URL_x }}">@lang(profile_pm_send)</a>
+			<strong>@lang('profile_pm'):</strong> <a href="pm.php?action=new&amp;name={{ $row->id }}{{ SID2URL_x }}">@lang('profile_pm_send')</a>
 			@foreach ($customfields['3'] as $field)
 			<br /><strong>{{ $field['name'] }}:</strong> {{ $field['value'] }}
 			@endforeach
@@ -89,25 +109,25 @@
 @if(mb_strxlen($row->signature) > 3 && $row->p['usesignature'])
 <br class="minibr" />
 <div class="border">
-	<h3><img src="@img(signature)" alt="" /> @lang(profile_signature)</h3>
+	<h3><img src="@img('signature')" alt="" /> @lang('profile_signature')</h3>
 	<div class="bbody">{{ $row->signature }}</div>
 </div>
 @endif
 @if(mb_strxlen($row->about) > 3 && $row->p['useabout'])
 <br class="minibr" />
 <div class="border">
-	<h3><img src="@img(about)" alt="" /> @lang(profile_about)</h3>
+	<h3><img src="@img('about')" alt="" /> @lang('profile_about')</h3>
 	<div class="bbody">{{ $row->about }}</div>
 </div>
 @endif
 @if($my->p['admin'] == 1)
 <br class="minibr" />
 <div class="border">
-	<h3>@lang(admin_options)</h3>
+	<h3>@lang('admin_options')</h3>
 	<div class="bbody">
-		<a href="managemembers.php?action=delete&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">@lang(admin_user_delete)</a> |
-		<a href="managemembers.php?action=edit&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">@lang(admin_user_edit)</a> |
-		<a href="managemembers.php?action=recount&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">@lang(admin_user_recount)</a>
+		<a href="managemembers.php?action=delete&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">@lang('admin_user_delete')</a> |
+		<a href="managemembers.php?action=edit&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">@lang('admin_user_edit')</a> |
+		<a href="managemembers.php?action=recount&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">@lang('admin_user_recount')</a>
 	</div>
 </div>
 @endif

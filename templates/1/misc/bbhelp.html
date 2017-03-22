@@ -1,23 +1,23 @@
 <div class="border">
-	<h3>@lang(bbhelp_title)</h3>
+	<h3>@lang('bbhelp_title')</h3>
 	<div class="bbody">
-		<strong>@lang(what_are_bbcodes)</strong><br />
-		@lang(what_are_bbcodes_answer)
+		<strong>@lang('what_are_bbcodes')</strong><br />
+		@lang('what_are_bbcodes_answer')
 	</div>
 </div>
 <br class="minibr" />
 <div class="border">
-	<h3>@lang(bbcode_help_overview)<a name="top"></a></h3>
+	<h3>@lang('bbcode_help_overview')<a name="top"></a></h3>
 	<div class="bbody">
 		<ul>
-			<li><strong><a href="#standard">@lang(standard_bbcodes)</a>:</strong>
+			<li><strong><a href="#standard">@lang('standard_bbcodes')</a>:</strong>
 				<ul>
 					@foreach ($sbb as $bb)
 					<li><a href="#bb_{{ $bb['tag'] }}">[{{ $bb['tag'] }}] {{ $bb['title'] }}</a></li>
 					@endforeach
 				</ul>
 			</li>
-			<li><strong><a href="#extended">@lang(extended_bbcodes)</a>:</strong>
+			<li><strong><a href="#extended">@lang('extended_bbcodes')</a>:</strong>
 				<ul>
 					@foreach ($ebb as $bb)
 					<li><a href="#bb_{{ $bb['tag'] }}">[{{ $bb['tag'] }}] {{ $bb['title'] }}</a></li>
@@ -27,13 +27,13 @@
 					@endforeach
 				</ul>
 			</li>
-			<li><strong><a href="#smileys">@lang(bbcode_help_smileys)</a></strong></li>
+			<li><strong><a href="#smileys">@lang('bbcode_help_smileys')</a></strong></li>
 		</ul>
 	</div>
 </div>
 <br />
 <div class="border">
-	<h3>@lang(standard_bbcodes)<a name="standard"></a></h3>
+	<h3>@lang('standard_bbcodes')<a name="standard"></a></h3>
 </div>
 @foreach ($sbb as $bb)
 <br class="minibr" />
@@ -41,7 +41,7 @@
 	<tr>
 		<th colspan="2">
 			<a name="bb_{{ $bb['tag'] }}" href="#top" class="right">
-				<img src="@img(asc)" alt="@lang(top_of_page)" />
+				<img src="@img('asc')" alt="@lang('top_of_page')" />
 			</a>
 			{{ $bb['title'] }}
 		</th>
@@ -50,26 +50,28 @@
 		<td class="tbody" colspan="2">{{ $bb['description'] }}</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_syntax)</td>
-		<td class="tbody" width="80%"><code>@foreach ($bb['syntax'] as $syntax)
-				<?php echo str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', 
-				str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)
-				); ?><br />
-				@endif</code></td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
+		<td class="tbody" width="80%">
+			<code>
+				@foreach ($bb['syntax'] as $syntax)
+				{!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)) !!}<br />
+				@endforeach
+			</code>
+		</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_example)</td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
 		<td class="tbody" width="80%">
 			@foreach ($bb['example'] as $example)
-			<p><code><?php echo nl2br($example); ?></code></p>
+			<p><code>{!! nl2br($example) !!}</code></p>
 			@endforeach
 		</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_output)</td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
 		<td class="tbody" width="80%">
 			@foreach ($bb['example'] as $example)
-			<div>{{ $bbcode->parse($example) }}</div>
+			<div>{!! $bbcode->parse($example) !!}</div>
 			@endforeach
 		</td>
 	</tr>
@@ -77,7 +79,7 @@
 @endforeach
 <br />
 <div class="border">
-	<h3>@lang(extended_bbcodes)<a name="extended"></a></h3>
+	<h3>@lang('extended_bbcodes')<a name="extended"></a></h3>
 </div>
 @foreach ($ebb as $bb)
 <br class="minibr" />
@@ -85,7 +87,7 @@
 	<tr>
 		<th colspan="2">
 			<a name="bb_{{ $bb['tag'] }}" href="#top" class="right">
-				<img src="@img(asc)" alt="@lang(top_of_page)" />
+				<img src="@img('asc')" alt="@lang('top_of_page')" />
 			</a>
 			{{ $bb['title'] }}
 		</th>
@@ -94,26 +96,28 @@
 		<td class="tbody" colspan="2">{{ $bb['description'] }}</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_syntax)</td>
-		<td class="tbody" width="80%"><code>@foreach ($bb['syntax'] as $syntax)
-				<?php echo str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', 
-				str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)
-				); ?><br />
-				@endforeach</code></td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
+		<td class="tbody" width="80%">
+			<code>
+				@foreach ($bb['syntax'] as $syntax)
+				{!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)) !!}<br />
+				@endforeach
+			</code>
+		</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_example)</td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
 		<td class="tbody" width="80%">
 			@foreach ($bb['example'] as $example)
-			<p><code><?php echo nl2br($example); ?></code></p>
+			<p><code>{!! nl2br($example) !!}</code></p>
 			@endforeach
 		</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_output)</td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
 		<td class="tbody" width="80%">
 			@foreach ($bb['example'] as $example)
-			<div>{{ $bbcode->parse($example) }}</div>
+			<div>{!! $bbcode->parse($example) !!}</div>
 			@endforeach
 		</td>
 	</tr>
@@ -125,7 +129,7 @@
 	<tr>
 		<th colspan="2">
 			<a name="cbb_{{ $bb['id'] }}" href="#top" class="right">
-				<img src="@img(asc)" alt="@lang(top_of_page)" />
+				<img src="@img('asc')" alt="@lang('top_of_page')" />
 			</a>
 			{{ $bb['title'] }}
 		</th>
@@ -134,19 +138,17 @@
 		<td class="tbody" colspan="2">{{ $bb['bbcodeexplanation'] }}</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_syntax)</td>
-		<td class="tbody" width="80%"><code>
-				<?php echo str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', 
-				str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $bb['syntax'])
-				); ?>
-			</code></td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
+		<td class="tbody" width="80%">
+			<code>{!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $bb['syntax'])) !!}</code>
+		</td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_example)</td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
 		<td class="tbody" width="80%"><p><code>{{ $bb['bbcodeexample'] }}</code></p></td>
 	</tr>
 	<tr>
-		<td class="tbody" width="20%">@lang(bbcodes_help_output)</td>
+		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
 		<td class="tbody" width="80%">{{ $bbcode->customBB($bb['bbcodeexample']) }}</td>
 	</tr>
 </table>
@@ -154,14 +156,14 @@
 <br />
 <table class="tables">
 	<tr>
-		<th colspan="3">@lang(bbcode_help_smileys)<a name="smileys"></a></th>
+		<th colspan="3">@lang('bbcode_help_smileys')<a name="smileys"></a></th>
 	</tr>
 	<tr>
-		<td class="tfoot" colspan="3">@lang(bbcode_help_smileys_desc)</td>
+		<td class="tfoot" colspan="3">@lang('bbcode_help_smileys_desc')</td>
 	</tr>
 	@foreach ($smileys as $smiley)
 	<tr class="tbody">
-		<td class="center"><img src="{{ $smiley['replace'] }}" alt="<?php echo viscacha_htmlspecialchars($smiley['desc']); ?>" /></td>
+		<td class="center"><img src="{{ $smiley['replace'] }}" alt="{{ $smiley['desc'] }}" /></td>
 		<td class="center"><input type="text" class="center" size="10" value=" {{ $smiley['search'] }} " /></td>
 		<td>{{ $smiley['desc'] }}</td>
 	</tr>

@@ -2,20 +2,20 @@
 	<div class="bfoot topfooter">
 		<span class="right">
 			@if($my->vlogin && empty($row->report))
-			<a class="sep" href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(rules)" alt="" /> @lang(post_report)</a>
+			<a class="sep" href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('rules')" alt="" /> @lang('post_report')</a>
 			@elseif($my->mp[0] == 1 && !empty($row->report))
-			<a class="sep" href="managetopic.php?action=reports&amp;topic_id={{ $row->id }}&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img(rules)" alt="" /> @lang(post_reported)</a>
+			<a class="sep" href="managetopic.php?action=reports&amp;topic_id={{ $row->id }}&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img('rules')" alt="" /> @lang('post_reported')</a>
 			@endif
 			@if($can_edit)
-			<a class="sep" href="edit.php?id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(edit)" alt="" /> @lang(post_edit)</a>
+			<a class="sep" href="edit.php?id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('edit')" alt="" /> @lang('post_edit')</a>
 			@endif
 			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0)
-			<a class="sep" id="menu_mquote_{{ $row->id }}" onmouseover="RegisterMenu('mquote_{{ $row->id }}');" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}"><img src="@img(no_mquote)" alt="@lang(box_collapse)" id="mq_{{ $row->id }}" /> @lang(post_quote)</a>
+			<a class="sep" id="menu_mquote_{{ $row->id }}" onmouseover="RegisterMenu('mquote_{{ $row->id }}');" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}"><img src="@img('no_mquote')" alt="@lang('box_collapse')" id="mq_{{ $row->id }}" /> @lang('post_quote')</a>
 			<div class="popup" id="popup_mquote_{{ $row->id }}">
-				<strong>@lang(post_quote)</strong>
+				<strong>@lang('post_quote')</strong>
 				<ul>
-					<li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang(post_quote_direct)</a></li>
-					<li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang(post_quote_multi)</a></li>
+					<li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang('post_quote_direct')</a></li>
+					<li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang('post_quote_multi')</a></li>
 				</ul>
 			</div>
 			@endif
@@ -25,42 +25,50 @@
 			@endif
 		</span>
 		<img src="{{ $tpl->img('post_'.$new) }}" alt="" /> {{ $row->date }}
-		<?php echo iif($firstnew == 1,'<a name="firstnew" id="firstnew"></a>'); ?>
+		@if($firstnew == 1)
+		<a name="firstnew" id="firstnew"></a>
+		@endif
 		<a name="p{{ $row->id }}" id="p{{ $row->id }}"></a>
 	</div>
 	<div class="inlineheader h3">
 		<div class="viewmembername">
-			<a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}<?php echo iif($row->guest == 1, "&amp;guest=".$row->id); ?>">{{ $row->name }}</a>
 			@if($row->guest == 0)
-			<img src="<?php echo iif($row->online == 1, $tpl->img('online'), $tpl->img('offline')); ?>"  title="{{ $row->lang_online }}" alt="{{ $row->lang_online }}" />
+			<a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}">{{ $row->name }}</a>
+			@if($row['online'] == 1)
+			<img src="@img('online')" title="@lang('profile_online')" alt="@lang('profile_online')" />
+			@else
+			<img src="@img('online')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
+			@endif
+			@else
+			<a href="profile.php?guest={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
 			@endif
 			<br /><span class="stext">{{ $row->level }}</span>
 		</div>
 		<div class="viewmemberdetails stext">
 			@if($row->guest == 0)
-			@lang(post_info_registered_since) {{ $row->regdate }}<br />
-			@lang(post_info_postcount) {{ numbers($row->posts) }}
+			@lang('post_info_registered_since') {{ $row->regdate }}<br />
+			@lang('post_info_postcount') {{ numbers($row->posts) }}
 			@endif
 		</div>
 		<br class="invclear" />
 	</div>
 	<div class="bbody">
 		<span class="stext">
-			@lang(showtopic_subject)<strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
+			@lang('showtopic_subject')<strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
 		</span>
 		<hr />
 		{{ $row->comment }}
 		@if(!empty($inner['image_box']))
 		<br /><br />
-		<strong>@lang(post_thumbnails)</strong><br />
-		{{ $inner['image_box'] }}
+		<strong>@lang('post_thumbnails')</strong><br />
+		{!! $inner['image_box'] !!}
 		<br class="uploadbox_br" />
 		@endif
 		@if(!empty($inner['upload_box']))
 		<br class="uploadbox_br" />
 		<br />
-		<strong>@lang(post_uploads)</strong><br />
-		{{ $inner['upload_box'] }}
+		<strong>@lang('post_uploads')</strong><br />
+		{!! $inner['upload_box'] !!}
 		<br class="uploadbox_br" />
 		@endif
 		@if($bottom)
@@ -74,9 +82,9 @@
 		@endif
 		<div class="textright stext">
 			@if(!empty($row->edit))
-			@lang(post_editinfo1)
+			@lang('post_editinfo1')
 			<strong><a href="misc.php?action=edithistory&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $anz }}</a></strong>
-			@lang(post_editinfo2)
+			@lang('post_editinfo2')
 			@endif
 		</div>
 	</div>

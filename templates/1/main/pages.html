@@ -1,18 +1,18 @@
 <span class="pagination">
-	@lang(pages_x)
+	@lang('pages_x')
 	@foreach ($pages as $page => $row)
 	@if($row['type'] == PAGES_CURRENT)
 	<strong class="page_number_current">{{ $page }}</strong>
 	@elseif($row['type'] == PAGES_SEPARATOR)
-	<span class="page_more">@lang(pages_sep)</span>
+	<span class="page_more">@lang('pages_sep')</span>
 	@elseif($row['type'] == PAGES_NUM)
 	<a class="page_number" href="{{ $row['url'] }}">{{ $page }}</a>
 	@endif
 	@if($row['separator'])
-	<span class="page_separator">@lang(pages_sep2)</span>
+	<span class="page_separator">@lang('pages_sep2')</span>
 	@endif
 	@if($page == $anz && $anz > 10)
-	<a class="page_number" href="javascript:jumptopage('{{ $uri }}');"><img src='@img(desc)' alt='' /></a>
+	<a class="page_number" href="javascript:jumptopage('{{ $uri }}');"><img src="@img('desc')" alt="" /></a>
 	@endif
 	@endforeach
 </span>

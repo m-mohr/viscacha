@@ -4,7 +4,7 @@
 			@if(($config['vote_change'] == 1 || $vote['voted'] == 0) && $vote['phrase'])
 			<span class="right">[<a href="showtopic.php?temp=2&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">{{ $lang->phrase($vote['phrase']) }}</a>]</span>
 			@endif
-			<img src="@img(vote)" alt="" /> @lang(vote_titlevote){{ $vote['question'] }}
+			<img src="@img('vote')" alt="" /> @lang('vote_titlevote'){{ $vote['question'] }}
 		</th>
 	</tr>
 	@foreach ($vote['entries'] as $row)
@@ -21,7 +21,7 @@
 	@endif
 	@endforeach
 	<tr>
-		<td class="tfoot center" colspan="4">@lang(vote_counter){{ $vote['count'] }}</td>
+		<td class="tfoot center" colspan="4">@lang('vote_counter'){{ $vote['count'] }}</td>
 	</tr>
 </table>
 <br class="minibr" />

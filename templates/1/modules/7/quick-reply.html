@@ -1,17 +1,17 @@
 <br />
 <form method="post" action="addreply.php?action=save{{ SID2URL_x }}">
 	<div class="border">
-		<h3><img id="img_quickreply" alt="switch" src="@img(minus)" title="@lang(box_collapse)" /> @lang(quickreply_title)</h3>
+		<h3><img id="img_quickreply" alt="switch" src="@img('minus')" title="@lang('box_collapse')" /> @lang('quickreply_title')</h3>
 		<div id="part_quickreply">
 			<div class="bbody">
 				{!! $bbcode->getEditorArea('comment', '', 'cols="80" rows="9"', null, TOOLBAR_SMILEYS) !!}
 			</div>
 			<div class="bfoot center">
-				<input type="submit" accesskey="s" name="Submit" value="@lang(submit_form)" />
-				<input type="submit" accesskey="p" name="Preview" value="@lang(preview_form)" />
-				<input type="submit" accesskey="e" name="Extended" value="@lang(quickreply_extended)" />
+				<input type="submit" accesskey="s" name="Submit" value="@lang('submit_form')" />
+				<input type="submit" accesskey="p" name="Preview" value="@lang('preview_form')" />
+				<input type="submit" accesskey="e" name="Extended" value="@lang('quickreply_extended')" />
 				<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
-				<input type="hidden" name="topic" value="@lang(reply_prefix){{ $info['topic'] }}" />
+				<input type="hidden" name="topic" value="@lang('reply_prefix'){{ $info['topic'] }}" />
 				<input type="hidden" name="dosmileys" value="1" />
 			</div>
 		</div>

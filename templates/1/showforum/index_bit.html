@@ -1,24 +1,38 @@
 <tr class="tbody">
-	<td width='2%'><img <?php echo iif($modcp && $row->status != 2,'ondblclick="ajax_openclosethread('.$row->id.',this,'.$firstnew.');" '); ?>src="{{ $src }}" alt="{{ $alt }}" /></td>
-	<td width='48%'>
-		<?php echo iif($row->vquestion," <img align='right' src='".$tpl->img('vote')."' alt='".$lang->phrase('vote_titlevote')." $row->vquestion' />"); ?>
-		<?php echo iif($firstnew,'<a href="showtopic.php?action=firstnew&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('desc').'" alt="'.$lang->phrase('move_to_first_new_post').'" /></a>'); ?>
+	<td width="2%">
+		@if($modcp && $row->status != 2)
+		<img ondblclick="ajax_openclosethread({{ $row->id }}, this, {{ $firstnew }});" src="{{ $src }}" alt="{{ $alt }}" />
+		@else
+		<img src="{{ $src }}" alt="{{ $alt }}" />
+		@endif
+	</td>
+	<td width="48%">
+		@if($row->vquestion)
+		<img align="right" src="@img('vote')" alt="@lang('vote_titlevote') {{$row->vquestion}}" />
+		@endif
+		@if($firstnew)
+		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('desc')" alt="@lang('move_to_first_new_post')" /></a>
+		<strong>
+		@endif
 		{{ $pref }}
-		<a<?php echo iif($firstnew, ' style="font-weight: bold;"'); ?> href='showtopic.php?id={{ $row->id }}{{ SID2URL_x }}'>
-			@if($showprefix) @lang(showtopic_prefix_title) @endif {{ $row->topic }}
+		<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">
+		@if($firstnew)
+		</strong>
+		@endif
+		@if($showprefix) @lang('showtopic_prefix_title') @endif {{ $row->topic }}
 	</a>
 	@if(!empty($topic_pages))
 	<br /><span class="stext">{{ $topic_pages }}</span>
 	@endif
 </td>
-<td width='20%' class='stext'>
+<td width="20%" class="stext">
 	{{ $rstart }}<br />
-	@lang(written_by)
-	@if($row->mid) <a href='profile.php?id={{ $row->mid }}{{ SID2URL_x }}'>{{ $row->name }}</a> @else {{ $row->name }} @endif
+	@lang('written_by')
+	@if($row->mid) <a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}">{{ $row->name }}</a> @else {{ $row->name }} @endif
 </td>
-<td width='10%' align='center'>{{ numbers($row->posts) }}</td>
-<td width='20%' align='right'><span class='stext'>
-		<a title="@lang(jump_to_last_post)" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $rlast }}</a><br />
-		@lang(written_by) {{ $row->last_name }}
+<td width="10%" align="center">{{ numbers($row->posts) }}</td>
+<td width="20%" align="right"><span class="stext">
+		<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $rlast }}</a><br />
+		@lang('written_by') {{ $row->last_name }}
 	</span></td>
 </tr>

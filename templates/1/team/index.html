@@ -1,46 +1,68 @@
-<h3><img src="@img(members)" alt="" /> @lang(team)</h3>
+<h3><img src="@img('members')" alt="" /> @lang('team')</h3>
 <br class="minibr" />
 <table class="tables">
     <tr>
-		<th colspan="5">@lang(team_admins)</th>
+		<th colspan="5">@lang('team_admins')</th>
     </tr>
     <tr class="tfoot">
-		<td width="40%">@lang(th_name)</td>
-		<td width="7%">@lang(th_pm)</td>
-		<td width="7%">@lang(th_email)</td>
-		<td width="7%">@lang(th_homepage)</td>
-		<td width="39%">@lang(th_location)</td>
+		<td width="40%">@lang('th_name')</td>
+		<td width="7%">@lang('th_pm')</td>
+		<td width="7%">@lang('th_email')</td>
+		<td width="7%">@lang('th_homepage')</td>
+		<td width="39%">@lang('th_location')</td>
     </tr>
 	@foreach($admin_cache as $row)
 	<tr class="tbody">
-		<td><a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td>
-		<td class="center"><a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(pm)" alt="" /></a></td>
-		<td class="center"><a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(email)" alt="" /></a></td>
-		<td class="center"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
-		<td><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
+		<td>
+			<a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
+			@if($row->fullname)
+			<br /><em>{{ $row->fullname }}</em>
+			@endif
+		</td>
+		<td class="center"><a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('pm')" alt="" /></a></td>
+		<td class="center"><a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('email')" alt="" /></a></td>
+		<td class="center">
+			@if($row->hp)
+			<a href="{{ $row->hp }}" target="_blank"><img src="@img('homepage')" alt="" /></a>
+			@elselang('homepage_no_data')
+		</td>
+		<td>
+			@if($row->location)
+			{{ $row->location }}
+			@elselang('location_no_data')
+		</td>
     </tr>
 	@endforeach
 </table>
-@if(count($gmod_cache) > 0)
+@if(!empty($gmod_cache))
 <br class="minibr" />
 <table class="tables">
     <tr>
-		<th colspan="5">@lang(team_gmods)</th>
+		<th colspan="5">@lang('team_gmods')</th>
     </tr>
     <tr class="tfoot">
-		<td width="40%">@lang(th_name)</td>
-		<td width="7%">@lang(th_pm)</td>
-		<td width="7%">@lang(th_email)</td>
-		<td width="7%">@lang(th_homepage)</td>
-		<td width="39%">@lang(th_location)</td>
+		<td width="40%">@lang('th_name')</td>
+		<td width="7%">@lang('th_pm')</td>
+		<td width="7%">@lang('th_email')</td>
+		<td width="7%">@lang('th_homepage')</td>
+		<td width="39%">@lang('th_location')</td>
     </tr>
 	@foreach($gmod_cache as $row)
 	<tr class="tbody">
-		<td><a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td>
-		<td class="center"><a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(pm)" alt="" /></a></td>
-		<td class="center"><a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img(email)" alt="" /></a</td>
-		<td class="center"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
-		<td><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
+		<td>
+			<a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
+			@if($row->fullname)
+			<br /><em>{{ $row->fullname }}</em>
+			@endif
+		</td>
+		<td class="center"><a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('pm')" alt="" /></a></td>
+		<td class="center"><a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@img('email')" alt="" /></a</td>
+		<td class="center">
+			@if($row->hp)
+			<a href="{{ $row->hp }}" target="_blank"><img src="@img('homepage')" alt="" /></a>
+			@elselang('homepage_no_data')
+		</td>
+		<td>@if($row->location) {{ $row->location }} @elselang('location_no_data')</td>
     </tr>
 	@endforeach
 </table>
@@ -49,14 +71,14 @@
 <br class="minibr" />
 <table class="tables">
 	<tr>
-		<th colspan="5">@lang(team_mods)</th>
+		<th colspan="5">@lang('team_mods')</th>
 	</tr>
     <tr class="tfoot">
-		<td width="40%">@lang(th_name)</td>
-		<td width="7%">@lang(th_pm)</td>
-		<td width="7%">@lang(th_email)</td>
-		<td width="7%">@lang(th_homepage)</td>
-		<td width="39%">@lang(team_mod_boards)</td>
+		<td width="40%">@lang('th_name')</td>
+		<td width="7%">@lang('th_pm')</td>
+		<td width="7%">@lang('th_email')</td>
+		<td width="7%">@lang('th_homepage')</td>
+		<td width="39%">@lang('team_mod_boards')</td>
     </tr>
 	{{ $inner['moderator_bit'] }}
 </table>

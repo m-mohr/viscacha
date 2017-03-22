@@ -2,13 +2,13 @@
 	<tr>
 		<th colspan="{{ $colspan }}">
 			@if($my->p['team'] == 1)
-			<span class="right">[<a href="members.php?action=team{{ SID2URL_x }}">@lang(team)</a>]</span>
+			<span class="right">[<a href="members.php?action=team{{ SID2URL_x }}">@lang('team')</a>]</span>
 			@endif
-			<img src="@img(members)" alt="" /> @lang(members)
+			<img src="@img('members')" alt="" /> @lang('members')
 		</th>
 	</tr>
 	<tr>
-		<td class="tfoot" colspan="{{ $colspan }}"><span class="right">{{ $temp }}</span>@lang(member_count)</td>
+		<td class="tfoot" colspan="{{ $colspan }}"><span class="right">{!! $temp !!}</span>@lang('member_count')</td>
 	</tr>
 	<tr>
 		<td class="tbody center" colspan="{{ $colspan }}">
@@ -24,85 +24,85 @@
 	@if($count[0] > 0)
 	<tr class="tfoot">
 		<td class="center">
-			@lang(th_name)
-			<a href="members.php?{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_name')
+			<a href="members.php?{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@if($online)
 		<td class="center">
-			<a href="members.php?sort=online&amp;order=desc&amp;{{ $query_th }}">@lang(th_status)</a>
+			<a href="members.php?sort=online&amp;order=desc&amp;{{ $query_th }}">@lang('th_status')</a>
 		</td>
 		@endif
 		@if(in_array('pic', $fields))
 		<td class="center">
-			@lang(th_pic)
+			@lang('th_pic')
 		</td>
 		@endif
 		@if($pm)
 		<td class="center">
-			@lang(th_pm)
+			@lang('th_pm')
 		</td>
 		@endif
 		@if(in_array('mail', $fields))
 		<td class="center">
-			@lang(th_email)
+			@lang('th_email')
 		</td>
 		@endif
 		@if(in_array('hp', $fields))
 		<td class="center">
-			<a href="members.php?sort=hp&amp;order=desc&amp;{{ $query_th }}">@lang(th_homepage)</a>
+			<a href="members.php?sort=hp&amp;order=desc&amp;{{ $query_th }}">@lang('th_homepage')</a>
 		</td>
 		@endif
 		@if(in_array('location', $fields))
 		<td class="center">
-			@lang(th_location)
-			<a href="members.php?sort=location&amp;{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?sort=location&amp;order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_location')
+			<a href="members.php?sort=location&amp;{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=location&amp;order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@endif
 		@if(in_array('gender', $fields))
 		<td class="center">
-			@lang(th_gender)
-			<a href="members.php?sort=gender&amp;{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?sort=gender&amp;order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_gender')
+			<a href="members.php?sort=gender&amp;{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=gender&amp;order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@endif
 		@if(in_array('posts', $fields))
 		<td class="center">
-			@lang(th_posts)
-			<a href="members.php?sort=posts&amp;{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?sort=posts&amp;order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_posts')
+			<a href="members.php?sort=posts&amp;{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=posts&amp;order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@endif
 		@if(in_array('birthday', $fields))
 		<td class="center">
-			@lang(th_birthday)
-			<a href="members.php?sort=birthday&amp;{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?sort=birthday&amp;order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_birthday')
+			<a href="members.php?sort=birthday&amp;{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=birthday&amp;order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@endif
 		@if(in_array('regdate', $fields))
 		<td class="center">
-			@lang(th_registered_since)
-			<a href="members.php?sort=regdate&amp;{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?sort=regdate&amp;order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_registered_since')
+			<a href="members.php?sort=regdate&amp;{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=regdate&amp;order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@endif
 		@if(in_array('lastvisit', $fields))
 		<td class="center">
-			@lang(th_lastvisit)
-			<a href="members.php?sort=lastvisit&amp;{{ $query_th }}"><img src="@img(asc)" alt="@lang(asc)" /></a>
-			<a href="members.php?sort=lastvisit&amp;order=desc&amp;{{ $query_th }}"><img src="@img(desc)" alt="@lang(desc)" /></a>
+			@lang('th_lastvisit')
+			<a href="members.php?sort=lastvisit&amp;{{ $query_th }}"><img src="@img('asc')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=lastvisit&amp;order=desc&amp;{{ $query_th }}"><img src="@img('desc')" alt="@lang('desc')" /></a>
 		</td>
 		@endif
 	</tr>
 	{!! $inner['index_bit'] !!}
 	<tr>
-		<td class="tfoot textright" colspan="{{ $colspan }}">{{ $temp }}</td>
+		<td class="tfoot textright" colspan="{{ $colspan }}">{!! $temp !!}</td>
 	</tr>
 	@else
 	<tr>
-		<td class="tbody center" colspan="{{ $colspan }}">@lang(members_empty)</td>
+		<td class="tbody center" colspan="{{ $colspan }}">@lang('members_empty')</td>
 	</tr>
 	@endif
 </table>
@@ -113,10 +113,10 @@
 	<input type="hidden" name="sort" value="{{ $_GET['sort'] }}" />
 	<input type="hidden" name="order" value="{{ $_GET['order'] }}" />
 	<div class="border">
-		<h3><img id="img_filtergroups" alt="switch" src="@img(minus)" title="@lang(box_collapse)" /> @lang(members_filtergroups)</h3>
+		<h3><img id="img_filtergroups" alt="switch" src="@img('minus')" title="@lang('box_collapse')" /> @lang('members_filtergroups')</h3>
 		<div id="part_filtergroups">
 			<div class="bbody">
-				<label for="g[]">@lang(members_filtergroups_label)</label>
+				<label for="g[]">@lang('members_filtergroups_label')</label>
 				<select name="g[]" id="g[]" size="{{ count($groups) }}" multiple="multiple" class="label">
 					@foreach ($groups as $id => $title)
 					<option value="{{ $id }}"@selected(in_array($id, $g))>{{ $title }}</option>
@@ -124,7 +124,7 @@
 				</select>
 				<br class="newinput" />
 			</div>
-			<div class="bfoot center"><input type="submit" value="@lang(members_show_form)" /></div>
+			<div class="bfoot center"><input type="submit" value="@lang('members_show_form')" /></div>
 		</div>
 	</div>
 </form>

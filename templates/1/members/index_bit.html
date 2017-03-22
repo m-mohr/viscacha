@@ -7,7 +7,11 @@
 	</td>
 	@if($online)
 	<td class="center">
-		<img src="<?php echo iif($row['online'] == 1, $tpl->img('online'), $tpl->img('offline')); ?>"  title="{{ $row['lang_online'] }}" alt="{{ $row['lang_online'] }}" />
+		@if($row['online'] == 1)
+		<img src="@img('online')" title="@lang('profile_online')" alt="@lang('profile_online')" />
+		@else
+		<img src="@img('online')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
+		@endif
 	</td>
 	@endif
 	@if(isset($row['pic']))
@@ -19,17 +23,19 @@
 	@endif
 	@if($pm)
 	<td class="center">
-		<a href="pm.php?action=new&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(pm)" alt="" /></a>
+		<a href="pm.php?action=new&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img('pm')" alt="" /></a>
 	</td>
 	@endif
 	@if(isset($row['mail']))
 	<td class="center">
-		<a href="profile.php?action=mail&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img(email)" alt="" /></a>
+		<a href="profile.php?action=mail&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img('email')" alt="" /></a>
 	</td>
 	@endif
 	@if(isset($row['hp']))
 	<td class="center">
-		<?php echo iif($row['hp'], '<a href="'.$row['hp'].'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>', $lang->phrase('homepage_no_data')); ?>
+		@if($row['hp'])
+		<a href="{{ $row['hp'] }}" target="_blank"><img src="@img('homepage').'" alt="" /></a>
+		@elselang('homepage_no_data')
 	</td>
 	@endif
 	@if(isset($row['location']))

@@ -302,9 +302,6 @@ else {
 		if(isset($row['lastvisit'])) {
 			$row['lastvisit'] = iif ($row['lastvisit'] > 0, gmdate($lang->phrase('dformat1'), times($row['lastvisit'])), $lang->phrase('members_na'));
 		}
-		if (isset($row['online'])) {
-			$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
-		}
 		($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
 		$inner['index_bit'] .= $tpl->parse("members/index_bit");
 	}

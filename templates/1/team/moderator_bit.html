@@ -1,39 +1,37 @@
 <tr class="tbody">
 	<td>
 		<a href="profile.php?id={{ $mid }}{{ SID2URL_x }}">{{ $mdata->member }}</a>
-		<?php echo iif($mdata->fullname, "<br /><em>{$mdata->fullname}</em>"); ?>
+		@if($mdata->fullname)
+		<br /><em>{{ $mdata->fullname }}</em>
+		@endif
 	</td>
 	<td class="center">
 		<a href="pm.php?action=new&amp;id={{ $mid }}{{ SID2URL_x }}">
-			<img src="@img(pm)" alt="" />
+			<img src="@img('pm')" alt="" />
 		</a>
 	</td>
 	<td class="center">
 		<a href="profile.php?action=mail&amp;id={{ $mid }}{{ SID2URL_x }}">
-			<img src="@img(email)" alt="" />
+			<img src="@img('email')" alt="" />
 		</a>
 	</td>
 	<td class="center">
 		@if(!empty($mdata->hp))
-		<a href="{{ $mdata->hp }}" target="_blank"><img src="@img(homepage)" alt="" /></a>
-		@else
-		@lang(homepage_no_data)
-		@endif
+		<a href="{{ $mdata->hp }}" target="_blank"><img src="@img('homepage')" alt="" /></a>
+		@elselang('homepage_no_data')
 	</td>
 	<td>
-		@if(count($inner['moderator_bit_forum']) > 0)
+		@if(!empty($inner['moderator_bit_forum']))
 		<ul>
-			@foreach ($inner['moderator_bit_forum'] as $modb)
+			@foreach($inner['moderator_bit_forum'] as $modb)
 			<li>
 				<a href="showforum.php?id={{ $modb->bid }}{{ SID2URL_x }}">{{ $modb->board }}</a>
 				@if($modb->time > 0)
-				<br /><span class="stext">(<em>@lang(team_moderator_until){{ $modb->time }}</em>)</span>
+				<br /><span class="stext">(<em>@lang('team_moderator_until'){{ $modb->time }}</em>)</span>
 				@endif
 			</li>
 			@endforeach
 		</ul>
-		@else
-		@lang(homepage_no_data)
-		@endif
+		@elselang('homepage_no_data')
 	</td>
 </tr>

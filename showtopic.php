@@ -344,7 +344,6 @@ while ($row = $db->fetch_object($result)) {
 		$row->signature = $bbcode->parse($row->signature);
 	}
 
-	$row->lang_online = $lang->phrase('profile_'.iif($row->online == 1, 'online', 'offline'));
 	$row->date = str_date($lang->phrase('dformat1'), times($row->date));
 	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
 	$row->level = $slog->getStatus($row->groups, ', ');

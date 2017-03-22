@@ -1,8 +1,8 @@
 @if(!empty($data['formatted_comment']))
 <div class="border">
-	<h3><img src="@img(pm_new)" alt="" />  @lang(preview_title)</h3>
+	<h3><img src="@img('pm_new')" alt="" />  @lang('preview_title')</h3>
 	<div class="bbody">
-		<span class="stext">@lang(showtopic_subject) <strong>{{ $data['topic'] }}</strong></span>
+		<span class="stext">@lang('showtopic_subject') <strong>{{ $data['topic'] }}</strong></span>
 		<hr />
 		{{ $data['formatted_comment'] }}
 	</div>
@@ -11,32 +11,32 @@
 @endif
 <form name="form2" method="post" action="pm.php?action=save{{ SID2URL_x }}">
 	<div class="border">
-		<h3><img src="@img(pm_new)" alt="" /> @lang(pm_writenew)</h3>
+		<h3><img src="@img('pm_new')" alt="" /> @lang('pm_writenew')</h3>
 		<div class="bbody">
-			<label>@lang(pm_sender):</label>
+			<label>@lang('pm_sender'):</label>
 			<span>{{ $my->name }}</span>
 			<br class="newinput" /><hr class="formsep" />
-			<label for="membersuggest_name">@lang(pm_addressee)</label>
+			<label for="membersuggest_name">@lang('pm_addressee')</label>
 			<div class="label">
 				<input id="membersuggest_name" name="name" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" size="40" value="{{ $data['name'] }}" />
 				<br /><span class="stext" id="membersuggest"></span>
 			</div>
 			<br class="newinput" /><hr class="formsep" />
-			<label for="topic">@lang(pm_title):</label>
+			<label for="topic">@lang('pm_title'):</label>
 			<input type="text" tabindex="2000" id="topic" class="label" name="topic" size="30" value="{{ $data['topic'] }}" />
 			<br class="newinput" /><hr class="formsep" />
-			<label for="comment">@lang(pm_postarea)</label>
-			<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img(help)" alt="" /> <strong>@lang(bbcode_help)</strong></a></div>
+			<label for="comment">@lang('pm_postarea')</label>
+			<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img('help')" alt="" /> <strong>@lang('bbcode_help')</strong></a></div>
 			<br class="newinput" /><br class="minibr" />
 			{!! $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="2001"') !!}
 			<hr class="formsep" />
-			<label for="temp">@lang(post_settings)</label>
-			<div class="label"><input tabindex="2002" type="checkbox" name="temp" value="1"@checked($data['outgoing'] == 1) /> @lang(pm_saveoutgoing)</div>
+			<label for="temp">@lang('post_settings')</label>
+			<div class="label"><input tabindex="2002" type="checkbox" name="temp" value="1"@checked($data['outgoing'] == 1) /> @lang('pm_saveoutgoing')</div>
 			<br class="newinput" />
 		</div>
 		<div class="bfoot center">
-			<input type="submit" tabindex="2003" accesskey="s" name="Submit" value="@lang(submit_form)" />
-			<input type="submit" tabindex="2004" accesskey="p" name="Preview" value="@lang(preview_form)" />
+			<input type="submit" tabindex="2003" accesskey="s" name="Submit" value="@lang('submit_form')" />
+			<input type="submit" tabindex="2004" accesskey="p" name="Preview" value="@lang('preview_form')" />
 		</div>
 	</div>
 </form>

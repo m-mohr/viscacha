@@ -264,6 +264,7 @@ $lang['fs_gb'] = 'GB';
 $lang['fs_kb'] = 'KB';
 $lang['fs_mb'] = 'MB';
 $lang['fs_tb'] = 'TB';
+$lang['ftp_connected'] = 'FTP-Verbindung:';
 $lang['gender_m'] = 'Männlich';
 $lang['gender_na'] = '-';
 $lang['gender_w'] = 'Weiblich';

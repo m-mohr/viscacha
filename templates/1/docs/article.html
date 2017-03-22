@@ -1,4 +1,6 @@
-<?php list($content, $pages) = DocCodePagination($info['content']); ?>
+@php
+list($content, $pages) = DocCodePagination($info['content']);
+@endphp
 <div class="border">
 	<h3>{{ $info['title'] }}</h3>
 	@if($pages > 1)
@@ -13,5 +15,5 @@
 	</div>
 	@endif
 	<div class="bbody">{!! $content !!}</div>
-	<div class="bfoot">@lang(docs_metadata)</div>
+	<div class="bfoot">@lang('docs_metadata')</div>
 </div>

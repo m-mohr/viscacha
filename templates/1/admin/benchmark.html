@@ -1,51 +1,67 @@
-<br class="minibr" />
+<br />
 <table class="tables">
 	<thead>
 		<tr>
 			<th colspan="4">
-				<img id="img_int_benchmark" alt="switch" src="@img(minus)" title="@lang(box_collapse)" /> @lang(benchmark_debug_head)
+				<img id="img_int_benchmark" alt="switch" src="@img('minus')" title="@lang('box_collapse')" /> @lang('benchmark_debug_head')
 			</th>
 		</tr>
 	</thead>
 	<tbody id="part_int_benchmark">
 		<tr class="tbody">
-			<td width="25%"></td>
-			<td width="25%"></td>
-			<td width="25%"><strong>@lang(benchmark_load_time)</strong></td>
-			<td width="25%">{{ $zeitmessung }} @lang(benchmark_sec)</td>
+			<td width="25%"><strong>FTP connected:</strong></td>
+			<td width="25%">@if($filesystem->connected) @lang('confirm_yes') @elselang('confirm_no')</td>
+			<td width="25%"><strong>@lang('benchmark_load_time')</strong></td>
+			<td width="25%">{{ $zeitmessung }} @lang('benchmark_sec')</td>
 		</tr><tr class="tbody">
-			<td width="25%"><strong>@lang(benchmark_queries)</strong></td>
+			<td width="25%"><strong>@lang('benchmark_queries')</strong></td>
 			<td width="25%">{{ $db->benchmark('queries') }}</td>
-			<td width="25%"><strong>@lang(benchmark_queries_time)</strong></td>
-			<td width="25%">{{ $db->benchmark('time') }} @lang(benchmark_sec)</td>
+			<td width="25%"><strong>@lang('benchmark_queries_time')</strong></td>
+			<td width="25%">{{ $db->benchmark('time') }} @lang('benchmark_sec')</td>
 		</tr><tr class="tbody">
-			<td width="25%"><strong>@lang(benchmark_templates)</strong></td>
-			<td width="25%">{{ $tpl->benchmark['all'] }} ({{ $tpl->benchmark['error'] }} @lang(benchmark_failed))</td>
-			<td width="25%"><strong>@lang(benchmark_templates_time)</strong></td>
-			<td width="25%">{{ round($tpl->benchmark['time'], 5) }} @lang(benchmark_sec)</td>
+			<td width="25%"><strong>@lang('benchmark_templates')</strong></td>
+			<td width="25%">{{ $tpl->benchmark['all'] }} ({{ $tpl->benchmark['error'] }} @lang('benchmark_failed'))</td>
+			<td width="25%"><strong>@lang('benchmark_templates_time')</strong></td>
+			<td width="25%">{{ round($tpl->benchmark['time'], 5) }} @lang('benchmark_sec')</td>
 		</tr>
 		@if($bbcode->existsProfile('standard'))
 		<tr class="tbody">
-			<td width="25%"><strong>@lang(benchmark_bbc_smileys)</strong></td>
-			<td width="25%">{{ $bbcode->getBenchmark('bbcode') }} @lang(benchmark_sec)</td>
-			<td width="25%"><strong>@lang(benchmark_smileys)</strong></td>
-			<td width="25%">{{ $bbcode->getBenchmark('smileys') }} @lang(benchmark_sec)</td>
+			<td width="25%"><strong>@lang('benchmark_bbc_smileys')</strong></td>
+			<td width="25%">{{ $bbcode->getBenchmark('bbcode') }} @lang('benchmark_sec')</td>
+			<td width="25%"><strong>@lang('benchmark_smileys')</strong></td>
+			<td width="25%">{{ $bbcode->getBenchmark('smileys') }} @lang('benchmark_sec')</td>
 		</tr>
 		@endif
 		@if($my->p['admin'] == 1)
 		<tr class="tbody">
-			<td width="50%" colspan="2" valign="top" class='stext'>
-				<strong>@lang(benchmark_templates)</strong><br />
-				@foreach ($tpl->benchmark['detail'] as $row)
-				<i<?php echo iif(($zeitmessung/33) < $row['time'], ' style="color: red;"'); ?>>{{ $row['time'] }}</i>: {{ $row['file'] }}<br />
-				@endforeach
-			</td>
-			<td width="50%" colspan="2" valign="top" class='stext'>
-				<strong>@lang(benchmark_queries)</strong><br />
-				<div style="height: 280px; overflow: scroll;">
-					@foreach($db->benchmark() as $row)
-					<u><i<?php echo iif(($zeitmessung/50) < $row['time'], ' style="color: red;"'); ?>>{{ $row['time'] }}</i></u>:<br />{{ $row['query'] }}<br />
+			<td width="50%" colspan="2" valign="top" class="stext">
+				<strong>@lang('benchmark_templates')</strong><br />
+				<div style="height: 280px; overflow-y: scroll;">
+					<ul>
+					@foreach ($tpl->benchmark['detail'] as $row)
+						@if(($zeitmessung*0.2) < $row['time'])
+						<li style="color: maroon;">
+						@else
+						<li>
+						@endif
+						<u>{{ $row['time'] }}</u>:<br />{{ $row['file'] }}</li>
 					@endforeach
+					</ul>
+				</div>
+			</td>
+			<td width="50%" colspan="2" valign="top" class="stext">
+				<strong>@lang('benchmark_queries')</strong><br />
+				<div style="height: 280px; overflow-y: scroll;">
+					<ul>
+					@foreach($db->benchmark() as $row)
+						@if(($zeitmessung*0.2) < $row['time'])
+						<li style="color: maroon;">
+						@else
+						<li>
+						@endif
+						<u>{{ $row['time'] }}</u>:<br />{{ $row['query'] }}</li>
+						@endforeach
+					</ul>
 				</div>
 			</td>
 		</tr>

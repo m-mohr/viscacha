@@ -1,14 +1,14 @@
 <form name="form2" method="post" action="editprofile.php?action=attachments2{{ SID2URL_x }}">
 	<table class="tables">
 		<tr> 
-			<th colspan="5"><img src="@img(user)" alt="" /> @lang(editprofile_attachments)</th>
+			<th colspan="5"><img src="@img('user')" alt="" /> @lang('editprofile_attachments')</th>
 		</tr>
 		<tr class="tfoot"> 
-			<td width="40%">@lang(forum_topic)</td>
-			<td width="40%">@lang(editprofile_attachments_uploads)</td>
-			<td width="10%">@lang(editprofile_attachments_size)</td>
-			<td width="5%">@lang(editprofile_attachments_hits)</td>
-			<td width="5%">@lang(delete_title)</td>
+			<td width="40%">@lang('forum_topic')</td>
+			<td width="40%">@lang('editprofile_attachments_uploads')</td>
+			<td width="10%">@lang('editprofile_attachments_size')</td>
+			<td width="5%">@lang('editprofile_attachments_hits')</td>
+			<td width="5%">@lang('delete_title')</td>
 		</tr>
 		@foreach ($cache as $row)
 		<tr class="tbody"> 
@@ -20,13 +20,13 @@
 		</tr>
 		@endforeach
 		<tr class="tfoot"> 
-			<td class="textright" colspan="2">@lang(editprofile_attachments_allfiles)</td> 
+			<td class="textright" colspan="2">@lang('editprofile_attachments_allfiles')</td> 
 			<td nowrap="nowrap">{{ $all[1] }}</td> 
 			<td nowrap="nowrap" class="textright">{{ $all[2] }}</td>
-			<td nowrap="nowrap"><input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" /> @lang(check_all)</td>  
+			<td nowrap="nowrap"><input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" /> @lang('check_all')</td>  
 		</tr>
 		<tr> 
-			<td class="tfoot center" colspan="5"><input type="submit" name="Submit1" value="@lang(delete_form)" /></td> 
+			<td class="tfoot center" colspan="5"><input type="submit" name="Submit1" value="@lang('delete_form')" /></td> 
 		</tr>
 	</table>
 </form>

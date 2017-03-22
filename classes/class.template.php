@@ -74,12 +74,13 @@ class tpl {
 		$this->blade = new eftec\bladeone\BladeOne($this->dir, 'cache/' . $this->dir);
 		$this->blade->setFileExtension('.html');
         $this->blade->directive('lang', function ($expression) {
-			$expression = trim($expression, '()');
-            return '<?php echo $lang->phrase("'.$expression.'"); ?>';
+            return '<?php echo $lang->phrase'.$expression.'; ?>';
+        });
+        $this->blade->directive('elselang', function ($expression) {
+            return '<?php else: echo $lang->phrase'.$expression.'; endif; ?>';
         });
         $this->blade->directive('img', function ($expression) {
-			$expression = trim($expression, '()');
-            return '<?php echo $tpl->img("'.$expression.'"); ?>';
+            return '<?php echo $tpl->img'.$expression.'; ?>';
         });
         $this->blade->directive('selected', function ($expression) {
 			return "<?php if{$expression} { echo ' selected=\"selected\"'; } ?>";
@@ -91,7 +92,15 @@ class tpl {
 			$expression = trim($expression, '()');
 			return "<?php echo \Breadcrumb::universal()->build({$expression}) ?>";
         });
-}
+        $this->blade->directive('hook', function ($expression) {
+			$expression = trim($expression, '()');
+			return '<?php ($code = $plugins->load("'.$expression.'")) ? eval($code) : null; ?>';
+        });
+        $this->blade->directive('navigation', function ($expression) {
+			$expression = trim($expression, '()');
+			return '<?php ($code = $plugins->navigation("'.$expression.'")) ? eval($code) : null; ?>';
+        });
+	}
 
 	public function img($name) {
 		$gif = '.gif';

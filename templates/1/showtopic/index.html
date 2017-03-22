@@ -1,45 +1,45 @@
 <div class="border">
 	<div class="bfoot topfooter">
 		<div class="right textright">
-			<a id="menu_threadtools" href="#threadtools" onmouseover="RegisterMenu('threadtools');"><img src="@img(desc)" alt="@lang(box_collapse)" /> @lang(showtopic_options)</a>
+			<a id="menu_threadtools" href="#threadtools" onmouseover="RegisterMenu('threadtools');"><img src="@img('desc')" alt="@lang('box_collapse')" /> @lang('showtopic_options')</a>
 			<div class="popup" id="popup_threadtools">
 				@if($my->vlogin)
 				@if(empty($abox['id']) || $abox['type'] == 'f')
-				<strong>@lang(showtopic_options_manage)</strong>
+				<strong>@lang('showtopic_options_manage')</strong>
 				<ul>
 					@if($abox['id'] > 0 && $abox['type'] == 'f')
-					<li><a href="editprofile.php?action=removeabo&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_fav_remove)</a></li>
+					<li><a href="editprofile.php?action=removeabo&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_fav_remove')</a></li>
 					@else
-					<li><a href="editprofile.php?action=addabo&amp;type=9&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_favs)</a></li>
+					<li><a href="editprofile.php?action=addabo&amp;type=9&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_favs')</a></li>
 					@endif
 				</ul>
 				@endif
 				@if(($info['status'] == 0 || $abox['id'] > 0) && $abox['type'] != 'f')
-				<strong>@lang(showtopic_options_abo)</strong>
+				<strong>@lang('showtopic_options_abo')</strong>
 				<ul>
 					@if($abox['id'] > 0 && $abox['type'] != 'f')
-					<li><a href="editprofile.php?action=removeabo&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo_remove)</a></li>
+					<li><a href="editprofile.php?action=removeabo&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo_remove')</a></li>
 					@else
-					<li><a href="editprofile.php?action=addabo&amp;type=0&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo0)</a></li>
-					<li><a href="editprofile.php?action=addabo&amp;type=1&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo1)</a></li>
-					<li><a href="editprofile.php?action=addabo&amp;type=7&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo7)</a></li>
+					<li><a href="editprofile.php?action=addabo&amp;type=0&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo0')</a></li>
+					<li><a href="editprofile.php?action=addabo&amp;type=1&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo1')</a></li>
+					<li><a href="editprofile.php?action=addabo&amp;type=7&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo7')</a></li>
 					@endif
 				</ul>
 				@endif
 				@endif
-				<strong>@lang(showtopic_options_export)</strong>
+				<strong>@lang('showtopic_options_export')</strong>
 				<ul>
-					<li><a href="print.php?id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}"><img src="@img(print)" alt="" /> @lang(showtopic_options_print)</a></li>
+					<li><a href="print.php?id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}"><img src="@img('print')" alt="" /> @lang('showtopic_options_print')</a></li>
 				</ul>
 			</div>
 			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0')
-			<a class="sep" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img(addreply)" alt="" /> @lang(box_reply)</a>
+			<a class="sep" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img('addreply')" alt="" /> @lang('box_reply')</a>
 			@endif
 		</div>
-		{{ $tem p}}
+		{!! $temp !!}
 		@if($firstnew_url != null)
 		<br />
-		<a href="{{ $firstnew_url }}"><img src="@img(desc)" alt="" />&nbsp;@lang(show_first_unread_post)</a>
+		<a href="{{ $firstnew_url }}"><img src="@img('desc')" alt="" />&nbsp;@lang('show_first_unread_post')</a>
 		@endif
 	</div>
 </div>
@@ -51,73 +51,73 @@
 		<div class="bfoot topfooter">
 			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0')
 			<span class="right">
-				<a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img(addreply)" alt="" /> @lang(box_reply)</a>
+				<a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img('addreply')" alt="" /> @lang('box_reply')</a>
 			</span>
 			@endif
-			{{ $temp }}
+			{!! $temp !!}
 		</div></div>
 	<noscript>
 	<br class="minibr" />
 	<div class="popup_noscript"><a name="threadtools"></a>
 		@if($my->vlogin)
-		<strong>@lang(showtopic_options_manage)</strong>
+		<strong>@lang('showtopic_options_manage')</strong>
 		<ul>
-			<li><a href="editprofile.php?action=addabo&amp;type=9&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_favs)</a></li>
+			<li><a href="editprofile.php?action=addabo&amp;type=9&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_favs')</a></li>
 		</ul>
 		@if($info['status'] == 0)
-		<strong>@lang(showtopic_options_abo)</strong>
+		<strong>@lang('showtopic_options_abo')</strong>
 		<ul>
 			@if($abox['id'] > 0)
-			<li><a href="editprofile.php?action=removeabo&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo_remove)</a></li>
+			<li><a href="editprofile.php?action=removeabo&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo_remove')</a></li>
 			@else
-			<li><a href="editprofile.php?action=addabo&amp;type=0&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo0)</a></li>
-			<li><a href="editprofile.php?action=addabo&amp;type=1&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo1)</a></li>
-			<li><a href="editprofile.php?action=addabo&amp;type=7&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(showtopic_options_abo7)</a></li>
+			<li><a href="editprofile.php?action=addabo&amp;type=0&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo0')</a></li>
+			<li><a href="editprofile.php?action=addabo&amp;type=1&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo1')</a></li>
+			<li><a href="editprofile.php?action=addabo&amp;type=7&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('showtopic_options_abo7')</a></li>
 			@endif
 		</ul>
 		@endif
 		@endif
-		<strong>@lang(showtopic_options_export)</strong>
+		<strong>@lang('showtopic_options_export')</strong>
 		<ul>
-			<li><a href="print.php?id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}"><img src="@img(print)" alt="" /> @lang(showtopic_options_print)</a></li>
+			<li><a href="print.php?id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}"><img src="@img('print')" alt="" /> @lang('showtopic_options_print')</a></li>
 		</ul>
 	</div>
 	</noscript>
 	@if($my->mp[0] == 1)
 	<br />
 	<div class="border">
-		<h3>@lang(admin_options)</h3>
+		<h3>@lang('admin_options')</h3>
 		<div class="bbody">
-			<a href="managetopic.php?action=delete&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topics_delete)</a> |
+			<a href="managetopic.php?action=delete&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topics_delete')</a> |
 			@if ($info['status'] != 2)
-				@if ($info['status'] == 1) {
-				<a href="managetopic.php?action=open&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topics_open)</a> |
-				@else
-				<a href="managetopic.php?action=close&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topics_close)</a> |
-				@endif
-				@if($info['sticky'] == 1)
-				<a href="managetopic.php?action=unpin&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topics_unpin)</a> |
-				@else
-				<a href="managetopic.php?action=pin&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topics_pin)</a> |
-				<a href="managetopic.php?action=move&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topics_move)</a> |
-				@endif
-				<a href="managetopic.php?action=stat&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topic_stats)</a> |
-				@if(empty($info['vquestion']))
-				<a href="newtopic.php?action=startvote&amp;id={{ $info['board'] }}&amp;topic_id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topic_vote)</a>
-				@else
-				<a href="managetopic.php?action=vote_export&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topic_vote_export)</a> |
-				<a href="managetopic.php?action=vote_edit&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topic_vote_edit)</a> |
-				<a href="managetopic.php?action=vote_delete&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang(admin_topic_vote_delete)</a>
-				@endif
-				@if($info['posts'] > 0)
-				<hr />
-				@lang(admin_marked_posts)&nbsp;
-				<select name="action">
-					<option value="pdelete">@lang(admin_topics_delete)</option>
-					<option value="pmerge">@lang(admin_posts_merge)</option>
-				</select>&nbsp;
-				<input type="submit" value="@lang(submit_form)" />
-				@endif
+			@if ($info['status'] == 1) {
+			<a href="managetopic.php?action=open&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topics_open')</a> |
+			@else
+			<a href="managetopic.php?action=close&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topics_close')</a> |
+			@endif
+			@if($info['sticky'] == 1)
+			<a href="managetopic.php?action=unpin&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topics_unpin')</a> |
+			@else
+			<a href="managetopic.php?action=pin&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topics_pin')</a> |
+			<a href="managetopic.php?action=move&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topics_move')</a> |
+			@endif
+			<a href="managetopic.php?action=stat&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topic_stats')</a> |
+			@if(empty($info['vquestion']))
+			<a href="newtopic.php?action=startvote&amp;id={{ $info['board'] }}&amp;topic_id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topic_vote')</a>
+			@else
+			<a href="managetopic.php?action=vote_export&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topic_vote_export')</a> |
+			<a href="managetopic.php?action=vote_edit&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topic_vote_edit')</a> |
+			<a href="managetopic.php?action=vote_delete&amp;id={{ $info['id'] }}{{ SID2URL_x }}">@lang('admin_topic_vote_delete')</a>
+			@endif
+			@if($info['posts'] > 0)
+			<hr />
+			@lang('admin_marked_posts')&nbsp;
+			<select name="action">
+				<option value="pdelete">@lang('admin_topics_delete')</option>
+				<option value="pmerge">@lang('admin_posts_merge')</option>
+			</select>&nbsp;
+			<input type="submit" value="@lang('submit_form')" />
+			@endif
 			@endif
 		</div>
 	</div>

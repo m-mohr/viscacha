@@ -4,6 +4,7 @@
 	<td width="66%"><a href="pm.php?action=show&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a></td>
 	<td width="30%" class="stext">
 		{{ $row['date'] }}<br />
-		<?php echo iif ($_GET['id'] != 2, $lang->phrase('by'), $lang->phrase('pm_outgoing_by')); ?> <a href="profile.php?id={{ $row['pm_from'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
+		@if($_GET['id'] != 2) @lang('by') @elselang('pm_outgoing_by')
+		<a href="profile.php?id={{ $row['pm_from'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
 	</td>
 </tr>

@@ -2,31 +2,31 @@
 	<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
 	<input type="hidden" name="action" value="vote_export" />
 	<div class="border">
-		<h3>@lang(admin_topic_vote_export)</h3>
+		<h3>@lang('admin_topic_vote_export')</h3>
 		<div class="bbody">
-			<label>@lang(admin_vote_skin)</label>
+			<label>@lang('admin_vote_skin')</label>
 			<select name="skin" class="label">
 				@foreach ($PG->available_skins as $code => $color)
 				<option value="{{ $code }}"@selected($code == $skin)>{{ $color }}</option>
 				@endforeach
 			</select>
 			<br class="newinput" /><hr class="formsep" />
-			<label>@lang(admin_vote_type)</label>
+			<label>@lang('admin_vote_type')</label>
 			<select name="modus" class="label">
 				@foreach ($PG->available_types as $code => $type)
 				<option value="{{ $code }}"@selected($code == $modus)>{{ $type }}</option>
 				@endforeach
 			</select>
 			<br class="newinput" /><hr class="formsep" />
-			<label>@lang(admin_vote_preview)</label><br />
+			<label>@lang('admin_vote_preview')</label><br />
 			<a href="images.php?action=vote&amp;id={{ $_GET['id'] }}&amp;skin={{ $skin }}&amp;modus={{ $modus }}" target="_blank">
 				<img src="images.php?action=vote&amp;id={{ $_GET['id'] }}&amp;skin={{ $skin }}&amp;modus={{ $modus }}" border="1" alt="" />
 			</a>
 			<br class="newinput" /><hr class="formsep" />
-			<label>@lang(admin_vote_url)</label>
+			<label>@lang('admin_vote_url')</label>
 			<input value="{{ $config['furl'] }}/images.php?action=vote&amp;id={{ $_GET['id'] }}&amp;skin={{ $skin }}&amp;modus={{ $modus }}" name="" class="label" type="text" />
 			<br class="newinput" />
 		</div>
-		<div class="bfoot center"><input type="submit" value="@lang(submit_form)" /></div>
+		<div class="bfoot center"><input type="submit" value="@lang('submit_form')" /></div>
 	</div>
 </form>

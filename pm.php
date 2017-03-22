@@ -90,7 +90,6 @@ if ($_GET['action'] == 'show') {
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 	$row['read'] = iif($row['status'] == 1,'old','new');
 	$row['level'] = $slog->getStatus($row['groups'], ', ');
-	$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
 	if ($row['dir'] == 2) {
 		$row['fullname'] = $my->fullname;
 	}

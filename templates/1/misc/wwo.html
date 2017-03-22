@@ -1,11 +1,11 @@
 <div class="border">
-	<h3><img src="@img(wwo)" alt="" /> @lang(wiw)</h3>
-	<div class="bbody">@lang(active_usercounter)</div>
+	<h3><img src="@img('wwo')" alt="" /> @lang('wiw')</h3>
+	<div class="bbody">@lang('active_usercounter')</div>
 </div><br />
 @if($wwo['r'] > 0)
 <table class="tables">
 	<tr>
-		<th colspan="2">@lang(wiw_r) {{ $wwo['r'] }}</th>
+		<th colspan="2">@lang('wiw_r') {{ $wwo['r'] }}</th>
 	</tr>
 	{!! $inner['wwo_bit_member'] !!}
 </table>
@@ -14,7 +14,7 @@
 @if($wwo['g'] > 0)
 <table class="tables">
 	<tr>
-		<th colspan="2">@lang(wiw_g) {{ $wwo['g'] }}</th>
+		<th colspan="2">@lang('wiw_g') {{ $wwo['g'] }}</th>
 	</tr>
 	{!! $inner['wwo_bit_guest'] !!}
 </table>

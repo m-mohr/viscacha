@@ -1,7 +1,7 @@
 <form name="form2" method="post" action="editprofile.php?action=abos2{{ SID2URL_x }}">
 	<table class="tables">
 		<tr> 
-			<th colspan="4"><img src="@img(user)" alt="" /> @lang(editprofile_abos)</th>
+			<th colspan="4"><img src="@img('user')" alt="" /> @lang('editprofile_abos')</th>
 		</tr>
 		@if($count > 0)
 		<tr> 
@@ -11,58 +11,62 @@
 			<th width="2%">
 				<input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" />
 			</th>
-			<th width="42%">@lang(forum_topic)</th>
-			<th width="21%">@lang(forum_last)</th>
-			<th width="35%">@lang(editprofile_digest_type)</th> 
+			<th width="42%">@lang('forum_topic')</th>
+			<th width="21%">@lang('forum_last')</th>
+			<th width="35%">@lang('editprofile_digest_type')</th> 
 		</tr>
 		@foreach ($cache[$p] as $row)
 		<tr class="tbody"> 
 			<td><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
 			<td>
 				{{ $row['prefix'] }}<a href="showtopic.php?id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a>
-				<?php echo iif (!empty($row['topic_pages']), '<br /><span class="stext">'.$row['topic_pages'].'</span>'); ?>
+				@if(!empty($row['topic_pages']))
+				<br /><span class="stext">{!! $row['topic_pages'] !!}</span>
+				@endif
 			</td>
 			<td class="textright stext">
-				<a title="@lang(jump_to_last_post)" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['last'] }}</a><br />
-				@lang(written_by) {{ $row['last_name'] }}
+				<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['last'] }}</a><br />
+				@lang('written_by') {{ $row['last_name'] }}
 			</td>
-			<td><select name="digest[{{ $row['id'] }}]" style="width: 100%">
-					<option@selected($row['type'] == 'f') value="f">@lang(editprofile_digest_f)</option>
-					<option@selected($row['type'] == 's') value="s">@lang(editprofile_digest_s)</option>
-					<option@selected($row['type'] == 'd') value="d">@lang(editprofile_digest_d)</option>
-					<option@selected($row['type'] == 'w') value="w">@lang(editprofile_digest_w)</option>
-				</select></td> 
+			<td>
+				<select name="digest[{{ $row['id'] }}]" style="width: 100%">
+					<option value="f"@selected($row['type'] == 'f')>@lang('editprofile_digest_f')</option>
+					<option value="s"@selected($row['type'] == 's')>@lang('editprofile_digest_s')</option>
+					<option value="d"@selected($row['type'] == 'd')>@lang('editprofile_digest_d')</option>
+					<option value="w"@selected($row['type'] == 'w')>@lang('editprofile_digest_w')</option>
+				</select>
+			</td> 
 		</tr>
 		@endforeach
 		<tr> 
 			<td class="tfoot" colspan="4">
-				<span class="right"><input accesskey="s" type="submit" name="Submit1" value="@lang(submit_form)" /></span>
+				<span class="right"><input accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" /></span>
 				{!! $pages !!}
 			</td>
 		</tr>
 		@else
 		<tr>
-			<td class="tbody center" colspan="4">@lang(forum_empty)</td>
+			<td class="tbody center" colspan="4">@lang('forum_empty')</td>
 		</tr>
 		@endif
 	</table>
 </form>
 <br class="minibr" />
 <div class="border">
-	<h3>@lang(forum_filter)</h3>
+	<h3>@lang('forum_filter')</h3>
 	<div class="bbody">
 		<form method="get" action="editprofile.php">
 			<select name="type">
-				<option@selected(empty($_GET['type'])) value="">@lang(editprofile_no_filter)</option>
-				<option@selected($_GET['type'] == 'f') value="f">@lang(editprofile_digest_f)</option>
-				<option@selected($_GET['type'] == 's') value="s">@lang(editprofile_digest_s)</option>
-				<option@selected($_GET['type'] == 'd') value="d">@lang(editprofile_digest_d)</option>
-				<option@selected($_GET['type'] == 'w') value="w">@lang(editprofile_digest_w)</option>
+				<option value=""@selected(empty($_GET['type']))>@lang('editprofile_no_filter')</option>
+				<option value="f"@selected($_GET['type'] == 'f')>@lang('editprofile_digest_f')</option>
+				<option value="s"@selected($_GET['type'] == 's')>@lang('editprofile_digest_s')</option>
+				<option value="d"@selected($_GET['type'] == 'd')>@lang('editprofile_digest_d')</option>
+				<option value="w"@selected($_GET['type'] == 'w')>@lang('editprofile_digest_w')</option>
 			</select>
 			<input type="hidden" name="page" value="{{ $_GET['page'] }}" />
 			<input type="hidden" name="action" value="{{ $_GET['action'] }}" />
 			<input type="hidden" name="s" value="{{ SID2URL }}" />
-			<input type="submit" accesskey="s" value="@lang(submit_form)" />
+			<input type="submit" accesskey="s" value="@lang('submit_form')" />
 		</form>
 	</div>
 </div>
