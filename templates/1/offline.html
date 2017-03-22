@@ -5,16 +5,16 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta http-equiv="content-language" content="@lang('lang_code')" />
 		<link rel="stylesheet" type="text/css" href="designs/{{ $my->cssid }}/standard.css" />
-		{{ $htmlhead }}
+		{!! $htmlhead !!}
 	</head>
-	<body{{ $htmlbody }}>
+	<body{!! $htmlbody !!}>
 		<div id="container">
 			<h1><a href="index.php">{{ $config['fname'] }}</a></h1>
 			<div id="blank">
 				<div class="border">
 					<h3>@lang('offline_head')</h3>
 					<div class="bbody">
-						{{ $config['foffline_message'] }}
+						{!! $config['foffline_message'] !!}
 					</div>
 					<div class="bfoot center">
 						@if($my->vlogin)

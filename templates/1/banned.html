@@ -5,9 +5,9 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<meta http-equiv="content-language" content="@lang('lang_code')" />
 		<link rel="stylesheet" type="text/css" href="designs/{{ $my->cssid }}/standard.css" />
-		{{ $htmlhead }}
+		{!! $htmlhead !!}
 	</head>
-	<body{{ $htmlbody }}>
+	<body{!! $htmlbody !!}>
 		<div id="container">
 			<h1><a href="index.php">{{ $config['fname'] }}</a></h1>
 			<div id="blank">
