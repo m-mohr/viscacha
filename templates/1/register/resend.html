@@ -14,7 +14,7 @@
 				<span class="stext">@lang('register_veriword')</span>
 			</label>
 			<div class="label">
-				{{ $captcha->generateCode(2) }}
+				{!! $captcha->generateCode(2) !!}
 			</div>
 			<br class="newinput" />
 			@endif
