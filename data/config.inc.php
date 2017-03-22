@@ -129,7 +129,6 @@ $config['smtp_auth'] = 0;
 $config['smtp_host'] = '';
 $config['smtp_password'] = '';
 $config['smtp_username'] = '';
-$config['team_mod_dateuntil'] = 1;
 $config['templatedir'] = 1;
 $config['timezone'] = '+1';
 $config['topicuppercase'] = 1;
