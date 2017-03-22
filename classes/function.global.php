@@ -1055,4 +1055,20 @@ function makecookie($name, $value = '', $expire = 31536000) {
 	}
 	setcookie($name, $value, $expire, null, null, ini_isSecureHttp());
 }
-?>
+
+function numbers ($nvar,$deci=null) {
+	global $config, $lang;
+
+	if (!is_numeric($nvar)) {
+		return $nvar;
+	}
+
+	if ($deci == null) {
+		$deci = $config['decimals'];
+	}
+	if (mb_strpos($nvar, '.') === false) {
+		$deci = 0;
+	}
+
+	return number_format($nvar, $deci, $lang->phrase('decpoint'), $lang->phrase('thousandssep'));
+}
