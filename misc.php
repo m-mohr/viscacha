@@ -320,8 +320,7 @@ elseif ($_GET['action'] == "wwo") {
 			}
 			break;
 		case 'addreply':
-		case 'showtopic':
-		case 'print': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
+		case 'showtopic': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
 			$id = $row->wiw_id;
 			if (!isset($cache['t'.$id])) {
 				$result2 = $db->query("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1");

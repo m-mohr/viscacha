@@ -269,16 +269,6 @@ pm.php
 portal.php
 -portal
 
-print.php
--print_topic_query
--print_start
--print_vote_prepared
--print_query
--print_attachments_prepared
--print_entry_prepared
--print_prepared
--print_end
-
 profile.php
 -profile_start
 -profile_vcard_start

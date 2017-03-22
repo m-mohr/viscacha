@@ -26,9 +26,6 @@
 		@if(defined('LINK_LAST_PAGE'))
 		<link rel="last" href="{{ LINK_LAST_PAGE }}" />
 		@endif
-		@if(defined('LINK_PRINT_PAGE'))
-		<link rel="alternate" media="print" title="@lang('link_rel_print')" href="{{ LINK_PRINT_PAGE }}" />
-		@endif
 
 		<script src="templates/language_{{ $my->language }}.js" type="text/javascript"></script>
 		<script type="text/javascript">

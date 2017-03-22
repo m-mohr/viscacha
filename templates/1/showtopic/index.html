@@ -1,9 +1,9 @@
 <div class="border">
 	<div class="bfoot topfooter">
 		<div class="right textright">
+			@if($my->vlogin)
 			<a id="menu_threadtools" href="#threadtools" onmouseover="RegisterMenu('threadtools');"><img src="@img('desc')" alt="@lang('box_collapse')" /> @lang('showtopic_options')</a>
 			<div class="popup" id="popup_threadtools">
-				@if($my->vlogin)
 				@if(empty($abox['id']) || $abox['type'] == 'f')
 				<strong>@lang('showtopic_options_manage')</strong>
 				<ul>
@@ -26,12 +26,8 @@
 					@endif
 				</ul>
 				@endif
-				@endif
-				<strong>@lang('showtopic_options_export')</strong>
-				<ul>
-					<li><a href="print.php?id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}"><img src="@img('print')" alt="" /> @lang('showtopic_options_print')</a></li>
-				</ul>
 			</div>
+			@endif
 			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0')
 			<a class="sep" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@img('addreply')" alt="" /> @lang('box_reply')</a>
 			@endif
@@ -77,10 +73,6 @@
 		</ul>
 		@endif
 		@endif
-		<strong>@lang('showtopic_options_export')</strong>
-		<ul>
-			<li><a href="print.php?id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}"><img src="@img('print')" alt="" /> @lang('showtopic_options_print')</a></li>
-		</ul>
 	</div>
 	</noscript>
 	@if($my->mp[0] == 1)
