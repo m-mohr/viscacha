@@ -286,7 +286,6 @@ $lang['htaccess_error_404'] = 'Page not found (404)';
 $lang['htaccess_error_500'] = 'Internal server error (500)';
 $lang['illegal_mail'] = 'Invalid e-mail address given';
 $lang['illegal_search'] = 'You created a invalid search request.';
-$lang['img_captcha_session_expired_error'] = 'Refresh page';
 $lang['ipadress'] = 'IP: ';
 $lang['ip_unknown'] = 'Unknown';
 $lang['jump_to_last_post'] = 'Jump to newest post';

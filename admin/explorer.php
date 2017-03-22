@@ -39,22 +39,6 @@ if ($job == 'upload') {
 		$dir = realpath('./admin/backup/');
 		$url = 'admin.php?action=db&job=restore';
 	}
-	elseif ($cfg == 'captcha_fonts') {
-		$ups = 1;
-		$filesize = 500; // 500KB
-		$filetypes = 'ttf';
-		$dir = realpath('./classes/fonts/');
-		$url = 'admin.php?action=misc&job=captcha_fonts';
-	}
-	elseif ($cfg == 'captcha_noises') {
-		$ups = 1;
-		$filesize = 200; // 200KB
-		$filetypes = 'jpg';
-		$dir = realpath('./classes/graphic/noises/');
-		$url = 'admin.php?action=misc&job=captcha_noises';
-		$imgwidth = 300;
-		$imgheight = 80;
-	}
 	else {
 		$ups = $uploadfields;
 		$filesize = ini_maxupload();
@@ -111,14 +95,6 @@ if ($job == 'upload') {
 		error($url, $inserterrors);
 	}
 	else {
-		if ($cfg == 'captcha_fonts') {
-			$new_file = $filesystem->new_filename($dir.DIRECTORY_SEPARATOR.'captcha.ttf');
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $new_file);
-		}
-		elseif ($cfg == 'captcha_noises') {
-			$new_file = $filesystem->new_filename($dir.DIRECTORY_SEPARATOR.'noise.jpg');
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $new_file);
-		}
 		ok($url, $lang->phrase('admin_explorer_upload_ready'));
 	}
 }

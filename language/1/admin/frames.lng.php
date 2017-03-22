@@ -6,7 +6,6 @@ $lang['admin_backup_restore'] = 'Datenbank sichern & wiederherstellen';
 $lang['admin_bbcodes'] = 'Benutzerdefinierte BB-Codes';
 $lang['admin_blocked_ip'] = 'Gesperrte Mitglieder & IPs';
 $lang['admin_cache_manager'] = 'Cache-Verwaltung';
-$lang['admin_captcha_manager'] = 'Captcha-Verwaltung';
 $lang['admin_censorship'] = 'Zensur';
 $lang['admin_collapse_all'] = 'Alle zuklappen';
 $lang['admin_content_manager'] = 'Content Management';

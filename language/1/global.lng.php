@@ -286,7 +286,6 @@ $lang['htaccess_error_404'] = 'Seite nicht vorhanden (404)';
 $lang['htaccess_error_500'] = 'Interner Server-Fehler (500)';
 $lang['illegal_mail'] = 'Keine gültige E-Mail-Adresse angegeben';
 $lang['illegal_search'] = 'Sie haben eine ungültige Suchanfrage gestellt!';
-$lang['img_captcha_session_expired_error'] = 'Seite aktualisieren';
 $lang['ipadress'] = 'IP-Adresse: ';
 $lang['ip_unknown'] = 'Unbekannt';
 $lang['jump_to_last_post'] = 'Zum neusten beitrag springen';

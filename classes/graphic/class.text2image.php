@@ -129,13 +129,5 @@ class text2image {
 		imagedestroy($this->img);
 	}
 
-	// TO DO:
-	function save($file) {
-
-	}
-	function cache() {
-
-	}
-
 }
 ?>
