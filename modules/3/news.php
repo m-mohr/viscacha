@@ -37,14 +37,14 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 	else {
 		// IntelliCut - Start
 		$stack = array();
-		if (mb_strxlen($row['comment']) > $teaserlength) {
+		if (mb_strlen($row['comment']) > $teaserlength) {
 			$culance = $teaserlength*0.1;
 			$teaserlength -= $culance;
 			$maxlength = $teaserlength+(2*$culance);
 			if (preg_match("/[\.!\?]+[\s\r\n]+/", $row['comment'], $matches, PREG_OFFSET_CAPTURE, $teaserlength)) {
 				$pos = $matches[0][1];
 				if ($maxlength > $pos) {
-					$row['comment'] = subxstr($row['comment'], 0, $pos+2);
+					$row['comment'] = mb_substr($row['comment'], 0, $pos+2);
 					$row['comment'] = rtrim($row['comment'], "\r\n").$lang->phrase('dot_more');
 					$row['read_more'] = true;
 				}
@@ -57,7 +57,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 						$pos = $newpos;
 					}
 				}
-				$row['comment'] = subxstr($row['comment'], 0, $pos).$lang->phrase('dot_more');
+				$row['comment'] = mb_substr($row['comment'], 0, $pos).$lang->phrase('dot_more');
 				$row['read_more'] = true;
 			}
 			$token = preg_split('/(\[[^\/\r\n\[\]]+?\]|\[\/[^\/\s\r\n\[\]]+?\])/', $row['comment'], -1, PREG_SPLIT_DELIM_CAPTURE);

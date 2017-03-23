@@ -35,7 +35,7 @@ class lang {
 	var $cache;
 	var $js;
 
-	// ToDo: Alternatives Verzeichnis f�r den Fall, dass eine ID �bergeben wurde, die nichtmehr aktiv ist...
+	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
 	function __construct($js = false, $level = E_USER_ERROR) {
 		$this->file = '';
 		$this->vars = array();

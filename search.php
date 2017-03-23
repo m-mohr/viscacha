@@ -65,7 +65,7 @@ if ($_GET['action'] == "search") {
 			$sw2 = $sw;
 		}
 		$sw2 = str_replace('*', '', $sw2);
-		if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strxlen($sw2) < $config['searchminlength']) {
+		if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strlen($sw2) < $config['searchminlength']) {
 			$ignored[] = $sw2;
 		}
 		else {
@@ -74,7 +74,7 @@ if ($_GET['action'] == "search") {
 	}
 
 	$name = $gpc->get('name', str);
-	if (mb_strxlen($name) >= $config['searchminlength']) {
+	if (mb_strlen($name) >= $config['searchminlength']) {
 		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$name}' LIMIT 1");
 		if ($db->num_rows($result) == 1) {
 			list($rname) = $db->fetch_num($result);
@@ -140,7 +140,7 @@ if ($_GET['action'] == "search") {
 		$sql_where .= "r.name = '{$rname}' ";
 	}
 
-	if (mb_strxlen($name) >= $config['searchminlength']) {
+	if (mb_strlen($name) >= $config['searchminlength']) {
 		$used[] = $name;
 	}
 	else {

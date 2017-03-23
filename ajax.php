@@ -129,7 +129,7 @@ elseif ($action == 'search') {
 				$sw2 = $sw;
 			}
 			$sw2 = str_replace('*','',$sw2);
-			if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strxlen($sw2) < $config['searchminlength']) {
+			if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strlen($sw2) < $config['searchminlength']) {
 				$ignored[] = $sw2;
 			}
 		}

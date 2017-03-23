@@ -110,7 +110,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 		if (flood_protect() == false) {
 			$error[] = $lang->phrase('flood_control');
 		}
-		if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
+		if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 			$error[] = $lang->phrase('comment_too_short');
 		}
 		if (count($error) > 0) {

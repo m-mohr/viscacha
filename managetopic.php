@@ -292,10 +292,10 @@ elseif ($action == "vote_edit") {
 }
 elseif ($action == "vote_edit2") {
 	$error = array();
-	if (strxlen($_POST['question']) > $config['maxtitlelength']) {
+	if (mb_strlen($_POST['question']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('question_too_long');
 	}
-	if (mb_strxlen($_POST['question']) < $config['mintitlelength']) {
+	if (mb_strlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$notices = $gpc->get('notice', arr_str);

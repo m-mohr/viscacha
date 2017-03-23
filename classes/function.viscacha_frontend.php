@@ -581,9 +581,9 @@ function BoardSelect($board = 0) {
 							$forum['l_prefix'] = '';
 						}
 
-						if (mb_strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
+						if (mb_strlen($forum['l_topic']) > $config['lasttopic_chars']) {
 							$forum['l_topic_full'] = $forum['l_prefix'].$forum['l_topic'];
-							$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
+							$forum['l_topic'] = mb_substr($forum['l_topic'], 0, $config['lasttopic_chars']);
 							$forum['l_topic'] .= "...";
 						}
 						else {

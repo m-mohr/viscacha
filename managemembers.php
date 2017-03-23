@@ -173,7 +173,7 @@ elseif ($_GET['action'] == 'edit2') {
 	$_POST['pw'] = $gpc->get('pw_'.$random, str);
 
 	$error = array();
-	if (strxlen($_POST['comment']) > $config['maxaboutlength']) {
+	if (mb_strlen($_POST['comment']) > $config['maxaboutlength']) {
 		$error[] = $lang->phrase('about_too_long');
 	}
 	if (check_mail($_POST['email']) == false) {
@@ -182,16 +182,16 @@ elseif ($_GET['action'] == 'edit2') {
 	if ($user['mail'] != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
 		 $error[] = $lang->phrase('email_already_used');
 	}
-	if (strxlen($_POST['name']) > $config['maxnamelength']) {
+	if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (mb_strxlen($_POST['name']) < $config['minnamelength']) {
+	if (mb_strlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
-	if (strxlen($_POST['signature']) > $config['maxsiglength']) {
+	if (mb_strlen($_POST['signature']) > $config['maxsiglength']) {
 		$error[] = $lang->phrase('editprofile_signature_too_long');
 	}
 	if (strlen($_POST['hp']) > 255) {

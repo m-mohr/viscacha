@@ -30,9 +30,9 @@ if ($db->num_rows($result) > 0) {
 			$row['prefix'] = '';
 		}
 
-		if (mb_strxlen($row['topic']) >= 75) {
+		if (mb_strlen($row['topic']) >= 75) {
 			$row['topic_full'] = $row['prefix'].$row['topic'];
-			$row['topic'] = subxstr($row['topic'], 0, 75);
+			$row['topic'] = mb_substr($row['topic'], 0, 75);
 			$row['topic'] .= $lang->phrase('dot_more');
 		}
 		else {

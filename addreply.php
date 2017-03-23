@@ -119,10 +119,10 @@ if ($_GET['action'] == "save") {
 		if (is_id($_POST['name'])) {
 			$error[] = $lang->phrase('username_registered');
 		}
-		if (strxlen($_POST['name']) > $config['maxnamelength']) {
+		if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
 			$error[] = $lang->phrase('name_too_long');
 		}
-		if (mb_strxlen($_POST['name']) < $config['minnamelength']) {
+		if (mb_strlen($_POST['name']) < $config['minnamelength']) {
 			$error[] = $lang->phrase('name_too_short');
 		}
 		if (strlen($_POST['email']) > 200) {
@@ -140,18 +140,18 @@ if ($_GET['action'] == "save") {
 	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
-	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
+	if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
+	if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	// Add some chars for reply title prefix
-	$maxlength = $config['maxtitlelength'] + mb_strxlen($lang->phrase('reply_prefix'));
-	if (strxlen($_POST['topic']) > $maxlength) {
+	$maxlength = $config['maxtitlelength'] + mb_strlen($lang->phrase('reply_prefix'));
+	if (mb_strlen($_POST['topic']) > $maxlength) {
 		$error[] = $lang->phrase('title_too_long');
 	}
-	if (mb_strxlen($_POST['topic']) < $config['mintitlelength']) {
+	if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
 	($code = $plugins->load('addreply_save_errorhandling')) ? eval($code) : null;

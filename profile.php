@@ -80,16 +80,16 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 			if (flood_protect() == FALSE) {
 				$error[] = $lang->phrase('flood_control');
 			}
-			if (strxlen($_POST['comment']) > $config['maxpostlength']) {
+			if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
 				$error[] = $lang->phrase('comment_too_long');
 			}
-			if (mb_strxlen($_POST['comment']) < $config['minpostlength']) {
+			if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 				$error[] = $lang->phrase('comment_too_short');
 			}
-			if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
+			if (mb_strlen($_POST['topic']) > $config['maxtitlelength']) {
 				$error[] = $lang->phrase('title_too_long');
 			}
-			if (mb_strxlen($_POST['topic']) < $config['mintitlelength']) {
+			if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
 				$error[] = $lang->phrase('title_too_short');
 			}
 			($code = $plugins->load('profile_mail_errorhandling')) ? eval($code) : null;

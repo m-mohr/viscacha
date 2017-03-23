@@ -144,7 +144,7 @@ else {
 
 	$sqlwhere = array();
 	$_GET['letter'] = $gpc->get('letter', db_esc);
-	if (mb_strxlen($_GET['letter']) == 1) {
+	if (mb_strlen($_GET['letter']) == 1) {
 		if ($_GET['letter'] == '#') {
 			$sqlwhere[] = "LEFT(name, 1) REGEXP '^[^".implode('', $available)."]'";
 		}

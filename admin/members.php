@@ -65,10 +65,10 @@ elseif ($job == 'reserve_add') {
 	if (double_udata('name', $name) == false) {
 		$error[] = $lang->phrase('admin_member_username_already_in_use');
 	}
-	if (strxlen($name) > $config['maxnamelength']) {
+	if (mb_strlen($name) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_long');
 	}
-	if (mb_strxlen($name) < $config['minnamelength']) {
+	if (mb_strlen($name) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_short');
 	}
 	if (count($error) > 0) {
@@ -870,10 +870,10 @@ elseif ($job == 'register2') {
 	if (double_udata('mail', $email) == false) {
 		$error[] = $lang->phrase('admin_member_mail_already_in_use');
 	}
-	if (strxlen($name) > $config['maxnamelength']) {
+	if (mb_strlen($name) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_long');
 	}
-	if (mb_strxlen($name) < $config['minnamelength']) {
+	if (mb_strlen($name) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_short');
 	}
 	if (mb_strlen($pw) > $config['maxpwlength']) {
@@ -1182,16 +1182,16 @@ elseif ($job == 'edit2') {
 	}
 
 	$error = array();
-	if (strxlen($query['comment']) > $config['maxaboutlength']) {
+	if (mb_strlen($query['comment']) > $config['maxaboutlength']) {
 		$error[] = $lang->phrase('admin_member_about_too_many_chars');
 	}
 	if (check_mail($query['email']) == false) {
 		 $error[] = $lang->phrase('admin_member_no_valid_mail');
 	}
-	if (strxlen($query['name']) > $config['maxnamelength']) {
+	if (mb_strlen($query['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('admin_member_name_too_many_chars');
 	}
-	if (mb_strxlen($query['name']) < $config['minnamelength']) {
+	if (mb_strlen($query['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('admin_member_too_less_chars');
 	}
 	if (strlen($query['email']) > 200) {
@@ -1200,7 +1200,7 @@ elseif ($job == 'edit2') {
 	if ($user['mail'] != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
 		 $error[] = $lang->phrase('email_already_used');
 	}
-	if (strxlen($query['signature']) > $config['maxsiglength']) {
+	if (mb_strlen($query['signature']) > $config['maxsiglength']) {
 		$error[] = $lang->phrase('admin_member_signature_too_many_chars');
 	}
 	if (strlen($query['hp']) > 255) {

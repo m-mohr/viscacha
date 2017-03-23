@@ -534,7 +534,7 @@ elseif ($job == 'add') {
 	echo head();
 
 	$error = array();
-	if (mb_strxlen($gpc->get('temp1', str)) < 2) {
+	if (mb_strlen($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
 	if (count($error) > 0) {
@@ -583,10 +583,10 @@ elseif ($job == 'edit2') {
 	$id = $gpc->get('id', int);
 
 	$error = array();
-	if (mb_strxlen($gpc->get('temp1', str)) < 2) {
+	if (mb_strlen($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
-	if (strxlen($gpc->get('temp1', str)) > 200) {
+	if (mb_strlen($gpc->get('temp1', str)) > 200) {
 		$error[] = $lang->phrase('admin_bbc_word_too_long');
 	}
 	if (mb_strlen($gpc->get('temp2', none)) > 255) {

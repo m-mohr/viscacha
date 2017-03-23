@@ -169,7 +169,7 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase($e1);
 		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && mb_strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase($e2);
 		}
 
@@ -339,7 +339,7 @@ function editprofile_customsave($editable, $uid, $save = true) {
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('error_missingrequiredfield');
 		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && strxlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && mb_strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase('error_customfieldtoolong');
 		}
 

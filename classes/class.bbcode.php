@@ -245,15 +245,15 @@ class BBCode {
 			$ahref = '<a href="<!PID:'.$pid.'>" target="_blank">'.$title.'</a>';
 			return $ahref;
 		}
-		elseif ($this->profile['reduceUrl'] == 1 && mb_strxlen($url) >= $this->profile['reducelength']) { // Die URL wird als Titel genommen und gekürzt
+		elseif ($this->profile['reduceUrl'] == 1 && mb_strlen($url) >= $this->profile['reducelength']) { // Die URL wird als Titel genommen und gekürzt
 			$before = ceil($this->profile['reducelength']/5);
 			$after = mb_strpos($url, '/', 8);
 			$func = 'mb_substr';
 			if ($after === false) {
 				$after = ceil($this->profile['reducelength']/3);
-				$func = 'subxstr';
+				$func = 'mb_substr';
 			}
-			$newurl = $func($url, 0, $after+1).$this->profile['reducesep'].subxstr($url, -$before);
+			$newurl = $func($url, 0, $after+1).$this->profile['reducesep'].mb_substr($url, -$before);
 			$pid2 = $this->noparse_id();
 			$this->noparse[$pid2] = $newurl;
 			$ahref = '<a href="<!PID:'.$pid.'>" target="_blank"><!PID:'.$pid2.'></a>';
