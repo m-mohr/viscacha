@@ -118,42 +118,27 @@ elseif ($job == 'emailsearch') {
 
 	$result = $db->query("SELECT id, title, name FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC, guest ASC, core ASC");
 	?>
-<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="3">
-   	<span style="float: right;"><a class="button" href="admin.php?action=members&job=newsletter_archive"><?php echo $lang->phrase('admin_member_nl_archive'); ?></a></span>
-	<?php echo $lang->phrase('admin_member_nl_mail_manager'); ?>
-   </td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_mail_manager_instructions'); ?></td>
-  </tr>
-</table>
-<br class="minibr" />
 <form name="form" method="post" action="admin.php?action=members&job=emailsearch2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_search_for_members'); ?></td>
+   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_export_mail_addresses'); ?></td>
   </tr>
   <tr>
 	<td class="mbox" width="50%" colspan="3">
-	<b><?php echo $lang->phrase('admin_member_help'); ?></b>
+	<b><?php echo $lang->phrase('admin_member_help'); ?></b><br />
+	<?php echo $lang->phrase('admin_member_wildcard_description'); ?>
 	<ul>
-	<li><?php echo $lang->phrase('admin_member_wildcard_description'); ?></li>
-	<li>
-	<?php echo $lang->phrase('admin_member_means_equal'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<?php echo $lang->phrase('admin_member_means_less'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<?php echo $lang->phrase('admin_member_means_greater'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<?php echo $lang->phrase('admin_member_means_not_equal'); ?>
-	</li>
+		<li><?php echo $lang->phrase('admin_member_means_equal'); ?></li>
+		<li><?php echo $lang->phrase('admin_member_means_less'); ?></li>
+		<li><?php echo $lang->phrase('admin_member_means_greater'); ?></li>
+		<li><?php echo $lang->phrase('admin_member_means_not_equal'); ?></li>
 	</ul>
-	</td>
-  </tr>
-  <tr>
-   <td class="mbox" colspan="2" width="50%"><?php echo $lang->phrase('admin_member_exactness'); ?></td>
-   <td class="mbox" colspan="1" width="50%">
-   <input type="radio" name="type" value="0"> <b><?php echo $lang->phrase('admin_member_at_least_one_match'); ?></b> (<?php echo $lang->phrase('admin_member_at_least_one_match_desc'); ?>)<br>
-   <input type="radio" name="type" value="1" checked="checked"> <b><?php echo $lang->phrase('admin_member_whole_match'); ?></b> (<?php echo $lang->phrase('admin_member_whole_match'); ?>)
+	<br />
+	<b><?php echo $lang->phrase('admin_member_exactness'); ?></b>
+	<ul>
+		<li><input type="radio" name="type" value="1" checked="checked"><b><?php echo $lang->phrase('admin_member_whole_match'); ?></b> (<?php echo $lang->phrase('admin_member_whole_match_desc'); ?>)</li>
+		<li><input type="radio" name="type" value="0"><b><?php echo $lang->phrase('admin_member_at_least_one_match'); ?></b> (<?php echo $lang->phrase('admin_member_at_least_one_match_desc'); ?>)</li>
+	</ul>
    </td>
   </tr>
   <tr>
@@ -268,6 +253,17 @@ elseif ($job == 'emailsearch') {
 	</select></td>
   </tr>
   <tr>
+    <td class="mbox"><?php echo $lang->phrase('admin_member_filter_recipients'); ?></td>
+    <td class="mbox" align="center">=</td>
+    <td class="mbox">
+      <select name="opt_newsletter">
+	    <option value="0"><?php echo $lang->phrase('admin_member_include_important_admin_mails'); ?></option>
+	    <option value="1"><?php echo $lang->phrase('admin_member_include_all_admin_mails'); ?></option>
+	    <option value="2"><?php echo $lang->phrase('admin_member_include_all'); ?></option>
+	  </select>
+    </td>
+  </tr>
+  <tr>
    <td class="ubox" align="center" colspan="4"><input type="submit" value="<?php echo $lang->phrase('admin_member_search'); ?>"></td>
   </tr>
  </table>
@@ -289,7 +285,8 @@ elseif ($job == 'emailsearch2') {
 		'lastvisit' => arr_int,
 		'groups' => arr_int,
 		'language' => int,
-		'confirm' => none
+		'confirm' => none,
+		'opt_newsletter' => int
 	);
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
@@ -385,6 +382,17 @@ elseif ($job == 'emailsearch2') {
 		elseif ($key == 'id' || $key == 'posts' || $key == 'lang') {
 			$input[$key] = $value;
 		}
+		elseif ($key == 'opt_newsletter') {
+			if ($value == 1) {
+				$input[$key] = 1;
+			}
+			else if ($value == 0) {
+				$input[$key] = array(1,2);
+			}
+			else {
+				$input[$key] = DONT_CARE;
+			}
+		}
 		else {
 			if (empty($value)) {
 				$input[$key] = DONT_CARE;
@@ -409,6 +417,9 @@ elseif ($job == 'emailsearch2') {
 				$groupwhere = implode($gsep, $groupwhere);
 				$sqlwhere[] = " ({$groupwhere}) ";
 			}
+			else if (is_array($input[$key])) {
+				$sqlwhere[] = " `{$key}` IN('" . implode(',', $input[$key]) . "') ";
+			}
 			else {
 				if (mb_strpos($input[$key], '%') !== false || mb_strpos($input[$key], '_') !== false) {
 					if ($compare[$key] == '=') {
@@ -424,22 +435,21 @@ elseif ($job == 'emailsearch2') {
 	}
 
 	if (count($sqlwhere) > 0) {
-		$query = 'SELECT id FROM '.$db->pre.'user WHERE '.implode($sep, $sqlwhere);
+		$query = 'SELECT DISTINCT name, mail FROM '.$db->pre.'user WHERE '.implode($sep, $sqlwhere);
 		$result = $db->query($query);
 		$users = array();
-		while ($row = $db->fetch_assoc($result)) {
-			$users[] = $row['id'];
-		}
 		$count = $db->num_rows($result);
+		while ($row = $db->fetch_assoc($result)) {
+			$users[] = "{$row['name']} <{$row['mail']}>";
+		}
 	}
 	else {
 		$count = 0;
 	}
 	?>
-	<form name="form" action="admin.php?action=members" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 		<tr>
-		  <td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_nl_mail_manager'); ?></td>
+		  <td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_export_mail_addresses'); ?></td>
 		</tr>
 		<?php if ($count == 0) { ?>
 		<tr>
@@ -447,414 +457,12 @@ elseif ($job == 'emailsearch2') {
 		</tr>
 		<?php } else { ?>
 		<tr>
-		  <td class="mbox" width="50%"><?php echo $lang->phrase('admin_member_filter_recipients'); ?></td>
-		  <td class="mbox" width="50%">
-			<select name="filter">
-			  <option value="0"><?php echo $lang->phrase('admin_member_include_important_admin_mails'); ?></option>
-			  <option value="1"><?php echo $lang->phrase('admin_member_include_all_admin_mails'); ?></option>
-			  <option value="2"><?php echo $lang->phrase('admin_member_include_all'); ?></option>
-			</select>
-		  </td>
-		</tr>
-		<tr>
-		  <td class="ubox" colspan="2" align="center">
-			<input type="hidden" name="users" value="<?php echo implode(',', $users); ?>" />
-		  	<select name="job">
-		  		<option value="emaillist"><?php echo $lang->phrase('admin_member_export_mail_addresses'); ?></option>
-		  		<option value="newsletter"><?php echo $lang->phrase('admin_member_send_nl'); ?></option>
-		  	</select> <input type="submit" name="submit" value="<?php echo $lang->phrase('admin_member_go'); ?>">
-		  </td>
+		 <td class="mbox"><textarea class="fullwidth" cols="125" rows="25"><?php echo implode("\r\n", $users); ?></textarea></td>
 		</tr>
 		<?php } ?>
 	</table>
-	</form>
 	<?php
 	echo foot();
-}
-elseif ($job == 'emaillist') {
-	echo head();
-	$delete = $gpc->get('delete', arr_int);
-	$users = $gpc->get('users', none);
-	$filter = $gpc->get('filter', int);
-
-	$filter = '';
-	if ($filter == 1) {
-		$filter = " opt_newsletter = '1' AND ";
-	}
-	else if ($filter == 0) {
-		$filter = " (opt_newsletter = '2' OR opt_newsletter = '1') AND ";
-	}
-
-	if (empty($users) == false) {
-		$delete = array_merge($delete, explode(',', $users));
-	}
-	$ids = array();
-	foreach ($delete as $id) {
-		if (is_id($id)) {
-			$ids[] = $id;
-		}
-	}
-
-	$result = $db->query("SELECT DISTINCT mail FROM {$db->pre}user WHERE {$filter} id IN (".implode(',', $ids).")");
-	$emails = array();
-	while ($row = $db->fetch_assoc($result)) {
-		$emails[] = $row['mail'];
-	}
-
-	$template = $gpc->get('template', none);
-	if (empty($template)) {
-		$template = ',';
-	}
-	?>
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox"><?php echo $lang->phrase('admin_member_export_mail_addresses'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><textarea class="fullwidth" cols="125" rows="25"><?php echo implode($template, $emails); ?></textarea></td>
-  </tr>
- </table>
-<br />
-<form name="form" method="post" action="admin.php?action=members&amp;job=emaillist">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_change_settings'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_member_seperator'); ?><br><span class="stext"><?php echo $lang->phrase('admin_member_sperator_mail_addresses'); ?></span></td>
-   <td class="mbox" width="50%"><textarea name="template" cols="10" rows="2"></textarea></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="100%" colspan="2" align="center">
-	<input type="hidden" name="users" value="<?php echo implode(',', $ids); ?>">
-   	<input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>">
-   </td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'newsletter') {
-	$delete = $gpc->get('delete', arr_int);
-	$users = $gpc->get('users', none);
-	$filter = $gpc->get('filter', int);
-
-	$filter = '';
-	if ($filter == 1) {
-		$filter = " opt_newsletter = '1' AND ";
-	}
-	else if ($filter == 0) {
-		$filter = " (opt_newsletter = '2' OR opt_newsletter = '1') AND ";
-	}
-
-	if (empty($users) == false) {
-		$delete = array_merge($delete, explode(',', $users));
-	}
-	$ids = array();
-	foreach ($delete as $id) {
-		if (is_id($id)) {
-			$ids[] = $id;
-		}
-	}
-
-	echo head();
-	if (count($ids) == 0) {
-		error('admin.php?action=members&job=emailsearch', 'No Members found.');
-	}
-
-	$result = $db->query("SELECT id FROM {$db->pre}user WHERE {$filter} id IN (".implode(',', $ids).") GROUP BY mail");
-	$ids = array();
-	while ($row = $db->fetch_assoc($result)) {
-		$ids[] = $row['id'];
-	}
-?>
-<form name="form" method="post" action="admin.php?action=members&amp;job=newsletter2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_compose_nl'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_member_recipients'); ?></td>
-   <td class="mbox" width="60%"><?php echo count($ids); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_member_from'); ?></td>
-   <td class="mbox" width="60%">
-   <?php echo $lang->phrase('admin_member_from_mail'); ?> <input type="text" name="from_mail" size="60" value="<?php echo $config['forenmail']; ?>"><br />
-   <?php echo $lang->phrase('admin_member_from_name'); ?> <input type="text" name="from_name" size="60" value="<?php echo $config['fname']; ?>">
-   </td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_member_subject'); ?></td>
-   <td class="mbox" width="60%"><input type="text" name="title" size="70"></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%"><?php echo $lang->phrase('admin_member_format'); ?></td>
-   <td class="mbox" width="60%">
-   	<input type="radio" name="type" value="h"> <?php echo $lang->phrase('admin_member_xhtml'); ?>
-   	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-   	<input type="radio" name="type" value="p" checked="checked"> <?php echo $lang->phrase('admin_member_plain_text'); ?>
-   </td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%">
-	<?php echo $lang->phrase('admin_member_message'); ?><br />
-   	<span class="stext">
-	<?php echo $lang->phrase('admin_member_nl_message_description'); ?>
-   	</span>
-   </td>
-   <td class="mbox" width="60%"><textarea name="message" rows="10" cols="70"></textarea></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="40%">
-	<?php echo $lang->phrase('admin_member_mail_send_at_once'); ?><br />
-   	<span class="stext"><?php echo $lang->phrase('admin_member_batch_sent_mails'); ?></span>
-   </td>
-   <td class="mbox" width="60%"><input type="text" name="batch" size="10" value="20"></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center">
-	<input type="hidden" name="users" value="<?php echo implode(',', $ids); ?>">
-   	<input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>">
-   </td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'newsletter2') {
-
-	$data = array(
-		'users' => $gpc->get('users', none),
-		'from_mail' => $gpc->get('from_mail', none, $config['forenmail']),
-		'from_name' => $gpc->get('from_name', none, $gpc->plain_str($config['fname'])),
-		'title' => $gpc->get('title', none),
-		'message' => $gpc->get('message', none),
-		'batch' => $gpc->get('batch', int, 20),
-		'type' => $gpc->get('type', none, 'p')
-	);
-
-	if (!check_mail($data['from_mail'])) {
-		$data['from_mail'] = $config['forenmail'];
-	}
-
-	$dbd = array_map(array($db, 'escape_string'), $data);
-
-	$db->query("INSERT INTO {$db->pre}newsletter (receiver, sender, title, content, time, type) VALUES ('{$dbd['users']}','{$dbd['from_name']} <{$dbd['from_mail']}>','{$dbd['title']}','{$dbd['message']}','".time()."', '{$dbd['type']}')");
-	$nid = $db->insert_id();
-
-	$data['chunks'] = array_chunk(explode(',', $data['users']), $data['batch']);
-
-	$cache = new CacheItem('newsletter_'.$nid);
-	$cache->set($data);
-	$cache->export();
-
-	echo head();
-	ok('admin.php?action=members&job=newsletter3&id='.$nid, $lang->phrase('admin_member_mail_will_be_sent'));
-}
-elseif ($job == 'newsletter3') {
-	$page = $gpc->get('page', int, 1);
-	$id = $gpc->get('id', int);
-
-	$cache = new CacheItem('newsletter_'.$id);
-	$cache->import();
-	$data = $cache->get();
-
-	$mail = new PHPMailer();
-	$mail->From = $data['from_mail'];
-	$mail->FromName = $data['from_name'];
-	$mail->Subject = $data['title'];
-	if ($config['smtp'] == 1) {
-		$mail->Mailer = "smtp";
-		$mail->IsSMTP();
-		$mail->Host = $config['smtp_host'];
-		if ($config['smtp_auth'] == 1) {
-			$mail->SMTPAuth = true;
-			$mail->Username = $config['smtp_username'];
-			$mail->Password = $config['smtp_password'];
-		}
-	}
-	elseif ($config['sendmail'] == 1) {
-		$mail->IsSendmail();
-		$mail->Mailer   = "sendmail";
-		$mail->Sendmail = $config['sendmail_host'];
-	}
-	else {
-		$mail->IsMail();
-	}
-	$ids = implode(',', $data['chunks'][$page-1]);
-	$result = $db->query("SELECT id, name, mail FROM {$db->pre}user WHERE id IN ($ids)");
-	while ($row = $db->fetch_assoc($result)) {
-		$message = str_replace('{$user.id}', $row['id'], $data['message']);
-		$message = str_replace('{$user.name}', $row['name'], $message);
-		$message = str_replace('{$user.mail}', $row['mail'], $message);
-		if ($data['type'] == 'h') {
-			$mail->IsHTML(true);
-			$mail->Body = $message;
-			// No alternative Body atm
-			// $plain = preg_replace('~<br(\s*/)?\>(\r\n|\r|\n){0,1}~i', "\r\n", $message);
-			// $mail->AltBody = strip_tags($plain);
-		}
-		else {
-			$mail->Body = $message;
-		}
-		$mail->AddAddress($row['mail']);
-		$mail->Send();
-		$mail->ClearAddresses();
-	}
-
-	$steps = count($data['chunks']);
-	$page2 = $page+1;
-	$all = count(explode(',', $data['users']));
-	$sec = 3;
-	$left = (($steps-$page)*$sec)/60;
-	if ($left == 0) {
-		$left = $lang->phrase('admin_member_ask_finished');
-	}
-	else if ($left < 60) {
-		 $left = ceil($left*60).$lang->phrase('admin_member_seconds');
-	}
-	else if ($left > 60) {
-		 $left = round($left/60, 1).$lang->phrase('admin_member_hours');
-	}
-	else {
-		$left = ceil($left).$lang->phrase('admin_member_minutes');
-	}
-
-	if ($steps > $page) {
-		$percent = (100/$all)*(($page)*$data['batch']);
-		$url = 'admin.php?action=members&amp;job=newsletter3&amp;id='.$id.'&amp;page='.$page2;
-	}
-	else {
-		$percent = 100;
-		$url = 'admin.php?action=members&amp;job=newsletter_view&amp;id='.$id;
-		$cache->delete();
-	}
-
-	$htmlhead .= '<meta http-equiv="refresh" content="'.$sec.'; url='.$url.'">';
-	echo head();
-	?>
-	 <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-	  <tr>
-	   <td class="obox"><?php echo $lang->phrase('admin_member_sending_nl'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox">
-	   	<div style="width: 600px; border: 1px solid black; background-color: white;"><div style="width: <?php echo ceil($percent)*6; ?>px; background-color: steelblue;">&nbsp;</div></div>
-	   <?php echo $lang->phrase('admin_member_progress').round($percent, 1); ?>%<br />
-	   <?php echo $lang->phrase('admin_member_time_left'); ?><?php echo $left; ?>
-	   </td>
-	  </tr>
-	  <tr>
-	  	<td class="ubox" align="center"><a href="<?php echo $url; ?>"><?php echo $lang->phrase('admin_member_click_if_no_redirection'); ?></a></td>
-	  </tr>
-	 </table>
-	<?php
-	echo foot();
-}
-elseif ($job == 'newsletter_archive') {
-	$result = $db->query('SELECT * FROM '.$db->pre.'newsletter ORDER BY time');
-	echo head();
-?>
-<form name="form" method="post" action="admin.php?action=members&amp;job=newsletter_delete">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_member_nl_archive'); ?></td>
-  </tr>
-  <tr>
-   <td class="ubox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
-   <td class="ubox"><?php echo $lang->phrase('admin_member_nl_subject'); ?></td>
-   <td class="ubox"><?php echo $lang->phrase('admin_member_date_time'); ?></td>
-   <td class="ubox"><?php echo $lang->phrase('admin_member_nl_recipients'); ?></td>
-  </tr>
-<?php while ($row = $db->fetch_assoc($result)) { ?>
-  <tr>
-   <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td>
-   <td class="mbox"><a href="admin.php?action=members&amp;job=newsletter_view&id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a></td>
-   <td class="mbox"><?php echo gmdate('d.m.Y, H:i', times($row['time'])); ?></td>
-   <td class="mbox"><?php echo count(explode(',', $row['receiver'])); ?></td>
-  </tr>
-<?php } ?>
-  <tr>
-   <td class="ubox" colspan="4" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_member_delete'); ?>"></td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'newsletter_view') {
-	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}newsletter WHERE id = '{$id}' LIMIT 1");
-	$row = $gpc->prepare($db->fetch_assoc($result));
-	echo head();
-?>
-<form name="form" method="post" action="admin.php?action=members&job=newsletter_delete">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_member_newsletter'); ?> <?php echo $row['id']; ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_title'); ?></td>
-   <td class="mbox"><?php echo $row['title']; ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_from'); ?></td>
-   <td class="mbox"><?php echo $row['sender']; ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_recipients'); ?></td>
-   <td class="mbox"><?php echo count(explode(',', $row['receiver'])); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_time_sent'); ?></td>
-   <td class="mbox"><?php echo gmdate('d.m.Y, H:i', times($row['time'])); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_format'); ?></td>
-   <td class="mbox"><?php echo iif($row['type'] == 'h', '(x)HTML', 'Plain text'); ?></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_member_text'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox" colspan="2">
-   <?php if ($row['type'] == 'h') { ?>
-   <iframe src="admin.php?action=members&amp;job=newsletter_html&amp;id=<?php echo $row['id']; ?>" width="700" height="500"></iframe>
-   <?php } else { ?>
-   <pre><?php echo $row['content']; ?></pre>
-   <?php } ?>
-   </td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="hidden" name="delete[]" value="<?php echo $row['id']; ?>"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_member_delete'); ?>"></td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'newsletter_html') {
-	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}newsletter WHERE id = '{$id}' LIMIT 1");
-	$row = $db->fetch_assoc($result);
-	echo $row['content'];
-}
-elseif ($job == 'newsletter_delete') {
-	echo head();
-	$del = $gpc->get('delete', arr_int);
-	if (count($del) > 0) {
-		$ids = implode(',', $del);
-		$db->query("DELETE FROM {$db->pre}newsletter WHERE id IN ($ids)");
-		$anz = $db->affected_rows();
-		ok('admin.php?action=members&job=newsletter_archive', $lang->phrase('admin_member_nl_been_deleted'));
-	}
-	else {
-		error('admin.php?action=members&job=newsletter_archive', $lang->phrase('admin_member_no_nl_deleted'));
-	}
-
 }
 elseif ($job == 'merge') {
 	echo head();
@@ -2178,7 +1786,6 @@ elseif ($job == 'inactive2') {
 			  	<select name="job">
 			  		<option value="delete"><?php echo $lang->phrase('admin_member_delete'); ?></option>
 			  		<option value="emaillist"><?php echo $lang->phrase('admin_member_export_mail_addresses'); ?></option>
-			  		<option value="newsletter"><?php echo $lang->phrase('admin_member_send_nl'); ?></option>
 			  	</select> <input type="submit" name="submit" value="<?php echo $lang->phrase('admin_member_go'); ?>">
 			  </td>
 			</tr>
@@ -2693,7 +2300,6 @@ elseif ($job == 'search2') {
 			  	<select name="job">
 			  		<option value="delete"><?php echo $lang->phrase('admin_member_delete'); ?></option>
 			  		<option value="emaillist"><?php echo $lang->phrase('admin_member_export_mail_addresses'); ?></option>
-			  		<option value="newsletter"><?php echo $lang->phrase('admin_member_send_nl'); ?></option>
 			  	</select> <input type="submit" name="submit" value="<?php echo $lang->phrase('admin_member_go'); ?>">
 			  </td>
 			</tr>
