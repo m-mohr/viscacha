@@ -24,7 +24,7 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-require "classes/class.bladeone.php";
+Use eftec\bladeone;
 
 class tpl {
 
@@ -71,7 +71,7 @@ class tpl {
 		$this->sent = array();
 
 		define("BLADEONE_MODE", $config['debug']);
-		$this->blade = new eftec\bladeone\BladeOne($this->dir, 'cache/' . $this->dir);
+		$this->blade = new bladeone\BladeOne($this->dir, 'cache/' . $this->dir);
 		$this->blade->setFileExtension('.html');
         $this->blade->directive('lang', function ($expression) {
             return '<?php echo $lang->phrase'.$expression.'; ?>';

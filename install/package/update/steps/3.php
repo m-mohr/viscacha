@@ -16,7 +16,6 @@ else {
 	$sub = intval($_REQUEST['sub']);
 }
 require('install/classes/function.chmod.php');
-require('install/classes/class.zip.php');
 $zip = new PclZip('install/files/' . $zip_packs[$sub]);
 $error = 0;
 $files = array();

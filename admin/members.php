@@ -662,7 +662,6 @@ elseif ($job == 'newsletter3') {
 	$cache->import();
 	$data = $cache->get();
 
-	require_once("classes/mail/class.phpmailer.php");
 	$mail = new PHPMailer();
 	$mail->From = $data['from_mail'];
 	$mail->FromName = $data['from_name'];

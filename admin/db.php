@@ -274,7 +274,6 @@ elseif ($job == 'backup4') {
 	$ok = $lang->phrase('admin_db_backup_successfully_created');
     if (!empty($temp['zip'])) {
     	$zipfile = "admin/backup/{$name}.zip";
-		require_once('classes/class.zip.php');
 		$archive = new PclZip($zipfile);
 		$v_list = $archive->create($file, PCLZIP_OPT_REMOVE_PATH, dirname($file));
 
@@ -315,11 +314,7 @@ elseif ($job == 'backup4') {
 	echo foot();
 }
 elseif ($job == 'restore_info') {
-	$mem_limit = @ini_get('memory_limit');
-	if (empty($mem_limit)) {
-		$mem_limit = @get_cfg_var('memory_limit');
-	}
-	$mem_limit = intval($mem_limit)*1024*1024;
+	$mem_limit = ini_getSize('memory_limit');
 	$ziplimit = $mem_limit / 3;
 	$sqllimit = $mem_limit / 1.5;
 
@@ -328,7 +323,6 @@ elseif ($job == 'restore_info') {
 
 	$nfo = pathinfo($dir.$file);
     if (mb_strtolower($nfo['extension']) == 'zip') {
-		require_once('classes/class.zip.php');
 		$archive = new PclZip($dir.$file);
 		if (($list = $archive->listContent()) != 0) {
 			if ($list[0]['size'] < $ziplimit) {
@@ -491,7 +485,6 @@ elseif ($job == 'restore2') {
 	$ext = get_extension($file);
 	if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
 		if ($ext == 'zip') {
-			require_once('classes/class.zip.php');
 			$archive = new PclZip($dir.$file);
 			if (($list = $archive->listContent()) == 0) {
 				error($archive->errorInfo(true));
@@ -594,7 +587,6 @@ elseif ($job == 'query2') {
 			$ext = get_extension($file);
 			if (($ext == 'zip' || $ext == 'sql') && file_exists($file)) {
 				if ($ext == 'zip') {
-					require_once('classes/class.zip.php');
 					$archive = new PclZip($file);
 					if (($list = $archive->listContent()) == 0) {
 						error($archive->errorInfo(true));

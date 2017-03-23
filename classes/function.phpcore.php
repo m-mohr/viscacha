@@ -27,20 +27,15 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 
+$imagetype_extension = array('gif', 'jpg', 'jpeg', 'png');
+
 /* Fixed php functions */
 
-// IDNA Convert Class
-include_once (__DIR__.'/class.idna.php');
+require 'vendor/autoload.php';
 
-function convert_host_to_idna($host) {
-	$idna = new idna_convert();
+function idna($host) {
+	$idna = new \Mso\IdnaConvert\IdnaConvert();
 	return $idna->encode($host);
-}
-
-function fsockopen_idna($host, $port, $timeout) {
-	$host = convert_host_to_idna($host);
-	$fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
-	return array($fp, $errno, $errstr, $host);
 }
 
 function is_id ($x) {
@@ -264,13 +259,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
+	if (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows') !== false) {
 		return true;
 	}
-	elseif (isset($_SERVER['OS']) && mb_strpos(mb_strtolower($_SERVER['OS']), 'Windows') !== false) {
+	else if (isset($_SERVER['OS']) && mb_stristr($_SERVER['OS'], 'Windows') !== false) {
 		return true;
 	}
-	elseif (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows')) {
+	else if (defined(PHP_OS) && mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
 	else {
@@ -295,23 +290,30 @@ function ini_isSecureHttp() {
 		return false;
 }
 
+function ini_getSize($value) {
+	$size = @ini_get($value);
+	$size = trim($size);
+	$last = mb_strtolower(substr($size, -1));
+	$size = intval($size);
+	
+	switch($last) {
+		case 'g':
+			$size *= 1024;
+		case 'm':
+			$size *= 1024;
+		case 'k':
+			$size *= 1024;
+	}
+	return $size;
+}
+
 function ini_maxupload() {
 	$keys = array(
 		'post_max_size' => 0,
 		'upload_max_filesize' => 0
 	);
 	foreach ($keys as $key => $bytes) {
-		$val = intval(trim(@ini_get($key)));
-		$last = mb_strtolower($val{mb_strlen($val)-1});
-		switch($last) {
-			case 'g':
-				$val *= 1024;
-			case 'm':
-				$val *= 1024;
-			case 'k':
-				$val *= 1024;
-		}
-		$keys[$key] = $val;
+		$keys[$key] = ini_getSize($key);
 	}
 	return min($keys);
 }

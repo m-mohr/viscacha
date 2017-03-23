@@ -356,7 +356,6 @@ elseif ($job == 'design_import2') {
 	}
 	$tempdir = 'temp/'.generate_uid().'/';
 	$filesystem->mkdir($tempdir, 0777);
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
@@ -489,7 +488,6 @@ elseif ($job == 'design_export2') {
 	$myini = new INI();
 	$myini->write($settings, $info);
 
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($settings, PCLZIP_OPT_REMOVE_PATH, $tempdir);
 	if ($v_list == 0) {

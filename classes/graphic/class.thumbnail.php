@@ -107,8 +107,7 @@ function create_thumbnail($attachment) {
 	$thumbnail = NULL;
 
 	$ext = get_extension($attachment);
-	if($ext == 'gif' or $ext == 'png' or $ext == 'jpg' or $ext == 'jpeg' or $ext == 'jpe') {
-
+	if(in_array($ext, $imagetype_extension)) {
 		$imageinfo = getimagesize($attachment);
 		$new_width = $width = $imageinfo[0];
 		$new_height = $height = $imageinfo[1];

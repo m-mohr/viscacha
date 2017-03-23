@@ -216,7 +216,6 @@ elseif ($job == 'package_update2') {
 		if (!is_dir($tdir)) {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_err_temporary_directory_could_not_be_created'));
 		}
-		include('classes/class.zip.php');
 		$archive = new PclZip($sourcefile);
 		if ($archive->extract(PCLZIP_OPT_PATH, $tdir) == 0) {
 			error('admin.php?action=packages&job=package_update', $archive->errorInfo(true));
@@ -731,7 +730,6 @@ elseif ($job == 'package_import2') {
 		if (!is_dir($tdir)) {
 			error('admin.php?action=packages&job=package_import', $lang->phrase('admin_packages_err_temporary_directory_could_not_be_created'));
 		}
-		include('classes/class.zip.php');
 		$archive = new PclZip($sourcefile);
 		if ($archive->extract(PCLZIP_OPT_PATH, $tdir) == 0) {
 			error('admin.php?action=packages&job=package_import', $archive->errorInfo(true));
@@ -983,7 +981,6 @@ elseif ($job == 'package_export') {
 	// ZIP-File
 	$tempdir = "temp/";
 	$file = $data['internal'].'.zip';
-	require_once('classes/class.zip.php');
 	$error = array();
 	$archive = new PclZip($tempdir.$file);
 

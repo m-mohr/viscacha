@@ -381,7 +381,7 @@ elseif ($job == "extract2") {
 	$file = $gpc->get('path', path);
 	$dir = $gpc->get('to', path);
 
-	set_chmod($dir, 0777, CHMOD_EX);
+	set_chmod($dir, 0777, CHMOD_DIR);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
 	if (!preg_match('#\.(gz|zip)$#is', $file, $ext)) {
 		error($redirect, $lang->phrase('admin_explorer_archive_is_not_supported'));
@@ -389,7 +389,6 @@ elseif ($job == "extract2") {
 	if (isset($ext[1])) {
 		$extension = $ext[1];
 		if ($extension == 'zip') {
-			include('classes/class.zip.php');
 			$archive = new PclZip($file);
 			if ($archive->extract(PCLZIP_OPT_PATH, $dir) == 0) {
 				error($redirect, $archive->errorInfo(true));

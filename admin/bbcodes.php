@@ -169,7 +169,6 @@ elseif ($job == 'smileys_import2') {
 	$tempdir = 'temp/'.generate_uid().'/';
 
 	// Exract
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
@@ -311,7 +310,6 @@ elseif ($job == 'smileys_export') {
 	$files[] = $smilieconfig;
 	$files = array_unique($files);
 
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	// Have to parse $dir with PclZipUtilTranslateWinPath to have equal paths at $files-Array and $dir (PclZip-Bug?)
 	$v_list = $archive->create($files, PCLZIP_OPT_REMOVE_PATH, PclZipUtilTranslateWinPath($config['smileypath']));
@@ -441,7 +439,7 @@ elseif ($job == 'smileys_add') {
 	if (!empty($_FILES['upload']['name'])) {
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(200*1024);
-		$my_uploader->file_types(array('gif', 'jpg', 'png', 'bmp', 'jpeg', 'jpe'));
+		$my_uploader->file_types($imagetype_extension);
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {

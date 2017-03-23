@@ -181,7 +181,6 @@ elseif ($job == 'import2') {
 
 	$tempdir = 'temp/'.generate_uid().'/';
 
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
@@ -241,7 +240,6 @@ elseif ($job == 'export') {
 	$dir = "language/{$id}/";
 	$tempdir = "temp/";
 
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	$v_list = $archive->create($dir, PCLZIP_OPT_REMOVE_PATH, $dir, PCLZIP_OPT_COMMENT, "{$row['language']}\n\n{$row['detail']}\n\nVersion: {$config['version']}");
 	if ($v_list == 0) {

@@ -105,7 +105,7 @@ class text2image {
 	}
 
 	function output($format = 'png') {
-		if (($format == 'jpeg' || $format == 'jpe' || $format == 'jpeg') && function_exists('imagejpeg')) {
+		if (($format == 'jpeg' || $format == 'jpeg') && function_exists('imagejpeg')) {
 			header("Content-Type: image/jpeg");
 			imagejpeg($this->img, '', 90);
 		}

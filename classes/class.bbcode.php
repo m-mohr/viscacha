@@ -611,7 +611,7 @@ class BBCode {
 			return $code;
 		}
 
-		$bbcode_table['head']['enabled'] = ($bbcode_table['head']['enabled'] && $bbcode_table['table']['rows']>1) ? true : false;
+		$bbcode_table['head']['enabled'] = ($bbcode_table['head']['enabled'] && $bbcode_table['table']['rows']>1);
 
 		if($bbcode_table['head']['enabled'] == true){
 			for($i=0;$i<($bbcode_table['table']['cols']);$i++){

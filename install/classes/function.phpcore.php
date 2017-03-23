@@ -29,18 +29,11 @@ date_default_timezone_set(@date_default_timezone_get());
 
 /* Fixed php functions */
 
-// IDNA Convert Class
-include_once (__DIR__.'/class.idna.php');
+require '../vendor/autoload.php';
 
-function convert_host_to_idna($host) {
-	$idna = new idna_convert();
+function idna($host) {
+	$idna = new \Mso\IdnaConvert\IdnaConvert();
 	return $idna->encode($host);
-}
-
-function fsockopen_idna($host, $port, $timeout) {
-	$host = convert_host_to_idna($host);
-	$fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
-	return array($fp, $errno, $errstr, $host);
 }
 
 function is_id ($x) {

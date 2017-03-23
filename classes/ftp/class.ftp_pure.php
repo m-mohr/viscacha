@@ -22,7 +22,8 @@ class ftp extends ftp_base {
 
 	function _connect($host, $port) {
 		$this->SendMSG("Creating socket");
-		list($sock, $errno, $errstr, $host) = fsockopen_idna($host, $port, $this->_timeout);
+		$errno = $errstr = null;
+		$sock = fsockopen(idna($host), $port, $errno, $errstr, $this->_timeout);
 		if (!$sock) {
 			$this->PushError('_connect','socket connect failed', $errstr." (".$errno.")");
 			return FALSE;
@@ -86,7 +87,8 @@ class ftp extends ftp_base {
 			$this->_datahost=$ip_port[0].".".$ip_port[1].".".$ip_port[2].".".$ip_port[3];
 			$this->_dataport=(((int)$ip_port[4])<<8) + ((int)$ip_port[5]);
 			$this->SendMSG("Connecting to ".$this->_datahost.":".$this->_dataport);
-			list($this->_ftp_data_sock, $errno, $errstr, $this->_datahost) = fsockopen_idna($this->_datahost, $this->_dataport, $this->_timeout);
+			$errno = $errstr = null;
+			$this->_ftp_data_sock = fsockopen(idna($this->_datahost), $this->_dataport, $errno, $errstr, $this->_timeout);
 			if(!$this->_ftp_data_sock) {
 				$this->PushError("_data_prepare","fsockopen fails (host: {$this->_datahost})", $errstr." (".$errno.")");
 				$this->_data_close();

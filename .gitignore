@@ -3,10 +3,12 @@
 /admin/backup/*.zip
 /admin/html/language_*.js
 /cache/
+/classes/vendor/
 /data/cron/*.job
 /data/errlog_*
 /feeds/
 /templates/language_*.js
 /temp/
 locked.txt
+composer.lock
 !.htaccess

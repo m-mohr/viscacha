@@ -245,11 +245,8 @@ function PixelImage() {
 
 function InitCron() {
 	global $cronTab, $maxJobs;
-	@ignore_user_abort(false);
-	$save_mode = @ini_get('safe_mode');
-	if (!$save_mode) {
-		@set_time_limit(60);
-	}
+	@ignore_user_abort(true);
+	@set_time_limit(60);
 	$jobs = parseCronFile($cronTab);
 	$jobsRun = 0;
 	for ($i=0;$i<count($jobs);$i++) {

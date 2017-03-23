@@ -102,8 +102,7 @@ function checkmx_idna($host) {
 	if (empty($host)) {
 		return false;
 	}
-	$idna = new idna_convert();
-	$host_idna = $idna->encode($host);
+	$host_idna = idna($host);
 	if (function_exists('checkdnsrr')) {
 		if (checkdnsrr($host_idna, 'MX') === false) {
 			return false;
@@ -125,9 +124,7 @@ function checkmx_idna($host) {
 }
 
 function get_remote($file) {
-	if (!class_exists('Snoopy')) {
-		include('classes/class.snoopy.php');
-	}
+	$file = idna($file);
 
 	if (!preg_match('~^'.URL_REGEXP.'$~i', $file)) {
 		return REMOTE_INVALID_URL;
@@ -137,17 +134,8 @@ function get_remote($file) {
 		$file = 'http://'.$file;
 	}
 
-	$url_ary = parse_url($file);
-
-	$snoopy = new Snoopy;
-	if (isset($url_ary['port']) && is_id($url_ary['port'])) {
-		$snoopy->port = $url_ary['port'];
-	}
-	else {
-		$snoopy->port = null;
-	}
-	$status = $snoopy->fetch($file);
-	if ($status == true) {
+	$snoopy = new \Snoopy\Snoopy;
+	if ($snoopy->fetch($file)) {
 		return $snoopy->results;
 	}
 	else {
@@ -405,10 +393,12 @@ function serverload($int = false) {
 }
 
 function convert2path($path, $returnEmptyOnInvalid = false) {
+	$invalidChars = array('<', '>', '?', '*', '"', "\0", "\r", "\n", "\t");
+	if (!isWindows()) {
+		$invalidChars[] = ':';
+	}
 	$newPath = str_replace ('\\', '/', $path);
-	$newPath = str_replace (array('<', '>', ':', '?', '*', '"', "\0", "\r", "\n", "\t"), '_', $newPath);
-	// Replace multiple delimiter chars with only one char
-	$newPath = preg_replace('/_+/', '_', $newPath);
+	$newPath = str_replace ($invalidChars, '', $newPath);
 
 	if ($returnEmptyOnInvalid && $path != $newPath) {
 		return "";
@@ -969,8 +959,6 @@ Params:
 
 function xmail ($to, $from = array(), $topic, $comment) {
 	global $config, $gpc;
-
-	require_once("classes/mail/class.phpmailer.php");
 
 	$mail = new PHPMailer();
 	$mail->CharSet = 'UTF-8';
