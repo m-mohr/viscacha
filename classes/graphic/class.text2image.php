@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /*
  Start with:
  new text2image;
@@ -11,7 +9,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
  (void) destroy()
 
 */
-
 
 class text2image {
 

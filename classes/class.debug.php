@@ -1,10 +1,11 @@
 <?php
 
 /*
-  Viscacha - A bulletin board solution for easily managing your content
-  Copyright (C) 2004-2017  The Viscacha Project
+  Viscacha - An advanced bulletin board solution to manage your content easily
+  Copyright (C) 2004-2017, Lutana
+  http://www.viscacha.org
 
-  Author: Matthias Mohr (et al.)
+  Authors: Matthias Mohr et al.
   Publisher: The Viscacha Project, http://www.viscacha.org
   Start Date: May 22, 2004
 

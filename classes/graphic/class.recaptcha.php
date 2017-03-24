@@ -1,10 +1,11 @@
 <?php
 
 /*
-  Viscacha - A bulletin board solution for easily managing your content
-  Copyright (C) 2004-2009  The Viscacha Project
+  Viscacha - An advanced bulletin board solution to manage your content easily
+  Copyright (C) 2004-2017, Lutana
+  http://www.viscacha.org
 
-  Author: Matthias Mohr (et al.)
+  Authors: Matthias Mohr et al.
   Publisher: The Viscacha Project, http://www.viscacha.org
   Start Date: May 22, 2004
 
@@ -22,10 +23,6 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-if (defined('VISCACHA_CORE') == false) {
-	die('Error: Hacking Attempt');
-}
 
 class ReCaptcha {
 

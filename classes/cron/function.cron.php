@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 define("PC_MINUTE",		1);
 define("PC_HOUR",		2);
 define("PC_DOM",		3);

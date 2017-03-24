@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /**####################################################################################################**\
    Version: V1.01
    Release Date: 12 Sep 2005

@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /*
 * Scripts are taken from: http://www.php.net/manual/function.parse-ini-file.php
 */

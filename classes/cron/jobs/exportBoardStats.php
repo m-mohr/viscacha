@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 global $db, $config;
 
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics");

@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 global $db, $config;
 
 // Added with 0.8 RC5: Kill old flood elements (only old login attempts)

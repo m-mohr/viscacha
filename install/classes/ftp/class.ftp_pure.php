@@ -1,5 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class ftp extends ftp_base {
 
