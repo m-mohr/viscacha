@@ -548,7 +548,7 @@ elseif ($job == 'nav_edit2') {
 			if ($db->num_rows($result) > 0) {
 				$module_sql = ", module = '{$plug}'";
 				$row = $db->fetch_assoc($result);
-				$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+				$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 				// Do not do that anymore, because it may be required
 				// $db->query("UPDATE {$db->pre}plugins SET active = '{$active}' WHERE id = '{$plug}' LIMIT 1");
 			}
@@ -636,7 +636,7 @@ elseif ($job == 'nav_active') {
 		if ($db->num_rows($result) > 0) {
 			$module_sql = ", module = '{$plug}'";
 			$row = $db->fetch_assoc($result);
-			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 			// Do not do that anymore, because it may be required
 			// $db->query("UPDATE {$db->pre}plugins SET active = '{$pos}' WHERE id = '{$plug}' LIMIT 1");
 		}

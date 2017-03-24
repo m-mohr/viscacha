@@ -420,7 +420,6 @@ $slog->setTopicRead($info['id'], $topforums);
 ($code = $plugins->load('showtopic_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

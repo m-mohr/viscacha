@@ -26,7 +26,7 @@ error_reporting(E_ALL);
 
 define('SCRIPTNAME', 'ajax');
 define('VISCACHA_CORE', '1');
-define('TEMPSHOWLOG', 1);
+define('NON_HTML_RESPONSE', 1);
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");

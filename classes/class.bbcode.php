@@ -40,7 +40,6 @@ class BBCode {
 	var $reader;
 	var $noparse;
 	var $pid;
-	var $benchmark;
 	var $author;
 	var $index;
 	var $url_regex;
@@ -48,10 +47,6 @@ class BBCode {
 	var $currentCBB;
 
 	function __construct($profile = 'viscacha') {
-		$this->benchmark = array(
-			'smileys' => 0,
-			'bbcode' => 0
-		);
 		$this->smileys = null;
 		$this->bbcodes = null;
 		$this->custombb = null;
@@ -379,12 +374,12 @@ class BBCode {
 	}
 
 	// Possible values for $type: html, plain (with linebreaks)
-	function parse ($text, $type = 'html') {
+	function parse ($rawText, $type = 'html') {
 		global $lang, $my;
-		$thiszm1=benchmarktime();
+		Debug::startMeasurement("BBCode::parse()");
 		$this->cache_bbcode();
 		$this->noparse = array();
-		$text = preg_replace("/(\r\n|\r|\n)/", "\n", $text);
+		$text = preg_replace("/(\r\n|\r|\n)/", "\n", $rawText);
 		if($type == 'html' && (!empty($my->p['admin']) || ($my->id > 0 && $my->id == $this->author))) {
 			$text = preg_replace('/\n?\[hide\](.+?)\[\/hide\]/is', '<br /><div class="bb_hide"><strong>'.$lang->phrase('bb_hidden_content').'</strong><span>\1</span></div>', $text);
 		}
@@ -515,8 +510,13 @@ class BBCode {
 		$text = $this->nl2br($text, $type);
 		$text = $this->replacePID($text);
 		$text = $this->censor($text);
-		$thiszm2=benchmarktime();
-		$this->benchmark['bbcode'] += $thiszm2-$thiszm1;
+		Debug::stopMeasurement("BBCode::parse()", array(
+			'text' => substr($rawText, 0, 100),
+			'type' => $type,
+			'profile' => $this->profile,
+			'config' => $this->cfg,
+			'type' => 'bbcode'
+		));
 		return $text;
 	}
 
@@ -691,11 +691,7 @@ class BBCode {
 		$result = str_replace($char.$char, '&nbsp; ', implode("\n", $result));
 		return str_replace($char, '&nbsp;', $result);
 	}
-	function getBenchmark($type='bbcode') {
-		return round($this->benchmark[$type], 5);
-	}
 	function parseSmileys ($text, $type = 'html') {
-		$start = benchmarktime();
 		if ($type != 'plain') {
 			$this->cache_smileys();
 			foreach ($this->smileys as $smiley) {
@@ -713,7 +709,6 @@ class BBCode {
 				}
 			}
 		}
-		$this->benchmark['smileys'] += benchmarktime() - $start;
 		return $text;
 	}
 	function getSmileys () {

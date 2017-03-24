@@ -24,7 +24,7 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-class DB_Driver { // abstract class
+abstract class DB_Driver {
 
 	var $host;
 	var $user;
@@ -34,14 +34,10 @@ class DB_Driver { // abstract class
 	var $pre;
 	var $conn;
 	var $result;
-	var $dbqd;
-	var $logerrors;
-	var $freeResult;
 	var $new_line;
 	var $commentdel;
-	var $errlogfile;
 	var $std_limit;
-	var $all_results;
+	var $system;
 
 	function __construct($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
 	    $this->host = $host;
@@ -49,15 +45,11 @@ class DB_Driver { // abstract class
 	    $this->pwd = $pwd;
 	    $this->database = $dbname;
 	    $this->pre = $dbprefix;
-	    $this->freeResult = true;
 	    $this->result = false;
 	    $this->conn = null;
-	    $this->logerrors = true;
-	    $this->dbqd = array();
         $this->new_line = "\n";
         $this->commentdel = '-- ';
         $this->std_limit = 5000;
-        $this->all_results = array();
 	}
 
 	function quitOnError($die = true) {
@@ -162,22 +154,6 @@ class DB_Driver { // abstract class
 		return $this->pre;
 	}
 
-	function benchmark($type='array') {
-		if ($type == 'time') {
-			$time = 0;
-			foreach ($this->dbqd as $query) {
-				$time += $query['time'];
-			}
-			return $time;
-		}
-		elseif ($type == 'queries') {
-			return count($this->dbqd);
-		}
-		else {
-			return $this->dbqd;
-		}
-	}
-
 	function open($host=null,$user=null,$pwd=null,$dbname=null)  {
 		if (!$this->hasConnection()) {
 			if($host != null) {
@@ -208,43 +184,8 @@ class DB_Driver { // abstract class
 			}
 		}
 
-		if ($this->logerrors) {
-			if (file_exists($this->errlogfile)) {
-				$lines = file($this->errlogfile);
-				foreach($lines as $key => $value) {
-					$value = trim($value);
-					if (empty($value)) {
-						unset($lines[$key]);
-					}
-					else {
-						$lines[$key] = $value; // Also trim it for the file
-					}
-				}
-			}
-			else {
-				$lines = array();
-			}
-
-			$cols = array(
-				$this->errno(),
-				makeOneLine($this->errstr()),
-				$errfile,
-				$errline,
-				makeOneLine($_SERVER['REQUEST_URI']),
-				time(),
-				makeOneLine($errcomment)
-			);
-			$lines[] = implode("\t", $cols);
-
-			@file_put_contents($this->errlogfile, implode("\n", $lines));
-		}
 		$errcomment = nl2br($errcomment);
 	    return "DB ERROR ".$this->errno().": ".$this->errstr()."<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";
-	}
-
-	function benchmarktime() {
-	   list($usec, $sec) = explode(" ", microtime());
-	   return ((float)$usec + (float)$sec);
 	}
 
 	function list_tables($db = null) {
@@ -274,4 +215,3 @@ class DB_Driver { // abstract class
 	}
 
 }
-?>

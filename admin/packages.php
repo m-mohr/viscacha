@@ -558,7 +558,7 @@ elseif ($job == 'package_update2') {
 							}
 						}
 					}
-					$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+					$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 				}
 			}
 			$delobj = $scache->load('modules_navigation');
@@ -889,7 +889,7 @@ elseif ($job == 'package_import2') {
 					VALUES
 					('{$plug['names'][$hook]}','{$packageid}','{$priority}','{$plug['required'][$hook]}','{$hook}')
 					");
-					$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+					$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 				}
 			}
 		}
@@ -1153,7 +1153,7 @@ elseif ($job == 'package_delete2') {
 
 		$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE module = '{$package['id']}' GROUP BY position");
 		while ($data = $db->fetch_assoc($result)) {
-			$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($data['position']).'.php');
 		}
 
 		$cache = array();
@@ -1220,7 +1220,7 @@ elseif ($job == 'package_delete2') {
 		$delobj->delete();
 		if (isset($plug['php']) && is_array($plug['php'])) {
 			foreach ($plug['php'] as $pos => $file) {
-				$path = 'cache/modules/'.$plugins->_group($pos).'.php';
+				$path = 'data/cache/modules/'.$plugins->_group($pos).'.php';
 				if (!isInvisibleHook($pos) && file_exists($path)) {
 					$filesystem->unlink($path);
 				}
@@ -1776,7 +1776,7 @@ elseif ($job == 'package_active') {
 		$db->query("UPDATE {$db->pre}packages SET active = '{$active}' WHERE id = '{$id}'");
 		$result = $db->query("SELECT DISTINCT position FROM {$db->pre}plugins WHERE module = '{$id}'");
 		while ($row = $db->fetch_assoc($result)) {
-			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		}
 		$delobj = $scache->load('components');
 		$delobj->delete();
@@ -2014,7 +2014,7 @@ elseif ($job == 'plugins_move') {
 		elseif ($pos > 0) {
 			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering+1 WHERE id = "'.$id.'"');
 		}
-		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		$delobj = $scache->load('components');
 		$delobj->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
@@ -2035,7 +2035,7 @@ elseif ($job == 'plugins_active') {
 	else {
 		$active = $row['active'] == 1 ? 0 : 1;
 		$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = "'.$id.'"');
-		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		$delobj = $scache->load('components');
 		$delobj->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
@@ -2106,7 +2106,7 @@ elseif ($job == 'plugins_delete2') {
 		$delobj->delete();
 		$delobj = $scache->load('components');
 		$delobj->delete();
-		$path = 'cache/modules/'.$plugins->_group($data['position']).'.php';
+		$path = 'data/cache/modules/'.$plugins->_group($data['position']).'.php';
 		if (!isInvisibleHook($data['position']) && file_exists($path)) {
 			$filesystem->unlink($path);
 		}
@@ -2371,14 +2371,14 @@ elseif ($job == 'plugins_edit2') {
 		unset($ini['php'][$data['position']]);
 		unset($ini['names'][$data['position']]);
 		unset($ini['required'][$data['position']]);
-		$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 	}
 	else {
 		$ini['required'][$hook] = $ini['required'][$data['position']];
 	}
 
 	$myini->write($dir."plugin.ini", $ini);
-	$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
+	$filesystem->unlink('data/cache/modules/'.$plugins->_group($data['position']).'.php');
 
 	ok('admin.php?action=packages&job=plugins', $lang->phrase('admin_packages_ok_plugin_successfully_edited'));
 }
@@ -2615,7 +2615,7 @@ elseif ($job == 'plugins_add3') {
 	$delobj->delete();
 
 	if (!$isInvisibleHook) {
-		$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 	}
 	if ($hook == 'navigation') {
 		ok('admin.php?action=cms&job=nav_addplugin&id='.$package, $lang->phrase('admin_packages_ok_step_3_of_3_plugin_successfully_added_to_navigation'));

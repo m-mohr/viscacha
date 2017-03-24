@@ -794,7 +794,6 @@ elseif ($_GET['action'] == "edithistory") {
 
 $slog->updatelogged();
 if ($tpl->tplsent("header")) {
-	$zeitmessung = t2();
 	echo $tpl->parse("footer");
 }
 $phpdoc->Out();

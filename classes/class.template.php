@@ -66,12 +66,12 @@ class tpl {
 			trigger_error('Image directory does not exist', E_USER_WARNING);
 		}
 
-		$this->benchmark = array('all' => 0, 'ok' => 0, 'error' => 0, 'time' => 0, 'detail' => array('0' => array('time' => 'N/A', 'file' => 'footer.html')));
+		$this->benchmark = array();
 		$this->vars = array();
 		$this->sent = array();
 
 		define("BLADEONE_MODE", $config['debug']);
-		$this->blade = new bladeone\BladeOne($this->dir, 'cache/' . $this->dir);
+		$this->blade = new bladeone\BladeOne($this->dir, 'data/cache/' . $this->dir);
 		$this->blade->setFileExtension('.html');
         $this->blade->directive('lang', function ($expression) {
             return '<?php echo $lang->phrase'.$expression.'; ?>';
@@ -123,14 +123,15 @@ class tpl {
 	}
 
 	public function parse($file) {
-		$start = benchmarktime();
-		$this->benchmark['all'] ++;
+		Debug::startMeasurement("tpl::parse({$file})");
 
 		$tplpath = $this->getPath($file);
+		$debugInfo = array('file' => $tplpath, 'error' => false, 'type' => 'tpl');
+
 		if (!file_exists($tplpath)) {
-			$this->benchmark['error'] ++;
-			$this->benchmark['detail'][] = array('time' => 0, 'file' => $tplpath);
-			return "<!-- File does not exist: {$tplpath} -->";
+			$debugInfo['error'] = true;
+			Debug::stopMeasurement("tpl::parse()", $debugInfo);
+			return null;
 		}
 
 		$content = $this->blade->run(
@@ -141,10 +142,7 @@ class tpl {
 		$this->sent[] = $tplpath;
 		$this->vars = array();
 
-		$delta = benchmarktime() - $start;
-		$this->benchmark['ok'] ++;
-		$this->benchmark['time'] += $delta;
-		$this->benchmark['detail'][] = array('time' => mb_substr($delta, 0, 7), 'file' => $tplpath);
+		Debug::stopMeasurement("tpl::parse({$file})", $debugInfo);
 
 		return $content;
 	}
@@ -154,7 +152,7 @@ class tpl {
 	}
 	
 	protected function getPath($file) {
-		return $this->dir . DIRECTORY_SEPARATOR . $file . $this->blade->getFileExtension();
+		return $this->dir . '/' . $file . $this->blade->getFileExtension();
 	}
 
 }

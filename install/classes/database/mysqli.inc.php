@@ -28,12 +28,10 @@ include_once(__DIR__."/class.db_driver.php");
 
 class DB extends DB_Driver { // MySQLi
 
-	var $system;
 	var $fieldType;
 
 	function __construct($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '') {
 	    $this->system = 'mysqli';
-		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
 		parent::__construct($host, $user, $pwd, $dbname, $dbprefix);
 		$this->fieldType = array(
 			0 => "decimal",
@@ -62,7 +60,6 @@ class DB extends DB_Driver { // MySQLi
 			254 => "char",
 			255 => "geometry"
 		);
-		$this->freeResult = false;
 	}
 
 	function version () {
@@ -88,11 +85,6 @@ class DB extends DB_Driver { // MySQLi
 
 	function close() {
 		if ($this->hasConnection()) {
-			if ($this->freeResult == true) {
-				foreach ($this->all_results as $result) {
-					$this->free_result($result);
-				}
-		    }
 			return mysqli_close($this->conn);
 		}
 		else {
@@ -162,19 +154,7 @@ class DB extends DB_Driver { // MySQLi
 
 		$this->open();
 
-		$start = $this->benchmarktime();
-
 		$this->result = mysqli_query($this->conn, $sql) or trigger_error($this->error($sql), $errfunc);
-
-		$time = $this->benchmarktime() - $start;
-		$this->dbqd[] = array(
-			'query' => $sql,
-			'time' => round($time, 5)
-		);
-
-		if ($this->freeResult == true && $this->isResultSet($this->result)) {
-			$this->all_results[] = $this->result;
-		}
 
 	    return $this->result;
 	}

@@ -3,8 +3,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
-// Debugging / Error Handling things
-require_once("classes/function.errorhandler.php");
 // A class for Languages
 require_once("classes/class.language.php");
 $lang = new lang();
@@ -43,13 +41,16 @@ include_once ("classes/class.language.php");
 // Global functions
 require_once ("classes/function.global.php");
 
-$benchmark = benchmarktime();
-
 $slog = new slog();
 $my = $slog->logged();
 $lang->initAdmin($my->language);
 $tpl = new tpl();
-$slog->checkBan();
+$banned = $slog->checkBan();
+if ($banned !== false) {
+	sendStatusCode(403);
+	$db->close();
+	exit;
+}
 $my->p = $slog->Permissions();
 
 $job = $gpc->get('job', str);
@@ -452,15 +453,9 @@ function head($onload = '') {
 	<?php
 }
 function foot($nocopy = false) {
+	global $config;
 	if ($nocopy == false) {
-		global $config, $benchmark, $db, $lang;
-		$benchmark = round(benchmarktime()-$benchmark, 5);
-		$queries = $db->benchmark('queries');
-		$lang->assign('queries', $queries);
-		$lang->assign('benchmark', $benchmark);
 		?>
-		<br style="line-height: 8px;" />
-		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
 		<div id="copyright">
 			Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
 			Copyright &copy; 2004-2014, The Viscacha Project

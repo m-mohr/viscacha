@@ -502,11 +502,6 @@ function check_mail($email, $simple = false) {
 	}
 }
 
-function benchmarktime() {
-   list($usec, $sec) = explode(" ", microtime());
-   return ((float)$usec + (float)$sec);
-}
-
 function random_word($laenge=8) {
 	$newpass = "";
 	$string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-_?!.";

@@ -195,7 +195,7 @@ if ($_GET['action'] == "search") {
 			'order' => $gpc->get('order', str)
 		);
 		$fid = generate_uid();
-		file_put_contents('cache/search/'.$fid.'.inc.php', serialize($data));
+		file_put_contents('data/cache/search/'.$fid.'.inc.php', serialize($data));
 		$slog->updatelogged();
 		$db->close();
 		sendStatusCode(302, $config['furl'].'/search.php?action=result&fid='.$fid.SID2URL_JS_x);
@@ -210,7 +210,7 @@ elseif ($_GET['action'] == "result") {
 	if (!is_hash($fid)) {
 		error($lang->phrase('query_string_error'), 'search.php'.SID2URL_1);
 	}
-	$file = "cache/search/{$fid}.inc.php";
+	$file = "data/cache/search/{$fid}.inc.php";
 	if (!file_exists($file)) {
 		error($lang->phrase('search_doesntexist'), 'search.php'.SID2URL_1);
 	}
@@ -538,7 +538,6 @@ else {
 ($code = $plugins->load('search_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

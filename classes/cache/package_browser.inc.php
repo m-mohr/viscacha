@@ -3,7 +3,7 @@ class cache_package_browser extends CacheItem {
 
 	var $types;
 
-	function __construct($filename, $cachedir = "cache/") {
+	function __construct($filename, $cachedir) {
 		global $lang;
 		if (SCRIPTNAME != 'admin') {
 			$lang->group('admin/global');

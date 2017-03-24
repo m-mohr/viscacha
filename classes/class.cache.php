@@ -34,7 +34,7 @@ class CacheItem {
 	var $data;
 	var $max_age;
 
-	function __construct($filename, $cachedir = "cache/") {
+	function __construct($filename, $cachedir = "data/cache/") {
 		$this->name = $filename;
 		$this->file = $cachedir.$filename.".inc.php";
 		$this->data = null;
@@ -139,7 +139,7 @@ class CacheServer {
 	var $cachedir;
 	var $data;
 
-	function __construct($cachedir = 'cache/') {
+	function __construct($cachedir = 'data/cache/') {
 		$this->cachedir = $cachedir;
 		$this->data = array();
 	}

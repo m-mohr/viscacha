@@ -12,7 +12,7 @@ if ($job == 'phpinfo') {
 elseif ($job == 'cache') {
 	echo head();
 	$result = array();
-	$dir = "cache/";
+	$dir = "data/cache/";
 	$handle = opendir($dir);
 	while ($file = readdir($handle)) {
 		if ($file != "." && $file != ".." && !is_dir($dir.$file)) {
@@ -57,7 +57,7 @@ elseif ($job == 'cache') {
 
 	$pluginsize = 0;
 	$files = 0;
-	$dir = 'cache/modules/';
+	$dir = 'data/cache/modules/';
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
 			if (mb_strpos($file, '.php') !== false) {
@@ -124,8 +124,8 @@ elseif ($job == 'cache_delete' || $job == 'cache_refresh') {
 		}
 	}
 	else {
-		if (file_exists('cache/'.$file)) {
-			$filesystem->unlink('cache/'.$file);
+		if (file_exists('data/cache/'.$file)) {
+			$filesystem->unlink('data/cache/'.$file);
 			if ($job == 'cache_refresh') {
 				$not = false;
 			}
@@ -150,7 +150,7 @@ elseif ($job == 'cache_delete' || $job == 'cache_refresh') {
 elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 	echo head();
 	$classesdir = 'classes/cache/';
-	$cachedir = 'cache/';
+	$cachedir = 'data/cache/';
 	$dir = iif ($job == 'cache_refresh_all', $classesdir, $cachedir);
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
@@ -174,7 +174,7 @@ elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 }
 elseif ($job == 'cache_delete_plugins') {
 	echo head();
-	$dir = 'cache/modules/';
+	$dir = 'data/cache/modules/';
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
 			if (mb_strpos($file, '.php') !== false) {
@@ -227,14 +227,10 @@ elseif ($job == "credits") {
 	<p>
 		<strong>Used Scripts</strong>:
 		<ul>
-		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.8 by Vincent Blavet</a> (Zip file handling; GNU LPGL)</li>
-		<li><a href="https://github.com/PHPMailer" target="_blank">PHPMailer 5.2.6 by various authors</a> (Sending e-mails; GNU LGPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GNU GPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/98157.html" target="_blank">Advanced FTP client class (Build 2008-09-17) by Alexey Dotsenko</a> (PHP FTP Client; Freely Distributable)</li>
-		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.8.0 by phlyLabs</a> (Punycode converter; GNU LGPL)</li>
 		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG editor; GNU LGPL)</li>
-		<li><a href="http://snoopy.sourceforge.net" target="_blank">Snoopy 1.2.4 by New Digital Group</a> (HTTP file access; GNU LGPL)</li>
-		<li>and many more code snippets, classes and functions...</li>
+		<li>and all the lovely dependencies from the composer.json.</li>
 		</ul>
 		<br class="minibr" />
 		<strong>Used Images</strong>:

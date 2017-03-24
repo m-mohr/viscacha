@@ -140,6 +140,5 @@ elseif ($_GET['action'] == 'm_email' || $_GET['action'] == 'g_email') {
 ($code = $plugins->load('images_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 $db->close();
 ?>

@@ -490,43 +490,6 @@ function logged () {
 }
 
 /**
- * Bans a user.
- *
- * After calling the function exit() is called and script ends.
- * Connection to database is closed. Template 'banned' will be shown.
- * This is not shown in the AdminCP!
- */
-function banish($reason = null, $until = null) {
-	global $config, $db, $phpdoc, $lang, $plugins, $tpl, $my, $breadcrumb;
-
-	if (mb_substr($reason, 0, 6) == 'lang->') {
-		$key = mb_substr($reason, 6);
-		$reason = $lang->phrase($key);
-	}
-	if ($reason == null) {
-		$reason = $lang->phrase('banned_no_reason');
-	}
-	else {
-		$reason = viscacha_htmlspecialchars($reason);
-	}
-	if ($until > 0) {
-		$until = gmdate($lang->phrase('dformat1'), times($until));
-	}
-	else {
-		$until = $lang->phrase('banned_left_never');
-	}
-
-	($code = $plugins->load('permissions_banish')) ? eval($code) : null;
-
-	$tpl->globalvars(compact('reason', 'until'));
-	echo $tpl->parse("banned");
-
-	$phpdoc->Out();
-	$db->close();
-	exit();
-}
-
-/**
  * Checks whether a user has to be banned, and if so, calls $this->banisch().
  */
 function checkBan() {
@@ -570,8 +533,9 @@ function checkBan() {
 		if ($row[2] != 0) {
 			$until = $row[2];
 		}
-		$this->banish($reason, $until);
+		return compact("reason", "until");
 	}
+	return false;
 }
 
 /**

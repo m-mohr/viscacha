@@ -46,7 +46,7 @@ class filesystem {
 
 	function __construct($server, $user, $pw, $port = 21) {
 		if (class_exists('ftp', false) == true) {
-			$this->server = idna($server);
+			$this->server = $server;
 			$this->port = $port;
 			$this->user = $user;
 			$this->pw = $pw;

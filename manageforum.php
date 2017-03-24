@@ -316,7 +316,6 @@ elseif ($_GET['action'] == "stat") {
 ($code = $plugins->load('manageforum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

@@ -548,30 +548,12 @@ elseif ($job == 'search2') {
 }
 elseif ($job == 'server') {
 	$config = $gpc->prepare($config);
-
-	$std_err_reporting = ($config['error_reporting'] != '0' && $config['error_reporting'] != 'E_ALL' && $config['error_reporting'] != 'E_ERROR');
-
 	echo head();
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=server2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
 	  <tr>
 	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_php_web_file_edit'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_php_error_report'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_php_error_report_info'); ?></span></td>
-	   <td class="mbox" width="50%">
-	    <select name="error_reporting">
-	     <option value="-1"<?php echo iif($std_err_reporting, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_php_standard'); ?></option>
-	     <option value="0"<?php echo iif($config['error_reporting'] == '0', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_none'); ?></option>
-	     <option value="E_ALL"<?php echo iif($config['error_reporting'] == 'E_ALL', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_all'); ?></option>
-	     <option value="E_ERROR"<?php echo iif($config['error_reporting'] == 'E_ERROR', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_error'); ?></option>
-	    </select>
-	   </td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_error_handler'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_error_handler_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="error_handler" value="1"<?php echo iif($config['error_handler'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_save_php_errors'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_save_php_errors_info'); ?></span></td>
@@ -597,10 +579,7 @@ elseif ($job == 'server2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('gdversion', int);
-	$c->updateconfig('error_handler', int);
 	$c->updateconfig('error_log', int);
-	$c->updateconfig('error_reporting', str);
 	$c->updateconfig('correctsubdomains', int);
 	$c->updateconfig('hterrordocs', int);
 	$c->savedata();

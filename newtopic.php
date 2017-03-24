@@ -479,7 +479,6 @@ else {
 ($code = $plugins->load('newtopic_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

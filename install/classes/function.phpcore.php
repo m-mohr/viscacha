@@ -24,12 +24,14 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+
+require '../vendor/autoload.php';
+
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 
 /* Fixed php functions */
 
-require '../vendor/autoload.php';
 
 function idna($host) {
 	$idna = new \Mso\IdnaConvert\IdnaConvert();
@@ -82,6 +84,86 @@ function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES, $double_encode = 
 
 function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES) {
 	return htmlspecialchars_decode($text, $quote);
+}
+
+if (!function_exists('mb_strcasecmp')) {
+	function mb_strcasecmp($str1, $str2, $encoding = 'UTF-8') {
+	  return strcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+	}
+}
+
+if (!function_exists('mb_strnatcasecmp')) {
+	function mb_strnatcasecmp($str1, $str2, $encoding = 'UTF-8') {
+	  return strnatcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+	}
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_ucwords')) {
+    /**
+     * @param string $str
+     * @param string $encoding
+     * @return string Uc Words
+     */
+    function mb_ucwords($str, $encoding = 'UTF-8')
+    {
+        $upper = true;
+        $res = '';
+        for ($i = 0; $i < mb_strlen($str, $encoding); $i++) {
+            $c = mb_substr($str, $i, 1, $encoding);
+            if ($upper) {
+                $c = mb_convert_case($c, MB_CASE_UPPER, $encoding);
+                $upper = false;
+            }
+            if ($c == ' ') {
+                $upper = true;
+            }
+            $res .= $c;
+        }
+        return $res;
+    }
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_ucfirst')) {
+    /**
+     * @param string $str
+     * @param string $encoding
+     * @return string Uc first
+     */
+    function mb_ucfirst($str, $encoding = 'UTF-8')
+    {
+        $firstLetter = mb_substr($str, 0, 1, $encoding);
+        $rest = mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
+        return mb_strtoupper($firstLetter, $encoding) . $rest;
+    }
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_str_split')) {
+    /**
+     * @param string $string
+     * @param int $split_length
+     * @param string $encoding
+     * @return array
+     * @throws Exception
+     */
+    function mb_str_split($string, $split_length = 1, $encoding = 'UTF-8')
+    {
+        if ($split_length == 0) {
+            throw new \Exception('The length of each segment must be greater than zero');
+        }
+        $ret = array();
+        $len = mb_strlen($string, $encoding);
+        for ($i = 0; $i < $len; $i += $split_length) {
+            $ret[] = mb_substr($string, $i, $split_length, $encoding);
+        }
+        if (!$ret) {
+            // behave like str_split() on empty input
+            return array("");
+        }
+        return $ret;
+    }
 }
 
 /**
@@ -177,13 +259,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
+	if (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows') !== false) {
 		return true;
 	}
-	elseif (isset($_SERVER['OS']) && mb_strpos(mb_strtolower($_SERVER['OS']), 'Windows') !== false) {
+	else if (isset($_SERVER['OS']) && mb_stristr($_SERVER['OS'], 'Windows') !== false) {
 		return true;
 	}
-	elseif (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows')) {
+	else if (defined(PHP_OS) && mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
 	else {
@@ -193,6 +275,47 @@ function isWindows() {
 function isMac() {
 	$mac = mb_strtoupper(mb_substr(PHP_OS, 0, 3));
 	return ($mac == 'MAC' || $mac == 'DAR');
+}
+
+function ini_isActive($value) {
+	return ($value == 'true' || $value == '1' || mb_strtolower($value) == 'on');
+}
+
+function ini_isSecureHttp() {
+	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')
+		return true;
+	else if (isset($_SERVER['HTTPS']) && ini_isActive($_SERVER['HTTPS']))
+		return true;
+	else
+		return false;
+}
+
+function ini_getSize($value) {
+	$size = @ini_get($value);
+	$size = trim($size);
+	$last = mb_strtolower(substr($size, -1));
+	$size = intval($size);
+	
+	switch($last) {
+		case 'g':
+			$size *= 1024;
+		case 'm':
+			$size *= 1024;
+		case 'k':
+			$size *= 1024;
+	}
+	return $size;
+}
+
+function ini_maxupload() {
+	$keys = array(
+		'post_max_size' => 0,
+		'upload_max_filesize' => 0
+	);
+	foreach ($keys as $key => $bytes) {
+		$keys[$key] = ini_getSize($key);
+	}
+	return min($keys);
 }
 
 /**

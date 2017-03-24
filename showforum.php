@@ -201,7 +201,6 @@ echo $tpl->parse("showforum/index");
 ($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

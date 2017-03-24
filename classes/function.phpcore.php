@@ -24,14 +24,19 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+error_reporting($config['debug'] ? E_ALL : E_ERROR);
+
+require 'vendor/autoload.php';
+
+include('classes/class.debug.php');
+Debug::init($config['debug'], $config['error_log']);
+
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 
 $imagetype_extension = array('gif', 'jpg', 'jpeg', 'png');
 
 /* Fixed php functions */
-
-require 'vendor/autoload.php';
 
 function idna($host) {
 	$idna = new \Mso\IdnaConvert\IdnaConvert();

@@ -578,7 +578,6 @@ elseif ($action == "pmerge2") {
 ($code = $plugins->load('managetopic_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

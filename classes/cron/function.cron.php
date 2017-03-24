@@ -259,11 +259,9 @@ function InitCron() {
 }
 
 function job_benchmark_start() {
-	return benchmarktime();
+	return microtime(true);
 }
 function job_benchmark_end($start) {
-	$duration = benchmarktime() - $start;
-	$duration = round($duration, 5);
-	return $duration;
+	$duration = microtime(true) - $start;
+	return round($duration, 5);
 }
-?>

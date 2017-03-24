@@ -408,15 +408,6 @@ function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = tr
 	return $tpl->parse("main/pages".$template);
 }
 
-function t2 ($start = null) {
-	if ($start === null) {
-		$start = SCRIPT_START_TIME;
-	}
-	$duration = benchmarktime() - $start;
-	$duration = round($duration, 5);
-	return $duration;
-}
-
 
 function UpdateTopicStats($topic) {
 	global $db;
@@ -683,7 +674,6 @@ function GoBoardPW ($bpw, $bid) {
 		$tpl->globalvars(compact("bid"));
 		echo $tpl->parse("main/boardpw");
 		$slog->updatelogged();
-		$zeitmessung = t2();
 		$tpl->globalvars(compact("zeitmessung"));
 		echo $tpl->parse("footer");
 		$phpdoc->Out();
@@ -721,8 +711,6 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	echo $tpl->parse("main/{$errortpl}");
 
 	$slog->updatelogged();
-	$zeitmessung = t2();
-	$tpl->globalvars(compact("zeitmessung"));
 	if ($EOS != null) {
 		echo $tpl->parse($EOS);
 	}

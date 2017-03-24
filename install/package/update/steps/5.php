@@ -144,7 +144,7 @@ setPackagesInactive();
 echo "- Incompatible Packages set as 'inactive'.<br />";
 
 // Refresh Cache
-$dirs = array('cache/', 'cache/modules/');
+$dirs = array('data/cache/', 'data/cache/modules/');
 foreach ($dirs as $dir) {
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {

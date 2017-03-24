@@ -99,7 +99,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 }
 
 // Cache löschen
-$cachedir = 'cache/';
+$cachedir = 'data/cache/';
 if ($dh = @opendir($dir)) {
 	while (($file = readdir($dh)) !== false) {
 		if (mb_strpos($file, '.inc.php') !== false) {

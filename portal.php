@@ -60,9 +60,7 @@ BBProfile($bbcode);
 ($code = $plugins->load('portal')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
-
 $phpdoc->Out();
 $db->close();
 ?>

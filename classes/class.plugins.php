@@ -186,7 +186,7 @@ class PluginSystem {
 
 	function _load_group($pos) {
 		$group = $this->_group($pos);
-		$file = 'cache/modules/'.$group.'.php';
+		$file = 'data/cache/modules/'.$group.'.php';
 
 		if (file_exists($file) == true) {
 			$code = file_get_contents($file);
@@ -201,7 +201,7 @@ class PluginSystem {
 	function _build_code($pos) {
 		global $db, $filesystem;
 		$group = $this->_group($pos);
-		$file = 'cache/modules/'.$group.'.php';
+		$file = 'data/cache/modules/'.$group.'.php';
 
 		if ($this->sqlcache == null) {
 			$this->sqlcache = array();

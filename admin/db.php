@@ -500,16 +500,16 @@ elseif ($job == 'restore2') {
 			$q = $db->multi_query($lines);
 
 			// Clear Cache
-			if ($dh = @opendir("./cache/")) {
+			if ($dh = @opendir("./data/cache/")) {
 				while (($file = readdir($dh)) !== false) {
 					if (mb_strpos($file, '.inc.php') !== false) {
 						$fileTrim = str_replace('.inc.php', '', $file);
-						if (file_exists("classes/cache/{$fileTrim}")) {
+						if (file_exists("classes/data/cache/{$fileTrim}")) {
 							$cache = $scache->load($file);
 							$cache->delete();
 						}
 						else {
-							$filesystem->unlink("./cache/{$file}");
+							$filesystem->unlink("./data/cache/{$file}");
 						}
 					}
 			    }

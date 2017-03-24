@@ -38,9 +38,6 @@ if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'
 	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
 }
 
-// Debugging / Error Handling things
-require_once("classes/function.errorhandler.php");
-
 // Variables
 require_once ("classes/function.gpc.php");
 
@@ -186,24 +183,48 @@ $phpdoc = new OutputDoc();
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
 // Global and important functions (not for cron)
-if (defined('TEMPNOFUNCINIT') == false || ($config['foffline'] && defined('TEMPSHOWLOG') == false)) {
-	define('SCRIPT_START_TIME', benchmarktime());
+if (!defined('CONSOLE_REQUEST')) {
 	$slog = new slog();
 	$my = $slog->logged();
 	$lang->init($my->language);
 	$tpl = new tpl();
-	$slog->checkBan();
+
+	$banned = $slog->checkBan();
+	if ($banned !== false) {
+		if (empty($banned['reason'])) {
+			$banned['reason'] = $lang->phrase('banned_no_reason');
+		}
+
+		if ($banned['until'] > 0) {
+			$banned['until'] = gmdate($lang->phrase('dformat1'), times($banned['until']));
+		}
+		else {
+			$banned['until'] = $lang->phrase('banned_left_never');
+		}
+
+		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
+		if (!defined('NON_HTML_RESPONSE')) {
+			echo $tpl->parse("banned");
+			$phpdoc->Out();
+		}
+		else {
+			sendStatusCode(403);
+		}
+		$db->close();
+		exit();
+	}
 }
 
-if ($config['foffline'] && defined('TEMPSHOWLOG') == false) {
+
+if ($config['foffline']) {
 	$my->p = $slog->Permissions();
-
-	if ($my->p['admin'] != 1) {
-		sendStatusCode(503, 3600);
+	if (!$my->p['admin']) {
+		sendStatusCode(503, 5*60*60);
 		($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
-		echo $tpl->parse("offline");
-
-		$phpdoc->Out();
+		if (!defined('NON_HTML_RESPONSE')) {
+			echo $tpl->parse("offline");
+			$phpdoc->Out();
+		}
 		$db->close();
 		exit();
 	}

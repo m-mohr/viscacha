@@ -49,11 +49,10 @@ $memberdata = $memberdata_obj->get();
 ($code = $plugins->load('forum_start')) ? eval($code) : null;
 
 BoardSelect();
-
+trigger_error("Test", E_USER_ERROR);
 ($code = $plugins->load('forum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();

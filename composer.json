@@ -21,7 +21,10 @@
 		"eftec/bladeone": "dev-master",
 		"lutana/pclzip": "2.8.*",
 		"snoopy/snoopy": "2.0.*",
-		"phpmailer/phpmailer": "5.2.*"
+		"phpmailer/phpmailer": "5.2.*",
+		"monolog/monolog": "1.*",
+		"maximebf/debugbar": "*",
+		"filp/whoops": "*"
 	},
 	"suggest": {
 		"ext-fileinfo": "Needed to get mime type information for uploaded files",

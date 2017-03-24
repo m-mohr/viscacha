@@ -186,7 +186,6 @@ else {
 
 ($code = $plugins->load('log_end')) ? eval($code) : null;
 
-$zeitmessung = t2();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
