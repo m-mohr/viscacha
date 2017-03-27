@@ -62,7 +62,7 @@ class cache_custombb extends CacheItem {
 				}
 				$bb['bbcodereplacement'] = str_replace(array("\r\n", "\n"), "\r", $bb['bbcodereplacement']);
 
-				if (!preg_match('~^'.URL_REGEXP.'$~i', $bb['buttonimage'])) {
+				if (!is_url($bb['buttonimage'])) {
 					if (!empty($bb['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$bb['buttonimage'])) {
 						$bb['buttonimage'] = $config['furl'].'/'.CBBC_BUTTONDIR.$bb['buttonimage'];
 					}

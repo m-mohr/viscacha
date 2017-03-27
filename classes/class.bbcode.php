@@ -62,13 +62,13 @@ class BBCode {
 		$url_word = URL_SPECIALCHARS;
 		$url_auth = "(?:(?:[{$url_word}_\d\-\.]{1,}\:)?[{$url_word}\d\-\._]{1,}@)?"; // Authorisation information
 		$url_host = "(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[{$url_word}\d\.\-]{2,}\.[a-z]{2,7})(?:\:\d+)?"; // Host (domain, tld, ip, port)
-		$url_path = "(?:\/[{$url_word}ß\d\/;\-%@\~,\.\+\!&=_]*)?"; // Path
-		$url_query = "(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%@\+\~\[\]]*)?"; // Query String
+		$url_path = "(?:\/[{$url_word}\d\/;\-%@\~,\.\+\!=_]*)?"; // Path
+		$url_query = "(?:\?[{$url_word}\d=\&;\.:,\_\-\/%@\+\~\[\]]*)?"; // Query String
 		$url_fragment = "(?:#[\w\d\-]*)?"; // Fragment
 
 		// URL RegExp - Two matches predefined: First is whole url, second is URI scheme
 		$this->url_regex = "({$url_protocol}{$url_auth}{$url_host}{$url_path}{$url_query}{$url_fragment})";
-		$this->url_regex2 = "({$url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
+		$this->url_regex2 = "({$url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[{$url_word}\d=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
 
 		$this->setProfile($profile, SP_NEW);
 	}
@@ -378,12 +378,10 @@ class BBCode {
 		$this->cache_bbcode();
 		$this->noparse = array();
 		$text = preg_replace("/(\r\n|\r|\n)/", "\n", $rawText);
-		if($type == 'html' && (!empty($my->p['admin']) || ($my->id > 0 && $my->id == $this->author))) {
-			$text = preg_replace('/\n?\[hide\](.+?)\[\/hide\]/is', '<br /><div class="bb_hide"><strong>'.$lang->phrase('bb_hidden_content').'</strong><span>\1</span></div>', $text);
+		if ($type == 'html') {
+			$text = viscacha_htmlspecialchars($text, ENT_NOQUOTES, false);
 		}
-		else {
-			$text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text);
-		}
+		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text); // Deprecated
 		if ($type == 'plain') {
 			$text = preg_replace("~\[url={$this->url_regex2}\](.+?)\[\/url\]~is", "\\3 (\\1)", $text);
 
@@ -439,7 +437,7 @@ class BBCode {
 
 			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text, $values)) {
 				$pid = $this->noparse_id();
-				if (check_hp($values[1])) {
+				if (is_url($values[1])) {
 					$this->noparse[$pid] = '<a href="'.$values[1].'" target="_blank">'.$values[1].'</a>';
 				}
 				else {
@@ -452,7 +450,7 @@ class BBCode {
 
 			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', '<em>\2</em> (\1)', $text); // For compatibility only
 
-			$text = empty($this->profile['disallow']['img']) ? preg_replace_callback("~\[img\]([^?&=\[\]]+\.(png|gif|bmp|jpg|jpe|jpeg))\[\/img\]~is", array($this, 'cb_image'), $text) : $text;
+			$text = empty($this->profile['disallow']['img']) ? preg_replace_callback("~\[img\]([^?&=\[\]]+\.(png|gif|jpg|jpeg))\[\/img\]~is", array($this, 'cb_image'), $text) : $text;
 			$text = preg_replace_callback("~\[img\]{$this->url_regex2}\[\/img\]~is", array(&$this, 'cb_plain_url'), $text); // Correct invalid image urls
 
 			$text = preg_replace('/\[color=\#?([0-9A-F]{3,6})\](.+?)\[\/color\]/is', '<span style="color: #\1">\2</span>', $text);
@@ -556,7 +554,7 @@ class BBCode {
 	function parseTitle ($topic) {
 		$topic = str_replace("\t", ' ', $topic);
 		$topic = $this->censor($topic);
-		if($topic == mb_strtoupper($topic) && $this->profile['topicuppercase'] == 1) {
+		if($this->profile['topicuppercase'] == 1 && $topic == mb_strtoupper($topic)) {
 			return mb_ucwords(strtolower($topic));
 		}
 		else {

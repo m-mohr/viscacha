@@ -395,7 +395,7 @@ elseif ($_GET['action'] == "pic2") {
 			$error[] = $my_uploader->get_error();
 		}
 	}
-	elseif (!empty($pic) && preg_match('~^'.URL_REGEXP.'$~i', $pic)) {
+	elseif (!empty($pic) && is_url($pic)) {
 		$my->pic = checkRemotePic($pic, $my->id);
 		switch ($my->pic) {
 			case REMOTE_INVALID_URL:
@@ -518,7 +518,7 @@ elseif ($_GET['action'] == "profile2") {
 	if (strlen($_POST['hp']) > 255) {
 		$error[] = $lang->phrase('editprofile_homepage_too_long');
 	}
-	if (!check_hp($_POST['hp'])) {
+	if (!is_url($_POST['hp'])) {
 		$_POST['hp'] = '';
 	}
 	if (strlen($_POST['location']) > 50) {

@@ -28,7 +28,7 @@
 	<div class="bbody">
 		<span class="stext">@lang('showtopic_subject')<strong>{{ $row['topic'] }}</strong></span>
 		<hr />
-		{{ $row['comment'] }}
+		{!! $row['comment'] !!}
 		<br />
 		@if($bottom)
 		<hr />
@@ -36,7 +36,7 @@
 		<div class="fullname stext">{{ $row['fullname'] }}</div>
 		@endif
 		@if(!empty($row['signature']) && $my->opt_showsig == 1)
-		<div class="signature">{{ $row['signature'] }}</div>
+		<div class="signature">{!! $row['signature'] !!}</div>
 		@endif
 		@endif
 	</div>

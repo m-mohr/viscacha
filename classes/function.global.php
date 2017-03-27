@@ -22,8 +22,8 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
-define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜß');
+define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
 define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
 
 define('REMOTE_INVALID_URL', 100);
@@ -91,7 +91,7 @@ function newCAPTCHA($place = null) {
 	return $obj;
 }
 
-function splitWords($text) {
+function splitWords($text) { // TODO: UTF8 - This is not valid anymore
 	$word_seperator = "\\.\\,;:\\+!\\?\\_\\|\s\"'\\#\\[\\]\\%\\{\\}\\(\\)\\/\\\\";
 	return preg_split('/['.$word_seperator.']+?/', $text, -1, PREG_SPLIT_NO_EMPTY);
 }
@@ -122,14 +122,14 @@ function checkmx_idna($host) {
 }
 
 function get_remote($file) {
-	$file = idna($file);
-
-	if (!preg_match('~^'.URL_REGEXP.'$~i', $file)) {
-		return REMOTE_INVALID_URL;
-	}
-
 	if (preg_match('~^www\.~i', $file)) {
 		$file = 'http://'.$file;
+	}
+	
+	$file = idna($file);
+
+	if (!is_url($file)) {
+		return REMOTE_INVALID_URL;
 	}
 
 	$snoopy = new \Snoopy\Snoopy;
@@ -472,13 +472,8 @@ function secure_path($path) {
 	return $sd;
 }
 
-function check_hp($hp) {
-	if (preg_match("~^".URL_REGEXP."$~i", $hp)) {
-		return true;
-	}
-	else {
-		return false;
-	}
+function is_url($url) {
+	return (preg_match("~^".URL_REGEXP."$~i", $url) == 1);
 }
 
 function check_mail($email, $simple = false) {

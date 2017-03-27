@@ -4,7 +4,7 @@
 	<div class="bbody">
 		<span class="stext">@lang('showtopic_subject') @if($showprefix) @lang('showtopic_prefix_title') @endif <strong>{{ $data['topic'] }}</strong></span>
 		<hr />
-		{{ $data['formatted_comment'] }}
+		{!! $data['formatted_comment'] !!}
 	</div>
 </div>
 <br class="minibr" />

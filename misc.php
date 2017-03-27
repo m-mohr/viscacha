@@ -637,7 +637,7 @@ elseif ($_GET['action'] == "bbhelp") {
 }
 elseif ($_GET['action'] == "markasread") {
 	$my->p = $slog->Permissions();
-	if (check_hp($_SERVER['HTTP_REFERER'])) {
+	if (is_url($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
 		if (mb_strpos($config['furl'], $url['host']) !== FALSE) {
 			$loc = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);

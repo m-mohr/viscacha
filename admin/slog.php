@@ -23,12 +23,11 @@ function daynumber($time) {
 ($code = $plugins->load('admin_slog_jobs')) ? eval($code) : null;
 
 $logfiles = array(
-	$db->system => 'data/errlog_'.$db->system.'.inc.php',
-	'php' => 'data/errlog_php.inc.php',
+	'viscacha' => 'data/logs/viscacha.log',
 	'cron' => 'data/cron/cron.log'
 );
 
-if ($job == 'errorlos_clear') {
+if ($job == 'errorlogs_clear') {
 	echo head();
 	$type = $gpc->get('type', path);
 	$url = 'admin.php?action=slog&job=errorlogs&type='.$type;

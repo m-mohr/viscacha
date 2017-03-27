@@ -1206,7 +1206,7 @@ elseif ($job == 'edit2') {
 	if (strlen($query['hp']) > 255) {
 		$error[] = $lang->phrase('admin_member_hp_too_many_chars');
 	}
-	if (!check_hp($query['hp'])) {
+	if (!is_url($query['hp'])) {
 		$query['hp'] = '';
 	}
 	if (strlen($query['location']) > 50) {
@@ -1236,7 +1236,7 @@ elseif ($job == 'edit2') {
 	if (!isset($cache2[$query['opt_5']])) {
 		$error[] = $lang->phrase('admin_member_lang_not_valid');
 	}
-	if (!empty($query['pic']) && preg_match('~^'.URL_REGEXP.'$~i', $query['pic'])) {
+	if (!empty($query['pic']) && is_url($query['pic'])) {
 		$query['pic'] = checkRemotePic($query['pic'], $query['id']);
 		switch ($query['pic']) {
 			case REMOTE_INVALID_URL:

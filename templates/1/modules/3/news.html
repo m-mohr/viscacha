@@ -1,7 +1,7 @@
 <div class="border">
 	<h3>@lang('portal_news') {{ $row['pre'] }} {{ $row['topic'] }}</h3>
 	<div class="bbody">
-		{{ $row['comment'] }}
+		{!! $row['comment'] !!}
 		@if($row['read_more'])
 		<br />
 		<a class="block textright" href="showtopic.php?id={{ $row['id'] }}{{ SID2URL_x }}">@lang('read_more')</a>

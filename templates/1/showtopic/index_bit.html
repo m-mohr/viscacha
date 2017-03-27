@@ -57,7 +57,7 @@
 			@lang('showtopic_subject')<strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
 		</span>
 		<hr />
-		{{ $row->comment }}
+		{!! $row->comment !!}
 		@if(!empty($inner['image_box']))
 		<br /><br />
 		<strong>@lang('post_thumbnails')</strong><br />
@@ -77,7 +77,7 @@
 		<div class="fullname stext">{{ $row->fullname }}</div>
 		@endif
 		@if(!empty($row->signature) && $my->opt_showsig == 1)
-		<div class="signature">{{ $row->signature }}</div>
+		<div class="signature">{!! $row->signature !!}</div>
 		@endif
 		@endif
 		<div class="textright stext">

@@ -33,7 +33,7 @@ function getRedirectURL($standard = true) {
 	global $gpc;
 	$loc = strip_tags($gpc->get('redirect', none));
 	$loc = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $loc);
-	if (check_hp($loc)) {
+	if (is_url($loc)) {
 		$url = parse_url($loc);
 		$file = !empty($url['path']) ? basename($url['path']) : '';
 	}
@@ -80,7 +80,7 @@ function getRequestURI() {
 			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $var['host']),
 			$_SERVER['REQUEST_URI']
 		);
-		if (check_hp($request_uri)) {
+		if (is_url($request_uri)) {
 			$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
 			$url = parse_url($request_uri);
 			if (empty($url['path'])) {
@@ -104,7 +104,7 @@ function getRequestURI() {
 function getRefererURL() {
 	global $config;
 	$request_uri = '';
-	if (check_hp($_SERVER['HTTP_REFERER'])) {
+	if (is_url($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
 		if (!empty($url['query'])) {
 			parse_str($url['query'], $q);

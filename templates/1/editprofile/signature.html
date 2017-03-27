@@ -1,7 +1,7 @@
 @if($preview)
 <div class="border">
 	<h3><img src="@img('signature')" alt="" /> @lang('editprofile_signature_preview')</h3>
-	<div class="bbody signature">{{ $parsedPreview }}</div>
+	<div class="bbody signature">{!! $parsedPreview !!}</div>
 </div>
 <br class="minibr" />
 @endif

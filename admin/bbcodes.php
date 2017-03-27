@@ -627,8 +627,8 @@ elseif ($job == 'custombb_export') {
 	$data = $db->fetch_assoc($result);
 	$data['button'] = null;
 
-	if (!empty($data['buttonimage']) && (preg_match('~^'.URL_REGEXP.'$~i', $data['buttonimage']) || file_exists(CBBC_BUTTONDIR.$data['buttonimage'])) ) {
-		if (preg_match('~^'.URL_REGEXP.'$~i', $data['buttonimage'])) {
+	if (!empty($data['buttonimage']) && ($is_url = is_url($data['buttonimage']) || file_exists(CBBC_BUTTONDIR.$data['buttonimage'])) ) {
+		if ($is_url) {
 			$button = get_remote($data['buttonimage']);
 		}
 		else {
@@ -962,7 +962,7 @@ elseif ($job == 'custombb_delete') {
 	<tr><td class="mbox">
 	<p align="center"><?php echo $lang->phrase('admin_bbc_delete_bbc_question'); ?></p>
 	<p align="center">
-	<?php if (!preg_match('~^'.URL_REGEXP.'$~i', $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) { ?>
+	<?php if (!is_url($image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) { ?>
 	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>&amp;img=1"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_including_image'); ?></a><br />
 	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_without_image'); ?></a><br />
 	<?php } else { ?>
@@ -982,7 +982,7 @@ elseif ($job == 'custombb_delete2'){
 	if ($img == 1) {
 		$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1");
 		$image = $db->fetch_assoc($result);
-		if (!preg_match('~^'.URL_REGEXP.'$~i', $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) {
+		if (!is_url($image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) {
 			$filesystem->unlink(CBBC_BUTTONDIR.$image['buttonimage']);
 		}
 	}
@@ -1053,7 +1053,7 @@ elseif ($job == 'custombb') {
 	<?php
 	while ($bbcode = $db->fetch_assoc($result)) {
 		if (!empty($bbcode['buttonimage'])) {
-			if (!preg_match('~^'.URL_REGEXP.'$~i', $bbcode['buttonimage'])) {
+			if (!is_url($bbcode['buttonimage'])) {
 				$bbcode['buttonimage'] = CBBC_BUTTONDIR.$bbcode['buttonimage'];
 			}
 			$src = "<img style=\"background-color: buttonface; border:solid 1px highlight;\" src=\"{$bbcode['buttonimage']}\" alt=\"\" />";

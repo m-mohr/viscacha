@@ -1317,7 +1317,7 @@ elseif ($job == 'general') {
 	$source = trim(trim(dirname($source)), '/');
 	$furl = $https.$server_name.'/'.$source;
 
-	if (!check_hp($furl)) {
+	if (!is_url($furl)) {
 		$furl = $lang->phrase('admin_unable_to_analyze_url');
 	}
 

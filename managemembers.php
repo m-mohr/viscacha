@@ -197,7 +197,7 @@ elseif ($_GET['action'] == 'edit2') {
 	if (strlen($_POST['hp']) > 255) {
 		$error[] = $lang->phrase('editprofile_homepage_too_long');
 	}
-	if (!check_hp($_POST['hp'])) {
+	if (!is_url($_POST['hp'])) {
 		$_POST['hp'] = '';
 	}
 	if (strlen($_POST['location']) > 50) {
@@ -233,7 +233,7 @@ elseif ($_GET['action'] == 'edit2') {
 	if (!isset($cache2[$_POST['opt_5']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 	}
-	if (!empty($_POST['pic']) && preg_match('~^'.URL_REGEXP.'$~i', $_POST['pic'])) {
+	if (!empty($_POST['pic']) && is_url($_POST['pic'])) {
 		$_POST['pic'] = checkRemotePic($_POST['pic'], $_GET['id'], "managemembers.php?action=edit&id=".$_GET['id']);
 		switch ($_POST['pic']) {
 			case REMOTE_INVALID_URL:

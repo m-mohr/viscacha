@@ -110,14 +110,14 @@
 <br class="minibr" />
 <div class="border">
 	<h3><img src="@img('signature')" alt="" /> @lang('profile_signature')</h3>
-	<div class="bbody">{{ $row->signature }}</div>
+	<div class="bbody">{!! $row->signature !!}</div>
 </div>
 @endif
 @if(mb_strlen($row->about) > 3 && $row->p['useabout'])
 <br class="minibr" />
 <div class="border">
 	<h3><img src="@img('about')" alt="" /> @lang('profile_about')</h3>
-	<div class="bbody">{{ $row->about }}</div>
+	<div class="bbody">{!! $row->about !!}</div>
 </div>
 @endif
 @if($my->p['admin'] == 1)

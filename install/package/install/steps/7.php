@@ -41,12 +41,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbprefix',str);
 	$c->updateconfig('dbsystem',str);
 	$c->savedata();
-
-	$errlog = 'data/errlog_'.$config['dbsystem'].'.inc.php';
-	if (!file_exists($errlog)) {
-		$filesystem->file_put_contents($errlog, '', true);
-		$filesystem->chmod($errlog, 0666);
-	}
 ?>
 <div class="bfoot center">Database Settings saved!</div>
 <?php
