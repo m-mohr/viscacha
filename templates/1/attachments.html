@@ -1,3 +1,6 @@
+@extends('popup')
+
+@section('content')
 <form name="form2" method="post" enctype="multipart/form-data" action="attachments.php?action=save&amp;type={{ $_GET['type'] }}&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
 	<div class="border">
 		<h3><span class="right">[<a href="javascript:self.close();">@lang('close_window')</a>]</span>@lang('manage_uploads')</h3>
@@ -26,3 +29,4 @@
 		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
 	</div>
 </form>
+@endsection

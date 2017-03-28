@@ -6,15 +6,20 @@
 		<link rel="stylesheet" type="text/css" href="designs/{{ $my->cssid }}/standard.css" />
 		<script src="templates/language_{{ $my->language }}.js" type="text/javascript"></script>
 		<script type="text/javascript">
-<!--
-var box_img_plus = '@img('plus')';
-var box_img_minus = '@img('minus')';
-var sidx = '{!! SID2URL_JS_x !!}';
-var sid1 = '{!! SID2URL_JS_1 !!}';
--->
+		<!--
+		var box_img_plus = '@img('plus')';
+		var box_img_minus = '@img('minus')';
+		var sidx = '{!! SID2URL_JS_x !!}';
+		var sid1 = '{!! SID2URL_JS_1 !!}';
+		-->
 		</script>
 		<script src="templates/global.js" type="text/javascript"></script>
 		{!! $htmlhead !!}
 	</head>
 	<body{!! $htmlbody !!}>
 		<div id="blank">
+			{!! FlashMessage::show() !!}
+			@yield('content')
+		</div>
+	</body>
+</html>

@@ -86,7 +86,6 @@ if ($_GET['action'] == "thumbnail") {
 
 }
 elseif ($_GET['action'] == "attachment") {
-
 	if (!is_id($_GET['id'])) {
 		error($lang->phrase('no_id_given'));
 	}
@@ -176,19 +175,18 @@ else {
 	}
 	($code = $plugins->load('attachments_upload_error')) ? eval($code) : null;
 	if ($error == true) {
-		echo $tpl->parse("popup/header");
 		error($lang->phrase('query_string_error'), 'javascript:self.close();');
 	}
 	$my->p = $slog->Permissions($upinfo['board']);
 	$my->mp = $slog->ModPermissions($upinfo['board']);
 
 	if ($my->p['attachments'] != 1) {
-		echo $tpl->parse("popup/header");
 		error($lang->phrase('not_allowed'), 'javascript:self.close();');
 	}
 
 	if ($_GET['action'] == "save") {
 		($code = $plugins->load('attachments_upload_save_start')) ? eval($code) : null;
+		$url = 'attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x;
 		if (is_array($_POST['delete']) && count($_POST['delete']) > 0) {
 			if ($my->mp[0] == 1 || $upinfo['name'] == $my->id) {
 				$ids = array();
@@ -215,10 +213,8 @@ else {
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				');
 
-				$slog->updatelogged();
-				$db->close();
-				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
-				exit;
+				$anz = $db->affected_rows();
+				ok($lang->phrase('editprofile_attachments_deleted'), $url);
 			}
 		}
 		else {
@@ -272,20 +268,14 @@ else {
 			($code = $plugins->load('attachments_upload_save_add_end')) ? eval($code) : null;
 
 			if (count($inserterrors) > 0) {
-				echo $tpl->parse('popup/header');
-				error($inserterrors, 'attachments.php?type='.$_GET['type'].'&amp;id='.$_GET['id'].SID2URL_x);
+				error($inserterrors, $url);
 			}
 			else {
-				$slog->updatelogged();
-				$db->close();
-				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
-				exit;
+				ok($lang->phrase('data_success'), $url);
 			}
 		}
 	}
 	else {
-		echo $tpl->parse("popup/header");
-
 		$filetypes = implode($lang->phrase('listspacer'), explode(',',$config['tpcfiletypes']));
 		$filesize = formatFilesize($config['tpcfilesize']);
 
@@ -317,11 +307,9 @@ else {
 		($code = $plugins->load('attachments_upload_form_prepared')) ? eval($code) : null;
 		echo $tpl->parse("attachments");
 		($code = $plugins->load('attachments_upload_form_end')) ? eval($code) : null;
-		echo $tpl->parse("popup/footer");
 	}
 }
 
 $slog->updatelogged();
 $phpdoc->Out();
 $db->close();
-?>
