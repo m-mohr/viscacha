@@ -48,6 +48,10 @@ class Debug {
 	private static $defaultLogger;
 
 	public static function init($debugModeEnabled = false, $loggingEnabled = false) {
+		if (defined('NON_HTML_RESPONSE') || defined('CONSOLE_REQUEST')) {
+			$debugModeEnabled = false;
+		}
+		
 		self::$debugModeEnabled = $debugModeEnabled;
 		self::$loggingEnabled = $loggingEnabled;
 
@@ -64,7 +68,7 @@ class Debug {
 
 		if (self::$debugModeEnabled) {
 			// Show pretty error messages
-			self::$errorHandler->pushHandler(new PrettyPageHandler);
+//			self::$errorHandler->pushHandler(new PrettyPageHandler);
 
 			// Set up the debug bar
 			self::$debugBar = new DebugBar();
