@@ -92,7 +92,6 @@ if (ceil($info['topics']/$info['forumzahl']) < $_GET['page']) {
 $pages = pages($info['topics'], $info['forumzahl'], 'showforum.php?id='.$board.'&amp;sort='.$_GET['sort'].'&amp;', $_GET['page']);
 
 echo $tpl->parse("header");
-echo $tpl->parse("menu");
 
 ($code = $plugins->load('showforum_forums_start')) ? eval($code) : null;
 

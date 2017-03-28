@@ -210,8 +210,6 @@ if ($allowed == true) {
 		}
 	}
 	else {
-		echo $tpl->parse("menu");
-
 		BBProfile($bbcode);
 
 		($code = $plugins->load('edit_form_start')) ? eval($code) : null;

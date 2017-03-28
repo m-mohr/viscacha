@@ -65,3 +65,5 @@ mq_init();
 			<div id="navigation">@navigation(left)</div>
 			<div class="breadcrumb">@breadcrumb(' &raquo; ', true)</div>
 	<div id="content">
+		@include('menu')
+		{!! FlashMessage::show() !!}

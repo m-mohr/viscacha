@@ -41,7 +41,6 @@ $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();
 
 echo $tpl->parse("header");
-echo $tpl->parse("menu");
 
 ($code = $plugins->load('forum_start')) ? eval($code) : null;
 

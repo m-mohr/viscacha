@@ -111,7 +111,6 @@ else {
 
 	Breadcrumb::universal()->resetUrl();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	if ($db->num_rows($result) == 1) {
 		$row = $slog->cleanUserData($db->fetch_object($result));

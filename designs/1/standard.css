@@ -191,23 +191,42 @@ h1 a, h1 a:hover {
 	color: #24486C;
 }
 
-.notice_box {
+.message_box {
+	color: #839FBC;
 	border: 1px solid #839FBC;
 	background-color: #ffffff;
 	padding: 4px;
-	font-size: 8pt;
+	font-size: 9pt;
 }
-.notice_box strong {
+.message_box strong {
 	float: left;
 	display: block;
-	width: 70px;
+	width: 95px;
 	text-align: center;
-	color: maroon;
 }
-.notice_box span {
-	margin-left: 75px;
+.message_box span {
 	display: block;
+	margin-left: 100px;
 }
+.message_box ul {
+	margin: 0px;
+	padding: 0px;
+	margin-left: 110px;
+}
+.message_box li {
+	margin: 0px;
+	padding: 0px;
+} 
+.notice_box {
+	color: #8a6d3b;
+}
+.error_box {
+	color: #a94442;
+}
+.ok_box {
+	color: #3c763d;
+}
+
 
 /* Navigation */
 #navigation {

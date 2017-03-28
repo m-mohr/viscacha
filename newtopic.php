@@ -99,7 +99,6 @@ if ($_GET['action'] == "startvote") {
 	Breadcrumb::universal()->add($lang->phrase('add_vote_to_thread'));
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('newtopic_startvote_prepared')) ? eval($code) : null;
 	echo $tpl->parse("newtopic/startvote");
 	($code = $plugins->load('newtopic_startvote_end')) ? eval($code) : null;
@@ -319,7 +318,6 @@ elseif ($_GET['action'] == "save") {
 }
 else {
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	BBProfile($bbcode);
 

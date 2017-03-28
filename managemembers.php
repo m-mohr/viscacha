@@ -56,7 +56,6 @@ if ($_GET['action'] == 'delete') {
 	if ($my->id == $user['id']) {
 		error($lang->phrase('member_delete_yourself_error'));
 	}
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/members/delete");
 }
 elseif ($_GET['action'] == 'recount') {
@@ -135,7 +134,6 @@ elseif ($_GET['action'] == 'edit') {
 
 	$customfields = admin_customfields($user['id']);
 
-	echo $tpl->parse("menu");
 	($code = $plugins->load('managemembers_edit_prepared')) ? eval($code) : null;
 	echo $tpl->parse("admin/members/edit");
 	($code = $plugins->load('managemembers_edit_end')) ? eval($code) : null;

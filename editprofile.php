@@ -89,7 +89,6 @@ elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	Breadcrumb::universal()->add($lang->phrase('editprofile_attachments'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
 	$result = $db->query("
@@ -201,7 +200,6 @@ elseif ($_GET['action'] == "abos") {
 
 	Breadcrumb::universal()->add($lang->phrase('editprofile_abos'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_abos_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/abos");
@@ -247,7 +245,6 @@ elseif ($_GET['action'] == "abos2") {
 elseif ($_GET['action'] == "pw") {
 	Breadcrumb::universal()->add($lang->phrase('editprofile_pw'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_pw_start')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/pw");
 	($code = $plugins->load('editprofile_pw_end')) ? eval($code) : null;
@@ -270,7 +267,6 @@ elseif ($_GET['action'] == "signature") {
 	else {
 		Breadcrumb::universal()->add($lang->phrase('editprofile_signature'));
 		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
 		BBProfile($bbcode);
 		$chars = numbers($config['maxsiglength']);
 		if (empty($_POST['signature'])) {
@@ -322,7 +318,6 @@ elseif ($_GET['action'] == "about") {
 	}
 	Breadcrumb::universal()->add($lang->phrase('editprofile_about'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_abos_Start')) ? eval($code) : null;
 
 	BBProfile($bbcode);
@@ -434,7 +429,6 @@ elseif ($_GET['action'] == "pic") {
 	}
 	Breadcrumb::universal()->add($lang->phrase('editprofile_pic'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	$filetypes = str_replace(",", $lang->phrase('listspacer'), $config['avfiletypes']);
 	$filesize = formatFilesize($config['avfilesize']);
 
@@ -444,7 +438,6 @@ elseif ($_GET['action'] == "pic") {
 elseif ($_GET['action'] == "profile") {
 	Breadcrumb::universal()->add($lang->phrase('editprofile_profile'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_profile_start')) ? eval($code) : null;
 
@@ -562,7 +555,6 @@ elseif ($_GET['action'] == "settings") {
 
 	Breadcrumb::universal()->add($lang->phrase('editprofile_settings'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$result = $db->query("SELECT template, language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
 	$update = $db->fetch_assoc($result);
@@ -674,7 +666,6 @@ elseif ($_GET['action'] == "settings2") {
 elseif ($_GET['action'] == "mylast") {
 	Breadcrumb::universal()->add($lang->phrase('editprofile_mylast'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$cache = array();
 
@@ -829,7 +820,6 @@ elseif ($_GET['action'] == "removeabo") {
 else {
 	Breadcrumb::universal()->resetUrl();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_index_start')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/index");
 	($code = $plugins->load('editprofile_index_end')) ? eval($code) : null;

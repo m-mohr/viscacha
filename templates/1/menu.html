@@ -1,3 +1,4 @@
+@if(SCRIPTNAME != 'docs' && SCRIPTNAME != 'portal' && SCRIPTNAME != 'components')
 <div class="border">
 	<h3>
 		<span class="right">@lang('hello_user')
@@ -67,5 +68,6 @@
 	</ul>
 </div>
 </noscript>
-<br />
+<br class="minibr" />
 @hook(template_forum_menu)
+@endif

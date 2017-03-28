@@ -122,7 +122,6 @@ if ($_GET['action'] == "index") {
 	}
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('manageforum_index_prepared')) ? eval($code) : null;
 	echo $tpl->parse("admin/forum/index");
 	($code = $plugins->load('manageforum_index_end')) ? eval($code) : null;
@@ -185,7 +184,6 @@ elseif ($_GET['action'] == "move") {
 	}
 	$forums = BoardSubs();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/forum/move");
 }
 elseif ($_GET['action'] == "move2") {

@@ -315,7 +315,6 @@ else {
 	}
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('addreply_form_prepared')) ? eval($code) : null;
 
