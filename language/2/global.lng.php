@@ -1,7 +1,6 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
-$lang['86400'] = 'Tomorrow, ';
 $lang['about_too_long'] = 'Personal web page is too long';
 $lang['active_members'] = 'Active Members: ';
 $lang['active_topics_title'] = 'Active Topics';
@@ -105,8 +104,9 @@ $lang['confirm_yes'] = 'Yes';
 $lang['contentcounter'] = 'Content';
 $lang['data_success'] = 'Data has been successfully processed';
 $lang['date'] = 'Date';
-$lang['date_today'] = '<strong>Today</strong>, ';
-$lang['date_yesterday'] = 'Yesterday, ';
+$lang['date_today'] = 'Today';
+$lang['date_tomorrow'] = 'Tomorrow';
+$lang['date_yesterday'] = 'Yesterday';
 $lang['delete_form'] = 'Delete';
 $lang['delete_title'] = 'Delete';
 $lang['desc'] = 'Descending';

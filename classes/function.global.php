@@ -521,24 +521,30 @@ function times ($time = false, $timezone = false) {
 function str_date($time = false) {
 	global $config, $lang;
 
-	$defaultFormat = $lang->phrase('datetime_format');
 	if ($time === false) {
 		$time = times();
 	}
 
 	if ($config['semantic_datetime'] == 1) {
 		$delta = times() - gmmktime (0, 0, 0, gmdate('m', $time), gmdate('d', $time), gmdate('Y', $time));
+		$relphrase = null;
 		if ($delta > -86400 && $delta < 0) {
-			return $lang->phrase('date_tomorrow').gmdate($lang->phrase('time_format'), $time);
+			$relphrase = $lang->phrase("date_tomorrow");
 		}
 		elseif ($delta >= 0 && $delta < 86400) {
-			return $lang->phrase('date_today').gmdate($lang->phrase('time_format'), $time);
+			$relphrase = '<strong>'.$lang->phrase("date_today").'</strong>';
 		}
 		elseif ($delta >= 86400 && $delta < 172800) {
-			return $lang->phrase('date_yesterday').gmdate($lang->phrase('time_format'), $time);
+			$relphrase = $lang->phrase("date_yesterday");
+		}
+
+		if ($relphrase !== null) {
+			$formatted = gmdate($lang->phrase('reldatetime_format'), $time);
+			return str_replace('##', $relphrase, $formatted);
 		}
 	}
-	return gmdate($defaultFormat, $time);
+
+	return gmdate($lang->phrase('datetime_format'), $time);
 }
 
 // Returns the extension in lower case ( using pathinfo() ) of an file with a leading dot (e.g. '.gif' or '.php') or not ($leading = false)

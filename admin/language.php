@@ -445,6 +445,10 @@ function errordefault(box) {
    <td class="mbox" width="50%"><input type="text" name="datetime_format" value="<?php echo isset($settings['datetime_format']) ?  $settings['datetime_format'] : 'Y-m-d H:i'; ?>" size="20"></td>
   </tr>
   <tr>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_reldatetime_format'); ?></td>
+   <td class="mbox" width="50%"><input type="text" name="reldatetime_format" value="<?php echo isset($settings['reldatetime_format']) ? $settings['reldatetime_format'] : '##, H:i'; ?>" size="20"></td>
+  </tr>
+  <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_regdate_format'); ?></td>
    <td class="mbox" width="50%"><input type="text" name="date_format" value="<?php echo isset($settings['date_format']) ? $settings['date_format'] : 'Y-m-d'; ?>" size="20"></td>
   </tr>
@@ -505,6 +509,7 @@ elseif ($job == 'lang_settings2') {
 	$c->updateconfig('lang_description', str, $detail);
 	$c->updateconfig('compatible_version', str);
 	$c->updateconfig('datetime_format',str);
+	$c->updateconfig('reldatetime_format',str);
 	$c->updateconfig('date_format',str);
 	$c->updateconfig('time_format',str);
 	$c->savedata();

@@ -108,7 +108,7 @@ class tpl {
 			return $this->compileDateTime($expression, 'time');
         });
         $this->blade->directive('reldatetime', function ($expression) {
-			return $this->compileDateTime($expression);
+			return $this->compileDateTime($expression, 'reldatetime');
         });
 	}
 	
@@ -124,7 +124,7 @@ class tpl {
 		}
 		$expression = 'times('.$expression.')';
 
-		if ($format == null) {
+		if ($format == 'reldatetime') {
 			$formatter = 'str_date('.$expression.')';
 		}
 		else {

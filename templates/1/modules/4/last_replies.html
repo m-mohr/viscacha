@@ -2,7 +2,10 @@
 <div class="border">
 	<h3>@lang('last_posts_reply')</h3>
 	@if($info['posts'] >= $num)
-	<div class="bfoot">@lang('last_posts_info_reply')</div>
+	<div class="bfoot">
+		@lang('last_posts_info_reply')
+		<a href="showtopic.php?id={{ $info['id'] }}" target="_blank">@lang('last_posts_info_reply2')</a>
+	</div>
 	@endif
 </div>
 @foreach ($data as $row)
