@@ -1167,7 +1167,7 @@ function ModPermissions ($bid) {
 	global $my, $db;
 	if ($my->vlogin && $my->id > 0) {
 		if ($this->permissions['admin'] == 1 || $this->permissions['gmod'] == 1) {
-			return array(1,1,1,1,1,1);
+			return array(1,1,1);
 		}
 		else {
 			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
