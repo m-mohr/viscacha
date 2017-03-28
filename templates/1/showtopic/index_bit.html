@@ -32,20 +32,16 @@
 	</div>
 	<div class="inlineheader h3">
 		<div class="viewmembername">
-			@if($row->guest == 0)
 			<a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}">{{ $row->name }}</a>
-			@if($row['online'] == 1)
+			@if($row->online == 1)
 			<img src="@img('online')" title="@lang('profile_online')" alt="@lang('profile_online')" />
 			@else
-			<img src="@img('online')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
-			@endif
-			@else
-			<a href="profile.php?guest={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
+			<img src="@img('offline')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
 			@endif
 			<br /><span class="stext">{{ $row->level }}</span>
 		</div>
 		<div class="viewmemberdetails stext">
-			@if($row->guest == 0)
+			@if($row->deleted_at === null)
 			@lang('post_info_registered_since') {{ $row->regdate }}<br />
 			@lang('post_info_postcount') {{ numbers($row->posts) }}
 			@endif

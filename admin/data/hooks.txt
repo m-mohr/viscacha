@@ -271,17 +271,13 @@ portal.php
 
 profile.php
 -profile_start
--profile_vcard_start
--profile_vcard_prepared
 -profile_mail_errorhandling
 -profile_mail_errordata
 -profile_mail_prepared
 -profile_mail_end
--profile_guest_prepared
 -profile_member_start
 -profile_member_prepared
 -profile_member_end
--profile_member_fallback
 -profile_end
 
 register.php

@@ -1,17 +1,17 @@
 BBProfile($bbcode);
 
-$result = $db->query("SELECT dir, status, id, topic, comment, date, pm_from AS mid FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id = '{$_GET['id']}' AND dir != '2' ORDER BY date ASC");
+$result = $db->query("
+	SELECT p.dir, p.status, p.id, p.topic, p.comment, p.date, u.id AS mid, u.name
+	FROM {$db->pre}pm AS p
+		LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
+	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}' AND p.dir != '2'
+	ORDER BY p.date ASC
+");
 
 if ($db->num_rows($result) != 0) {
 	$row = $gpc->prepare($db->fetch_assoc($result));
-	
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 
-	if (isset($memberdata[$row['mid']])) {
-		$row['name'] = $memberdata[$row['mid']];
-	}
-	else {
+	if (empty($row['name'])) {
 		$row['name'] = $lang->phrase('fallback_no_username');
 	}
 

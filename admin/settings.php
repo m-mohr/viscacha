@@ -241,10 +241,6 @@ elseif ($job == 'posts') {
 	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_topics_posts_title'); ?></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_allow_guest_to_post_without_email'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="guest_email_optional" value="1"<?php echo iif($config['guest_email_optional'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_posts_per_page'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="topiczahl" value="<?php echo $config['topiczahl']; ?>" size="4"></td>
 	  </tr>
@@ -348,7 +344,6 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('edit_delete_time', int);
 	$c->updateconfig('edit_edit_time', int);
 	$c->updateconfig('topiczahl', int);
-	$c->updateconfig('guest_email_optional', int);
 	$c->updateconfig('abozahl', int);
 	$c->updateconfig('multiple_instant_notifications', int);
 	$c->updateconfig('fullname_posts', int);
@@ -954,15 +949,6 @@ elseif ($job == 'captcha') {
 	   </td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_at_guests'); ?></td>
-	   <td class="mbox" width="50%">
-	    <select name="botgfxtest_posts">
-	     <option value="0"<?php echo iif($config['botgfxtest_posts'] != 2, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type0'); ?></option>
-	     <option value="2"<?php echo iif($config['botgfxtest_posts'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type2'); ?></option>
-	    </select>
-	   </td>
-	  </tr>
-	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
@@ -992,12 +978,8 @@ elseif ($job == 'captcha') {
 elseif ($job == 'captcha2') {
 	echo head();
 
-	$register = $gpc->get('botgfxtest', int);
-	$posts = $gpc->get('botgfxtest_posts', int);
-
 	$c->getdata();
 	$c->updateconfig('botgfxtest', int);
-	$c->updateconfig('botgfxtest_posts', int);
 	$c->updateconfig('botgfxtest_recaptcha_public', str);
 	$c->updateconfig('botgfxtest_recaptcha_private', str);
 	$c->savedata();

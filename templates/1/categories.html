@@ -97,11 +97,7 @@
 					</a><br />
 					<span class="left nowrap">
 						@lang('by')
-						@if($forum['l_name'][1])
-						<a href="profile.php?id={{ $forum['l_name'][1] }}{{ SID2URL_x }}">{{ $forum['l_name'][0] }}</a>
-						@else
-						{{ $forum['l_name'][0] }}
-						@endif
+						<a href="profile.php?id={{ $forum['l_uid'] }}{{ SID2URL_x }}">{{ $forum['l_name'] }}</a>
 					</span>
 					<span class="right nowrap">{{ $forum['l_date'] }}</span>
 					@elselang('cat_no_lastpost')

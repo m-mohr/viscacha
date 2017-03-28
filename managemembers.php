@@ -44,7 +44,7 @@ if (!$my->vlogin || $my->p['admin'] == 0) {
 	errorLogin($lang->phrase('not_allowed'));
 }
 
-$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$_GET['id']);
+$result = $db->query("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
 if ($db->num_rows($result) != 1) {
 	error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 }
@@ -68,33 +68,24 @@ elseif ($_GET['action'] == 'delete2') {
 	if ($my->id == $user['id']) {
 		error($lang->phrase('member_delete_yourself_error'));
 	}
-	// Step 1: Write Data to File with old Usernames
-	$olduserdata = file_get_contents('data/deleteduser.php');
-	$olduserdata .= "\n{$user['id']}\t".$user['name'];
-	$olduserdata = trim($olduserdata);
-	file_put_contents('data/deleteduser.php', $olduserdata);
-	// Step 2: Delete all abos
+	// Step 1: Delete all abos
 	$db->query("DELETE FROM {$db->pre}abos WHERE mid = '{$user['id']}'");
-	// Step 4: Delete as mod
+	// Step 2: Delete as mod
 	$db->query("DELETE FROM {$db->pre}moderators WHERE mid = '{$user['id']}'");
-	// Step 5: Delete all pms
+	// Step 3: Delete all pms
 	$db->query("DELETE FROM {$db->pre}pm WHERE pm_to = '{$user['id']}'");
-	// Step 6: Search all old posts by an user, and update to guests post
-	$db->query("UPDATE {$db->pre}replies SET name = '{$user['name']}', email = '{$user['mail']}', guest = '1' WHERE name = '{$user['id']}' AND guest = '0'");
-	// Step 7: Search all old topics by an user, and update to guests post
-	$db->query("UPDATE {$db->pre}topics SET name = '{$user['name']}' WHERE name = '{$user['id']}'");
-	$db->query("UPDATE {$db->pre}topics SET last_name = '{$user['name']}' WHERE last_name = '{$user['id']}'");
-	// Step 8: Set uploads from member to guests-group
-	$db->query("UPDATE {$db->pre}uploads SET mid = '0' WHERE mid = '{$user['id']}'");
-	// Step 9: Delete pic
+	// Step 4: Delete pic
 	removeOldImages('uploads/pics/', $user['id']);
-	// Step 10: Delete user himself
-	$db->query("DELETE FROM {$db->pre}user WHERE id = '{$user['id']}'");
-	// Step 11: Delete user's custom profilefields
+	// Step 5: Soft-delete user himself
+	$db->query("UPDATE {$db->pre}user SET 
+		pw = DEFAULT, mail = DEFAULT, regdate = DEFAULT, posts = DEFAULT, fullname = DEFAULT,
+		hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
+		birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
+		opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
+		template = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
+		WHERE id = '{$user['id']}'");
+	// Step 6: Delete user's custom profilefields
 	$db->query("DELETE FROM {$db->pre}userfields WHERE ufid = '{$user['id']}'");
-
-	$cache = $scache->load('memberdata');
-	$cache = $cache->delete();
 
 	($code = $plugins->load('managemembers_delete_end')) ? eval($code) : null;
 
@@ -131,7 +122,7 @@ elseif ($_GET['action'] == 'edit') {
 	$miny = $year-100;
 	
 	$groups = array();
-	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC, guest ASC, core ASC");
 	while ($row = $db->fetch_assoc($result)) {
 		$groups[] = $row;
 	}
@@ -295,9 +286,6 @@ elseif ($_GET['action'] == 'edit2') {
 
 		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', template = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
-		$cache = $scache->load('memberdata');
-		$cache = $cache->delete();
-
 		ok($lang->phrase('data_success'), "profile.php?id=".$user['id']);
 	}
 }
@@ -310,4 +298,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

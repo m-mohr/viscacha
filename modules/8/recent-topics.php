@@ -1,6 +1,8 @@
 $result = $db->query("
-SELECT t.id, t.board, t.topic, t.last AS date, t.last_name AS name, t.prefix
-FROM {$db->pre}topics AS t LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
+SELECT t.id, t.board, t.topic, t.last AS date, t.prefix, l.id AS luid, l.name AS luname
+FROM {$db->pre}topics AS t
+	LEFT JOIN {$db->pre}forums AS f ON t.board = f.id
+	LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
 WHERE f.opt != 'pw' AND f.invisible != '2' AND f.active_topic = '1' AND t.status != '2' ".$slog->sqlinboards('t.board')."
 ORDER BY t.last DESC
 LIMIT 0,{$config['viscacha_recent_topics']['topicnum']}"
@@ -11,15 +13,8 @@ $prefix = $prefix_obj->get();
 
 if ($db->num_rows($result) > 0) {
 
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
 	$lastbox = array();
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
-		if (is_id($row['name']) && isset($memberdata[$row['name']])) {
-			$row['name'] = $memberdata[$row['name']];
-		}
-
 		$row['date'] = str_date($lang->phrase('dformat1'),times($row['date']));
 
 		if (isset($prefix[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {

@@ -111,23 +111,14 @@ elseif ($_GET['action'] == 'textimage') {
 	$img->build(4, $bg, $fg);
 	$img->output();
 }
-elseif ($_GET['action'] == 'm_email' || $_GET['action'] == 'g_email') {
+elseif ($_GET['action'] == 'm_email') {
 	$email = $lang->phrase('profile_mail_1');
 	
-	if ($_GET['action'] == 'm_email') {
-		$result = $db->query("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
-		if ($db->num_rows($result) == 1) {
-			$row = $db->fetch_assoc($result);
-			if ($row['opt_hidemail'] == 0) {
-				$email = $row['mail'];
-			}
-		}
-	}
-	else {
-		$result = $db->query("SELECT email FROM {$db->pre}replies WHERE id = '{$_GET['id']}' AND guest = '1'");
-		if ($db->num_rows($result) == 1) {
-			$row = $db->fetch_assoc($result);
-			$email = $row['email'];
+	$result = $db->query("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
+	if ($db->num_rows($result) == 1) {
+		$row = $db->fetch_assoc($result);
+		if ($row['opt_hidemail'] == 0) {
+			$email = $row['mail'];
 		}
 	}
 

@@ -7,110 +7,7 @@ $lang->group("timezones");
 
 ($code = $plugins->load('admin_members_jobs')) ? eval($code) : null;
 
-if ($job == 'reserve') {
-	$olduserdata = file('data/deleteduser.php');
-	echo head();
-	?>
-<form name="form" method="post" action="admin.php?action=members&job=reserve_delete">
-<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_reserve_names_title'); ?></td>
-  </tr>
-  <tr class="ubox">
-   <td width="10%" class="center"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
-   <td width="50%"><?php echo $lang->phrase('admin_member_user_name'); ?></td>
-   <td width="40%"><?php echo $lang->phrase('admin_member_name_connected_to_id'); ?></td>
-  </tr>
-	<?php
-	foreach ($olduserdata as $name) {
-		$name = trim($name);
-		if (empty($name)) {
-			continue;
-		}
-		list($id, $username) = explode("\t", $name);
-		?>
-  <tr class="mbox">
-   <td class="center"><input type="checkbox" name="delete[]" value="<?php echo $username; ?>" /></td>
-   <td><?php echo $username; ?></td>
-   <td><?php echo iif(is_id($id), $id, '<em>'.$lang->phrase('admin_member_name_not_connected').'</em>'); ?></td>
-  </tr>
-	<?php } ?>
-  <tr>
-   <td class="ubox center" colspan="3"><input type="submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>" /></td>
-  </tr>
-</table>
-</form>
-<br />
-<form name="form" method="post" action="admin.php?action=members&job=reserve_add">
-<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="3"><?php echo $lang->phrase('admin_member_reserve_names_add'); ?></td>
-  </tr>
-  <tr class="mbox">
-   <td><?php echo $lang->phrase('admin_member_user_name'); ?>:</td>
-   <td><input type="text" name="name" size="60" /></td>
-  </tr>
-  <tr>
-   <td class="ubox center" colspan="2"><input type="submit" value="<?php echo $lang->phrase('admin_member_submit'); ?>" /></td>
-  </tr>
-</table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'reserve_add') {
-	$name = $gpc->get('name', str);
-
-	$error = array();
-	if (double_udata('name', $name) == false) {
-		$error[] = $lang->phrase('admin_member_username_already_in_use');
-	}
-	if (mb_strlen($name) > $config['maxnamelength']) {
-		$error[] = $lang->phrase('admin_member_name_too_long');
-	}
-	if (mb_strlen($name) < $config['minnamelength']) {
-		$error[] = $lang->phrase('admin_member_name_too_short');
-	}
-	if (count($error) > 0) {
-		echo head();
-		error('admin.php?action=members&job=reserve', $error);
-	}
-	else {
-		$olduserdata = file_get_contents('data/deleteduser.php');
-		$olduserdata = trim($olduserdata);
-		$olduserdata .= "\n0\t".$name;
-		$filesystem->file_put_contents('data/deleteduser.php', $olduserdata);
-
-		echo head();
-		ok('admin.php?action=members&job=reserve', $lang->phrase('admin_member_username_successfully_reserved'));
-	}
-}
-elseif ($job == 'reserve_delete') {
-	$del = $gpc->get('delete', arr_none);
-	$olduserdata = file('data/deleteduser.php');
-	$rows = array();
-	foreach ($olduserdata as $name) {
-		$name = trim($name);
-		if (empty($name)) {
-			continue;
-		}
-		list($id, $username) = explode("\t", $name);
-		$save = true;
-		foreach ($del as $username2) {
-			if (mb_strtolower($username2) == mb_strtolower($username)) {
-				$save = false;
-			}
-		}
-		if ($save == true) {
-			$rows[] = $name;
-		}
-	}
-	$filesystem->file_put_contents('data/deleteduser.php', implode("\n", $rows));
-
-	echo head();
-	ok('admin.php?action=members&job=reserve', $lang->phrase('admin_member_selected_reserved_names_deleted'));
-}
-elseif ($job == 'emailsearch') {
+if ($job == 'emailsearch') {
 	echo head();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
@@ -435,7 +332,7 @@ elseif ($job == 'emailsearch2') {
 	}
 
 	if (count($sqlwhere) > 0) {
-		$query = 'SELECT DISTINCT name, mail FROM '.$db->pre.'user WHERE '.implode($sep, $sqlwhere);
+		$query = 'SELECT DISTINCT name, mail FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere);
 		$result = $db->query($query);
 		$users = array();
 		$count = $db->num_rows($result);
@@ -530,7 +427,7 @@ elseif ($job == 'merge2') {
 	$db->query("UPDATE {$db->pre}pm SET pm_to = '{$base['id']}' WHERE pm_to = '{$old['id']}'");
 	$db->query("UPDATE {$db->pre}pm SET pm_from = '{$base['id']}' WHERE pm_from = '{$old['id']}'");
 	// Step 6: Update posts
-	$db->query("UPDATE {$db->pre}replies SET name = '{$base['id']}' WHERE name = '{$old['id']}' AND guest = '0'");
+	$db->query("UPDATE {$db->pre}replies SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
 	// Step 7: Update topics
 	$db->query("UPDATE {$db->pre}topics SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
 	$db->query("UPDATE {$db->pre}topics SET last_name = '{$base['id']}' WHERE last_name = '{$old['id']}'");
@@ -623,9 +520,6 @@ elseif ($job == 'merge2') {
 	// Step 13: Recount User Post Count
 	UpdateMemberStats($base['id']);
 
-	$cache = $scache->load('memberdata');
-	$cache = $cache->delete();
-
 	ok('admin.php?action=members&job=manage', "{$old['name']}'s data is converted to {$base['name']}'s Account.");
 }
 elseif ($job == 'manage') {
@@ -636,7 +530,7 @@ elseif ($job == 'manage') {
 	$letter = $gpc->get('letter', str);
 	$page = $gpc->get('page', int, 1);
 
-	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'user'));
+	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL'));
 	$temp = pages($count[0], "admin.php?action=members&job=manage&sort=".$sort."&amp;letter=".$letter."&amp;order=".$order."&amp;", 25);
 
 	if ($order == '1') $order = 'desc';
@@ -650,13 +544,12 @@ elseif ($job == 'manage') {
 
 	$start = ($page - 1) * 25;
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
+	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	 <tr>
 	  <td class="obox button_multiline">
 	   <a class="button" href="admin.php?action=members&amp;job=register"><?php echo $lang->phrase('admin_member_add_new_member'); ?></a>
-	   <a class="button" href="admin.php?action=members&amp;job=reserve"><?php echo $lang->phrase('admin_member_reserve_names_title'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=merge"><?php echo $lang->phrase('admin_member_merge_users'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=recount"><?php echo $lang->phrase('admin_member_recount_post_counts'); ?></a>
 	  </td>
@@ -725,7 +618,7 @@ elseif ($job == 'recount') {
 	echo head();
 	$id = $gpc->get('id', int);
 	if (is_id($id)) {
-		$result = $db->query("SELECT id, posts FROM {$db->pre}user WHERE id = '{$id}'");
+		$result = $db->query("SELECT id, posts FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
 		if ($db->num_rows($result) != 1) {
 			error('admin.php?action=members&job=manage', $lang->phrase('admin_member_user_not_found'));
 		}
@@ -908,9 +801,6 @@ elseif ($job == 'register2') {
 
 		addprofile_customsave($custom['data'], $redirect);
 
-		$com = $scache->load('memberdata');
-		$cache = $com->delete();
-
 		echo head();
 		ok("admin.php?action=members&job=edit&id=".$redirect, $lang->phrase('admin_member_member_added'));
 	}
@@ -921,7 +811,7 @@ elseif ($job == 'edit') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}user WHERE id = '{$id}'");
+	$result = $db->query("SELECT * FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
 	if ($db->num_rows($result) != 1) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
@@ -1160,7 +1050,7 @@ elseif ($job == 'edit2') {
 		$query[$val] = $gpc->get($val, db_esc);
 	}
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$query['id']);
+	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND id = '.$query['id']);
 	if ($db->num_rows($result) != 1) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
@@ -1302,9 +1192,6 @@ elseif ($job == 'edit2') {
 
 		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_pmnotify = '{$query['opt_1']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
-		$cache = $scache->load('memberdata');
-		$cache = $cache->delete();
-
 		ok("admin.php?action=members&job=manage", $lang->phrase('admin_member_data_saved'));
 	}
 }
@@ -1317,40 +1204,30 @@ elseif ($job == 'delete') {
 	}
 	if (count($delete) > 0) {
 		$did = implode(',', $delete);
-		$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id IN ('.$did.')');
-		$olduserdata = file_get_contents('data/deleteduser.php');
-		while ($user = $gpc->prepare($db->fetch_assoc($result))) {
-			// Step 1: Write Data to File with old Usernames
-			$olduserdata .= "\n{$user['id']}\t{$user['name']}";
-			$olduserdata = trim($olduserdata);
-			// Step 2: Delete all pms
-			$db->query("DELETE FROM {$db->pre}pm WHERE pm_to IN ({$did})");
-			// Step 3: Search all old posts by an user, and update to guests post
-			$db->query("UPDATE {$db->pre}replies SET name = '{$user['name']}', email = '{$user['mail']}', guest = '1' WHERE name = '{$user['id']}' AND guest = '0'");
-			// Step 4: Search all old topics by an user, and update to guests post
-			$db->query("UPDATE {$db->pre}topics SET name = '{$user['name']}' WHERE name = '{$user['id']}'");
-			$db->query("UPDATE {$db->pre}topics SET last_name = '{$user['name']}' WHERE last_name = '{$user['id']}'");
-			// Step 5: Delete pic
-			removeOldImages('uploads/pics/', $user['id']);
+		// Step 1: Delete pics
+		foreach($delete as $uid) {
+			removeOldImages('uploads/pics/', $uid);
 		}
-		$filesystem->file_put_contents('data/deleteduser.php', $olduserdata);
-		// Step 6: Delete all abos
+		// Step 2: Delete all pms
+		$db->query("DELETE FROM {$db->pre}pm WHERE pm_to IN ({$did})");
+		// Step 3: Delete all abos
 		$db->query("DELETE FROM {$db->pre}abos WHERE mid IN ({$did})");
-		// Step 8: Delete as mod
+		// Step 4: Delete as mod
 		$db->query("DELETE FROM {$db->pre}moderators WHERE mid IN ({$did})");
 		$delete = $gpc->get('delete', arr_int);
-		// Step 9: Set uploads from member to guests-group
-		$db->query("UPDATE {$db->pre}uploads SET mid = '0' WHERE mid IN ({$did})");
-		// Step 10: Delete user himself
-		$db->query("DELETE FROM {$db->pre}user WHERE id IN ({$did})");
+		// Step 5: Soft-delete user himself
+		$db->query("UPDATE {$db->pre}user SET 
+			pw = DEFAULT, mail = DEFAULT, regdate = DEFAULT, posts = DEFAULT, fullname = DEFAULT,
+			hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
+			birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
+			opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
+			template = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
+			WHERE id IN ({$did})");
 		$anz = $db->affected_rows();
-		// Step 11: Delete user's custom profile fields
+		// Step 6: Delete user's custom profile fields
 		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
-		$cache = $scache->load('memberdata');
-		$cache = $cache->delete();
-
-		ok('javascript:history.back(-1);', $anz.' members deleted');
+		ok('javascript:history.back(-1);', $lang->phrase('admin_member_members_deleted'));
 	}
 	else {
 		error('javascript:history.back(-1);', $lang->phrase('admin_member_no_specification'));
@@ -1360,8 +1237,12 @@ elseif ($job == 'delete') {
 elseif ($job == 'banned') {
 	echo head();
 	$bannedip = file('data/bannedip.php');
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
+
+	$memberdata = array();
+	$result = $db->query("SELECT id, name FROM {$db->pre}user");
+	while ($row = $db->fetch_assoc($result)) {
+		$memberdata[$row['id']] = $row['name'];
+	}
 	?>
 <form name="form" method="post" action="admin.php?action=members&amp;job=ban_delete">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1529,7 +1410,7 @@ elseif ($job == 'ban_add2') {
 	}
 	elseif ($type == 'user') {
 		$data = $gpc->save_str($data);
-		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$data}' LIMIT 1");
+		$result = $db->query("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$data}' LIMIT 1");
 		if ($db->num_rows($result) == 0) {
 			$error[] = $lang->phrase('admin_member_no_user_found');
 		}
@@ -1722,7 +1603,7 @@ elseif ($job == 'inactive2') {
 	}
 
 	if (count($sqlwhere) > 0) {
-		$query = 'SELECT id, '.implode(',', $keys).' FROM '.$db->pre.'user WHERE '.implode(' AND ', $sqlwhere).' ORDER BY name';
+		$query = 'SELECT id, '.implode(',', $keys).' FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode(' AND ', $sqlwhere).' ORDER BY name';
 		$result = $db->query($query);
 		$count = $db->num_rows($result);
 	}
@@ -2219,7 +2100,7 @@ elseif ($job == 'search2') {
 	$colspan = count($show) + 1;
 
 	if (count($sqlwhere) > 0) {
-		$query = 'SELECT '.implode(',',$sqlkeys).' FROM '.$db->pre.'user WHERE '.implode($sep, $sqlwhere).' ORDER BY name';
+		$query = 'SELECT '.implode(',',$sqlkeys).' FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere).' ORDER BY name';
 		$result = $db->query($query);
 		$count = $db->num_rows($result);
 	}
@@ -2318,9 +2199,6 @@ elseif ($job == 'disallow') {
 		$anz = $db->affected_rows();
 		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
-		$cache = $scache->load('memberdata');
-		$cache = $cache->delete();
-
 		ok('admin.php?action=members&job=activate', $lang->phrase('admin_member_members_deleted'));
 	}
 	else {
@@ -2330,7 +2208,7 @@ elseif ($job == 'disallow') {
 elseif ($job == 'activate') {
 	echo head();
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE confirm != "11" ORDER BY regdate DESC');
+	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND confirm != "11" ORDER BY regdate DESC');
 	?>
 	<form name="form" action="admin.php?action=members&job=disallow" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -2436,7 +2314,7 @@ elseif ($job == 'ips') {
 			if (empty($hostname) || $hostname == $ipaddress) {
 				$hostname = $lang->phrase('admin_member_could_not_resolve_hostname');
 			}
-			$users = $db->query("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u  WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
+			$users = $db->query("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
 			?>
 			<table align="center" class="border">
 			<tr>

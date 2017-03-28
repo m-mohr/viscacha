@@ -43,9 +43,6 @@ $my->pb = $slog->GlobalPermissions();
 echo $tpl->parse("header");
 echo $tpl->parse("menu");
 
-$memberdata_obj = $scache->load('memberdata');
-$memberdata = $memberdata_obj->get();
-
 ($code = $plugins->load('forum_start')) ? eval($code) : null;
 
 BoardSelect();

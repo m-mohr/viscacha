@@ -9,11 +9,13 @@
     </td>
 	<td width="20%" class="stext">
 		{{ $rstart }}<br />
-		@lang('written_by') {{ $row->name }}
+		@lang('written_by')
+		<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
 	</td>
-	<td width="10%" align="center">{{ numbers($row->posts) }}</td>
-	<td width="20%" align="right"><span class="stext">
+	<td width="10%" class="center">{{ numbers($row->posts) }}</td>
+	<td width="20%" class="textright stext">
 			{{ $rlast }}<br />
-			@lang('written_by') {{ $row->last_name }}
-		</span></td>
+			@lang('written_by')
+			<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
+	</span></td>
 </tr>

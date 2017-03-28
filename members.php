@@ -62,7 +62,7 @@ if ($_GET['action'] == 'team') {
 	$result = $db->query('
 	SELECT id, name, mail, hp, location, fullname, groups
 	FROM '.$db->pre.'user
-	WHERE '.implode(' OR ',$cache).'
+	WHERE deleted_at IS NULL AND '.implode(' OR ',$cache).'
 	ORDER BY name ASC
 	');
 
@@ -142,7 +142,7 @@ else {
 		$sqlorderby = "{$_GET['sort']} {$_GET['order']}, name {$_GET['order']}";
 	}
 
-	$sqlwhere = array();
+	$sqlwhere = array('deleted_at IS NULL');
 	$_GET['letter'] = $gpc->get('letter', db_esc);
 	if (mb_strlen($_GET['letter']) == 1) {
 		if ($_GET['letter'] == '#') {
@@ -180,9 +180,6 @@ else {
 		elseif (count($sqlwhere_findinset) > 1) {
 			$sqlwhere[] = '('.implode(' OR ', $sqlwhere_findinset).')';
 		}
-	}
-	if (count($sqlwhere) == 0) {
-		$sqlwhere[] = '1=1';
 	}
 	$sqlwhere = implode(' AND ', $sqlwhere);
 
@@ -304,7 +301,7 @@ else {
 		'' => array('url' => '', 'html' => $lang->phrase('members_all'))
 	);
 	$specials = false;
-	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter");
+	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user WHERE deleted_at IS NULL ORDER BY letter");
 	while ($row = $db->fetch_assoc($result)) {
 		if (in_array($row['letter'], $available)) {
 			$letter[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);
@@ -327,4 +324,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

@@ -116,7 +116,7 @@ $glk_forums = array(
 	'f_edit' => 'edit',
 	'f_voting' => 'voting'
 );
-$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
+$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit', 'posttopics', 'postreplies', 'addvotes', 'attachments');
 
 function getLangCodesByDir($dir) {
 	$d = dir($dir);

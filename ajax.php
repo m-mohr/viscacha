@@ -99,7 +99,7 @@ elseif ($action == 'doubleudata') {
 elseif ($action == 'searchmember') {
 	$request = 1;
 	if (mb_strlen($_GET['name']) > 2) {
-		$result = $db->query('SELECT name FROM '.$db->pre.'user WHERE name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
+		$result = $db->query('SELECT name FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
 		$user = array();
 		while ($row = $db->fetch_assoc($result)) {
 			$user[] = $row['name'];

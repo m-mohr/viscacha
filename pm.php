@@ -46,7 +46,7 @@ if ($_GET['action'] == 'show') {
 	$result = $db->query("
 	SELECT
 		   p.dir, p.status, p.id, p.topic, p.comment, p.date, p.pm_from as mid,
-		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.posts,
+		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.posts, u.deleted_at,
 		   f.*, IF (s.mid > 0, 1, 0) AS online
 	FROM {$db->pre}pm AS p
 		LEFT JOIN {$db->pre}user AS u ON p.pm_from = u.id
@@ -65,31 +65,14 @@ if ($_GET['action'] == 'show') {
 		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
 	}
 
-	if (empty($row['name'])) {
-		$row['regdate'] = '-';
-		$row['groups'] = 'guest';
+	$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
 
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
-
-		if (isset($memberdata[$row['mid']])) {
-			$row['name'] = $memberdata[$row['mid']];
-		}
-		else {
-			$row['name'] = $lang->phrase('fallback_no_username');
-		}
-		$row['location'] = '-';
-		$row['groups'] = GROUP_GUEST;
-	}
-	else {
-		$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
-	}
 	$bbcode->setSmileys(1);
 	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 	$row['read'] = iif($row['status'] == 1,'old','new');
-	$row['level'] = $slog->getStatus($row['groups'], ', ');
+	$row['level'] = $slog->getStatus($row['groups'], ', ', $row['deleted_at'] !== null);
 	if ($row['dir'] == 2) {
 		$row['fullname'] = $my->fullname;
 	}
@@ -221,7 +204,7 @@ elseif ($_GET['action'] == "save") {
 
 	$name_id = 0;
 	if (mb_strlen($_POST['name']) > 0) {
-		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_POST['name'].'" LIMIT 1');
+		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name = "'.$_POST['name'].'" LIMIT 1');
 		$user = $db->fetch_num($result);
 		if (!empty($user[0])) {
 			$name_id = $user[0];
@@ -274,7 +257,7 @@ elseif ($_GET['action'] == "save") {
 		}
 
 		$lang_dir = $lang->getdir(true);
-		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE id = '{$name_id}'");
+		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$name_id}'");
 		$row = $slog->cleanUserData($db->fetch_assoc($result));
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
@@ -358,11 +341,7 @@ elseif ($_GET['action'] == "browse") {
 	}
 	Breadcrumb::universal()->add($dir_name);
 
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
 	($code = $plugins->load('pm_browse_start')) ? eval($code) : null;
-
 
 	$result = $db->query("
 	SELECT COUNT(*)
@@ -378,10 +357,11 @@ elseif ($_GET['action'] == "browse") {
 
 	($code = $plugins->load('pm_browse_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT id, pm_from, topic, date, status, pm_to
-	FROM {$db->pre}pm
-	WHERE pm_to = '{$my->id}' AND dir = '{$_GET['id']}'
-	ORDER BY date DESC
+	SELECT p.id, p.topic, p.date, p.status, p.pm_to, u.id AS pm_from, u.name
+	FROM {$db->pre}pm AS p
+		LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
+	WHERE p.pm_to = '{$my->id}' AND p.dir = '{$_GET['id']}'
+	ORDER BY p.date DESC
 	LIMIT {$start}, {$config['pmzahl']}
 	");
 
@@ -400,10 +380,7 @@ elseif ($_GET['action'] == "browse") {
 			$row['alt'] = $lang->phrase('pm_oldicon');
 			$row['src'] = $tpl->img('dir_open');
 		}
-		if (isset($memberdata[$row['pm_from']])) {
-			$row['name'] = $memberdata[$row['pm_from']];
-		}
-		else {
+		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}
 		($code = $plugins->load('pm_browse_entry_prepared')) ? eval($code) : null;
@@ -418,19 +395,17 @@ else {
 	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
 	$time = time()-60*60*24*7;
 	$timestamp = $time > $my->clv ? $my->clv : $time;
 
 	($code = $plugins->load('pm_index_start')) ? eval($code) : null;
 
 	$result = $db->query("
-	SELECT id, pm_from, topic, date, status, pm_to
-	FROM {$db->pre}pm
-	WHERE pm_to = '{$my->id}' AND (date > {$timestamp} OR  status = '0') AND dir != '2'
-	ORDER BY date DESC
+	SELECT p.id, p.topic, p.date, p.status, p.pm_to, u.id AS pm_from, u.name
+	FROM {$db->pre}pm AS p
+		LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
+	WHERE p.pm_to = '{$my->id}' AND (p.date > {$timestamp} OR  p.status = '0') AND p.dir != '2'
+	ORDER BY p.date DESC
 	");
 
 	$count = $db->num_rows($result);
@@ -449,10 +424,7 @@ else {
 			$row['alt'] = $lang->phrase('pm_oldicon');
 			$row['src'] = $tpl->img('dir_open');
 		}
-		if (isset($memberdata[$row['pm_from']])) {
-			$row['name'] = $memberdata[$row['pm_from']];
-		}
-		else {
+		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}
 		($code = $plugins->load('pm_index_entry_prepared')) ? eval($code) : null;
@@ -477,4 +449,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

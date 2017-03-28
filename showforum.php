@@ -106,15 +106,15 @@ if ($info['topics'] > 0) {
 
 	($code = $plugins->load('showforum_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, id, board, topic, date, status, last, last_name, sticky, name
-	FROM {$db->pre}topics
-	WHERE board = '{$board}' {$marksql}
-	ORDER BY sticky DESC, last DESC
+	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+		u.name, u.id AS uid, l.id AS luid, l.name AS luname
+	FROM {$db->pre}topics AS t
+		LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
+	WHERE t.board = '{$board}' {$marksql}
+	ORDER BY t.sticky DESC, t.last DESC
 	LIMIT {$start}, {$info['forumzahl']}
 	");
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$pref = '';
@@ -129,18 +129,6 @@ if ($info['topics'] > 0) {
 		}
 
 		$last = $fc[$row->board];
-
-		if(is_id($row->name) && isset($memberdata[$row->name])) {
-			$row->mid = $row->name;
-			$row->name = $memberdata[$row->name];
-		}
-		else {
-			$row->mid = FALSE;
-		}
-
-		if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-			$row->last_name = $memberdata[$row->last_name];
-		}
 
 		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
@@ -204,4 +192,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

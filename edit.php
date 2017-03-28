@@ -33,7 +33,7 @@ include ("classes/function.viscacha_frontend.php");
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
 $result = $db->query('
-SELECT r.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status, r.guest
+SELECT r.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status
 FROM '.$db->pre.'replies AS r
 	LEFT JOIN '.$db->pre.'topics AS t ON r.topic_id = t.id
 WHERE r.id = "'.$_GET['id'].'"
@@ -82,7 +82,7 @@ $del_mod = ($my->mp[1] == 1 && $del_post);
 $del_user = ($delete_seconds >= $diff && $del_post);
 $p_upload = ($config['tpcallow'] == 1 && $my->p['attachments'] == 1);
 
-$allowed = ((($info['name'] == $my->id && $info['guest'] == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
+$allowed = ((($info['name'] == $my->id && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
 
 ($code = $plugins->load('edit_start')) ? eval($code) : null;
 
@@ -99,15 +99,13 @@ if ($allowed == true) {
 
 			if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
 				if ($info['tstart'] == 1) {
-					$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name");
+					$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' GROUP BY name");
 					while ($row = $db->fetch_assoc($result)) {
-						$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
+						$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
 					}
 				}
 				else {
-					if ($info['guest'] == 0 && $last['count_posts'] == 1) {
-						$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}'");
-					}
+					$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}' AND deleted_at IS NULL");
 				}
 			}
 			$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
@@ -273,4 +271,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

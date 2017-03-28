@@ -7,7 +7,7 @@ list($topics) = $db->fetch_num($result);
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies");
 list($posts) = $db->fetch_num($result);
 
-$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE confirm = '11'");
+$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE deleted_at IS NULL AND confirm = '11'");
 list($members) = $db->fetch_num($result);
 
 include("language/{$config['langdir']}/settings.lng.php");

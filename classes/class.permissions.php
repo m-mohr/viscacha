@@ -142,8 +142,11 @@ function getIP() {
  * @param String Separator for the titles or empty string
  * @return mixed An array with the titles or a string (depends on second parameter)
  */
-function getStatus($groups, $implode = '') {
-	global $scache;
+function getStatus($groups, $implode = '', $deleted = false) {
+	global $scache, $lang;
+	if ($deleted) {
+		return $lang->phrase('fallback_no_username_group');
+	}
 	$titles = array();
 	if (count($this->statusdata) == 0) {
 		$group_status = $scache->load('groups');
@@ -166,15 +169,6 @@ function getStatus($groups, $implode = '') {
 			if (!isset($this->statusdata[$gid])) {
 				continue;
 			}
-/* This is to show only the Admintitle for admins. Removed in 0.8 RC5 (was an undocumented feature before ;-) )
-			if ($this->statusdata[$gid]['admin'] == 1) {
-				if (empty($implode)) {
-					return array($this->statusdata[$gid]['title']);
-				}
-				else {
-					return $this->statusdata[$gid]['title'];
-				}
-			} */
 			if ($this->statusdata[$gid]['core'] != 1 || $this->statusdata[$gid]['admin'] == 1) {
 				$titles[] = $this->statusdata[$gid]['title'];
 			}
@@ -569,7 +563,7 @@ function sid_load() {
 	FROM '.$db->pre.'session AS s
 		LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id
 		LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
-	WHERE '.$sql.'
+	WHERE u.deleted_at IS NULL AND '.$sql.'
 	LIMIT 1
 	');
 
@@ -611,7 +605,11 @@ function sid_new() {
 	}
 
 	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
-		$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1');
+		$result = $db->query('
+			SELECT u.*, f.*
+			FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
+			WHERE u.deleted_at IS NULL AND u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"
+			LIMIT 1');
 		$my = $this->cleanUserData($db->fetch_object($result));
 		$nodata = ($db->num_rows($result) == 1) ? false : true;
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
@@ -695,7 +693,7 @@ function sid_login($remember = true) {
 	FROM {$db->pre}user AS u
 		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}')
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id
-	WHERE u.name = '{$username}'
+	WHERE u.name = '{$username}' AND u.deleted_at IS NULL
 	");
 	$mytemp = $db->fetch_object($result);
 	if (is_object($mytemp) && check_pw($pw, $mytemp->pw) && $mytemp->confirm == '11') {

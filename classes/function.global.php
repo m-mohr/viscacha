@@ -96,6 +96,10 @@ function splitWords($text) { // TODO: UTF8 - This is not valid anymore
 	return preg_split('/['.$word_seperator.']+?/', $text, -1, PREG_SPLIT_NO_EMPTY);
 }
 
+function makeOneLine($str) {
+	return str_replace(array("\r\n","\n","\r","\t","\0"), ' ', $str);
+}
+
 function checkmx_idna($host) {
 	if (empty($host)) {
 		return false;
@@ -261,25 +265,8 @@ function array_empty_trim($array) {
 
 function double_udata ($opt,$val) {
 	global $db;
-	$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE '.$opt.' = "'.$val.'" LIMIT 1');
-	if ($db->num_rows($result) == 0) {
-		if ($opt == 'name') {
-			$olduserdata = file('data/deleteduser.php');
-			foreach ($olduserdata as $row) {
-				$row = trim($row);
-				if (!empty($row)) {
-					$row = explode("\t", $row);
-					if (mb_strtolower($row[1]) == mb_strtolower($val)) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
-	else {
-		return false;
-	}
+	$result = $db->query("SELECT id FROM {$db->pre}user WHERE {$opt} = '{$val}' LIMIT 1");
+	return ($db->num_rows($result) == 0);
 }
 
 function getDocLangID($data) {
@@ -655,9 +642,9 @@ function UpdateBoardLastStats($board) {
 
 function UpdateMemberStats($id) {
 	global $db;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}' AND guest = '0'");
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}'");
 	$count = $db->fetch_num ($result);
-	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}'");
+	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}' AND deleted_at IS NULL");
 	return $count[0];
 }
 

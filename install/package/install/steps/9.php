@@ -69,11 +69,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$error[] = 'The specified passwords are not exactly the same';
 			}
 
-			$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_REQUEST['name'].'" LIMIT 1');
-			if ($db->num_rows($result) > 0) {
-				$error[] = 'The specified user name is already in use';
-			}
-
 			if (count($error) > 0) {
 				?>
 		<div class="bbody">

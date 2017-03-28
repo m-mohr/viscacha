@@ -21,28 +21,9 @@
 	<div class="border">
 		<h3><img src="@img('newtopic')" alt="" /> @lang('newtopic_title')</h3>
 		<div class="bbody">
-			@if(!$my->vlogin)
-			<label for="name">@lang('name')</label>
-			<input tabindex="1" type="text" id="name" class="label" name="name" size="40" value="{{ $data['name'] }}" />
-			<br class="newinput" /><hr class="formsep" />
-			<label for="email">@lang('email')</label>
-			<input tabindex="2" type="text" id="email" class="label" name="email" size="40" value="{{ $data['email'] }}" />
-			<br class="newinput" /><hr class="formsep" />
-			@if($captcha !== null)
-			<label for="letter">
-				@lang('veriword_check')<br />
-				<span class="stext">@lang('register_veriword')</span>
-			</label>
-			<div class="label">
-				{!! $captcha->generateCode(3) !!}
-			</div>
-			<br class="newinput" /><hr class="formsep" />
-			@endif
-			@else
 			<label>@lang('logged_in_as')</label>
 			<span>{{ $my->name }} [<a href="log.php?action=logout{{ SID2URL_x }}">@lang('logout')</a>]</span>
 			<br class="newinput" /><hr class="formsep" />
-			@endif
 			@if($last['message_active'] == '2')
 			<label>@lang('board_rules'):</label>
 			<a class="label" href="misc.php?action=board_rules&amp;id={{ $board }}{{ SID2URL_x }}" target="_blank">{{ $last['message_title'] }}</a>
@@ -84,7 +65,6 @@
 				@lang('vote_replies') <input tabindex="11" type="text" id="temp" name="temp" size="4" value="{{ $data['replies'] }}" />
 			</div>
 			<br class="newinput" />
-			@if($my->vlogin)
 			<hr class="formsep" />
 			<label for="digest">@lang('topic_abo')</label>
 			<select class="label" name="digest" id="digest" tabindex="12">
@@ -94,7 +74,6 @@
 				<option value="3"@selected($data['digest'] == 3)>@lang('digest_w')</option>
 			</select>
 			<br class="newinput" />
-			@endif
 			@endif
 		</div>
 		<div class="bfoot center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="@lang('submit_form')"> <input tabindex="14" type="submit" name="Preview" value="@lang('preview_form')" /></div>

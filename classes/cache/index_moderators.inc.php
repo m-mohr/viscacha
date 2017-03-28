@@ -7,20 +7,19 @@ class cache_index_moderators extends CacheItem {
 	}
 
 	function load() {
-		global $db, $scache;
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
+		global $db;
 		if ($this->exists() == true) {
 		    $this->import();
 		}
 		else {
-		    $result = $db->query('SELECT mid, bid FROM '.$db->pre.'moderators');
+			$result = $db->query("
+				SELECT u.id AS mid, u.name, m.bid
+				FROM {$db->pre}moderators AS m
+					LEFT JOIN {$db->pre}user AS u ON u.id = m.mid
+			");
 		    $this->data = array();
 		    while($row = $db->fetch_assoc($result)) {
-		    	if (isset($memberdata[$row['mid']])) {
-		    		$row['name'] = $memberdata[$row['mid']];
-		    		$this->data[$row['bid']][] = $row;
-		    	}
+		    	$this->data[$row['bid']][] = $row;
 		    }
 			$this->export();
 		}

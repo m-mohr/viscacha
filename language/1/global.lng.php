@@ -443,6 +443,7 @@ $lang['profile_bday_full'] = '{@bday->2}. {@bday->1} {@bday->0} (Alter: {$bday_a
 $lang['profile_bday_short'] = '{@bday->2}. {@bday->1}';
 $lang['profile_board_info'] = 'Foreninformationen';
 $lang['profile_contact'] = 'Kontaktinformationen';
+$lang['profile_deleted_member'] = 'Keine Informationen zum Mitglied verfügbar, da das Mitglied entfernt wurde.';
 $lang['profile_gender'] = 'Geschlecht:';
 $lang['profile_group'] = 'Benutzergruppe(n):';
 $lang['profile_homepage'] = 'Homepage:';

@@ -450,9 +450,6 @@ function BoardSelect($board = 0) {
 	$categories_obj = $scache->load('categories');
 	$cat_cache = $categories_obj->get();
 
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
 	$index_moderators = $scache->load('index_moderators');
 	$mod_cache = $index_moderators->get();
 
@@ -464,10 +461,10 @@ function BoardSelect($board = 0) {
 	$result = $db->query("
 	SELECT
 		f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
-		t.topic as l_topic, t.prefix AS l_prefix, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
+		t.topic as l_topic, t.prefix AS l_prefix, t.id as l_tid, t.last as l_date, u.name AS l_name, u.id AS l_uid, f.id AS l_bid
 	FROM {$db->pre}forums AS f
-		LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id
-		LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id
+		LEFT JOIN {$db->pre}topics AS t ON f.last_topic = t.id
+		LEFT JOIN {$db->pre}user AS u ON t.last_name= u.id
 	ORDER BY f.parent, f.position
 	");
 
@@ -477,14 +474,13 @@ function BoardSelect($board = 0) {
 		'l_topic' => null,
 		'l_tid' => null,
 		'l_date' => null,
-		'l_uname' => null,
+		'l_uid' => null,
 		'l_name' => null,
 		'l_bid' => null
 	);
 
 	while($row = $db->fetch_assoc($result)) {
 		$row['name'] = $gpc->prepare($row['name']);
-		$row['l_uname'] = $gpc->prepare($row['l_uname']);
 		$row['l_name'] = $gpc->prepare($row['l_name']);
 		$row['bid'] = $cat_cache[$row['parent']]['parent'];
 		// Caching for Subforums
@@ -530,13 +526,6 @@ function BoardSelect($board = 0) {
 				}
 			}
 			$forum = array_merge($forum, array_intersect_key($last, $keys));
-
-			if (is_id($forum['l_name']) && isset($memberdata[$forum['l_name']])) {
-				$forum['l_name'] = array($forum['l_uname'], $forum['l_name']);
-			}
-			else {
-				$forum['l_name'] = array($forum['l_name'], 0);
-			}
 
 			// Rechte und Gelesensystem
 			if ($forum['opt'] != 're') {

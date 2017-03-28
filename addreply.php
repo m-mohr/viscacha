@@ -42,6 +42,7 @@ if ($db->num_rows($result) == 0) {
 	error($lang->phrase('query_string_error'));
 }
 $my->p = $slog->Permissions($info['board']);
+$my->mp = $slog->ModPermissions($info['board']);
 
 $info['topic'] = $gpc->prepare($info['topic']);
 
@@ -76,14 +77,10 @@ if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) {
 
 $validDigest = array(-1, 1, 2, 3, 9);
 $standard_data = array(
-	'name' => '',
-	'email' => '',
-	'guest' => iif($my->vlogin, 0, 1),
 	'comment' => '',
 	'dosmileys' => 1,
 	'digest' => 0,
 	'topic' => $lang->phrase('reply_prefix').$info['topic'],
-	'human' => false,
 	'id' => $id
 );
 
@@ -94,48 +91,6 @@ if ($_GET['action'] == "save") {
 	$error = array();
 	if (is_hash($fid)) {
 		$error_data = import_error_data($fid);
-	}
-	$human = empty($error_data['human']) ? false : $error_data['human'];
-	if (!$my->vlogin) {
-		if ($config['botgfxtest_posts'] > 0 && $human == false) {
-			$captcha = newCAPTCHA('posts');
-			$status = $captcha->check();
-			if ($status == CAPTCHA_FAILURE) {
-				$error[] = $lang->phrase('veriword_failed');
-			}
-			elseif ($status == CAPTCHA_MISTAKE) {
-				$error[] = $lang->phrase('veriword_mistake');
-			}
-			else {
-				$human = true;
-			}
-		}
-		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
-			$error[] = $lang->phrase('illegal_mail');
-		}
-		if (double_udata('name',$_POST['name']) == false) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (is_id($_POST['name'])) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
-			$error[] = $lang->phrase('name_too_long');
-		}
-		if (mb_strlen($_POST['name']) < $config['minnamelength']) {
-			$error[] = $lang->phrase('name_too_short');
-		}
-		if (strlen($_POST['email']) > 200) {
-			$error[] = $lang->phrase('email_too_long');
-		}
-		$pname = $_POST['name'];
-		$pnameid = $_POST['name'];
-		$pid = 0;
-	}
-	else {
-		$pname = $my->name;
-		$pnameid = $my->id;
-		$pid = $my->id;
 	}
 	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
@@ -165,22 +120,8 @@ if ($_GET['action'] == "save") {
 			'comment' => $_POST['comment'],
 			'dosmileys' => $_POST['dosmileys'],
 			'id' => $id,
-			'digest' => $digest,
-			'guest' => 0,
-			'human' => $human,
-			'name' => null,
-			'email' => null
+			'digest' => $digest
 		);
-		if (!$my->vlogin) {
-			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
-				$data['email'] = '';
-			}
-			else {
-				$data['email'] = $_POST['email'];
-			}
-			$data['guest'] = 1;
-			$data['name'] = $_POST['name'];
-		}
 		($code = $plugins->load('addreply_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
@@ -196,34 +137,27 @@ if ($_GET['action'] == "save") {
 	else {
 		set_flood(FLOOD_TYPE_POSTING);
 
-		if ($my->vlogin) {
-			$guest = 0;
-		}
-		else {
-			$guest = 1;
-		}
-
 		$date = time();
 
 		($code = $plugins->load('addreply_save_queries')) ? eval($code) : null;
 
 		$db->query("
 		UPDATE {$db->pre}topics
-		SET last_name = '{$pnameid}', last = '{$date}', posts = posts+1
+		SET last_name = '{$my->id}', last = '{$date}', posts = posts+1
 		WHERE id = '{$id}'
 		");
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,ip,guest,edit,report)
-		VALUES ('{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,date,ip,edit,report)
+		VALUES ('{$_POST['topic']}','{$id}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','{$my->ip}','','')
 		");
 		$redirect = $db->insert_id();
 
 		// Set uploads to correct reply
-		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'");
+		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$my->id}' AND topic_id = '{$id}' AND tid = '0'");
 
 		// Update, insert, delete notifications
-		if ($my->vlogin && in_array($digest, $validDigest)) {
+		if (in_array($digest, $validDigest)) {
 			switch ($digest) {
 				case 1:  $type = '';  break;
 				case 2:  $type = 'd'; break;
@@ -294,11 +228,8 @@ if ($_GET['action'] == "save") {
 		$lang->setdir($lang_dir);
 
 		$close = $gpc->get('close', int);
-		if ($close == 1 && $my->vlogin) {
-			$my->mp = $slog->ModPermissions($info['board']);
-			if ($my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$info['id']}'");
-			}
+		if ($close == 1 && $my->mp[0] == 1) {
+			$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$info['id']}'");
 		}
 
 		// Set topic read
@@ -312,7 +243,6 @@ if ($_GET['action'] == "save") {
 else {
 
 	$qids = array();
-	$my->mp = $slog->ModPermissions($info['board']);
 	BBProfile($bbcode);
 
 	($code = $plugins->load('addreply_form_start')) ? eval($code) : null;
@@ -337,9 +267,6 @@ else {
 	else {
 		$data = $standard_data;
 
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
-
 		// Multiquote
 		$qids = $gpc->get('qid', arr_int);
 		$pids = getcookie('vquote');
@@ -351,17 +278,15 @@ else {
 
 		if (count($qids) > 0) {
 
-			$result = $db->query('SELECT name, comment, guest FROM '.$db->pre.'replies WHERE id IN('.implode(',',$qids).') LIMIT '.$config['maxmultiquote']);
+			$result = $db->query('
+				SELECT u.name, r.comment
+				FROM '.$db->pre.'replies AS r
+					LEFT JOIN '.$db->pre.'user AS u ON u.id = r.name
+				WHERE r.id IN('.implode(',',$qids).')
+				LIMIT '.$config['maxmultiquote']
+			);
 
 			while($row = $gpc->prepare($db->fetch_assoc($result))) {
-				if ($row['guest'] == 0) {
-					if (isset($memberdata[$row['name']])) {
-						$row['name'] = $memberdata[$row['name']];
-					}
-					else {
-						$row['name'] = '';
-					}
-				}
 				($code = $plugins->load('addreply_form_quotes')) ? eval($code) : null;
 				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $row['comment']);
 				$row['comment'] = $bbcode->censor(trim($row['comment']));
@@ -372,14 +297,7 @@ else {
 		}
 	}
 
-	if ($config['botgfxtest_posts'] > 0 && $data['human'] == false) {
-		$captcha = newCAPTCHA('posts');
-	}
-	else {
-		$captcha = null;
-	}
-
-	if ($my->vlogin && !in_array($data['digest'], $validDigest)) {
+	if (!in_array($data['digest'], $validDigest)) {
 		$result = $db->query("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 		if ($db->num_rows($result) > 0) {
 			$temp = $db->fetch_assoc($result);
@@ -413,4 +331,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

@@ -28,7 +28,7 @@
 					<li><a href="misc.php?action=markforumasread&amp;board={{ $board }}{{ SID2URL_x }}">@lang('forum_options_markread')</a></li>
 				</ul>
 			</div>
-			@if($my->p['posttopics'] == 1 && $info['readonly'] == '0')
+			@if($my->p['posttopics'] == 1 && $info['readonly'] == 0)
 			<a class="sep" href="newtopic.php?id={{ $board }}{{ SID2URL_x }}"><img src="@img('newtopic')" alt="" /> @lang('forum_newtopic')</a>
 			@endif
 		</td>

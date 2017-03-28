@@ -75,7 +75,7 @@ if ($_GET['action'] == "search") {
 
 	$name = $gpc->get('name', str);
 	if (mb_strlen($name) >= $config['searchminlength']) {
-		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$name}' LIMIT 1");
+		$result = $db->query("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
 		if ($db->num_rows($result) == 1) {
 			list($rname) = $db->fetch_num($result);
 		}
@@ -232,14 +232,14 @@ elseif ($_GET['action'] == "result") {
 		case 'posts':
 		case 'date':
 		case 'last':
-			$order = $data['sort'];
+			$order = "t.{$data['sort']}";
 			break;
 		case 'name':
 		case 'board':
-			$order = $data['sort'].", last";
+			$order = "t.{$data['sort']}, t.last";
 			break;
 		default:
-			$order = 'last';
+			$order = 't.last';
 			break;
 	}
 
@@ -252,9 +252,12 @@ elseif ($_GET['action'] == "result") {
 
 	($code = $plugins->load('search_result_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, id, board, topic, date, status, last, last_name, sticky, name
-	FROM {$db->pre}topics
-	WHERE id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('board')."
+	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+		u.name, u.id AS uid, l.id AS luid, l.name AS luname
+	FROM {$db->pre}topics AS t
+		LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
+	WHERE t.id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('t.board')."
 	ORDER BY {$order}"
 	);
 
@@ -274,8 +277,6 @@ elseif ($_GET['action'] == "result") {
 
 	$catbid = $scache->load('cat_bid');
 	$forums = $catbid->get();
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
 
@@ -294,18 +295,6 @@ elseif ($_GET['action'] == "result") {
 			$prefix = $prefix_arr[$row->board][$row->prefix]['value'];
 		}
 		$info = $forums[$row->board];
-
-		if(is_id($row->name) && isset($memberdata[$row->name])) {
-			$row->mid = $row->name;
-			$row->name = $memberdata[$row->name];
-		}
-		else {
-			$row->mid = FALSE;
-		}
-
-		if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-			$row->last_name = $memberdata[$row->last_name];
-		}
 
 		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
 		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
@@ -428,9 +417,12 @@ elseif ($_GET['action'] == "active") {
     	list($count) = $db->fetch_num($result);
 
     	$result = $db->query("
-    	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name
+    	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+			u.name, u.id AS uid, l.id AS luid, l.name AS luname
     	FROM {$db->pre}topics AS t
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
+			LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+			LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')."
     	ORDER BY t.last DESC
     	LIMIT {$start}, {$config['activezahl']}"
@@ -443,8 +435,6 @@ elseif ($_GET['action'] == "active") {
 			$forums = $catbid->get();
 			$prefix_obj = $scache->load('prefix');
 			$prefix_arr = $prefix_obj->get();
-    		$memberdata_obj = $scache->load('memberdata');
-			$memberdata = $memberdata_obj->get();
 
     		$inner['index_bit'] = '';
     		while ($row = $gpc->prepare($db->fetch_object($result))) {
@@ -457,18 +447,6 @@ elseif ($_GET['action'] == "active") {
     			}
 
     			$info = $forums[$row->board];
-
-    			if(is_id($row->name) && isset($memberdata[$row->name])) {
-    				$row->mid = $row->name;
-    				$row->name = $memberdata[$row->name];
-    			}
-    			else {
-    				$row->mid = FALSE;
-    			}
-
-    			if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-    				$row->last_name = $memberdata[$row->last_name];
-    			}
 
     			$rstart = str_date($lang->phrase('dformat1'),times($row->date));
     			$rlast = str_date($lang->phrase('dformat1'),times($row->last));
@@ -541,4 +519,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

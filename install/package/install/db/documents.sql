@@ -1,6 +1,6 @@
 CREATE TABLE `{:=DBPREFIX=:}documents` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `author` mediumint(7) unsigned NOT NULL DEFAULT 0,
+  `author` int(7) unsigned NOT NULL DEFAULT 0,
   `date` int(10) unsigned NOT NULL DEFAULT 0,
   `update` int(10) unsigned NOT NULL DEFAULT 0,
   `type` tinyint(2) NOT NULL DEFAULT 0,

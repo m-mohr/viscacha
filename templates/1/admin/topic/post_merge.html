@@ -8,18 +8,14 @@
 			<label for="author">@lang('admin_merge_author')</label>
 			<div class="label" id="author">
 				@foreach ($posts as $row)
-				@if(isset($author[$row['id']]))
-				<input type="radio" name="author" value="{{ $row['id'] }}" /> {{ $row['uname'] }} (ID: {{ $row['uid'] }})<br />
-				@endif
+				<input type="radio" name="author" value="{{ $row['id'] }}" /> {{ $row['name'] }}<br />
 				@endforeach
 			</div>
 			<br class="newinput" /><hr class="formsep" />
 			<label for="topic">@lang('title')</label>
 			<div class="label" id="topic">
 				@foreach ($posts as $row)
-				@if(isset($topic[$row['id']]))
 				<input type="radio" name="topic_id" value="{{ $row['id'] }}" /> {{ $row['topic'] }}<br />
-				@endif
 				@endforeach
 			</div>
 			<br class="newinput" /><hr class="formsep" />

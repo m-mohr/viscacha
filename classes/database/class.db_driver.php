@@ -191,8 +191,8 @@ abstract class DB_Driver {
 			time(),
 			makeOneLine($errcomment)
 		);
-		$lines[] = implode("\t", $cols);
-		Debug::error($lines);
+		$line = implode("\t", $cols);
+		Debug::error($line);
 
 		$errcomment = nl2br($errcomment);
 	    return "DB ERROR ".$this->errno().": ".$this->errstr()."<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";

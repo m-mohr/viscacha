@@ -1,5 +1,5 @@
 CREATE TABLE `{:=DBPREFIX=:}session` (
-  `mid` mediumint(7) unsigned NOT NULL DEFAULT 0,
+  `mid` int(7) unsigned NOT NULL DEFAULT 0,
   `active` int(10) unsigned NOT NULL DEFAULT 0,
   `wiw_script` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `wiw_action` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',

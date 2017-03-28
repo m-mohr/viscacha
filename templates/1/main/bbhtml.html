@@ -101,7 +101,7 @@
 		</td></tr>
 	@endif
 	<tr><td>
-			<textarea name="{{ $id }}" id="{{ $id }}" class="editor_textarea_inner"{{ $taAttr }}>{{ $content }}</textarea>
+			<textarea name="{{ $id }}" id="{{ $id }}" class="editor_textarea_inner"{!! $taAttr !!}>{{ $content }}</textarea>
 		</td></tr>
 	@if(!in_array(TOOLBAR_STATUS, $disable))
 	<tr><td class="editor_statusbar">

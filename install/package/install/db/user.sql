@@ -1,8 +1,8 @@
 CREATE TABLE `{:=DBPREFIX=:}user` (
-  `id` mediumint(7) unsigned NOT NULL auto_increment,
+  `id` int(10) unsigned NOT NULL auto_increment,
   `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `pw` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pw` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `mail` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `regdate` int(10) unsigned NOT NULL DEFAULT 0,
   `posts` mediumint(7) unsigned NOT NULL DEFAULT 0,
   `fullname` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
@@ -23,6 +23,7 @@ CREATE TABLE `{:=DBPREFIX=:}user` (
   `template` smallint(5) unsigned NOT NULL DEFAULT 0,
   `language` tinyint(3) unsigned NOT NULL DEFAULT 0,
   `confirm` enum('00','01','10','11') NOT NULL DEFAULT '00',
+  `deleted_at` int(10) unsigned,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;

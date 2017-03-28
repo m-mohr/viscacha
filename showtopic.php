@@ -149,9 +149,6 @@ echo $tpl->parse("menu");
 
 ($code = $plugins->load('showtopic_start')) ? eval($code) : null;
 
-$memberdata_obj = $scache->load('memberdata');
-$memberdata = $memberdata_obj->get();
-
 $inner['index_bit'] = array();
 $inner['vote_result'] = '';
 $inner['related'] = '';
@@ -192,7 +189,12 @@ if (!empty($info['vquestion'])) {
 
 		// Now get more data (for what the users voted exactly)
 		$sql_aid_in = implode(',', array_keys($vote['entries']));
-		$vresult = $db->query("SELECT mid, aid FROM {$db->pre}votes WHERE aid IN({$sql_aid_in})");
+		$vresult = $db->query("
+			SELECT u.id AS mid, u.name, v.aid
+			FROM {$db->pre}votes AS v
+				LEFT JOIN {$db->pre}user AS u ON u.id = v.mid
+			WHERE v.aid IN({$sql_aid_in})
+		");
 		while ($row = $db->fetch_assoc($vresult)) {
 			// Save the data for the member who is calling this page
 			if ($row['mid'] == $my->id) {
@@ -202,7 +204,7 @@ if (!empty($info['vquestion'])) {
 				$vote['voted'] = $row['aid'];
 			}
 			// Create element in array with name (+ member id as key) at the selected answer
-			$vote['voter'][$row['aid']][$row['mid']] = $memberdata[$row['mid']];
+			$vote['voter'][$row['aid']][$row['mid']] = $row['name'];
 		}
 
 		if ($vote['results'] == false) {
@@ -261,12 +263,12 @@ $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
-	r.id, r.edit, r.dosmileys, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
-	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups,
+	r.id, r.edit, r.dosmileys, r.topic, r.comment, r.date, r.report, r.tstart,
+	u.id as mid, u.name, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.deleted_at,
 	f.*, IF (s.mid > 0, 1, 0) AS online
 FROM {$db->pre}replies AS r
-	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
-	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid AND r.guest = '0'
+	LEFT JOIN {$db->pre}user AS u ON r.name = u.id
+	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
 	LEFT JOIN {$db->pre}session AS s ON s.mid = u.id
 WHERE r.topic_id = '{$info['id']}'
 ORDER BY date {$sql_order}
@@ -294,17 +296,6 @@ while ($row = $db->fetch_object($result)) {
 	$rel_post_num++;
 	$row->rel_post_num = $rel_post_num;
 
-	if ($row->guest == 0) {
-		$row->mail = '';
-		$row->name = $row->uname;
-	}
-	else {
-		$row->mail = $row->gmail;
-		$row->name = $row->gname;
-		$row->groups = GROUP_GUEST;
-		$row->mid = 0;
-	}
-
 	// Custom Profile Fields
 	$pfields->setUserId($row->mid);
 	$pfields->setUserData($row);
@@ -325,7 +316,7 @@ while ($row = $db->fetch_object($result)) {
 	else {
 	    $edit_seconds = $config['edit_edit_time']*60;
 	}
-	$can_edit = ((($row->mid == $my->id && $row->guest == 0 && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
+	$can_edit = ((($row->mid == $my->id && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
 
 	$new = iif($row->date >= $my->clv, 'new', 'old');
 
@@ -344,7 +335,7 @@ while ($row = $db->fetch_object($result)) {
 
 	$row->date = str_date($lang->phrase('dformat1'), times($row->date));
 	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
-	$row->level = $slog->getStatus($row->groups, ', ');
+	$row->level = $slog->getStatus($row->groups, ', ', $row->deleted_at !== null);
 	if (empty($row->location)) {
 		$row->location = $lang->phrase('showtopic_na');
 	}
@@ -423,4 +414,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

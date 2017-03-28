@@ -34,6 +34,7 @@ $board = $gpc->get('id', int);
 $fid = $gpc->get('fid', str);
 
 $my->p = $slog->Permissions($board);
+$my->mp = $slog->ModPermissions($board);
 
 $catbid = $scache->load('cat_bid');
 $fc = $catbid->get();
@@ -60,8 +61,6 @@ if ($_GET['action'] == "startvote") {
 
 	$result = $db->query("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
-
-	$my->mp = $slog->ModPermissions($info['board']);
 
 	$temp = $gpc->get('temp', int, 2);
 	if ($temp < 2) {
@@ -194,48 +193,6 @@ elseif ($_GET['action'] == "save") {
 	if (is_hash($fid)) {
 		$error_data = import_error_data($fid);
 	}
-	$human = empty($error_data['human']) ? false : $error_data['human'];
-	if (!$my->vlogin) {
-		if ($config['botgfxtest_posts'] > 0 && $human == false) {
-			$captcha = newCAPTCHA('posts');
-			$status = $captcha->check();
-			if ($status == CAPTCHA_FAILURE) {
-				$error[] = $lang->phrase('veriword_failed');
-			}
-			elseif ($status == CAPTCHA_MISTAKE) {
-				$error[] = $lang->phrase('veriword_mistake');
-			}
-			else {
-				$human = true;
-			}
-		}
-		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
-			$error[] = $lang->phrase('illegal_mail');
-		}
-		if (double_udata('name',$_POST['name']) == false) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (is_id($_POST['name'])) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
-			$error[] = $lang->phrase('name_too_long');
-		}
-		if (mb_strlen($_POST['name']) < $config['minnamelength']) {
-			$error[] = $lang->phrase('name_too_short');
-		}
-		if (strlen($_POST['email']) > 200) {
-			$error[] = $lang->phrase('email_too_long');
-		}
-		$pname = $_POST['name'];
-		$pid = 0;
-		$pnameid = $_POST['name'];
-	}
-	else {
-		$pname = $my->name;
-		$pid = $my->id;
-		$pnameid = $my->id;
-	}
 	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
@@ -272,23 +229,9 @@ elseif ($_GET['action'] == "save") {
 			'dosmileys' => $_POST['dosmileys'],
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
-			'human' => $human,
-			'digest' => $digest,
-			'name' => null,
-			'email' => null,
-			'guest' => 0
+			'digest' => $digest
 		);
 
-		if (!$my->vlogin) {
-			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
-				$data['email'] = '';
-			}
-			else {
-				$data['email'] = $_POST['email'];
-			}
-			$data['name'] = $_POST['name'];
-			$data['guest'] = 1;
-		}
 		($code = $plugins->load('newtopic_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
@@ -306,31 +249,24 @@ elseif ($_GET['action'] == "save") {
 
 		$date = time();
 
-		if ($my->vlogin) {
-			$guest = 0;
-		}
-		else {
-			$guest = 1;
-		}
-
 		($code = $plugins->load('newtopic_save_savedata')) ? eval($code) : null;
 
 		$db->query("
 		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix,vquestion)
-		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}','')
+		VALUES ('{$board}','{$_POST['topic']}','{$my->id}','{$date}','{$date}','{$my->id}','{$_POST['opt_0']}','')
 		");
 		$tredirect = $db->insert_id();
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,tstart,ip,guest,edit,report)
-		VALUES ('{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,date,tstart,ip,edit,report)
+		VALUES ('{$_POST['topic']}','{$tredirect}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','1','{$my->ip}','','')
 		");
 		$rredirect = $db->insert_id();
 
-		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'");
+		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$my->id}' AND topic_id = '0' AND tid = '0'");
 
 		// Insert notifications
-		if ($my->vlogin && $digest != 0) {
+		if ($digest != 0) {
 			switch ($digest) {
 				case 2:  $type = 'd'; break;
 				case 3:  $type = 'w'; break;
@@ -339,19 +275,11 @@ elseif ($_GET['action'] == "save") {
 			$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$type}')");
 		}
 
-
-		$my->mp = $slog->ModPermissions($board);
-
-		$close = $gpc->get('close', int);
-		$pin = $gpc->get('pin', int);
-		$stat = $gpc->get('status', int);
-		if (($close == 1 || $pin == 1) && $my->vlogin) {
-			if ($close == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'");
-			}
-			if ($pin == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
-			}
+		if ($gpc->get('close', int) == 1 && $my->mp[0] == 1) {
+			$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'");
+		}
+		if ($gpc->get('pin', int) == 1 && $my->mp[0] == 1) {
+			$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
@@ -390,8 +318,6 @@ elseif ($_GET['action'] == "save") {
 
 }
 else {
-	$my->mp = $slog->ModPermissions($board);
-
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 
@@ -404,12 +330,9 @@ else {
 		'prefix' => 0,
 		'vote' => '',
 		'replies' => '',
-		'name' => '',
-		'email' => '',
 		'comment' => '',
 		'dosmileys' => 1,
 		'topic' => '',
-		'human' => false,
 		'digest' => 0
 	);
 
@@ -462,13 +385,6 @@ else {
 		$inner['index_prefix'] = '';
 	}
 
-	if ($config['botgfxtest_posts'] > 0 && $data['human'] == false) {
-		$captcha = newCAPTCHA('posts');
-	}
-	else {
-		$captcha = null;
-	}
-
 	($code = $plugins->load('newtopic_form_prepared')) ? eval($code) : null;
 
 	echo $tpl->parse("newtopic/index");
@@ -482,4 +398,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

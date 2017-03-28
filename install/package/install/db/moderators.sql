@@ -1,5 +1,5 @@
 CREATE TABLE `{:=DBPREFIX=:}moderators` (
-  `mid` mediumint(7) NOT NULL,
+  `mid` int(7) NOT NULL,
   `bid` smallint(5) NOT NULL,
   `p_delete` enum('0','1') NOT NULL DEFAULT '1',
   `p_mc` enum('0','1') NOT NULL DEFAULT '1',

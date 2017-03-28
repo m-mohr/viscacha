@@ -132,23 +132,22 @@ elseif ($_GET['action'] == "abos") {
 		else {
 			$type = $_GET['type'];
 		}
-		$sqlwhere = " AND type = '{$type}'";
+		$sqlwhere = " AND a.type = '{$type}'";
 	}
 
 	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.last_name, t.board, t.posts
+	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.board, t.posts, l.id AS luid, l.name AS luname
 	FROM {$db->pre}abos AS a
-		LEFT JOIN {$db->pre}topics AS t ON a.tid=t.id
-		LEFT JOIN {$db->pre}forums AS f ON f.id=t.board
+		LEFT JOIN {$db->pre}topics AS t ON a.tid = t.id
+		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
+		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
 	WHERE a.mid = '{$my->id}' AND f.invisible != '2' {$sqlwhere}
 	ORDER BY a.id DESC
 	");
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 
@@ -171,9 +170,6 @@ elseif ($_GET['action'] == "abos") {
 			$row['type'] = 's';
 		}
 
-		if (is_id($row['last_name'])) {
-			$row['last_name'] = $memberdata[$row['last_name']];
-		}
 		if ($slog->isTopicRead($row['tid'], $row['last'])) {
 			$row['firstnew'] = 0;
 			$row['alt'] = $lang->phrase('forum_icon_old');
@@ -566,8 +562,6 @@ elseif ($_GET['action'] == "profile2") {
 
 		if ($config['changename_allowed'] == 1 && $_POST['name'] != $my->name) {
 			$changename = ", name = '{$_POST['name']}'";
-			$cache = $scache->load('memberdata');
-			$cache = $cache->delete();
 		}
 		else {
 			$changename = '';
@@ -864,4 +858,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

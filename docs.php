@@ -36,9 +36,10 @@ $id = $gpc->get('id', int);
 
 ($code = $plugins->load('docs_query')) ? eval($code) : null;
 $result = $db->query("
-	SELECT d.id, d.author, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
+	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
 	FROM {$db->pre}documents AS d
 		LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
+		LEFT JOIN {$db->pre}user AS u ON u.id = d.author
 	WHERE d.id = '{$id}' ".iif($my->p['admin'] != 1, ' AND c.active = "1"')
 );
 if ($db->num_rows($result) == 0) {
@@ -57,7 +58,7 @@ while ($row = $db->fetch_assoc($result)) {
 			'update2' => $row['update'],
 			'type' => $row['type'],
 			'groups' => $row['groups'],
-			'name' => null
+			'name' => $row['name']
 		);
 	}
 	$data[$row['lid']] = array(
@@ -77,13 +78,7 @@ Inline:
 */
 
 if (GroupCheck($info['groups'])) {
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
-	if(is_id($info['author']) && isset($memberdata[$info['author']])) {
-		$info['name'] = $memberdata[$info['author']];
-	}
-	else {
+	if(empty($info['name'])) {
 		$info['name'] = $lang->phrase('fallback_no_username');
 	}
 	if ($info['date'] > 0 ) {
@@ -189,4 +184,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

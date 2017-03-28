@@ -4,7 +4,7 @@
 	</tr>
 	<tr> 
 		<td class="tfoot" colspan="5">
-			<span class="right">{{ $temp }}</span>
+			<span class="right">{!! $temp !!}</span>
 			@if(!empty($ignored))
 			@lang('search_ignored_phrases') {{ implode(', ', $ignored) }}
 			@endif
@@ -19,6 +19,6 @@
 	</tr>
 	{!! $inner['index_bit'] !!}
 	<tr> 
-		<td class="tfoot textright" colspan="5">{{ $temp }}</td>
+		<td class="tfoot textright" colspan="5">{!! $temp !!}</td>
 	</tr>
 </table>

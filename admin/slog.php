@@ -393,7 +393,7 @@ if ($show == 1) {
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""');
 	$vote = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user');
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
 	$members = $db->fetch_num($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type != "f"');

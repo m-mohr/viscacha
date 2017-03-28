@@ -1467,23 +1467,19 @@ elseif ($job == 'doc_insert_image') {
 	echo foot(true);
 }
 elseif ($job == 'doc') {
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
 
 	$result = $db->query("
-		SELECT d.id, d.author, d.update, d.icomment, c.lid, c.title, c.active
+		SELECT d.id, u.name AS author, d.update, d.icomment, c.lid, c.title, c.active
 		FROM {$db->pre}documents AS d
 			LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
+			LEFT JOIN {$db->pre}user AS u ON u.id = d.author
 		ORDER BY c.title
 	");
 	$data = array();
 	while ($row = $db->fetch_assoc($result)) {
-		if(is_id($row['author']) && isset($memberdata[$row['author']])) {
-			$row['author'] = $memberdata[$row['author']];
-		}
-		else {
+		if(empty($row['author'])) {
 			$row['author'] = $lang->phrase('admin_cms_unknown');
 		}
 		if ($row['update'] > 0) {
@@ -1807,7 +1803,11 @@ elseif ($job == 'doc_edit') {
 	$id = $gpc->get('id', int);
 	$types = doctypes();
 
-	$result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}'");
+	$result = $db->query("
+		SELECT d.*, u.name AS author_name
+		FROM {$db->pre}documents AS d
+			LEFT JOIN {$db->pre}user AS u ON u.id = d.author
+		WHERE id = '{$id}'");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_invalid_id_given'));
 	}
@@ -1822,9 +1822,6 @@ elseif ($job == 'doc_edit') {
 	$format = $types[$row['type']];
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 	$garr = explode(',', $row['groups']);
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
@@ -1857,7 +1854,7 @@ elseif ($job == 'doc_edit') {
   <tr>
    <td class="mbox">
 	<?php echo $lang->phrase('admin_cms_doc_author_change'); ?><br />
-	<input type="radio" value="<?php echo $row['author']; ?>" name="author" checked="checked" /> <?php echo $lang->phrase('admin_cms_keep_current_author'); ?> <strong><?php echo isset($memberdata[$row['author']]) ? $memberdata[$row['author']] : $lang->phrase('admin_cms_unknown'); ?></strong><br />
+	<input type="radio" value="<?php echo $row['author']; ?>" name="author" checked="checked" /> <?php echo $lang->phrase('admin_cms_keep_current_author'); ?> <strong><?php echo !empty($row['author_name']) ? $row['author_name'] : $lang->phrase('admin_cms_unknown'); ?></strong><br />
 	<input type="radio" value="<?php echo $my->id; ?>" name="author" /> <?php echo $lang->phrase('admin_cms_change_author_to'); ?> <strong><?php echo $my->name; ?></strong>
    </td>
   </tr>

@@ -58,10 +58,10 @@ if (!$my->vlogin || $my->mp[0] == 0) {
 
 if ($_GET['action'] == "index") {
 	if ($_GET['type'] == 'open') {
-		$marksql = ' AND status = "1" ';
+		$marksql = ' AND t.status = "1" ';
 	}
 	elseif ($_GET['type'] == 'close') {
-		$marksql = ' AND status = "0" ';
+		$marksql = ' AND t.status = "0" ';
 	}
 	else { // 'close' or 'move'
 		$marksql = '';
@@ -70,7 +70,7 @@ if ($_GET['action'] == "index") {
 	($code = $plugins->load('manageforum_filter_query')) ? eval($code) : null;
 
 	if (!empty($marksql)) {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '$board' {$marksql}");
+		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics AS t WHERE t.board = '{$board}' {$marksql}");
 		$vlasttopics = $db->fetch_num($result);
 		$info['topics'] = $vlasttopics[0];
 	}
@@ -82,14 +82,14 @@ if ($_GET['action'] == "index") {
 
 		($code = $plugins->load('manageforum_query')) ? eval($code) : null;
 		$result = $db->query("
-		SELECT prefix, vquestion, posts,id, board, topic, date, status, last, last_name, sticky, name
-		FROM {$db->pre}topics
-		WHERE board = '{$board}' {$marksql}
-		ORDER BY sticky DESC, last DESC LIMIT {$start}, {$info['forumzahl']}
+		SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+			u.name, u.id AS uid, l.id AS luid, l.name AS luname
+		FROM {$db->pre}topics AS t
+			LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+			LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
+		WHERE t.board = '{$board}' {$marksql}
+		ORDER BY t.sticky DESC, t.last DESC LIMIT {$start}, {$info['forumzahl']}
 		");
-
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
 
 		$prefix_obj = $scache->load('prefix');
 		$prefix_arr = $prefix_obj->get($board);
@@ -103,18 +103,6 @@ if ($_GET['action'] == "index") {
 			}
 			else {
 				$prefix = '';
-			}
-
-			if(is_id($row->name) && isset($memberdata[$row->name])) {
-				$row->mid = $row->name;
-				$row->name = $memberdata[$row->name];
-			}
-			else {
-				$row->mid = FALSE;
-			}
-
-			if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-				$row->last_name = $memberdata[$row->last_name];
 			}
 
 			$rstart = str_date($lang->phrase('dformat1'),times($row->date));
@@ -210,9 +198,9 @@ elseif ($_GET['action'] == "move2") {
 	$anz = 0;
 	foreach ($_POST['delete'] as $id) {
 		$result = $db->query("
-		SELECT r.date, r.topic, r.name, r.guest, r.email, u.name AS uname, u.mail AS uemail
+		SELECT r.date, r.topic, r.name, u.name, u.mail AS email, u.deleted_at
 		FROM {$db->pre}replies AS r
-			LEFT JOIN {$db->pre}user AS u ON u.id = r.name AND r.guest = '0'
+			LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 		WHERE topic_id = '{$id}' AND tstart = '1'
 		");
 		$old = $db->fetch_assoc($result);
@@ -220,16 +208,12 @@ elseif ($_GET['action'] == "move2") {
 		$anz += $db->affected_rows();
 
 		if ($_POST['temp'] == 1) {
-			// TODO: Prefix wird nicht übernommen!
-			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
+			// TODO: Prefix und Bearbeitungen werden nicht übernommen!
+			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
 			$tid = $db->insert_id();
-			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''");
+			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
 		}
 		if ($_POST['temp2'] == 1) {
-			if ($old['guest'] == 0) {
-				$old['email'] = $old['uemail'];
-				$old['name'] = $old['uname'];
-			}
 			$data = $lang->get_mail('mass_topic_moved');
 			$to = array('0' => array('name' => $old['name'], 'mail' => $old['email']));
 			$from = array();
@@ -265,9 +249,9 @@ elseif ($_GET['action'] == "delete") {
 	}
 	$ids = implode(',', $_POST['delete']);
 	if ($config['updatepostcounter'] == 1 && $info['count_posts'] == 1) {
-		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id IN({$ids}) GROUP BY name");
+		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id IN({$ids}) GROUP BY name");
 		while ($row = $db->fetch_assoc($result)) {
-			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
+			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
 		}
 	}
 	$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})");
@@ -319,4 +303,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

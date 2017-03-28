@@ -1,8 +1,8 @@
 CREATE TABLE `{:=DBPREFIX=:}pm` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `topic` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `pm_from` mediumint(7) unsigned NOT NULL,
-  `pm_to` mediumint(7) unsigned NOT NULL,
+  `pm_from` int(7) unsigned NOT NULL,
+  `pm_to` int(7) unsigned NOT NULL,
   `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` int(10) unsigned NOT NULL DEFAULT 0,
   `status` enum('0','1') NOT NULL DEFAULT '0',

@@ -132,9 +132,6 @@ if ($_GET['action'] == "save") {
 			xmail($to, $from, $data['title'], $data['comment']);
 		}
 
-		$com = $scache->load('memberdata');
-		$cache = $com->delete();
-
 		($code = $plugins->load('register_save_end')) ? eval($code) : null;
 
 		$emails = preg_split('/[\r\n]+/', $config['register_notification'], -1, PREG_SPLIT_NO_EMPTY);
@@ -181,7 +178,7 @@ elseif ($_GET['action'] == 'resend2') {
 	($code = $plugins->load('register_resend2_start')) ? eval($code) : null;
 
 	$error = array();
-	$result = $db->query("SELECT id, name, mail, regdate, confirm FROM {$db->pre}user WHERE name = '{$_POST['name']}' AND (confirm = '10' OR confirm = '00') LIMIT 1");
+	$result = $db->query("SELECT id, name, mail, regdate, confirm FROM {$db->pre}user WHERE name = '{$_POST['name']}' AND deleted_at IS NULL AND (confirm = '10' OR confirm = '00') LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('register_resend_no_user');
 	}
@@ -223,7 +220,7 @@ elseif ($_GET['action'] == 'confirm') {
 
 	($code = $plugins->load('register_confirm_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND confirm != '01' AND confirm != '11' LIMIT 1");
+	$result = $db->query("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL AND confirm != '01' AND confirm != '11' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('register_code_no_user'), "log.php?action=login".SID2URL_x);
 	}
@@ -296,4 +293,3 @@ $slog->updatelogged();
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

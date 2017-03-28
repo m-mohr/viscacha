@@ -111,13 +111,13 @@ elseif ($_GET['action'] == "pwremind2") {
 
 	($code = $plugins->load('log_pwremind2_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' LIMIT 1");
+	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' AND deleted_at IS NULL LIMIT 1");
 
-	$user = $db->fetch_assoc($result);
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
 	}
 	else {
+		$user = $db->fetch_assoc($result);
 
 		$confirmcode = md5($config['cryptkey'].$user['pw']);
 
@@ -142,26 +142,30 @@ elseif ($_GET['action'] == "pwremind3") {
 
 	($code = $plugins->load('log_pwremind3_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' LIMIT 1");
-	$user = $db->fetch_assoc($result);
-
-	$confirmcode = md5($config['cryptkey'].$user['pw']);
-	if ($confirmcode == $gpc->get('fid')) {
-		$pw = random_word();
-		$hashed_pw = hash_pw($pw);
-		$db->query("UPDATE {$db->pre}user SET pw = '{$hashed_pw}' WHERE id = '{$user['id']}' LIMIT 1");
-
-		$data = $lang->get_mail('pwremind2');
-		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
-		$from = array();
-		xmail($to, $from, $data['title'], $data['comment']);
-
-		($code = $plugins->load('log_pwremind3_success')) ? eval($code) : null;
-		ok($lang->phrase('log_pwremind_changed'), "log.php?action=login".SID2URL_x);
+	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL LIMIT 1");
+	if ($db->num_rows($result) != 1) {
+		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
 	}
 	else {
-		($code = $plugins->load('log_pwremind3_failed')) ? eval($code) : null;
-		error($lang->phrase('log_pwremind_wrong_code'), "log.php?action=pwremind".SID2URL_x);
+		$user = $db->fetch_assoc($result);
+		$confirmcode = md5($config['cryptkey'].$user['pw']);
+		if ($confirmcode == $gpc->get('fid')) {
+			$pw = random_word();
+			$hashed_pw = hash_pw($pw);
+			$db->query("UPDATE {$db->pre}user SET pw = '{$hashed_pw}' WHERE id = '{$user['id']}' LIMIT 1");
+
+			$data = $lang->get_mail('pwremind2');
+			$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
+			$from = array();
+			xmail($to, $from, $data['title'], $data['comment']);
+
+			($code = $plugins->load('log_pwremind3_success')) ? eval($code) : null;
+			ok($lang->phrase('log_pwremind_changed'), "log.php?action=login".SID2URL_x);
+		}
+		else {
+			($code = $plugins->load('log_pwremind3_failed')) ? eval($code) : null;
+			error($lang->phrase('log_pwremind_wrong_code'), "log.php?action=pwremind".SID2URL_x);
+		}
 	}
 }
 else {
@@ -189,4 +193,3 @@ else {
 echo $tpl->parse("footer");
 $phpdoc->Out();
 $db->close();
-?>

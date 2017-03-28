@@ -180,15 +180,12 @@ elseif ($_GET['action'] == "wwo") {
 	$inner['wwo_bit_member'] = '';
 	$inner['wwo_bit_guest'] = '';
 
-	// Foren cachen
+	// Cache forums
 	$catbid = $scache->load('cat_bid');
 	$cat_cache = $catbid->get();
-	// Documents cachen
+	// Cache documents
 	$wrap_obj = $scache->load('wraps');
 	$wrap_cache = $wrap_obj->get();
-	// Mitglieder
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	// Cache
 	$cache = array();
 
@@ -197,9 +194,10 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
 	$result=$db->query("
-	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent
-	FROM {$db->pre}session
-	ORDER BY active DESC
+	SELECT s.ip, s.mid, s.active, s.wiw_script, s.wiw_action, s.wiw_id, s.user_agent, u.name
+	FROM {$db->pre}session AS s
+		LEFT JOIN {$db->pre}user AS u ON u.id = s.mid
+	ORDER BY s.active DESC
 	");
 
 	while ($row = $db->fetch_object($result)) {
@@ -207,12 +205,6 @@ elseif ($_GET['action'] == "wwo") {
 		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
 		$time = gmdate($lang->phrase('dformat3'), times($row->active));
-		if (isset($memberdata[$row->mid])) {
-			$row->name = $memberdata[$row->mid];
-		}
-		else {
-			$row->name = $lang->phrase('fallback_no_username');
-		}
 
 		switch (mb_strtolower($row->wiw_script)) {
 		case 'managetopic':
@@ -292,9 +284,6 @@ elseif ($_GET['action'] == "wwo") {
 			}
 			else {
 				$loc = $lang->phrase('wwo_profile');
-			}
-			if (isset($memberdata[$id])) {
-				$loc .= ': <a href="profile.php?id='.$id.'">'.$memberdata[$id].'</a>';
 			}
 			break;
 		case 'pm':
@@ -713,10 +702,10 @@ elseif ($_GET['action'] == "error") {
 elseif ($_GET['action'] == "edithistory") {
 	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
+	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name, u.id as mid, u.groups, u.deleted_at
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
-		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
+		LEFT JOIN {$db->pre}user AS u ON r.name = u.id
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
 	");
@@ -757,17 +746,6 @@ elseif ($_GET['action'] == "edithistory") {
 
 	($code = $plugins->load('misc_edithistory_start')) ? eval($code) : null;
 
-	if ($row['guest'] == 0) {
-		$row['mail'] = '';
-		$row['name'] = $row['uname'];
-	}
-	else {
-		$row['mail'] = $row['gmail'];
-		$row['name'] = $row['gname'];
-		$row['mid'] = 0;
-		$row['groups'] = GROUP_GUEST;
-	}
-
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 
 	$edit = array();
@@ -798,4 +776,3 @@ if ($tpl->tplsent("header")) {
 }
 $phpdoc->Out();
 $db->close();
-?>
