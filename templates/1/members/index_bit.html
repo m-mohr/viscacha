@@ -60,12 +60,12 @@
 	@endif
 	@if(isset($row['regdate']))
 	<td class="center">
-		{{ $row['regdate'] }}
+		@date($row['regdate'])
 	</td>
 	@endif
 	@if(isset($row['lastvisit']))
 	<td>
-		{{ $row['lastvisit'] }}
+		@reldatetime($row['lastvisit'], 'members_na')
 	</td>
 	@endif
 </tr>

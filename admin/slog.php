@@ -43,12 +43,12 @@ elseif ($job == 'errorlogs') {
     echo head();
 
     $type = $gpc->get('type', path);
-    if ($type != 'php' && $type != 'cron') {
-    	$type = $db->system;
+    if ($type != 'cron') {
+    	$type = 'viscacha';
 	}
 
 	if (empty($logfiles[$type])) {
-        error($url, $lang->phrase('admin_slog_logfile_not_found'));
+        error('admin.php?action=index', $lang->phrase('admin_slog_logfile_not_found'));
 	}
 	$file = $logfiles[$type];
 

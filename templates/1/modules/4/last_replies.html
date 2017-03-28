@@ -8,7 +8,7 @@
 @foreach ($data as $row)
 <br class="minibr" />
 <div class="border">
-	<div class="bfoot topfooter"><strong>{{ $row->name }}</strong> ({{ $row->date }}):</div>
+	<div class="bfoot topfooter"><strong>{{ $row->name }}</strong> (@reldatetime($row->date)):</div>
 	<div class="bbody">
 		<span class="stext">@lang('subject') <strong>{{ $row->topic }}</strong></span>
 		<hr />

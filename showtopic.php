@@ -333,8 +333,6 @@ while ($row = $db->fetch_object($result)) {
 		$row->signature = $bbcode->parse($row->signature);
 	}
 
-	$row->date = str_date($lang->phrase('dformat1'), times($row->date));
-	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
 	$row->level = $slog->getStatus($row->groups, ', ', $row->deleted_at !== null);
 	if (empty($row->location)) {
 		$row->location = $lang->phrase('showtopic_na');
@@ -373,7 +371,7 @@ while ($row = $db->fetch_object($result)) {
 		foreach ($edits as $e) {
 			$edit[] = array(
 				$e[1],
-				gmdate($lang->phrase('dformat1'), times($e[2])),
+				gmdate($lang->phrase('datetime_format'), times($e[2])),
 				empty($e[3]) ? $lang->phrase('post_editinfo_na') : $bbcode->wordwrap($e[3]),
 				empty($e[4]) ? '-' : $e[4]
 			);

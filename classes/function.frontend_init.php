@@ -193,13 +193,6 @@ if (!defined('CONSOLE_REQUEST')) {
 			$banned['reason'] = $lang->phrase('banned_no_reason');
 		}
 
-		if ($banned['until'] > 0) {
-			$banned['until'] = gmdate($lang->phrase('dformat1'), times($banned['until']));
-		}
-		else {
-			$banned['until'] = $lang->phrase('banned_left_never');
-		}
-
 		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
 		if (!defined('NON_HTML_RESPONSE')) {
 			echo $tpl->parse("banned");

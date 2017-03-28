@@ -18,7 +18,6 @@ if ($db->num_rows($result) != 0) {
 	$bbcode->setSmileys(1);
 	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
-	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 	
 	echo $tpl->parse("modules/{$pluginid}/last-pm");
 }

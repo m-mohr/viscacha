@@ -4,7 +4,7 @@
 		<div class="bbody">
 			<label for="location">
 				@lang('timezone')<br />
-				<span class="stext">@lang('timezone_desc')</span>
+				<span class="stext">@lang('timezone_desc') @time</span>
 			</label>
 			<select class="label" id="location" name="location">
 				<option value="-12"{{ selectTz(-12, $my->timezone) }}>@lang('timezone_n12')</option>

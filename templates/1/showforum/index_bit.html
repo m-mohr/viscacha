@@ -26,13 +26,13 @@
 	@endif
 </td>
 <td width="20%" class="stext">
-	{{ $rstart }}<br />
+	@reldatetime($row->date)<br />
 	@lang('written_by')
 	<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
 </td>
 <td width="10%" class="center">{{ numbers($row->posts) }}</td>
 <td width="20%" class="textrightstext">
-		<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $rlast }}</a><br />
+		<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">@reldatetime($row->last)</a><br />
 		@lang('written_by')
 		<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
 	</span></td>

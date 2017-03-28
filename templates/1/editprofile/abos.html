@@ -25,7 +25,7 @@
 				@endif
 			</td>
 			<td class="textright stext">
-				<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['last'] }}</a><br />
+				<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">@reldatetime($row['last'])</a><br />
 				@lang('written_by')
 				<a href="profile.php?id={{ $row['luid'] }}{{ SID2URL_x }}">{{ $row['luname'] }}</a>
 			</td>

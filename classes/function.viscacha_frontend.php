@@ -567,8 +567,6 @@ function BoardSelect($board = 0) {
 						else {
 							$forum['l_topic_full'] = '';
 						}
-
-						$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
 					}
 				}
 			}

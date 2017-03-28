@@ -438,20 +438,19 @@ function errordefault(box) {
    <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_lang_date_and_time'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_contributions_format'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_contributions_format_info'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat1" value="<?php echo isset($settings['dformat1']) ?  $settings['dformat1'] : 'd.m.Y, H:i'; ?>" size="20"></td>
+   <td class="mbox stext" colspan="2"><?php echo $lang->phrase('admin_lang_last_activity_format_info'); ?></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_regdate_format'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_last_activity_format_info'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat2" value="<?php echo isset($settings['dformat2']) ? $settings['dformat2'] : 'd.m.Y, H:i'; ?>" size="20"></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_contributions_format'); ?></td>
+   <td class="mbox" width="50%"><input type="text" name="datetime_format" value="<?php echo isset($settings['datetime_format']) ?  $settings['datetime_format'] : 'Y-m-d H:i'; ?>" size="20"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_last_activity_format'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_last_activity_format_info'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat3" value="<?php echo isset($settings['dformat3']) ? $settings['dformat3'] : 'H:i'; ?>" size="20"></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_regdate_format'); ?></td>
+   <td class="mbox" width="50%"><input type="text" name="date_format" value="<?php echo isset($settings['date_format']) ? $settings['date_format'] : 'Y-m-d'; ?>" size="20"></td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_today_yesterday_format'); ?><br><span class="stext"><?php echo $lang->phrase('admin_lang_today_yesterday_format_info'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="dformat4" value="<?php echo isset($settings['dformat4']) ? $settings['dformat4'] : 'H:i'; ?>" size="20"></td>
+   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_lang_last_activity_format'); ?></td>
+   <td class="mbox" width="50%"><input type="text" name="time_format" value="<?php echo isset($settings['time_format']) ? $settings['time_format'] : 'H:i'; ?>" size="20"></td>
   </tr>
   <tr>
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_lang_form_save'); ?>" /></td>
@@ -505,10 +504,9 @@ elseif ($job == 'lang_settings2') {
 	$c->updateconfig('lang_name', str, $language);
 	$c->updateconfig('lang_description', str, $detail);
 	$c->updateconfig('compatible_version', str);
-	$c->updateconfig('dformat1',str);
-	$c->updateconfig('dformat2',str);
-	$c->updateconfig('dformat3',str);
-	$c->updateconfig('dformat4',str);
+	$c->updateconfig('datetime_format',str);
+	$c->updateconfig('date_format',str);
+	$c->updateconfig('time_format',str);
 	$c->savedata();
 
 	$delobj = $scache->load('loadlanguage');

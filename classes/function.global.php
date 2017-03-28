@@ -518,78 +518,27 @@ function times ($time = false, $timezone = false) {
 	return $retime;
 }
 
-function str_date($format, $time=FALSE) {
+function str_date($time = false) {
 	global $config, $lang;
 
-	if ($config['new_dformat4'] == 1) {
-
-		if ($time == FALSE) {
-			$stime = times();
-		}
-		else {
-			$stime = $time;
-		}
-
-		$today 		= times() - gmmktime (0, 0, 0, gmdate('m',$stime), gmdate('d',$stime), gmdate('Y',$stime));
-		if ($today < 0) {
-			$returndate = gmdate($format, $time);
-		}
-		elseif ($today < 86400) {
-			$returndate = $lang->phrase('date_today').gmdate($lang->phrase('dformat4'), $time);
-		}
-		elseif ($today < 172800) {
-			$returndate = $lang->phrase('date_yesterday').gmdate($lang->phrase('dformat4'), $time);
-		}
-		else {
-			$returndate = gmdate($format, $time);
-		}
-
-	}
-	else {
-		$returndate = gmdate($format, $time);
+	$defaultFormat = $lang->phrase('datetime_format');
+	if ($time === false) {
+		$time = times();
 	}
 
-	return $returndate;
-}
-
-define('SPEC_RFC822' , 'rfc822');
-define('SPEC_ISO8601', 'iso8601');
-define('SPEC_UNIX'   , 'unix');
-
-/**
- * Returns a date formatted in a standardized format.
- *
- * Possible formats:
- * - rfc822 / SPEC_RFC822
- * - iso8601 / SPEC_ISO8601
- * - unix / SPEC_UNIX (default)
- *
- * @param 	string 	Format for date
- * @param 	int 	Timestamp in GMT
- * @return 	mixed
- */
-function dateSpec($format, $timestamp = null) {
-	global $my;
-	if ($timestamp == null) {
-		$timestamp = time();
+	if ($config['semantic_datetime'] == 1) {
+		$delta = times() - gmmktime (0, 0, 0, gmdate('m', $time), gmdate('d', $time), gmdate('Y', $time));
+		if ($delta > -86400 && $delta < 0) {
+			return $lang->phrase('date_tomorrow').gmdate($lang->phrase('time_format'), $time);
+		}
+		elseif ($delta >= 0 && $delta < 86400) {
+			return $lang->phrase('date_today').gmdate($lang->phrase('time_format'), $time);
+		}
+		elseif ($delta >= 86400 && $delta < 172800) {
+			return $lang->phrase('date_yesterday').gmdate($lang->phrase('time_format'), $time);
+		}
 	}
-	if (is_numeric($timestamp) == false) {
-		trigger_error('dateSpec(): Second argument has to be an integer or null.', E_USER_NOTICE);
-	}
-	$timestamp = times($timestamp);
-	$tz = array();
-	$tz[0] = $my->timezone < 0 ? '' : '+';
-	$tz[1] = sprintf("%02d", $my->timezone);
-	$tz[2] = sprintf("%02d", mb_substr($my->timezone*100, -2)*0.6);
-
-	switch($format) {
-		case SPEC_ISO8601:
-		   	return (string) gmdate('Y-m-d\TH:i:s', $timestamp).$tz[0].$tz[1].':'.$tz[2];
-		case SPEC_RFC822:
-			return (string) gmdate("D, d M Y H:i:s ", $timestamp).implode('', $tz);
-		default:
-			return (int) $timestamp;
-	}
+	return gmdate($defaultFormat, $time);
 }
 
 // Returns the extension in lower case ( using pathinfo() ) of an file with a leading dot (e.g. '.gif' or '.php') or not ($leading = false)

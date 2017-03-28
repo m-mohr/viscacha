@@ -24,7 +24,7 @@
 			<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="{{ $row->id }}" />
 			@endif
 		</span>
-		<img src="{{ $tpl->img('post_'.$new) }}" alt="" /> {{ $row->date }}
+		<img src="{{ $tpl->img('post_'.$new) }}" alt="" /> @reldatetime($row->date)
 		@if($firstnew == 1)
 		<a name="firstnew" id="firstnew"></a>
 		@endif
@@ -42,7 +42,7 @@
 		</div>
 		<div class="viewmemberdetails stext">
 			@if($row->deleted_at === null)
-			@lang('post_info_registered_since') {{ $row->regdate }}<br />
+			@lang('post_info_registered_since') @date($row->regdate)<br />
 			@lang('post_info_postcount') {{ numbers($row->posts) }}
 			@endif
 		</div>

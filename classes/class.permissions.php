@@ -203,7 +203,6 @@ function setlang() {
 		$my->name = $lang->phrase('fallback_no_username');
 	}
 	$my->timezone_str = $this->getTimezone();
-	$my->current_time = gmdate($lang->phrase('dformat3'), times());
 	$my->ip = $this->ip;
 }
 

@@ -15,8 +15,6 @@ if ($db->num_rows($result) > 0) {
 
 	$lastbox = array();
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
-		$row['date'] = str_date($lang->phrase('dformat1'),times($row['date']));
-
 		if (isset($prefix[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
 			$lang->assign('prefix', $prefix[$row['board']][$row['prefix']]['value']);
 			$row['prefix'] = $lang->phrase('showtopic_prefix_title');

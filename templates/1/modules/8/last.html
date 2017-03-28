@@ -3,7 +3,7 @@
 	<div class="bbody" id="part_cat_i3">
 		<span class="stext">
 			@foreach ($lastbox as $row)
-			{{ $row['date'] }}: <a title="{{ $row['topic_full'] }}" href="showtopic.php?action=last&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['prefix'] }}{{ $row['topic'] }}</a>
+			@reldatetime($row['date']): <a title="{{ $row['topic_full'] }}" href="showtopic.php?action=last&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['prefix'] }}{{ $row['topic'] }}</a>
 			@lang('by') <a href="profile.php?id={{ $row['luid'] }}{{ SID2URL_x }}">{{ $row['luname'] }}</a><br />
 			@endforeach
 		</span>

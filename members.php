@@ -261,9 +261,6 @@ else {
 
 	$inner['index_bit'] = '';
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
-		if (isset($row['regdate'])) {
-			$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
-		}
 		if (isset($row['location'])) {
 			$row['location'] = iif(!empty($row['location']), $row['location'], $lang->phrase('location_no_data'));
 		}
@@ -289,9 +286,6 @@ else {
 		}
 		if(!empty($row['pic']) && !file_exists($row['pic'])) {
 			$row['pic'] = '';
-		}
-		if(isset($row['lastvisit'])) {
-			$row['lastvisit'] = iif ($row['lastvisit'] > 0, gmdate($lang->phrase('dformat1'), times($row['lastvisit'])), $lang->phrase('members_na'));
 		}
 		($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
 		$inner['index_bit'] .= $tpl->parse("members/index_bit");

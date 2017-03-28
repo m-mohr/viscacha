@@ -65,12 +65,9 @@ if ($_GET['action'] == 'show') {
 		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
 	}
 
-	$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
-
 	$bbcode->setSmileys(1);
 	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
-	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 	$row['read'] = iif($row['status'] == 1,'old','new');
 	$row['level'] = $slog->getStatus($row['groups'], ', ', $row['deleted_at'] !== null);
 	if ($row['dir'] == 2) {
@@ -371,7 +368,6 @@ elseif ($_GET['action'] == "browse") {
 
 	while ($row = $db->fetch_assoc($result)) {
 		$row['topic'] = $gpc->prepare($row['topic']);
-		$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 		if ($row['status'] == 0) {
 			$row['alt'] = $lang->phrase('pm_newicon');
 			$row['src'] = $tpl->img('dir_open2');
@@ -414,8 +410,6 @@ else {
 	$ib = 0;
 	$ibo = 0;
 	while ($row = $db->fetch_assoc($result)) {
-		$row['topic'] = $gpc->prepare($row['topic']);
-		$row['date_str'] = str_date($lang->phrase('dformat1'), times($row['date']));
 		if ($row['status'] == 0) {
 			$row['alt'] = $lang->phrase('pm_newicon');
 			$row['src'] = $tpl->img('dir_open2');

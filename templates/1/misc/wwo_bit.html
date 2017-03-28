@@ -1,13 +1,13 @@
 <tr class="tbody">
 	<td width="45%">
-		<span class="right">{{ $time }}</span>
+		<span class="right">@time($row->active)</span>
 		@if($row->mid >= 1)
 		<a href="profile.php?id={{ $row->mid }}">{{ $row->name }}</a>
 		@elselang('wiw_guest')
 		@if($my->p['admin'] == 1)
 		<span class="stext">
 			<br />
-			@lang('wiw_ip')&nbsp;
+			@lang('wiw_ip')
 			@if(check_ip($row->ip))
 			<a href="admin.php?addr={{ rawurlencode('admin.php?action=members&job=ips&ipaddress='.$row->ip) }}" target="_blank">{{ $row->ip }}</a>
 			@elselang('ip_unknown')

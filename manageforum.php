@@ -105,9 +105,6 @@ if ($_GET['action'] == "index") {
 				$prefix = '';
 			}
 
-			$rstart = str_date($lang->phrase('dformat1'),times($row->date));
-			$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-
 			if ($row->status == '2') {
 				$pref .= $lang->phrase('forum_moved');
 			}

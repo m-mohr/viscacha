@@ -204,7 +204,6 @@ elseif ($_GET['action'] == "wwo") {
 		$row->user_agent = strip_tags($row->user_agent);
 		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
-		$time = gmdate($lang->phrase('dformat3'), times($row->active));
 
 		switch (mb_strtolower($row->wiw_script)) {
 		case 'managetopic':
@@ -746,14 +745,12 @@ elseif ($_GET['action'] == "edithistory") {
 
 	($code = $plugins->load('misc_edithistory_start')) ? eval($code) : null;
 
-	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
-
 	$edit = array();
 	if (!empty($row['edit'])) {
 		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row['edit'], $edits, PREG_SET_ORDER);
 		foreach ($edits as $e) {
 			$edit[] = array(
-				'date' => str_date($lang->phrase('dformat1'), times($e[2])),
+				'date' => $e[2],
 				'reason' => empty($e[3]) ? $lang->phrase('post_editinfo_na') : $e[3],
 				'name' => $e[1],
 				'ip' => empty($e[4]) ? '-' : $e[4]

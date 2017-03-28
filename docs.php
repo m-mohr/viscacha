@@ -82,13 +82,13 @@ if (GroupCheck($info['groups'])) {
 		$info['name'] = $lang->phrase('fallback_no_username');
 	}
 	if ($info['date'] > 0 ) {
-		$info['date'] = str_date($lang->phrase('dformat1'), times($info['date']));
+		$info['date'] = str_date(times($info['date']));
 	}
 	else {
 		$info['date'] = $lang->phrase('docs_date_na');
 	}
 	if ($info['update'] > 0) {
-		$info['update'] = str_date($lang->phrase('dformat1'), times($info['update']));
+		$info['update'] = str_date(times($info['update']));
 	}
 	else {
 		$info['update'] = $lang->phrase('docs_date_na');

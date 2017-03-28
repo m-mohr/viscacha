@@ -180,10 +180,14 @@ class lang {
 			echo "<!-- Could not load language-file {$file} -->";
 		}
 	}
+	
+	function exists($phrase) {
+		return isset($this->lngarray[$phrase]);
+	}
 
 	function phrase($phrase, $vars = array()) {
 		$this->massAssign($vars);
-		if (isset($this->lngarray[$phrase])) {
+		if ($this->exists($phrase)) {
 			$pphrase = $this->lngarray[$phrase];
 			if (mb_strpos($pphrase, '{') !== false) {
         		$pphrase = $this->parse_pvar($pphrase);

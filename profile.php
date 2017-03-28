@@ -130,14 +130,6 @@ else {
 		$row->p = $slog->StrangerPermissions($row->groups, true);
 		$row->level = $slog->getStatus($row->groups);
 
-		$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
-		if ($row->lastvisit > 0) {
-			$row->lastvisit = str_date($lang->phrase('dformat1'), times($row->lastvisit));
-		}
-		else {
-			$row->lastvisit = $lang->phrase('profile_never');
-		}
-
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
 		$bbcode->setAuthor($row->id);
@@ -174,12 +166,8 @@ else {
 		}
 
 		$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
-		$wwo = $db->fetch_num($result);
-		$osi = false;
-		if ($wwo[0] > 0) {
-			$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
-			$osi = true;
-		}
+		$wwo = $db->fetch_assoc($result);
+		$osi = ($wwo['mid'] > 0);
 
 		// Custom Profile Fields
 		include_once('classes/class.profilefields.php');

@@ -1,6 +1,7 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
+$lang['86400'] = 'Tomorrow, ';
 $lang['about_too_long'] = 'Personal web page is too long';
 $lang['active_members'] = 'Active Members: ';
 $lang['active_topics_title'] = 'Active Topics';
@@ -594,7 +595,7 @@ $lang['th_registered_since'] = 'Registered since';
 $lang['th_status'] = 'Status';
 $lang['timestamps_gmt_diff'] = 'All times are {%my->timezone_str}.';
 $lang['timezone'] = 'Time zone:';
-$lang['timezone_desc'] = 'Current time: {%my->current_time}.';
+$lang['timezone_desc'] = 'Current time:';
 $lang['title'] = 'Subject:';
 $lang['title_refresh_vote_replies'] = 'Number of possible answers';
 $lang['title_too_long'] = 'Subject is too long';

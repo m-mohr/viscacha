@@ -7,7 +7,7 @@
 			<a class="sep" href="pm.php?action=quote&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@img('quote')" alt="" /> @lang('post_quote')</a>
 			@endif
 		</span>
-		<img src="{{ $tpl->img('post_'.$row['read']) }}" alt="" /> {{ $row['date'] }}
+		<img src="{{ $tpl->img('post_'.$row['read']) }}" alt="" /> @reldatetime($row['date'])
 	</div>
 	<div class="inlineheader h3">
 		<div class="viewmembername">
@@ -20,7 +20,7 @@
 			<br /><span class="stext">{{ $row['level'] }}</span>
 		</div>
 		<div class="viewmemberdetails stext">
-			@lang('post_info_registered_since'){{ $row['regdate'] }}<br />
+			@lang('post_info_registered_since')@date($row['regdate'])<br />
 			@lang('post_info_location'){{ $row['location'] }}
 		</div>
 		<br class="invclear" />

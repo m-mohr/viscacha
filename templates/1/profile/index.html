@@ -22,7 +22,7 @@
 	<tr class="tbody profiledata">
 		<td valign="top" rowspan="3">
 			<h5>@lang('profile_registered_since')</h5>
-			<em>{{ $row->regdate }}</em>
+			<em>@reldatetime($row->regdate)</em>
 			<br />
 			<h5>@lang('profile_group')</h5>
 			@if(count($row->level) == 1)
@@ -36,7 +36,7 @@
 			</ul>
 			@endif
 			<h5>@lang('profile_lastvisit')</h5>
-			<em>{{ $row->lastvisit }}</em>
+			<em>@reldatetime($row->lastvisit, 'profile_never')</em>
 			<br />
 			<h5>@lang('profile_posts')</h5>
 			<em>
@@ -46,7 +46,7 @@
 			<br />
 			<h5>@lang('profile_osi')</h5>
 			@if($osi)
-			<em class="highlight_pos" title="@lang('profile_osi_lastactivity') {{ $wwo[1] }}">@lang('profile_online')</em>
+			<em class="highlight_pos" title="@lang('profile_osi_lastactivity') @time($wwo['active'])">@lang('profile_online')</em>
 			@else
 			<em>@lang('profile_offline')</em>
 			@endif

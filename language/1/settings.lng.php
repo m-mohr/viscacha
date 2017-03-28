@@ -3,15 +3,14 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['compatible_version'] = '0.9 alpha 1';
 $lang['country_code'] = '';
+$lang['datetime_format'] = 'd.m.Y, H:i';
+$lang['date_format'] = 'd.m.Y';
 $lang['decpoint'] = ',';
-$lang['dformat1'] = 'd.m.Y, H:i';
-$lang['dformat2'] = 'd.m.Y';
-$lang['dformat3'] = 'H:i';
-$lang['dformat4'] = 'H:i';
 $lang['html_read_direction'] = 'ltr';
 $lang['lang_code'] = 'de';
 $lang['lang_description'] = 'German (formal) language pack';
 $lang['lang_name'] = 'Deutsch (Formell)';
 $lang['spellcheck_dict'] = 'de';
 $lang['thousandssep'] = '.';
+$lang['time_format'] = 'H:i';
 ?>

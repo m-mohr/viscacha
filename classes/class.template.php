@@ -72,10 +72,10 @@ class tpl {
 		$this->blade = new bladeone\BladeOne($this->dir, 'data/cache/' . $this->dir);
 		$this->blade->setFileExtension('.html');
         $this->blade->directive('lang', function ($expression) {
-            return '<?php echo $lang->phrase'.$expression.'; ?>';
+            return '<?php echo static::e($lang->phrase'.$expression.'); ?>';
         });
         $this->blade->directive('elselang', function ($expression) {
-            return '<?php else: echo $lang->phrase'.$expression.'; endif; ?>';
+            return '<?php else: echo static::e($lang->phrase'.$expression.'); endif; ?>';
         });
         $this->blade->directive('img', function ($expression) {
             return '<?php echo $tpl->img'.$expression.'; ?>';
@@ -98,6 +98,45 @@ class tpl {
 			$expression = trim($expression, '()');
 			return '<?php ($code = $plugins->navigation("'.$expression.'")) ? eval($code) : null; ?>';
         });
+        $this->blade->directive('datetime', function ($expression) {
+			return $this->compileDateTime($expression, 'datetime');
+        });
+        $this->blade->directive('date', function ($expression) {
+			return $this->compileDateTime($expression, 'date');
+        });
+        $this->blade->directive('time', function ($expression) {
+			return $this->compileDateTime($expression, 'time');
+        });
+        $this->blade->directive('reldatetime', function ($expression) {
+			return $this->compileDateTime($expression);
+        });
+	}
+	
+	public function compileDateTime($expression, $format = null) {
+		global $lang;
+		$expression = trim($expression, '()');
+		$default = null;
+		if (strpos($expression, ',') !== FALSE) {
+			list($expression, $default) = preg_split('~\s*,\s*~', $expression, 2);
+			if ($lang->exists($default)) {
+				$default = '$lang->phrase('.$default.')';
+			}
+		}
+		$expression = 'times('.$expression.')';
+
+		if ($format == null) {
+			$formatter = 'str_date('.$expression.')';
+		}
+		else {
+			$formatter = 'gmdate($lang->phrase("'.$format.'_format"), '.$expression.')';
+		}
+		
+		if ($default) {
+			return "<?php echo (empty({$expression}) ? {$default} : {$formatter}); ?>";
+		}
+		else {
+			return "<?php echo {$formatter}; ?>";
+		}
 	}
 
 	public function img($name) {

@@ -181,9 +181,6 @@ elseif ($_GET['action'] == "abos") {
 			$row['src'] = $tpl->img('dir_open2');
 		}
 
-		$row['last'] = str_date($lang->phrase('dformat1'),times($row['last']));
-
-
 		if ($row['posts'] > $info['topiczahl']) {
 			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
 		}

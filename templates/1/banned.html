@@ -18,7 +18,7 @@
 							@lang('banned_reason')<br />
 							<em>{{ $banned['reason'] }}</em>
 						</p>
-						<p>@lang('banned_until'){{ $banned['until'] }}</p>
+						<p>@lang('banned_until') @reldatetime($banned['until'], 'banned_left_never')</p>
 					</div>
 				</div>
 			</div>

@@ -25,7 +25,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 		}
 	}
 
-	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
+	$row['date'] = str_date(times($row['date']));
 
 	$row['read_more'] = false;
 	$pos = mb_stripos($row['comment'], $cutat);

@@ -18,8 +18,6 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
 	}
 	$row->comment = $bbcode->parse($row->comment);
 
-	$row->date = str_date($lang->phrase('dformat1'), times($row->date));
-
 	$data[] = $row;
 }
 

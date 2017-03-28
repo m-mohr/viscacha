@@ -99,7 +99,7 @@
 						@lang('by')
 						<a href="profile.php?id={{ $forum['l_uid'] }}{{ SID2URL_x }}">{{ $forum['l_name'] }}</a>
 					</span>
-					<span class="right nowrap">{{ $forum['l_date'] }}</span>
+					<span class="right nowrap">@reldatetime($forum['l_date'])</span>
 					@elselang('cat_no_lastpost')
 				</td>
 			</tr>

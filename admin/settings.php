@@ -1445,7 +1445,7 @@ elseif ($job == 'datetime') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_use_today_yesterday'); ?></font></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="new_dformat4" value="1"<?php echo iif($config['new_dformat4'],' checked'); ?>></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="semantic_datetime" value="1"<?php echo iif($config['semantic_datetime'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
@@ -1459,7 +1459,7 @@ elseif ($job == 'datetime2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('new_dformat4',int);
+	$c->updateconfig('semantic_datetime',int);
 	$c->updateconfig('timezone',str);
 	$c->savedata();
 

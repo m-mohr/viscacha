@@ -9,7 +9,7 @@
 		<td width="50%">@lang('edithistory_reason')</td>
 	</tr>
 	<tr class="tbody">
-		<td>{{ $row['date'] }}</td>
+		<td>@reldatetime($row['date'])</td>
 		<td>
 			{{ $row['name'] }}
 			@if($my->p['admin'] == 1)
@@ -20,7 +20,7 @@
 	</tr>
 	@foreach ($edit as $line)
 	<tr class="tbody">
-		<td>{{ $line['date'] }}</td>
+		<td>@reldatetime($line['date'])</td>
 		<td>
 			{{ $line['name'] }}
 			@if($my->p['admin'] == 1)
