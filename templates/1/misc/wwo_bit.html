@@ -1,5 +1,5 @@
 <tr class="tbody">
-	<td width="45%">
+	<td width="45%" valign="top">
 		<span class="right">@time($row->active)</span>
 		@if($row->mid >= 1)
 		<a href="profile.php?id={{ $row->mid }}">{{ $row->name }}</a>
@@ -16,5 +16,5 @@
 		</span>
 		@endif
 	</td>
-	<td width="55%">{{ $loc }}</td>
+	<td width="55%">{!! $loc !!}</td>
 </tr>
