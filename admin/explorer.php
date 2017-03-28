@@ -383,7 +383,7 @@ elseif ($job == "extract2") {
 
 	set_chmod($dir, 0777, CHMOD_DIR);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
-	if (!preg_match('#\.(gz|zip)$#is', $file, $ext)) {
+	if (!preg_match('/\.(gz|zip)$/isu', $file, $ext)) {
 		error($redirect, $lang->phrase('admin_explorer_archive_is_not_supported'));
 	}
 	if (isset($ext[1])) {

@@ -98,7 +98,7 @@ elseif ($_GET['action'] == 'textimage') {
 	if (strlen($fg) != 3 && strlen($fg) != 6) {
 		$fg = '000000';
 	}
-	if (!preg_match('/^[\w\d\-\.]+$/', $file) || !file_exists("./classes/fonts/{$file}.ttf")) {
+	if (!preg_match('/^[\w\d\-\.]+$/u', $file) || !file_exists("./classes/fonts/{$file}.ttf")) {
 		$file = null;
 	}
 	else {

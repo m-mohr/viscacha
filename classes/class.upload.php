@@ -401,7 +401,7 @@ class uploader {
 	 */
 	function cleanup_text_file(){
 		$fcontents = @file_get_contents($this->file['tmp_name']);
-		$fcontents = preg_replace("/(\r\n|\r|\n)/", "\r\n", $fcontents);
+		$fcontents = preg_replace("/(\r\n|\r|\n)/u", "\r\n", $fcontents);
 		@file_put_contents($this->file['tmp_name'], $fcontents);
 	}
 

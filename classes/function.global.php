@@ -65,7 +65,7 @@ function check_pw($password, $hash) {
 		// Old MD5 way to check passwords
 		global $db;
 		$var = mb_convert_encoding($password, "ISO-8859-15");
-		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
+		$var = preg_replace('~(script|about|applet|activex|chrome|mocha):~isu', "\\1&#058;", $var);
 		$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-15', false);
 		$var = $db->escape_string($var);
 		return (md5($var) == $hash);
@@ -77,7 +77,7 @@ function check_pw($password, $hash) {
 }
 
 function is_hash($string, $len = 32) {
-	return (bool) preg_match("/^[a-f\d]{{$len}}$/i", $string);
+	return (bool) preg_match("/^[a-f\d]{{$len}}$/iu", $string);
 }
 
 function newCAPTCHA($place = null) {
@@ -93,7 +93,7 @@ function newCAPTCHA($place = null) {
 
 function splitWords($text) { // TODO: UTF8 - This is not valid anymore
 	$word_seperator = "\\.\\,;:\\+!\\?\\_\\|\s\"'\\#\\[\\]\\%\\{\\}\\(\\)\\/\\\\";
-	return preg_split('/['.$word_seperator.']+?/', $text, -1, PREG_SPLIT_NO_EMPTY);
+	return preg_split('/['.$word_seperator.']+?/u', $text, -1, PREG_SPLIT_NO_EMPTY);
 }
 
 function makeOneLine($str) {
@@ -117,7 +117,7 @@ function checkmx_idna($host) {
 	   @exec("nslookup -querytype=MX {$host_idna}", $output);
 	   while(list($k, $line) = each($output)) {
 		   # Valid records begin with host name
-		   if(preg_match("~^(".preg_quote($host, '~')."|".preg_quote($host_idna, '~').")~i", $line)) {
+		   if(preg_match("~^(".preg_quote($host, '~')."|".preg_quote($host_idna, '~').")~iu", $line)) {
 			   return true;
 		   }
 	   }
@@ -126,7 +126,7 @@ function checkmx_idna($host) {
 }
 
 function get_remote($file) {
-	if (preg_match('~^www\.~i', $file)) {
+	if (preg_match('~^www\.~iu', $file)) {
 		$file = 'http://'.$file;
 	}
 	
@@ -192,7 +192,7 @@ function checkRemotePic($pic, $id) {
 }
 
 function saveCommaSeparated($list) {
-	$list = preg_replace('~[^\d,]+~i', '', $list);
+	$list = preg_replace('~[^\d,]+~iu', '', $list);
 	$list = explode(',', $list);
 	$list = array_empty_trim($list);
 	$list = implode(',', $list);
@@ -200,7 +200,7 @@ function saveCommaSeparated($list) {
 }
 
 function JS_URL($url) {
-	if (preg_match('~javascript:\s?([^;]+);?~i', $url, $command) && isset($command[1])) {
+	if (preg_match('~javascript:\s?([^;]+);?~iu', $url, $command) && isset($command[1])) {
 		$url = $command[1];
 	}
 	else {
@@ -363,7 +363,7 @@ function serverload($int = false) {
 	}
 	if (empty($serverload[0]) && function_exists('exec') == true) {
 		$load = @exec("uptime");
-		$load = preg_split("~load averages?: ~i", $load);
+		$load = preg_split("~load averages?: ~iu", $load);
 		if (isset($load[1])) {
 			$serverload = explode(",", $load[1]);
 		}
@@ -409,11 +409,11 @@ function convert2adress($url, $toLower = true, $spacer = '-') {
 	$url = str_replace (array('ü', 'Ü'), 'ue', $url);
 	$url = str_replace (array('ß'), 'ss', $url);
 	// Replace some special chars with delimiter
-	$url = preg_replace('/[\+\s\r\n\t]+/', $spacer, $url);
+	$url = preg_replace('/[\+\s\r\n\t]+/u', $spacer, $url);
 	// Replace multiple delimiter chars with only one char
-	$url = preg_replace('/['.preg_quote($spacer, '/').']+/', $spacer, $url);
+	$url = preg_replace('/['.preg_quote($spacer, '/').']+/u', $spacer, $url);
 	// Remove html and other special chars
-	$url = preg_replace(array('/<[^>]*>/', '/[^a-z0-9\-\._'.preg_quote($spacer, '/').']/i'), '', $url);
+	$url = preg_replace(array('/<[^>]*>/u', '/[^a-z0-9\-\._'.preg_quote($spacer, '/').']/iu'), '', $url);
 
 	return $url;
 }
@@ -460,12 +460,12 @@ function secure_path($path) {
 }
 
 function is_url($url) {
-	return (preg_match("~^".URL_REGEXP."$~i", $url) == 1);
+	return (preg_match("~^".URL_REGEXP."$~iu", $url) == 1);
 }
 
 function check_mail($email, $simple = false) {
 	global $config;
-	if(preg_match("~^".EMAIL_REGEXP."$~i", $email)) {
+	if(preg_match("~^".EMAIL_REGEXP."$~iu", $email)) {
 	 	list(, $domain) = explode('@', $email);
 	 	$domain = mb_strtolower($domain);
 		// Check MX record.
@@ -605,10 +605,10 @@ function UpdateMemberStats($id) {
 
 function check_ip($ip, $allow_private = false) {
 
-   	$private_ips = array("/^0\..+$/", "/^127\.0\.0\..+$/", "/^192\.168\..+$/", "/^172\.16\..+$/", "/^10..+$/", "/^224..+$/", "/^240..+$/");
+   	$private_ips = array("/^0\..+$/u", "/^127\.0\.0\..+$/u", "/^192\.168\..+$/u", "/^172\.16\..+$/u", "/^10..+$/u", "/^224..+$/u", "/^240..+$/u");
 
 	$ok = true;
-	if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/", $ip)) {
+	if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/u", $ip)) {
 		$ok = false;
 	}
 	if ($allow_private == false) {

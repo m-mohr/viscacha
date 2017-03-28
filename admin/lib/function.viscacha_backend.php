@@ -122,7 +122,7 @@ function getLangCodesByDir($dir) {
 	$d = dir($dir);
 	$codes = array();
 	while (false !== ($entry = $d->read())) {
-		if (preg_match('~^(\w{2})_?(\w{0,2})$~i', $entry, $code) && is_dir("{$dir}/{$entry}")) {
+		if (preg_match('~^(\w{2})_?(\w{0,2})$~iu', $entry, $code) && is_dir("{$dir}/{$entry}")) {
 			if (!isset($codes[$code[1]])) {
 				$codes[$code[1]] = array();
 			}
@@ -143,7 +143,7 @@ function getLangCodesByDir($dir) {
 function getLangCodesByKeys($keys) {
 	$codes = array();
 	foreach ($keys as $entry) {
-		if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+		if (preg_match('~language_(\w{2})_?(\w{0,2})~iu', $entry, $code)) {
 			if (!isset($codes[$code[1]])) {
 				$codes[$code[1]] = array();
 			}
@@ -161,7 +161,7 @@ function getLangCodesByKeys($keys) {
 }
 
 function nl2whitespace($str){
-	return preg_replace("~(\r\n|\n|\r)~", " ", $str);
+	return preg_replace("~(\r\n|\n|\r)~u", " ", $str);
 }
 
 function AdminLogInForm() {
@@ -190,7 +190,7 @@ function AdminLogInForm() {
 }
 
 function isInvisibleHook($hook) {
-	return (bool) preg_match("~^((un)?install|update_(init|finish)|source(_\d+)?)$~i", $hook);
+	return (bool) preg_match("~^((un)?install|update_(init|finish)|source(_\d+)?)$~iu", $hook);
 }
 
 function getHookArray() {
@@ -282,13 +282,13 @@ function gzTempfile($file, $new = null) {
 
 function get_webserver() {
 	global $lang;
-	if (preg_match('#Apache/([0-9\.\s]+)#si', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
+	if (preg_match('~Apache/([0-9\.\s]+)~siu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Apache v$wsregs[1]";
 	}
-	elseif (preg_match('#Microsoft-IIS/([0-9\.]+)#siU', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
+	elseif (preg_match('~Microsoft-IIS/([0-9\.]+)~siUu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "IIS v$wsregs[1]";
 	}
-	elseif (preg_match('#Zeus/([0-9\.]+)#siU', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
+	elseif (preg_match('~Zeus/([0-9\.]+)~siUu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Zeus v$wsregs[1]";
 	}
 	elseif (mb_strtoupper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {

@@ -219,7 +219,7 @@ function getTimezone($base = null) {
 	}
 
 	if ($base != 0) {
-		preg_match('~^(\+|-)?(\d{1,2})\.?(\d{0,2})?$~', $base, $parts);
+		preg_match('~^(\+|-)?(\d{1,2})\.?(\d{0,2})?$~u', $base, $parts);
 		$parts[2] = intval($parts[2]);
 		$parts[3] = intval($parts[3]);
 	}

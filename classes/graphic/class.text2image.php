@@ -70,7 +70,7 @@ class text2image {
 	}
 
 	function build ($margin = 2, $bg = 'ffffff', $fg = '000000') {
-		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/(\[nl\]|<br(\s?\/)?>)/is", "\r\n", $this->text));
+		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/(\[nl\]|<br(\s?\/)?>)/isu", "\r\n", $this->text));
 
 		$TxtBx_Lwr_L_x = $TextBoxSize[0];
 		$TxtBx_Lwr_L_y = $TextBoxSize[1];
@@ -98,7 +98,7 @@ class text2image {
 		$fgc = $this->imagecolorallocate($fg);
 		imagefill($this->img, 0, 0, $bgc);
 		imagecolortransparent($this->img, $bgc);
-		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $fgc, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
+		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $fgc, $this->font, preg_replace("/\[nl\]/isu", "\r\n", $this->text));
 	}
 
 	function output($format = 'png') {

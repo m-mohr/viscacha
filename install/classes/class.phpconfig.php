@@ -83,7 +83,7 @@ class manageconfig {
 		$val2 = str_replace("\0", "", $val2);
 		$val2 = str_replace('\\', '\\\\', $val2);
 		$val2 = str_replace("'", "\\'", $val2);
-		$val2 = preg_replace_callback("/((\r\n|\n|\r|\t)+)/s", array(&$this, '_escapeNewline'), $val2);
+		$val2 = preg_replace_callback("/((\r\n|\n|\r|\t)+)/su", array(&$this, '_escapeNewline'), $val2);
 		$val2 = "'{$val2}'";
 		return $val2;
 	}

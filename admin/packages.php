@@ -810,7 +810,7 @@ elseif ($job == 'package_import2') {
 				$codes = array();
 				$keys = array_keys($plug);
 				foreach ($keys as $entry) {
-				   	if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+				   	if (preg_match('~language_(\w{2})_?(\w{0,2})~iu', $entry, $code)) {
 				   		if (!isset($codes[$code[1]])) {
 				   			$codes[$code[1]] = array();
 				   		}
@@ -2145,8 +2145,8 @@ elseif ($job == 'plugins_hook_pos') {
 		$data = str_replace("\t", "	", $data);
 		$data = str_replace("  ", "&nbsp;&nbsp;", $data);
 		$search = preg_quote(viscacha_htmlspecialchars('$plugins->load(\''.$hook.'\')'), '~');
-		$data = preg_replace('~('.$search.')~i', '<a name="key"><span style="font-weight: bold; color: maroon;">\1</span></a>', $data);
-		$data = preg_split("~(\r\n|\r|\n)~", $data);
+		$data = preg_replace('~('.$search.')~iu', '<a name="key"><span style="font-weight: bold; color: maroon;">\1</span></a>', $data);
+		$data = preg_split("~(\r\n|\r|\n)~u", $data);
 		echo "<ol style='width: 560px;'>";
 		foreach ($data as $row) {
 			echo "<li class=\"monospace\">{$row}</li>";
@@ -2201,7 +2201,7 @@ elseif ($job == 'plugins_edit') {
 		$ini = $myini->read($dir.'plugin.ini');
 	}
 
-	$isComponent = (preg_match('/^(admin_)?component_/', $package['position']) == 1);
+	$isComponent = (preg_match('/^(admin_)?component_/u', $package['position']) == 1);
 
 
 	$hooks = getHookArray();
@@ -2243,7 +2243,7 @@ elseif ($job == 'plugins_edit') {
 			<optgroup label="<?php echo $group; ?>">
 			<?php
 			foreach ($positions as $hook) {
-				if ($hook == 'source' && preg_match("~^source(_\d+)?$~i", $package['position'])) { ?>
+				if ($hook == 'source' && preg_match("~^source(_\d+)?$~iu", $package['position'])) { ?>
 					<option value="<?php echo $package['position']; ?>" selected="selected"><?php echo $hook; ?></option>
 				<?php } else { ?>
 					<option value="<?php echo $hook; ?>"<?php echo iif($hook == $package['position'], ' selected="selected"'); ?>><?php echo $hook; ?></option>

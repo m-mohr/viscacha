@@ -145,7 +145,7 @@ class lang {
 		}
         $this->benchmark['ok']++;
         $content = file_get_contents($this->file);
-        preg_match("|<title>(.+?)</title>.*?<comment>(.+?)</comment>|is", $content, $matches);
+        preg_match("~<title>(.+?)</title>.*?<comment>(.+?)</comment>~isu", $content, $matches);
 		$matches[1] = $this->parse_pvar($matches[1]);
 		$matches[2] = $this->parse_pvar($matches[2]);
         return array(
@@ -210,8 +210,8 @@ class lang {
 	}
 
 	function parse_pvar($content) {
-		$content = preg_replace_callback('~\{(\$|\%|\@)(.+?)\}~i', array($this, 'parse_variable'), $content);
-		return preg_replace('~\{\\\(\$|\%|\@)(.+?)\}~i', '{\1\2}', $content);
+		$content = preg_replace_callback('~\{(\$|\%|\@)(.+?)\}~iu', array($this, 'parse_variable'), $content);
+		return preg_replace('~\{\\\(\$|\%|\@)(.+?)\}~iu', '{\1\2}', $content);
 	}
 
 	function parse_variable($params) {

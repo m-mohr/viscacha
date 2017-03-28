@@ -179,7 +179,7 @@ class PowerGraphic {
 			$this->x[$i] = $value;
 			$this->y[$i] = $y[$id];
 
-			if ((!empty($z[$i])) && (preg_match("~^(1|2|3|4)$~", $this->type))) {
+			if ((!empty($z[$i])) && (preg_match("~^(1|2|3|4)$~u", $this->type))) {
 				$this->graphic_2_exists = true;
 
 				if (empty($z[$id])) {
@@ -237,7 +237,7 @@ class PowerGraphic {
 
 
 		// Draw axis and background lines for "vertical bars", "dots" and "lines"
-		if (preg_match("~^(1|3|4)$~", $this->type)) {
+		if (preg_match("~^(1|3|4)$~u", $this->type)) {
 			if ($this->legend_exists == true) {
 				$this->draw_legend();
 			}
@@ -744,7 +744,7 @@ class PowerGraphic {
 		$line_height = $this->legend_lineheight - 8;
 
 		// Draw legend values for VERTICAL BARS, HORIZONTAL BARS, DOTS and LINES
-		if (preg_match("~^(1|2|3|4)$~", $this->type)) {
+		if (preg_match("~^(1|2|3|4)$~u", $this->type)) {
 			$color_1 = ($this->type == 1 ||  $this->type == 2) ? $this->color['bars_1']   : $this->color['line_1'];
 			$color_2 = ($this->type == 1 ||  $this->type == 2) ? $this->color['bars_2'] : $this->color['line_2'];
 			$correction_1 = $line_height-$this->string_height($this->graphic_1, 3);

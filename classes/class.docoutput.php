@@ -37,7 +37,7 @@ class OutputDoc {
 		if (!empty($this->sid)) {
 			$own_url = ini_isSecureHttp() ? 'https://' : 'http://';
 			$own_url = preg_quote($own_url . $_SERVER['HTTP_HOST'], '~');
-			$content = preg_replace_callback('~<a([^>]+?)href=("|\')(' . $own_url . '(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~i', array(&$this, 'ConstructLink'), $content);
+			$content = preg_replace_callback('~<a([^>]+?)href=("|\')(' . $own_url . '(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~iu', array(&$this, 'ConstructLink'), $content);
 		}
 		return $content;
 	}
@@ -50,12 +50,12 @@ class OutputDoc {
 		$info = parse_url($url);
 		if (isset($info['query'])) {
 			$info['query'] = '?' . $info['query'];
-			if (!preg_match('~(\?|&amp;|&)s=[A-Za-z0-9]*?~i', $info['query'])) {
+			if (!preg_match('~(\?|&amp;|&)s=[A-Za-z0-9]*?~iu', $info['query'])) {
 				$url .= '&amp;s=' . $this->sid;
 			}
 			// Auskommentieren, wenn alte (oder leere) SIDs nicht ersetzt werden sollen
 			else {
-				$url = preg_replace('~(\?|&amp;|&)s=([A-Za-z0-9]*)~i', '\1s=' . $this->sid, $url);
+				$url = preg_replace('~(\?|&amp;|&)s=([A-Za-z0-9]*)~iu', '\1s=' . $this->sid, $url);
 			}
 		} else {
 			$url .= '?s=' . $this->sid;

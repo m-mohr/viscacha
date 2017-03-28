@@ -115,8 +115,8 @@ elseif ($action == 'search') {
 	$search = $gpc->get('search', str);
 	if (mb_strlen($search) > 2) {
 		$search = urldecode($search);
-		$search = preg_replace("/(\s){1,}/is"," ",$search);
-	    $search = preg_replace("/\*{1,}/is",'*',$search);
+		$search = preg_replace("/(\s){1,}/isu"," ",$search);
+	    $search = preg_replace("/\*{1,}/isu",'*',$search);
 		$ignorewords = $lang->get_words();
 		$searchwords = splitWords($search);
 		$ignored = array();

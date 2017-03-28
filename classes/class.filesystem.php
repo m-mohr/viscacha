@@ -55,7 +55,7 @@ class filesystem {
 	}
 
 	function _ftpize_path($path) {
-		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~i', '', $path);
+		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~iu', '', $path);
 		return $path;
 	}
 

@@ -46,7 +46,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 <?php
 }
 require('data/config.inc.php');
-$prefix = preg_replace("/\W+/i", '', $config['dbprefix']);
+$prefix = preg_replace("/\W+/iu", '', $config['dbprefix']);
 if ($prefix != $config['dbprefix']) {
 	?>
 <div class="bbody">The prefix is not valid!</div>

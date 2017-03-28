@@ -117,7 +117,7 @@ class tpl {
 		$expression = trim($expression, '()');
 		$default = null;
 		if (strpos($expression, ',') !== FALSE) {
-			list($expression, $default) = preg_split('~\s*,\s*~', $expression, 2);
+			list($expression, $default) = preg_split('~\s*,\s*~u', $expression, 2);
 			if ($lang->exists($default)) {
 				$default = '$lang->phrase('.$default.')';
 			}

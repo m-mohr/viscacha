@@ -109,7 +109,7 @@ function getLangCodes() {
 function getLangCodesByKeys($keys) {
 	$codes = array();
 	foreach ($keys as $entry) {
-		if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+		if (preg_match('~language_(\w{2})_?(\w{0,2})~iu', $entry, $code)) {
 			if (!isset($codes[$code[1]])) {
 				$codes[$code[1]] = array();
 			}
@@ -269,7 +269,7 @@ function GPC_escape($var, $type = GPC_HTML){
 			$var = addslashes($var);
 		}
 		if ($type == GPC_ALNUM) {
-			$var = preg_replace("~[^a-z0-9_\-]+~i", '', $var);
+			$var = preg_replace("~[^a-z0-9_\-]+~iu", '', $var);
 		}
 	}
 	return $var;

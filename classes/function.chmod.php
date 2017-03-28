@@ -158,7 +158,7 @@ function getViscachaCHMODs() {
 			$dh2 = opendir($fullpath);
 			while ($file = readdir($dh2)) {
 				$stylesheet = $fullpath.'/'.$file;
-				if(preg_match('~\.css$~i', $file)) {
+				if(preg_match('~\.css$~iu', $file)) {
 					$chmod[] = array('path' => $stylesheet, 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false);
 				}
 			}

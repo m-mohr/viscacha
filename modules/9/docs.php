@@ -82,8 +82,8 @@ if ($db->num_rows($result) > 0) {
 		}
 		else {
 			if (empty($typedata['template'])) {
-				preg_match("~<title>(.+?)</title>~is", $info['content'], $match_title);
-				preg_match("~<body[^>]*?>(.+?)</body>~is", $info['content'], $match_body);
+				preg_match("~<title>(.+?)</title>~isu", $info['content'], $match_title);
+				preg_match("~<body[^>]*?>(.+?)</body>~isu", $info['content'], $match_body);
 	
 				if (!empty($match_title[1])) {
 					$info['title'] = $match_title[1];

@@ -23,7 +23,7 @@ if($job == "add2") {
 	$type = $gpc->get('type', none);
 	if($type != "text" && $type != "textarea") {
 		$options = $gpc->get('options', none);
-		$options2 = preg_split("~(\r\n|\r|\n)+~", $options);
+		$options2 = preg_split("~(\r\n|\r|\n)+~u", $options);
 		$options = array($type);
 		$keys = array();
 		foreach ($options2 as $key => $row) {
@@ -75,7 +75,7 @@ elseif($job == "edit2") {
 	$type = $gpc->get('type', none);
 	if($type != "text" && $type != "textarea") {
 		$options = $gpc->get('options', none);
-		$options2 = preg_split("~(\r\n|\r|\n)+~", $options);
+		$options2 = preg_split("~(\r\n|\r|\n)+~u", $options);
 		$options = array($type);
 		$keys = array();
 		foreach ($options2 as $key => $row) {

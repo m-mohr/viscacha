@@ -85,7 +85,7 @@ class ftp_base {
 // <!-- --------------------------------------------------------------------------------------- -->
 	function parselisting($list) {
 //	Parses 1 line like:		"drwxrwx---  2 owner group 4096 Apr 23 14:57 text"
-		if(preg_match("/^([-ld])([rwxst-]+)\s+(\d+)\s+([^\s]+)\s+([^\s]+)\s+(\d+)\s+(\w{3})\s+(\d+)\s+([\:\d]+)\s+(.+)$/i", $list, $ret)) {
+		if(preg_match("/^([-ld])([rwxst-]+)\s+(\d+)\s+([^\s]+)\s+([^\s]+)\s+(\d+)\s+(\w{3})\s+(\d+)\s+([\:\d]+)\s+(.+)$/iu", $list, $ret)) {
 			$v=array(
 				"type"	=> ($ret[1]=="-"?"f":$ret[1]),
 				"perms"	=> 0,
@@ -225,9 +225,9 @@ class ftp_base {
 		$syst=$this->systype();
 		if(!$syst) $this->SendMSG("Can't detect remote OS");
 		else {
-			if(preg_match("/win|dos|novell/i", $syst[0])) $this->OS_remote=FTP_OS_Windows;
-			elseif(preg_match("/os/i", $syst[0])) $this->OS_remote=FTP_OS_Mac;
-			elseif(preg_match("/(li|u)nix/i", $syst[0])) $this->OS_remote=FTP_OS_Unix;
+			if(preg_match("/win|dos|novell/iu", $syst[0])) $this->OS_remote=FTP_OS_Windows;
+			elseif(preg_match("/os/iu", $syst[0])) $this->OS_remote=FTP_OS_Mac;
+			elseif(preg_match("/(li|u)nix/iu", $syst[0])) $this->OS_remote=FTP_OS_Unix;
 			else $this->OS_remote=FTP_OS_Mac;
 			$this->SendMSG("Remote OS: ".$this->OS_FullName[$this->OS_remote]);
 		}
@@ -269,7 +269,7 @@ class ftp_base {
 	function pwd() {
 		if(!$this->_exec("PWD", "pwd")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		return preg_replace("~^[0-9]{3} \"(.+)\" .+".CRLF."~", "\\1", $this->_message);
+		return preg_replace("~^[0-9]{3} \"(.+)\" .+".CRLF."~u", "\\1", $this->_message);
 	}
 
 	function cdup() {
@@ -313,7 +313,7 @@ class ftp_base {
 		}
 		if(!$this->_exec("SIZE ".$pathname, "filesize")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		return preg_replace("~^[0-9]{3} ([0-9]+)".CRLF."~", "\\1", $this->_message);
+		return preg_replace("~^[0-9]{3} ([0-9]+)".CRLF."~u", "\\1", $this->_message);
 	}
 
 	function abort() {
@@ -333,7 +333,7 @@ class ftp_base {
 		}
 		if(!$this->_exec("MDTM ".$pathname, "mdtm")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		$mdtm = preg_replace("~^[0-9]{3} ([0-9]+)".CRLF."~", "\\1", $this->_message);
+		$mdtm = preg_replace("~^[0-9]{3} ([0-9]+)".CRLF."~u", "\\1", $this->_message);
 		$date = sscanf($mdtm, "%4d%2d%2d%2d%2d%2d");
 		$timestamp = mktime($date[3], $date[4], $date[5], $date[1], $date[2], $date[0]);
 		return $timestamp;
@@ -380,8 +380,8 @@ class ftp_base {
 	function features() {
 		if(!$this->_exec("FEAT", "features")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
-		$f=array_slice(preg_split("/[".CRLF."]+/", $this->_message, -1, PREG_SPLIT_NO_EMPTY), 1, -1);
-		array_walk($f, create_function('&$a', '$a=preg_replace("/[0-9]{3}[\s-]+/", "", trim($a));'));
+		$f=array_slice(preg_split("/[".CRLF."]+/u", $this->_message, -1, PREG_SPLIT_NO_EMPTY), 1, -1);
+		array_walk($f, create_function('&$a', '$a=preg_replace("/[0-9]{3}[\s-]+/u", "", trim($a));'));
 		$this->_features=array();
 		foreach($f as $k=>$v) {
 			$v=explode(" ", trim($v));
@@ -672,8 +672,8 @@ class ftp_base {
 
 	function glob_regexp($pattern,$probe) {
 		return (isWindows() != true ?
-			preg_match("~{$pattern}~", $probe) :
-			preg_match("~{$pattern}~i", $probe)
+			preg_match("~{$pattern}~u", $probe) :
+			preg_match("~{$pattern}~iu", $probe)
 		);
 	}
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -700,7 +700,7 @@ class ftp_base {
 			if(!$this->_readmsg()) return FALSE;
 			if(!$this->_checkCode()) return FALSE;
 			if($out === FALSE ) return FALSE;
-			$out=preg_split("/[".CRLF."]+/", $out, -1, PREG_SPLIT_NO_EMPTY);
+			$out=preg_split("/[".CRLF."]+/u", $out, -1, PREG_SPLIT_NO_EMPTY);
 //			$this->SendMSG(implode($this->_eol_code[$this->OS_local], $out));
 		}
 		return $out;

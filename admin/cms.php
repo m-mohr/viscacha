@@ -152,7 +152,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 }
 function parseNavPosSetting() {
 	global $admconfig;
-	$explode = preg_split("~(\r\n|\r|\n)+~", trim($admconfig['nav_positions']));
+	$explode = preg_split("~(\r\n|\r|\n)+~u", trim($admconfig['nav_positions']));
 	$arr = array();
 	foreach ($explode as $val) {
 		$dat = explode('=', $val, 2);
@@ -1335,7 +1335,7 @@ elseif ($job == 'doc_insert_image') {
 		$qdir = $gpc->get('dir', path);
 		$ndir = $gpc->get('newdir', path);
 		if($qdir == '#') {
-			if (!preg_match('/[^\w\d\-\.]/i', $qdir) || empty($ndir)) {
+			if (!preg_match('/[^\w\d\-\.]/iu', $qdir) || empty($ndir)) {
 				$error = $lang->phrase('admin_wysiwyg_folder_restrictions');
 			}
 			else {

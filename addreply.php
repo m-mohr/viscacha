@@ -270,7 +270,7 @@ else {
 		// Multiquote
 		$qids = $gpc->get('qid', arr_int);
 		$pids = getcookie('vquote');
-		if(!empty($pids) && preg_match("/^[0-9,]+$/", $pids)) {
+		if(!empty($pids) && preg_match("/^[0-9,]+$/u", $pids)) {
 			$qids = array_merge($qids, explode(',', $pids));
 			$qids = array_unique($qids);
 			makecookie($config['cookie_prefix'].'_vquote', '', 0);
@@ -288,7 +288,7 @@ else {
 
 			while($row = $gpc->prepare($db->fetch_assoc($result))) {
 				($code = $plugins->load('addreply_form_quotes')) ? eval($code) : null;
-				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $row['comment']);
+				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $row['comment']);
 				$row['comment'] = $bbcode->censor(trim($row['comment']));
 				$data['comment'] .= "\r\n[quote".iif(!empty($row['name']), "=".$row['name'])."]";
 				$data['comment'] .= $row['comment'];

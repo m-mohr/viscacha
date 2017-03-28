@@ -140,13 +140,13 @@ if (GroupCheck($info['groups'])) {
 	else {
 		($code = $plugins->load('docs_html_start')) ? eval($code) : null;
 		if (empty($typedata['template'])) {
-			preg_match("~<body([^>]+?)>~is", $info['content'], $match_body_attr);
-			preg_match("~<title>(.+?)</title>~is", $info['content'], $match_title);
-			preg_match("~<body[^>]*?>(.+?)</body>~is", $info['content'], $match_body);
-			preg_match("~<head[^>]*?>(.+?)</head>~is", $info['content'], $match_head);
+			preg_match("~<body([^>]+?)>~isu", $info['content'], $match_body_attr);
+			preg_match("~<title>(.+?)</title>~isu", $info['content'], $match_title);
+			preg_match("~<body[^>]*?>(.+?)</body>~isu", $info['content'], $match_body);
+			preg_match("~<head[^>]*?>(.+?)</head>~isu", $info['content'], $match_head);
 
 			if (!empty($match_head[1])) {
-				$match_head[1] = preg_replace("~<title>(.+?)</title>~is", "", $match_head[1]);
+				$match_head[1] = preg_replace("~<title>(.+?)</title>~isu", "", $match_head[1]);
 				$htmlhead .= $match_head[1];
 			}
 			if (!empty($match_body_attr[1])) {

@@ -57,12 +57,12 @@ class ServerNavigator
 	}
 
 	function checkExtract($file) {
-		$extension = preg_replace("/^.*?\\.(\w{1,8})$/", "\\1", $file);
+		$extension = preg_replace("/^.*?\\.(\w{1,8})$/u", "\\1", $file);
 		return in_array($extension, $this->extract);
 	}
 
 	function checkEdit($file) {
-		$extension = preg_replace("/^.*?\\.(\w{1,8})$/", "\\1", $file);
+		$extension = preg_replace("/^.*?\\.(\w{1,8})$/u", "\\1", $file);
 		return in_array($extension, $this->plain);
 	}
 
@@ -239,7 +239,7 @@ class ServerNavigator
 		while (($file = array_shift($file_list))  !==  NULL)
 		{
 
-			$extension = preg_replace("/^.*?\\.(\w{1,8})$/", "\\1", $file);
+			$extension = preg_replace("/^.*?\\.(\w{1,8})$/u", "\\1", $file);
 
 			$path_url = '&amp;path=' . urlencode(str_replace('/\\', '/', $this->path) . $file);
 			$link = $this->script_file . $path_url;
@@ -307,19 +307,19 @@ class ServerNavigator
 			return false;
 		}
 
-		$path = trim(preg_replace("/\\\\/", "/", (string)$path));
+		$path = trim(preg_replace("/\\\\/u", "/", (string)$path));
 
-		if (!preg_match("/(\.\w{1,4})$/", $path)  &&  !preg_match("/\?[^\\/]+$/", $path)  &&  !preg_match("/\\/$/", $path))
+		if (!preg_match("/(\.\w{1,4})$/u", $path)  &&  !preg_match("/\?[^\\/]+$/u", $path)  &&  !preg_match("/\\/$/u", $path))
 		{
 			$path .= '/';
 		}
 
-		preg_match_all("/^(\\/|\w:\\/|(http|ftp)s?:\\/\\/[^\\/]+\\/)?(.*)$/i", $path, $matches, PREG_SET_ORDER);
+		preg_match_all("/^(\\/|\w:\\/|(http|ftp)s?:\\/\\/[^\\/]+\\/)?(.*)$/iu", $path, $matches, PREG_SET_ORDER);
 
 		$path_root = $matches[0][1];
 		$path_dir  = $matches[0][3];
 
-		$path_dir = preg_replace(  array("/^\\/+/", "/\\/+/"),  array("", "/"),  $path_dir  );
+		$path_dir = preg_replace(array("/^\\/+/u", "/\\/+/u"), array("", "/"), $path_dir);
 
 		$path_parts = explode("/", $path_dir);
 
@@ -370,7 +370,7 @@ class ServerNavigator
 	{
 		$body  = $this->showContent(false);
 		$title = $this->realPath($_SERVER['HTTP_HOST'] . '/' . dirname($this->script_file) . '/' . $this->path);
-		$title = preg_replace("/^.*?\\/?([^\\/]+)\\/?$/", "\\1", $title);
+		$title = preg_replace("/^.*?\\/?([^\\/]+)\\/?$/u", "\\1", $title);
 
 		echo $body;
 

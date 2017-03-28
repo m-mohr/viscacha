@@ -41,7 +41,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 			$culance = $teaserlength*0.1;
 			$teaserlength -= $culance;
 			$maxlength = $teaserlength+(2*$culance);
-			if (preg_match("/[\.!\?]+[\s\r\n]+/", $row['comment'], $matches, PREG_OFFSET_CAPTURE, $teaserlength)) {
+			if (preg_match("/[\.!\?]+[\s\r\n]+/u", $row['comment'], $matches, PREG_OFFSET_CAPTURE, $teaserlength)) {
 				$pos = $matches[0][1];
 				if ($maxlength > $pos) {
 					$row['comment'] = mb_substr($row['comment'], 0, $pos+2);
@@ -60,9 +60,9 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 				$row['comment'] = mb_substr($row['comment'], 0, $pos).$lang->phrase('dot_more');
 				$row['read_more'] = true;
 			}
-			$token = preg_split('/(\[[^\/\r\n\[\]]+?\]|\[\/[^\/\s\r\n\[\]]+?\])/', $row['comment'], -1, PREG_SPLIT_DELIM_CAPTURE);
+			$token = preg_split('/(\[[^\/\r\n\[\]]+?\]|\[\/[^\/\s\r\n\[\]]+?\])/u', $row['comment'], -1, PREG_SPLIT_DELIM_CAPTURE);
 			foreach ($token as $t) {
-				if (mb_substr($t, 0, 1) == '[' && preg_match('/(\[([^\/\r\n\[\]]+?)\]|\[\/([^\/\s\r\n\[\]]+?)\])/', $t, $match)) {
+				if (mb_substr($t, 0, 1) == '[' && preg_match('/(\[([^\/\r\n\[\]]+?)\]|\[\/([^\/\s\r\n\[\]]+?)\])/u', $t, $match)) {
 					if (isset($match[3])) {
 						$top = array_shift($stack);
 					}
@@ -80,7 +80,7 @@ while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 				$bbcodes[] = mb_strtolower($re['bbcodetag']);
 			}
 			while(($top = array_shift($stack)) != null) {
-				$top = preg_replace("/(\w+?)(=[^\/\r\n\[\]]+)?/i", "\\1", $top);
+				$top = preg_replace("/(\w+?)(=[^\/\r\n\[\]]+)?/iu", "\\1", $top);
 				$top = mb_strtolower($top);
 				if (in_array($top, $bbcodes) == true) {
 					$row['comment'] = "{$row['comment']}[/{$top}]";

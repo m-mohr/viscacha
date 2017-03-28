@@ -30,9 +30,9 @@ class ftp extends ftp_base {
 		$syst = $this->systype();
 		if(!$syst) $this->SendMSG("Can't detect remote OS");
 		else {
-			if(preg_match("/win|dos|novell/i", $syst[0])) $this->OS_remote = FTP_OS_Windows;
-			elseif(preg_match("/os/i", $syst[0])) $this->OS_remote = FTP_OS_Mac;
-			elseif(preg_match("/(li|u)nix/i", $syst[0])) $this->OS_remote = FTP_OS_Unix;
+			if(preg_match("/win|dos|novell/iu", $syst[0])) $this->OS_remote = FTP_OS_Windows;
+			elseif(preg_match("/os/iu", $syst[0])) $this->OS_remote = FTP_OS_Mac;
+			elseif(preg_match("/(li|u)nix/iu", $syst[0])) $this->OS_remote = FTP_OS_Unix;
 			else $this->OS_remote = FTP_OS_Mac;
 			$this->SendMSG("Remote OS: ".$this->OS_FullName[$this->OS_remote]);
 		}
@@ -147,7 +147,7 @@ class ftp extends ftp_base {
 		$result = true;
 		$this->_message = implode(CRLF, $this->_ftp_data_sock).CRLF;
 		$this->_code = 0;
-		if(!preg_match("/^([0-9]{3})(-(.*[".CRLF."]{1,2})+\\1)? [^".CRLF."]+[".CRLF."]{1,2}$/m", $this->_message, $regs)) {
+		if(!preg_match("/^([0-9]{3})(-(.*[".CRLF."]{1,2})+\\1)? [^".CRLF."]+[".CRLF."]{1,2}$/mu", $this->_message, $regs)) {
 			$this->PushError($fnction, 'Invalid response from FTP');
 			return false;
 		}

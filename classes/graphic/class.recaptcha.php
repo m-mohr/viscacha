@@ -152,7 +152,7 @@ class ReCaptcha {
             return null;
         }
 
-        $parts = preg_split("#\n\s*\n#Uis", $response);
+        $parts = preg_split("#\n\s*\n#Uisu", $response);
 
 		return $parts[1];
 	}

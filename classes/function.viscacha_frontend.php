@@ -32,7 +32,7 @@ define('BOARD_STATE_WWW', 3);
 function getRedirectURL($standard = true) {
 	global $gpc;
 	$loc = strip_tags($gpc->get('redirect', none));
-	$loc = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $loc);
+	$loc = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $loc);
 	if (is_url($loc)) {
 		$url = parse_url($loc);
 		$file = !empty($url['path']) ? basename($url['path']) : '';
@@ -81,7 +81,7 @@ function getRequestURI() {
 			$_SERVER['REQUEST_URI']
 		);
 		if (is_url($request_uri)) {
-			$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
+			$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $request_uri);
 			$url = parse_url($request_uri);
 			if (empty($url['path'])) {
 				$url['path'] = '';
@@ -115,7 +115,7 @@ function getRefererURL() {
 		if (!empty($url['host']) && mb_strpos($config['furl'], $url['host']) !== FALSE) {
 			$request_uri = $_SERVER['HTTP_REFERER'];
 		}
-		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
+		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $request_uri);
 		if (empty($url['path'])) {
 			$url['path'] = '';
 		}
@@ -154,7 +154,7 @@ function DocCodePagination($cc) {
 	}
 	else {
 		$page = $_GET['page']-1;
-		$pgc = preg_split("~(<br[^>]*>|\n|\r)*\{pagebreak\}(<br[^>]*>|\n|\r)*~i", $cc, -1, PREG_SPLIT_NO_EMPTY);
+		$pgc = preg_split("~(<br[^>]*>|\n|\r)*\{pagebreak\}(<br[^>]*>|\n|\r)*~iu", $cc, -1, PREG_SPLIT_NO_EMPTY);
 		if (!isset($pgc[$page])) {
 			$page = 0;
 			$_GET['page'] = 1;
@@ -251,7 +251,7 @@ function count_nl($str='',$max=NULL) {
 		return 0;
 	}
 	else {
-		preg_match_all("/\r\n|\r|\n/", $str, $treffer);
+		preg_match_all("/\r\n|\r|\n/u", $str, $treffer);
 		$count = count($treffer[0]);
 		if ($max == NULL) {
 			return $count;
@@ -676,7 +676,7 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 
 	if (!empty($errorurl)) {
 		$js_errorurl = viscacha_html_entity_decode($errorurl, ENT_NOQUOTES);
-		$errorurl = preg_replace('~&(?!amp;)~i', '&amp;', $errorurl);
+		$errorurl = preg_replace('~&(?!amp;)~iu', '&amp;', $errorurl);
 	}
 	else {
 		$js_errorurl = $errorurl = "javascript:history.back(-1)";

@@ -47,7 +47,7 @@ elseif (empty($job) || $job == 'start') {
 			if ($nfo['extension'] == 'zip' || $nfo['extension'] == 'sql') {
 				$date = str_replace('.zip', '', $nfo['basename']);
 				$date = str_replace('.sql', '', $date);
-				$valid = preg_match('/(\d{1,2})_(\d{1,2})_(\d{2,4})-(\d{1,2})_(\d{1,2})_(\d{1,2})/', $date, $mktime);
+				$valid = preg_match('/(\d{1,2})_(\d{1,2})_(\d{2,4})-(\d{1,2})_(\d{1,2})_(\d{1,2})/u', $date, $mktime);
 				if ($valid == 0) {
 					$diff = times(filemtime($dir.$file));
 				}

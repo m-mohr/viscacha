@@ -2,7 +2,7 @@
 global $filesystem;
 
 function is_subdir($dir) {
-	if (is_dir($dir) && !preg_match("~\.{1,2}$~", $dir)) {
+	if (is_dir($dir) && !preg_match("~\.{1,2}$~u", $dir)) {
 		return true;
 	}
 	else {

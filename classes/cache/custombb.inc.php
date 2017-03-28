@@ -43,14 +43,14 @@ class cache_custombb extends CacheItem {
 			$this->data = array();
 			$result = $db->query("SELECT * FROM {$db->pre}bbcode ORDER BY id");
 			while ($bb = $db->fetch_assoc($result)) {
-				preg_match('~\{param(?::((?:\\\}|[^\}])+))?\}~i', $bb['bbcodereplacement'], $type); // Old: \{param(:(\\\}|[^\}]+))?\}
+				preg_match('~\{param(?::((?:\\\}|[^\}])+))?\}~iu', $bb['bbcodereplacement'], $type); // Old: \{param(:(\\\}|[^\}]+))?\}
 				if (empty($type[1])) {
 					$type[1] = null;
 				}
 				$param = '('.$this->getRegexp($type[1]).')';
 
 				if ($bb['twoparams']) {
-					preg_match('~\{option(?::((?:\\\}|[^\}])+))?\}~i', $bb['bbcodereplacement'], $type); // Old: \{option(:(\\\}|[^\}]+))?\}
+					preg_match('~\{option(?::((?:\\\}|[^\}])+))?\}~iu', $bb['bbcodereplacement'], $type); // Old: \{option(:(\\\}|[^\}]+))?\}
 					// Paramter for Opening Tag
 					if (empty($type[1])) {
 						$type[1] = null;

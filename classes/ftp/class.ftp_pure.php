@@ -46,7 +46,7 @@ class ftp extends ftp_base {
 				$this->PushError($fnction,'Read failed');
 			} else {
 				$this->_message.=$tmp;
-				if(preg_match("/^([0-9]{3})(-(.*[".CRLF."]{1,2})+\\1)? [^".CRLF."]+[".CRLF."]{1,2}$/", $this->_message, $regs)) $go=false;
+				if(preg_match("/^([0-9]{3})(-(.*[".CRLF."]{1,2})+\\1)? [^".CRLF."]+[".CRLF."]{1,2}$/u", $this->_message, $regs)) $go=false;
 			}
 		} while($go);
 		if($this->LocalEcho) echo "GET < ".rtrim($this->_message, CRLF).CRLF;
@@ -81,7 +81,7 @@ class ftp extends ftp_base {
 				$this->_data_close();
 				return FALSE;
 			}
-			$ip_port = explode(",", preg_replace("~^.+ \\(?([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]+,[0-9]+)\\)?.*".CRLF."$~", "\\1", $this->_message));
+			$ip_port = explode(",", preg_replace("~^.+ \\(?([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]+,[0-9]+)\\)?.*".CRLF."$~u", "\\1", $this->_message));
 			$this->_datahost=$ip_port[0].".".$ip_port[1].".".$ip_port[2].".".$ip_port[3];
 			$this->_dataport=(((int)$ip_port[4])<<8) + ((int)$ip_port[5]);
 			$this->SendMSG("Connecting to ".$this->_datahost.":".$this->_dataport);
@@ -108,7 +108,7 @@ class ftp extends ftp_base {
 		}
 		while (!feof($this->_ftp_data_sock)) {
 			$block=fread($this->_ftp_data_sock, $this->_ftp_buff_size);
-			if($mode!=FTP_BINARY) $block=preg_replace("/\r\n|\r|\n/", $this->_eol_code[$this->OS_local], $block);
+			if($mode!=FTP_BINARY) $block=preg_replace("/\r\n|\r|\n/u", $this->_eol_code[$this->OS_local], $block);
 			if(is_resource($fp)) $out+=fwrite($fp, $block, strlen($block));
 			else $out.=$block;
 		}
@@ -130,7 +130,7 @@ class ftp extends ftp_base {
 	}
 
 	function _data_write_block($mode, $block) {
-		if($mode!=FTP_BINARY) $block=preg_replace("/\r\n|\r|\n/", $this->_eol_code[$this->OS_remote], $block);
+		if($mode!=FTP_BINARY) $block=preg_replace("/\r\n|\r|\n/u", $this->_eol_code[$this->OS_remote], $block);
 		do {
 			if(($t=@fwrite($this->_ftp_data_sock, $block))===FALSE) {
 				$this->PushError("_data_write","Can't write to socket");

@@ -579,7 +579,7 @@ elseif ($job == 'forum_edit2') {
 			$post_order = -1;
 		}
 
-		$emails = preg_split('/[\r\n]+/', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$reply_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -587,7 +587,7 @@ elseif ($job == 'forum_edit2') {
 			}
 		}
 		$reply_notification = implode("\n", $reply_notification);
-		$emails = preg_split('/[\r\n]+/', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$topic_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -861,7 +861,7 @@ elseif ($job == 'forum_add2') {
 			$post_order = -1;
 		}
 
-		$emails = preg_split('/[\r\n]+/', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$reply_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -869,7 +869,7 @@ elseif ($job == 'forum_add2') {
 			}
 		}
 		$reply_notification = implode("\n", $reply_notification);
-		$emails = preg_split('/[\r\n]+/', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$topic_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -953,7 +953,7 @@ elseif ($job == 'forum_add2') {
 				$db->query("INSERT INTO {$db->pre}fgroups ({$columns}, bid, gid) VALUES ('{$row_str}', '{$newid}', '{$gid}')");
 			}
 		}
-		$prefixes = preg_split('/[\r\n]+/', $prefix, -1, PREG_SPLIT_NO_EMPTY);
+		$prefixes = preg_split('/[\r\n]+/u', $prefix, -1, PREG_SPLIT_NO_EMPTY);
 		if (count($prefixes) > 0) {
 			$sql_values = array();
 			foreach ($prefixes as $p) {

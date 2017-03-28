@@ -55,7 +55,7 @@ class INI {
 	* @param	string	String
 	*/
 	function parse ($str) {
-		$array1 = preg_split("(\r\n|\r|\n)", $str);
+		$array1 = preg_split("/(\r\n|\r|\n)/u", $str);
 		return $this->_convert($array1);
 	}
 
@@ -157,11 +157,11 @@ class INI {
 				$data .= "\r\n";
 			}
 			if (is_array($items)) {
-				$section = preg_replace('/[\0-\37]|\177/', "-", $sections);
+				$section = preg_replace('/[\0-\37]|\177/u', "-", $sections);
 				$data .= "[".$section."]\r\n";
 				foreach ($items as $keys => $values) {
 					//Write the key/value pairs
-					$key = preg_replace('/[\0-\37]|=|\177/', "-", $keys);
+					$key = preg_replace('/[\0-\37]|=|\177/u', "-", $keys);
 		  			if (mb_substr($key, 0, 1)==$this->commentchar) {
 		  				$key = '-'.mb_substr($key, 1);
 		  			}
@@ -172,7 +172,7 @@ class INI {
 				}
 			}
 			else {
-				$key = preg_replace('/[\0-\37]|=|\177/', "-", $sections);
+				$key = preg_replace('/[\0-\37]|=|\177/u', "-", $sections);
 		  		if (mb_substr($key, 0, 1) == $this->commentchar) {
 		  			$key = '-'.mb_substr($key, 1);
 		  		}

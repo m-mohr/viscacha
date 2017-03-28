@@ -76,7 +76,7 @@ elseif ($job == 'admin2') {
 	echo head();
 
 	$server = trim($gpc->get('package_server', none));
-	$server = preg_replace("~(\r\n|\r|\n)~", ";", $server);
+	$server = preg_replace("~(\r\n|\r|\n)~u", ";", $server);
 
 	$c->getdata('admin/data/config.inc.php', 'admconfig');
 	$c->updateconfig('package_server', str, $server);
@@ -1028,7 +1028,7 @@ elseif ($job == 'register2') {
 	echo head();
 
 	$register_notification = $gpc->get('register_notification', none);
-	$emails = preg_split('/[\r\n]+/', $register_notification, -1, PREG_SPLIT_NO_EMPTY);
+	$emails = preg_split('/[\r\n]+/u', $register_notification, -1, PREG_SPLIT_NO_EMPTY);
 	$register_notification = array();
 	foreach ($emails as $email) {
 		if(check_mail($email, true)) {

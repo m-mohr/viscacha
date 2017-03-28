@@ -134,7 +134,7 @@ if ($_GET['action'] == "save") {
 
 		($code = $plugins->load('register_save_end')) ? eval($code) : null;
 
-		$emails = preg_split('/[\r\n]+/', $config['register_notification'], -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $config['register_notification'], -1, PREG_SPLIT_NO_EMPTY);
 
 		if (count($emails) > 0) {
 			$to = array();

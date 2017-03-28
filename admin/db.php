@@ -327,7 +327,7 @@ elseif ($job == 'restore_info') {
 		if (($list = $archive->listContent()) != 0) {
 			if ($list[0]['size'] < $ziplimit) {
 				$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
-				$data[0]['content'] = preg_split("/\r\n|\r|\n/", $data[0]['content']);
+				$data[0]['content'] = preg_split("/\r\n|\r|\n/u", $data[0]['content']);
 				if (count($data[0]['content']) > 0) {
 					$header = array();
 		            foreach ($data[0]['content'] as $h) {

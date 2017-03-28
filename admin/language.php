@@ -554,7 +554,7 @@ elseif ($job == 'lang_ignore2') {
 
 	$id = $gpc->get('id', int);
 	$ignore = $gpc->get('ignore', none);
-	$lines = preg_split('`[\n\r]+`', trim($ignore)) ;
+	$lines = preg_split('/[\n\r]+/u', trim($ignore)) ;
 	$lines = array_map('trim', $lines);
 	$lines = array_map('mb_strtolower', $lines);
 	$lines = array_unique($lines);
@@ -658,7 +658,7 @@ elseif ($job == 'lang_emailtpl') {
 		error('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_file_x_does_not_exist'));
 	}
 	$xml = file_get_contents($path);
-	preg_match("|<title>(.+?)</title>.*?<comment>(.+?)</comment>|is", $xml, $tpl);
+	preg_match("~<title>(.+?)</title>.*?<comment>(.+?)</comment>~isu", $xml, $tpl);
 	?>
 <form name="form" method="post" action="admin.php?action=language&job=lang_emailtpl2&id=<?php echo $id; ?>&file=<?php echo $file; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4">
@@ -856,8 +856,8 @@ elseif ($job == 'lang_edit') {
 
 	// Emails
 	$mailcategories = array(
-		'/^(register_\d\d|admin_confirmed)$/i' => $lang->phrase('admin_lang_mail_cat_register'),
-		'/^digest_\w$/i' => $lang->phrase('admin_lang_mail_cat_digest'),
+		'/^(register_\d\d|admin_confirmed)$/iu' => $lang->phrase('admin_lang_mail_cat_register'),
+		'/^digest_\w$/iu' => $lang->phrase('admin_lang_mail_cat_digest'),
 		'' => $lang->phrase('admin_lang_mail_cat_others')
 	);
 	$mailfiles = array();
@@ -871,8 +871,6 @@ elseif ($job == 'lang_edit') {
 		}
 	}
 	closedir($result);
-
-
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -901,7 +899,7 @@ elseif ($job == 'lang_edit') {
 		if (mb_substr($entry, -8, 8) == '.lng.php') {
 			$basename = mb_substr($entry, 0, mb_strlen($entry)-8);
 			if ($basename != 'settings' && $basename != 'modules') {
-				$name = preg_replace("/[^\w\d]/i", " ", $basename);
+				$name = preg_replace("/[^\w\d]/iu", " ", $basename);
 				$name = mb_ucfirst($name);
 			?>
 			<li>
@@ -927,7 +925,7 @@ elseif ($job == 'lang_edit') {
 	while (FALSE !== ($entry = $d->read())) {
 		if (mb_substr($entry, -8, 8) == '.lng.php') {
 			$basename = mb_substr($entry, 0, mb_strlen($entry)-8);
-			$name = preg_replace("/[^\w\d]/i", " ", $basename);
+			$name = preg_replace("/[^\w\d]/iu", " ", $basename);
 			$name = mb_ucfirst($name);
 			?>
 			<li>

@@ -50,8 +50,8 @@ if ($_GET['action'] == "search") {
 		set_flood(FLOOD_TYPE_SEARCH);
 	}
 	$boards = $gpc->get('boards', arr_int);
-	$search = preg_replace("/(\s){1,}/is", " ", $gpc->get('search', str));
-    $search = preg_replace("/\*{1,}/is", '*', $search);
+	$search = preg_replace("/(\s){1,}/isu", " ", $gpc->get('search', str));
+    $search = preg_replace("/\*{1,}/isu", '*', $search);
     $searchwords = splitWords($search);
 	$ignorewords = $lang->get_words();
 
@@ -377,7 +377,7 @@ elseif ($_GET['action'] == "active") {
 	        echo $tpl->parse("search/active");
    		}
 	}
-	elseif (preg_match("/(days|hours)-(\d{1,2})/i", $_GET['type'], $type)) {
+	elseif (preg_match("/(days|hours)-(\d{1,2})/iu", $_GET['type'], $type)) {
 		$type[1] = mb_strtolower($type[1]);
 		if (empty($type[1])) {
 			$type[1] = 'days';

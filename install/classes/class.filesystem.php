@@ -55,7 +55,7 @@ class filesystem {
 	}
 
 	function _ftpize_path($path) {
-		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~i', '', $path);
+		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~iu', '', $path);
 		return $path;
 	}
 
@@ -200,6 +200,19 @@ class filesystem {
 			$this->chmod($file, $chmod);
 			return true;
 		}
+	}
+	
+	function new_filename($path, $sep = '_') {
+		$dir = dirname($path);
+		$dir = (empty($dir) || $dir == '.') ? '' : $dir . DIRECTORY_SEPARATOR;
+		$ext = get_extension($path, true);
+		$basename = basename($path, $ext);
+		$n = 1;
+		while(file_exists($path)) {
+			$path = $dir . $basename . $sep . $n . $ext;
+			$n++;
+		} 
+		return $path;
 	}
 
 	function rename($old, $new) {

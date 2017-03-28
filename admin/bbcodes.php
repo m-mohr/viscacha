@@ -300,7 +300,7 @@ elseif ($job == 'smileys_export') {
 			'replace' => $row['replace'],
 			'desc' => $row['desc'],
 		);
-		if (!preg_match('~http(s)?:\/\/~i', $filepath)) {
+		if (!preg_match('~http(s)?:\/\/~iu', $filepath)) {
 			$files[] = $filepath;
 		}
 	}

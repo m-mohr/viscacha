@@ -50,7 +50,7 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 	}
 
 	for ($i=0;$i<count($subelements);$i++) {
-		if (preg_match("~^(\\*|([0-9]{1,2})(-([0-9]{1,2}))?)(/([0-9]{1,2}))?$~",$subelements[$i],$matches)) {
+		if (preg_match("~^(\\*|([0-9]{1,2})(-([0-9]{1,2}))?)(/([0-9]{1,2}))?$~u",$subelements[$i],$matches)) {
 			if ($matches[1]=="*") {
 				$matches[2] = 0;		// from
 				$matches[4] = $numberOfElements;		//to
@@ -214,7 +214,7 @@ function parseCronFile($cronTabFile) {
 				$jobs[$jobNumber][PC_CMD] = trim($job[PC_CMD]);
 				$jobs[$jobNumber][PC_COMMENT] = trim(mb_substr($job[PC_COMMENT],1));
 				$jobs[$jobNumber][PC_ARGS] = Array();
-				if (preg_match_all('~(("([^"]*)")|(\S+))\s*~i', $jobs[$jobNumber][PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
+				if (preg_match_all('~(("([^"]*)")|(\S+))\s*~iu', $jobs[$jobNumber][PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
 					for($ii=0; $ii<count($jobArgs[1]); $ii++){
 						$jobArg = ($jobArgs[3][$ii]==='' ? $jobArgs[1][$ii] : $jobArgs[3][$ii]);
 						if($ii==0) {

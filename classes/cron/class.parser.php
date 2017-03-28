@@ -83,9 +83,9 @@ class CronParser {
 		$this->minutes_arr = array();
 		$this->months_arr = array();
 
-		$string = preg_replace('/[\s]{2,}/', ' ', $string);
+		$string = preg_replace('/[\s]{2,}/u', ' ', $string);
 
-		if (preg_match('/[^-,* \\d]/', $string) !== 0) {
+		if (preg_match('/[^-,* \\d]/u', $string) !== 0) {
 			return false;
 		}
 

@@ -90,7 +90,7 @@ class BBCode {
 	}
 	function cb_list ($matches) {
 		list(, $type, $pattern) = $matches;
-		$liarray = preg_split('/(\n\s?-\s|\[\*\])/', "\n".$pattern); // Add line break for the first "-", it will be trimmed in the next line.
+		$liarray = preg_split('/(\n\s?-\s|\[\*\])/u', "\n".$pattern); // Add line break for the first "-", it will be trimmed in the next line.
 		$liarray = array_map('trim', $liarray);
 		$list = '';
 		foreach ($liarray as $li) {
@@ -115,7 +115,7 @@ class BBCode {
 		return $list;
 	}
 	function code_trim ($code) {
-		$code = preg_replace('/^([\s\t]*\n+)?(.+?)(\n+[\s\t]*)?$/s', '\2', $code);
+		$code = preg_replace('/^([\s\t]*\n+)?(.+?)(\n+[\s\t]*)?$/su', '\2', $code);
 		return $code;
 	}
 	function code_prepare($code, $inline = false) {
@@ -262,7 +262,7 @@ class BBCode {
 	}
 	function cb_plain_list ($matches) {
 		list(, $type, $pattern) = $matches;
-		$liarray = preg_split('/(\n\s?-\s|\[\*\])/',$pattern);
+		$liarray = preg_split('/(\n\s?-\s|\[\*\])/u',$pattern);
 		$list = "\n";
 		$i = 0;
 		$pre = '  ';
@@ -289,7 +289,7 @@ class BBCode {
 			}
 		}
 		// A workaround for a bug in the parser
-		$list = preg_replace('/ +?([a-zA-Z0-9\-\.]+?) \n/is', '', $list);
+		$list = preg_replace('/ +?([a-zA-Z0-9\-\.]+?) \n/isu', '', $list);
 		return $list;
 	}
 	function cb_plain_code ($matches) {
@@ -318,9 +318,9 @@ class BBCode {
 	}
 	function strip_bbcodes ($text) {
 		$this->cache_bbcode();
-		$text = preg_replace('/(\r\n|\r|\n)/', "\n", $text);
-		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text);
-		$text = preg_replace("~\[url={$this->url_regex2}\](.+?)\[\/url\]~is", "\\3 (\\1)", $text);
+		$text = preg_replace('/(\r\n|\r|\n)/u', "\n", $text);
+		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $text);
+		$text = preg_replace("~\[url={$this->url_regex2}\](.+?)\[\/url\]~isu", "\\3 (\\1)", $text);
 
 		$search = array(
 			'[sub]','[/sub]',
@@ -342,28 +342,28 @@ class BBCode {
 		$replace = array_fill(0, count($search), '');
 		$text = str_ireplace($search, $replace, $text);
 
-		$text = preg_replace('/\[code(=\w+?)?\](.+?)\[\/code\]\n?/is', '\2', $text);
+		$text = preg_replace('/\[code(=\w+?)?\](.+?)\[\/code\]\n?/isu', '\2', $text);
 
-		while (preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) { // I and i modes are only for backward compatibility and have no effect at all
-			$text = preg_replace('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is', '\2', $text);
+		while (preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/isu',$text)) { // I and i modes are only for backward compatibility and have no effect at all
+			$text = preg_replace('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/isu', '\2', $text);
 		}
-		$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', "\\2", $text);
-		$text = preg_replace('/\[color=(\#?[0-9A-F]{3,6})\](.+?)\[\/color\]/is', "\\2", $text);
-		$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/is', "\\2", $text);
-		$text = preg_replace('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', "\n\\2\n", $text);
-		$text = preg_replace('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', "\\2", $text);
+		$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/isu', "\\2", $text);
+		$text = preg_replace('/\[color=(\#?[0-9A-F]{3,6})\](.+?)\[\/color\]/isu', "\\2", $text);
+		$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/isu', "\\2", $text);
+		$text = preg_replace('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/isu', "\n\\2\n", $text);
+		$text = preg_replace('/\[size=(small|extended|large)\](.+?)\[\/size\]/isu', "\\2", $text);
 
-		while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text)) {
-			$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "\n\\2\n", $text);
+		while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/isu',$text)) {
+			$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/isu', "\n\\2\n", $text);
 		}
-		while (preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/is',$text)) {
-			$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/is', "\n\\2\n", $text);
+		while (preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/isu',$text)) {
+			$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/isu', "\n\\2\n", $text);
 		}
 
 		$text = str_ireplace('[tab]', "	", $text);
 		$text = str_ireplace('[reader]', $this->reader, $text);
 
-		$text = preg_replace('/\[[^\/\r\n\[\]]+?\](.+?)\[\/[^\/\s\r\n\[\]]+?\]/is', "\\1", $text);
+		$text = preg_replace('/\[[^\/\r\n\[\]]+?\](.+?)\[\/[^\/\s\r\n\[\]]+?\]/isu', "\\1", $text);
 
 		$text = $this->parseDoc($text);
 		$text = $this->nl2br($text, 'plain');
@@ -377,13 +377,13 @@ class BBCode {
 		Debug::startMeasurement("BBCode::parse()");
 		$this->cache_bbcode();
 		$this->noparse = array();
-		$text = preg_replace("/(\r\n|\r|\n)/", "\n", $rawText);
+		$text = preg_replace("/(\r\n|\r|\n)/u", "\n", $rawText);
 		if ($type == 'html') {
 			$text = viscacha_htmlspecialchars($text, ENT_NOQUOTES, false);
 		}
-		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $text); // Deprecated
+		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $text); // Deprecated
 		if ($type == 'plain') {
-			$text = preg_replace("~\[url={$this->url_regex2}\](.+?)\[\/url\]~is", "\\3 (\\1)", $text);
+			$text = preg_replace("~\[url={$this->url_regex2}\](.+?)\[\/url\]~isu", "\\3 (\\1)", $text);
 
 			$search = array(
 			'[sub]','[/sub]',
@@ -398,44 +398,44 @@ class BBCode {
 			);
 			$text = str_ireplace($search, '', $text);
 
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\]/is', array(&$this, 'cb_plain_code'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\]/isu', array(&$this, 'cb_plain_code'), $text) : $text;
 
-			while (empty($this->profile['disallow']['list']) && preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) { // I and i modes are only for backward compatibility and have no effect at all
-				$text = preg_replace_callback('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is', array(&$this, 'cb_plain_list'), $text);
+			while (empty($this->profile['disallow']['list']) && preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/isu',$text)) { // I and i modes are only for backward compatibility and have no effect at all
+				$text = preg_replace_callback('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/isu', array(&$this, 'cb_plain_list'), $text);
 			}
 
-			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', "\\1 (\\2)", $text);
-			$text = preg_replace('/\[color=(\#?[0-9A-F]{3,6})\](.+?)\[\/color\]/is', "\\2", $text);
-			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/is', "\\2", $text);
-			$text = empty($this->profile['disallow']['h']) ? preg_replace('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', "\\2", $text) : $text;
-			$text = preg_replace('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', "\\2", $text);
+			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/isu', "\\1 (\\2)", $text);
+			$text = preg_replace('/\[color=(\#?[0-9A-F]{3,6})\](.+?)\[\/color\]/isu', "\\2", $text);
+			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/isu', "\\2", $text);
+			$text = empty($this->profile['disallow']['h']) ? preg_replace('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/isu', "\\2", $text) : $text;
+			$text = preg_replace('/\[size=(small|extended|large)\](.+?)\[\/size\]/isu', "\\2", $text);
 
-			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text)) {
-				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "\n".$lang->phrase('bb_quote_by')." \\1:\n-------------------\n\\2\n-------------------\n", $text);
+			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/isu',$text)) {
+				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/isu', "\n".$lang->phrase('bb_quote_by')." \\1:\n-------------------\n\\2\n-------------------\n", $text);
 			}
-			while (preg_match('/\[quote](.+?)\[\/quote\]/is',$text)) {
-				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/is', "\n".$lang->phrase('bb_quote')."\n-------------------\n\\1\n-------------------\n", $text);
+			while (preg_match('/\[quote](.+?)\[\/quote\]/isu',$text)) {
+				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/isu', "\n".$lang->phrase('bb_quote')."\n-------------------\n\\1\n-------------------\n", $text);
 			}
-			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit\](.+?)\[\/edit\]/is',$text)) {
-				$text = preg_replace('/\[edit\](.+?)\[\/edit\]\n?/is', "\n".$lang->phrase('bb_edit_author')."\n-------------------\n\\1\n-------------------\n", $text);
+			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit\](.+?)\[\/edit\]/isu',$text)) {
+				$text = preg_replace('/\[edit\](.+?)\[\/edit\]\n?/isu', "\n".$lang->phrase('bb_edit_author')."\n-------------------\n\\1\n-------------------\n", $text);
 			}
-			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/is',$text)) {
-				$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/is', "\n".$lang->phrase('bb_edit_mod')." \\1:\n-------------------\n\\2\n-------------------\n", $text);
+			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/isu',$text)) {
+				$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/isu', "\n".$lang->phrase('bb_edit_mod')." \\1:\n-------------------\n\\2\n-------------------\n", $text);
 			}
-			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/is',$text)) {
-				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/is', "\n".$lang->phrase('bb_offtopic')."\n-------------------\n\\1\n-------------------\n", $text);
+			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/isu',$text)) {
+				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/isu', "\n".$lang->phrase('bb_offtopic')."\n-------------------\n\\1\n-------------------\n", $text);
 			}
-			$text = preg_replace('/\[table(=[^\]]+)?\](.+?)\[\/table\]\n?/is', "\n", $text); // ToDo: Plain Table
+			$text = preg_replace('/\[table(=[^\]]+)?\](.+?)\[\/table\]\n?/isu', "\n", $text); // ToDo: Plain Table
 
-			$text = preg_replace('/(\[hr\]){1,}/is', "\n-------------------\n", $text);
+			$text = preg_replace('/(\[hr\]){1,}/isu', "\n-------------------\n", $text);
 			$text = str_ireplace('[tab]', "	", $text);
 
 			$text = $this->customBB($text, $type);
 		}
 		else {
-			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=(\w+?))?\](.+?)\[\/code\](\n?)/is', array(&$this, 'cb_hlcode'), $text) : $text;
+			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=(\w+?))?\](.+?)\[\/code\](\n?)/isu', array(&$this, 'cb_hlcode'), $text) : $text;
 
-			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/is',$text, $values)) {
+			while (preg_match('/\[quote=(.+?)\](.+?)\[\/quote\]/isu',$text, $values)) {
 				$pid = $this->noparse_id();
 				if (is_url($values[1])) {
 					$this->noparse[$pid] = '<a href="'.$values[1].'" target="_blank">'.$values[1].'</a>';
@@ -443,56 +443,56 @@ class BBCode {
 				else {
 					$this->noparse[$pid] = $values[1]; //"\\1";
 				}
-				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/is', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote_by')." <!PID:{$pid}>:</strong><br /><blockquote>\\2</blockquote></div>", $text, 1);
+				$text = preg_replace('/\[quote=(.+?)\](.+?)\[\/quote\]\n?/isu', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote_by')." <!PID:{$pid}>:</strong><br /><blockquote>\\2</blockquote></div>", $text, 1);
 			}
 
 			$text = $this->ListWorkAround($text);
 
-			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', '<em>\2</em> (\1)', $text); // For compatibility only
+			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/isu', '<em>\2</em> (\1)', $text); // For compatibility only
 
-			$text = empty($this->profile['disallow']['img']) ? preg_replace_callback("~\[img\]([^?&=\[\]]+\.(png|gif|jpg|jpeg))\[\/img\]~is", array($this, 'cb_image'), $text) : $text;
-			$text = preg_replace_callback("~\[img\]{$this->url_regex2}\[\/img\]~is", array(&$this, 'cb_plain_url'), $text); // Correct invalid image urls
+			$text = empty($this->profile['disallow']['img']) ? preg_replace_callback("~\[img\]([^?&=\[\]]+\.(png|gif|jpg|jpeg))\[\/img\]~isu", array($this, 'cb_image'), $text) : $text;
+			$text = preg_replace_callback("~\[img\]{$this->url_regex2}\[\/img\]~isu", array(&$this, 'cb_plain_url'), $text); // Correct invalid image urls
 
-			$text = preg_replace('/\[color=\#?([0-9A-F]{3,6})\](.+?)\[\/color\]/is', '<span style="color: #\1">\2</span>', $text);
-			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/is', "<p style='text-align: \\1'>\\2</p>", $text);
+			$text = preg_replace('/\[color=\#?([0-9A-F]{3,6})\](.+?)\[\/color\]/isu', '<span style="color: #\1">\2</span>', $text);
+			$text = preg_replace('/\[align=(left|center|right|justify)\](.+?)\[\/align\]/isu', "<p style='text-align: \\1'>\\2</p>", $text);
 
-			$text = preg_replace_callback("/\[email\]([a-z0-9\-_\.\+]+@[a-z0-9\-]+\.[a-z0-9\-\.]+?)\[\/email\]/is", array(&$this, 'cb_mail'), $text);
-			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/is', array(&$this, 'cb_header'), $text) : $text;
-			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/is', array(&$this, 'cb_size'), $text);
+			$text = preg_replace_callback("/\[email\]([a-z0-9\-_\.\+]+@[a-z0-9\-]+\.[a-z0-9\-\.]+?)\[\/email\]/isu", array(&$this, 'cb_mail'), $text);
+			$text = empty($this->profile['disallow']['h']) ? preg_replace_callback('/\n?\[h=(middle|small|large)\](.+?)\[\/h\]\n?/isu', array(&$this, 'cb_header'), $text) : $text;
+			$text = preg_replace_callback('/\[size=(small|extended|large)\](.+?)\[\/size\]/isu', array(&$this, 'cb_size'), $text);
 
-			while (preg_match('/\[quote](.+?)\[\/quote\]/is',$text)) {
-				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/is', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote')."</strong><br /><blockquote>\\1</blockquote></div>", $text);
+			while (preg_match('/\[quote](.+?)\[\/quote\]/isu',$text)) {
+				$text = preg_replace('/\[quote](.+?)\[\/quote\]\n?/isu', "<div class='bb_quote'><strong>".$lang->phrase('bb_quote')."</strong><br /><blockquote>\\1</blockquote></div>", $text);
 			}
-			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit\](.+?)\[\/edit\]/is',$text)) {
-				$text = preg_replace('/\[edit\](.+?)\[\/edit\]\n?/is', "<div class='bb_edit'><strong>".$lang->phrase('bb_edit_author')."</strong><br /><ins>\\1</ins></div>", $text);
+			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit\](.+?)\[\/edit\]/isu',$text)) {
+				$text = preg_replace('/\[edit\](.+?)\[\/edit\]\n?/isu', "<div class='bb_edit'><strong>".$lang->phrase('bb_edit_author')."</strong><br /><ins>\\1</ins></div>", $text);
 			}
-			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/is',$text)) {
-				$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/is', "<div class='bb_edit'><strong>".$lang->phrase('bb_edit_mod')." \\1:</strong><br /><ins>\\2</ins></div>", $text);
+			while (empty($this->profile['disallow']['edit']) && preg_match('/\[edit=(.+?)\](.+?)\[\/edit\]/isu',$text)) {
+				$text = preg_replace('/\[edit=(.+?)\](.+?)\[\/edit\]\n?/isu', "<div class='bb_edit'><strong>".$lang->phrase('bb_edit_mod')." \\1:</strong><br /><ins>\\2</ins></div>", $text);
 			}
-			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/is',$text)) {
-				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/is', "<div class='bb_ot'><strong>".$lang->phrase('bb_offtopic')."</strong><br /><span>\\1</span></div>", $text);
+			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/isu',$text)) {
+				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/isu', "<div class='bb_ot'><strong>".$lang->phrase('bb_offtopic')."</strong><br /><span>\\1</span></div>", $text);
 			}
 
-			$text = preg_replace('/\[b\](.+?)\[\/b\]/is', "<strong>\\1</strong>", $text);
-			$text = preg_replace('/\[i\](.+?)\[\/i\]/is', "<em>\\1</em>", $text);
-			$text = preg_replace('/\[u\](.+?)\[\/u\]/is', "<u>\\1</u>", $text);
-			$text = preg_replace('/\[sub\](.+?)\[\/sub\]/is', "<sub>\\1</sub>", $text);
-			$text = preg_replace('/\[sup\](.+?)\[\/sup\]/is', "<sup>\\1</sup>", $text);
-			$text = preg_replace('/\n?(\[hr\]){1,}\n?/is', "<hr />", $text);
+			$text = preg_replace('/\[b\](.+?)\[\/b\]/isu', "<strong>\\1</strong>", $text);
+			$text = preg_replace('/\[i\](.+?)\[\/i\]/isu', "<em>\\1</em>", $text);
+			$text = preg_replace('/\[u\](.+?)\[\/u\]/isu', "<u>\\1</u>", $text);
+			$text = preg_replace('/\[sub\](.+?)\[\/sub\]/isu', "<sub>\\1</sub>", $text);
+			$text = preg_replace('/\[sup\](.+?)\[\/sup\]/isu', "<sup>\\1</sup>", $text);
+			$text = preg_replace('/\n?(\[hr\]){1,}\n?/isu', "<hr />", $text);
 
-			$text = preg_replace('/\[tt\](.+?)\[\/tt\]/is', "<tt>\\1</tt>", $text);
+			$text = preg_replace('/\[tt\](.+?)\[\/tt\]/isu', "<tt>\\1</tt>", $text);
 
-			$text = preg_replace_callback("~\[url\]{$this->url_regex2}\[\/url\]~is", array(&$this, 'cb_plain_url'), $text);
-			$text = preg_replace_callback("~\[url={$this->url_regex2}\](.+?)\[\/url\]~is", array(&$this, 'cb_title_url'), $text);
+			$text = preg_replace_callback("~\[url\]{$this->url_regex2}\[\/url\]~isu", array(&$this, 'cb_plain_url'), $text);
+			$text = preg_replace_callback("~\[url={$this->url_regex2}\](.+?)\[\/url\]~isu", array(&$this, 'cb_title_url'), $text);
 
-			$text = preg_replace_callback('/\[table(=(\d+\%;head|head;\d+\%|\d+\%|head))?\]\n*(.+?)\n*\[\/table\]\n?/is', array(&$this, 'cb_table'), $text);
+			$text = preg_replace_callback('/\[table(=(\d+\%;head|head;\d+\%|\d+\%|head))?\]\n*(.+?)\n*\[\/table\]\n?/isu', array(&$this, 'cb_table'), $text);
 
 			// Old way of doing this, superseded by table bb code - $text = $this->tab2space($text);
 			$text = str_ireplace("\t", "[tab]", $text); // Avoid conflicts with custom bb codes
 			// Apply custom bb codes
 			$text = $this->customBB($text, $type); // BEFORE Auto URL Parsing
 			// Auto replace urls
-			$text = preg_replace_callback("~([\t\r\n\x20\(\),\.:;\?!\<>\[\]]|^){$this->url_regex}([\t\r\n\x20\(\)\[\]<>]|$)~is", array(&$this, 'cb_auto_url'), $text);
+			$text = preg_replace_callback("~([\t\r\n\x20\(\),\.:;\?!\<>\[\]]|^){$this->url_regex}([\t\r\n\x20\(\)\[\]<>]|$)~isu", array(&$this, 'cb_auto_url'), $text);
 			// Apply tabs finally
 			$text = str_ireplace('[tab]', "&nbsp; &nbsp;&nbsp;", $text); // One normal whitespace to avoid really long lines
 
@@ -521,8 +521,8 @@ class BBCode {
 			$char = chr(5);
 			$text = str_ireplace('[/list]', '[/list]'.$char, $text);
 			$text = str_ireplace('[list', $char.'[list', $text);
-			while (preg_match('/'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'/is',$text, $treffer)) { // I and i modes are only for backward compatibility and have no effect at all
-				$text = preg_replace_callback('/\n?'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'\n?/is', array(&$this, 'cb_list'), $text);
+			while (preg_match('/'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'/isu',$text, $treffer)) { // I and i modes are only for backward compatibility and have no effect at all
+				$text = preg_replace_callback('/\n?'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'\n?/isu', array(&$this, 'cb_list'), $text);
 			}
 		}
 		return $text;
@@ -542,12 +542,12 @@ class BBCode {
 	}
 	function parseDoc ($text) {
 		if ($this->profile['reduceEndChars'] == 1) {
-			$text = preg_replace('/\!{2,}/i', "!", $text);
-			$text = preg_replace('/\?{2,}/i', "?", $text);
-			$text = preg_replace('/\.{4,}/i', "...", $text);
+			$text = preg_replace('/\!{2,}/iu', "!", $text);
+			$text = preg_replace('/\?{2,}/iu', "?", $text);
+			$text = preg_replace('/\.{4,}/iu', "...", $text);
 		}
 		if ($this->profile['reduceNL'] == 1) {
-			$text = preg_replace("/\n{3,}/i", "\n\n", $text);
+			$text = preg_replace("/\n{3,}/iu", "\n\n", $text);
 		}
 		return $text;
 	}
@@ -573,7 +573,7 @@ class BBCode {
 			'head' => array(),
 			'table' => array()
 		);
-		if (preg_match('~((\d+)\%)~', $args, $matches)) {
+		if (preg_match('~((\d+)\%)~u', $args, $matches)) {
 			if ($matches[2] <= 100) {
 				$bbcode_table['width'] = $matches[1];
 			}
@@ -586,9 +586,7 @@ class BBCode {
 			$bbcode_table['head']['enabled'] = true;
 		}
 
-		do {
-			$code = preg_replace("~\n\n~", "\n", $code);
-		} while (preg_match("~\n\n~", $code));
+		$code = preg_replace("~[\n]+~u", "\n", $code);
 
 		$table_content = explode("\n",$code);
 		$bbcode_table['table']['rows'] = count($table_content);
@@ -598,7 +596,7 @@ class BBCode {
 				$table_content[$i] = explode('|',$table_content[$i]);
 			}
 			else {
-				$table_content[$i] = preg_split('~\[tab\]~i',$table_content[$i]);
+				$table_content[$i] = preg_split('~\[tab\]~iu',$table_content[$i]);
 			}
 		}
 		$bbcode_table['table']['cols'] = count($table_content[0]);
@@ -694,7 +692,7 @@ class BBCode {
 				// Old way to replace smileys - use this when you have problems with smileys
 				// $text = str_replace(' '.$smiley['search'], ' <img src="'.$smiley['replace'].'" border="0" alt="'.$smiley['desc'].'" />', $text);
 				if (mb_strpos($text, $smiley['search']) !== false) {
-					$pattern = '~(\r|\n|\t|\s|\>|\<|^)'.preg_quote($smiley['search'], '~').'(\r|\n|\t|\s|\>|\<|$)~s';
+					$pattern = '~(\r|\n|\t|\s|\>|\<|^)'.preg_quote($smiley['search'], '~').'(\r|\n|\t|\s|\>|\<|$)~su';
 					while (preg_match($pattern, $text)) {
 						$text = preg_replace(
 							$pattern,
@@ -813,7 +811,7 @@ class BBCode {
 					$word['search'][] = preg_quote($letter, '~');
 				}
 				$word['search'] = implode("(\s|\.|\[[^\]]+?\])?", $word['search']);
-				$text = preg_replace("~".$word['search']."~is", $word['replace'], $text);
+				$text = preg_replace("~".$word['search']."~isu", $word['replace'], $text);
 			}
 		}
 		elseif ($this->profile['useCensor'] == 1) {
@@ -826,11 +824,11 @@ class BBCode {
 	function cbb_helper($matches) {
 		if ($this->currentCBB != null) {
 			$index = $this->currentCBB['twoparams'] ? 2 : 1;
-			$bbcodereplacement = preg_replace('~\{param(:(?:\\\}|[^\}])+)?\}~i', $matches[$index], $this->currentCBB['bbcodereplacement']);
+			$bbcodereplacement = preg_replace('~\{param(:(?:\\\}|[^\}])+)?\}~iu', $matches[$index], $this->currentCBB['bbcodereplacement']);
 			if ($this->currentCBB['twoparams']) {
 				$pid = $this->noparse_id();
 				$this->noparse[$pid] = $matches[1];
-				$bbcodereplacement = preg_replace('~\{option(:(?:\\\}|[^\}])+)?\}~i', "<!PID:{$pid}>", $bbcodereplacement);
+				$bbcodereplacement = preg_replace('~\{option(:(?:\\\}|[^\}])+)?\}~iu', "<!PID:{$pid}>", $bbcodereplacement);
 			}
 			return $bbcodereplacement;
 		}
@@ -845,7 +843,7 @@ class BBCode {
 				$re['bbcodereplacement'] = strip_tags($re['bbcodereplacement']);
 			}
 			$this->currentCBB = $re;
-			$text = preg_replace_callback('~'.$re['bbregexp'].'~is', array(&$this, 'cbb_helper'), $text);
+			$text = preg_replace_callback('~'.$re['bbregexp'].'~isu', array(&$this, 'cbb_helper'), $text);
 			$this->currentCBB = null;
 		}
 		return $text;
@@ -857,7 +855,7 @@ class BBCode {
 		if ($length == FALSE) {
 			$length = $this->profile['wordwrap_wordlength'];
 		}
-		$text = preg_replace("~([^\n\r\s&\./<>\[\]\\\]{".intval($length)."})~i", "\\1".$this->profile['wordwrap_char'], $text);
+		$text = preg_replace("~([^\n\r\s&\./<>\[\]\\\]{".intval($length)."})~iu", "\\1".$this->profile['wordwrap_char'], $text);
 		return $text;
 	}
 	function cache_bbcode () {
@@ -993,5 +991,3 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 define('TOOLBAR_STATUS', 1);
 define('TOOLBAR_FORMATTING', 2);
 define('TOOLBAR_SMILEYS', 3);
-
-?>

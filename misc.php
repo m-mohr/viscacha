@@ -731,7 +731,7 @@ elseif ($_GET['action'] == "edithistory") {
 
 	$edit = array();
 	if (!empty($row['edit'])) {
-		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row['edit'], $edits, PREG_SET_ORDER);
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~mu', $row['edit'], $edits, PREG_SET_ORDER);
 		foreach ($edits as $e) {
 			$edit[] = array(
 				'date' => $e[2],

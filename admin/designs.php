@@ -10,7 +10,7 @@ foreach(array('templates', 'images', 'designs') as $dir) {
 	$path = "./{$dir}/";
 	$d = dir($path);
 	while (false !== ($entry = $d->read())) {
-		if (preg_match('/^\d{1,}$/', $entry) && is_dir($path.$entry)) {
+		if (preg_match('/^\d{1,}$/u', $entry) && is_dir($path.$entry)) {
 			$all[$dir][] = $entry;
 		}
 	}

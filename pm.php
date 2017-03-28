@@ -305,7 +305,7 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		);
 		if ($_GET['action'] == 'quote') {
 			$info['comment'] = str_replace('[br]', "\n", $info['comment']);
-			$info['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $info['comment']);
+			$info['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $info['comment']);
 			$data['comment'] = "[quote={$info['name']}]{$info['comment']}[/quote]";
 		}
 		else {

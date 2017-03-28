@@ -1398,7 +1398,7 @@ elseif ($job == 'ban_add2') {
 
 	$error = array();
 	if ($type == 'ip') {
-		if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}(\.[0-9]{0,3})?(\.[0-9]{0,3})?/", $data)) {
+		if (!preg_match("/[0-9]{1,3}\.[0-9]{1,3}(\.[0-9]{0,3})?(\.[0-9]{0,3})?/u", $data)) {
 			$error[] = $lang->phrase('admin_member_ip_not_correct');
 		}
 	}
