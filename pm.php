@@ -96,14 +96,12 @@ if ($_GET['action'] == 'show') {
 	Breadcrumb::universal()->add($lang->phrase('pm_show'));
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 	echo $tpl->parse("pm/show");
 	($code = $plugins->load('pm_show_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "massmanage") {
 	Breadcrumb::universal()->add($lang->phrase('pm_massmanage'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 	$data = implode(',', $_POST['delete']);
 	if (!empty($_POST['move2'])) {
 		if ($_POST['id'] == 3) {
@@ -164,7 +162,6 @@ elseif ($_GET['action'] == "delete") {
 	$info = $db->fetch_assoc($result);
 	Breadcrumb::universal()->add($lang->phrase('pm_manage'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 	$data = $info['id'];
 	echo $tpl->parse("pm/delete");
 }
@@ -319,9 +316,6 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 			'outgoing' => 1
 		);
 	}
-	($code = $plugins->load('pm_compose_data')) ? eval($code) : null;
-
-	echo $tpl->parse("pm/menu");
 	($code = $plugins->load('pm_compose_prepared')) ? eval($code) : null;
 	echo $tpl->parse("pm/new");
 	($code = $plugins->load('pm_compose_end')) ? eval($code) : null;
@@ -359,7 +353,6 @@ elseif ($_GET['action'] == "browse") {
 	");
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 
 	while ($row = $db->fetch_assoc($result)) {
 		$row['topic'] = $gpc->prepare($row['topic']);
@@ -383,7 +376,6 @@ elseif ($_GET['action'] == "browse") {
 else {
 	Breadcrumb::universal()->resetUrl();
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 
 	$time = time()-60*60*24*7;
 	$timestamp = $time > $my->clv ? $my->clv : $time;

@@ -253,7 +253,6 @@ pm.php
 -pm_save_queries
 -pm_save_end
 -pm_compose_start
--pm_compose_data
 -pm_compose_prepared
 -pm_compose_end
 -pm_browse_start
