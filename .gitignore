@@ -5,6 +5,7 @@
 /classes/vendor/
 /data/cache/
 /data/cron/*.job
+/data/logs/
 /feeds/
 /templates/language_*.js
 /temp/
