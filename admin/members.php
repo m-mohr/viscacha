@@ -22,14 +22,8 @@ if ($job == 'emailsearch') {
   </tr>
   <tr>
 	<td class="mbox" width="50%" colspan="3">
-	<b><?php echo $lang->phrase('admin_member_help'); ?></b><br />
+	<b><?php echo $lang->phrase('admin_member_help'); ?></b>
 	<?php echo $lang->phrase('admin_member_wildcard_description'); ?>
-	<ul>
-		<li><?php echo $lang->phrase('admin_member_means_equal'); ?></li>
-		<li><?php echo $lang->phrase('admin_member_means_less'); ?></li>
-		<li><?php echo $lang->phrase('admin_member_means_greater'); ?></li>
-		<li><?php echo $lang->phrase('admin_member_means_not_equal'); ?></li>
-	</ul>
 	<br />
 	<b><?php echo $lang->phrase('admin_member_exactness'); ?></b>
 	<ul>
@@ -79,7 +73,7 @@ if ($job == 'emailsearch') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_gender'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[gender]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select name="gender" size="1">
    <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -126,7 +120,7 @@ if ($job == 'emailsearch') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_lang'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[language]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select name="language">
 	<option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -139,7 +133,7 @@ if ($job == 'emailsearch') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_status'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[confirm]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select size="1" name="confirm">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -1699,15 +1693,7 @@ elseif ($job == 'search') {
   <tr>
 	<td class="mbox" width="50%" colspan="4">
 	<b><?php echo $lang->phrase('admin_member_help'); ?></b>
-	<ul>
-	<li><?php echo $lang->phrase('admin_member_wildcard_description'); ?></li>
-	<li>
-	<?php echo $lang->phrase('admin_member_means_equal'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<?php echo $lang->phrase('admin_member_means_less'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<?php echo $lang->phrase('admin_member_means_greater'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	<?php echo $lang->phrase('admin_member_means_not_equal'); ?>
-	</li>
-	</ul>
+	<?php echo $lang->phrase('admin_member_wildcard_description'); ?>
 	</td>
   </tr>
   <tr>
@@ -1781,7 +1767,7 @@ elseif ($job == 'search') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_residence'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[location]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><input type="text" name="location" size="50"></td>
    <td class="mbox"><input type="checkbox" name="show[location]" value="1"></td>
@@ -1790,7 +1776,7 @@ elseif ($job == 'search') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_gender'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[gender]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select name="gender" size="1">
    <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -1824,7 +1810,7 @@ elseif ($job == 'search') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_time_zone'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[timezone]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select name="timezone">
 	<option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -1884,7 +1870,7 @@ elseif ($job == 'search') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_design'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[template]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select name="template">
 	<option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -1898,7 +1884,7 @@ elseif ($job == 'search') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_lang'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[language]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select name="language">
 	<option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
@@ -1912,7 +1898,7 @@ elseif ($job == 'search') {
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_status'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[confirm]">
 	  <option value="0" selected="selected">=</option>
-	  <option value="2">!=</option>
+	  <option value="2">&ne;</option>
 	</select></td>
    <td class="mbox"><select size="1" name="confirm">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>

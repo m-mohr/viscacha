@@ -17,7 +17,7 @@ $lang['admin_task_currently_offline1'] = 'Die Webseite ist zur Zeit im Offline-M
 $lang['admin_task_currently_offline2'] = 'Um die Einstellung zu ändern, klicken Sie hier.';
 $lang['admin_task_moderate_members'] = '{@user->activate} Benutzer warten auf die Freischaltung.';
 $lang['admin_task_no_backup_found'] = 'Es wurde keine Datenbank-Sicherung gefunden.';
-$lang['admin_task_remove_installdir1'] = 'Bitte lösche das Installations-Verzeichnis ({$path}) inklusive aller enthaltenen Dateien und Unterverzeichnissen. Es besteht eine <strong>Gefährdung Ihres Systems</strong> wenn Sie die Installations-Datein auf dem Server belassen!';
+$lang['admin_task_remove_installdir1'] = 'Bitte lösche das Installations-Verzeichnis ({$path}) inklusive aller enthaltenen Dateien und Unterverzeichnissen. Es besteht eine Gefährdung Ihres Systems wenn Sie die Installations-Datein auf dem Server belassen!';
 $lang['admin_task_remove_installdir2'] = 'Klicken Sie hier um das Installations-Verzeichnis zu löschen.';
 $lang['admin_task_version_check'] = 'Die letzte <a href="{$vcurl}">Versionsüberprüfung Ihrer Viscacha-Installation</a> war vor über 14 Tagen. Bitte prüfen Sie, ob eine neue Version verfügbar ist.';
 $lang['admin_upcoming_tasks'] = 'Anstehende Aufgaben:';

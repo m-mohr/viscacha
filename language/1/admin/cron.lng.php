@@ -53,7 +53,7 @@ $lang['admin_th_month'] = 'Monat';
 $lang['admin_th_weekday'] = 'Wochentag';
 $lang['admin_time_to_execute'] = 'Ausführungszeit';
 $lang['admin_title_description'] = 'Titel / Beschreibung:';
-$lang['admin_upload_a_file'] = '<em>oder</em> lade eine Datei hoch:';
+$lang['admin_upload_a_file'] = 'oder lade eine Datei hoch:';
 $lang['admin_upload_a_file2'] = 'Erlaubte Dateitypen: .php<br />Maximale Dateigröße: 100 KB';
 $lang['admin_weekday'] = 'Wochentag:';
 ?>

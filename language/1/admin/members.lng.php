@@ -136,10 +136,6 @@ $lang['admin_member_mail_already_in_use'] = 'E-Mail-Adresse wird bereits von ein
 $lang['admin_member_mail_not_valid'] = 'E-Mail-Adresse ist nicht gültig.';
 $lang['admin_member_mail_too_long'] = 'E-Mail-Adresse ist zu lang';
 $lang['admin_member_male'] = 'Männlich';
-$lang['admin_member_means_equal'] = '<b>=</b> bedeutet <i>gleich</i>,';
-$lang['admin_member_means_greater'] = '<b>&gt;</b> bedeutet s <i>größer als</i>,';
-$lang['admin_member_means_less'] = '<b>&lt;</b> bedeutet <i>kleiner als</i>,';
-$lang['admin_member_means_not_equal'] = '<b>!=</b> bedeutet <i>nicht gleich</i>.';
 $lang['admin_member_members'] = 'Mitglieder';
 $lang['admin_member_members_deleted'] = '{$anz} Mitglieder wurden gelöscht';
 $lang['admin_member_members_found'] = 'Mitglieder gefunden.';
@@ -239,7 +235,7 @@ $lang['admin_member_which_design'] = 'Welches Design möchten Sie nutzen?';
 $lang['admin_member_which_lang'] = 'Welche Sprache möchten Sie nutzen?';
 $lang['admin_member_whole_match'] = 'und';
 $lang['admin_member_whole_match_desc'] = 'Alle Angaben müssen passen, um zu einem Treffer zu führen';
-$lang['admin_member_wildcard_description'] = 'Sie können die Platzhalter "%" und "_" in den Schlüsselwörtern verwenden. Das Zeichen "_" ersetzt ein einzelnes Zeichen, das zeichen "%" ersetzt mehrere Zeichen. Die Platzhalter können nur mit den Vergleichsoperatoren <b>!=</b> und <b>=</b> benutzt werden.';
+$lang['admin_member_wildcard_description'] = 'Sie können die Platzhalter "%" und "_" in den Schlüsselwörtern verwenden. Das Zeichen "_" ersetzt ein einzelnes Zeichen, das zeichen "%" ersetzt mehrere Zeichen. Die Platzhalter können nur mit den Vergleichsoperatoren != und = benutzt werden.';
 $lang['admin_member_year_not_valid'] = 'Jahr der Geburt ist nicht korrekt.';
 $lang['admin_member_yes'] = 'Ja';
 ?>

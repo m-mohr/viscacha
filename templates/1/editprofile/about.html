@@ -10,7 +10,8 @@
 		<h3><img src="@img('about')" alt="" /> @lang('editprofile_about')</h3>
 		<div class="bbody">
 			<span class="right"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@img('help')" alt="" /> <strong>@lang('bbcode_help')</strong></a></span>
-			@lang('editprofile_about_longdesc')
+			@lang('editprofile_about_longdesc')<br />
+			@lang('editprofile_about_longdesc2')
 			<hr class="formsep" />
 			{!! $bbcode->getEditorArea('about', $data, 'cols="80" rows="18" tabindex="1"', $config['maxaboutlength']) !!}
 		</div>

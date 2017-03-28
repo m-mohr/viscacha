@@ -210,43 +210,14 @@ class lang {
 	}
 
 	function parse_pvar($content) {
-		return preg_replace_callback('~\{(\$|\%|\@|\&)(.+?)\}~i', array($this, 'parse_variable'), $content);
+		$content = preg_replace_callback('~\{(\$|\%|\@)(.+?)\}~i', array($this, 'parse_variable'), $content);
+		return preg_replace('~\{\\\(\$|\%|\@)(.+?)\}~i', '{\1\2}', $content);
 	}
 
 	function parse_variable($params) {
 		list(, $type, $key) = $params;
 		$keys = explode('->',$key);
-		if ($type == '&') {
-			if (count($keys) == 1) { // Function
-				if (mb_substr($keys[0], -1) == ')') {
-					$keys[0] = mb_substr($keys[0], 0, -1);
-				}
-				$methodKeys = explode('(', $keys[0], 2);
-				if (function_exists($methodKeys[0])) {
-					$args = array();
-					if (!empty($methodKeys[1])) {
-						$args = array($methodKeys[1]);
-					}
-					return call_user_func_array($methodKeys[0], $args);
-				}
-			}
-			elseif (count($keys) == 2 && class_exists($keys[0])) { // Class property / method
-				$methodKeys = explode('(', $keys[1], 2);
-				if (count($methodKeys) > 1 && mb_substr($methodKeys[1], -1) == ')' && method_exists($keys[0], $methodKeys[0])) { // Object method
-					$args = array();
-					$arg = mb_substr($methodKeys[1], 0, -1);
-					if (!empty($arg)) {
-						$args = array($arg);
-					}
-					return call_user_func_array(array($keys[0], $methodKeys[0]), $args);
-				}
-// ToDo: This is not available on all PHP 5 versions, create a woraround...
-//				elseif (count($methodKeys) == 1 && isset($keys[0]::${$methodKeys[0]})) { // Class property
-//					return $keys[0]::${$methodKeys[0]};
-//				}
-			}
-		}
-		elseif ($type == '%') { // Object property / method
+		if ($type == '%') { // Object property / method
 			if (isset($this->assign[$keys[0]])) {
 				$var = $this->assign[$keys[0]];
 			}
