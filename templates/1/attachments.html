@@ -2,11 +2,13 @@
 	<div class="border">
 		<h3><span class="right">[<a href="javascript:self.close();">@lang('close_window')</a>]</span>@lang('manage_uploads')</h3>
 		<div class="bbody">
-			@lang('upload_intro1')<br />
+			@lang('upload_intro1')<br /><br />
+			@lang('upload_restriction_filetype') {{ $filetypes }}<br />
+			@lang('upload_restriction_filesize') {{ $filesize }}<br />
 			@if((!empty($config['tpcwidth']) || !empty($config['tpcheight'])))
-			@lang('upload_intro1b')
+			@lang('upload_intro1b')<br />
 			@endif
-			<br /><br />
+			<br />
 			@if($free > 0)
 			<strong>@lang('upload_intro2')</strong>
 			@foreach(range(0, $free) as $i)

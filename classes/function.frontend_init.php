@@ -136,13 +136,6 @@ if ($config['nocache'] == 1) {
 	';
 }
 
-if ($config['avwidth'] == 0) {
-	$config['avwidth'] = 2048;
-}
-if ($config['avheight'] == 0) {
-	$config['avheight'] = 2048;
-}
-
 // Permission and Logging Class
 require_once ("classes/class.permissions.php");
 // A class for Templates

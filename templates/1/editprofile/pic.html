@@ -22,10 +22,9 @@
 			<span class="stext">
 				<strong>@lang('editprofile_pic_settings')</strong>
 				<br />
-				@if($config['avfilesize'] > 0)
-				@lang('editprofile_pic_filesize')<br />
-				@endif
-				@lang('editprofile_pic_restricitons')
+				@lang('upload_restriction_filesize') {{ $filesize }}<br />
+				@lang('editprofile_pic_restricitons')<br />
+				@lang('upload_restriction_filetype') {{ $filetypes }}
 			</span>
 		</div>
 		<div class="bfoot center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="@lang('submit_form')" /></div>

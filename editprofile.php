@@ -438,20 +438,6 @@ elseif ($_GET['action'] == "pic") {
 	$filetypes = str_replace(",", $lang->phrase('listspacer'), $config['avfiletypes']);
 	$filesize = formatFilesize($config['avfilesize']);
 
-	$size = '';
-	if ($config['avwidth'] > 0) {
-		$size .= $lang->phrase('editprofile_pic_w1');
-	}
-	else {
-		$size .= $lang->phrase('editprofile_pic_w2');
-	}
-	if ($config['avheight'] > 0) {
-		$size .= $lang->phrase('editprofile_pic_h1');
-	}
-	else {
-		$size .= $lang->phrase('editprofile_pic_h2');
-	}
-
 	($code = $plugins->load('editprofile_pic_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/pic");
 }

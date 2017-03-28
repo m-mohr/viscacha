@@ -1126,7 +1126,7 @@ elseif ($job == 'attupload') {
 	   <td class="mbox" width="50%"><input type="text" name="tpcfilesize" value="<?php echo $config['tpcfilesize']; ?>" size="10"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_weidth_pic'); ?><br /><font class="stext"><?php echo $lang->phrase('admin_max_weidth_pic_info'); ?></font></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_width_pic'); ?><br /><font class="stext"><?php echo $lang->phrase('admin_max_width_pic_info'); ?></font></td>
 	   <td class="mbox" width="50%"><input type="text" name="tpcwidth" value="<?php echo $config['tpcwidth']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
@@ -1196,11 +1196,11 @@ elseif ($job == 'avupload') {
 	   <td class="mbox" width="50%"><input type="text" name="avfilesize" value="<?php echo $config['avfilesize']; ?>" size="10"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_weidth_ava'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_max_weidth_ava_info'); ?></span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_width_ava'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="avwidth" value="<?php echo $config['avwidth']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_height_ava'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_max_height_ava_info'); ?></span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_height_ava'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="avheight" value="<?php echo $config['avheight']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
