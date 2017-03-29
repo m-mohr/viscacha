@@ -9,6 +9,7 @@
 /feeds/
 /templates/language_*.js
 /temp/
+/uploads/
 locked.txt
 composer.lock
 !.htaccess
