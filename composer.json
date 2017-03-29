@@ -23,8 +23,7 @@
 		"snoopy/snoopy": "2.0.*",
 		"phpmailer/phpmailer": "5.2.*",
 		"monolog/monolog": "1.*",
-		"maximebf/debugbar": "*",
-		"filp/whoops": "*"
+		"maximebf/debugbar": "*"
 	},
 	"suggest": {
 		"ext-fileinfo": "Needed to get mime type information for uploaded files",

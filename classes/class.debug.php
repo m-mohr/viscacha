@@ -35,9 +35,8 @@ use DebugBar\DataCollector\RequestDataCollector;
 use DebugBar\DataCollector\TimeDataCollector;
 use DebugBar\DebugBar;
 use Monolog\Handler\StreamHandler;
+use Monolog\ErrorHandler;
 use Monolog\Logger;
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Run;
 
 class Debug {
 
@@ -55,40 +54,22 @@ class Debug {
 		self::$debugModeEnabled = $debugModeEnabled;
 		self::$loggingEnabled = $loggingEnabled;
 
-		// Register the error handler
-		self::$errorHandler = new Run();
-		self::$errorHandler->register();
-
 		// Create the default logger
 		self::$defaultLogger = self::createLogger('viscacha');
-		// Consume the error handler events with the default logger
-		self::$errorHandler->pushHandler(function ($exception, $inspector, $run) {
-			self::$defaultLogger->error($exception->getMessage(), $exception->getTrace());
-		});
+		// Register the error handler and consume the error handler events with the default logger
+		self::$errorHandler = ErrorHandler::register(self::$defaultLogger);
 
 		if (self::$debugModeEnabled) {
-			// Show pretty error messages
-//			self::$errorHandler->pushHandler(new PrettyPageHandler);
-
 			// Set up the debug bar
 			self::$debugBar = new DebugBar();
 			self::$debugBar->addCollector(new PhpInfoCollector());
 			self::$debugBar->addCollector(new MemoryCollector());
-//			self::$debugbar->addCollector(new MessagesCollector());
 			self::$debugBar->addCollector(new MonologCollector(self::$defaultLogger));
 			self::$debugBar->addCollector(new RequestDataCollector());
-			self::$debugBar->addCollector(new ExceptionsCollector());
 			$timeDataCollector = new TimeDataCollector();
 			self::$debugBar->addCollector($timeDataCollector);
 			self::$debugBar->addCollector(new SqlCollector($timeDataCollector));
 			self::$debugBar->addCollector(new TemplateCollector($timeDataCollector));
-
-			// Consume the error handler events with the debug bar
-			self::$errorHandler->pushHandler(function ($exception, $inspector, $run) {
-				if ($exception instanceof Exception) {
-					self::$debugBar['exceptions']->addException($exception);
-				}
-			});
 
 			// Set up the visuals for the debug bar
 			$debugbarRenderer = self::$debugBar->getJavascriptRenderer();
