@@ -144,11 +144,10 @@ class Blade extends bladeone\BladeOne {
 	 */
 	public function __construct($templatePath, $compiledPath) {
 		parent::__construct($templatePath, $compiledPath);
-		$dir = dirname($this->compiledPath);
-		if (!file_exists($dir)) {
-			$ok = @mkdir($dir, 0777, true);
+		if (!file_exists($this->compiledPath)) {
+			$ok = @mkdir($this->compiledPath, 0777, true);
 			if (!$ok) {
-				$this->showError("Constructing", "Unable to create the compile folder [{$dir}]. Check the permissions of it's parent folder.", true);
+				$this->showError("Constructing", "Unable to create the compile folder [{$this->compiledPath}]. Check the permissions of it's parent folder.", true);
 			}
 		}
 	}
