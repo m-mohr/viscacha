@@ -18,7 +18,7 @@
 		"ext-mysqli": "*",
 		"ext-pcre": "*",
 		"mso/idna-convert": "1.1.*",
-		"eftec/bladeone": "dev-master",
+		"eftec/bladeone": "1.*",
 		"lutana/pclzip": "2.8.*",
 		"snoopy/snoopy": "2.0.*",
 		"phpmailer/phpmailer": "5.2.*",
@@ -32,12 +32,6 @@
 		"ext-sockets": "Needed to improve networking, especially for sending mails.",
 		"ext-zlib": "Needed to extract gzip files"
 	},
-	"repositories": [
-		{
-			"url": "https://github.com/lutana-de/BladeOne.git",
-			"type": "git"
-		}
-	],
 	"autoload": {
 		"classmap": [],
 		"psr-4": {

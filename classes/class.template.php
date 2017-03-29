@@ -1,26 +1,26 @@
 <?php
 /*
-	Viscacha - An advanced bulletin board solution to manage your content easily
-	Copyright (C) 2004-2017, Lutana
-	http://www.viscacha.org
+  Viscacha - An advanced bulletin board solution to manage your content easily
+  Copyright (C) 2004-2017, Lutana
+  http://www.viscacha.org
 
-	Authors: Matthias Mohr et al.
-	Start Date: May 22, 2004
+  Authors: Matthias Mohr et al.
+  Start Date: May 22, 2004
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 use eftec\bladeone;
 
@@ -69,74 +69,8 @@ class tpl {
 		$this->sent = array();
 
 		define("BLADEONE_MODE", $config['debug']);
-		$this->blade = new bladeone\BladeOne($this->dir, 'data/cache/' . $this->dir);
+		$this->blade = new Blade($this->dir, 'data/cache/' . $this->dir);
 		$this->blade->setFileExtension('.html');
-        $this->blade->directive('lang', function ($expression) {
-            return '<?php echo static::e($lang->phrase'.$expression.'); ?>';
-        });
-        $this->blade->directive('elselang', function ($expression) {
-            return '<?php else: echo static::e($lang->phrase'.$expression.'); endif; ?>';
-        });
-        $this->blade->directive('img', function ($expression) {
-            return '<?php echo $tpl->img'.$expression.'; ?>';
-        });
-        $this->blade->directive('selected', function ($expression) {
-			return "<?php if{$expression} { echo ' selected=\"selected\"'; } ?>";
-        });
-        $this->blade->directive('checked', function ($expression) {
-			return "<?php if{$expression} { echo ' checked=\"checked\"'; } ?>";
-        });
-        $this->blade->directive('breadcrumb', function ($expression) {
-			$expression = trim($expression, '()');
-			return "<?php echo \Breadcrumb::universal()->build({$expression}) ?>";
-        });
-        $this->blade->directive('hook', function ($expression) {
-			$expression = trim($expression, '()');
-			return '<?php ($code = $plugins->load("'.$expression.'")) ? eval($code) : null; ?>';
-        });
-        $this->blade->directive('navigation', function ($expression) {
-			$expression = trim($expression, '()');
-			return '<?php ($code = $plugins->navigation("'.$expression.'")) ? eval($code) : null; ?>';
-        });
-        $this->blade->directive('datetime', function ($expression) {
-			return $this->compileDateTime($expression, 'datetime');
-        });
-        $this->blade->directive('date', function ($expression) {
-			return $this->compileDateTime($expression, 'date');
-        });
-        $this->blade->directive('time', function ($expression) {
-			return $this->compileDateTime($expression, 'time');
-        });
-        $this->blade->directive('reldatetime', function ($expression) {
-			return $this->compileDateTime($expression, 'reldatetime');
-        });
-	}
-	
-	public function compileDateTime($expression, $format = null) {
-		global $lang;
-		$expression = trim($expression, '()');
-		$default = null;
-		if (strpos($expression, ',') !== FALSE) {
-			list($expression, $default) = preg_split('~\s*,\s*~u', $expression, 2);
-			if ($lang->exists($default)) {
-				$default = '$lang->phrase('.$default.')';
-			}
-		}
-		$expression = 'times('.$expression.')';
-
-		if ($format == 'reldatetime') {
-			$formatter = 'str_date('.$expression.')';
-		}
-		else {
-			$formatter = 'gmdate($lang->phrase("'.$format.'_format"), '.$expression.')';
-		}
-		
-		if ($default) {
-			return "<?php echo (empty({$expression}) ? {$default} : {$formatter}); ?>";
-		}
-		else {
-			return "<?php echo {$formatter}; ?>";
-		}
 	}
 
 	public function img($name) {
@@ -172,8 +106,7 @@ class tpl {
 		}
 
 		$content = $this->blade->run(
-			str_replace('/', '.', $file),
-			array_merge($GLOBALS, $this->vars)
+				str_replace('/', '.', $file), array_merge($GLOBALS, $this->vars)
 		);
 
 		$this->sent[] = $tplpath;
@@ -187,9 +120,150 @@ class tpl {
 	public function tplsent($file) {
 		return in_array($this->getPath($file), $this->sent);
 	}
-	
+
 	protected function getPath($file) {
 		return $this->dir . '/' . $file . $this->blade->getFileExtension();
+	}
+
+}
+
+class Blade extends bladeone\BladeOne {
+
+	/**
+	 * File extension for the template files.
+	 *
+	 * @var string
+	 */
+	protected $fileExtension = '.blade.php';
+
+	/**
+	 * Bob the constructor.
+	 *
+	 * @param  string $templatePath
+	 * @param $compiledPath
+	 */
+	public function __construct($templatePath, $compiledPath) {
+		parent::__construct($templatePath, $compiledPath);
+		$dir = dirname($this->compiledPath);
+		if (!file_exists($dir)) {
+			$ok = @mkdir($dir, 0777, true);
+			if (!$ok) {
+				$this->showError("Constructing", "Unable to create the compile folder [{$dir}]. Check the permissions of it's parent folder.", true);
+			}
+		}
+	}
+
+	/**
+	 * Get the full path of the compiled file.
+	 * @return string
+	 */
+	public function getTemplateFile() {
+		$arr = explode('.', $this->fileName);
+		$c = count($arr);
+		if ($c == 1) {
+			return $this->templatePath . '/' . $this->fileName . $this->fileExtension;
+		} else {
+			$file = $arr[$c - 1];
+			array_splice($arr, $c - 1, $c - 1); // delete the last element
+			$path = implode('/', $arr);
+			return $this->templatePath . '/' . $path . '/' . $file . $this->fileExtension;
+		}
+	}
+
+	/**
+	 * Get the file extension for template files.
+	 *
+	 * @return string
+	 */
+	public function getFileExtension() {
+		return $this->fileExtension;
+	}
+
+	/**
+	 * Set the file extension for the template files.
+	 *
+	 * Including the leading dot for the extension is required, e.g. .blade.php
+	 *
+	 * @param $fileExtension
+	 */
+	public function setFileExtension($fileExtension) {
+		$this->fileExtension = $fileExtension;
+	}
+
+	public function compileLang($expression) {
+		return '<?php echo static::e($lang->phrase' . $expression . '); ?>';
+	}
+
+	public function compileElselang($expression) {
+		return '<?php else: echo static::e($lang->phrase' . $expression . '); endif; ?>';
+	}
+
+	public function compileImg($expression) {
+		return '<?php echo $tpl->img' . $expression . '; ?>';
+	}
+
+	public function compileSelected($expression) {
+		return "<?php if{$expression} { echo ' selected=\"selected\"'; } ?>";
+	}
+
+	public function compileChecked($expression) {
+		return "<?php if{$expression} { echo ' checked=\"checked\"'; } ?>";
+	}
+
+	public function compileBreadcrumb($expression) {
+		$expression = trim($expression, '()');
+		return "<?php echo \Breadcrumb::universal()->build({$expression}) ?>";
+	}
+
+	public function compileHook($expression) {
+		$expression = trim($expression, '()');
+		return '<?php ($code = $plugins->load("' . $expression . '")) ? eval($code) : null; ?>';
+	}
+
+	public function compileNavigation($expression) {
+		$expression = trim($expression, '()');
+		return '<?php ($code = $plugins->navigation("' . $expression . '")) ? eval($code) : null; ?>';
+	}
+
+	public function compileDatetime($expression) {
+		return $this->makeDateTime($expression, 'datetime');
+	}
+
+	public function compileDate($expression) {
+		return $this->makeDateTime($expression, 'date');
+	}
+
+	public function compileTime($expression) {
+		return $this->makeDateTime($expression, 'time');
+	}
+
+	public function compilerelDatetime($expression) {
+		return $this->makeDateTime($expression, 'reldatetime');
+	}
+
+	protected function makeDateTime($expression, $format = null) {
+		global $lang;
+		$expression = trim($expression, '()');
+		$default = null;
+		if (strpos($expression, ',') !== FALSE) {
+			list($expression, $default) = preg_split('~\s*,\s*~u', $expression, 2);
+			if ($lang->exists($default)) {
+				$default = '$lang->phrase(' . $default . ')';
+			}
+		}
+		$expression = 'times(' . $expression . ')';
+
+		if ($format == 'reldatetime') {
+			$formatter = 'str_date(' . $expression . ')';
+		} else {
+			$formatter = 'gmdate($lang->phrase("' . $format . '_format"), ' . $expression . ')';
+		}
+
+		if ($default) {
+			return "<?php echo (empty({$expression}) ? {$default} : {$formatter}); ?>";
+		} else {
+			return "<?php echo {$formatter}; ?>";
+		}
 	}
 
 }
