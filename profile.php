@@ -131,7 +131,6 @@ else {
 
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
-		$bbcode->setAuthor($row->id);
 		$row->about = $bbcode->parse($row->about);
 
 		BBProfile($bbcode, 'signature');

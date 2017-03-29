@@ -1001,7 +1001,6 @@ elseif ($job == 'custombb_test') {
 		file_put_contents($file, $test);
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
-		$bbcode->setAuthor($my->id);
 		$parsed_test = $bbcode->parse($test);
 		$smileys_time = round($bbcode->getBenchmark('smileys'), 3);
 		$bbcode_time = round($bbcode->getBenchmark(), 3);

@@ -16,7 +16,6 @@ if ($db->num_rows($result) != 0) {
 	}
 
 	$bbcode->setSmileys(1);
-	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
 	
 	echo $tpl->parse("modules/{$pluginid}/last-pm");

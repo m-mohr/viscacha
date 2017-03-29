@@ -321,9 +321,8 @@ while ($row = $db->fetch_object($result)) {
 
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);
-	$bbcode->setAuthor($row->mid);
 	if ($info['status'] == 2) {
-		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
+		$row->comment = $bbcode->replaceTextOnce($row->comment, 'moved');
 	}
 	$row->comment = $bbcode->parse($row->comment);
 

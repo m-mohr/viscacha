@@ -66,7 +66,6 @@ if ($_GET['action'] == 'show') {
 	}
 
 	$bbcode->setSmileys(1);
-	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
 	$row['read'] = iif($row['status'] == 1,'old','new');
 	$row['level'] = $slog->getStatus($row['groups'], ', ', $row['deleted_at'] !== null);

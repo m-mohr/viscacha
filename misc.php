@@ -404,7 +404,6 @@ elseif ($_GET['action'] == "bbhelp") {
 	$my->p = $slog->Permissions();
 	$lang->group("bbcodes");
 	BBProfile($bbcode);
-	$bbcode->setAuthor($my->id);
 
 	$smileys = $bbcode->getSmileys();
 	$cbb = $bbcode->getCustomBB();
