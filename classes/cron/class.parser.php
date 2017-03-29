@@ -72,7 +72,7 @@ class CronParser {
 	 */
 	function calcLastRan($string) {
 
- 		$tstart = microtime();
+ 		$tstart = microtime(true);
 		$this->lastRan = 0;
 		$this->year = NULL;
 		$this->month = NULL;
@@ -167,7 +167,7 @@ class CronParser {
 			}
 		}
 
-		$tend = microtime();
+		$tend = microtime(true);
 		$this->taken = $tend - $tstart;
 
 		//if the last due is beyond 1970
