@@ -27,15 +27,14 @@
 use DebugBar\Bridge\MonologCollector;
 use DebugBar\DataCollector\AssetProvider;
 use DebugBar\DataCollector\DataCollector;
-use DebugBar\DataCollector\ExceptionsCollector;
 use DebugBar\DataCollector\MemoryCollector;
 use DebugBar\DataCollector\PhpInfoCollector;
 use DebugBar\DataCollector\Renderable;
 use DebugBar\DataCollector\RequestDataCollector;
 use DebugBar\DataCollector\TimeDataCollector;
 use DebugBar\DebugBar;
-use Monolog\Handler\StreamHandler;
 use Monolog\ErrorHandler;
+use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 
 class Debug {
