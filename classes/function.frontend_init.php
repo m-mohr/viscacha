@@ -169,8 +169,6 @@ if (!file_exists('.htaccess')) {
 	$filesystem->file_put_contents('.htaccess', implode("\r\n", $htaccess));
 }
 
-Breadcrumb::universal()->add($config['fname'], 'index.php');
-
 $phpdoc = new OutputDoc();
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
@@ -181,6 +179,14 @@ if (!defined('CONSOLE_REQUEST')) {
 	$my = $slog->logged();
 	$lang->init($my->language);
 	$tpl = new Theme($my->theme, $config['theme']);
+
+	Breadcrumb::universal()->add($config['fname'], 'index.php');
+	if ($config['indexpage'] != 'forum') {
+		Breadcrumb::universal()->add($lang->phrase('forumname'), 'forum.php');
+		if (SCRIPTNAME == 'forum') {
+			Breadcrumb::universal()->resetUrl();
+		}
+	}
 
 	$banned = $slog->checkBan();
 	if ($banned !== false) {
