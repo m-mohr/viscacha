@@ -1,0 +1,19 @@
+<form name="form" method="post" action="profile.php?action=sendmail&amp;id={{ $row->id }}{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">@lang('profile_mail_2')</h3></div>
+		<div class="panel-body">
+			@if($row->opt_hidemail == 0)
+			<label>@lang('email')</label>
+			<span><img src="images.php?action=m_email&amp;id={{ $row->id }}{{ SID2URL_x }}" alt="" /></span>
+			<br class="newinput" /><hr class="formsep" />
+			@endif
+			<label for="topic">@lang('email_title')</label>
+			<input tabindex="1" type="text" class="label" id="topic" name="topic" size="60" maxlength="200" value="{{ $data['topic'] }}" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="ta">@lang('email_text')</label>
+			<textarea tabindex="2" id="ta" name="comment" class="label" cols="60" rows="6">{{ $data['comment'] }}</textarea>
+			<br class="newinput" />
+		</div>
+		<div class="panel-footer center"><input accesskey="s" tabindex="3" type="submit" name="Submit" value="@lang('submit_form')" /></div>
+	</div>
+</form>

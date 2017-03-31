@@ -1,0 +1,42 @@
+<tr class="tbody">
+	<td>
+		@if($row->read)
+		@if($row->status == 0)
+		<img src="@theme('images/dir_open.gif')" alt="@lang('forum_icon_old')" />
+		@else
+		<img src="@theme('images/dir_closed.gif')" alt="@lang('forum_icon_closed')" />
+		@endif
+		@else
+		@if($row->status == 0)
+		<img src="@theme('images/dir_open2.gif')" alt="@lang('forum_icon_new')" />
+		@else
+		<img src="@theme('images/dir_closed2.gif')" alt="@lang('forum_icon_closed')" />
+		@endif
+		@endif
+	</td>
+	<td>
+		@if($row->vquestion)
+		<img class="right" src="@theme('images/vote.gif')" alt="@lang('vote_titlevote') {{ $row->vquestion }}" />
+		@endif
+		@if(!$row->read)
+		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id}}&amp;q={{ $qhighlight }}{{ SID2URL_x }}"><img src="@theme('images/desc.gif')" alt="@lang('move_to_first_new_post')" /></a>
+		@endif
+		{{ $pref }}
+		<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}&amp;q={{ $qhighlight }}">@if($showprefix) @lang('showtopic_prefix_title') @endif {{$row->topic }}</a>
+		@if(!empty($topic_pages))
+		<br /><span class="stext">{!! $topic_pages !!}</span>
+		@endif
+		<br /><span class="stext">@lang('result_board') <a href="showforum.php?id={{ $row->board }}{{ SID2URL_x }}" target="_blank">{{ $forums[$row->board]['name'] }}</a></span>
+	</td>
+	<td class="stext">
+		@reldatetime($row->date)<br />
+		@lang('written_by')
+		<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
+	</td>
+	<td class="center">{{ numbers($row->posts) }}</td>
+	<td class="textright stext">
+		<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}&amp;q={{ $qhighlight }}">@reldatetime($row->last)</a><br />
+		@lang('written_by')
+		<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
+	</td>
+</tr>

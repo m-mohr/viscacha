@@ -1,0 +1,27 @@
+<form name="form2" method="post" action="manageforum.php?action={{ $_GET['type'] }}&amp;id={{ $board }}{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-body text-right">{!! $pages !!}</div>
+		<table class="table table-striped">
+			<thead>
+				<tr> 
+					<th width="2%">
+						@lang('check_all')<input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" />
+					</th>
+					<th width="48%">@lang('forum_topic')</th>
+					<th width="20%">@lang('forum_start')</th>
+					<th width="10%">@lang('forum_replies')</th>
+					<th width="20%">@lang('forum_last')</th>
+				</tr>
+			</thead>
+			<tbody>
+				{!! $inner['index_bit'] !!}
+			</tbody>
+			<tfoot>
+				<tr> 
+					<td colspan="5" class="text-center"><input type="submit" value="@lang('submit_form')" /></td>
+				</tr>
+			</tfoot>
+		</table>
+		<div class="panel-body text-right">{!! $pages !!}</div>
+	</div>
+</form>

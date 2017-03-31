@@ -1,0 +1,13 @@
+<br />
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('related_topics')</h3></div>
+	<div class="panel-body">
+		<ul>
+			@forelse($rows as $data)
+			<li><a href="showtopic.php?id={{ $data['id'] }}{{ SID2URL_x }}">{{ $data['topic'] }}</a></li>
+			@empty
+			<li>@lang('related_no_results')</li>
+			@endforelse
+		</ul>
+	</div>
+</div>

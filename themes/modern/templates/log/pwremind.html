@@ -1,0 +1,13 @@
+<form name="form2" method="post" action="log.php?action=pwremind2{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/password.gif')" alt="" /> @lang('log_pwremind_title')</h3></div>
+		<div class="panel-body">
+			@lang('log_pwremind_desc')
+			<br class="newinput" /><hr />
+			<label for="email">@lang('email')</label>
+			<input id="email" tabindex="1" class="label" type="text" name="email" size="40" />
+			<br class="newinput" />
+		</div>
+		<div class="panel-footer center"><input accesskey="s" tabindex="2" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
+	</div>
+</form>

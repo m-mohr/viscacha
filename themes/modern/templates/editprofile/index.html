@@ -1,0 +1,72 @@
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/user.gif')" alt="" /> @lang('editprofile_title')</h3></div>
+	<div class="bbody editprofile_index">
+		<ul>
+			<li>
+				<img src="@theme('images/ucp_profile.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=profile{{ SID2URL_x }}">@lang('editprofile_profile')</a></strong><br />
+				<span class="stext">@lang('editprofile_profile_desc')</span>
+			</li>
+			<li>
+				<img src="@theme('images/ucp_settings.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=settings{{ SID2URL_x }}">@lang('editprofile_settings')</a></strong><br />
+				<span class="stext">@lang('editprofile_settings_desc')</span>
+			</li>
+			<li>
+				<img src="@theme('images/ucp_pw.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=pw{{ SID2URL_x }}">@lang('editprofile_pw')</a></strong><br />
+				<span class="stext">@lang('editprofile_pw_desc')</span>
+			</li>
+		</ul><ul>
+			<li>
+				<img src="@theme('images/ucp_signature.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=signature{{ SID2URL_x }}">@lang('editprofile_signature')</a></strong><br />
+				<span class="stext">@lang('editprofile_signature_desc')</span>
+			</li>
+			@if($my->p['usepic'] == 1)
+			<li>
+				<img src="@theme('images/ucp_pic.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=pic{{ SID2URL_x }}">@lang('editprofile_pic')</a></strong><br />
+				<span class="stext">@lang('editprofile_pic_desc')</span>
+			</li>
+			@endif
+			@if($my->p['useabout'] == 1)
+			<li>
+				<img src="@theme('images/ucp_about.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=about{{ SID2URL_x }}">@lang('editprofile_about')</a></strong><br />
+				<span class="stext">@lang('editprofile_about_desc')</span>
+			</li>
+			@endif
+		</ul><ul>
+			<li>
+				<img src="@theme('images/ucp_abos.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=abos{{ SID2URL_x }}">@lang('editprofile_abos')</a></strong><br />
+				<span class="stext">@lang('editprofile_abos_desc')</span>
+			</li>
+			<li>
+				<img src="@theme('images/ucp_mylast.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=mylast{{ SID2URL_x }}">@lang('editprofile_mylast')</a></strong><br />
+				<span class="stext">@lang('editprofile_mylast_desc')</span>
+			</li>
+			@if($config['tpcallow'] == 1)
+			<li>
+				<img src="@theme('images/ucp_attachments.gif')" alt="" /><br />
+				<strong><a href="editprofile.php?action=attachments{{ SID2URL_x }}">@lang('editprofile_attachments')</a></strong><br />
+				<span class="stext">@lang('editprofile_attachments_desc')</span>
+			</li>
+			@endif
+		</ul><ul>
+			<li>
+				<img src="@theme('images/ucp_pm.gif')" alt="" /><br />
+				<strong><a href="pm.php{{ SID2URL_1 }}">@lang('editprofile_pm')</a></strong><br />
+				<span class="stext">@lang('editprofile_pm_desc')</span>
+			</li>
+			<li>
+				<img src="@theme('images/ucp_profile_php.gif')" alt="" /><br />
+				<strong><a href="profile.php?id={{ $my->id }}{{ SID2URL_x }}">@lang('editprofile_ownprofile')</a></strong><br />
+				<span class="stext">@lang('editprofile_ownprofile_desc')</span>
+			</li>
+		</ul>
+		<br />
+	</div>
+</div>

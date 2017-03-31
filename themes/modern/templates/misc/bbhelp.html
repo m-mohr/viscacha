@@ -1,0 +1,171 @@
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('bbhelp_title')</h3></div>
+	<div class="panel-body">
+		<strong>@lang('what_are_bbcodes')</strong><br />
+		@lang('what_are_bbcodes_answer')
+	</div>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('bbcode_help_overview')<a name="top"></a></h3></div>
+	<div class="panel-body">
+		<ul>
+			<li><strong><a href="#standard">@lang('standard_bbcodes')</a>:</strong>
+				<ul>
+					@foreach ($sbb as $bb)
+					<li><a href="#bb_{{ $bb['tag'] }}">[{{ $bb['tag'] }}] {{ $bb['title'] }}</a></li>
+					@endforeach
+				</ul>
+			</li>
+			<li><strong><a href="#extended">@lang('extended_bbcodes')</a>:</strong>
+				<ul>
+					@foreach ($ebb as $bb)
+					<li><a href="#bb_{{ $bb['tag'] }}">[{{ $bb['tag'] }}] {{ $bb['title'] }}</a></li>
+					@endforeach
+					@foreach($cbb as $bb)
+					<li><a href="#cbb_{{ $bb['id'] }}">[{{ $bb['bbcodetag'] }}] {{ $bb['title'] }}</a></li>
+					@endforeach
+				</ul>
+			</li>
+			<li><strong><a href="#smileys">@lang('bbcode_help_smileys')</a></strong></li>
+		</ul>
+	</div>
+</div>
+<br />
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('standard_bbcodes')<a name="standard"></a></h3></div>
+</div>
+@foreach ($sbb as $bb)
+
+<table class="table table-striped">
+	<tr>
+		<th colspan="2">
+			<a name="bb_{{ $bb['tag'] }}" href="#top" class="right">
+				<img src="@theme('images/asc.gif')" alt="@lang('top_of_page')" />
+			</a>
+			{{ $bb['title'] }}
+		</th>
+	</tr>
+	<tr>
+		<td class="tbody" colspan="2">{{ $bb['description'] }}</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
+		<td class="tbody" width="80%">
+			<code>
+				@foreach ($bb['syntax'] as $syntax)
+				{!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)) !!}<br />
+				@endforeach
+			</code>
+		</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
+		<td class="tbody" width="80%">
+			@foreach ($bb['example'] as $example)
+			<p><code>{!! nl2br($example) !!}</code></p>
+			@endforeach
+		</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
+		<td class="tbody" width="80%">
+			@foreach ($bb['example'] as $example)
+			<div>{!! $bbcode->parse($example) !!}</div>
+			@endforeach
+		</td>
+	</tr>
+</table>
+@endforeach
+<br />
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('extended_bbcodes')<a name="extended"></a></h3></div>
+</div>
+@foreach ($ebb as $bb)
+
+<table class="table table-striped">
+	<tr>
+		<th colspan="2">
+			<a name="bb_{{ $bb['tag'] }}" href="#top" class="right">
+				<img src="@theme('images/asc.gif')" alt="@lang('top_of_page')" />
+			</a>
+			{{ $bb['title'] }}
+		</th>
+	</tr>
+	<tr>
+		<td class="tbody" colspan="2">{{ $bb['description'] }}</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
+		<td class="tbody" width="80%">
+			<code>
+				@foreach ($bb['syntax'] as $syntax)
+				{!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)) !!}<br />
+				@endforeach
+			</code>
+		</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
+		<td class="tbody" width="80%">
+			@foreach ($bb['example'] as $example)
+			<p><code>{!! nl2br($example) !!}</code></p>
+			@endforeach
+		</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
+		<td class="tbody" width="80%">
+			@foreach ($bb['example'] as $example)
+			<div>{!! $bbcode->parse($example) !!}</div>
+			@endforeach
+		</td>
+	</tr>
+</table>
+@endforeach
+@foreach($cbb as $bb)
+
+<table class="table table-striped">
+	<tr>
+		<th colspan="2">
+			<a name="cbb_{{ $bb['id'] }}" href="#top" class="right">
+				<img src="@theme('images/asc.gif')" alt="@lang('top_of_page')" />
+			</a>
+			{{ $bb['title'] }}
+		</th>
+	</tr>
+	<tr>
+		<td class="tbody" colspan="2">{{ $bb['bbcodeexplanation'] }}</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
+		<td class="tbody" width="80%">
+			<code>{!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $bb['syntax'])) !!}</code>
+		</td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
+		<td class="tbody" width="80%"><p><code>{{ $bb['bbcodeexample'] }}</code></p></td>
+	</tr>
+	<tr>
+		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
+		<td class="tbody" width="80%">{{ $bbcode->customBB($bb['bbcodeexample']) }}</td>
+	</tr>
+</table>
+@endforeach
+<br />
+<table class="table table-striped">
+	<tr>
+		<th colspan="3">@lang('bbcode_help_smileys')<a name="smileys"></a></th>
+	</tr>
+	<tr>
+		<td class="tfoot" colspan="3">@lang('bbcode_help_smileys_desc')</td>
+	</tr>
+	@foreach ($smileys as $smiley)
+	<tr class="tbody">
+		<td class="center"><img src="{{ $smiley['replace'] }}" alt="{{ $smiley['desc'] }}" /></td>
+		<td class="center"><input type="text" class="center" size="10" value=" {{ $smiley['search'] }} " /></td>
+		<td>{{ $smiley['desc'] }}</td>
+	</tr>
+	@endforeach
+</table>

@@ -1,0 +1,22 @@
+@if($preview)
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/signature.gif')" alt="" /> @lang('editprofile_signature_preview')</h3></div>
+	<div class="bbody signature">{!! $parsedPreview !!}</div>
+</div>
+
+@endif
+<form name="form2" method="post" action="editprofile.php?action=signature{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">
+				<span class="right textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@theme('images/help.gif')" alt="" /> <strong>@lang('bbcode_help')</strong></a></span>
+				<img src="@theme('images/signature.gif')" alt="" /> @lang('editprofile_signature')
+			</h3></div>
+		<div class="panel-body">
+			{!! $bbcode->getEditorArea('signature', $signature, 'cols="80" rows="7" tabindex="1"', $config['maxsiglength']) !!}
+		</div>
+		<div class="panel-footer center">
+			<input type="submit" name="Submit" tabindex="2" value="@lang('submit_form')" />
+			<input type="submit" name="Preview" tabindex="3" value="@lang('preview_form')" />
+		</div>
+	</div>
+</form>

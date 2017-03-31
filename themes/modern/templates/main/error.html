@@ -1,0 +1,18 @@
+<script type="text/javascript">
+<!--
+	window.setTimeout('{{ JS_URL($js_errorurl) }}', 10000);
+-->
+</script>
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('re_error_title')</h3></div>
+	<div class="panel-body">
+		<ul>
+			@foreach ($errormsg as $error)
+			<li>{{ $error }}</li>
+			@endforeach
+		</ul>
+	</div>
+	@if(!empty($errorurl))
+	<div class="panel-footer center"><a href="{{ $errorurl }}">@lang('re_error_link')</a></div>
+	@endif
+</div>

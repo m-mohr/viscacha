@@ -1,0 +1,71 @@
+<tr class="tbody">
+	<td>
+		<a href="profile.php?id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
+		@if(!empty($row['fullname']))
+		<br /><em>{{ $row['fullname'] }}</em>
+		@endif
+	</td>
+	@if($online)
+	<td class="center">
+		@if($row['online'] == 1)
+		<img src="@theme('images/online.gif')" title="@lang('profile_online')" alt="@lang('profile_online')" />
+		@else
+		<img src="@theme('images/online.gif')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
+		@endif
+	</td>
+	@endif
+	@if(isset($row['pic']))
+	<td class="center">
+		@if(!empty($row['pic']))
+		<img src="{{ $row['pic'] }}" alt="{{ $row['name'] }}" />
+		@endif
+	</td>
+	@endif
+	@if($pm)
+	<td class="center">
+		<a href="pm.php?action=new&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@theme('images/pm.gif')" alt="" /></a>
+	</td>
+	@endif
+	@if(isset($row['mail']))
+	<td class="center">
+		<a href="profile.php?action=mail&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@theme('images/email.gif')" alt="" /></a>
+	</td>
+	@endif
+	@if(isset($row['hp']))
+	<td class="center">
+		@if($row['hp'])
+		<a href="{{ $row['hp'] }}" target="_blank"><img src="@theme('images/homepage.gif').'" alt="" /></a>
+		@elselang('homepage_no_data')
+	</td>
+	@endif
+	@if(isset($row['location']))
+	<td>
+		{{ $row['location'] }}
+	</td>
+	@endif
+	@if(isset($row['gender']))
+	<td class="center">
+		{{ $row['gender'] }}
+	</td>
+	@endif
+	@if(isset($row['posts']))
+	<td class="textright">
+		{{ $row['posts'] }}
+	</td>
+	@endif
+	@if(isset($row['birthday']))
+	<td>
+		{{ $row['birthday'] }}
+	</td>
+	@endif
+	@if(isset($row['regdate']))
+	<td class="center">
+		@date($row['regdate'])
+	</td>
+	@endif
+	@if(isset($row['lastvisit']))
+	<td>
+		@reldatetime($row['lastvisit'], 'members_na')
+	</td>
+	@endif
+</tr>

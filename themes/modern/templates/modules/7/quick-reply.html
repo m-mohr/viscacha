@@ -1,0 +1,19 @@
+<br />
+<form method="post" action="addreply.php?action=save{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">@lang('quickreply_title')</h3></div>
+		<div>
+			<div class="panel-body">
+				{!! $bbcode->getEditorArea('comment', '', 'cols="80" rows="9"', null, TOOLBAR_SMILEYS) !!}
+			</div>
+			<div class="panel-footer center">
+				<input type="submit" accesskey="s" name="Submit" value="@lang('submit_form')" />
+				<input type="submit" accesskey="p" name="Preview" value="@lang('preview_form')" />
+				<input type="submit" accesskey="e" name="Extended" value="@lang('quickreply_extended')" />
+				<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
+				<input type="hidden" name="topic" value="@lang('reply_prefix'){{ $info['topic'] }}" />
+				<input type="hidden" name="dosmileys" value="1" />
+			</div>
+		</div>
+	</div>
+</form>

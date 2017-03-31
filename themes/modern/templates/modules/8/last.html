@@ -1,0 +1,11 @@
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('last_x_forumposts')</h3></div>
+	<div class="panel-body">
+		<span class="stext">
+			@foreach ($lastbox as $row)
+			@reldatetime($row['date']): <a title="{{ $row['topic_full'] }}" href="showtopic.php?action=last&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['prefix'] }}{{ $row['topic'] }}</a>
+			@lang('by') <a href="profile.php?id={{ $row['luid'] }}{{ SID2URL_x }}">{{ $row['luname'] }}</a><br />
+			@endforeach
+		</span>
+	</div>
+</div>

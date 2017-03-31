@@ -1,0 +1,131 @@
+<table class="table table-striped">
+	<tr>
+		<th colspan="{{ $colspan }}">
+			@if($my->p['team'] == 1)
+			<span class="right">[<a href="members.php?action=team{{ SID2URL_x }}">@lang('team')</a>]</span>
+			@endif
+			<img src="@theme('images/members.gif')" alt="" /> @lang('members')
+		</th>
+	</tr>
+	<tr>
+		<td class="tfoot" colspan="{{ $colspan }}"><span class="right">{!! $temp !!}</span>@lang('member_count')</td>
+	</tr>
+	<tr>
+		<td class="tbody center" colspan="{{ $colspan }}">
+			@foreach ($letter as $compare => $row)
+			@if($_GET['letter'] == $compare)
+			[<strong>{{ $row['html'] }}</strong>]
+			@else
+			[<a href="members.php?letter={{ $row['url'] }}&amp;{{ $query_letter }}">{{ $row['html'] }}</a>]
+			@endif
+			@endforeach
+		</td>
+	</tr>
+	@if($count[0] > 0)
+	<tr class="tfoot">
+		<td class="center">
+			@lang('th_name')
+			<a href="members.php?{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@if($online)
+		<td class="center">
+			<a href="members.php?sort=online&amp;order=desc&amp;{{ $query_th }}">@lang('th_status')</a>
+		</td>
+		@endif
+		@if(in_array('pic', $fields))
+		<td class="center">
+			@lang('th_pic')
+		</td>
+		@endif
+		@if($pm)
+		<td class="center">
+			@lang('th_pm')
+		</td>
+		@endif
+		@if(in_array('mail', $fields))
+		<td class="center">
+			@lang('th_email')
+		</td>
+		@endif
+		@if(in_array('hp', $fields))
+		<td class="center">
+			<a href="members.php?sort=hp&amp;order=desc&amp;{{ $query_th }}">@lang('th_homepage')</a>
+		</td>
+		@endif
+		@if(in_array('location', $fields))
+		<td class="center">
+			@lang('th_location')
+			<a href="members.php?sort=location&amp;{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=location&amp;order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@endif
+		@if(in_array('gender', $fields))
+		<td class="center">
+			@lang('th_gender')
+			<a href="members.php?sort=gender&amp;{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=gender&amp;order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@endif
+		@if(in_array('posts', $fields))
+		<td class="center">
+			@lang('th_posts')
+			<a href="members.php?sort=posts&amp;{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=posts&amp;order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@endif
+		@if(in_array('birthday', $fields))
+		<td class="center">
+			@lang('th_birthday')
+			<a href="members.php?sort=birthday&amp;{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=birthday&amp;order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@endif
+		@if(in_array('regdate', $fields))
+		<td class="center">
+			@lang('th_registered_since')
+			<a href="members.php?sort=regdate&amp;{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=regdate&amp;order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@endif
+		@if(in_array('lastvisit', $fields))
+		<td class="center">
+			@lang('th_lastvisit')
+			<a href="members.php?sort=lastvisit&amp;{{ $query_th }}"><img src="@theme('images/asc.gif')" alt="@lang('asc')" /></a>
+			<a href="members.php?sort=lastvisit&amp;order=desc&amp;{{ $query_th }}"><img src="@theme('images/desc.gif')" alt="@lang('desc')" /></a>
+		</td>
+		@endif
+	</tr>
+	{!! $inner['index_bit'] !!}
+	<tr>
+		<td class="tfoot textright" colspan="{{ $colspan }}">{!! $temp !!}</td>
+	</tr>
+	@else
+	<tr>
+		<td class="tbody center" colspan="{{ $colspan }}">@lang('members_empty')</td>
+	</tr>
+	@endif
+</table>
+@if($config['mlist_filtergroups'] == 1)
+
+<form action="members.php" method="get">
+	<input type="hidden" name="letter" value="{{ $_GET['letter'] }}" />
+	<input type="hidden" name="sort" value="{{ $_GET['sort'] }}" />
+	<input type="hidden" name="order" value="{{ $_GET['order'] }}" />
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">@lang('members_filtergroups')</h3></div>
+		<div>
+			<div class="panel-body">
+				<label for="g[]">@lang('members_filtergroups_label')</label>
+				<select name="g[]" id="g[]" size="{{ count($groups) }}" multiple="multiple" class="label">
+					@foreach ($groups as $id => $title)
+					<option value="{{ $id }}"@selected(in_array($id, $g))>{{ $title }}</option>
+					@endforeach
+				</select>
+				<br class="newinput" />
+			</div>
+			<div class="panel-footer center"><input type="submit" value="@lang('members_show_form')" /></div>
+		</div>
+	</div>
+</form>
+@endif

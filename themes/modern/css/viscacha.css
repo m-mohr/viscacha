@@ -1,0 +1,36 @@
+@media (min-width: 981px) {
+	body {
+		padding-top: 65px;
+	}
+}
+
+#copyright {
+	text-align: center;
+}
+
+.forums h3 {
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+.forums h4 {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.forums.table > tbody > tr > td {
+    vertical-align: middle;
+}
+.forums .cell-icon {
+    text-align: center;
+	padding-left: 16px;
+}
+.forums.table th.cell-stat {
+    width: 15%;
+}
+.forums.table th.cell-stat-2x {
+    width: 25%;
+}
+
+.user-header img {
+	height: 1.5em;
+	border-radius: 0.25em;
+}

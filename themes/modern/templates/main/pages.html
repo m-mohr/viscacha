@@ -1,0 +1,16 @@
+<nav>
+	<ul class="pagination">
+	@foreach ($pages as $page => $row)
+		@if($row['type'] == PAGES_CURRENT)
+		<li class="active"><a href="#">{{ $page }}</a></li>
+		@elseif($row['type'] == PAGES_SEPARATOR)
+		<li class="disabled"><a href="#">@lang('pages_sep')</a></li>
+		@elseif($row['type'] == PAGES_NUM)
+		<li><a href="{{ $row['url'] }}">{{ $page }}</a></li>
+		@endif
+		@if($page == $anz && $anz > 10)
+		<li><a class="page_number" href="javascript:jumptopage('{{ $uri }}');"><i class="fa fa-arrow-circle-down"></i></a></li>
+		@endif
+	@endforeach
+	</ul>
+</nav>
