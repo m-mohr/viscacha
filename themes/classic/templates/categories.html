@@ -50,9 +50,9 @@
 					@if($forum['state'] == BOARD_STATE_LOCKED)
 					<img src="@theme('images/cat_locked.gif')" alt="{{ $forum['name'] }}" />
 					@elseif($forum['state'] == BOARD_STATE_NEW)
-					<img src="@theme('images/cat_open.gif')" alt="{{ $forum['name'] }}" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $forum['id'] }},this)" />
+					<img src="@theme('images/cat_red.gif')" alt="{{ $forum['name'] }}" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $forum['id'] }},this)" />
 					@else
-					<img src="@theme('images/cat-red.gif')" alt="{{ $forum['name'] }}" />
+					<img src="@theme('images/cat_open.gif')" alt="{{ $forum['name'] }}" />
 					@endif
 				</td>
 				<td width="45%">
@@ -78,9 +78,9 @@
 						@elseif($forum['state'] == BOARD_STATE_LOCKED)
 						<img src="@theme('images/subcat_locked.gif')" alt="{{ $forum['name'] }}" />
 						@elseif($forum['state'] == BOARD_STATE_NEW)
-						<img src="@theme('images/subcat_open.gif')" alt="{{ $forum['name'] }}" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $s['id'] }},this,1)" />
+						<img src="@theme('images/subcat_red.gif')" alt="{{ $forum['name'] }}" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $s['id'] }},this,1)" />
 						@else
-						<img src="@theme('images/subcat-red.gif')" alt="{{ $forum['name'] }}" />
+						<img src="@theme('images/subcat_open.gif')" alt="{{ $forum['name'] }}" />
 						@endif
 						@if($s['opt'] != 're')
 						<a href="showforum.php?id={{ $s['id'] }}{{ SID2URL_x }}">
