@@ -43,7 +43,6 @@ if ($plugins->countPlugins('portal') == 0) {
 	}
 	else {
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(301, 'index.php');
 	    exit;
 	}
@@ -59,8 +58,5 @@ BBProfile($bbcode);
 
 ($code = $plugins->load('portal')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
-$phpdoc->Out();
-$db->close();
-?>
+$slog->updatelogged();

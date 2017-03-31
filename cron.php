@@ -72,7 +72,3 @@ PixelImage();
 InitCron();
 
 ($code = $plugins->load('cron_end')) ? eval($code) : null;
-
-$db->close();
-
-?>

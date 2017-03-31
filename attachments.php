@@ -128,7 +128,6 @@ elseif ($_GET['action'] == "attachment") {
 
 		($code = $plugins->load('attachments_attachment_end')) ? eval($code) : null;
 		$slog->updatelogged();
-		$db->close();
 		exit();
 	}
 }
@@ -308,4 +307,3 @@ else {
 
 $slog->updatelogged();
 $phpdoc->Out();
-$db->close();

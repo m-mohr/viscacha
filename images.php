@@ -131,5 +131,3 @@ elseif ($_GET['action'] == 'm_email') {
 ($code = $plugins->load('images_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$db->close();
-?>

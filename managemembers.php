@@ -292,7 +292,6 @@ else {
 	error($lang->phrase('docs_not_found'), "profile.php?id={$user['id']}");
 }
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

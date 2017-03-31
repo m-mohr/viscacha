@@ -297,7 +297,6 @@ elseif ($_GET['action'] == "about2") {
 		$fid = save_error_data($_POST['about']);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl'].'/editprofile.php?action=about&job=preview&fid='.$fid.SID2URL_JS_x);
 			exit;
 		}
@@ -827,7 +826,6 @@ else {
 
 ($code = $plugins->load('editprofile_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

@@ -39,7 +39,6 @@ if ($_GET['action'] == "login2") {
 	$loc = getRedirectURL();
 	if ($my->vlogin) {
 		$slog->updatelogged();
-		$db->close();
 		viscacha_header("Location: {$loc}");
 		exit;
 	}
@@ -78,7 +77,6 @@ elseif ($_GET['action'] == "logout") {
 
 	if (!$my->vlogin) {
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl'].'/log.php');
 		exit;
 	}
@@ -100,7 +98,6 @@ elseif ($_GET['action'] == "pwremind") {
 	($code = $plugins->load('log_pwremind_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/pwremind");
 	($code = $plugins->load('log_pwremind_form_end')) ? eval($code) : null;
-	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind2") {
 	if (flood_protect(FLOOD_TYPE_PWMAIL) == false) {
@@ -131,7 +128,6 @@ elseif ($_GET['action'] == "pwremind2") {
 
 		ok($lang->phrase('log_pwremind_success'), "log.php?action=login".SID2URL_x);
 	}
-	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind3") {
 	if (flood_protect(FLOOD_TYPE_PWRENEW) == false) {
@@ -183,11 +179,10 @@ else {
 	($code = $plugins->load('log_login_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/login");
 	($code = $plugins->load('log_login_form_end')) ? eval($code) : null;
-	$slog->updatelogged();
 }
 
 ($code = $plugins->load('log_end')) ? eval($code) : null;
 
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

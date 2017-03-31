@@ -114,7 +114,6 @@ elseif ($_GET['action'] == "savevote") {
 		$notices['question'] = $_POST['question'];
 		$fid = save_error_data($notices, $fid);
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
 		exit;
 	}
@@ -235,7 +234,6 @@ elseif ($_GET['action'] == "save") {
 		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl']."/newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
 			exit;
 		}
@@ -392,7 +390,6 @@ else {
 
 ($code = $plugins->load('newtopic_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

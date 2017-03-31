@@ -148,5 +148,3 @@ elseif ($action == 'search') {
 ($code = $plugins->load('ajax_end')) ? eval($code) : null;
 
 $phpdoc->Out();
-$db->close();
-?>

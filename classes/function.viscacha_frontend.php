@@ -658,11 +658,9 @@ function GoBoardPW ($bpw, $bid) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
 		$tpl->globalvars(compact("bid"));
 		echo $tpl->parse("main/boardpw");
-		$slog->updatelogged();
-		$tpl->globalvars(compact("zeitmessung"));
 		echo $tpl->parse("footer");
+		$slog->updatelogged();
 		$phpdoc->Out();
-		$db->close();
 		exit;
 	}
 }
@@ -695,7 +693,6 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	$tpl->globalvars(compact("errormsg", "errorurl", "js_errorurl"));
 	echo $tpl->parse("main/{$errortpl}");
 
-	$slog->updatelogged();
 	if ($EOS != null) {
 		echo $tpl->parse($EOS);
 	}
@@ -705,8 +702,8 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	else {
 		echo $tpl->parse('footer');
 	}
+	$slog->updatelogged();
 	$phpdoc->Out();
-	$db->close();
 	exit;
 }
 
@@ -737,9 +734,8 @@ function error($errormsg = null, $errorurl = null, $EOS = null) {
 	
 	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
 		FlashMessage::addError($errormsg);
-		global $slog, $db;
+		global $slog;
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
 	}
 
@@ -754,9 +750,8 @@ function ok($errormsg = null, $errorurl = null, $EOS = null) {
 	
 	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
 		FlashMessage::addConfirmation($errormsg);
-		global $slog, $db;
+		global $slog;
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
 	}
 

@@ -175,7 +175,6 @@ else {
 	errorLogin();
 }
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

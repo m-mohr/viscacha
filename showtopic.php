@@ -71,7 +71,6 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
-	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#firstnew');
 	exit;
 }
@@ -86,7 +85,6 @@ elseif ($_GET['action'] == 'last') {
 	else {
 		$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
 	}
-	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
@@ -101,7 +99,6 @@ elseif ($_GET['action'] == 'mylast') {
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
-	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
@@ -116,7 +113,6 @@ elseif ($_GET['action'] == 'jumpto') {
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
-	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
@@ -413,7 +409,6 @@ $slog->setTopicRead($info['id'], $topforums);
 
 ($code = $plugins->load('showtopic_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

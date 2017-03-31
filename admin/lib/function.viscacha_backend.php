@@ -48,7 +48,6 @@ $tpl = new tpl();
 $banned = $slog->checkBan();
 if ($banned !== false) {
 	sendStatusCode(403);
-	$db->close();
 	exit;
 }
 $my->p = $slog->Permissions();
@@ -468,7 +467,7 @@ function foot($nocopy = false) {
 }
 
 function error ($errorurl, $errormsg = null, $time = null) {
-	global $config, $my, $db, $lang, $slog;
+	global $my, $lang, $slog;
 	if ($errormsg == null) {
 		$errormsg = array($lang->phrase('admin_an_unexpected_error_occured'));
 	}
@@ -503,12 +502,11 @@ window.setTimeout('<?php echo JS_URL($errorurl); ?>', <?php echo $time; ?>);
 	<?php
 	echo foot();
 	$slog->updatelogged();
-	$db->close();
 	exit;
 }
 
 function ok ($url, $msg = null, $time = 1500) {
-	global $config, $my, $db, $lang, $slog;
+	global $my, $lang, $slog;
 	if ($msg == null) {
 		$msg = $lang->phrase('admin_settings_successfully_saved');
 	}
@@ -532,7 +530,6 @@ window.setTimeout('<?php echo JS_URL($url); ?>', <?php echo $time; ?>);
 	<?php
 	echo foot();
 	$slog->updatelogged();
-	$db->close();
 	exit;
 }
 

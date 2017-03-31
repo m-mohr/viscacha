@@ -287,7 +287,6 @@ else {
 	($code = $plugins->load('register_form_end')) ? eval($code) : null;
 }
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

@@ -126,7 +126,6 @@ if ($_GET['action'] == "save") {
 		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl']."/addreply.php?action=preview&id={$id}&fid=".$fid.SID2URL_JS_x);
 			exit;
 		}
@@ -326,7 +325,6 @@ else {
 
 ($code = $plugins->load('addreply_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

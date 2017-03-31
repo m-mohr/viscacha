@@ -184,7 +184,6 @@ else {
 echo $tpl->parse("showforum/index");
 ($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

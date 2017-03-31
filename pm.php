@@ -221,7 +221,6 @@ elseif ($_GET['action'] == "save") {
 		$fid = save_error_data($data);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl'].'/pm.php?action=preview&fid='.$fid.SID2URL_JS_x);
 			exit;
 		}
@@ -424,7 +423,6 @@ else {
 
 ($code = $plugins->load('pm_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

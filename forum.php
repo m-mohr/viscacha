@@ -48,8 +48,6 @@ BoardSelect();
 
 ($code = $plugins->load('forum_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

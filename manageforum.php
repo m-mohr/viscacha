@@ -150,7 +150,6 @@ elseif ($_GET['action'] == "close") {
 elseif ($_GET['action'] == "open") {
 	if (count($_POST['delete']) == 0) {
 		$slog->updatelogged();
-		$db->close();
 		if (empty($_GET['action'])) {
 			$url = 'showforum.php?id='.$board.SID2URL_JS_x;
 		}
@@ -232,7 +231,6 @@ elseif ($_GET['action'] == "delete") {
 	}
 	if (count($_POST['delete']) == 0) {
 		$slog->updatelogged();
-		$db->close();
 		if (empty($_GET['action'])) {
 			$url = 'showforum.php?id='.$board.SID2URL_JS_x;
 		}
@@ -294,7 +292,6 @@ elseif ($_GET['action'] == "stat") {
 
 ($code = $plugins->load('manageforum_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

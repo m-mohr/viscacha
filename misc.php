@@ -53,7 +53,6 @@ if ($_GET['action'] == "boardin") {
 	}
 	else {
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl'].'/showforum.php?id='.$board.SID2URL_JS_x);
 		exit;
 	}
@@ -624,7 +623,6 @@ elseif ($_GET['action'] == "markforumasread") {
 		errorLogin();
 	}
 	$slog->setForumRead($board);
-	$slog->updatelogged();
 	ok($lang->phrase('marked_as_read'), 'showforum.php?id='.$board);
 
 }
@@ -745,9 +743,8 @@ elseif ($_GET['action'] == "edithistory") {
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 if ($tpl->tplsent("header")) {
 	echo $tpl->parse("footer");
 }
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

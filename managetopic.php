@@ -551,7 +551,6 @@ elseif ($action == "pmerge2") {
 
 ($code = $plugins->load('managetopic_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

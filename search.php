@@ -197,7 +197,6 @@ if ($_GET['action'] == "search") {
 		$fid = generate_uid();
 		file_put_contents('data/cache/search/'.$fid.'.inc.php', serialize($data));
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl'].'/search.php?action=result&fid='.$fid.SID2URL_JS_x);
 		exit;
 	}
@@ -505,7 +504,6 @@ else {
 
 ($code = $plugins->load('search_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

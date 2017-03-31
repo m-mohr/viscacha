@@ -178,7 +178,6 @@ if ($allowed == true) {
 				$fid = save_error_data($data);
 				if (!empty($_POST['Preview'])) {
 					$slog->updatelogged();
-					$db->close();
 					sendStatusCode(302, $config['furl']."/edit.php?action=preview&id={$info['id']}&fid=".$fid.SID2URL_JS_x);
 					exit;
 				}
@@ -265,7 +264,6 @@ else {
 }
 ($code = $plugins->load('edit_end')) ? eval($code) : null;
 
-$slog->updatelogged();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();

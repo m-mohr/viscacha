@@ -109,7 +109,6 @@ if ($my->p['admin'] == 1) {
 		$url = $gpc->get('url', none);
 		$url = addslashes($url);
 		if (!empty($url)) {
-			$db->close();
 			sendStatusCode(302, $url);
 			exit;
 		}
@@ -174,5 +173,3 @@ else {
 ($code = $plugins->load('admin_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$db->close();
-?>

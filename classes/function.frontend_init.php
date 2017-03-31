@@ -196,7 +196,6 @@ if (!defined('CONSOLE_REQUEST')) {
 		else {
 			sendStatusCode(403);
 		}
-		$db->close();
 		exit();
 	}
 }
@@ -211,8 +210,6 @@ if ($config['foffline']) {
 			echo $tpl->parse("offline");
 			$phpdoc->Out();
 		}
-		$db->close();
-		exit();
+		exit;
 	}
 }
-?>

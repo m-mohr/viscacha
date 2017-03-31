@@ -52,5 +52,3 @@ else {
 
 $slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>
