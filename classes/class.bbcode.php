@@ -732,7 +732,7 @@ class BBCode {
 			}
 		}
 
-		$tpl->globalvars(compact("id", "content", "taAttr", "cbb", "smileys", "maxlength", "disable"));
+		$tpl->assignVars(compact("id", "content", "taAttr", "cbb", "smileys", "maxlength", "disable"));
 		return $tpl->parse("main/bbhtml");
 	}
 

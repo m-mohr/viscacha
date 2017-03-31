@@ -6,7 +6,7 @@ class cache_loadlanguage extends CacheItem {
 		if ($this->exists() == true) {
 		    $this->import();
 			foreach ($this->data as $id => $row) {
-				if (!file_exists("templates/language_{$id}.js") || !file_exists("admin/html/language_{$id}.js")) {
+				if (!file_exists("assets/cache/language_{$id}.js") || !file_exists("admin/html/language_{$id}.js")) {
 					$this->createJavascript();
 					break;
 				}
@@ -34,7 +34,7 @@ class cache_loadlanguage extends CacheItem {
 
 	function deleteJavascript() {
 		global $filesystem;
-		$folders = array("templates/", "admin/html/");
+		$folders = array("assets/cache/", "admin/html/");
 		foreach ($folders as $folder) {
 			$dir = dir($folder);
 			while (false !== ($file = $dir->read())) {
@@ -54,7 +54,7 @@ class cache_loadlanguage extends CacheItem {
 			$prefix = "// JS Language file for Viscacha {$config['version']} - Language: {$details['language']}\n";
 			$prefix .= "var cookieprefix = '{$config['cookie_prefix']}'\n";
 			$sections = array(
-				'javascript' => "templates/language_{$id}.js", // Frontend
+				'javascript' => "assets/cache/language_{$id}.js", // Frontend
 				'admin/javascript' => "admin/html/language_{$id}.js" // Backend
 			);
 			foreach ($sections as $lngfile => $jsfile) {

@@ -422,6 +422,3 @@ classes/function.viscacha_frontend.php
 -frontend_errorlogin
 -frontend_error
 -frontend_ok
-
-templates/*/menu.html
--template_forum_menu

@@ -354,14 +354,6 @@ elseif ($_GET['action'] == "browse") {
 
 	while ($row = $db->fetch_assoc($result)) {
 		$row['topic'] = $gpc->prepare($row['topic']);
-		if ($row['status'] == 0) {
-			$row['alt'] = $lang->phrase('pm_newicon');
-			$row['src'] = $tpl->img('dir_open2');
-		}
-		else {
-			$row['alt'] = $lang->phrase('pm_oldicon');
-			$row['src'] = $tpl->img('dir_open');
-		}
 		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}
@@ -394,14 +386,6 @@ else {
 	$ib = 0;
 	$ibo = 0;
 	while ($row = $db->fetch_assoc($result)) {
-		if ($row['status'] == 0) {
-			$row['alt'] = $lang->phrase('pm_newicon');
-			$row['src'] = $tpl->img('dir_open2');
-		}
-		else {
-			$row['alt'] = $lang->phrase('pm_oldicon');
-			$row['src'] = $tpl->img('dir_open');
-		}
 		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}

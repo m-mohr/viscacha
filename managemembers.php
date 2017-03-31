@@ -81,7 +81,7 @@ elseif ($_GET['action'] == 'delete2') {
 		hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
 		birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
 		opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
-		template = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
+		theme = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
 		WHERE id = '{$user['id']}'");
 	// Step 6: Delete user's custom profilefields
 	$db->query("DELETE FROM {$db->pre}userfields WHERE ufid = '{$user['id']}'");
@@ -98,9 +98,6 @@ elseif ($_GET['action'] == 'edit') {
 
 	($code = $plugins->load('managemembers_edit_start')) ? eval($code) : null;
 
-	if (empty($user['template'])) {
-		$user['template'] = $config['templatedir'];
-	}
 	if (empty($user['language'])) {
 		$user['language'] = $config['langdir'];
 	}
@@ -108,7 +105,6 @@ elseif ($_GET['action'] == 'edit') {
 	// Settings
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
-	$mydesign = $design[$user['template']]['name'];
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
@@ -141,10 +137,10 @@ elseif ($_GET['action'] == 'edit') {
 elseif ($_GET['action'] == 'edit2') {
 
 	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get();
+	$themes = $loaddesign_obj->get();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
-	$cache2 = $loadlanguage_obj->get();
+	$languages = $loadlanguage_obj->get();
 
 	$_POST['hp'] = trim($_POST['hp']);
 	if (mb_strtolower(mb_substr($_POST['hp'], 0, 4)) == 'www.') {
@@ -216,10 +212,10 @@ elseif ($_GET['action'] == 'edit2') {
 	if ($_POST['opt_3'] < 0 && $_POST['opt_3'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_showmail');
 	}
-	if (!isset($cache[$_POST['opt_4']])) {
+	if (!isset($themes[$_POST['opt_4']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_design');
 	}
-	if (!isset($cache2[$_POST['opt_5']])) {
+	if (!isset($languages[$_POST['opt_5']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 	}
 	if (!empty($_POST['pic']) && is_url($_POST['pic'])) {
@@ -282,7 +278,7 @@ elseif ($_GET['action'] == 'edit2') {
 
 		($code = $plugins->load('managemembers_edit2_savedata')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', template = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', theme = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		ok($lang->phrase('data_success'), "profile.php?id=".$user['id']);
 	}

@@ -976,7 +976,7 @@ elseif ($job == 'package_export') {
 	// Determine standard template pack
 	$loaddesign_obj = $scache->load('loaddesign');
 	$cache = $loaddesign_obj->get();
-	$design = $cache[$config['templatedir']];
+	$design = $cache[$config['theme']];
 
 	// ZIP-File
 	$tempdir = "temp/";
@@ -2641,8 +2641,11 @@ elseif ($job == 'plugins_template') {
 		$ini = array();
 	}
 
-	$designObj = $scache->load('loaddesign');
-	$designs = $designObj->get(true);
+	$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+	$designs = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$designs[$row['id']] = $row;
+	}
 	$standardDesign = $designs[$config['templatedir']]['template'];
 	$tpldir = "templates/{$standardDesign}/modules/{$data['id']}/";
 
@@ -2728,8 +2731,11 @@ elseif ($job == 'plugins_template_add') {
 	$data = $db->fetch_assoc($result);
 	$dir = "modules/{$data['id']}/";
 
-	$designObj = $scache->load('loaddesign');
-	$designs = $designObj->get(true);
+	$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+	$designs = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$designs[$row['id']] = $row;
+	}
 	$standardDesign = $designs[$config['templatedir']]['template'];
 	$tpldir = "templates/{$standardDesign}/modules/{$data['id']}/";
 	if (!is_dir($tpldir)) {
@@ -2768,8 +2774,11 @@ elseif ($job == 'plugins_template_edit') {
 	$ini = $myini->read($dir."plugin.ini");
 
 	if (count($deleteId) > 0) {
-		$designObj = $scache->load('loaddesign');
-		$designs = $designObj->get(true);
+		$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+		$designs = array();
+		while ($row = $db->fetch_assoc($result)) {
+			$designs[$row['id']] = $row;
+		}
 
 		foreach ($deleteId as $key) {
 			if (!isset($ini['template'][$key])) {
@@ -2799,8 +2808,12 @@ elseif ($job == 'plugins_template_edit') {
 			<?php
 		}
 		$codefile = $ini['template'][$editId];
-		$designObj = $scache->load('loaddesign');
-		$designs = $designObj->get(true);
+
+		$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+		$designs = array();
+		while ($row = $db->fetch_assoc($result)) {
+			$designs[$row['id']] = $row;
+		}
 
 		$tpldirs = array();
 		foreach ($designs as $designId => $row) {

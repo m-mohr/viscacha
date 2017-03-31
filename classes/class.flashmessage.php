@@ -34,7 +34,7 @@ class FlashMessage {
 		$code = '';
 		if (!empty($my->settings['messages'])) {
 			foreach($my->settings['messages'] as $type => $messages) {
-				$tpl->globalvars($messages);
+				$tpl->assignVars($messages);
 				$code .= $tpl->parse('main/message_box');
 			}
 			unset($my->settings['messages']);

@@ -129,35 +129,14 @@ if ($info['topics'] > 0) {
 
 		$last = $fc[$row->board];
 
-		if ($row->status == '2') {
+		if ($row->status == 2) {
 			$pref .= $lang->phrase('forum_moved');
 		}
 		else if ($row->sticky == '1') {
 			$pref .= $lang->phrase('forum_announcement');
 		}
 
-		if ($slog->isTopicRead($row->id, $row->last)) {
-	 		$firstnew = 0;
-			if ($row->status == 1 || $row->status == 2) {
-			   	$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed');
-			}
-			else {
-			   	$alt = $lang->phrase('forum_icon_old');
-			   	$src = $tpl->img('dir_open');
-	 		}
-	 	}
-	  	else {
-	  		$firstnew = 1;
-			if ($row->status == 1 || $row->status == 2) {
-				$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed2');
-			}
-			else {
-				$alt = $lang->phrase('forum_icon_new');
-				$src = $tpl->img('dir_open2');
-			}
-		}
+		$row->read = $slog->isTopicRead($row->id, $row->last);
 
 		if ($last['topiczahl'] < 1) {
 			$last['topiczahl'] = $config['topiczahl'];

@@ -102,7 +102,7 @@ class ReCaptcha {
 			$language = $lang->phrase('lang_code');
 		}
 
-		$tpl->globalvars(compact("pubkey", "tabindex", "language"));
+		$tpl->assignVars(compact("pubkey", "tabindex", "language"));
 		return $tpl->parse('main/recaptcha');
 	}
 

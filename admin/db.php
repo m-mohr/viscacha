@@ -11,7 +11,7 @@ function exec_query_form ($query = '') {
 	$tables = $db->list_tables();
 	$lang->assign('maxfilesize', formatFilesize(ini_maxupload()));
 ?>
-<script type="text/javascript" src="templates/editor/bbcode.js"></script>
+<script type="text/javascript" src="admin/html/editor/bbcode.js"></script>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>

@@ -79,7 +79,7 @@ $lang['admin_member_delete_selected_user'] = 'Ausgewählten Benutzer löschen';
 $lang['admin_member_delete_user'] = 'Benutzer löschen:';
 $lang['admin_member_desc'] = 'Absteigend';
 $lang['admin_member_design'] = 'Design';
-$lang['admin_member_design=not_valid'] = 'Ungültiges Design ausgewählt';
+$lang['admin_member_design_not_valid'] = 'Ungültiges Design ausgewählt';
 $lang['admin_member_edit'] = 'Ändern';
 $lang['admin_member_edit_member'] = 'Mitglied ändern';
 $lang['admin_member_edit_options'] = 'Optionen ändern';

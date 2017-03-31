@@ -136,7 +136,7 @@ elseif ($_GET['action'] == "abos") {
 
 	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.board, t.posts, l.id AS luid, l.name AS luname
+	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.board, t.posts, t.status, l.id AS luid, l.name AS luname
 	FROM {$db->pre}abos AS a
 		LEFT JOIN {$db->pre}topics AS t ON a.tid = t.id
 		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
@@ -156,7 +156,7 @@ elseif ($_GET['action'] == "abos") {
 		if ($info['topiczahl'] < 1) {
 			$info['topiczahl'] = $config['topiczahl'];
 		}
-
+		
 		if (!empty($row['prefix']) && isset($prefix_arr[$row['board']][$row['prefix']])) {
 			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
 			$row['prefix'] = $lang->phrase('showtopic_prefix_title');
@@ -169,16 +169,7 @@ elseif ($_GET['action'] == "abos") {
 			$row['type'] = 's';
 		}
 
-		if ($slog->isTopicRead($row['tid'], $row['last'])) {
-			$row['firstnew'] = 0;
-			$row['alt'] = $lang->phrase('forum_icon_old');
-			$row['src'] = $tpl->img('dir_open');
-	 	}
-	  	else {
-			$row['firstnew'] = 1;
-			$row['alt'] = $lang->phrase('forum_icon_new');
-			$row['src'] = $tpl->img('dir_open2');
-		}
+		$row['read'] = $slog->isTopicRead($row['tid'], $row['last']);
 
 		if ($row['posts'] > $info['topiczahl']) {
 			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
@@ -555,23 +546,11 @@ elseif ($_GET['action'] == "settings") {
 	Breadcrumb::universal()->add($lang->phrase('editprofile_settings'));
 	echo $tpl->parse("header");
 
-	$result = $db->query("SELECT template, language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
+	$result = $db->query("SELECT language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
 	$update = $db->fetch_assoc($result);
 
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
-	if (!empty($my->settings['q_tpl']) && isset($design[$my->settings['q_tpl']])) {
-		$mydesign = $design[$my->settings['q_tpl']]['name'];
-		$my->template = $my->settings['q_tpl'];
-	}
-	elseif (isset($design[$update['template']])) {
-		$mydesign = $design[$update['template']]['name'];
-		$my->template = $update['template'];
-	}
-	else {
-		$mydesign = $design[$config['templatedir']]['name'];
-		$my->template = $config['templatedir'];
-	}
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
@@ -596,10 +575,10 @@ elseif ($_GET['action'] == "settings") {
 elseif ($_GET['action'] == "settings2") {
 
 	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get();
+	$themes = $loaddesign_obj->get();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
-	$cache2 = $loadlanguage_obj->get();
+	$languages = $loadlanguage_obj->get();
 
 	$error = array();
 	if (intval($_POST['location']) < -12 && intval($_POST['location']) > 12) {
@@ -611,10 +590,10 @@ elseif ($_GET['action'] == "settings2") {
 	if ($_POST['opt_3'] < 0 && $_POST['opt_3'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_showmail');
 	}
-	if ($config['hidedesign'] == 0 && $_POST['opt_4'] != 0 && !isset($cache[$_POST['opt_4']])) {
+	if ($config['hidedesign'] == 0 && !empty($_POST['opt_4']) && !isset($themes[$_POST['opt_4']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_design');
 	}
-	if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && !isset($cache2[$_POST['opt_5']])) {
+	if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && !isset($languages[$_POST['opt_5']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 	}
 	if ($_POST['opt_7'] != 0 && $_POST['opt_7'] != 1) {
@@ -636,20 +615,15 @@ elseif ($_GET['action'] == "settings2") {
 	else {
 		($code = $plugins->load('editprofile_settings2_query')) ? eval($code) : null;
 
-		if ($config['hidedesign'] == 0 && $_POST['opt_4'] != 0 && isset($my->settings['q_tpl']) && $_POST['opt_4'] != $my->template) {
-			unset($my->settings['q_tpl']);
-		}
 		if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && isset($my->settings['q_lng']) && $_POST['opt_5'] != $my->language) {
 			unset($my->settings['q_lng']);
 		}
 
 		$db->query("
 		UPDATE {$db->pre}user
-		SET
-			".
-			iif(($config['hidedesign'] == 0 &&  $_POST['opt_4'] > 0), "template = '{$_POST['opt_4']}',").
-			iif(($config['hidelanguage'] == 0 && $_POST['opt_5'] > 0), "language = '{$_POST['opt_5']}',")
-			."
+		SET ".
+			iif(($config['hidedesign'] == 0 && !empty($_POST['opt_4'])), "theme = '{$_POST['opt_4']}',").
+			iif(($config['hidelanguage'] == 0 && $_POST['opt_5'] > 0), "language = '{$_POST['opt_5']}',")."
 			timezone = '{$_POST['location']}',
 			opt_pmnotify = '{$_POST['opt_1']}',
 			opt_hidemail = '{$_POST['opt_3']}',
@@ -709,28 +683,7 @@ elseif ($_GET['action'] == "mylast") {
 		$row['topic'] = $gpc->prepare($row['topic']);
 		$row['name'] = $gpc->prepare($row['name']);
 
-		if ($slog->isTopicRead($row['id'], $row['last'])) {
-	 		$row['firstnew'] = 0;
-			if ($row['status'] == 1 || $row['status'] == 2) {
-			   	$row['alt'] = $lang->phrase('forum_icon_closed');
-				$row['src'] = $tpl->img('dir_closed');
-			}
-			else {
-			   	$row['alt'] = $lang->phrase('forum_icon_old');
-			   	$row['src'] = $tpl->img('dir_open');
-	 		}
-	 	}
-	  	else {
-	  		$row['firstnew'] = 1;
-			if ($row['status'] == 1 || $row['status'] == 2) {
-				$row['alt'] = $lang->phrase('forum_icon_closed');
-				$row['src'] = $tpl->img('dir_closed2');
-			}
-			else {
-				$row['alt'] = $lang->phrase('forum_icon_new');
-				$row['src'] = $tpl->img('dir_open2');
-			}
-		}
+		$row['read'] = $slog->isTopicRead($row['id'], $row['last']);
 
 		if (isset($prefix_arr[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
 			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];

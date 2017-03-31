@@ -401,7 +401,7 @@ function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = tr
 
 	ksort($pages);
 
-	$tpl->globalvars(compact("uri", "anz", "pages"));
+	$tpl->assignVars(compact("uri", "anz", "pages"));
 	$lang->assign('anz', $anz);
 	return $tpl->parse("main/pages".$template);
 }
@@ -505,7 +505,6 @@ function BoardSelect($board = 0) {
 		}
 		foreach ($forum_cache[$cat['id']] as $forum) {
 			$found = true;
-			$forum['new'] = false;
 			$forum['show'] = true;
 
 			// Subforendaten vererben (Letzter Beitrag, Markierung)
@@ -533,7 +532,6 @@ function BoardSelect($board = 0) {
 					if ($forum['invisible'] != 0) {
 						$forum['show'] = false;
 					}
-					$forum['foldimg'] = $tpl->img('cat_locked');
 					$forum['state'] = BOARD_STATE_LOCKED;
 					$forum['topics'] = '-';
 					$forum['replies'] = '-';
@@ -542,13 +540,10 @@ function BoardSelect($board = 0) {
 				}
 				else {
 					if ($slog->isForumRead($forum['id'], $forum['l_date']) || $forum['topics'] < 1) {
-						$forum['foldimg'] = $tpl->img('cat_open');
 						$forum['state'] = BOARD_STATE_OLD;
 					}
 					else {
-					   	$forum['foldimg'] = $tpl->img('cat_red');
 					   	$forum['state'] = BOARD_STATE_NEW;
-					   	$forum['new'] = true;
 					}
 					if (!empty($forum['l_topic'])) {
 						if (isset($prefix[$forum['id']][$forum['l_prefix']]) && $forum['l_prefix'] > 0) {
@@ -595,31 +590,25 @@ function BoardSelect($board = 0) {
 					$sub = array();
 					for($i = 0; $i < $anz2; $i++) {
 						$show = true;
-						$sub_cache[$forum['id']][$i]['new'] = false;
 						if ($sub_cache[$forum['id']][$i]['opt'] != 're') {
 							if (!check_forumperm($sub_cache[$forum['id']][$i])) {
 								if ($sub_cache[$forum['id']][$i]['invisible'] != 0) {
 									$show = false;
 								}
 								else {
-									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_locked');
 									$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_LOCKED;
 								}
 							}
 							else {
 								if ($slog->isForumRead($sub_cache[$forum['id']][$i]['id'], $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['topics'] < 1) {
-									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_open');
 									$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_OLD;
 								}
 								else {
-								   	$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_red');
 								   	$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_NEW;
-								   	$sub_cache[$forum['id']][$i]['new'] = true;
 								}
 							}
 						}
 						else {
-							$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_redirect');
 							$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_WWW;
 						}
 						if ($show == true) {
@@ -644,7 +633,7 @@ function BoardSelect($board = 0) {
 	($code = $plugins->load('forums_prepared')) ? eval($code) : null;
 	$error_state = (count($cats) == 0 && $board == 0);
 	if (count($cats) > 0 || $error_state) {
-		$tpl->globalvars(compact("cats", "board", "hidden", "error_state"));
+		$tpl->assignVars(compact("cats", "board", "hidden", "error_state"));
 		echo $tpl->parse("categories");
 	} // Else: This is a forum without sub forums (that should be displayed)
 
@@ -656,7 +645,7 @@ function GoBoardPW ($bpw, $bid) {
 	extract($GLOBALS, EXTR_SKIP);
 	if(!isset($my->pwfaccess[$bid]) || $my->pwfaccess[$bid] != $bpw) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
-		$tpl->globalvars(compact("bid"));
+		$tpl->assignVars(compact("bid"));
 		echo $tpl->parse("main/boardpw");
 		echo $tpl->parse("footer");
 		$slog->updatelogged();
@@ -685,18 +674,18 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	}
 
 	Breadcrumb::universal()->add($lang->phrase('breadcrumb_errorok'));
-	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
+	if (!$tpl->wasTemplateSent('header') && !$tpl->wasTemplateSent('popup/header')) {
 		echo $tpl->parse('header');
 	}
 
 	($code = $plugins->load('frontend_'.$errorhook)) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg", "errorurl", "js_errorurl"));
+	$tpl->assignVars(compact("errormsg", "errorurl", "js_errorurl"));
 	echo $tpl->parse("main/{$errortpl}");
 
 	if ($EOS != null) {
 		echo $tpl->parse($EOS);
 	}
-	elseif ($tpl->tplsent('popup/header')) {
+	elseif ($tpl->wasTemplateSent('popup/header')) {
 		echo $tpl->parse('popup/footer');
 	}
 	else {
@@ -765,7 +754,7 @@ function forum_opt($array, $check = 'forum') {
 	}
 	extract($array, EXTR_PREFIX_ALL, 'f');
 	if ($f_opt == 'pw' && (!isset($my->pwfaccess[$f_id]) || $my->pwfaccess[$f_id] != $f_optvalue)) {
-		if (!$tpl->tplsent('header')) {
+		if (!$tpl->wasTemplateSent('header')) {
 			echo $tpl->parse('header');
 		}
 		GoBoardPW($f_optvalue, $f_id);

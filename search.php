@@ -302,28 +302,7 @@ elseif ($_GET['action'] == "result") {
 			$pref .= $lang->phrase('forum_announcement');
 		}
 
-		if ($slog->isTopicRead($row->id, $row->last)) {
-	 		$firstnew = 0;
-			if ($row->status == 1 || $row->status == 2) {
-			   	$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed');
-			}
-			else {
-			   	$alt = $lang->phrase('forum_icon_old');
-			   	$src = $tpl->img('dir_open');
-	 		}
-	 	}
-	  	else {
-	  		$firstnew = 1;
-			if ($row->status == 1 || $row->status == 2) {
-				$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed2');
-			}
-			else {
-				$alt = $lang->phrase('forum_icon_new');
-				$src = $tpl->img('dir_open2');
-			}
-		}
+		$row->read = $slog->isTopicRead($row->id, $row->last);
 		$qhighlight = urlencode(implode(' ', $data['used']));
 
 		if ($info['topiczahl'] < 1) {
@@ -449,28 +428,7 @@ elseif ($_GET['action'] == "active") {
 					$pref .= $lang->phrase('forum_announcement');
 				}
 
-    			if ($slog->isTopicRead($row->id, $row->last)) {
-    		 		$firstnew = 0;
-    				if ($row->status == 1 || $row->status == 2) {
-    				   	$alt = $lang->phrase('forum_icon_closed');
-    					$src = $tpl->img('dir_closed');
-    				}
-    				else {
-    				   	$alt = $lang->phrase('forum_icon_old');
-    				   	$src = $tpl->img('dir_open');
-    		 		}
-    		 	}
-    		  	else {
-    		  		$firstnew = 1;
-    				if ($row->status == 1 || $row->status == 2) {
-    					$alt = $lang->phrase('forum_icon_closed');
-    					$src = $tpl->img('dir_closed2');
-    				}
-    				else {
-    					$alt = $lang->phrase('forum_icon_new');
-    					$src = $tpl->img('dir_open2');
-    				}
-    			}
+				$row->read = $slog->isTopicRead($row->id, $row->last);
 
 				if ($info['topiczahl'] < 1) {
 					$info['topiczahl'] = $config['topiczahl'];

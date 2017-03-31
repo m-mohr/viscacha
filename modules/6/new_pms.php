@@ -20,7 +20,7 @@ if ($my->vlogin) {
 			$row['topic'] = $gpc->prepare($row['topic']);
 			$pmcache[] = $row;
 		}
-		$tpl->globalvars(compact("pmcache"));
+		$tpl->assignVars(compact("pmcache"));
 		echo $tpl->parse("modules/{$pluginid}/new_pms");
 	}
 }

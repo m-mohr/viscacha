@@ -327,7 +327,7 @@ function deleteOldSessions () {
  * @return object Data of the user who is calling this script
  */
 function logged () {
-	global $config, $db, $gpc, $scache, $plugins;
+	global $config, $db, $gpc, $scache, $plugins, $tpl;
 
 	$this->deleteOldSessions();
 
@@ -419,34 +419,6 @@ function logged () {
 	if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 		$my->timezone = $config['timezone'];
 	}
-
-	$admin = $gpc->get('admin', str);
-	if ($admin != $config['cryptkey']) {
-		$fresh = false;
-	}
-	else {
-		$fresh = true;
-	}
-
-	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get($fresh);
-
-	$q_tpl = $gpc->get('design', int);
-	if (isset($my->template) == false || isset($cache[$my->template]) == false) {
-		$my->template = $config['templatedir'];
-	}
-	if (isset($my->settings['q_tpl']) && isset($cache[$my->settings['q_tpl']])) {
-		$my->template = $my->settings['q_tpl'];
-	}
-	if (isset($cache[$q_tpl])) {
-		if ($admin != 1) {
-			$my->settings['q_tpl'] = $q_tpl;
-		}
-		$my->template = $q_tpl;
-	}
-	$my->templateid = $cache[$my->template]['template'];
-	$my->imagesid = $cache[$my->template]['images'];
-	$my->cssid = $cache[$my->template]['stylesheet'];
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$cache2 = $loadlanguage_obj->get();
@@ -710,27 +682,6 @@ function sid_login($remember = true) {
 			$my->timezone = $config['timezone'];
 		}
 
-		$loaddesign_obj = $scache->load('loaddesign');
-		$cache = $loaddesign_obj->get();
-
-		$q_tpl = $gpc->get('design', int);
-		if (isset($my->template) == false || isset($cache[$my->template]) == false) {
-			$my->template = $config['templatedir'];
-		}
-		if (isset($my->settings['q_tpl']) && isset($cache2[$my->settings['q_tpl']]) != false) {
-			$my->template = $my->settings['q_tpl'];
-		}
-		if (isset($cache2[$q_tpl]) != false) {
-			$my->settings['q_tpl'] = $q_tpl;
-			$my->template = $q_tpl;
-		}
-		if (isset($cache[$q_tpl]) != false) {
-			$my->template = $q_tpl;
-		}
-		$my->templateid = $cache[$my->template]['template'];
-		$my->imagesid = $cache[$my->template]['images'];
-		$my->cssid = $cache[$my->template]['stylesheet'];
-
 		$loadlanguage_obj = $scache->load('loadlanguage');
 		$cache2 = $loadlanguage_obj->get();
 
@@ -807,7 +758,7 @@ function cleanUserData($data) {
 	global $gpc;
 	$trust = array(
 		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'language',
-		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
+		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'theme', 'confirm', // from user-table
 		'ufid', // from userfields-table
 		'mid', 'active', 'wiw_id', 'last_visit', 'mark', 'pwfaccess', 'settings' // from session-table
 	);

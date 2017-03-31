@@ -44,7 +44,7 @@ require_once ("classes/function.global.php");
 $slog = new slog();
 $my = $slog->logged();
 $lang->initAdmin($my->language);
-$tpl = new tpl();
+$tpl = new Theme($my->theme, $config['theme']);
 $banned = $slog->checkBan();
 if ($banned !== false) {
 	sendStatusCode(403);
@@ -426,7 +426,7 @@ function pages ($anzposts, $uri, $teiler=50) {
 }
 
 function head($onload = '') {
-	global $htmlhead, $config, $my;
+	global $htmlhead, $config, $my, $tpl;
 	?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -444,7 +444,7 @@ function head($onload = '') {
 		var sidx = '<?php echo SID2URL_JS_x; ?>';
 		var sid1 = '<?php echo SID2URL_JS_1; ?>';
 	--></script>
-	<script src="templates/global.js" language="Javascript" type="text/javascript"></script>
+	<script src="<?php echo $tpl->getFolder(); ?>/global.js" language="Javascript" type="text/javascript"></script>
 	<script src="admin/html/admin.js" language="Javascript" type="text/javascript"></script>
 	<?php echo $htmlhead; ?>
 </head>

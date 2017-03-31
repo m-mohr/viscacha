@@ -14,7 +14,7 @@ if ($job == 'menu') {
 	<meta http-equiv="pragma" content="no-cache">
 	<link rel="stylesheet" type="text/css" href="admin/html/menu.css">
 	<link rel="copyright" href="http://www.viscacha.org">
-	<script src="templates/global.js" language="Javascript" type="text/javascript"></script>
+	<script src="<?php echo $tpl->getFolder(); ?>/global.js" language="Javascript" type="text/javascript"></script>
 	<script src="admin/html/admin.js" language="Javascript" type="text/javascript"></script>
 	</head>
 	<body onload="init()">

@@ -1505,12 +1505,12 @@ elseif ($job == 'textprocessing') {
 	$config = $gpc->prepare($config);
 
 	if (!empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['PHP_SELF'])) {
-		$surl = "http://".$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF']), '/\\').'/images/smileys';
+		$surl = "http://".$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF']), '/\\').'/assets/smileys';
 	}
 	else {
 		$surl = $lang->phrase('admin_unable_to_analyze_url');
 	}
-	$spath = str_replace('\\', '/', realpath('./')).'/images/smileys';
+	$spath = str_replace('\\', '/', realpath('./')).'/assets/smileys';
 
 	echo head();
 	?>

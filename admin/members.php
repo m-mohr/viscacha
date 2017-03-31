@@ -820,13 +820,6 @@ elseif ($job == 'edit') {
 	}
 	$mylanguage = $language[$user['language']]['language'];
 
-	$loaddesign_obj = $scache->load('loaddesign');
-	$design = $loaddesign_obj->get();
-	if (!isset($design[$user['template']]['name'])) {
-		$user['template'] = $config['templatedir'];
-	}
-	$mydesign = $design[$user['template']]['name'];
-
 	// Profile
 	$bday = explode('-',$user['birthday']);
 	$year = gmdate('Y');
@@ -986,7 +979,7 @@ elseif ($job == 'edit') {
 </td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_which_design'); ?></td><td class="mbox">
 <select id="opt_4" name="opt_4">
-	<option selected="selected" value="<?php echo $user['template']; ?>"><?php echo $lang->phrase('admin_member_keep_design'); ?></option>
+	<option selected="selected" value="<?php echo $user['theme']; ?>"><?php echo $lang->phrase('admin_member_keep_design'); ?></option>
 	<?php foreach ($design as $row) { ?>
 	<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 	<?php } ?>
@@ -1026,13 +1019,13 @@ elseif ($job == 'edit2') {
 
 	echo head();
 	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get();
+	$designs = $loaddesign_obj->get();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
-	$cache2 = $loadlanguage_obj->get();
+	$languages = $loadlanguage_obj->get();
 
-	$keys_int = array('id', 'birthday', 'birthmonth', 'birthyear', 'opt_1', 'opt_3', 'opt_4', 'opt_5');
-	$keys_str = array('groups', 'fullname', 'location', 'gender', 'hp', 'signature', 'temp', 'comment');
+	$keys_int = array('id', 'birthday', 'birthmonth', 'birthyear', 'opt_1', 'opt_3', 'opt_5');
+	$keys_str = array('groups', 'fullname', 'location', 'gender', 'hp', 'signature', 'temp', 'comment', 'opt_4');
 	$keys_db = array('email', 'pic');
 	foreach ($keys_int as $val) {
 		$query[$val] = $gpc->get($val, int);
@@ -1114,10 +1107,10 @@ elseif ($job == 'edit2') {
 	if (intval($query['temp']) < -12 && intval($query['temp']) > 12) {
 		$error[] = $lang->phrase('admin_member_time_zone_not_valid');
 	}
-	if (!isset($cache[$query['opt_4']])) {
-		$error[] = $lang->phrase('admin_member_design=not_valid');
+	if (!isset($designs[$query['opt_4']])) {
+		$error[] = $lang->phrase('admin_member_design_not_valid');
 	}
-	if (!isset($cache2[$query['opt_5']])) {
+	if (!isset($languages[$query['opt_5']])) {
 		$error[] = $lang->phrase('admin_member_lang_not_valid');
 	}
 	if (!empty($query['pic']) && is_url($query['pic'])) {
@@ -1184,7 +1177,7 @@ elseif ($job == 'edit2') {
 
 		admin_customsave($query['id']);
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_pmnotify = '{$query['opt_1']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_pmnotify = '{$query['opt_1']}', opt_hidemail = '{$query['opt_3']}', theme = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		ok("admin.php?action=members&job=manage", $lang->phrase('admin_member_data_saved'));
 	}
@@ -1215,7 +1208,7 @@ elseif ($job == 'delete') {
 			hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
 			birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
 			opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
-			template = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
+			theme = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
 			WHERE id IN ({$did})");
 		$anz = $db->affected_rows();
 		// Step 6: Delete user's custom profile fields
@@ -1868,17 +1861,17 @@ elseif ($job == 'search') {
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_design'); ?></td>
-   <td class="mbox" align="center"><select size="1" name="compare[template]">
+   <td class="mbox" align="center"><select size="1" name="compare[theme]">
 	  <option value="0" selected="selected">=</option>
 	  <option value="2">&ne;</option>
 	</select></td>
-   <td class="mbox"><select name="template">
+   <td class="mbox"><select name="theme">
 	<option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
 	<?php foreach ($design as $row) { ?>
-	<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
+	<option value="<?php echo $row['id']; ?>"><?php echo $row['meta']['name']; ?></option>
 	<?php } ?>
 </select></td>
-   <td class="mbox"><input type="checkbox" name="show[template]" value="1"></td>
+   <td class="mbox"><input type="checkbox" name="show[theme]" value="1"></td>
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_lang'); ?></td>
@@ -1935,7 +1928,7 @@ elseif ($job == 'search2') {
 		'lastvisit' => array($lang->phrase('admin_member_last_visit'), arr_int),
 		'timezone' => array($lang->phrase('admin_member_time_zone'), db_esc),
 		'groups' => array($lang->phrase('admin_member_groups'), arr_int),
-		'template' => array($lang->phrase('admin_member_design'), int),
+		'theme' => array($lang->phrase('admin_member_design'), int),
 		'language' => array($lang->phrase('admin_member_lang'), int),
 		'confirm' => array($lang->phrase('admin_member_status'), none)
 	);
@@ -2042,7 +2035,7 @@ elseif ($job == 'search2') {
 				$input[$key] = $value;
 			}
 		}
-		elseif ($key == 'id' || $key == 'posts' || $key == 'design' || $key == 'lang') {
+		elseif ($key == 'id' || $key == 'posts' || $key == 'theme' || $key == 'lang') {
 			$input[$key] = $value;
 		}
 		else {
@@ -2142,8 +2135,8 @@ elseif ($job == 'search2') {
 						$row['birthday'] = implode('.', $bd);
 					}
 				}
-				if (isset($row['template']) && isset($design[$row['template']])) {
-					$row['template'] = $design[$row['template']]['name'];
+				if (isset($row['theme']) && isset($design[$row['theme']])) {
+					$row['theme'] = $design[$row['theme']]['name'];
 				}
 				if (isset($row['language']) && isset($language[$row['language']])) {
 					$row['language'] = $language[$row['language']]['language'];

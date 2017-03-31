@@ -1,0 +1,30 @@
+<div class="border">
+	<h3>@lang('re_login_title')</h3>
+	<div class="bbody">
+		<ul>
+			@foreach ($errormsg as $error)
+			<li>{{ $error }}</li>
+			@endforeach
+		</ul>
+	</div>
+	<h3 class="inlineheader"><img src="@theme('images/login.gif')" alt="" /> @lang('re_login_login')</h3>
+	@if(!$my->vlogin)
+	<form method="post" action="log.php?action=login2{{ SID2URL_x }}">
+		<div class="bbody">
+			<label for="name">@lang('login_name')</label>
+			<input type="text" name="name" tabindex="1" id="name" class="label" size="15" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="pw">@lang('login_password')</label>
+			<input type="password" name="pw" tabindex="2" id="pw" class="label" size="15" />
+			<input type="hidden" name="redirect" value="{{ $errorurl }}" />
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input accesskey="s" tabindex="3" type="submit" value="@lang('submit_form')" /></div>
+	</form>
+	@else
+	<div class="bbody">
+		<label>@lang('logged_in_as')</label>
+		{{ $my->name }} [<a href="log.php?action=logout&amp;redirect={{ rawurlencode($errorurl) }}{{ SID2URL_x }}">@lang('logout')</a>]
+	</div>
+	@endif
+</div>

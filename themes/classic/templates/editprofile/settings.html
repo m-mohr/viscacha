@@ -1,0 +1,95 @@
+<form name="form2" method="post" action="editprofile.php?action=settings2{{ SID2URL_x }}">
+	<div class="border">
+		<h3><img src="@theme('images/user.gif')" alt="" /> @lang('editprofile_settings')</h3>
+		<div class="bbody">
+			<label for="location">
+				@lang('timezone')<br />
+				<span class="stext">@lang('timezone_desc') @time</span>
+			</label>
+			<select class="label" id="location" name="location">
+				<option value="-12"{{ selectTz(-12, $my->timezone) }}>@lang('timezone_n12')</option>
+				<option value="-11"{{ selectTz(-11, $my->timezone) }}>@lang('timezone_n11')</option>
+				<option value="-10"{{ selectTz(-10, $my->timezone) }}>@lang('timezone_n10')</option>
+				<option value="-9"{{ selectTz(-9, $my->timezone) }}>@lang('timezone_n9')</option>
+				<option value="-8"{{ selectTz(-8, $my->timezone) }}>@lang('timezone_n8')</option>
+				<option value="-7"{{ selectTz(-7, $my->timezone) }}>@lang('timezone_n7')</option>
+				<option value="-6"{{ selectTz(-6, $my->timezone) }}>@lang('timezone_n6')</option>
+				<option value="-5"{{ selectTz(-5, $my->timezone) }}>@lang('timezone_n5')</option>
+				<option value="-4"{{ selectTz(-4, $my->timezone) }}>@lang('timezone_n4')</option>
+				<option value="-3.5"{{ selectTz(-3.5, $my->timezone) }}>@lang('timezone_n35')</option>
+				<option value="-3"{{ selectTz(-3, $my->timezone) }}>@lang('timezone_n3')</option>
+				<option value="-2"{{ selectTz(-2, $my->timezone) }}>@lang('timezone_n2')</option>
+				<option value="-1"{{ selectTz(-1, $my->timezone) }}>@lang('timezone_n1')</option>
+				<option value="0"{{ selectTz(0, $my->timezone) }}>@lang('timezone_0')</option>
+				<option value="+1"{{ selectTz(1, $my->timezone) }}>@lang('timezone_p1')</option>
+				<option value="+2"{{ selectTz(2, $my->timezone) }}>@lang('timezone_p2')</option>
+				<option value="+3"{{ selectTz(3, $my->timezone) }}>@lang('timezone_p3')</option>
+				<option value="+3.5"{{ selectTz(3.5, $my->timezone) }}>@lang('timezone_p35')</option>
+				<option value="+4"{{ selectTz(4, $my->timezone) }}>@lang('timezone_p4')</option>
+				<option value="+4.5"{{ selectTz(4.5, $my->timezone) }}>@lang('timezone_p45')</option>
+				<option value="+5"{{ selectTz(5, $my->timezone) }}>@lang('timezone_p5')</option>
+				<option value="+5.5"{{ selectTz(5.5, $my->timezone) }}>@lang('timezone_p55')</option>
+				<option value="+5.75"{{ selectTz(5.75, $my->timezone) }}>@lang('timezone_p575')</option>
+				<option value="+6"{{ selectTz(6, $my->timezone) }}>@lang('timezone_p6')</option>
+				<option value="+6.5"{{ selectTz(6.5, $my->timezone) }}>@lang('timezone_p65')</option>
+				<option value="+7"{{ selectTz(7, $my->timezone) }}>@lang('timezone_p7')</option>
+				<option value="+8"{{ selectTz(8, $my->timezone) }}>@lang('timezone_p8')</option>
+				<option value="+9"{{ selectTz(9, $my->timezone) }}>@lang('timezone_p9')</option>
+				<option value="+9.5"{{ selectTz(9.5, $my->timezone) }}>@lang('timezone_p95')</option>
+				<option value="+10"{{ selectTz(10, $my->timezone) }}>@lang('timezone_p10')</option>
+				<option value="+11"{{ selectTz(11, $my->timezone) }}>@lang('timezone_p11')</option>
+				<option value="+12"{{ selectTz(12, $my->timezone) }}>@lang('timezone_p12')</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_1">@lang('editprofile_emailpn')</label>
+			<input type="checkbox" name="opt_1" id="opt_1" @checked($my->opt_pmnotify == 1) value="1" />
+				   <br class="newinput" /><hr class="formsep" />
+			<label for="opt_7">@lang('editprofile_showsig')</label>
+			<input type="checkbox" name="opt_7" id="opt_7" @checked($my->opt_showsig == 1) value="1" />
+				   <br class="newinput" /><hr class="formsep" />
+			<label for="opt_3">@lang('editprofile_showmail')</label>
+			<select name="opt_3" id="opt_3" class="label">
+				<option value="0"@selected($my->opt_hidemail == 0)>@lang('editprofile_showmail_0')</option>
+				<option value="1"@selected($my->opt_hidemail == 1)>@lang('editprofile_showmail_1')</option>
+				<option value="2"@selected($my->opt_hidemail == 2)>@lang('editprofile_showmail_2')</option>
+			</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_6">@lang('editprofile_newsletter')</label>
+			<select name="opt_6" id="opt_6" class="label">
+				<option value="0"@selected($my->opt_newsletter == 0)>@lang('editprofile_newsletter_0')</option>
+				<option value="1"@selected($my->opt_newsletter == 1)>@lang('editprofile_newsletter_1')</option>
+				<option value="2"@selected($my->opt_newsletter == 2)>@lang('editprofile_newsletter_2')</option>
+			</select>
+			@if(!empty($design) && $config['hidedesign'] == 0)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_4">@lang('editprofile_design')</label>
+			<select name="opt_4" id="opt_4" class="label">
+				@foreach ($design as $row)
+				<option value="{{ $row['id'] }}"@selected($my->theme == $row['id'])>{{ $row['meta']['name'] }}</option>
+				@endforeach
+			</select>
+			@endif
+			@if(!empty($language) && $config['hidelanguage'] == 0)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="opt_5">@lang('editprofile_language')</label>
+			<select name="opt_5" id="opt_5" class="label">
+				@foreach ($language as $row)
+				<option value="{{ $row['id'] }}"@selected($my->language == $row['id'])>{{ $row['language'] }}</option>
+				@endforeach
+			</select>
+			@endif
+			@foreach($customfields as $row)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row['field'] }}">
+				{{ $row['name'] }}
+				@if(!empty($row['description']))
+				<br /><span class="stext">{{ $row['description'] }}</span>
+				@endif
+			</label>
+			{{ $row['input'] }}
+			@endforeach
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
+	</div>
+</form>

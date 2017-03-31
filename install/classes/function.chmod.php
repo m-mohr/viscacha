@@ -112,18 +112,18 @@ function getViscachaCHMODs() {
 		array('path' => 'admin/data/hooks.txt', 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false),
 		array('path' => 'admin/html', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
 
+		array('path' => 'assets', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
+
 		array('path' => 'data', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
 		array('path' => 'data', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => true),
 
 		array('path' => 'classes/cron/jobs', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
 
-		array('path' => 'images', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
-
 		array('path' => 'modules', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
 		array('path' => 'modules', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false),
 
 		array('path' => 'temp', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
-		array('path' => 'templates', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
+		array('path' => 'themes', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
 		array('path' => 'uploads', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true)
 
 	);
@@ -138,36 +138,5 @@ function getViscachaCHMODs() {
 	}
 	closedir($dh);
 
-	$path = 'templates';
-	$dh = opendir($path);
-	while ($file = readdir($dh)) {
-		$fullpath = $path.'/'.$file;
-		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
-			$chmod[] = array('path' => $fullpath.'/modules', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false);
-		}
-	}
-	closedir($dh);
-
-	$path = 'designs';
-	$dh = opendir($path);
-	while ($file = readdir($dh)) {
-		$fullpath = $path.'/'.$file;
-		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
-			$dh2 = opendir($fullpath);
-			while ($file = readdir($dh2)) {
-				$stylesheet = $fullpath.'/'.$file;
-				if(preg_match('~\.css$~iu', $file)) {
-					$chmod[] = array('path' => $stylesheet, 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false);
-				}
-			}
-			closedir($dh2);
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false);
-		}
-	}
-	closedir($dh);
-
 	return $chmod;
 }
-?>

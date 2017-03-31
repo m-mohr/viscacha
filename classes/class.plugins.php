@@ -89,8 +89,8 @@ class PluginSystem {
 					if ($this->_check_permissions($row['groups'])) {
 						$navigation = $this->_prepare_navigation($position, $row['id']);
 						$row['name'] = $this->navLang($row['name']);
-						$tpl->globalvars(compact("row","navigation"));
-						if ($tpl->exists("modules/navigation_".$position)) {
+						$tpl->assignVars(compact("row","navigation"));
+						if ($tpl->hasTemplate("modules/navigation_".$position)) {
 							$html = $tpl->parse("modules/navigation_".$position);
 						}
 						else {

@@ -3,7 +3,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['ajax0'] = 'Konnt AJAX nicht initalisieren. Bitte benutzen Sie einen anderen Browser!';
 $lang['ajax1'] = 'Es ist ein unerwarteter Fehler aufgetreten.';
-$lang['ajax2'] = 'Sie haben leider nicht die Berechtigung zu dieser Aktion.';
 $lang['ajax5'] = 'Dieser Benutzername ist leider schon belegt!';
 $lang['ajax6'] = 'Dieser Benutzername ist noch frei!';
 $lang['ajax7'] = 'Vorschläge: ';

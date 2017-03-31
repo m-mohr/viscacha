@@ -41,35 +41,7 @@ send_nocache_header();
 ($code = $plugins->load('ajax_start')) ? eval($code) : null;
 
 // Schliesst oder oeffnet einen Beitrag mittels AJAX
-if ($action == 'openclosethread') {
-    $result = $db->query("SELECT status, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-    $row = $db->fetch_assoc($result);
-    $my->p = $slog->Permissions($row['board']);
-    $my->mp = $slog->ModPermissions($row['board']);
-
-    $request = 1;
-
-    if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) {
-	    if ($row['status'] == 0) {
-	    	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$_GET['id']}'");
-			if ($db->affected_rows() == 1) {
-	        	$request = 3;
-	    	}
-	    }
-	    else {
-	    	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '{$_GET['id']}'");
-			if ($db->affected_rows() == 1) {
-	        	$request = 4;
-	    	}
-	    }
-	}
-	else {
-		$request = 2;
-	}
-
-	echo $request;
-}
-elseif ($action == 'markforumread') {
+if ($action == 'markforumread') {
 	$board = $gpc->get('id', int);
 	$my->p = $slog->Permissions($board);
 	if (!is_id($board) || $my->p['forum'] == 0) {

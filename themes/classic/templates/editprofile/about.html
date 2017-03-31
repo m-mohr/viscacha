@@ -1,0 +1,23 @@
+@if($preview)
+<div class="border">
+	<h3><img src="@theme('images/about.gif')" alt="" /> @lang('editprofile_about_preview')</h3>
+	<div class="bbody">{!! $parsedPreview !!}</div>
+</div>
+<br class="minibr" />
+@endif
+<form name="form2" method="post" action="editprofile.php?action=about2{{ SID2URL_x }}">
+	<div class="border">
+		<h3><img src="@theme('images/about.gif')" alt="" /> @lang('editprofile_about')</h3>
+		<div class="bbody">
+			<span class="right"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@theme('images/help.gif')" alt="" /> <strong>@lang('bbcode_help')</strong></a></span>
+			@lang('editprofile_about_longdesc')<br />
+			@lang('editprofile_about_longdesc2')
+			<hr class="formsep" />
+			{!! $bbcode->getEditorArea('about', $data, 'cols="80" rows="18" tabindex="1"', $config['maxaboutlength']) !!}
+		</div>
+		<div class="bfoot center">
+			<input accesskey="s" type="submit" name="Submit" tabindex="2" value="@lang('submit_form')" />
+			<input accesskey="p" type="submit" name="Preview" tabindex="3" value="@lang('preview_form')" />
+		</div>
+	</div>
+</form>

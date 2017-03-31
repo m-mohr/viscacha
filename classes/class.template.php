@@ -1,4 +1,5 @@
 <?php
+
 /*
   Viscacha - An advanced bulletin board solution to manage your content easily
   Copyright (C) 2004-2017, Lutana
@@ -24,79 +25,91 @@
 
 use eftec\bladeone;
 
-class tpl {
+class Theme {
 
+	private $themes;
 	private $dir;
 	private $vars;
-	public $benchmark;
 	private $sent;
-	private $imgdir;
 	private $blade;
 
-	public function __construct() {
-		global $config, $my, $gpc, $scache;
+	public function __construct($theme, $fallback) {
+		global $config, $scache;
 
-		$admin = $gpc->get('admin', str);
+		$theme_cache = $scache->load('loaddesign');
+		$this->themes = $theme_cache->get();
 
-		if ($admin != $config['cryptkey']) {
-			$fresh = false;
+		if (isset($this->themes[$theme])) {
+			$this->dir = $this->themes[$theme]['path'];
+		} else if (isset($this->themes[$fallback])) {
+			$this->dir = $this->themes[$fallback]['path'];
 		} else {
-			$fresh = true;
-		}
-		$loaddesign_obj = $scache->load('loaddesign');
-		$cache = $loaddesign_obj->get($fresh);
-
-		if (!empty($my->templateid) && $my->templateid != $cache[$config['templatedir']]['template']) {
-			$this->dir = 'templates/' . $cache[$my->template]['template'];
-		} else {
-			$this->dir = 'templates/' . $cache[$config['templatedir']]['template'];
-		}
-		if (!is_dir($this->dir)) {
-			trigger_error('Template directory does not exist', E_USER_ERROR);
+			trigger_error('Theme directory does not exist', E_USER_ERROR);
 		}
 
-		if (!empty($my->imagesid) && $my->imagesid != $cache[$config['templatedir']]['images']) {
-			$this->imgdir = 'images/' . $cache[$my->template]['images'] . '/';
-		} else {
-			$this->imgdir = 'images/' . $cache[$config['templatedir']]['images'] . '/';
-		}
-		if (!is_dir($this->imgdir)) {
-			trigger_error('Image directory does not exist', E_USER_WARNING);
-		}
-
-		$this->benchmark = array();
 		$this->vars = array();
 		$this->sent = array();
 
-		define("BLADEONE_MODE", $config['debug']);
-		$this->blade = new Blade($this->dir, 'data/cache/' . $this->dir);
+		$this->blade = new Blade($this->getTemplateFolder(), $this->getCacheFolder());
+		$this->blade->setMode($config['debug']);
 		$this->blade->setFileExtension('.html');
 	}
 
-	public function img($name) {
-		$gif = '.gif';
-		$png = '.png';
-		if ($this->imgdir != false && file_exists($this->imgdir . $name . $gif)) {
-			return $this->imgdir . $name . $gif;
-		} elseif ($this->imgdir != false && file_exists($this->imgdir . $name . $png)) {
-			return $this->imgdir . $name . $png;
-		} else {
-			return 'images/empty.gif';
-		}
+	public function getFolder() {
+		return $this->dir;
 	}
 
-	public function globalvars($vars) {
+
+	public function getCacheFolder() {
+		return 'data/cache/' . $this->getFolder();
+	}
+
+	public function getTemplateFolder() {
+		return $this->dir . '/templates';
+	}
+
+	public function getTemplateFile($template) {
+		return $this->getTemplateFolder() . '/' . $template . $this->blade->getFileExtension();
+	}
+	
+	public static function all($includeHidden = true) {
+		$ini = new INI();
+		$path = 'themes/';
+		$dir = new DirectoryIterator($path);
+		$data = array();
+		foreach ($dir as $fileinfo) {
+			if (!$fileinfo->isDir() || $fileinfo->isDot()) {
+				continue;
+			}
+			$hidden = (mb_substr($fileinfo->getFilename(), 0, 1) == '.');
+			if ($includeHidden || !$hidden) {
+				$themeFolder = $path . $fileinfo->getFilename();
+				$themeData = $ini->read($themeFolder.'/theme.ini');
+				if (isset($themeData['info']['name'])) {
+					$data[$fileinfo->getFilename()] = array(
+						'id' => $fileinfo->getFilename(),
+						'path' => $themeFolder,
+						'meta' => $themeData['info'],
+						'hidden' => $hidden
+					);
+				}
+			}
+		}
+		return $data;
+	}
+
+	public function assignVars($vars) {
 		$this->vars = array_merge($this->vars, $vars);
 	}
 
-	public function exists($file) {
-		return file_exists($this->getPath($file));
+	public function hasTemplate($file) {
+		return file_exists($this->getTemplateFile($file));
 	}
 
-	public function parse($file) {
-		Debug::startMeasurement("tpl::parse({$file})");
+	public function parse($template) {
+		Debug::startMeasurement("tpl::parse({$template})");
 
-		$tplpath = $this->getPath($file);
+		$tplpath = $this->getTemplateFile($template);
 		$debugInfo = array('file' => $tplpath, 'error' => false, 'type' => 'tpl');
 
 		if (!file_exists($tplpath)) {
@@ -106,23 +119,19 @@ class tpl {
 		}
 
 		$content = $this->blade->run(
-				str_replace('/', '.', $file), array_merge($GLOBALS, $this->vars)
+				str_replace('/', '.', $template), array_merge($GLOBALS, $this->vars)
 		);
 
 		$this->sent[] = $tplpath;
 		$this->vars = array();
 
-		Debug::stopMeasurement("tpl::parse({$file})", $debugInfo);
+		Debug::stopMeasurement("tpl::parse({$template})", $debugInfo);
 
 		return $content;
 	}
 
-	public function tplsent($file) {
-		return in_array($this->getPath($file), $this->sent);
-	}
-
-	protected function getPath($file) {
-		return $this->dir . '/' . $file . $this->blade->getFileExtension();
+	public function wasTemplateSent($template) {
+		return in_array($this->getTemplateFile($template), $this->sent);
 	}
 
 }
@@ -149,6 +158,19 @@ class Blade extends bladeone\BladeOne {
 			if (!$ok) {
 				$this->showError("Constructing", "Unable to create the compile folder [{$this->compiledPath}]. Check the permissions of it's parent folder.", true);
 			}
+		}
+	}
+
+	/**
+	 * Set mode of the engine.
+	 * 
+	 * Can only be called once.
+	 * 
+	 * @param int 0 = default, compile and cache; 1 = force recompile
+	 */
+	public function setMode($mode) {
+		if (!defined('BLADEONE_MODE')) {
+			define("BLADEONE_MODE", $mode);
 		}
 	}
 
@@ -197,8 +219,8 @@ class Blade extends bladeone\BladeOne {
 		return '<?php else: echo static::e($lang->phrase' . $expression . '); endif; ?>';
 	}
 
-	public function compileImg($expression) {
-		return '<?php echo $tpl->img' . $expression . '; ?>';
+	public function compileTheme($expression) {
+		return '<?php echo $tpl->getFolder() . "/" . ' . $expression . '; ?>';
 	}
 
 	public function compileSelected($expression) {

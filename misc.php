@@ -442,7 +442,7 @@ elseif ($_GET['action'] == "bbhelp") {
 		array(
 			'tag' => 'img',
 			'params' => 0,
-			'example' => array('[img]'.$tpl->img('help').'[/img]')
+			'example' => array('[img]assets/smileys/smile.gif[/img]')
 		),
 		array(
 			'tag' => 'url',
@@ -743,7 +743,7 @@ elseif ($_GET['action'] == "edithistory") {
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 
-if ($tpl->tplsent("header")) {
+if ($tpl->wasTemplateSent("header")) {
 	echo $tpl->parse("footer");
 }
 $slog->updatelogged();

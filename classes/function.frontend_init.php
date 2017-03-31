@@ -93,7 +93,7 @@ $http_vars = array(
 	'opt_1' => int,
 	'opt_2' => int,
 	'opt_3' => int,
-	'opt_4' => int,
+	'opt_4' => str,
 	'opt_5' => int,
 	'opt_6' => int,
 	'opt_7' => int,
@@ -180,7 +180,7 @@ if (!defined('CONSOLE_REQUEST')) {
 	$slog = new slog();
 	$my = $slog->logged();
 	$lang->init($my->language);
-	$tpl = new tpl();
+	$tpl = new Theme($my->theme, $config['theme']);
 
 	$banned = $slog->checkBan();
 	if ($banned !== false) {

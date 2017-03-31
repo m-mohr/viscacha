@@ -36,7 +36,7 @@ if ($db->num_rows($result) > 0) {
 
 	}
 	$lang->assign('topicnum', $config['viscacha_recent_topics']['topicnum']);
-	$tpl->globalvars(compact("lastbox"));
+	$tpl->assignVars(compact("lastbox"));
 	echo $tpl->parse("modules/{$pluginid}/last");
 
 }

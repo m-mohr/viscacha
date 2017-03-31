@@ -20,7 +20,7 @@ CREATE TABLE `{:=DBPREFIX=:}user` (
   `opt_hidemail` enum('0','1','2') NOT NULL DEFAULT '2',
   `opt_newsletter` enum('0','1','2') NOT NULL DEFAULT '2',
   `opt_showsig` enum('0','1') NOT NULL DEFAULT '1',
-  `template` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `theme` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `language` tinyint(3) unsigned NOT NULL DEFAULT 0,
   `confirm` enum('00','01','10','11') NOT NULL DEFAULT '00',
   `deleted_at` int(10) unsigned,
