@@ -289,7 +289,6 @@ elseif ($_GET['action'] == "about2") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			sendStatusCode(302, $config['furl'].'/editprofile.php?action=about&job=preview&fid='.$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error, "editprofile.php?action=about&amp;fid=".$fid.SID2URL_x);

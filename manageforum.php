@@ -128,16 +128,14 @@ if ($_GET['action'] == "index") {
 }
 elseif ($_GET['action'] == "close") {
 	if (count($_POST['delete']) == 0) {
-		$slog->updatelogged();
-		$db->close();
 		if (empty($_GET['action'])) {
 			$url = 'showforum.php?id='.$board.SID2URL_JS_x;
 		}
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
+		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/'.$url);
-		exit;
 	}
 	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
 	if ($db->affected_rows() > 0) {
@@ -175,6 +173,7 @@ elseif ($_GET['action'] == "move") {
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
+		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/'.$url);
 	}
 	$my->pb = $slog->GlobalPermissions();
@@ -230,13 +229,13 @@ elseif ($_GET['action'] == "delete") {
 		errorLogin($lang->phrase('not_allowed'),'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 	}
 	if (count($_POST['delete']) == 0) {
-		$slog->updatelogged();
 		if (empty($_GET['action'])) {
 			$url = 'showforum.php?id='.$board.SID2URL_JS_x;
 		}
 		else {
 			$url = 'manageforum.php?action=index&id='.$board.'&type='.$_GET['action'].SID2URL_JS_x;
 		}
+		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/'.$url);
 		exit;
 	}

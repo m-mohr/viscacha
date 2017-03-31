@@ -178,6 +178,7 @@ if (!function_exists('mb_str_split')) {
  * - 201/202/301/302/307 => Location: Specify a new location (url)
  * - 401 => WWW-Authenticate: Specify a page name
  * - 503 => Retry-after: Specify the time the page is unavailable
+ * After location headers the program exits.
  *
  * @param int $code Error Code Number
  * @param mixed $additional Additional Header data (depends in error code number)
@@ -241,6 +242,7 @@ function sendStatusCode($code, $additional = null) {
 				case '302':
 				case '307':
 					viscacha_header("Location: {$additional}");
+					exit;
 				break;
 				case '401':
 					viscacha_header('WWW-Authenticate: Basic Realm="'.$additional.'"');

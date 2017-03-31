@@ -54,7 +54,6 @@ if ($_GET['action'] == "boardin") {
 	else {
 		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/showforum.php?id='.$board.SID2URL_JS_x);
-		exit;
 	}
 
 }

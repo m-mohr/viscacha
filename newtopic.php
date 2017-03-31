@@ -115,7 +115,6 @@ elseif ($_GET['action'] == "savevote") {
 		$fid = save_error_data($notices, $fid);
 		$slog->updatelogged();
 		sendStatusCode(302, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
-		exit;
 	}
 
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion'])) {
@@ -235,7 +234,6 @@ elseif ($_GET['action'] == "save") {
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
 			sendStatusCode(302, $config['furl']."/newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error,"newtopic.php?id={$board}&amp;fid=".$fid.SID2URL_x);

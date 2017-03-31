@@ -78,7 +78,6 @@ elseif ($_GET['action'] == "logout") {
 	if (!$my->vlogin) {
 		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/log.php');
-		exit;
 	}
 	else {
 		$loc = getRedirectURL();

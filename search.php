@@ -198,7 +198,6 @@ if ($_GET['action'] == "search") {
 		file_put_contents('data/cache/search/'.$fid.'.inc.php', serialize($data));
 		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/search.php?action=result&fid='.$fid.SID2URL_JS_x);
-		exit;
 	}
 	else {
 		error($lang->phrase('search_nothingfound'), 'search.php'.SID2URL_1);

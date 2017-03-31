@@ -34,7 +34,6 @@ require_once("classes/function.viscacha_frontend.php");
 
 if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
 	sendStatusCode(301, 'index.php'.SID2URL_1);
-    exit;
 }
 
 $my->p = $slog->Permissions();

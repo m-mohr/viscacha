@@ -179,7 +179,6 @@ if ($allowed == true) {
 				if (!empty($_POST['Preview'])) {
 					$slog->updatelogged();
 					sendStatusCode(302, $config['furl']."/edit.php?action=preview&id={$info['id']}&fid=".$fid.SID2URL_JS_x);
-					exit;
 				}
 				else {
 					error($error,"edit.php?id={$info['id']}&amp;fid=".$fid.SID2URL_x);

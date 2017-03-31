@@ -110,7 +110,6 @@ if ($my->p['admin'] == 1) {
 		$url = addslashes($url);
 		if (!empty($url)) {
 			sendStatusCode(302, $url);
-			exit;
 		}
 		else {
 			echo head();
