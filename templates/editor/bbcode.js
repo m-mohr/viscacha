@@ -64,8 +64,15 @@ function getSelection(id) {
 		return selection;
 	}
 }
+function InsertAttachment(id, attachment) {
+	var input = OpenerFetchElement(id);
+	InsertTags(input, '[attachment=' + attachment + ']', '[/attachment]');
+}
 function InsertTags(id, aTag, eTag, param2) {
 	var input = FetchElement(id);
+	InsertTags(input, aTag, eTag, param2);
+}
+function InsertTags(input, aTag, eTag, param2) {
 	if (input.selectionEnd) {
 		var start_selection = input.selectionStart;
 		var end_selection = input.selectionEnd;

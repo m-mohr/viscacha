@@ -150,10 +150,10 @@ else {
 	}
 	elseif ($_GET['type'] == 'newtopic' && is_id($_GET['id'])) {
 		$upinfo = array(
-		'board' => $_GET['id'],
-		'name' => $my->id,
-		'topic_id' => 0,
-		'id' => 0
+			'board' => $_GET['id'],
+			'name' => $my->id,
+			'topic_id' => 0,
+			'id' => 0
 		);
 	}
 	elseif ($_GET['type'] == 'edit' && $_GET['id'] > 0) {
@@ -224,7 +224,7 @@ else {
 
 			($code = $plugins->load('attachments_upload_save_add_start')) ? eval($code) : null;
 
-			for ($i = 0; $i < $config['tpcmaxuploads']; $i++) {
+			for ($i = 1; $i <= $config['tpcmaxuploads']; $i++) {
 
 				$field = "upload_{$i}";
 				if (empty($_FILES[$field]['name'])) {
@@ -287,20 +287,16 @@ else {
 		}
 		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
 
-		$free = $config['tpcmaxuploads'] - $db->num_rows($result);
-		if ($free < 1) {
-			$free = 0;
-		}
-
-		$uploads = array();
+		$uploads = array_fill(1, $config['tpcmaxuploads'], null);
+		$i = 1;
 		while ($row = $db->fetch_assoc($result)) {
 			$fsize = filesize('uploads/topics/'.$row['source']);
 			$fsize = formatFilesize($fsize);
 			($code = $plugins->load('attachments_upload_form_upload')) ? eval($code) : null;
-			$uploads[] = array(
-			'file' => $row['file'],
-			'filesize' => $fsize,
-			'id' => $row['id']
+			$uploads[$i++] = array(
+				'file' => $row['file'],
+				'filesize' => $fsize,
+				'id' => $row['id']
 			);
 		}
 

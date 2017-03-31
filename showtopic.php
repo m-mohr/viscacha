@@ -288,16 +288,40 @@ include_once('classes/class.profilefields.php');
 $pfields = new ProfileFieldViewer();
 $rel_post_num = $start;
 while ($row = $db->fetch_object($result)) {
-	$inner['upload_box'] = '';
-	$inner['image_box'] = '';
-
 	$row = $slog->cleanUserData($row);
-	$rel_post_num++;
-	$row->rel_post_num = $rel_post_num;
 
 	// Custom Profile Fields
 	$pfields->setUserId($row->mid);
 	$pfields->setUserData($row);
+
+	// Uploads
+	$inner['uploads'] = array();
+	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
+		foreach ($uploads[$row->id] as $file) {
+			$file['path'] = 'uploads/topics/'.$file['source'];
+			$file['size'] = formatFilesize(filesize($file['path']));
+			$file['image'] = false;
+			$file['imgwidth'] = null;
+			$file['imgheight'] = null;
+
+			$ext = get_extension($file['path']);
+			if (in_array($ext, $imagetype_extension)) {
+				$imagesize = getimagesize($file['path']);
+				if ($imagesize !== false) {
+					$file['image'] = true;
+					$file['imgwidth'] = $imagesize[0];
+					$file['imgheight'] = $imagesize[1];
+				}
+			}
+
+			($code = $plugins->load('showtopic_attachments_prepared')) ? eval($code) : null;
+
+			$inner['uploads'][$file['id']] = $tpl->parse("showtopic/upload_box");
+		}
+	}
+
+	$rel_post_num++;
+	$row->rel_post_num = $rel_post_num;
 
 	if ($firstnew > 0) {
 		$firstnew++;
@@ -324,6 +348,7 @@ while ($row = $db->fetch_object($result)) {
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->replaceTextOnce($row->comment, 'moved');
 	}
+	$bbcode->addAttachments($inner['uploads']);
 	$row->comment = $bbcode->parse($row->comment);
 
 	if ($my->opt_showsig == 1) {
@@ -341,25 +366,6 @@ while ($row = $db->fetch_object($result)) {
 	}
 	else {
 		$bottom = false;
-	}
-
-	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
-		foreach ($uploads[$row->id] as $file) {
-			$uppath = 'uploads/topics/'.$file['source'];
-			$imginfo = get_extension($uppath);
-
-			$fsize = formatFilesize(filesize($uppath));
-
-			($code = $plugins->load('showtopic_attachments_prepared')) ? eval($code) : null;
-
-			if (in_array($imginfo, $imagetype_extension)) {
-				$imagesize = getimagesize($uppath);
-				$inner['image_box'] .= $tpl->parse("showtopic/image_box");
-			}
-			else {
-				$inner['upload_box'] .= $tpl->parse("showtopic/upload_box");
-			}
-		}
 	}
 
 	$edit = array();
@@ -385,6 +391,7 @@ while ($row = $db->fetch_object($result)) {
 	}
 
 	($code = $plugins->load('showtopic_entry_prepared')) ? eval($code) : null;
+	$inner['uploads'] = implode('', $inner['uploads']);
 	$inner['index_bit'][] = $tpl->parse("showtopic/index_bit");
 	($code = $plugins->load('showtopic_entry_added')) ? eval($code) : null;
 }

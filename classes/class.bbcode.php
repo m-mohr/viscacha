@@ -41,6 +41,9 @@ class BBCode {
 	protected $url_regex;
 	protected $url_regex2;
 	protected $currentCBB;
+	protected $attachments;
+	protected $attachmentsNotSet;
+	protected $attachmentPlaceholder;
 
 	public function __construct($profile = 'viscacha') {
 		$this->smileys = null;
@@ -51,6 +54,9 @@ class BBCode {
 		$this->cfg = array();
 		$this->noparse = array();
 		$this->pid = 0;
+		$this->attachments = array();
+		$this->attachmentsNotSet = true;
+		$this->attachmentPlaceholder = '';
 
 		// See: http://en.wikipedia.org/wiki/URI_scheme
 		$url_protocol = "([a-z]{3,9}://|www\.)";
@@ -246,6 +252,31 @@ class BBCode {
 
 		return $prefix . $ahref . $suffix;
 	}
+	
+	public function setAttachmentPlaceholder($placeholder) {
+		$this->attachmentPlaceholder = $placeholder;
+	}
+	
+	public function addAttachments(&$replacements) {
+		$this->attachments = &$replacements;
+		$this->attachmentsNotSet = false;
+	}
+	
+	protected function cb_attachments($matches) {
+		global $tpl, $lang;
+		if ($this->attachmentsNotSet) {
+			return $this->attachmentPlaceholder;
+		}
+		else if(isset($this->attachments[$matches[1]])) {
+			$pid = $this->noparse_id();
+			$this->noparse[$pid] = $this->attachments[$matches[1]];
+			unset($this->attachments[$matches[1]]);
+			return '<!PID:' . $pid . '>';
+		}
+		else {
+			return '';
+		}
+	}
 
 	public function parse($rawText) {
 		global $lang, $my;
@@ -297,6 +328,8 @@ class BBCode {
 		while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/isu', $text)) {
 			$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/isu', "<div class='bb_ot'><strong>" . $lang->phrase('bb_offtopic') . "</strong><br /><span>\\1</span></div>", $text);
 		}
+		
+		$text = preg_replace_callback('/\[attachment=(\d+)\]\[\/attachment\]\n?/isu', array(&$this, 'cb_attachments'), $text);
 
 		$text = preg_replace('/\[b\](.+?)\[\/b\]/isu', "<strong>\\1</strong>", $text);
 		$text = preg_replace('/\[i\](.+?)\[\/i\]/isu', "<em>\\1</em>", $text);
@@ -712,7 +745,7 @@ class BBCode {
 }
 
 function BBProfile(&$bbcode, $profile = 'standard') {
-	global $config, $my, $lang;
+	global $config, $my, $lang, $tpl;
 	if (!$bbcode->existsProfile($profile)) {
 		$lang->group("bbcodes");
 
@@ -751,6 +784,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);
 			$bbcode->setSmileyDir($config['smileyurl']);
+			$bbcode->setAttachmentPlaceholder($tpl->parse('main/attachment_placeholder'));
 		}
 	} else {
 		$bbcode->setProfile($profile, SP_CHANGE);

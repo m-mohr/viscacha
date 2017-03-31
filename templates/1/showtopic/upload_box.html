@@ -1,13 +1,20 @@
-<div class="uploadbox">
+<div class="attachment" style="max-width: {{ $config['tpcthumbwidth'] }}px;">
 	<strong>
 		@if($my->p['downloadfiles'] == 0)
-		{ $file['file'] }} 
+		{{ $file['file'] }}
+		@elseif($file['image'])
+		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}" target="_blank" rel="lightbox[{{ $row->id }}]">
+			<img src="attachments.php?action=thumbnail&amp;id={{ $file['id'] }}{{ SID2URL_x }}" alt="{{ $file['file'] }}" title="{{ $file['file'] }}" />
+		</a>
 		@else
 		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}">{{ $file['file'] }}</a>
 		@endif
 	</strong><br />
 	<span class="stext">
-		@lang('uploads_hits'){{ $file['hits'] }}<br />
-		@lang('uploads_size'){{ $fsize }}
+		@lang('uploads_hits'){{ $file['hits'] }}
+		<br />@lang('uploads_size'){{ $file['size'] }}
+		@if($file['image'])
+		<br />@lang('uploads_imgsize')
+		@endif
 	</span>
 </div>

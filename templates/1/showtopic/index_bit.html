@@ -54,18 +54,12 @@
 		</span>
 		<hr />
 		{!! $row->comment !!}
-		@if(!empty($inner['image_box']))
-		<br /><br />
-		<strong>@lang('post_thumbnails')</strong><br />
-		{!! $inner['image_box'] !!}
-		<br class="uploadbox_br" />
-		@endif
-		@if(!empty($inner['upload_box']))
-		<br class="uploadbox_br" />
-		<br />
-		<strong>@lang('post_uploads')</strong><br />
-		{!! $inner['upload_box'] !!}
-		<br class="uploadbox_br" />
+		@if(!empty($inner['uploads']))
+		<div class="uploadbox">
+			<strong class="heading">@lang('attachments')</strong>
+			{!! $inner['uploads'] !!}
+			<br class="clear" />
+		</div>
 		@endif
 		@if($bottom)
 		<hr />
