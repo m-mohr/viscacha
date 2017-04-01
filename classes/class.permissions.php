@@ -419,6 +419,10 @@ function logged () {
 	if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 		$my->timezone = $config['timezone'];
 	}
+	
+	if (!isset($my->theme)) {
+		$my->theme = null;
+	}
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$cache2 = $loadlanguage_obj->get();
@@ -680,6 +684,10 @@ function sid_login($remember = true) {
 
 		if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 			$my->timezone = $config['timezone'];
+		}
+	
+		if (!isset($my->theme)) {
+			$my->theme = null;
 		}
 
 		$loadlanguage_obj = $scache->load('loadlanguage');
