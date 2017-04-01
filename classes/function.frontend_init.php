@@ -181,7 +181,7 @@ if (!defined('CONSOLE_REQUEST')) {
 	$tpl = new Theme($my->theme, $config['theme']);
 
 	Breadcrumb::universal()->add($config['fname'], 'index.php');
-	if ($config['indexpage'] != 'forum') {
+	if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, ['forum', 'showforum', 'showtopic', 'edit', 'addreply', 'newtopic', 'manageforum', 'managetopic'])) {
 		Breadcrumb::universal()->add($lang->phrase('forumname'), 'forum.php');
 		if (SCRIPTNAME == 'forum') {
 			Breadcrumb::universal()->resetUrl();
