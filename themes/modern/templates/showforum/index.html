@@ -1,52 +1,45 @@
 @if($subforums) <br /> @endif
 @if($info['message_active'] == '1')
-<div class="panel panel-default">
+<div class="panel panel-warning">
 	<div class="panel-heading"><h3 class="panel-title">{{ $info['message_title'] }}</h3></div>
 	<div class="panel-body">{!! $info['message_text'] !!}</div>
 </div>
 @endif
 @if($info['readonly'] == '0' || $info['topics'] > 0 || !$subforums)
-<table class="table table-striped">
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<form class="navbar-form navbar-left" method="post" action="search.php?action=search{{ SID2URL_x }}">
+			<div class="form-group">
+				<input type="text" name="search" class="form-control" placeholder="@lang('forum_options_search')">
+				<input type="hidden" name="boards[]" value="{{ $board }}" />
+			</div>
+			<button type="submit" class="btn btn-default"><i class="fa fa-search" title="@lang('submit')"></i></button>
+		</form>
+		<ul class="nav navbar-nav navbar-right">
+			<li><a href="misc.php?action=markforumasread&amp;board={{ $board }}{{ SID2URL_x }}"> <i class="fa fa-check"></i> @lang('forum_options_markread')</a></li>
+			@if($my->p['posttopics'] == 1 && $info['readonly'] == 0)
+			<li><a href="newtopic.php?id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('forum_newtopic')</a></li>
+			@endif
+		</ul>
+    </div>
+</nav>
+
+{!! $pages !!}
+
+<table class="table threads table-striped">
 	<thead>
 		<tr>
-			<td class="tfoot textright" colspan="5">
-				<span class="left">{!! $pages !!}</span>
-				<a id="menu_forumtools" href="#forumtools" onmouseover="RegisterMenu('forumtools');"><img src="@theme('images/desc.gif')" alt="" /> @lang('forum_options')</a>
-				<div class="popup" id="popup_forumtools">
-					<strong>@lang('forum_options_search')</strong>
-					<ul>
-						<li>
-							@lang('forum_options_search_forum')
-							<form method="post" action="search.php?action=search{{ SID2URL_x }}">
-								<input type="text" name="search" size="22" />
-								<input type="submit" value="@lang('forum_options_search_submit')" /><input type="hidden" name="boards[]" value="{{ $board }}" />
-							</form>
-						</li>
-					</ul>
-					<strong>@lang('forum_options_misc')</strong>
-					<ul>
-						<li><a href="misc.php?action=markforumasread&amp;board={{ $board }}{{ SID2URL_x }}">@lang('forum_options_markread')</a></li>
-					</ul>
-				</div>
-				@if($my->p['posttopics'] == 1 && $info['readonly'] == 0)
-				<a class="sep" href="newtopic.php?id={{ $board }}{{ SID2URL_x }}"><img src="@theme('images/newtopic.gif')" alt="" /> @lang('forum_newtopic')</a>
-				@endif
-			</td>
-		</tr>
-	</thead>
-	<thead>
-		<tr>
-			<th width="2%"></th>
-			<th width="48%">@lang('forum_topic')</th>
-			<th width="20%">@lang('forum_start')</th>
-			<th width="10%">@lang('forum_replies')</th>
-			<th width="20%">@lang('forum_last')</th>
+			<th class="cell-icon"></th>
+			<th>@lang('forum_topic')</th>
+			<th class="cell-stat-2x hidden-xs">@lang('forum_start')</th>
+			<th class="cell-stat hidden-xs hidden-sm">@lang('forum_replies')</th>
+			<th class="cell-stat-2x">@lang('forum_last')</th>
 		</tr>
 	</thead>
 	<tbody>
 		@if($info['message_active'] == '2')
 		<tr>
-			<td colspan="1" class="text-center"><i class="fa fa-lg fa-exclamation text-danger"></i></td>
+			<td colspan="1" class="text-center"><i class="fa fa-lg fa-exclamation icon-new"></i></td>
 			<td colspan="4">
 				@lang('board_rules'):
 				<a href="misc.php?action=board_rules&amp;id={{ $board }}{{ SID2URL_x }}">
@@ -57,26 +50,23 @@
 		@endif
 		{!! $inner['index_bit'] !!}
 	</tbody>
-	<tr>
-		<td class="tfoot" colspan="5">
-			@if($my->p['posttopics'] == 1 && $info['readonly'] == '0')
-			<span class="right"><a href="newtopic.php?id={{ $board }}{{ SID2URL_x }}"><img src="@theme('images/newtopic.gif')" alt="" /> @lang('forum_newtopic')</a></span>
-			@endif
-			{!! $pages !!}
-		</td>
-	</tr>
 </table>
+
+{!! $pages !!}
+
 <form method="get" action="showforum.php">
 	<input type="hidden" name="id" value="{{ $board }}" />
 	<input type="hidden" name="s" value="{{ SID2URL }}" />
 	<table class="table table-striped">
-		<tr>
-			<th colspan="2">@lang('forum_filter')</th>
-		</tr>
+		<thead>
+			<tr>
+				<th colspan="2">@lang('forum_filter')</th>
+			</tr>
+		</thead>
 		@if(!empty($prefix_arr))
 		<tr>
-			<td class="tfoot" width="50%">@lang('th_status')</td>
-			<td class="tfoot" width="50%">@lang('prefix')</td>
+			<td class="tfoot" width="50%"></td>
+			<td class="tfoot" width="50%"></td>
 		</tr>
 		@endif
 		<tr>
@@ -85,7 +75,9 @@
 					<option value="0"@selected($filter == 0)>@lang('forum_filter_opt0')</option>
 					<option value="6"@selected($filter == 6)>@lang('forum_filter_opt6')</option>
 				</select>
+				<br />
 				@if(!empty($prefix_arr))
+				@lang('prefix')
 				<select size="1" name="prefix">
 					<option value="-1"@selected($prefix_filter == -1)>@lang('forum_filter_opt0')</option>
 					<option value="0"@selected($prefix_filter == 0)>@lang('prefix_empty_filter')</option>
@@ -93,28 +85,13 @@
 					<option value="{{ $prefix_id }}"@selected($prefix_filter == $prefix_id)>{{ $prefix_row['value'] }}</option>
 					@endforeach
 				</select>
+				<br />
 				@endif
 				<input type="submit" accesskey="s" value="@lang('submit_form')" />
 			</td>
 		</tr>
 	</table>
 </form>
-<noscript>
-
-<div class="popup_noscript">
-	<a name="forumtools"></a><strong>@lang('forum_options_search')</strong>
-	<ul><li><form method="post" action="search.php?action=search{{ SID2URL_x }}">
-				@lang('forum_options_search_forum')
-				<input type="text" name="search" size="22" />
-				<input type="submit" value="@lang('forum_options_search_submit')" /><input type="hidden" name="boards[]" value="{{ $board }}" />
-			</form></li>
-	</ul>
-	<strong>@lang('forum_options_misc')</strong>
-	<ul>
-		<li><a href="misc.php?action=markforumasread&amp;board={{ $board }}{{ SID2URL_x }}">@lang('forum_options_markread')</a></li>
-	</ul>
-</div>
-</noscript>
 @if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1)
 <br />
 <div class="panel panel-default">

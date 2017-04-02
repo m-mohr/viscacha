@@ -17,8 +17,7 @@
 	<table class="table forums table-striped">
 		<thead>
 			<tr>
-				<th></th>
-				<th>
+				<th colspan="2">
 					<div class="panel-heading"><h3 class="panel-title">
 							{{ $cat['name'] }}
 							@if(!empty($cat['description']))
@@ -34,7 +33,7 @@
 			@foreach($cat['forums'] as $forum)
 			@if($forum['opt'] == 're')
 			<tr>
-				<td class="cell-icon"><i class="fa fa-arrow-right fa-2x text-primary"></i></td>
+				<td class="cell-icon"><i class="fa fa-arrow-right fa-2x icon-neutral"></i></td>
 				<td>
 
 					<h4>
@@ -52,11 +51,11 @@
 			<tr>
 				<td class="cell-icon">
 					@if($forum['state'] == BOARD_STATE_LOCKED)
-					<i class="fa fa-lock fa-2x text-primary"></i>
+					<i class="fa fa-lock fa-2x icon-old"></i>
 					@elseif($forum['state'] == BOARD_STATE_NEW)
-					<i class="fa fa-folder-open fa-2x text-danger" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $forum['id'] }}, this)"></i>
+					<i class="fa fa-folder-open fa-2x icon-new" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $forum['id'] }}, this)"></i>
 					@else
-					<i class="fa fa-folder-open fa-2x text-muted"></i>
+					<i class="fa fa-folder-open fa-2x icon-neutral"></i>
 					@endif
 				</td>
 				<td>
@@ -80,13 +79,13 @@
 						@foreach ($forum['sub'] as $s)
 						<br />
 						@if($forum['state'] == BOARD_STATE_WWW)
-						<i class="fa fa-arrow-right text-primary"></i>
+						<i class="fa fa-arrow-right icon-neutral"></i>
 						@elseif($forum['state'] == BOARD_STATE_LOCKED)
-						<i class="fa fa-lock text-primary"></i>
+						<i class="fa fa-lock icon-neutral"></i>
 						@elseif($forum['state'] == BOARD_STATE_NEW)
-						<i class="fa fa-folder-open text-danger" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $s['id'] }}, this, 1)"></i>
+						<i class="fa fa-folder-open icon-new" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $s['id'] }}, this, 1)"></i>
 						@else
-						<i class="fa fa-folder-open text-muted"></i>
+						<i class="fa fa-folder-open icon-old"></i>
 						@endif
 						@if($s['opt'] != 're')
 						<a href="showforum.php?id={{ $s['id'] }}{{ SID2URL_x }}">

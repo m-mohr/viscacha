@@ -1,8 +1,8 @@
-<!--<div class="navigation_cat">
+<div class="panel panel-info">
 	<div class="panel-heading"><h3 class="panel-title">{{ $row['name'] }}</h3></div>
-	<ul class="navigation_inner">
+	<ul class="list-group">
 		@foreach ($navigation as $sub)
-		<li>
+		<li class="list-group-item">
 			@if(!empty($sub['link']))
 				@if(!empty($sub['param']))
 				<a href="{{ $sub['link'] }}" target="{{ $sub['param'] }}">
@@ -34,4 +34,4 @@
 		</li>
 		@endforeach
 	</ul>
-</div>-->
+</div>

@@ -1,20 +1,20 @@
-<tr class="tbody">
-	<td class="text-center">
+<tr>
+	<td class="cell-icon">
 		@if($row->read)
 		@if($row->status == 0)
-		<i class="fa fa-lg fa-folder-open-o text-muted" title="@lang('forum_icon_old')"></i>
+		<i class="fa fa-lg fa-folder-open icon-old" title="@lang('forum_icon_old')"></i>
 		@else
-		<i class="fa fa-lg fa-lock text-muted" title="@lang('forum_icon_closed')"></i>
+		<i class="fa fa-lg fa-lock icon-old" title="@lang('forum_icon_closed')"></i>
 		@endif
 		@else
 		@if($row->status == 0)
-		<i class="fa fa-lg fa-folder-open-o text-danger" title="@lang('forum_icon_new')"></i>
+		<i class="fa fa-lg fa-folder-open icon-new" title="@lang('forum_icon_new')"></i>
 		@else
-		<i class="fa fa-lg fa-lock text-danger" title="@lang('forum_icon_closed')"></i>
+		<i class="fa fa-lg fa-lock icon-new" title="@lang('forum_icon_closed')"></i>
 		@endif
 		@endif
 	</td>
-	<td width="48%">
+	<td>
 		@if($row->vquestion)
 		<i class="fa fa-bar-chart pull-right" aria-hidden="true" title="@lang('vote_titlevote') {{$row->vquestion}}"></i>
 		@endif
@@ -34,13 +34,13 @@
 	<br /><span class="stext">{!! $topic_pages !!}</span>
 	@endif
 </td>
-<td width="20%" class="stext">
+<td class="cell-stat-2x hidden-xs">
 	@reldatetime($row->date)<br />
 	@lang('written_by')
 	<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
 </td>
-<td width="10%" class="center">{{ numbers($row->posts) }}</td>
-<td width="20%" class="textrightstext">
+<td class="cell-stat text-center hidden-xs hidden-sm">{{ numbers($row->posts) }}</td>
+<td class="cell-stat-2x">
 	<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">@reldatetime($row->last)</a><br />
 	@lang('written_by')
 	<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>

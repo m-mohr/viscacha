@@ -1,11 +1,36 @@
 @media (min-width: 981px) {
 	body {
-		padding-top: 65px;
+		padding-top: 70px;
 	}
+}
+
+#copyright {
+	padding-top: 1em;
+}
+
+.panel-title a {
+	text-decoration: underline;
+}
+.breadcrumb a {
+	color: #fff;
+	text-decoration: underline;
+}
+.breadcrumb a:hover, .breadcrumb a:focus, .breadcrumb a:active {
+	color: #f9f9f9;
+}
+
+.table {
+	border: 1px solid #490A3D;
+}
+
+.table thead {
+	background-color: #490A3D;
+	color: #fff;
 }
 
 .notification-icon .label {
     border: 1px solid #ffffff;
+	border-radius: 10px;
     font-weight: 500;
     padding: 3px 5px;
     text-align: center;
@@ -37,7 +62,225 @@
     width: 25%;
 }
 
+.threads .cell-icon {
+    text-align: center;
+}
+.threads.table th.cell-stat {
+    width: 10%;
+}
+.threads.table th.cell-stat-2x {
+    width: 20%;
+}
+
+.pagination {
+	float: right;
+	margin-top: 0px;
+	margin-bottom: 20px;
+}
+
+.navbar-form {
+	padding: 0px;
+}
+
 .user-header img {
 	height: 1.5em;
 	border-radius: 0.25em;
+}
+
+.icon-neutral, .icon-old {
+	color: #373330;
+}
+.icon-new {
+	color: #bc0100;
+}
+
+/* BB-Codes */
+
+.bb_inlinecode {
+	color: #880000;
+	white-space: normal;
+}
+
+.bb_blockcode {
+	border: 1px solid #839FBC;
+	background-color: #F5F8FA;
+	padding: 1%;
+	margin-left: 3%;
+	overflow: auto;
+	max-height: 400px;
+	min-height: 50px;
+	width: 94%;
+}
+.bb_blockcode * {
+	font-family: 'Courier New', monospace;
+}
+.bb_blockcode li {
+	margin-left: 12px;
+	white-space: pre;
+}
+
+.bb_header {
+	margin: 0px;
+	margin-top: 10px;
+}
+.bb_size_extended {
+	letter-spacing: 3px;
+}
+.bb_quote {
+	margin: 0px;
+	width: 98%;
+	padding-left: 5px;
+}
+.bb_quote blockquote {
+	border-bottom: 1px solid #839FBC;
+	border-top: 1px solid #839FBC;
+	padding-left: 10px;
+	font-size: 9pt;
+	margin: 1px;
+}
+.bb_ot span {
+	border-top: 1px dashed #BCCADA;
+	border-bottom: 1px dashed #BCCADA;
+	padding-left: 10px;
+	color: #7E9AB8;
+	font-size: 9pt;
+	display: block;
+	margin: 1px;
+}
+.bb_edit ins {
+	display: block;
+	margin: 1px;
+	padding-left: 5px;
+	text-decoration: none;
+	border-left: 2px solid #BCCADA;
+}
+
+/* BB-Code-Editor */
+.editor_textarea_outer {
+	border: 1px solid #888888;
+	width: 100%;
+	border-collapse: collapse;
+}
+.editor_textarea_outer td {
+	padding: 4px;
+}
+.editor_toolbar {
+	border-bottom: 1px solid #C9C9C9;
+	background-color: #F4F4F4;
+	height: 28px;
+}
+.editor_toolbar_dropdown {
+	border: 1px solid #F4F4F4;
+	padding: 2px;
+	color: #000000;
+	font-size: 9pt;
+}
+.editor_toolbar_dropdown:hover {
+	border: 1px solid #999999;
+}
+.editor_toolbar_smiley {
+	border: 1px solid #F4F4F4;
+	padding: 2px;
+}
+.editor_toolbar_smiley_on {
+	border: 1px solid #999999;
+	padding: 2px;
+}
+.editor_toolbar_button {
+	width: 20px;
+	height: 20px;
+	border: 1px solid #F4F4F4;
+}
+.editor_toolbar_button_on {
+	width: 20px;
+	height: 20px;
+	border: 1px solid #999999;
+}
+.editor_textarea_inner {
+	background-color: #FFFFFF;
+	font-size: 9pt;
+	border-width: 0px;
+	width: 100%;
+	margin: -4px;
+	padding: 4px;
+}
+.editor_statusbar {
+	font-size: 8pt;
+	background-color: #F4F4F4;
+	border-top: 1px solid #C9C9C9;
+}
+.editor_statusbar a {
+	color: #000000;
+	text-decoration: none;
+}
+.editor_statusbar a:hover {
+	text-decoration: underline;
+}
+.editor_textarea_outer .popup {
+	border: 1px solid #888888;
+	max-height: 250px;
+	width: 200px;
+	overflow: auto;
+}
+.editor_textarea_outer .popup ul {
+	list-style-type: none;
+}
+.editor_textarea_outer .popup strong {
+	text-align: center;
+	color: #000000;
+	background-color: #eeeeee;
+	border-width: 0px;
+	border-bottom: 1px solid #888888;
+	padding: 2px;
+	font-size: 9pt;
+}
+.editor_textarea_outer .popup li {
+	border-width: 0px;
+	padding: 2px 3px 2px 3px;
+	background-color: #ffffff;
+	font-size: 9pt;
+}
+.editor_textarea_outer .popup li a, .editor_textarea_outer .popup_line {
+	color: #000000;
+	text-decoration: none;
+	border: 1px solid #ffffff;
+	background-color: #ffffff;
+	padding: 2px;
+}
+.editor_textarea_outer .popup li a:hover, .editor_textarea_outer .popup_line:hover {
+	background-color: #eeeeee;
+	border: 1px solid #cccccc;
+	color: #000000;
+}
+
+.bbcolor {
+	padding: 10px;
+	background-color: #ffffff;
+	line-height: 12px;
+	font-size: 12px;
+}
+.bbcolor img {
+	width: 8px;
+	height: 10px;
+	display: block;
+	float: left;
+	cursor: pointer;
+	border-width: 1px;
+	border-style: solid;
+}
+.bbtable {
+	background-color: #ffffff;
+	padding: 4px;
+}
+.bbtable input {
+	width: 35px;
+	float: left;
+	background-color: #ffffff;
+	border: 1px solid #888888;
+	text-align: center;
+	margin-right: 5px;
+}
+
+.bbsmileys img {
+	margin: 2px 8px 2px 4px;
 }

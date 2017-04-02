@@ -1,4 +1,4 @@
-<div class="alert @if($type == 'ok') alert-success @elseif($type == 'error') alert-danger @else alert-info @endif" role="alert">
+<div class="alert @if($type == 'ok') alert-success @elseif($type == 'error') alert-danger @else alert-warning @endif" role="alert">
 	<strong>{{ $title }}</strong><br />
 	@if(is_array($messages))
 	<ul>

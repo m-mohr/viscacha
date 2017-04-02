@@ -22,7 +22,7 @@
 	</head>
 
 	<body{!! $htmlbody !!}>
-		<nav class="navbar navbar-inverse navbar-fixed-top">
+		<nav class="navbar navbar-inverse navbar-fixed-top" id="header">
 			<div class="container">
 				<div class="navbar-header">
 					<a class="navbar-brand" href="index.php">{{ $config['fname'] }}</a>
@@ -49,25 +49,30 @@
 							@else
 							<i class="fa fa-user-o fa-lg"></i>
 							@endif
-							&nbsp;<span class="hidden-xs">{{ $my->name }}</span>
+							<span class="hidden-xs">&nbsp;{{ $my->name }}</span>
 						</a>
 					</li>
 				</ul>
 			</div>
 		</nav>
 
-		<div class="container">
+		<div class="container" id="container">
 
-			<div id="navigation">@navigation(left)</div>
 			<ol class="breadcrumb">
 				@foreach (Breadcrumb::universal()->get() as $item)
 				@if(!empty($item['url']))
 				<li><a href="{{ $item['url'] }}">{{ $item['title'] }}</a></li>
 				@else
-				<li>{{ $item['title'] }}</li>
+				<li class="active">{{ $item['title'] }}</li>
 				@endif
 				@endforeach
 			</ol>
-			<div id="content">
-				<!-- @include('menu') -->
-				{!! FlashMessage::show() !!}
+
+			<div class="row">
+				<div id="navigation" class="col-md-3">@navigation(left)</div>
+
+				<div id="content" class="col-md-9">
+
+					<!-- @include('menu') -->
+					{!! FlashMessage::show() !!}
+
