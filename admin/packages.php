@@ -1156,14 +1156,10 @@ elseif ($job == 'package_delete2') {
 			$filesystem->unlink('data/cache/modules/'.$plugins->_group($data['position']).'.php');
 		}
 
-		$cache = array();
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs");
-		while ($row = $db->fetch_assoc($result)) {
-			$cache[] = $row;
-		}
+		$themes = Theme::all();
 		// Delete templates
-		foreach ($cache as $row) {
-			$tpldir = "templates/{$row['template']}/modules/{$package['id']}/";
+		foreach ($themes as $row) {
+			$tpldir = "{$row['path']}/templates/modules/{$package['id']}/";
 			if (file_exists($tpldir)) {
 				$filesystem->rmdirr($tpldir);
 			}
@@ -1185,21 +1181,6 @@ elseif ($job == 'package_delete2') {
 						$c->delete($phrase);
 					}
 					$c->savedata();
-				}
-			}
-		}
-		// Delete images
-		if (isset($plug['images']) && count($plug['images']) > 0) {
-			foreach ($cache as $design) {
-				foreach ($plug['images'] as $file) {
-					$filesystem->unlink("./images/{$design['images']}/{$file}");
-				}
-			}
-		}
-		if (isset($plug['designs']) && count($plug['designs']) > 0) {
-			foreach ($cache as $design) {
-				foreach ($plug['designs'] as $file) {
-					$filesystem->unlink("./designs/{$design['stylesheet']}/{$file}");
 				}
 			}
 		}
