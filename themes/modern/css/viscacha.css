@@ -4,6 +4,13 @@
 	}
 }
 
+.notification-icon .label {
+    border: 1px solid #ffffff;
+    font-weight: 500;
+    padding: 3px 5px;
+    text-align: center;
+}
+
 #copyright {
 	text-align: center;
 }
