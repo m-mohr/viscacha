@@ -1,16 +1,4 @@
 <?php
-function ini_isSecureHttp() {
-	if (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == '443')
-		return true;
-	else if (isset($_SERVER['HTTPS']) && ini_isActive($_SERVER['HTTPS']))
-		return true;
-	else
-		return false;
-}
-
-function ini_isActive($value) {
-	return ($value == 'true' || $value == '1' || mb_strtolower($value) == 'on');
-}
 function getFUrl() {
 	// HTTP_HOST is having the correct browser url in most cases...
 	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
