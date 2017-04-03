@@ -32,9 +32,6 @@ require_once("classes/function.phpcore.php");
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
 	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
 }
-if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'] == 0) {
-	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
-}
 
 // Variables
 require_once ("classes/function.gpc.php");
