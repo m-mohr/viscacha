@@ -2,7 +2,7 @@
 	<div class="panel panel-default">
 		<div class="panel-heading"><h3 class="panel-title">
 				<span class="right">[<a href="showtopic.php?temp=1&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">@lang('vote_showresult')</a>]</span>
-				<img src="@theme('images/vote.gif')" alt="" /> @lang('vote_titlevote'){{ $vote['question'] }}
+				<i class="fa fa-bar-chart"></i> {{ $vote['question'] }}
 			</h3></div>
 		<div class="panel-body">
 			@foreach ($vote['entries'] as $row)

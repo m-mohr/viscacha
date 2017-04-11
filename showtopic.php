@@ -333,7 +333,7 @@ while ($row = $db->fetch_object($result)) {
 	}
 	$can_edit = ((($row->mid == $my->id && $edit_seconds >= $diff) || $my->mp[0] == 1) && $my->p['edit'] == 1 && $last['readonly'] == 0 && !($info['status'] != 0 && $my->mp[0] != 1));
 
-	$new = iif($row->date >= $my->clv, 'new', 'old');
+	$row->unread = ($row->date >= $my->clv);
 
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);

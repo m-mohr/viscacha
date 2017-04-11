@@ -1,13 +1,10 @@
-@if($subforums) <br /> @endif
-@if($info['message_active'] == '1')
-<div class="panel panel-warning">
-	<div class="panel-heading"><h3 class="panel-title">{{ $info['message_title'] }}</h3></div>
-	<div class="panel-body">{!! $info['message_text'] !!}</div>
-</div>
+@if($info['message_active'] == 1)
+@include('misc.board_rules')
 @endif
 @if($info['readonly'] == '0' || $info['topics'] > 0 || !$subforums)
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
+		<!-- ToDo: Move to left sidebar and replace automatically with best fitting search -->
 		<form class="navbar-form navbar-left" method="post" action="search.php?action=search{{ SID2URL_x }}">
 			<div class="form-group">
 				<input type="text" name="search" class="form-control" placeholder="@lang('forum_options_search')">
@@ -16,6 +13,18 @@
 			<button type="submit" class="btn btn-default"><i class="fa fa-search" title="@lang('submit')"></i></button>
 		</form>
 		<ul class="nav navbar-nav navbar-right">
+			@if($my->mp[0] == 1)
+			<li class="dropdown">
+				<a id="admin_options" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('admin_options')</a>
+				<ul class="dropdown-menu" aria-labelledby="admin_options">
+					<li><a href="manageforum.php?action=index&amp;type=open&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-unlock"></i> @lang('admin_mass_open')</a></li>
+					<li><a href="manageforum.php?action=index&amp;type=close&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-lock"></i> @lang('admin_mass_close')</a></li>
+					<li><a href="manageforum.php?action=index&amp;type=delete&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-trash"></i> @lang('admin_mass_delete')</a></li>
+					<li><a href="manageforum.php?action=index&amp;type=move&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-arrow-right"></i> @lang('admin_mass_move')</a></li>
+					<li><a href="manageforum.php?action=stat&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-refresh"></i> @lang('admin_forum_stats')</a></li>
+				</ul>
+			</li>
+			@endif
 			<li><a href="misc.php?action=markforumasread&amp;board={{ $board }}{{ SID2URL_x }}"> <i class="fa fa-check"></i> @lang('forum_options_markread')</a></li>
 			@if($my->p['posttopics'] == 1 && $info['readonly'] == 0)
 			<li><a href="newtopic.php?id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('forum_newtopic')</a></li>
@@ -92,18 +101,4 @@
 		</tr>
 	</table>
 </form>
-@if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1)
-<br />
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">@lang('admin_options')</h3></div>
-	<div class="panel-body">
-		<a href="manageforum.php?action=index&amp;type=open&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}">@lang('admin_mass_open')</a> |
-		<a href="manageforum.php?action=index&amp;type=close&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}">@lang('admin_mass_close')</a> |
-		<a href="manageforum.php?action=index&amp;type=delete&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}">@lang('admin_mass_delete')</a> |
-		<a href="manageforum.php?action=index&amp;type=move&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}">@lang('admin_mass_move')</a> |
-		<a href="manageforum.php?action=stat&amp;id={{ $board }}{{ SID2URL_x }}">@lang('admin_forum_stats')</a>
-	</div>
-</div>
-@endif
-<br />
 @endif

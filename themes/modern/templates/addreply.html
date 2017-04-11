@@ -8,12 +8,14 @@
 	</div>
 </div>
 @else
-@if($last['message_active'] == '1')
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">{{ $last['message_title'] }}</h3></div>
-	<div class="panel-body">{!! $last['message_text'] !!}</div>
-</div>
-@endif
+	@if($last['message_active'] == 1)
+	<div class="panel panel-warning">
+		<div class="panel-heading"><h3 class="panel-title">{{ $last['message_title'] }}</h3></div>
+		<div class="panel-body">
+			{!! $last['message_text'] !!}
+		</div>
+	</div>
+	@endif
 @endif
 <form method="post" action="addreply.php?action=save&amp;fid={{ $fid }}{{ SID2URL_x }}">
 	<div class="panel panel-default">

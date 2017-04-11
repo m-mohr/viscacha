@@ -45,9 +45,9 @@
 					<li class="user-header">
 						<a href="#">
 							@if(!empty($my->pic))
-							<img src="{{ $my->pic }}" alt="{{ $my->name }}">
+							<img src="{{ $my->pic }}" alt="{{ $my->name }}" class="avatar">
 							@else
-							<i class="fa fa-user-o fa-lg"></i>
+							<i class="fa fa-user-circle-o fa-lg avatar"></i>
 							@endif
 							<span class="hidden-xs">&nbsp;{{ $my->name }}</span>
 						</a>

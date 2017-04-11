@@ -51,7 +51,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
 			<div class="bbcolor">
 				<script type="text/javascript">
-					document.write(generateColorPicker("InsertTagsMenu('<?php echo $id; ?>', '[color=<color>]', '[/color]', 'bbcolor_<?php echo $id; ?>')"));
+					document.write(generateColorPicker("InsertTags('<?php echo $id; ?>', '[color=<color>]', '[/color]')"));
 				</script>
 			</div>
 			</div>
@@ -60,9 +60,9 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<div class="popup" id="popup_bbsize">
 			<strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
 		   	<ul>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=large]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=small]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=extended]','[/size]','bbsize_<?php echo $id; ?>')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=large]','[/size]')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=small]','[/size]')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=extended]','[/size]')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
 			</ul>
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
@@ -70,9 +70,9 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<div class="popup" id="popup_bbhx_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('bbcodes_header_title'); ?></strong>
 			<ul>
-				<li><h4 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=large]','[/h]','bbhx_<?php echo $id; ?>')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
-				<li><h5 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=middle]','[/h]','bbhx_<?php echo $id; ?>')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
-				<li><h6 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=small]','[/h]','bbhx_<?php echo $id; ?>')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
+				<li><h4 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=large]','[/h]')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
+				<li><h5 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=middle]','[/h]')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
+				<li><h6 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=small]','[/h]')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
 			</ul>
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
@@ -134,7 +134,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<strong><?php echo $lang->phrase('more_smileys'); ?></strong>
 			<ul class="bbsmileys">
 			<?php foreach ($smileys[0] as $bb) { ?>
-			  <li><span class="popup_line stext" onclick="InsertTagsMenu('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '', 'bbsmileys_<?php echo $id; ?>')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
+			  <li><span class="popup_line stext" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
 			<?php }?>
 			</ul>
 			</div>

@@ -401,19 +401,24 @@
     "badges.less",
     "thumbnails.less",
     "alerts.less",
+    "progress-bars.less",
     "media.less",
     "list-group.less",
     "panels.less",
     "responsive-embed.less",
     "close.less",
     "component-animations.less",
-    "dropdowns.less"
+    "dropdowns.less",
+    "tooltip.less",
+    "popovers.less"
   ],
   "js": [
     "alert.js",
     "dropdown.js",
+    "tooltip.js",
+    "popover.js",
     "collapse.js",
     "transition.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=bc076d0d871c200064720b8857bf648b"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=04757d6869555927218677aa9e3d1df1"
 }

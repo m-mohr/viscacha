@@ -1,57 +1,49 @@
-<div class="panel panel-default">
-	<div class="panel-footer topfooter">
-		<span class="right">
-			@if($my->vlogin && empty($row->report))
-			<a class="sep" href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@theme('images/rules.gif')" alt="" /> @lang('post_report')</a>
-			@elseif($my->mp[0] == 1 && !empty($row->report))
-			<a class="sep" href="managetopic.php?action=reports&amp;topic_id={{ $row->id }}&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@theme('images/rules.gif')" alt="" /> @lang('post_reported')</a>
+@if($firstnew == 1)
+<a name="firstnew" id="firstnew"></a>
+@endif
+<a name="p{{ $row->id }}" id="p{{ $row->id }}"></a>
+<div class="panel panel-default post">
+	<div class="panel-heading">
+		<span class="pull-right">
+			@if($row->unread)
+			<i class="fa fa-clock-o icon-new"></i>
+			@else
+			<i class="fa fa-clock-o icon-old"></i>
 			@endif
-			@if($can_edit)
-			<a class="sep" href="edit.php?id={{ $row->id }}{{ SID2URL_x }}"><img src="@theme('images/edit.gif')" alt="" /> @lang('post_edit')</a>
-			@endif
-			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0)
-			<a class="sep" id="menu_mquote_{{ $row->id }}" onmouseover="RegisterMenu('mquote_{{ $row->id }}');" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}"><img src="@theme('images/no_mquote.gif')" alt="@lang('box_collapse')" id="mq_{{ $row->id }}" /> @lang('post_quote')</a>
-			<div class="popup" id="popup_mquote_{{ $row->id }}">
-				<strong>@lang('post_quote')</strong>
-				<ul>
-					<li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang('post_quote_direct')</a></li>
-					<li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang('post_quote_multi')</a></li>
-				</ul>
-			</div>
-			@endif
-			<strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
-			@if($my->mp[0] == 1 && $info['posts'] > 0)
-			<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="{{ $row->id }}" />
-			@endif
+			@reldatetime($row->date)
 		</span>
-		<img src="@theme('images/post_'.$new.'.gif')" alt="" /> @reldatetime($row->date)
-		@if($firstnew == 1)
-		<a name="firstnew" id="firstnew"></a>
-		@endif
-		<a name="p{{ $row->id }}" id="p{{ $row->id }}"></a>
-	</div>
-	<div class="inlineheader h3">
-		<div class="viewmembername">
+		<h3 class="panel-title">
+			@if(!empty($my->pic))
+			<img src="{{ $my->pic }}" alt="{{ $my->name }}" class="pull-left avatar">
+			@else
+			<i class="fa fa-user-circle-o fa-2x pull-left avatar"></i>
+			@endif
 			<a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}">{{ $row->name }}</a>
 			@if($row->online == 1)
-			<img src="@theme('images/online.gif')" title="@lang('profile_online')" alt="@lang('profile_online')" />
+			<i class="fa fa-user icon-online" title="@lang('profile_online')"></i>
 			@else
-			<img src="@theme('images/offline.gif')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
+			<i class="fa fa-user icon-offline" title="@lang('profile_offline')"></i>
 			@endif
-			<br /><span class="stext">{{ $row->level }}</span>
-		</div>
+			<br />
+			<small>{{ $row->level }}</small>
+		</h3>
+	</div>
+	<div class="popover hidden-lg">
 		<div class="viewmemberdetails stext">
 			@if($row->deleted_at === null)
 			@lang('post_info_registered_since') @date($row->regdate)<br />
 			@lang('post_info_postcount') {{ numbers($row->posts) }}
 			@endif
 		</div>
-		<br class="invclear" />
 	</div>
 	<div class="panel-body">
-		<span class="stext">
-			@lang('showtopic_subject')<strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
+		<span class="pull-right">
+			<strong>#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
+			@if($my->mp[0] == 1 && $info['posts'] > 0)
+			<input type="checkbox" name="ids[]" value="{{ $row->id }}" />
+			@endif
 		</span>
+		@lang('showtopic_subject') <strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
 		<hr />
 		{!! $row->comment !!}
 		@if(!empty($inner['uploads']))
@@ -78,5 +70,24 @@
 			@endif
 		</div>
 	</div>
+		<ul class="panel-footer nav nav-pills nav-condensed">
+			@if($my->vlogin && empty($row->report))
+			<li><a href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-bomb"></i> @lang('post_report')</a></li>
+			@elseif($my->mp[0] == 1 && !empty($row->report))
+			<li><a class="sep" href="managetopic.php?action=reports&amp;topic_id={{ $row->id }}&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><i class="fa fa-bomb"></i> @lang('post_reported')</a>
+			@endif
+			@if($can_edit)
+			<li><a class="sep" href="edit.php?id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-edit"></i> @lang('post_edit')</a>
+			@endif
+			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0)
+			<li class="dropdown">
+				<a id="mquote_{{ $row->id }}" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-quote-right" id="mq_{{ $row->id }}"></i> @lang('post_quote')</a>
+				<ul class="dropdown-menu" aria-labelledby="popup_mquote_{{ $row->id }}">
+					<li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang('post_quote_direct')</a></li>
+					<li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang('post_quote_multi')</a></li>
+				</ul>
+			</li>
+			@endif
+		</ul>
 </div>
 

@@ -19,30 +19,30 @@
 		<i class="fa fa-bar-chart pull-right" aria-hidden="true" title="@lang('vote_titlevote') {{$row->vquestion}}"></i>
 		@endif
 		@if(!$row->read)
-		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@theme('images/desc.gif')" alt="@lang('move_to_first_new_post')" /></a>
+		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-chevron-down" title="@lang('move_to_first_new_post')"></i></a>
 		<strong>
-			@endif
-			{{ $pref }}
-			<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">
-				@if($showprefix) @lang('showtopic_prefix_title') @endif
-				{{ $row->topic }}
-				@if(!$row->read)
+		@endif
+		{{ $pref }}
+		<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">
+		@if($showprefix) @lang('showtopic_prefix_title') @endif
+		{{ $row->topic }}
+		@if(!$row->read)
 		</strong>
 		@endif
-	</a>
-	@if(!empty($topic_pages))
-	<br /><span class="stext">{!! $topic_pages !!}</span>
-	@endif
-</td>
-<td class="cell-stat-2x hidden-xs">
-	@reldatetime($row->date)<br />
-	@lang('written_by')
-	<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
-</td>
-<td class="cell-stat text-center hidden-xs hidden-sm">{{ numbers($row->posts) }}</td>
-<td class="cell-stat-2x">
-	<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">@reldatetime($row->last)</a><br />
-	@lang('written_by')
-	<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
-</span></td>
+		</a>
+		@if(!empty($topic_pages))
+		<br /><span class="stext">{!! $topic_pages !!}</span>
+		@endif
+	</td>
+	<td class="cell-stat-2x hidden-xs">
+		@reldatetime($row->date)<br />
+		@lang('written_by')
+		<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
+	</td>
+	<td class="cell-stat text-center hidden-xs hidden-sm">{{ numbers($row->posts) }}</td>
+	<td class="cell-stat-2x">
+		<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">@reldatetime($row->last)</a><br />
+		@lang('written_by')
+		<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
+	</td>
 </tr>

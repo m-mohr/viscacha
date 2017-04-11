@@ -4,6 +4,13 @@
 	}
 }
 
+hr {
+    height: 1px;
+    background-color: #490A3D;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
 #copyright {
 	padding-top: 1em;
 }
@@ -73,25 +80,46 @@
 }
 
 .pagination {
-	float: right;
 	margin-top: 0px;
 	margin-bottom: 20px;
 }
 
-.navbar-form {
-	padding: 0px;
+.navbar .container-fluid {
+	padding-left: 0px;
 }
 
-.user-header img {
+.nav-condensed > li > a {
+   padding-top: 4px; 
+   padding-bottom: 4px; 
+}
+.panel-footer.nav {
+	padding: 4px;
+}
+
+.user-header img.avatar {
 	height: 1.5em;
-	border-radius: 0.25em;
+	width: auto;
+	border-radius: 0.3em;
 }
 
-.icon-neutral, .icon-old {
+.post .avatar {
+	margin-right: 0.5em;
+}
+
+.post img.avatar {
+	height: 2.25em;
+	width: auto;
+	border-radius: 0.5em;
+}
+
+.icon-neutral, .icon-old, .icon-offline {
 	color: #373330;
 }
 .icon-new {
 	color: #bc0100;
+}
+.icon-online {
+	color: #8A9B0F;
 }
 
 /* BB-Codes */
@@ -160,22 +188,29 @@
 	border: 1px solid #888888;
 	width: 100%;
 	border-collapse: collapse;
+	
 }
 .editor_textarea_outer td {
 	padding: 4px;
+}
+.editor_textarea_outer a, .editor_textarea_outer a:hover {
+	text-decoration: none;
 }
 .editor_toolbar {
 	border-bottom: 1px solid #C9C9C9;
 	background-color: #F4F4F4;
 	height: 28px;
 }
-.editor_toolbar_dropdown {
+.editor_toolbar .dropdown {
+	display: inline;
+}
+.editor_toolbar .dropdown a {
 	border: 1px solid #F4F4F4;
 	padding: 2px;
 	color: #000000;
 	font-size: 9pt;
 }
-.editor_toolbar_dropdown:hover {
+.editor_toolbar .dropdown a:hover {
 	border: 1px solid #999999;
 }
 .editor_toolbar_smiley {
@@ -216,42 +251,7 @@
 .editor_statusbar a:hover {
 	text-decoration: underline;
 }
-.editor_textarea_outer .popup {
-	border: 1px solid #888888;
-	max-height: 250px;
-	width: 200px;
-	overflow: auto;
-}
-.editor_textarea_outer .popup ul {
-	list-style-type: none;
-}
-.editor_textarea_outer .popup strong {
-	text-align: center;
-	color: #000000;
-	background-color: #eeeeee;
-	border-width: 0px;
-	border-bottom: 1px solid #888888;
-	padding: 2px;
-	font-size: 9pt;
-}
-.editor_textarea_outer .popup li {
-	border-width: 0px;
-	padding: 2px 3px 2px 3px;
-	background-color: #ffffff;
-	font-size: 9pt;
-}
-.editor_textarea_outer .popup li a, .editor_textarea_outer .popup_line {
-	color: #000000;
-	text-decoration: none;
-	border: 1px solid #ffffff;
-	background-color: #ffffff;
-	padding: 2px;
-}
-.editor_textarea_outer .popup li a:hover, .editor_textarea_outer .popup_line:hover {
-	background-color: #eeeeee;
-	border: 1px solid #cccccc;
-	color: #000000;
-}
+
 
 .bbcolor {
 	padding: 10px;
