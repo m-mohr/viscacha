@@ -470,7 +470,7 @@ function check_mail($email, $simple = false) {
 	 	$domain = mb_strtolower($domain);
 		// Check MX record.
 	 	// The idea for this is from UseBB/phpBB
-	 	if ($config['local_mode'] == 0 && $config['email_check_mx'] == 1 && !$simple) {
+	 	if ($config['email_check_mx'] == 1 && !$simple) {
 	 		if (checkmx_idna($domain) === false) {
 	 			return false;
 	 		}
@@ -882,7 +882,7 @@ function xmail ($to, $from = array(), $topic, $comment) {
 			$mail->AddAddress($gpc->plain_str($email['mail']));
 		}
 
-		if ($config['local_mode'] == 0) {
+		if ($config['debug'] != 1) {
 			if ($mail->Send()) {
 				$i++;
 			}
