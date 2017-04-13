@@ -16,7 +16,7 @@ if (!SCRIPT_LOCKED) {
 
 	$old_versions = array();
 	if (file_exists("install/package/update/steps.inc.php")) {
-		$old_versions['update'] = '0.8.1.1';
+		$old_versions['update'] = '0.8.1.2';
 	}
 
 	$packages = array();
