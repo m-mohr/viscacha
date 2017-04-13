@@ -505,8 +505,7 @@ function check_mail($email, $simple = false) {
 }
 
 function benchmarktime() {
-   list($usec, $sec) = explode(" ", microtime());
-   return ((float)$usec + (float)$sec);
+	return microtime(true);
 }
 
 function strxlen($string) {

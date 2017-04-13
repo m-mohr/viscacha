@@ -250,8 +250,7 @@ class DB_Driver { // abstract class
 	}
 
 	function benchmarktime() {
-	   list($usec, $sec) = explode(" ", microtime());
-	   return ((float)$usec + (float)$sec);
+	   return microtime(true);
 	}
 
 	function list_tables($db = null) {
