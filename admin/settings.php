@@ -1332,7 +1332,7 @@ elseif ($job == 'general') {
 	   <td class="mbox" width="50%"><input type="text" name="forenmail" value="<?php echo $gpc->prepare($config['forenmail']); ?>" size="50"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_output_benchmark'); ?></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_output_benchmark'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_output_benchmark_info'); ?></span></td>
 	   <td class="mbox" width="50%"><input type="checkbox" name="debug" value="1"<?php echo iif($config['debug'],' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>

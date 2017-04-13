@@ -208,6 +208,7 @@ $lang['admin_number_search_results'] = 'Number of Search results per Page:';
 $lang['admin_offline_msg'] = 'Offline message:';
 $lang['admin_offline_msg_info'] = 'This message will be shown if page is switched off.<br />HTML is allowed!';
 $lang['admin_output_benchmark'] = 'Enable debug and development mode:';
+$lang['admin_output_benchmark_info'] = 'Shows debugging information below each forum page, reduces caching, disables any mail transfer by the forum. Never use on a production system!';
 $lang['admin_package_has_already_a_group'] = 'This package has already a group with settings.';
 $lang['admin_package_manager'] = 'Package Manager';
 $lang['admin_package_x'] = 'Package: ';

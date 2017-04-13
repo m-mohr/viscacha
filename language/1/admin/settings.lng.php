@@ -208,6 +208,7 @@ $lang['admin_number_search_results'] = 'Anzahl Suchergebnisse pro Seite:';
 $lang['admin_offline_msg'] = 'Offline Nachricht:';
 $lang['admin_offline_msg_info'] = 'Diese Nachricht wird angezeigt, wenn die Seite offline geschaltet wird.<br />HTML ist erlaubt!';
 $lang['admin_output_benchmark'] = 'Debugging- ung Entwicklungsmodus anschalten:';
+$lang['admin_output_benchmark_info'] = 'Zeigt Debugging-Informationen unterhalb des Forums, vermindert Caching, verhindert den Versand von E-Mails vom Forensystem. Niemals im Produktiveinsatz verwenden!';
 $lang['admin_package_has_already_a_group'] = 'Dieses Paket hat bereits eine Gruppe mit Einstellungen.';
 $lang['admin_package_manager'] = 'Paket-Verwaltung';
 $lang['admin_package_x'] = 'Paket: ';
