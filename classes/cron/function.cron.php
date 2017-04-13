@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 define("PC_MINUTE",		1);
 define("PC_HOUR",		2);
 define("PC_DOM",		3);
@@ -15,7 +13,7 @@ define("CRON_PATH", 'classes/cron/jobs/');
 
 function logMessage($msg) {
 	global $writeDir, $useLog, $resultsSummary;
-	if ($msg[strlen($msg)-1]!="\n") {
+	if ($msg[mb_strlen($msg)-1]!="\n") {
 		$msg.="\n";
 	}
 	$resultsSummary.= $msg;
@@ -29,7 +27,7 @@ function logMessage($msg) {
 
 function lTrimZeros($number) {
 	while ($number[0] == '0') {
-		$number = substr($number,1);
+		$number = mb_substr($number,1);
 	}
 	return $number;
 }
@@ -52,7 +50,7 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 	}
 
 	for ($i=0;$i<count($subelements);$i++) {
-		if (preg_match("~^(\\*|([0-9]{1,2})(-([0-9]{1,2}))?)(/([0-9]{1,2}))?$~",$subelements[$i],$matches)) {
+		if (preg_match("~^(\\*|([0-9]{1,2})(-([0-9]{1,2}))?)(/([0-9]{1,2}))?$~u",$subelements[$i],$matches)) {
 			if ($matches[1]=="*") {
 				$matches[2] = 0;		// from
 				$matches[4] = $numberOfElements;		//to
@@ -214,9 +212,9 @@ function parseCronFile($cronTabFile) {
 						$jobs[$jobNumber][PC_DOW]);
 				}
 				$jobs[$jobNumber][PC_CMD] = trim($job[PC_CMD]);
-				$jobs[$jobNumber][PC_COMMENT] = trim(substr($job[PC_COMMENT],1));
+				$jobs[$jobNumber][PC_COMMENT] = trim(mb_substr($job[PC_COMMENT],1));
 				$jobs[$jobNumber][PC_ARGS] = Array();
-				if (preg_match_all('~(("([^"]*)")|(\S+))\s*~i', $jobs[$jobNumber][PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
+				if (preg_match_all('~(("([^"]*)")|(\S+))\s*~iu', $jobs[$jobNumber][PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
 					for($ii=0; $ii<count($jobArgs[1]); $ii++){
 						$jobArg = ($jobArgs[3][$ii]==='' ? $jobArgs[1][$ii] : $jobArgs[3][$ii]);
 						if($ii==0) {
@@ -245,11 +243,8 @@ function PixelImage() {
 
 function InitCron() {
 	global $cronTab, $maxJobs;
-	@ignore_user_abort(false);
-	$save_mode = @ini_get('safe_mode');
-	if (!$save_mode) {
-		@set_time_limit(60);
-	}
+	@ignore_user_abort(true);
+	@set_time_limit(60);
 	$jobs = parseCronFile($cronTab);
 	$jobsRun = 0;
 	for ($i=0;$i<count($jobs);$i++) {
@@ -262,11 +257,9 @@ function InitCron() {
 }
 
 function job_benchmark_start() {
-	return benchmarktime();
+	return microtime(true);
 }
 function job_benchmark_end($start) {
-	$duration = benchmarktime() - $start;
-	$duration = round($duration, 5);
-	return $duration;
+	$duration = microtime(true) - $start;
+	return round($duration, 5);
 }
-?>

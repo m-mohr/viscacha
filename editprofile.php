@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@ if (!$my->vlogin) {
 
 include_once ("classes/function.profilefields.php");
 
-$breadcrumb->Add($lang->phrase('editprofile_title'), 'editprofile.php'.SID2URL_1);
+Breadcrumb::universal()->add($lang->phrase('editprofile_title'), 'editprofile.php'.SID2URL_1);
 
 ($code = $plugins->load('editprofile_start')) ? eval($code) : null;
 
@@ -49,13 +49,13 @@ if ($_GET['action'] == "pw2") {
 	if ($_POST['type'] != $_POST['pwx']) {
 		$error[] = $lang->phrase('pw_comparison_failed');
 	}
-	if ($my->pw != md5($_POST['pw'])) {
+	if (!check_pw($_POST['pw'], $my->pw)) {
 		$error[] = $lang->phrase('old_pw_incorrect');
 	}
 	if (strlen($_POST['pwx']) > 200) {
 		$error[] = $lang->phrase('pw_too_long');
 	}
-	if (strxlen($_POST['pwx']) < 3) {
+	if (mb_strlen($_POST['pwx']) < 3) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
 	($code = $plugins->load('editprofile_pw2_errorhandling')) ? eval($code) : null;
@@ -87,9 +87,8 @@ elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 
 }
 elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
-	$breadcrumb->Add($lang->phrase('editprofile_attachments'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_attachments'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
 	$result = $db->query("
@@ -132,23 +131,22 @@ elseif ($_GET['action'] == "abos") {
 		else {
 			$type = $_GET['type'];
 		}
-		$sqlwhere = " AND type = '{$type}'";
+		$sqlwhere = " AND a.type = '{$type}'";
 	}
 
 	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.last_name, t.board, t.posts
+	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.board, t.posts, t.status, l.id AS luid, l.name AS luname
 	FROM {$db->pre}abos AS a
-		LEFT JOIN {$db->pre}topics AS t ON a.tid=t.id
-		LEFT JOIN {$db->pre}forums AS f ON f.id=t.board
+		LEFT JOIN {$db->pre}topics AS t ON a.tid = t.id
+		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
+		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
 	WHERE a.mid = '{$my->id}' AND f.invisible != '2' {$sqlwhere}
 	ORDER BY a.id DESC
 	");
 
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 
@@ -158,7 +156,7 @@ elseif ($_GET['action'] == "abos") {
 		if ($info['topiczahl'] < 1) {
 			$info['topiczahl'] = $config['topiczahl'];
 		}
-
+		
 		if (!empty($row['prefix']) && isset($prefix_arr[$row['board']][$row['prefix']])) {
 			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
 			$row['prefix'] = $lang->phrase('showtopic_prefix_title');
@@ -171,22 +169,7 @@ elseif ($_GET['action'] == "abos") {
 			$row['type'] = 's';
 		}
 
-		if (is_id($row['last_name'])) {
-			$row['last_name'] = $memberdata[$row['last_name']];
-		}
-		if ($slog->isTopicRead($row['tid'], $row['last'])) {
-			$row['firstnew'] = 0;
-			$row['alt'] = $lang->phrase('forum_icon_old');
-			$row['src'] = $tpl->img('dir_open');
-	 	}
-	  	else {
-			$row['firstnew'] = 1;
-			$row['alt'] = $lang->phrase('forum_icon_new');
-			$row['src'] = $tpl->img('dir_open2');
-		}
-
-		$row['last'] = str_date($lang->phrase('dformat1'),times($row['last']));
-
+		$row['read'] = $slog->isTopicRead($row['tid'], $row['last']);
 
 		if ($row['posts'] > $info['topiczahl']) {
 			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
@@ -206,9 +189,8 @@ elseif ($_GET['action'] == "abos") {
 		$count = 0;
 	}
 
-	$breadcrumb->Add($lang->phrase('editprofile_abos'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_abos'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_abos_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/abos");
@@ -252,9 +234,8 @@ elseif ($_GET['action'] == "abos2") {
 }
 
 elseif ($_GET['action'] == "pw") {
-	$breadcrumb->Add($lang->phrase('editprofile_pw'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_pw'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_pw_start')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/pw");
 	($code = $plugins->load('editprofile_pw_end')) ? eval($code) : null;
@@ -262,7 +243,7 @@ elseif ($_GET['action'] == "pw") {
 elseif ($_GET['action'] == "signature") {
 	if (!empty($_POST['Submit'])) {
 		$error = array();
-		if (strxlen($_POST['signature']) > $config['maxsiglength']) {
+		if (mb_strlen($_POST['signature']) > $config['maxsiglength']) {
 			$error[] = $lang->phrase('editprofile_signature_too_long');
 		}
 		($code = $plugins->load('editprofile_signature2_save')) ? eval($code) : null;
@@ -275,9 +256,8 @@ elseif ($_GET['action'] == "signature") {
 		}
 	}
 	else {
-		$breadcrumb->Add($lang->phrase('editprofile_signature'));
+		Breadcrumb::universal()->add($lang->phrase('editprofile_signature'));
 		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
 		BBProfile($bbcode);
 		$chars = numbers($config['maxsiglength']);
 		if (empty($_POST['signature'])) {
@@ -300,7 +280,7 @@ elseif ($_GET['action'] == "about2") {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
 	$error = array();
-	if (strxlen($_POST['about']) > $config['maxaboutlength']) {
+	if (mb_strlen($_POST['about']) > $config['maxaboutlength']) {
 		$error[] = $lang->phrase('about_too_long');
 	}
 	($code = $plugins->load('editprofile_about2_start')) ? eval($code) : null;
@@ -308,9 +288,7 @@ elseif ($_GET['action'] == "about2") {
 		$fid = save_error_data($_POST['about']);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl'].'/editprofile.php?action=about&job=preview&fid='.$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error, "editprofile.php?action=about&amp;fid=".$fid.SID2URL_x);
@@ -327,9 +305,8 @@ elseif ($_GET['action'] == "about") {
 	if ($my->p['useabout'] == 0) {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
-	$breadcrumb->Add($lang->phrase('editprofile_about'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_about'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_abos_Start')) ? eval($code) : null;
 
 	BBProfile($bbcode);
@@ -395,7 +372,7 @@ elseif ($_GET['action'] == "pic2") {
 			$error[] = $my_uploader->get_error();
 		}
 	}
-	elseif (!empty($pic) && preg_match('~^'.URL_REGEXP.'$~i', $pic)) {
+	elseif (!empty($pic) && is_url($pic)) {
 		$my->pic = checkRemotePic($pic, $my->id);
 		switch ($my->pic) {
 			case REMOTE_INVALID_URL:
@@ -439,33 +416,17 @@ elseif ($_GET['action'] == "pic") {
 	if ($my->p['usepic'] == 0) {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
-	$breadcrumb->Add($lang->phrase('editprofile_pic'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_pic'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	$filetypes = str_replace(",", $lang->phrase('listspacer'), $config['avfiletypes']);
 	$filesize = formatFilesize($config['avfilesize']);
-
-	$size = '';
-	if ($config['avwidth'] > 0) {
-		$size .= $lang->phrase('editprofile_pic_w1');
-	}
-	else {
-		$size .= $lang->phrase('editprofile_pic_w2');
-	}
-	if ($config['avheight'] > 0) {
-		$size .= $lang->phrase('editprofile_pic_h1');
-	}
-	else {
-		$size .= $lang->phrase('editprofile_pic_h2');
-	}
 
 	($code = $plugins->load('editprofile_pic_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/pic");
 }
 elseif ($_GET['action'] == "profile") {
-	$breadcrumb->Add($lang->phrase('editprofile_profile'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_profile'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('editprofile_profile_start')) ? eval($code) : null;
 
@@ -492,7 +453,7 @@ elseif ($_GET['action'] == "profile") {
 elseif ($_GET['action'] == "profile2") {
 
 	$_POST['hp'] = trim($_POST['hp']);
-	if (strtolower(substr($_POST['hp'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($_POST['hp'], 0, 4)) == 'www.') {
 		$_POST['hp'] = "http://{$_POST['hp']}";
 	}
 
@@ -503,13 +464,13 @@ elseif ($_GET['action'] == "profile2") {
 	if ($my->mail != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
 		 $error[] = $lang->phrase('email_already_used');
 	}
-	if ($config['changename_allowed'] == 1 && strxlen($_POST['name']) > $config['maxnamelength']) {
+	if ($config['changename_allowed'] == 1 && mb_strlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if ($config['changename_allowed'] == 1 && strxlen($_POST['name']) < $config['minnamelength']) {
+	if ($config['changename_allowed'] == 1 && mb_strlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
-	if ($config['changename_allowed'] == 1 && strtolower($my->name) != strtolower($_POST['name']) && double_udata('name',$_POST['name']) == false) {
+	if ($config['changename_allowed'] == 1 && mb_strtolower($my->name) != mb_strtolower($_POST['name']) && double_udata('name',$_POST['name']) == false) {
 		$error[] = $lang->phrase('username_registered');
 	}
 	if (strlen($_POST['email']) > 200) {
@@ -518,7 +479,7 @@ elseif ($_GET['action'] == "profile2") {
 	if (strlen($_POST['hp']) > 255) {
 		$error[] = $lang->phrase('editprofile_homepage_too_long');
 	}
-	if (!check_hp($_POST['hp'])) {
+	if (!is_url($_POST['hp'])) {
 		$_POST['hp'] = '';
 	}
 	if (strlen($_POST['location']) > 50) {
@@ -566,8 +527,6 @@ elseif ($_GET['action'] == "profile2") {
 
 		if ($config['changename_allowed'] == 1 && $_POST['name'] != $my->name) {
 			$changename = ", name = '{$_POST['name']}'";
-			$cache = $scache->load('memberdata');
-			$cache = $cache->delete();
 		}
 		else {
 			$changename = '';
@@ -583,27 +542,14 @@ elseif ($_GET['action'] == "profile2") {
 elseif ($_GET['action'] == "settings") {
 	$lang->group("timezones");
 
-	$breadcrumb->Add($lang->phrase('editprofile_settings'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_settings'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
-	$result = $db->query("SELECT template, language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
+	$result = $db->query("SELECT language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
 	$update = $db->fetch_assoc($result);
 
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
-	if (!empty($my->settings['q_tpl']) && isset($design[$my->settings['q_tpl']])) {
-		$mydesign = $design[$my->settings['q_tpl']]['name'];
-		$my->template = $my->settings['q_tpl'];
-	}
-	elseif (isset($design[$update['template']])) {
-		$mydesign = $design[$update['template']]['name'];
-		$my->template = $update['template'];
-	}
-	else {
-		$mydesign = $design[$config['templatedir']]['name'];
-		$my->template = $config['templatedir'];
-	}
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
@@ -628,10 +574,10 @@ elseif ($_GET['action'] == "settings") {
 elseif ($_GET['action'] == "settings2") {
 
 	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get();
+	$themes = $loaddesign_obj->get();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
-	$cache2 = $loadlanguage_obj->get();
+	$languages = $loadlanguage_obj->get();
 
 	$error = array();
 	if (intval($_POST['location']) < -12 && intval($_POST['location']) > 12) {
@@ -643,10 +589,10 @@ elseif ($_GET['action'] == "settings2") {
 	if ($_POST['opt_3'] < 0 && $_POST['opt_3'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_showmail');
 	}
-	if ($config['hidedesign'] == 0 && $_POST['opt_4'] != 0 && !isset($cache[$_POST['opt_4']])) {
+	if ($config['hidedesign'] == 0 && !empty($_POST['opt_4']) && !isset($themes[$_POST['opt_4']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_design');
 	}
-	if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && !isset($cache2[$_POST['opt_5']])) {
+	if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && !isset($languages[$_POST['opt_5']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 	}
 	if ($_POST['opt_7'] != 0 && $_POST['opt_7'] != 1) {
@@ -668,20 +614,15 @@ elseif ($_GET['action'] == "settings2") {
 	else {
 		($code = $plugins->load('editprofile_settings2_query')) ? eval($code) : null;
 
-		if ($config['hidedesign'] == 0 && $_POST['opt_4'] != 0 && isset($my->settings['q_tpl']) && $_POST['opt_4'] != $my->template) {
-			unset($my->settings['q_tpl']);
-		}
 		if ($config['hidelanguage'] == 0 && $_POST['opt_5'] != 0 && isset($my->settings['q_lng']) && $_POST['opt_5'] != $my->language) {
 			unset($my->settings['q_lng']);
 		}
 
 		$db->query("
 		UPDATE {$db->pre}user
-		SET
-			".
-			iif(($config['hidedesign'] == 0 &&  $_POST['opt_4'] > 0), "template = '{$_POST['opt_4']}',").
-			iif(($config['hidelanguage'] == 0 && $_POST['opt_5'] > 0), "language = '{$_POST['opt_5']}',")
-			."
+		SET ".
+			iif(($config['hidedesign'] == 0 && !empty($_POST['opt_4'])), "theme = '{$_POST['opt_4']}',").
+			iif(($config['hidelanguage'] == 0 && $_POST['opt_5'] > 0), "language = '{$_POST['opt_5']}',")."
 			timezone = '{$_POST['location']}',
 			opt_pmnotify = '{$_POST['opt_1']}',
 			opt_hidemail = '{$_POST['opt_3']}',
@@ -695,9 +636,8 @@ elseif ($_GET['action'] == "settings2") {
 
 }
 elseif ($_GET['action'] == "mylast") {
-	$breadcrumb->Add($lang->phrase('editprofile_mylast'));
+	Breadcrumb::universal()->add($lang->phrase('editprofile_mylast'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$cache = array();
 
@@ -742,28 +682,7 @@ elseif ($_GET['action'] == "mylast") {
 		$row['topic'] = $gpc->prepare($row['topic']);
 		$row['name'] = $gpc->prepare($row['name']);
 
-		if ($slog->isTopicRead($row['id'], $row['last'])) {
-	 		$row['firstnew'] = 0;
-			if ($row['status'] == 1 || $row['status'] == 2) {
-			   	$row['alt'] = $lang->phrase('forum_icon_closed');
-				$row['src'] = $tpl->img('dir_closed');
-			}
-			else {
-			   	$row['alt'] = $lang->phrase('forum_icon_old');
-			   	$row['src'] = $tpl->img('dir_open');
-	 		}
-	 	}
-	  	else {
-	  		$row['firstnew'] = 1;
-			if ($row['status'] == 1 || $row['status'] == 2) {
-				$row['alt'] = $lang->phrase('forum_icon_closed');
-				$row['src'] = $tpl->img('dir_closed2');
-			}
-			else {
-				$row['alt'] = $lang->phrase('forum_icon_new');
-				$row['src'] = $tpl->img('dir_open2');
-			}
-		}
+		$row['read'] = $slog->isTopicRead($row['id'], $row['last']);
 
 		if (isset($prefix_arr[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
 			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
@@ -850,9 +769,8 @@ elseif ($_GET['action'] == "removeabo") {
 	ok($lang->phrase('unsubscribed_successfully'));
 }
 else {
-	$breadcrumb->ResetUrl();
+	Breadcrumb::universal()->resetUrl();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('editprofile_index_start')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/index");
 	($code = $plugins->load('editprofile_index_end')) ? eval($code) : null;
@@ -860,9 +778,6 @@ else {
 
 ($code = $plugins->load('editprofile_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

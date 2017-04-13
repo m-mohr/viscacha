@@ -1,7 +1,7 @@
 $request_uri = getRequestURI();
 if (!$my->vlogin) {
-	$request_uri = htmlspecialchars($request_uri);
-	$tpl->globalvars(compact("request_uri"));
+	$request_uri = viscacha_htmlspecialchars($request_uri);
+	$tpl->assignVars(compact("request_uri"));
 	echo $tpl->parse("modules/{$pluginid}/nav_guest");
 }
 else {
@@ -9,6 +9,6 @@ else {
 	$newpms = $db->fetch_num($result);
 	$my->pms = $newpms[0];
 	$request_uri = rawurlencode($request_uri);
-	$tpl->globalvars(compact("request_uri", "my"));
+	$tpl->assignVars(compact("request_uri", "my"));
 	echo $tpl->parse("modules/{$pluginid}/nav_member");
 }

@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /*
  Start with:
  new text2image;
@@ -11,7 +9,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
  (void) destroy()
 
 */
-
 
 class text2image {
 
@@ -54,18 +51,18 @@ class text2image {
 
 	function imagecolorallocate($hex) {
 		$color = str_replace('#', '', $hex);
-		if (strlen($color) == 3) {
+		if (mb_strlen($color) == 3) {
 			$ret = array(
-				'r' => str_repeat(hexdec(substr($color, 0, 1)), 2),
-				'g' => str_repeat(hexdec(substr($color, 1, 1)), 2),
-				'b' => str_repeat(hexdec(substr($color, 2, 1)), 2)
+				'r' => str_repeat(hexdec(mb_substr($color, 0, 1)), 2),
+				'g' => str_repeat(hexdec(mb_substr($color, 1, 1)), 2),
+				'b' => str_repeat(hexdec(mb_substr($color, 2, 1)), 2)
 			);
 		}
 		else {
 			$ret = array(
-				'r' => hexdec(substr($color, 0, 2)),
-				'g' => hexdec(substr($color, 2, 2)),
-				'b' => hexdec(substr($color, 4, 2))
+				'r' => hexdec(mb_substr($color, 0, 2)),
+				'g' => hexdec(mb_substr($color, 2, 2)),
+				'b' => hexdec(mb_substr($color, 4, 2))
 			);
 		}
 		$gd = imagecolorallocate($this->img, $ret['r'], $ret['g'], $ret['b']);
@@ -73,7 +70,7 @@ class text2image {
 	}
 
 	function build ($margin = 2, $bg = 'ffffff', $fg = '000000') {
-		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/(\[nl\]|<br(\s?\/)?>)/is", "\r\n", $this->text));
+		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/(\[nl\]|<br(\s?\/)?>)/isu", "\r\n", $this->text));
 
 		$TxtBx_Lwr_L_x = $TextBoxSize[0];
 		$TxtBx_Lwr_L_y = $TextBoxSize[1];
@@ -101,11 +98,11 @@ class text2image {
 		$fgc = $this->imagecolorallocate($fg);
 		imagefill($this->img, 0, 0, $bgc);
 		imagecolortransparent($this->img, $bgc);
-		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $fgc, $this->font, preg_replace("/\[nl\]/is", "\r\n", $this->text));
+		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $fgc, $this->font, preg_replace("/\[nl\]/isu", "\r\n", $this->text));
 	}
 
 	function output($format = 'png') {
-		if (($format == 'jpeg' || $format == 'jpe' || $format == 'jpeg') && function_exists('imagejpeg')) {
+		if (($format == 'jpeg' || $format == 'jpeg') && function_exists('imagejpeg')) {
 			header("Content-Type: image/jpeg");
 			imagejpeg($this->img, '', 90);
 		}
@@ -127,14 +124,6 @@ class text2image {
 
 	function destroy() {
 		imagedestroy($this->img);
-	}
-
-	// TO DO:
-	function save($file) {
-
-	}
-	function cache() {
-
 	}
 
 }

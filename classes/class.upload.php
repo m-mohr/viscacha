@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define('UPLOAD_ERR_FILE_INDEX', 1);
 define('UPLOAD_ERR_FILE_SIZE', 2);
@@ -49,13 +47,13 @@ class uploader {
 	 */
 	function __construct() {
 		$this->file = array();
-		$this->path = dirname(__FILE__).DIRECTORY_SEPARATOR;
+		$this->path = __DIR__.DIRECTORY_SEPARATOR;
 		$this->file_types = array();
 		$this->new_filename = null;
 		$this->error = null;
 		$this->max_filesize = ini_maxupload();
-		$this->max_image_width = 0;
-		$this->max_image_height = 0;
+		$this->max_image_width = null;
+		$this->max_image_height = null;
 		$this->copy_func = 'move_uploaded_file';
 	}
 
@@ -103,7 +101,7 @@ class uploader {
 	 */
 	function file_types($accept_type = null){
 		if (is_array($accept_type) == true) {
-		    $this->file_types = array_map('strtolower', $accept_type);
+		    $this->file_types = array_map('mb_strtolower', $accept_type);
 		}
 		else {
 		    $this->file_types = array('zip','rar','doc','pdf','txt','gif','png','jpg');
@@ -117,7 +115,7 @@ class uploader {
 	 */
 	function set_path($path) {
 		$this->path = $path;
-		if ($path[strlen($path)-1] != '/' && $path[strlen($path)-1] != '\\') {
+		if ($path[mb_strlen($path)-1] != '/' && $path[mb_strlen($path)-1] != '\\') {
 			$this->path .= '/';
 		}
 	}
@@ -160,7 +158,7 @@ class uploader {
 		// Set input field name
 		$this->file['form'] = $index;
 		// Get extension
-		$this->file['extension'] = strtolower(get_extension($this->file['name']));
+		$this->file['extension'] = mb_strtolower(get_extension($this->file['name']));
 		// Get file size
 		if (empty($this->file['size']) == true) {
 			$this->file['size'] = filesize($this->file['tmp_name']);
@@ -168,7 +166,7 @@ class uploader {
 		// Set mime type
 		if (empty($this->file['type']) == true) {
 			if (function_exists('mime_content_type') == true) {
-				$this->file['type'] = mime_content_type($this->file['name']);
+				$this->file['type'] = @mime_content_type($this->file['name']);
 			}
 		}
 		// Check image data (height, width, image)
@@ -190,7 +188,7 @@ class uploader {
 			$this->file['image'] = false;
 		}
 		// Set raw_name
-		$this->file['raw_name'] = substr($this->file['name'], 0, -(strlen($this->file['extension'])+1) );
+		$this->file['raw_name'] = mb_substr($this->file['name'], 0, -(mb_strlen($this->file['extension'])+1) );
 		$this->file['filename'] = $this->file['name'];
 
 		// test max file size
@@ -200,11 +198,11 @@ class uploader {
 		}
 		// test max image size
 		if($this->file['image'] == true) {
-			if($this->max_image_width > 0 && $this->file['width'] > $this->max_image_width) {
+			if($this->max_image_width !== null && $this->file['width'] > $this->max_image_width) {
 				$this->error = UPLOAD_ERR_IMAGE_WIDTH;
 				return false;
 			}
-			if($this->max_image_height > 0 && $this->file['height'] > $this->max_image_height) {
+			if($this->max_image_height !== null && $this->file['height'] > $this->max_image_height) {
 				$this->error = UPLOAD_ERR_IMAGE_HEIGHT;
 				return false;
 			}
@@ -237,13 +235,15 @@ class uploader {
 	 * @return	boolean
 	 */
 	function save_file($path = null, $overwrite_mode = 0){
+		global $filesystem;
+
 		if ($this->error != null) {
 			return false;
 		}
 
-		if ($path != null && strlen($path) > 0) {
+		if ($path != null && mb_strlen($path) > 0) {
 			$this->path = $path;
-			if ($path[strlen($path)-1] != '/' && $path[strlen($path)-1] != '\\') {
+			if ($path[mb_strlen($path)-1] != '/' && $path[mb_strlen($path)-1] != '\\') {
 				$this->path .= '/';
 			}
 		}
@@ -288,14 +288,7 @@ class uploader {
 				}
 			break;
 			default: // create new with incremental extension
-				$n = 0;
-				while(file_exists($new_path) == true) {
-					$n++;
-					$new_path =  $this->path.$this->file['raw_name'].'_'.$n.'.'.$this->file['extension'];
-				}
-				if ($n > 0) {
-					$this->file['raw_name'] .= '_'.$n;
-				}
+				$new_path = $filesystem->new_filename($new_path);
 				if (call_user_func($this->copy_func, $this->file['tmp_name'], $new_path)) {
 					$success = true;
 					$this->file['tmp_name'] = $new_path;
@@ -308,16 +301,11 @@ class uploader {
 		$this->file['filename'] = $this->file['raw_name'].'.'.$this->file['extension'];
 
 		// Clean up text file line breaks
-		if(substr($this->file['type'], 0, 4) == 'text') {
+		if(mb_substr($this->file['type'], 0, 4) == 'text') {
 			$this->cleanup_text_file();
 		}
-		if (isset($GLOBALS['filesystem'])) {
-			global $filesystem;
-			$filesystem->chmod($this->file['tmp_name'], 0666);
-		}
-		else {
-			@chmod($this->file['tmp_name'], 0666);
-		}
+
+		$filesystem->chmod($this->file['tmp_name'], 0666);
 
 		return $success;
 	}
@@ -380,8 +368,8 @@ class uploader {
 			break;
 			case UPLOAD_ERR_IMAGE_WIDTH:
 			case UPLOAD_ERR_IMAGE_HEIGHT:
-				$lang->assign('mih', $this->max_image_height > 0 ? numbers($this->max_image_height) : $lang->phrase('upload_unspecified'));
-				$lang->assign('miw', $this->max_image_width > 0 ? numbers($this->max_image_width) : $lang->phrase('upload_unspecified'));
+				$lang->assign('mih', $this->max_image_height !== null ? numbers($this->max_image_height) : $lang->phrase('upload_unspecified'));
+				$lang->assign('miw', $this->max_image_width !== null ? numbers($this->max_image_width) : $lang->phrase('upload_unspecified'));
 				$message = $lang->phrase('upload_error_maximagesize');
 			break;
 			case UPLOAD_ERR_FILE_TYPE:
@@ -413,7 +401,7 @@ class uploader {
 	 */
 	function cleanup_text_file(){
 		$fcontents = @file_get_contents($this->file['tmp_name']);
-		$fcontents = preg_replace("/(\r\n|\r|\n)/", "\r\n", $fcontents);
+		$fcontents = preg_replace("/(\r\n|\r|\n)/u", "\r\n", $fcontents);
 		@file_put_contents($this->file['tmp_name'], $fcontents);
 	}
 

@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 global $db, $config;
 
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics");
@@ -9,7 +7,7 @@ list($topics) = $db->fetch_num($result);
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies");
 list($posts) = $db->fetch_num($result);
 
-$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE confirm = '11'");
+$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE deleted_at IS NULL AND confirm = '11'");
 list($members) = $db->fetch_num($result);
 
 include("language/{$config['langdir']}/settings.lng.php");
@@ -33,8 +31,8 @@ $data = array(
 	)
 );
 
-mkdir('feeds/');
+if (!file_exists('feeds/')) {
+	mkdir('feeds/');
+}
 $myini = new INI();
 $myini->write('feeds/board_data.ini', $data);
-
-?>

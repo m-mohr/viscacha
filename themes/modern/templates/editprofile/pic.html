@@ -1,0 +1,32 @@
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/user.gif')" alt="" /> @lang('editprofile_pic')</h3></div>
+	<form method="post" action="editprofile.php?action=pic3{{ SID2URL_x }}">
+		<div class="panel-footer">@lang('editprofile_pic_current')</div>
+		<div class="bbody center">
+			@if(file_exists($my->pic))
+			<img src="{{ $my->pic }}" border="0" alt="" />
+			<hr class="formsep" />
+			<input type="checkbox" name="temp" tabindex="1" id="delete_pic" value="1" /> <label class="plainlabel" for="delete_pic">@lang('editprofile_pic_delete')</label> <input class="sep" type="submit" value="@lang('delete_form')" />
+			@elselang('editprofile_pic_empty')
+		</div>
+	</form>
+	<div class="panel-footer">@lang('editprofile_pic_new')</div>
+	<form name="form2" method="post" action="editprofile.php?action=pic2{{ SID2URL_x }}" enctype="multipart/form-data">
+		<div class="panel-body">
+			<label class="plainlabel" for="pic"><strong>@lang('editprofile_pic_url')</strong></label><br />
+			<input type="text" name="pic" tabindex="2" id="pic" size="60" value="" />
+			<hr class="formsep" />
+			<label class="plainlabel" for="upload"><strong>@lang('editprofile_pic_upload')</strong></label><br />
+			<input type="file" name="upload" tabindex="3" id="upload" size="60" value="" />
+			<hr class="formsep" />
+			<span class="stext">
+				<strong>@lang('editprofile_pic_settings')</strong>
+				<br />
+				@lang('upload_restriction_filesize') {{ $filesize }}<br />
+				@lang('editprofile_pic_restricitons')<br />
+				@lang('upload_restriction_filetype') {{ $filetypes }}
+			</span>
+		</div>
+		<div class="panel-footer center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
+	</form>
+</div>

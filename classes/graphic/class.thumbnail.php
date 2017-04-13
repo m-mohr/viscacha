@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class thumbnail {
 
@@ -103,12 +101,11 @@ function set_cacheuri($path) {
 }
 
 function create_thumbnail($attachment) {
-	global $config;
+	global $config, $imagetype_extension;
 	$thumbnail = NULL;
 
 	$ext = get_extension($attachment);
-	if($ext == 'gif' or $ext == 'png' or $ext == 'jpg' or $ext == 'jpeg' or $ext == 'jpe') {
-
+	if(in_array($ext, $imagetype_extension)) {
 		$imageinfo = getimagesize($attachment);
 		$new_width = $width = $imageinfo[0];
 		$new_height = $height = $imageinfo[1];
@@ -177,7 +174,7 @@ function create_thumbnail($attachment) {
 /*
  * p h p U n s h a r p M a s k
  *
- * Unsharp mask algorithm by Torstein Hønsi 2003.
+ * Unsharp mask algorithm by Torstein HÃ¸nsi 2003.
  * thoensi_at_netcom_dot_no.
  * Please leave this notice.
  */

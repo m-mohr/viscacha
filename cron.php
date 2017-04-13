@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -33,8 +33,8 @@ error_reporting(E_ALL);
 
 define('SCRIPTNAME', 'cron');
 define('VISCACHA_CORE', '1');
-define('TEMPSHOWLOG', 1);
-define('TEMPNOFUNCINIT', 1);
+define('NON_HTML_RESPONSE', 1);
+define('CONSOLE_REQUEST', 1);
 
 require_once("data/config.inc.php");
 include("classes/function.viscacha_frontend.php");
@@ -72,7 +72,3 @@ PixelImage();
 InitCron();
 
 ($code = $plugins->load('cron_end')) ? eval($code) : null;
-
-$db->close();
-
-?>

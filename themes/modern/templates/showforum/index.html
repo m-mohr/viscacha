@@ -1,0 +1,104 @@
+@if($info['message_active'] == 1)
+@include('misc.board_rules')
+@endif
+@if($info['readonly'] == '0' || $info['topics'] > 0 || !$subforums)
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<!-- ToDo: Move to left sidebar and replace automatically with best fitting search -->
+		<form class="navbar-form navbar-left" method="post" action="search.php?action=search{{ SID2URL_x }}">
+			<div class="form-group">
+				<input type="text" name="search" class="form-control" placeholder="@lang('forum_options_search')">
+				<input type="hidden" name="boards[]" value="{{ $board }}" />
+			</div>
+			<button type="submit" class="btn btn-default"><i class="fa fa-search" title="@lang('submit')"></i></button>
+		</form>
+		<ul class="nav navbar-nav navbar-right">
+			@if($my->mp[0] == 1)
+			<li class="dropdown">
+				<a id="admin_options" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('admin_options')</a>
+				<ul class="dropdown-menu" aria-labelledby="admin_options">
+					<li><a href="manageforum.php?action=index&amp;type=open&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-unlock"></i> @lang('admin_mass_open')</a></li>
+					<li><a href="manageforum.php?action=index&amp;type=close&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-lock"></i> @lang('admin_mass_close')</a></li>
+					<li><a href="manageforum.php?action=index&amp;type=delete&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-trash"></i> @lang('admin_mass_delete')</a></li>
+					<li><a href="manageforum.php?action=index&amp;type=move&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-arrow-right"></i> @lang('admin_mass_move')</a></li>
+					<li><a href="manageforum.php?action=stat&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-refresh"></i> @lang('admin_forum_stats')</a></li>
+				</ul>
+			</li>
+			@endif
+			<li><a href="misc.php?action=markforumasread&amp;board={{ $board }}{{ SID2URL_x }}"> <i class="fa fa-check"></i> @lang('forum_options_markread')</a></li>
+			@if($my->p['posttopics'] == 1 && $info['readonly'] == 0)
+			<li><a href="newtopic.php?id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('forum_newtopic')</a></li>
+			@endif
+		</ul>
+    </div>
+</nav>
+
+{!! $pages !!}
+
+<table class="table threads table-striped">
+	<thead>
+		<tr>
+			<th class="cell-icon"></th>
+			<th>@lang('forum_topic')</th>
+			<th class="cell-stat-2x hidden-xs">@lang('forum_start')</th>
+			<th class="cell-stat hidden-xs hidden-sm">@lang('forum_replies')</th>
+			<th class="cell-stat-2x">@lang('forum_last')</th>
+		</tr>
+	</thead>
+	<tbody>
+		@if($info['message_active'] == '2')
+		<tr>
+			<td colspan="1" class="text-center"><i class="fa fa-lg fa-exclamation icon-new"></i></td>
+			<td colspan="4">
+				@lang('board_rules'):
+				<a href="misc.php?action=board_rules&amp;id={{ $board }}{{ SID2URL_x }}">
+					{{ $info['message_title'] }}
+				</a>
+			</td>
+		</tr>
+		@endif
+		{!! $inner['index_bit'] !!}
+	</tbody>
+</table>
+
+{!! $pages !!}
+
+<form method="get" action="showforum.php">
+	<input type="hidden" name="id" value="{{ $board }}" />
+	<input type="hidden" name="s" value="{{ SID2URL }}" />
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th colspan="2">@lang('forum_filter')</th>
+			</tr>
+		</thead>
+		@if(!empty($prefix_arr))
+		<tr>
+			<td class="tfoot" width="50%"></td>
+			<td class="tfoot" width="50%"></td>
+		</tr>
+		@endif
+		<tr>
+			<td class="tbody">
+				<select size="1" name="sort">
+					<option value="0"@selected($filter == 0)>@lang('forum_filter_opt0')</option>
+					<option value="6"@selected($filter == 6)>@lang('forum_filter_opt6')</option>
+				</select>
+				<br />
+				@if(!empty($prefix_arr))
+				@lang('prefix')
+				<select size="1" name="prefix">
+					<option value="-1"@selected($prefix_filter == -1)>@lang('forum_filter_opt0')</option>
+					<option value="0"@selected($prefix_filter == 0)>@lang('prefix_empty_filter')</option>
+					@foreach($prefix_arr as $prefix_id => $prefix_row) {
+					<option value="{{ $prefix_id }}"@selected($prefix_filter == $prefix_id)>{{ $prefix_row['value'] }}</option>
+					@endforeach
+				</select>
+				<br />
+				@endif
+				<input type="submit" accesskey="s" value="@lang('submit_form')" />
+			</td>
+		</tr>
+	</table>
+</form>
+@endif

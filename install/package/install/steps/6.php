@@ -10,7 +10,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('fname', html_enc);
 	$c->updateconfig('fdesc', html_enc);
 	$_REQUEST['furl'] = empty($_REQUEST['furl']) ? getFUrl() : $_REQUEST['furl'];
-	if (strtolower(substr($_REQUEST['furl'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($_REQUEST['furl'], 0, 4)) == 'www.') {
 		$https = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://');
 		$_REQUEST['furl'] = $https.$_REQUEST['furl'];
 	}
@@ -22,7 +22,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('langdir', int);
 	$langdir = $c->data['langdir'];
 	if (empty($c->data['cryptkey']) == true) {
-		$c->updateconfig('cryptkey', str, md5(microtime()));
+		$c->updateconfig('cryptkey', str, generate_uid());
 	}
 	$c->updateconfig('foffline', int, 1);
 	$c->updateconfig('version', str, VISCACHA_VERSION);

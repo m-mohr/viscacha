@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define('CHMOD_FILE', 'is_file');
 define('CHMOD_DIR', 'is_dir');
@@ -74,8 +72,8 @@ function chmod_str2oct($mode) {
 }
 
 function check_chmod($min, $given) {
-	$min = explode("\r\n", chunk_split($min, 1));
-	$given = explode("\r\n", chunk_split($given, 1));
+	$min = str_split($min);
+	$given = str_split($given);
 
 	if (count($given) < 3 || count($min) < 3) {
 		return false;
@@ -114,24 +112,18 @@ function getViscachaCHMODs() {
 		array('path' => 'admin/data/hooks.txt', 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false),
 		array('path' => 'admin/html', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
 
-		array('path' => 'data', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
-		array('path' => 'data/cron', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
+		array('path' => 'assets', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
+
+		array('path' => 'data', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
 		array('path' => 'data', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => true),
 
-		array('path' => 'cache', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
-		array('path' => 'cache', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false),
-
 		array('path' => 'classes/cron/jobs', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
-		array('path' => 'classes/fonts', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
-		array('path' => 'classes/graphic/noises', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false),
-
-		array('path' => 'images', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
 
 		array('path' => 'modules', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
 		array('path' => 'modules', 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false),
 
 		array('path' => 'temp', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true),
-		array('path' => 'templates', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => true),
+		array('path' => 'themes', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false),
 		array('path' => 'uploads', 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => true)
 
 	);
@@ -146,36 +138,5 @@ function getViscachaCHMODs() {
 	}
 	closedir($dh);
 
-	$path = 'templates';
-	$dh = opendir($path);
-	while ($file = readdir($dh)) {
-		$fullpath = $path.'/'.$file;
-		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
-			$chmod[] = array('path' => $fullpath.'/modules', 'chmod' => CHMOD_EX, 'recursive' => false, 'req' => false);
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_WR, 'recursive' => true, 'req' => false);
-		}
-	}
-	closedir($dh);
-
-	$path = 'designs';
-	$dh = opendir($path);
-	while ($file = readdir($dh)) {
-		$fullpath = $path.'/'.$file;
-		if($file != '.' && $file != '..' && is_id($file) && is_dir($fullpath)) {
-			$dh2 = opendir($fullpath);
-			while ($file = readdir($dh2)) {
-				$stylesheet = $fullpath.'/'.$file;
-				if(preg_match('~\.css$~i', $file)) {
-					$chmod[] = array('path' => $stylesheet, 'chmod' => CHMOD_WR, 'recursive' => false, 'req' => false);
-				}
-			}
-			closedir($dh2);
-			$chmod[] = array('path' => $fullpath, 'chmod' => CHMOD_EX, 'recursive' => true, 'req' => false);
-		}
-	}
-	closedir($dh);
-
 	return $chmod;
 }
-?>

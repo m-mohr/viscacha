@@ -23,12 +23,11 @@ function daynumber($time) {
 ($code = $plugins->load('admin_slog_jobs')) ? eval($code) : null;
 
 $logfiles = array(
-	$db->system => 'data/errlog_'.$db->system.'.inc.php',
-	'php' => 'data/errlog_php.inc.php',
+	'viscacha' => 'data/logs/viscacha.log',
 	'cron' => 'data/cron/cron.log'
 );
 
-if ($job == 'errorlos_clear') {
+if ($job == 'errorlogs_clear') {
 	echo head();
 	$type = $gpc->get('type', path);
 	$url = 'admin.php?action=slog&job=errorlogs&type='.$type;
@@ -44,12 +43,12 @@ elseif ($job == 'errorlogs') {
     echo head();
 
     $type = $gpc->get('type', path);
-    if ($type != 'php' && $type != 'cron') {
-    	$type = $db->system;
+    if ($type != 'cron') {
+    	$type = 'viscacha';
 	}
 
 	if (empty($logfiles[$type])) {
-        error($url, $lang->phrase('admin_slog_logfile_not_found'));
+        error('admin.php?action=index', $lang->phrase('admin_slog_logfile_not_found'));
 	}
 	$file = $logfiles[$type];
 
@@ -72,11 +71,11 @@ elseif ($job == 'errorlogs') {
 	<a class="button" href="#" id="menu_acp_switchlog" onmouseover="RegisterMenu('acp_switchlog');"><?php echo $lang->phrase('admin_slog_switch_log'); ?> &#8628;</a>
 	<div class="popup" id="popup_acp_switchlog"><ul>
 	<?php foreach($logfiles as $t => $file) { if ($t != $type) { ?>
-		<li><a href="admin.php?action=slog&amp;job=errorlogs&amp;type=<?php echo $t; ?>"><?php echo strtoupper($t); ?></a></li>
+		<li><a href="admin.php?action=slog&amp;job=errorlogs&amp;type=<?php echo $t; ?>"><?php echo mb_strtoupper($t); ?></a></li>
 	<?php }} ?>
 	</ul></div>
     </span>
-    <?php echo $lang->phrase('admin_slog_sql_error_logfile').' '.strtoupper($type); ?>
+    <?php echo $lang->phrase('admin_slog_sql_error_logfile').' '.mb_strtoupper($type); ?>
    </td>
   </tr>
   <?php if (!is_array($log)) { ?>
@@ -103,7 +102,7 @@ elseif ($job == 'errorlogs') {
 				$row['class'] = (!isset($row['class'])) ? '' : $row['class'];
 				$row['type'] = (!isset($row['type'])) ? '' : $row['type'];
 
-				$data[6] .= "<b>#{$i}:</b> ".htmlspecialchars($row['file']).":{$row['line']}&nbsp;".htmlspecialchars($row['class'].$row['type'].$row['function'])."(...)<br />";
+				$data[6] .= "<b>#{$i}:</b> ".viscacha_htmlspecialchars($row['file']).":{$row['line']}&nbsp;".viscacha_htmlspecialchars($row['class'].$row['type'].$row['function'])."(...)<br />";
 			}
 		}
 	?>
@@ -177,7 +176,7 @@ elseif ($job == 's_general_image') {
 
 	$sort = $gpc->get('sortorder', str);
 	if ($sort == 'asc' || $sort == 'desc') {
-		$sort = strtoupper($sort);
+		$sort = mb_strtoupper($sort);
 	}
 	else {
 		$sort = 'ASC';
@@ -193,10 +192,10 @@ elseif ($job == 's_general_image') {
 		$statdate = date($phpformat, $row['statdate']);
 
 		if ($timeorder == 1) {
-			$statdate = preg_replace_callback("/~(\d+)/", "getday", $statdate);
+			$statdate = preg_replace_callback("/~(\d+)/u", "getday", $statdate);
 		}
 		if ($timeorder > 1) {
-			$statdate = preg_replace_callback("/(\d+)~/", "getmonth", $statdate);
+			$statdate = preg_replace_callback("/(\d+)~/u", "getmonth", $statdate);
 		}
 		if ($timeorder == 2) {
 			$week = ceil((date('z', $row['statdate']) - daynumber($row['statdate'])) / 7) + ((daynumber(mktime(0, 0, 0, 1, 1, date('Y', $row['statdate']))) <= 3) ? (1) : (0));
@@ -394,7 +393,7 @@ if ($show == 1) {
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""');
 	$vote = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user');
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
 	$members = $db->fetch_num($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type != "f"');

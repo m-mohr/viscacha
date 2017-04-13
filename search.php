@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@ if ($my->p['search'] == 0) {
 	error($lang->phrase('query_string_error'));
 }
 
-$breadcrumb->Add($lang->phrase('search'));
+Breadcrumb::universal()->add($lang->phrase('search'));
 
 ($code = $plugins->load('search_start')) ? eval($code) : null;
 
@@ -50,8 +50,8 @@ if ($_GET['action'] == "search") {
 		set_flood(FLOOD_TYPE_SEARCH);
 	}
 	$boards = $gpc->get('boards', arr_int);
-	$search = preg_replace("/(\s){1,}/is", " ", $gpc->get('search', str));
-    $search = preg_replace("/\*{1,}/is", '*', $search);
+	$search = preg_replace("/(\s){1,}/isu", " ", $gpc->get('search', str));
+    $search = preg_replace("/\*{1,}/isu", '*', $search);
     $searchwords = splitWords($search);
 	$ignorewords = $lang->get_words();
 
@@ -59,13 +59,13 @@ if ($_GET['action'] == "search") {
 	$used = array();
 	foreach ($searchwords as $sw) {
 		if ($sw{0} == '-') {
-			$sw2 = substr($sw, 1);
+			$sw2 = mb_substr($sw, 1);
 		}
 		else {
 			$sw2 = $sw;
 		}
 		$sw2 = str_replace('*', '', $sw2);
-		if (in_array(strtolower($sw2), $ignorewords) || strxlen($sw2) < $config['searchminlength']) {
+		if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strlen($sw2) < $config['searchminlength']) {
 			$ignored[] = $sw2;
 		}
 		else {
@@ -74,8 +74,8 @@ if ($_GET['action'] == "search") {
 	}
 
 	$name = $gpc->get('name', str);
-	if (strxlen($name) >= $config['searchminlength']) {
-		$result = $db->query("SELECT id FROM {$db->pre}user WHERE name = '{$name}' LIMIT 1");
+	if (mb_strlen($name) >= $config['searchminlength']) {
+		$result = $db->query("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
 		if ($db->num_rows($result) == 1) {
 			list($rname) = $db->fetch_num($result);
 		}
@@ -108,7 +108,7 @@ if ($_GET['action'] == "search") {
 		$str = $used[$i];
 		if ($str{0} == '-') {
 			$not = 'NOT ';
-			$str = substr($str, 1);
+			$str = mb_substr($str, 1);
 		}
 		else {
 			$not = '';
@@ -140,7 +140,7 @@ if ($_GET['action'] == "search") {
 		$sql_where .= "r.name = '{$rname}' ";
 	}
 
-	if (strxlen($name) >= $config['searchminlength']) {
+	if (mb_strlen($name) >= $config['searchminlength']) {
 		$used[] = $name;
 	}
 	else {
@@ -194,12 +194,10 @@ if ($_GET['action'] == "search") {
 			'sort' => $gpc->get('sort', str),
 			'order' => $gpc->get('order', str)
 		);
-		$fid = md5(microtime());
-		file_put_contents('cache/search/'.$fid.'.inc.php', serialize($data));
+		$fid = generate_uid();
+		file_put_contents('data/cache/search/'.$fid.'.inc.php', serialize($data));
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl'].'/search.php?action=result&fid='.$fid.SID2URL_JS_x);
-		exit;
 	}
 	else {
 		error($lang->phrase('search_nothingfound'), 'search.php'.SID2URL_1);
@@ -210,7 +208,7 @@ elseif ($_GET['action'] == "result") {
 	if (!is_hash($fid)) {
 		error($lang->phrase('query_string_error'), 'search.php'.SID2URL_1);
 	}
-	$file = "cache/search/{$fid}.inc.php";
+	$file = "data/cache/search/{$fid}.inc.php";
 	if (!file_exists($file)) {
 		error($lang->phrase('search_doesntexist'), 'search.php'.SID2URL_1);
 	}
@@ -232,14 +230,14 @@ elseif ($_GET['action'] == "result") {
 		case 'posts':
 		case 'date':
 		case 'last':
-			$order = $data['sort'];
+			$order = "t.{$data['sort']}";
 			break;
 		case 'name':
 		case 'board':
-			$order = $data['sort'].", last";
+			$order = "t.{$data['sort']}, t.last";
 			break;
 		default:
-			$order = 'last';
+			$order = 't.last';
 			break;
 	}
 
@@ -252,9 +250,12 @@ elseif ($_GET['action'] == "result") {
 
 	($code = $plugins->load('search_result_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, id, board, topic, date, status, last, last_name, sticky, name
-	FROM {$db->pre}topics
-	WHERE id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('board')."
+	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+		u.name, u.id AS uid, l.id AS luid, l.name AS luname
+	FROM {$db->pre}topics AS t
+		LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
+	WHERE t.id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('t.board')."
 	ORDER BY {$order}"
 	);
 
@@ -274,8 +275,6 @@ elseif ($_GET['action'] == "result") {
 
 	$catbid = $scache->load('cat_bid');
 	$forums = $catbid->get();
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get();
 
@@ -295,21 +294,6 @@ elseif ($_GET['action'] == "result") {
 		}
 		$info = $forums[$row->board];
 
-		if(is_id($row->name) && isset($memberdata[$row->name])) {
-			$row->mid = $row->name;
-			$row->name = $memberdata[$row->name];
-		}
-		else {
-			$row->mid = FALSE;
-		}
-
-		if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-			$row->last_name = $memberdata[$row->last_name];
-		}
-
-		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
-		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-
 		if ($row->status == '2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
@@ -317,28 +301,7 @@ elseif ($_GET['action'] == "result") {
 			$pref .= $lang->phrase('forum_announcement');
 		}
 
-		if ($slog->isTopicRead($row->id, $row->last)) {
-	 		$firstnew = 0;
-			if ($row->status == 1 || $row->status == 2) {
-			   	$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed');
-			}
-			else {
-			   	$alt = $lang->phrase('forum_icon_old');
-			   	$src = $tpl->img('dir_open');
-	 		}
-	 	}
-	  	else {
-	  		$firstnew = 1;
-			if ($row->status == 1 || $row->status == 2) {
-				$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed2');
-			}
-			else {
-				$alt = $lang->phrase('forum_icon_new');
-				$src = $tpl->img('dir_open2');
-			}
-		}
+		$row->read = $slog->isTopicRead($row->id, $row->last);
 		$qhighlight = urlencode(implode(' ', $data['used']));
 
 		if ($info['topiczahl'] < 1) {
@@ -357,7 +320,6 @@ elseif ($_GET['action'] == "result") {
 	}
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('search_result_prepared')) ? eval($code) : null;
 	echo $tpl->parse("search/result");
 	($code = $plugins->load('search_result_end')) ? eval($code) : null;
@@ -365,8 +327,8 @@ elseif ($_GET['action'] == "result") {
 }
 elseif ($_GET['action'] == "active") {
 
-	$breadcrumb->AddUrl('search.php'.SID2URL_1);
-	$breadcrumb->Add($lang->phrase('active_topics_title'));
+	Breadcrumb::universal()->addUrl('search.php'.SID2URL_1);
+	Breadcrumb::universal()->add($lang->phrase('active_topics_title'));
 
     unset($count);
 
@@ -387,12 +349,11 @@ elseif ($_GET['action'] == "active") {
    		else {
 		    $count = 0;
 			echo $tpl->parse("header");
-			echo $tpl->parse("menu");
 	        echo $tpl->parse("search/active");
    		}
 	}
-	elseif (preg_match("/(days|hours)-(\d{1,2})/i", $_GET['type'], $type)) {
-		$type[1] = strtolower($type[1]);
+	elseif (preg_match("/(days|hours)-(\d{1,2})/iu", $_GET['type'], $type)) {
+		$type[1] = mb_strtolower($type[1]);
 		if (empty($type[1])) {
 			$type[1] = 'days';
 		}
@@ -428,9 +389,12 @@ elseif ($_GET['action'] == "active") {
     	list($count) = $db->fetch_num($result);
 
     	$result = $db->query("
-    	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name
+    	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+			u.name, u.id AS uid, l.id AS luid, l.name AS luname
     	FROM {$db->pre}topics AS t
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
+			LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+			LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')."
     	ORDER BY t.last DESC
     	LIMIT {$start}, {$config['activezahl']}"
@@ -443,8 +407,6 @@ elseif ($_GET['action'] == "active") {
 			$forums = $catbid->get();
 			$prefix_obj = $scache->load('prefix');
 			$prefix_arr = $prefix_obj->get();
-    		$memberdata_obj = $scache->load('memberdata');
-			$memberdata = $memberdata_obj->get();
 
     		$inner['index_bit'] = '';
     		while ($row = $gpc->prepare($db->fetch_object($result))) {
@@ -458,21 +420,6 @@ elseif ($_GET['action'] == "active") {
 
     			$info = $forums[$row->board];
 
-    			if(is_id($row->name) && isset($memberdata[$row->name])) {
-    				$row->mid = $row->name;
-    				$row->name = $memberdata[$row->name];
-    			}
-    			else {
-    				$row->mid = FALSE;
-    			}
-
-    			if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-    				$row->last_name = $memberdata[$row->last_name];
-    			}
-
-    			$rstart = str_date($lang->phrase('dformat1'),times($row->date));
-    			$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-
 				if ($row->status == '2') {
 					$pref .= $lang->phrase('forum_moved');
 				}
@@ -480,28 +427,7 @@ elseif ($_GET['action'] == "active") {
 					$pref .= $lang->phrase('forum_announcement');
 				}
 
-    			if ($slog->isTopicRead($row->id, $row->last)) {
-    		 		$firstnew = 0;
-    				if ($row->status == 1 || $row->status == 2) {
-    				   	$alt = $lang->phrase('forum_icon_closed');
-    					$src = $tpl->img('dir_closed');
-    				}
-    				else {
-    				   	$alt = $lang->phrase('forum_icon_old');
-    				   	$src = $tpl->img('dir_open');
-    		 		}
-    		 	}
-    		  	else {
-    		  		$firstnew = 1;
-    				if ($row->status == 1 || $row->status == 2) {
-    					$alt = $lang->phrase('forum_icon_closed');
-    					$src = $tpl->img('dir_closed2');
-    				}
-    				else {
-    					$alt = $lang->phrase('forum_icon_new');
-    					$src = $tpl->img('dir_open2');
-    				}
-    			}
+				$row->read = $slog->isTopicRead($row->id, $row->last);
 
 				if ($info['topiczahl'] < 1) {
 					$info['topiczahl'] = $config['topiczahl'];
@@ -520,7 +446,6 @@ elseif ($_GET['action'] == "active") {
     	}
 
 		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
     	($code = $plugins->load('search_active_prepared')) ? eval($code) : null;
     	echo $tpl->parse("search/active");
     	($code = $plugins->load('search_active_end')) ? eval($code) : null;
@@ -529,7 +454,6 @@ elseif ($_GET['action'] == "active") {
 else {
 	$forums = BoardSubs();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('search_form_start')) ? eval($code) : null;
 	echo $tpl->parse("search/index");
 	($code = $plugins->load('search_form_end')) ? eval($code) : null;
@@ -537,9 +461,6 @@ else {
 
 ($code = $plugins->load('search_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

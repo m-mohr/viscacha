@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class PluginSystem {
 
@@ -91,8 +89,8 @@ class PluginSystem {
 					if ($this->_check_permissions($row['groups'])) {
 						$navigation = $this->_prepare_navigation($position, $row['id']);
 						$row['name'] = $this->navLang($row['name']);
-						$tpl->globalvars(compact("row","navigation"));
-						if ($tpl->exists("modules/navigation_".$position)) {
+						$tpl->assignVars(compact("row","navigation"));
+						if ($tpl->hasTemplate("modules/navigation_".$position)) {
 							$html = $tpl->parse("modules/navigation_".$position);
 						}
 						else {
@@ -124,8 +122,8 @@ class PluginSystem {
 			$cache = $scache->load('wraps');
 			$this->docs = $cache->get();
 		}
-		@list($prefix, $suffix) = explode('->', $gpc->plain_str($key, false), 2);
-		$prefix = strtolower($prefix);
+		@list($prefix, $suffix) = explode('->', $gpc->plain_str($key), 2);
+		$prefix = mb_strtolower($prefix);
 		if ($prefix == 'lang' && $suffix != null) {
 			return $lang->phrase($suffix).iif($show_key, " [{$key}]");
 		}
@@ -186,7 +184,7 @@ class PluginSystem {
 
 	function _load_group($pos) {
 		$group = $this->_group($pos);
-		$file = 'cache/modules/'.$group.'.php';
+		$file = 'data/cache/modules/'.$group.'.php';
 
 		if (file_exists($file) == true) {
 			$code = file_get_contents($file);
@@ -201,7 +199,7 @@ class PluginSystem {
 	function _build_code($pos) {
 		global $db, $filesystem;
 		$group = $this->_group($pos);
-		$file = 'cache/modules/'.$group.'.php';
+		$file = 'data/cache/modules/'.$group.'.php';
 
 		if ($this->sqlcache == null) {
 			$this->sqlcache = array();
@@ -255,12 +253,12 @@ class PluginSystem {
 	}
 
 	function _group($pos) {
-		$offset = strpos ($pos, '_');
+		$offset = mb_strpos ($pos, '_');
 		if ($offset === false) {
 			return $pos;
 		}
 		else {
-			return substr($pos, 0, $offset);
+			return mb_substr($pos, 0, $offset);
 		}
 	}
 

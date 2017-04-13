@@ -1,0 +1,27 @@
+<tr class="tbody">
+	<td>
+		<a href="profile.php?id={{ $mid }}{{ SID2URL_x }}">{{ $mdata->member }}</a>
+		@if($mdata->fullname)
+		<br /><em>{{ $mdata->fullname }}</em>
+		@endif
+	</td>
+	<td class="center">
+		<a href="pm.php?action=new&amp;id={{ $mid }}{{ SID2URL_x }}">
+			<img src="@theme('images/pm.gif')" alt="" />
+		</a>
+	</td>
+	<td class="center">
+		<a href="profile.php?action=mail&amp;id={{ $mid }}{{ SID2URL_x }}">
+			<img src="@theme('images/email.gif')" alt="" />
+		</a>
+	</td>
+	<td>
+		@if(!empty($inner['moderator_bit_forum']))
+		<ul>
+			@foreach($inner['moderator_bit_forum'] as $modb)
+			<li><a href="showforum.php?id={{ $modb->bid }}{{ SID2URL_x }}">{{ $modb->board }}</a></li>
+			@endforeach
+		</ul>
+		@elselang('homepage_no_data')
+	</td>
+</tr>

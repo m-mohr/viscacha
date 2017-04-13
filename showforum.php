@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -51,7 +51,7 @@ else {
 }
 
 $topforums = get_headboards($fc, $info);
-$breadcrumb->Add($info['name']);
+Breadcrumb::universal()->add($info['name']);
 
 forum_opt($info);
 
@@ -92,7 +92,6 @@ if (ceil($info['topics']/$info['forumzahl']) < $_GET['page']) {
 $pages = pages($info['topics'], $info['forumzahl'], 'showforum.php?id='.$board.'&amp;sort='.$_GET['sort'].'&amp;', $_GET['page']);
 
 echo $tpl->parse("header");
-echo $tpl->parse("menu");
 
 ($code = $plugins->load('showforum_forums_start')) ? eval($code) : null;
 
@@ -106,15 +105,15 @@ if ($info['topics'] > 0) {
 
 	($code = $plugins->load('showforum_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, id, board, topic, date, status, last, last_name, sticky, name
-	FROM {$db->pre}topics
-	WHERE board = '{$board}' {$marksql}
-	ORDER BY sticky DESC, last DESC
+	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
+		u.name, u.id AS uid, l.id AS luid, l.name AS luname
+	FROM {$db->pre}topics AS t
+		LEFT JOIN {$db->pre}user AS u ON u.id = t.name
+		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
+	WHERE t.board = '{$board}' {$marksql}
+	ORDER BY t.sticky DESC, t.last DESC
 	LIMIT {$start}, {$info['forumzahl']}
 	");
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$pref = '';
@@ -130,50 +129,14 @@ if ($info['topics'] > 0) {
 
 		$last = $fc[$row->board];
 
-		if(is_id($row->name) && isset($memberdata[$row->name])) {
-			$row->mid = $row->name;
-			$row->name = $memberdata[$row->name];
-		}
-		else {
-			$row->mid = FALSE;
-		}
-
-		if (is_id($row->last_name) && isset($memberdata[$row->last_name])) {
-			$row->last_name = $memberdata[$row->last_name];
-		}
-
-		$rstart = str_date($lang->phrase('dformat1'),times($row->date));
-		$rlast = str_date($lang->phrase('dformat1'),times($row->last));
-
-		if ($row->status == '2') {
+		if ($row->status == 2) {
 			$pref .= $lang->phrase('forum_moved');
 		}
 		else if ($row->sticky == '1') {
 			$pref .= $lang->phrase('forum_announcement');
 		}
 
-		if ($slog->isTopicRead($row->id, $row->last)) {
-	 		$firstnew = 0;
-			if ($row->status == 1 || $row->status == 2) {
-			   	$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed');
-			}
-			else {
-			   	$alt = $lang->phrase('forum_icon_old');
-			   	$src = $tpl->img('dir_open');
-	 		}
-	 	}
-	  	else {
-	  		$firstnew = 1;
-			if ($row->status == 1 || $row->status == 2) {
-				$alt = $lang->phrase('forum_icon_closed');
-				$src = $tpl->img('dir_closed2');
-			}
-			else {
-				$alt = $lang->phrase('forum_icon_new');
-				$src = $tpl->img('dir_open2');
-			}
-		}
+		$row->read = $slog->isTopicRead($row->id, $row->last);
 
 		if ($last['topiczahl'] < 1) {
 			$last['topiczahl'] = $config['topiczahl'];
@@ -200,9 +163,6 @@ else {
 echo $tpl->parse("showforum/index");
 ($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

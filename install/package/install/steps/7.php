@@ -41,18 +41,12 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbprefix',str);
 	$c->updateconfig('dbsystem',str);
 	$c->savedata();
-
-	$errlog = 'data/errlog_'.$config['dbsystem'].'.inc.php';
-	if (!file_exists($errlog)) {
-		$filesystem->file_put_contents($errlog, '', true);
-		$filesystem->chmod($errlog, 0666);
-	}
 ?>
 <div class="bfoot center">Database Settings saved!</div>
 <?php
 }
 require('data/config.inc.php');
-$prefix = preg_replace("/\W+/i", '', $config['dbprefix']);
+$prefix = preg_replace("/\W+/iu", '', $config['dbprefix']);
 if ($prefix != $config['dbprefix']) {
 	?>
 <div class="bbody">The prefix is not valid!</div>
@@ -76,7 +70,7 @@ else {
 		$db->query("CREATE DATABASE `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 		$selectDb = $db->select_db();
 	}
-	if ($selectDb) {
+	if (!$selectDb) {
 		?>
 <div class="bbody">Could not find or create a database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
 <div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
@@ -108,8 +102,8 @@ else {
 	$dh = opendir($path);
 	while (($file = readdir($dh)) !== false) {
 		$info = pathinfo($path.$file);
-		if ($info['extension'] == 'sql') {
-			$basename = substr($info['basename'], 0, -(strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));;
+		if ($info['extension'] == 'sql' && strpos($file, 'sample') === FALSE) {
+			$basename = mb_substr($info['basename'], 0, -(mb_strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));;
 			$t = $db->pre.$basename;
 			unset($counter);
 			$select = array();
@@ -161,5 +155,3 @@ else {
 	}
 }
 }
-$db->close();
-?>

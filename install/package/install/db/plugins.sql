@@ -1,14 +1,14 @@
 CREATE TABLE `{:=DBPREFIX=:}plugins` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `name` varchar(200) NOT NULL default '',
-  `module` mediumint(7) unsigned NOT NULL default '0',
-  `ordering` smallint(4) NOT NULL default '0',
-  `active` enum('0','1') NOT NULL default '1',
-  `position` varchar(128) NOT NULL default 'navigation',
-  `required` enum('0','1') NOT NULL default '1',
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `module` mediumint(7) unsigned NOT NULL,
+  `ordering` smallint(4) NOT NULL DEFAULT 0,
+  `active` enum('0','1') NOT NULL DEFAULT '0',
+  `position` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'navigation',
+  `required` enum('0','1') NOT NULL DEFAULT '0',
   PRIMARY KEY  (`id`),
   KEY `position` (`position`)
-) ENGINE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=23 ;
+) ENGINE=MyISAM  AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
 INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active`, `position`, `required`) VALUES
 (1, 'Related Topics', 1, 2, '1', 'showtopic_end', '0'),
@@ -18,13 +18,6 @@ INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active
 (5, 'News Boxes', 3, 1, '1', 'portal', '0'),
 (6, 'Last replies', 4, 1, '1', 'addreply_form_end', '0'),
 (7, 'Last reply for Private Messages', 4, 1, '1', 'pm_compose_end', '0'),
-(8, 'Legend for PMs', 5, 1, '1', 'pm_browse_end', '0'),
-(9, 'Legend for PMs', 5, 1, '1', 'pm_index_end', '0'),
-(10, 'Legend for Topics', 5, 1, '1', 'showforum_end', '0'),
-(11, 'Legend for Topics', 5, 1, '1', 'search_result_end', '0'),
-(12, 'Legend for Topics', 5, 1, '1', 'search_active_end', '0'),
-(13, 'Legend for Forums', 5, 3, '1', 'forum_end', '0'),
-(14, 'Legend for Topics', 5, 1, '1', 'editprofile_mylast_end', '0'),
 (15, 'Personal Box for Navigation', 6, 2, '1', 'navigation', '0'),
 (16, 'Login Box', 6, 1, '1', 'forum_start', '0'),
 (17, 'Quick Reply Form', 7, 1, '1', 'showtopic_end', '0'),

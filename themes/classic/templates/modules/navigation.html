@@ -1,0 +1,37 @@
+<div class="navigation_cat">
+	<h3>{{ $row['name'] }}</h3>
+	<ul class="navigation_inner">
+		@foreach ($navigation as $sub)
+		<li>
+			@if(!empty($sub['link']))
+				@if(!empty($sub['param']))
+				<a href="{{ $sub['link'] }}" target="{{ $sub['param'] }}">
+				@else
+				<a href="{{ $sub['link'] }}">
+				@endif
+				{{ $sub['name'] }}</a>
+			@else
+			<strong>{{ $sub['name'] }}</strong>
+			@endif
+			@if(!empty($sub['navigation']))
+			<ul>
+				@foreach ($sub['navigation'] as $sub2)
+				<li>
+					@if(!empty($sub2['link']))
+						@if(!empty($sub2['param']))
+						<a href="{{ $sub2['link'] }}" target="{{ $sub2['param'] }}">
+						@else
+						<a href="{{ $sub2['link'] }}">
+						@endif
+						{{ $sub2['name'] }}</a>
+					@else
+					<strong>{{ $sub2['name'] }}</strong>
+					@endif
+				</li>
+				@endforeach
+			</ul>
+			@endif
+		</li>
+		@endforeach
+	</ul>
+</div>

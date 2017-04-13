@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ $my->p = $slog->Permissions();
 
 include_once ("classes/function.profilefields.php");
 
-$breadcrumb->Add($lang->phrase('teamcp'));
+Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
 echo $tpl->parse("header");
 
@@ -44,7 +44,7 @@ if (!$my->vlogin || $my->p['admin'] == 0) {
 	errorLogin($lang->phrase('not_allowed'));
 }
 
-$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE id = '.$_GET['id']);
+$result = $db->query("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
 if ($db->num_rows($result) != 1) {
 	error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 }
@@ -56,7 +56,6 @@ if ($_GET['action'] == 'delete') {
 	if ($my->id == $user['id']) {
 		error($lang->phrase('member_delete_yourself_error'));
 	}
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/members/delete");
 }
 elseif ($_GET['action'] == 'recount') {
@@ -68,33 +67,24 @@ elseif ($_GET['action'] == 'delete2') {
 	if ($my->id == $user['id']) {
 		error($lang->phrase('member_delete_yourself_error'));
 	}
-	// Step 1: Write Data to File with old Usernames
-	$olduserdata = file_get_contents('data/deleteduser.php');
-	$olduserdata .= "\n{$user['id']}\t".$user['name'];
-	$olduserdata = trim($olduserdata);
-	file_put_contents('data/deleteduser.php', $olduserdata);
-	// Step 2: Delete all abos
+	// Step 1: Delete all abos
 	$db->query("DELETE FROM {$db->pre}abos WHERE mid = '{$user['id']}'");
-	// Step 4: Delete as mod
+	// Step 2: Delete as mod
 	$db->query("DELETE FROM {$db->pre}moderators WHERE mid = '{$user['id']}'");
-	// Step 5: Delete all pms
+	// Step 3: Delete all pms
 	$db->query("DELETE FROM {$db->pre}pm WHERE pm_to = '{$user['id']}'");
-	// Step 6: Search all old posts by an user, and update to guests post
-	$db->query("UPDATE {$db->pre}replies SET name = '{$user['name']}', email = '{$user['mail']}', guest = '1' WHERE name = '{$user['id']}' AND guest = '0'");
-	// Step 7: Search all old topics by an user, and update to guests post
-	$db->query("UPDATE {$db->pre}topics SET name = '{$user['name']}' WHERE name = '{$user['id']}'");
-	$db->query("UPDATE {$db->pre}topics SET last_name = '{$user['name']}' WHERE last_name = '{$user['id']}'");
-	// Step 8: Set uploads from member to guests-group
-	$db->query("UPDATE {$db->pre}uploads SET mid = '0' WHERE mid = '{$user['id']}'");
-	// Step 9: Delete pic
+	// Step 4: Delete pic
 	removeOldImages('uploads/pics/', $user['id']);
-	// Step 10: Delete user himself
-	$db->query("DELETE FROM {$db->pre}user WHERE id = '{$user['id']}'");
-	// Step 11: Delete user's custom profilefields
+	// Step 5: Soft-delete user himself
+	$db->query("UPDATE {$db->pre}user SET 
+		pw = DEFAULT, mail = DEFAULT, regdate = DEFAULT, posts = DEFAULT, fullname = DEFAULT,
+		hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
+		birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
+		opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
+		theme = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
+		WHERE id = '{$user['id']}'");
+	// Step 6: Delete user's custom profilefields
 	$db->query("DELETE FROM {$db->pre}userfields WHERE ufid = '{$user['id']}'");
-
-	$cache = $scache->load('memberdata');
-	$cache = $cache->delete();
 
 	($code = $plugins->load('managemembers_delete_end')) ? eval($code) : null;
 
@@ -108,9 +98,6 @@ elseif ($_GET['action'] == 'edit') {
 
 	($code = $plugins->load('managemembers_edit_start')) ? eval($code) : null;
 
-	if (empty($user['template'])) {
-		$user['template'] = $config['templatedir'];
-	}
 	if (empty($user['language'])) {
 		$user['language'] = $config['langdir'];
 	}
@@ -118,7 +105,6 @@ elseif ($_GET['action'] == 'edit') {
 	// Settings
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
-	$mydesign = $design[$user['template']]['name'];
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
@@ -129,17 +115,21 @@ elseif ($_GET['action'] == 'edit') {
 	$year = gmdate('Y');
 	$maxy = $year-6;
 	$miny = $year-100;
-	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	
+	$groups = array();
+	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC, guest ASC, core ASC");
+	while ($row = $db->fetch_assoc($result)) {
+		$groups[] = $row;
+	}
 
 	if (!isset($user['timezone']) || $user['timezone'] === null) {
 		$user['timezone'] = $config['timezone'];
 	}
 
-	$random = md5(microtime());
+	$random = generate_uid();
 
 	$customfields = admin_customfields($user['id']);
 
-	echo $tpl->parse("menu");
 	($code = $plugins->load('managemembers_edit_prepared')) ? eval($code) : null;
 	echo $tpl->parse("admin/members/edit");
 	($code = $plugins->load('managemembers_edit_end')) ? eval($code) : null;
@@ -147,13 +137,13 @@ elseif ($_GET['action'] == 'edit') {
 elseif ($_GET['action'] == 'edit2') {
 
 	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get();
+	$themes = $loaddesign_obj->get();
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
-	$cache2 = $loadlanguage_obj->get();
+	$languages = $loadlanguage_obj->get();
 
 	$_POST['hp'] = trim($_POST['hp']);
-	if (strtolower(substr($_POST['hp'], 0, 4)) == 'www.') {
+	if (mb_strtolower(mb_substr($_POST['hp'], 0, 4)) == 'www.') {
 		$_POST['hp'] = "http://{$_POST['hp']}";
 	}
 
@@ -168,7 +158,7 @@ elseif ($_GET['action'] == 'edit2') {
 	$_POST['pw'] = $gpc->get('pw_'.$random, str);
 
 	$error = array();
-	if (strxlen($_POST['comment']) > $config['maxaboutlength']) {
+	if (mb_strlen($_POST['comment']) > $config['maxaboutlength']) {
 		$error[] = $lang->phrase('about_too_long');
 	}
 	if (check_mail($_POST['email']) == false) {
@@ -177,22 +167,22 @@ elseif ($_GET['action'] == 'edit2') {
 	if ($user['mail'] != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
 		 $error[] = $lang->phrase('email_already_used');
 	}
-	if (strxlen($_POST['name']) > $config['maxnamelength']) {
+	if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (strxlen($_POST['name']) < $config['minnamelength']) {
+	if (mb_strlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
-	if (strxlen($_POST['signature']) > $config['maxsiglength']) {
+	if (mb_strlen($_POST['signature']) > $config['maxsiglength']) {
 		$error[] = $lang->phrase('editprofile_signature_too_long');
 	}
 	if (strlen($_POST['hp']) > 255) {
 		$error[] = $lang->phrase('editprofile_homepage_too_long');
 	}
-	if (!check_hp($_POST['hp'])) {
+	if (!is_url($_POST['hp'])) {
 		$_POST['hp'] = '';
 	}
 	if (strlen($_POST['location']) > 50) {
@@ -222,13 +212,13 @@ elseif ($_GET['action'] == 'edit2') {
 	if ($_POST['opt_3'] < 0 && $_POST['opt_3'] > 2) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_showmail');
 	}
-	if (!isset($cache[$_POST['opt_4']])) {
+	if (!isset($themes[$_POST['opt_4']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_design');
 	}
-	if (!isset($cache2[$_POST['opt_5']])) {
+	if (!isset($languages[$_POST['opt_5']])) {
 		$error[] = $lang->phrase('editprofile_settings_error').$lang->phrase('editprofile_language');
 	}
-	if (!empty($_POST['pic']) && preg_match('~^'.URL_REGEXP.'$~i', $_POST['pic'])) {
+	if (!empty($_POST['pic']) && is_url($_POST['pic'])) {
 		$_POST['pic'] = checkRemotePic($_POST['pic'], $_GET['id'], "managemembers.php?action=edit&id=".$_GET['id']);
 		switch ($_POST['pic']) {
 			case REMOTE_INVALID_URL:
@@ -276,9 +266,9 @@ elseif ($_GET['action'] == 'edit2') {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		if (!empty($_POST['pw']) && strxlen($_POST['pw']) >= $config['minpwlength']) {
-			$md5 = md5($_POST['pw']);
-			$update_sql = ", pw = '{$md5}' ";
+		if (!empty($_POST['pw']) && mb_strlen($_POST['pw']) >= $config['minpwlength']) {
+			$hashed_pw = hash_pw($_POST['pw']);
+			$update_sql = ", pw = '{$hashed_pw}' ";
 		}
 		else {
 			$update_sql = ' ';
@@ -288,10 +278,7 @@ elseif ($_GET['action'] == 'edit2') {
 
 		($code = $plugins->load('managemembers_edit2_savedata')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', template = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
-
-		$cache = $scache->load('memberdata');
-		$cache = $cache->delete();
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', theme = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		ok($lang->phrase('data_success'), "profile.php?id=".$user['id']);
 	}
@@ -301,9 +288,6 @@ else {
 	error($lang->phrase('docs_not_found'), "profile.php?id={$user['id']}");
 }
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

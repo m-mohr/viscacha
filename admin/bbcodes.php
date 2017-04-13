@@ -31,7 +31,6 @@ elseif ($job == 'smileys_edit') {
 	$editid = $gpc->get('id', arr_int);
 	if (count($editid) == 0) {
 		sendStatusCode(302, $config['furl'].'/admin.php?action=bbcodes&job=smileys');
-		exit;
 	}
 	$result = $db->query('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $editid).')');
 	echo head();
@@ -166,10 +165,9 @@ elseif ($job == 'smileys_import2') {
 		error('admin.php?action=bbcodes&job=smileys_import', $inserterrors);
 	}
 
-	$tempdir = 'temp/'.md5(microtime()).'/';
+	$tempdir = 'temp/'.generate_uid().'/';
 
 	// Exract
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($file);
 	$failure = $archive->extract($tempdir);
 	if ($failure < 1) {
@@ -242,25 +240,17 @@ elseif ($job == 'smileys_import2') {
 		// Get existing smiley codes from database
 		$result = $db->query('SELECT search FROM '.$db->pre.'smileys');
 		while ($row = $db->fetch_assoc($result)) {
-			$codes[] = strtolower($row['search']);
+			$codes[] = mb_strtolower($row['search']);
 		}
 	}
 
 	// Copy files and prepare for inserting smileys
 	$sqlinsert = array();
 	foreach ($package as $ini) {
-		if (strpos($ini['replace'], '{folder}') !== false) {
+		if (mb_strpos($ini['replace'], '{folder}') !== false) {
 			$ini['replace_temp'] = str_replace('{folder}', $tempdir, $ini['replace']);
 			$ini['replace_new'] = str_replace('{folder}', $config['smileypath'], $ini['replace']);
-			$n = 0;
-			while(file_exists($ini['replace_new'])) {
-				$ext = get_extension($ini['replace_new'], true);
-				$length = strlen($ext);
-				$base = substr($ini['replace_new'], $length*(-1), $length);
-				$n++;
-				$base .= '_'.$n;
-				$ini['replace_new'] = $base.$ext;
-			}
+			$ini['replace_new'] = $filesystem->new_filename($ini['replace_new']);
 			$n = 0;
 			while(in_array($ini['search'], $codes)) {
 				$n++;
@@ -309,7 +299,7 @@ elseif ($job == 'smileys_export') {
 			'replace' => $row['replace'],
 			'desc' => $row['desc'],
 		);
-		if (!preg_match('~http(s)?:\/\/~i', $filepath)) {
+		if (!preg_match('~http(s)?:\/\/~iu', $filepath)) {
 			$files[] = $filepath;
 		}
 	}
@@ -319,7 +309,6 @@ elseif ($job == 'smileys_export') {
 	$files[] = $smilieconfig;
 	$files = array_unique($files);
 
-	require_once('classes/class.zip.php');
 	$archive = new PclZip($tempdir.$file);
 	// Have to parse $dir with PclZipUtilTranslateWinPath to have equal paths at $files-Array and $dir (PclZip-Bug?)
 	$v_list = $archive->create($files, PCLZIP_OPT_REMOVE_PATH, PclZipUtilTranslateWinPath($config['smileypath']));
@@ -449,7 +438,7 @@ elseif ($job == 'smileys_add') {
 	if (!empty($_FILES['upload']['name'])) {
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(200*1024);
-		$my_uploader->file_types(array('gif', 'jpg', 'png', 'bmp', 'jpeg', 'jpe'));
+		$my_uploader->file_types($imagetype_extension);
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {
@@ -461,13 +450,13 @@ elseif ($job == 'smileys_add') {
 		}
 	}
 
-	if (strlen($gpc->get('code', str)) < 2) {
+	if (mb_strlen($gpc->get('code', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_code_too_short');
 	}
 	if (empty($has_upload) && empty($img)) {
 		$error[] = $lang->phrase('admin_bbc_path_too_short');
 	}
-	if (strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
+	if (mb_strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
 		$error[] = $lang->phrase('admin_bbc_wrong_spec');
 	}
 	if (count($error) > 0) {
@@ -478,7 +467,7 @@ elseif ($job == 'smileys_add') {
 		$img = '{folder}/'.$has_upload;
 	}
 	else {
-		if (stripos(realpath($img), realpath($config['fpath'])) !== false) {
+		if (mb_stripos(realpath($img), realpath($config['fpath'])) !== false) {
 			$img = str_replace(realpath($config['fpath']), '{folder}', realpath($img));
 		}
 		else {
@@ -544,7 +533,7 @@ elseif ($job == 'add') {
 	echo head();
 
 	$error = array();
-	if (strxlen($gpc->get('temp1', str)) < 2) {
+	if (mb_strlen($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
 	if (count($error) > 0) {
@@ -593,13 +582,13 @@ elseif ($job == 'edit2') {
 	$id = $gpc->get('id', int);
 
 	$error = array();
-	if (strxlen($gpc->get('temp1', str)) < 2) {
+	if (mb_strlen($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
-	if (strxlen($gpc->get('temp1', str)) > 200) {
+	if (mb_strlen($gpc->get('temp1', str)) > 200) {
 		$error[] = $lang->phrase('admin_bbc_word_too_long');
 	}
-	if (strlen($gpc->get('temp2', none)) > 255) {
+	if (mb_strlen($gpc->get('temp2', none)) > 255) {
 		$error[] = $lang->phrase('admin_bbc_something_else_too_long');
 	}
 	if (count($error) > 0) {
@@ -637,8 +626,8 @@ elseif ($job == 'custombb_export') {
 	$data = $db->fetch_assoc($result);
 	$data['button'] = null;
 
-	if (!empty($data['buttonimage']) && (preg_match('~^'.URL_REGEXP.'$~i', $data['buttonimage']) || file_exists(CBBC_BUTTONDIR.$data['buttonimage'])) ) {
-		if (preg_match('~^'.URL_REGEXP.'$~i', $data['buttonimage'])) {
+	if (!empty($data['buttonimage']) && ($is_url = is_url($data['buttonimage']) || file_exists(CBBC_BUTTONDIR.$data['buttonimage'])) ) {
+		if ($is_url) {
 			$button = get_remote($data['buttonimage']);
 		}
 		else {
@@ -664,7 +653,7 @@ elseif ($job == 'custombb_export') {
 	$content = serialize($data);
 
 	viscacha_header('Content-Type: text/plain');
-	viscacha_header('Content-Length: '.strlen($content));
+	viscacha_header('Content-Length: '.mb_strlen($content));
 	viscacha_header('Content-Disposition: attachment; filename="'.$data['bbcodetag'].'.bbc"');
 
 	print($content);
@@ -946,8 +935,8 @@ elseif ($job == 'custombb_edit2') {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	if (strtolower($query['bbcodetag']) != strtolower($query['bbcodetag_old'])) {
-		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}' AND ");
+	if (mb_strtolower($query['bbcodetag']) != mb_strtolower($query['bbcodetag_old'])) {
+		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'");
 		if ($db->num_rows($result) > 0) {
 			$bbcodetag = $query['bbcodetag'];
 			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
@@ -972,7 +961,7 @@ elseif ($job == 'custombb_delete') {
 	<tr><td class="mbox">
 	<p align="center"><?php echo $lang->phrase('admin_bbc_delete_bbc_question'); ?></p>
 	<p align="center">
-	<?php if (!preg_match('~^'.URL_REGEXP.'$~i', $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) { ?>
+	<?php if (!is_url($image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) { ?>
 	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>&amp;img=1"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_including_image'); ?></a><br />
 	<a href="admin.php?action=bbcodes&amp;job=custombb_delete2&amp;id=<?php echo $id; ?>"><img border="0" align="absmiddle" alt="" src="admin/html/images/yes.gif"> <?php echo $lang->phrase('admin_bbc_without_image'); ?></a><br />
 	<?php } else { ?>
@@ -992,7 +981,7 @@ elseif ($job == 'custombb_delete2'){
 	if ($img == 1) {
 		$result = $db->query("SELECT buttonimage FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1");
 		$image = $db->fetch_assoc($result);
-		if (!preg_match('~^'.URL_REGEXP.'$~i', $image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) {
+		if (!is_url($image['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$image['buttonimage'])) {
 			$filesystem->unlink(CBBC_BUTTONDIR.$image['buttonimage']);
 		}
 	}
@@ -1011,7 +1000,6 @@ elseif ($job == 'custombb_test') {
 		file_put_contents($file, $test);
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
-		$bbcode->setAuthor($my->id);
 		$parsed_test = $bbcode->parse($test);
 		$smileys_time = round($bbcode->getBenchmark('smileys'), 3);
 		$bbcode_time = round($bbcode->getBenchmark(), 3);
@@ -1063,7 +1051,7 @@ elseif ($job == 'custombb') {
 	<?php
 	while ($bbcode = $db->fetch_assoc($result)) {
 		if (!empty($bbcode['buttonimage'])) {
-			if (!preg_match('~^'.URL_REGEXP.'$~i', $bbcode['buttonimage'])) {
+			if (!is_url($bbcode['buttonimage'])) {
 				$bbcode['buttonimage'] = CBBC_BUTTONDIR.$bbcode['buttonimage'];
 			}
 			$src = "<img style=\"background-color: buttonface; border:solid 1px highlight;\" src=\"{$bbcode['buttonimage']}\" alt=\"\" />";

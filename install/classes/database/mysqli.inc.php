@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,18 +22,14 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
-include_once(dirname(__FILE__)."/class.db_driver.php");
+include_once(__DIR__."/class.db_driver.php");
 
 class DB extends DB_Driver { // MySQLi
 
-	var $system;
 	var $fieldType;
 
 	function __construct($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '') {
 	    $this->system = 'mysqli';
-		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
 		parent::__construct($host, $user, $pwd, $dbname, $dbprefix);
 		$this->fieldType = array(
 			0 => "decimal",
@@ -62,7 +58,6 @@ class DB extends DB_Driver { // MySQLi
 			254 => "char",
 			255 => "geometry"
 		);
-		$this->freeResult = false;
 	}
 
 	function version () {
@@ -88,11 +83,6 @@ class DB extends DB_Driver { // MySQLi
 
 	function close() {
 		if ($this->hasConnection()) {
-			if ($this->freeResult == true) {
-				foreach ($this->all_results as $result) {
-					$this->free_result($result);
-				}
-		    }
 			return mysqli_close($this->conn);
 		}
 		else {
@@ -106,6 +96,8 @@ class DB extends DB_Driver { // MySQLi
 		ob_end_clean();
 
 		$this->quitOnError($die);
+		
+		mysqli_set_charset($this->conn, 'utf8mb4');
 	}
 
 	function hasConnection(){
@@ -160,19 +152,7 @@ class DB extends DB_Driver { // MySQLi
 
 		$this->open();
 
-		$start = $this->benchmarktime();
-
 		$this->result = mysqli_query($this->conn, $sql) or trigger_error($this->error($sql), $errfunc);
-
-		$time = $this->benchmarktime() - $start;
-		$this->dbqd[] = array(
-			'query' => $sql,
-			'time' => round($time, 5)
-		);
-
-		if ($this->freeResult == true && $this->isResultSet($this->result)) {
-			$this->all_results[] = $this->result;
-		}
 
 	    return $this->result;
 	}
@@ -218,7 +198,6 @@ class DB extends DB_Driver { // MySQLi
 
 	function escape_string($value) {
 		$this->open();
-		$value = preg_replace("~\\\\(\r|\n)~", "\\ \\1", $value); // NL Hack
 		return mysqli_real_escape_string($this->conn, $value);
 	}
 

@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -71,12 +71,6 @@ if ($_GET['action'] == 'vote') {
 
 	$PG->start();
 }
-elseif ($_GET['action'] == 'captcha') {
-	send_nocache_header();
-	$place = $gpc->get('place', none, 'posts');
-	$captcha = newCAPTCHA($place);
-	$captcha->makeImage($lang->phrase('img_captcha_session_expired_error'));
-}
 elseif ($_GET['action'] == 'textimage') {
 	require('classes/graphic/class.text2image.php');
 
@@ -93,7 +87,7 @@ elseif ($_GET['action'] == 'textimage') {
 		$text = '-';
 	}
 	else {
-		$text = substr($text, 0, 256);
+		$text = mb_substr($text, 0, 256);
 	}
 	if ($size < 6 || $size > 50) {
 		$size = 10;
@@ -104,7 +98,7 @@ elseif ($_GET['action'] == 'textimage') {
 	if (strlen($fg) != 3 && strlen($fg) != 6) {
 		$fg = '000000';
 	}
-	if (!preg_match('/^[\w\d\-\.]+$/', $file) || !file_exists("./classes/fonts/{$file}.ttf")) {
+	if (!preg_match('/^[\w\d\-\.]+$/u', $file) || !file_exists("./classes/fonts/{$file}.ttf")) {
 		$file = null;
 	}
 	else {
@@ -117,23 +111,14 @@ elseif ($_GET['action'] == 'textimage') {
 	$img->build(4, $bg, $fg);
 	$img->output();
 }
-elseif ($_GET['action'] == 'm_email' || $_GET['action'] == 'g_email') {
+elseif ($_GET['action'] == 'm_email') {
 	$email = $lang->phrase('profile_mail_1');
 	
-	if ($_GET['action'] == 'm_email') {
-		$result = $db->query("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
-		if ($db->num_rows($result) == 1) {
-			$row = $db->fetch_assoc($result);
-			if ($row['opt_hidemail'] == 0) {
-				$email = $row['mail'];
-			}
-		}
-	}
-	else {
-		$result = $db->query("SELECT email FROM {$db->pre}replies WHERE id = '{$_GET['id']}' AND guest = '1'");
-		if ($db->num_rows($result) == 1) {
-			$row = $db->fetch_assoc($result);
-			$email = $row['email'];
+	$result = $db->query("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
+	if ($db->num_rows($result) == 1) {
+		$row = $db->fetch_assoc($result);
+		if ($row['opt_hidemail'] == 0) {
+			$email = $row['mail'];
 		}
 	}
 
@@ -146,6 +131,3 @@ elseif ($_GET['action'] == 'm_email' || $_GET['action'] == 'g_email') {
 ($code = $plugins->load('images_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$zeitmessung = t2();
-$db->close();
-?>

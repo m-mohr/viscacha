@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 require_once("classes/function.frontend_init.php");
 
 define('BOARD_STATE_OLD', 0);
@@ -34,20 +32,20 @@ define('BOARD_STATE_WWW', 3);
 function getRedirectURL($standard = true) {
 	global $gpc;
 	$loc = strip_tags($gpc->get('redirect', none));
-	$loc = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $loc);
-	if (check_hp($loc)) {
+	$loc = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $loc);
+	if (is_url($loc)) {
 		$url = parse_url($loc);
 		$file = !empty($url['path']) ? basename($url['path']) : '';
 	}
 	else {
 		$file = basename($loc);
 	}
-	if (strpos($file, '?') !== false) {
+	if (mb_strpos($file, '?') !== false) {
 		$parts = explode('?', $file, 2);
 		$file = $parts[0];
 		if (!empty($parts[1])) {
 			parse_str($parts[1], $q);
-			if (!empty($q['action']) && substr($q['action'], -1) == '2') {
+			if (!empty($q['action']) && mb_substr($q['action'], -1) == '2') {
 				$loc = ''; // When the last char of the value of action is 2 we have in most cases a "POST" form
 			}
 		}
@@ -61,7 +59,7 @@ function getRedirectURL($standard = true) {
  		}
 	}
 	if (!empty($loc)) {
-		if (strpos($loc, '?') === false) {
+		if (mb_strpos($loc, '?') === false) {
 			$loc .= SID2URL_1;
 		}
 		else {
@@ -73,7 +71,7 @@ function getRedirectURL($standard = true) {
 
 function getRequestURI() {
 	global $config;
-	$method = (isset($_SERVER['REQUEST_METHOD']) && strtoupper($_SERVER['REQUEST_METHOD']) == 'GET');
+	$method = (isset($_SERVER['REQUEST_METHOD']) && mb_strtoupper($_SERVER['REQUEST_METHOD']) == 'GET');
 	if (empty($_SERVER['REQUEST_URI']) == false && $method == true) {
 		$request_uri = '';
 		$var = parse_url($config['furl']);
@@ -82,15 +80,15 @@ function getRequestURI() {
 			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $var['host']),
 			$_SERVER['REQUEST_URI']
 		);
-		if (check_hp($request_uri)) {
-			$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
+		if (is_url($request_uri)) {
+			$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $request_uri);
 			$url = parse_url($request_uri);
 			if (empty($url['path'])) {
 				$url['path'] = '';
 			}
 			$file = basename($url['path']);
 			if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
-				if (strpos($loc, '?') === false) {
+				if (mb_strpos($loc, '?') === false) {
 					$request_uri .= SID2URL_1;
 				}
 				else {
@@ -106,24 +104,24 @@ function getRequestURI() {
 function getRefererURL() {
 	global $config;
 	$request_uri = '';
-	if (check_hp($_SERVER['HTTP_REFERER'])) {
+	if (is_url($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
 		if (!empty($url['query'])) {
 			parse_str($url['query'], $q);
-			if (!empty($q['action']) && substr($q['action'], -1) == '2') {
+			if (!empty($q['action']) && mb_substr($q['action'], -1) == '2') {
 				return ''; // When the last char of the value of action is 2 we have in most cases a "POST" form
 			}
 		}
-		if (!empty($url['host']) && strpos($config['furl'], $url['host']) !== FALSE) {
+		if (!empty($url['host']) && mb_strpos($config['furl'], $url['host']) !== FALSE) {
 			$request_uri = $_SERVER['HTTP_REFERER'];
 		}
-		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~i', '', $request_uri);
+		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $request_uri);
 		if (empty($url['path'])) {
 			$url['path'] = '';
 		}
 		$file = basename($url['path']);
 		if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
-			if (strpos($loc, '?') === false) {
+			if (mb_strpos($loc, '?') === false) {
 				$request_uri .= SID2URL_1;
 			}
 			else {
@@ -150,13 +148,13 @@ function cmp_edit_date($a, $b) {
 }
 
 function DocCodePagination($cc) {
-	$pos1 = stripos($cc, '{pagebreak}');
+	$pos1 = mb_stripos($cc, '{pagebreak}');
 	if ($pos1 === false) {
 		return array($cc, 1);
 	}
 	else {
 		$page = $_GET['page']-1;
-		$pgc = preg_split("~(<br[^>]*>|\n|\r)*\{pagebreak\}(<br[^>]*>|\n|\r)*~i", $cc, -1, PREG_SPLIT_NO_EMPTY);
+		$pgc = preg_split("~(<br[^>]*>|\n|\r)*\{pagebreak\}(<br[^>]*>|\n|\r)*~iu", $cc, -1, PREG_SPLIT_NO_EMPTY);
 		if (!isset($pgc[$page])) {
 			$page = 0;
 			$_GET['page'] = 1;
@@ -182,7 +180,7 @@ function DocCodeParser($syntax, $parser = 1) {
 		$syntax = $bbcode->parse($syntax);
 	}
 	elseif ($parser == 0) {
-		$syntax = htmlspecialchars($syntax, ENT_NOQUOTES);
+		$syntax = viscacha_htmlspecialchars($syntax, ENT_NOQUOTES);
 	}
 	return $syntax;
 }
@@ -195,23 +193,6 @@ function GroupCheck($groups) {
 	else {
 		return false;
 	}
-}
-
-function numbers ($nvar,$deci=null) {
-	global $config, $lang;
-
-	if (!is_numeric($nvar)) {
-		return $nvar;
-	}
-
-	if ($deci == null) {
-		$deci = $config['decimals'];
-	}
-	if (strpos($nvar, '.') === false) {
-		$deci = 0;
-	}
-
-	return number_format($nvar, $deci, $lang->phrase('decpoint'), $lang->phrase('thousandssep'));
 }
 
 function formatFilesize($byte) {
@@ -257,7 +238,7 @@ function get_headboards($fc, $last, $returnids = FALSE) {
 	$bc_cache = array_reverse($bc_cache);
 
 	foreach ($bc_cache as $row) {
-		$breadcrumb->Add($row['title'], $row['url']);
+		Breadcrumb::universal()->add($row['title'], $row['url']);
 	}
 
 	if ($returnids == TRUE) {
@@ -270,7 +251,7 @@ function count_nl($str='',$max=NULL) {
 		return 0;
 	}
 	else {
-		preg_match_all("/\r\n|\r|\n/", $str, $treffer);
+		preg_match_all("/\r\n|\r|\n/u", $str, $treffer);
 		$count = count($treffer[0]);
 		if ($max == NULL) {
 			return $count;
@@ -297,7 +278,6 @@ function get_mimetype($file) {
 				'browser' => 'inline'
 			);
 		case 'jpeg':
-		case 'jpe':
 		case 'jpg':
 			return array(
 				'mime' => 'image/jpeg',
@@ -312,7 +292,7 @@ function get_mimetype($file) {
 		case 'htm':
 			return array(
 				'mime' => 'text/html',
-				'browser' => 'inline'
+				'browser' => 'attachment' // inline might lead to an XSS attack
 			);
 		case 'pdf':
 			return array(
@@ -421,18 +401,9 @@ function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = tr
 
 	ksort($pages);
 
-	$tpl->globalvars(compact("uri", "anz", "pages"));
+	$tpl->assignVars(compact("uri", "anz", "pages"));
 	$lang->assign('anz', $anz);
 	return $tpl->parse("main/pages".$template);
-}
-
-function t2 ($start = null) {
-	if ($start === null) {
-		$start = SCRIPT_START_TIME;
-	}
-	$duration = benchmarktime() - $start;
-	$duration = round($duration, 5);
-	return $duration;
 }
 
 
@@ -479,9 +450,6 @@ function BoardSelect($board = 0) {
 	$categories_obj = $scache->load('categories');
 	$cat_cache = $categories_obj->get();
 
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
 	$index_moderators = $scache->load('index_moderators');
 	$mod_cache = $index_moderators->get();
 
@@ -493,10 +461,10 @@ function BoardSelect($board = 0) {
 	$result = $db->query("
 	SELECT
 		f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
-		t.topic as l_topic, t.prefix AS l_prefix, t.id as l_tid, t.last as l_date, u.name AS l_uname, t.last_name AS l_name, f.id AS l_bid
+		t.topic as l_topic, t.prefix AS l_prefix, t.id as l_tid, t.last as l_date, u.name AS l_name, u.id AS l_uid, f.id AS l_bid
 	FROM {$db->pre}forums AS f
-		LEFT JOIN {$db->pre}topics AS t ON f.last_topic=t.id
-		LEFT JOIN {$db->pre}user AS u ON t.last_name=u.id
+		LEFT JOIN {$db->pre}topics AS t ON f.last_topic = t.id
+		LEFT JOIN {$db->pre}user AS u ON t.last_name= u.id
 	ORDER BY f.parent, f.position
 	");
 
@@ -506,14 +474,13 @@ function BoardSelect($board = 0) {
 		'l_topic' => null,
 		'l_tid' => null,
 		'l_date' => null,
-		'l_uname' => null,
+		'l_uid' => null,
 		'l_name' => null,
 		'l_bid' => null
 	);
 
 	while($row = $db->fetch_assoc($result)) {
 		$row['name'] = $gpc->prepare($row['name']);
-		$row['l_uname'] = $gpc->prepare($row['l_uname']);
 		$row['l_name'] = $gpc->prepare($row['l_name']);
 		$row['bid'] = $cat_cache[$row['parent']]['parent'];
 		// Caching for Subforums
@@ -538,7 +505,6 @@ function BoardSelect($board = 0) {
 		}
 		foreach ($forum_cache[$cat['id']] as $forum) {
 			$found = true;
-			$forum['new'] = false;
 			$forum['show'] = true;
 
 			// Subforendaten vererben (Letzter Beitrag, Markierung)
@@ -560,20 +526,12 @@ function BoardSelect($board = 0) {
 			}
 			$forum = array_merge($forum, array_intersect_key($last, $keys));
 
-			if (is_id($forum['l_name']) && isset($memberdata[$forum['l_name']])) {
-				$forum['l_name'] = array($forum['l_uname'], $forum['l_name']);
-			}
-			else {
-				$forum['l_name'] = array($forum['l_name'], 0);
-			}
-
 			// Rechte und Gelesensystem
 			if ($forum['opt'] != 're') {
 				if (!check_forumperm($forum)) {
 					if ($forum['invisible'] != 0) {
 						$forum['show'] = false;
 					}
-					$forum['foldimg'] = $tpl->img('cat_locked');
 					$forum['state'] = BOARD_STATE_LOCKED;
 					$forum['topics'] = '-';
 					$forum['replies'] = '-';
@@ -582,13 +540,10 @@ function BoardSelect($board = 0) {
 				}
 				else {
 					if ($slog->isForumRead($forum['id'], $forum['l_date']) || $forum['topics'] < 1) {
-						$forum['foldimg'] = $tpl->img('cat_open');
 						$forum['state'] = BOARD_STATE_OLD;
 					}
 					else {
-					   	$forum['foldimg'] = $tpl->img('cat_red');
 					   	$forum['state'] = BOARD_STATE_NEW;
-					   	$forum['new'] = true;
 					}
 					if (!empty($forum['l_topic'])) {
 						if (isset($prefix[$forum['id']][$forum['l_prefix']]) && $forum['l_prefix'] > 0) {
@@ -599,16 +554,14 @@ function BoardSelect($board = 0) {
 							$forum['l_prefix'] = '';
 						}
 
-						if (strxlen($forum['l_topic']) > $config['lasttopic_chars']) {
+						if (mb_strlen($forum['l_topic']) > $config['lasttopic_chars']) {
 							$forum['l_topic_full'] = $forum['l_prefix'].$forum['l_topic'];
-							$forum['l_topic'] = subxstr($forum['l_topic'], 0, $config['lasttopic_chars']);
+							$forum['l_topic'] = mb_substr($forum['l_topic'], 0, $config['lasttopic_chars']);
 							$forum['l_topic'] .= "...";
 						}
 						else {
 							$forum['l_topic_full'] = '';
 						}
-
-						$forum['l_date'] = str_date($lang->phrase('dformat1'), times($forum['l_date']));
 					}
 				}
 			}
@@ -637,31 +590,25 @@ function BoardSelect($board = 0) {
 					$sub = array();
 					for($i = 0; $i < $anz2; $i++) {
 						$show = true;
-						$sub_cache[$forum['id']][$i]['new'] = false;
 						if ($sub_cache[$forum['id']][$i]['opt'] != 're') {
 							if (!check_forumperm($sub_cache[$forum['id']][$i])) {
 								if ($sub_cache[$forum['id']][$i]['invisible'] != 0) {
 									$show = false;
 								}
 								else {
-									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_locked');
 									$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_LOCKED;
 								}
 							}
 							else {
 								if ($slog->isForumRead($sub_cache[$forum['id']][$i]['id'], $sub_cache[$forum['id']][$i]['l_date']) || $sub_cache[$forum['id']][$i]['topics'] < 1) {
-									$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_open');
 									$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_OLD;
 								}
 								else {
-								   	$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_red');
 								   	$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_NEW;
-								   	$sub_cache[$forum['id']][$i]['new'] = true;
 								}
 							}
 						}
 						else {
-							$sub_cache[$forum['id']][$i]['foldimg'] = $tpl->img('subcat_redirect');
 							$sub_cache[$forum['id']][$i]['state'] = BOARD_STATE_WWW;
 						}
 						if ($show == true) {
@@ -686,7 +633,7 @@ function BoardSelect($board = 0) {
 	($code = $plugins->load('forums_prepared')) ? eval($code) : null;
 	$error_state = (count($cats) == 0 && $board == 0);
 	if (count($cats) > 0 || $error_state) {
-		$tpl->globalvars(compact("cats", "board", "hidden", "error_state"));
+		$tpl->assignVars(compact("cats", "board", "hidden", "error_state"));
 		echo $tpl->parse("categories");
 	} // Else: This is a forum without sub forums (that should be displayed)
 
@@ -698,14 +645,11 @@ function GoBoardPW ($bpw, $bid) {
 	extract($GLOBALS, EXTR_SKIP);
 	if(!isset($my->pwfaccess[$bid]) || $my->pwfaccess[$bid] != $bpw) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
-		$tpl->globalvars(compact("bid"));
+		$tpl->assignVars(compact("bid"));
 		echo $tpl->parse("main/boardpw");
-		$slog->updatelogged();
-		$zeitmessung = t2();
-		$tpl->globalvars(compact("zeitmessung"));
 		echo $tpl->parse("footer");
+		$slog->updatelogged();
 		$phpdoc->Out();
-		$db->close();
 		exit;
 	}
 }
@@ -718,8 +662,8 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	}
 
 	if (!empty($errorurl)) {
-		$js_errorurl = html_entity_decode($errorurl, ENT_NOQUOTES);
-		$errorurl = preg_replace('~&(?!amp;)~i', '&amp;', $errorurl);
+		$js_errorurl = viscacha_html_entity_decode($errorurl, ENT_NOQUOTES);
+		$errorurl = preg_replace('~&(?!amp;)~iu', '&amp;', $errorurl);
 	}
 	else {
 		$js_errorurl = $errorurl = "javascript:history.back(-1)";
@@ -729,33 +673,30 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 		$my->p = $slog->Permissions();
 	}
 
-	$breadcrumb->Add($lang->phrase('breadcrumb_errorok'));
-	if (!$tpl->tplsent('header') && !$tpl->tplsent('popup/header')) {
+	Breadcrumb::universal()->add($lang->phrase('breadcrumb_errorok'));
+	if (!$tpl->wasTemplateSent('header') && !$tpl->wasTemplateSent('popup/header')) {
 		echo $tpl->parse('header');
 	}
 
 	($code = $plugins->load('frontend_'.$errorhook)) ? eval($code) : null;
-	$tpl->globalvars(compact("errormsg", "errorurl", "js_errorurl"));
+	$tpl->assignVars(compact("errormsg", "errorurl", "js_errorurl"));
 	echo $tpl->parse("main/{$errortpl}");
 
-	$slog->updatelogged();
-	$zeitmessung = t2();
-	$tpl->globalvars(compact("zeitmessung"));
 	if ($EOS != null) {
 		echo $tpl->parse($EOS);
 	}
-	elseif ($tpl->tplsent('popup/header')) {
+	elseif ($tpl->wasTemplateSent('popup/header')) {
 		echo $tpl->parse('popup/footer');
 	}
 	else {
 		echo $tpl->parse('footer');
 	}
+	$slog->updatelogged();
 	$phpdoc->Out();
-	$db->close();
 	exit;
 }
 
-function errorLogin($errormsg = null, $errorurl = null, $EOS = null) {
+function errorLogin($errormsg = null, $errorurl = null) {
 	if ($errormsg == null) {
 		global $lang;
 		$errormsg = array($lang->phrase('not_allowed'));
@@ -765,10 +706,10 @@ function errorLogin($errormsg = null, $errorurl = null, $EOS = null) {
 	}
 
 	if ($errorurl == null) {
-		$errorurl = htmlspecialchars(getRequestURI());
+		$errorurl = 'index.php' . SID2URL_1;
 	}
 
-	general_message('not_allowed', 'errorlogin', $errormsg, $errorurl, $EOS);
+	general_message('not_allowed', 'errorlogin', $errormsg, $errorurl, null);
 }
 
 function error($errormsg = null, $errorurl = null, $EOS = null) {
@@ -779,6 +720,13 @@ function error($errormsg = null, $errorurl = null, $EOS = null) {
 	elseif (!is_array($errormsg)) {
 		$errormsg = array($errormsg);
 	}
+	
+	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
+		FlashMessage::addError($errormsg);
+		global $slog;
+		$slog->updatelogged();
+		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
+	}
 
 	general_message('error', 'error', $errormsg, $errorurl, $EOS);
 }
@@ -787,6 +735,13 @@ function ok($errormsg = null, $errorurl = null, $EOS = null) {
 	if ($errormsg == null) {
 		global $lang;
 		$errormsg = $lang->phrase('unknown_ok');
+	}
+	
+	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
+		FlashMessage::addConfirmation($errormsg);
+		global $slog;
+		$slog->updatelogged();
+		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
 	}
 
 	general_message('ok', 'ok', $errormsg, $errorurl, $EOS);
@@ -799,11 +754,8 @@ function forum_opt($array, $check = 'forum') {
 	}
 	extract($array, EXTR_PREFIX_ALL, 'f');
 	if ($f_opt == 'pw' && (!isset($my->pwfaccess[$f_id]) || $my->pwfaccess[$f_id] != $f_optvalue)) {
-		if (!$tpl->tplsent('header')) {
+		if (!$tpl->wasTemplateSent('header')) {
 			echo $tpl->parse('header');
-		}
-		if (!$tpl->tplsent('menu')) {
-			echo $tpl->parse('menu');
 		}
 		GoBoardPW($f_optvalue, $f_id);
 	}
@@ -831,7 +783,7 @@ function import_error_data($fid) {
 function save_error_data($fc, $fid = '') {
 	global $gpc;
 	if (!is_hash($fid)) {
-		$fid = md5(microtime());
+		$fid = generate_uid();
 	}
 
 	$cache = new CacheItem($fid, 'temp/errordata/');
@@ -843,7 +795,7 @@ function save_error_data($fc, $fid = '') {
 function count_filled($array) {
 	$int = 0;
 	foreach ($array as $val) {
-		if (!empty($val) || strlen($val) > 0) {
+		if (!empty($val)) {
 			$int++;
 		}
 	}
@@ -867,4 +819,3 @@ function get_pmdir ($dir) {
 	}
 	return $dir_name;
 }
-?>

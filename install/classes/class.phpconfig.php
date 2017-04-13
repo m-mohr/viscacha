@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 /* This is the version only for the installer (without GPC class) */
 class manageconfig {
@@ -85,7 +83,7 @@ class manageconfig {
 		$val2 = str_replace("\0", "", $val2);
 		$val2 = str_replace('\\', '\\\\', $val2);
 		$val2 = str_replace("'", "\\'", $val2);
-		$val2 = preg_replace_callback("/((\r\n|\n|\r|\t)+)/s", array(&$this, '_escapeNewline'), $val2);
+		$val2 = preg_replace_callback("/((\r\n|\n|\r|\t)+)/su", array(&$this, '_escapeNewline'), $val2);
 		$val2 = "'{$val2}'";
 		return $val2;
 	}

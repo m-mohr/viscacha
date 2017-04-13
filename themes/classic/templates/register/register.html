@@ -1,0 +1,65 @@
+<form name="form2" method="post" action="register.php?action=save&amp;fid={{ $fid }}{{ SID2URL_x }}">
+	<div class="border">
+		<h3><img src="@theme('images/register.gif')" alt="" /> @lang('register_title')</h3>
+		<div class="bbody">
+			<label for="name">@lang('name')<br /><span class="stext">@lang('minmax_name')</span></label>
+			<div class="label">
+				<input class="label_inner" type="text" onblur="ajax_doubleudata(this.value);" id="name" name="name" size="40" value="{{ $data['name'] }}" /><br />
+				<span id="udata_name" class="stext">&nbsp;</span>
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="pw">
+				@lang('login_password')<br />
+				<span class="stext">@lang('minmax_password')</span>
+			</label>
+			<input class="label" type="password" id="pw" name="pw" size="40" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="pwx">
+				@lang('password_repeat')
+			</label>
+			<input class="label" type="password" id="pwx" name="pwx" size="40" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="email">
+				@lang('email')
+			</label>
+			<input class="label" type="text" id="email" name="email" size="40" value="{{ $data['email'] }}" />
+			@foreach ($customfields as $row)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row['field'] }}">
+				{{ $row['name'] }}
+				@if(!empty($row['description']))
+				<br /><span class="stext">{{ $row['description'] }}</span>
+				@endif
+			</label>
+			{{ $row['input'] }}
+			@endforeach
+			<br class="newinput" />
+			@if($captcha !== null)
+			<hr class="formsep" />
+			<label for="letter">
+				@lang('veriword_check')<br />
+				<span class="stext">@lang('register_veriword')</span>
+			</label>
+			<div class="label">
+				{!! $captcha->generateCode(3) !!}
+			</div>
+			<br class="newinput" />
+			@endif
+		</div>
+		@if($config['acceptrules'] == 1)
+		<h3 class="inlineheader"><img src="@theme('images/rules.gif')" alt="" /> @lang('rules')</h3>
+		<div class="bbody">
+			<ol>
+				@foreach ($rules as $line)
+				<li class="stext">{{ $line }}</li>
+				@endforeach
+			</ol>
+			<hr class="formsep" />
+			<label for="temp" class="textright"><input type="checkbox" id="temp" name="temp" value="1"@checked($data['temp'] == 1) /></label>
+			<div class="label">@lang('register_accept_rules')</div>
+			<br class="newinput" />
+		</div>
+		@endif
+		<div class="bfoot center"><input type="submit" accesskey="s" name="Submit1" id="submitregister" value="@lang('submit_form')" /></div>
+	</div>
+</form>

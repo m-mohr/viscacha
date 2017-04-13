@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class GPC {
 
@@ -83,7 +81,8 @@ class GPC {
 				}
 			}
 			else if ($type == path) {
-				$var = convert2path(trim($value));
+				$var = $this->secure_null($value);
+				$var = convert2path(trim($var));
 			}
 			elseif ($type == int || $type == arr_int || $type == arr_str_int) {
 				if ($type == int && ($value === '' || $value === null)) {
@@ -191,10 +190,8 @@ class GPC {
 		}
 		elseif (is_string($var)){
 			global $db, $lang;
-			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 			$var = $this->secure_null($var);
-			$var = htmlentities($var, ENT_QUOTES, $lang->charset(), false);
-			$var = preg_replace("~\\\\(\r|\n)~", "&#92;\\1", $var); // NL Hack
+			$var = viscacha_htmlentities($var, ENT_QUOTES, false); // TODO: UTF8 - Check this
 			if ($db_esc == true && is_object($db)) {
 				$var = $db->escape_string($var);
 			}
@@ -253,12 +250,7 @@ class GPC {
 		}
 		elseif (is_string($var)) {
 			global $db;
-			if (is_object($db)) {
-				$var = $db->unescape_string($var);
-			}
-			else {
-				$var = stripslashes($var);
-			}
+			$var = stripslashes($var);
 		}
 		return $var;
 	}
@@ -274,6 +266,9 @@ class GPC {
 			}
 		}
 		else {
+			if (!mb_check_encoding($data)) { // TODO: Implement this (prevention against overlong UTF-8) in a better, more central way
+				die('Error: Hacking attempt (Invalid Encoding)');
+			}
 			$data = str_replace("\0", '', $data);
 		}
 		return $data;
@@ -291,7 +286,7 @@ class GPC {
 		}
 	}
 
-	function plain_str($var, $utf = true) {
+	function plain_str($var) { // TODO: UTF8 - Remove after utf8 is there
 		if (is_numeric($var) || empty($var)) {
 			// Do nothing to save time
 		}
@@ -301,29 +296,11 @@ class GPC {
 
 			for ($i = 0; $i < $cnt; $i++){
 				$key = $keys[$i];
-				$var[$key] = $this->plain_str($var[$key], $utf);
+				$var[$key] = $this->plain_str($var[$key]);
 			}
 		}
 		elseif (is_string($var)){
-			if ($utf == true) {
-				$var = html_entity_decode($var, ENT_QUOTES, 'UTF-8');
-			}
-			else {
-				global $lang;
-				
-				static $cb1;
-				if (!isset($cb1)) {
-					$cb1 = create_function('$m', 'return chr(hexdec($m[1]));');
-				}
-				static $cb2;
-				if (!isset($cb2)) {
-					$cb2 = create_function('$m', 'return chr($m[1]);');
-				}
-				
-				$var = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $var); // ToDo: Convert to correct charset
-				$var = preg_replace_callback('~&#([0-9]+);~', $cb2, $var);
-				$var = html_entity_decode($var, ENT_QUOTES, $lang->charset());
-			}
+			$var = viscacha_html_entity_decode($var);
 		}
 		return $var;
 	}

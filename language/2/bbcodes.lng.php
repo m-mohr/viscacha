@@ -3,7 +3,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
 $lang['bb_edit_author'] = 'Additional note by the author:';
 $lang['bb_edit_mod'] = 'Additional note by';
-$lang['bb_hidden_content'] = 'Hidden Content:';
 $lang['bb_offtopic'] = 'Off Topic:';
 $lang['bb_quote'] = 'Quote:';
 $lang['bb_quote_by'] = 'Quote by';

@@ -1,0 +1,5 @@
+<select name="opt_0" size="1">
+	@foreach ($prefix_arr as $id => $value)
+	<option value="{{ $id }}"@selected($sel == $id)>{{ $value['value'] }}</option>
+	@endforeach
+</select>&nbsp;

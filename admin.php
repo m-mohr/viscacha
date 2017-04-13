@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -31,10 +31,7 @@ include ("data/config.inc.php");
 include ("admin/data/config.inc.php");
 
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
-	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
-}
-if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'] == 0) {
-	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
+	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "README.md"!', E_USER_ERROR);
 }
 
 include ("admin/lib/function.viscacha_backend.php");
@@ -109,14 +106,12 @@ if ($my->p['admin'] == 1) {
 		$url = $gpc->get('url', none);
 		$url = addslashes($url);
 		if (!empty($url)) {
-			$db->close();
 			sendStatusCode(302, $url);
-			exit;
 		}
 		else {
 			echo head();
-			if (!empty($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], 'action=locate') === false) {
-				$url = htmlspecialchars($_SERVER['HTTP_REFERER']);
+			if (!empty($_SERVER['HTTP_REFERER']) && mb_strpos($_SERVER['HTTP_REFERER'], 'action=locate') === false) {
+				$url = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$url = 'javascript:history.back(-1);';
@@ -125,7 +120,7 @@ if ($my->p['admin'] == 1) {
 		}
 	}
 	else {
-		if (strlen($action) == 0) {
+		if (empty($action)) {
 			include('admin/frames.php');
 		}
 		else {
@@ -174,5 +169,3 @@ else {
 ($code = $plugins->load('admin_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$db->close();
-?>

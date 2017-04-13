@@ -1,10 +1,10 @@
 CREATE TABLE `{:=DBPREFIX=:}settings_groups` (
   `id` smallint(4) unsigned NOT NULL auto_increment,
-  `title` varchar(255) NOT NULL default '',
-  `name` varchar(120) NOT NULL default '',
-  `description` tinytext NOT NULL,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  PACK_KEYS=0 AUTO_INCREMENT=6 ;
+) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 
 INSERT INTO `{:=DBPREFIX=:}settings_groups` (`id`, `title`, `name`, `description`) VALUES
 (1, 'Related Topics', 'viscacha_related_topics', 'General settings related to the "Related Topics" package.'),

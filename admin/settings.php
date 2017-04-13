@@ -76,7 +76,7 @@ elseif ($job == 'admin2') {
 	echo head();
 
 	$server = trim($gpc->get('package_server', none));
-	$server = preg_replace("~(\r\n|\r|\n)~", ";", $server);
+	$server = preg_replace("~(\r\n|\r|\n)~u", ";", $server);
 
 	$c->getdata('admin/data/config.inc.php', 'admconfig');
 	$c->updateconfig('package_server', str, $server);
@@ -241,10 +241,6 @@ elseif ($job == 'posts') {
 	   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_topics_posts_title'); ?></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_allow_guest_to_post_without_email'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="guest_email_optional" value="1"<?php echo iif($config['guest_email_optional'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_posts_per_page'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="topiczahl" value="<?php echo $config['topiczahl']; ?>" size="4"></td>
 	  </tr>
@@ -348,7 +344,6 @@ elseif ($job == 'posts2') {
 	$c->updateconfig('edit_delete_time', int);
 	$c->updateconfig('edit_edit_time', int);
 	$c->updateconfig('topiczahl', int);
-	$c->updateconfig('guest_email_optional', int);
 	$c->updateconfig('abozahl', int);
 	$c->updateconfig('multiple_instant_notifications', int);
 	$c->updateconfig('fullname_posts', int);
@@ -548,30 +543,12 @@ elseif ($job == 'search2') {
 }
 elseif ($job == 'server') {
 	$config = $gpc->prepare($config);
-
-	$std_err_reporting = ($config['error_reporting'] != '0' && $config['error_reporting'] != 'E_ALL' && $config['error_reporting'] != 'E_ERROR');
-
 	echo head();
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=server2">
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
 	  <tr>
 	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_php_web_file_edit'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_php_error_report'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_php_error_report_info'); ?></span></td>
-	   <td class="mbox" width="50%">
-	    <select name="error_reporting">
-	     <option value="-1"<?php echo iif($std_err_reporting, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_php_standard'); ?></option>
-	     <option value="0"<?php echo iif($config['error_reporting'] == '0', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_none'); ?></option>
-	     <option value="E_ALL"<?php echo iif($config['error_reporting'] == 'E_ALL', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_all'); ?></option>
-	     <option value="E_ERROR"<?php echo iif($config['error_reporting'] == 'E_ERROR', ' selected="selected"'); ?>><?php echo $lang->phrase('admin_e_error'); ?></option>
-	    </select>
-	   </td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_error_handler'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_error_handler_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="error_handler" value="1"<?php echo iif($config['error_handler'] == 1,' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_save_php_errors'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_save_php_errors_info'); ?></span></td>
@@ -597,10 +574,7 @@ elseif ($job == 'server2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('gdversion', int);
-	$c->updateconfig('error_handler', int);
 	$c->updateconfig('error_log', int);
-	$c->updateconfig('error_reporting', str);
 	$c->updateconfig('correctsubdomains', int);
 	$c->updateconfig('hterrordocs', int);
 	$c->savedata();
@@ -780,18 +754,6 @@ elseif ($job == 'user') {
 	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
-	 </table><br />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_teamlist_edit'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_show_mod_rights'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_show_mod_rights_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="team_mod_dateuntil" value="1"<?php echo iif($config['team_mod_dateuntil'] == 1,' checked="checked"'); ?> /></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>" /></td>
-	  </tr>
 	 </table>
 	</form>
 	<?php
@@ -801,7 +763,7 @@ elseif ($job == 'user2') {
 	echo head();
 
 	$arraylist = $gpc->get('mlistfields', arr_str);
-	$arraylist = array_map('strtolower', $arraylist);
+	$arraylist = array_map('mb_strtolower', $arraylist);
 	$arraylist = array_map('trim', $arraylist);
 	$list = implode(',',$arraylist);
 
@@ -810,7 +772,6 @@ elseif ($job == 'user2') {
 	$c->updateconfig('mlist_showinactive', int);
 	$c->updateconfig('mlist_filtergroups', int);
 	$c->updateconfig('mlist_fields', str, $list);
-	$c->updateconfig('team_mod_dateuntil', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');
@@ -970,6 +931,7 @@ elseif ($job == 'email2') {
 }
 elseif ($job == 'captcha') {
 	$config = $gpc->prepare($config);
+	$re_link = '<a href="https://www.google.com/recaptcha/" target="_blank">reCaptcha</a>';
 	echo head();
 	?>
 	<form name="form" method="post" action="admin.php?action=settings&job=captcha2">
@@ -981,19 +943,8 @@ elseif ($job == 'captcha') {
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_registration'); ?></td>
 	   <td class="mbox" width="50%">
 	    <select name="botgfxtest">
-	     <?php for($i = 0; $i <= 2; $i++) { ?>
-	     <option value="<?php echo $i; ?>"<?php echo iif($config['botgfxtest'] == $i, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type'.$i); ?></option>
-	     <?php } ?>
-	    </select>
-	   </td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_activate_spambot_at_guests'); ?></td>
-	   <td class="mbox" width="50%">
-	    <select name="botgfxtest_posts">
-	     <?php for($i = 0; $i <= 2; $i++) { ?>
-	     <option value="<?php echo $i; ?>"<?php echo iif($config['botgfxtest_posts'] == $i, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type'.$i); ?></option>
-	     <?php } ?>
+	     <option value="0"<?php echo iif($config['botgfxtest'] != 2, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type0'); ?></option>
+	     <option value="2"<?php echo iif($config['botgfxtest'] == 2, ' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_type2'); ?></option>
 	    </select>
 	   </td>
 	  </tr>
@@ -1001,51 +952,6 @@ elseif ($job == 'captcha') {
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
-	 <?php if ($config['botgfxtest'] == 1 || $config['botgfxtest_posts'] == 1) { ?>
-	<br class="minibr" />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_spambot_veriword'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" colspan="2"><?php echo $lang->phrase('admin_spambot_veriword_info'); ?></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_width_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_width_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_width" value="<?php echo $config['botgfxtest_width']; ?>" size="5">px</td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_image_height_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_image_height_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_height" value="<?php echo $config['botgfxtest_height']; ?>" size="5">px</td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_wave_filter_captcha'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="botgfxtest_filter" value="1"<?php echo iif($config['botgfxtest_filter'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_dyeing_letters_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_dyeing_letters_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="botgfxtest_colortext" value="1"<?php echo iif($config['botgfxtest_colortext'] == 1,' checked="checked"'); ?>></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_file_typ_captcha'); ?></td>
-	   <td class="mbox" width="50%">
-	   <select name="botgfxtest_format">
-	   <option value="jpg"<?php echo iif($config['botgfxtest_format'] != 'png',' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_jpeg'); ?></option>
-	   <option value="png"<?php echo iif($config['botgfxtest_format'] == 'png',' selected="selected"'); ?>><?php echo $lang->phrase('admin_captcha_png'); ?></option>
-	   </select>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_pic_quality_captcha'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_pic_quality_captcha_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="text" name="botgfxtest_quality" value="<?php echo $config['botgfxtest_quality']; ?>" size="5">%</td>
-	  </tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
-	  </tr>
-	 </table>
-	<?php
-	}
-	if ($config['botgfxtest'] == 2 || $config['botgfxtest_posts'] == 2) {
-		$re_link = '<a href="http://recaptcha.net/api/getkey?app=Viscacha" target="_blank">reCaptcha</a>';
-		?>
 	<br class="minibr" />
 	 <table class="border" border="0" cellspacing="0" cellpadding="4">
 	  <tr>
@@ -1065,7 +971,6 @@ elseif ($job == 'captcha') {
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
 	 </table>
-	 <?php } ?>
 	</form>
 	<?php
 	echo foot();
@@ -1073,25 +978,10 @@ elseif ($job == 'captcha') {
 elseif ($job == 'captcha2') {
 	echo head();
 
-	$register = $gpc->get('botgfxtest', int);
-	$posts = $gpc->get('botgfxtest_posts', int);
-
 	$c->getdata();
 	$c->updateconfig('botgfxtest', int);
-	$c->updateconfig('botgfxtest_posts', int);
-	if ($config['botgfxtest'] == 1 || $config['botgfxtest_posts'] == 1) {
-		$c->updateconfig('botgfxtest_filter', int);
-		$c->updateconfig('botgfxtest_colortext', int);
-		$c->updateconfig('botgfxtest_width', int);
-		$c->updateconfig('botgfxtest_height', int);
-		$c->updateconfig('botgfxtest_format', str);
-		$c->updateconfig('botgfxtest_quality', int);
-	}
-	if ($config['botgfxtest'] == 2 || $config['botgfxtest_posts'] == 2) {
-		$c->updateconfig('botgfxtest_recaptcha_public', str);
-		$c->updateconfig('botgfxtest_recaptcha_private', str);
-	}
-
+	$c->updateconfig('botgfxtest_recaptcha_public', str);
+	$c->updateconfig('botgfxtest_recaptcha_private', str);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=captcha');
@@ -1138,7 +1028,7 @@ elseif ($job == 'register2') {
 	echo head();
 
 	$register_notification = $gpc->get('register_notification', none);
-	$emails = preg_split('/[\r\n]+/', $register_notification, -1, PREG_SPLIT_NO_EMPTY);
+	$emails = preg_split('/[\r\n]+/u', $register_notification, -1, PREG_SPLIT_NO_EMPTY);
 	$register_notification = array();
 	foreach ($emails as $email) {
 		if(check_mail($email, true)) {
@@ -1236,11 +1126,11 @@ elseif ($job == 'attupload') {
 	   <td class="mbox" width="50%"><input type="text" name="tpcfilesize" value="<?php echo $config['tpcfilesize']; ?>" size="10"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_weidth_pic'); ?><br /><font class="stext"><?php echo $lang->phrase('admin_max_weidth_pic_info'); ?></font></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_width_pic'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="tpcwidth" value="<?php echo $config['tpcwidth']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_hight_pic'); ?><br /><font class="stext"><?php echo $lang->phrase('admin_max_hight_pic_info'); ?></font></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_height_pic'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="tpcheight" value="<?php echo $config['tpcheight']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
@@ -1270,7 +1160,7 @@ elseif ($job == 'attupload2') {
 
 	$list = $gpc->get('tpcfiletypes', none);
 	$arraylist = explode(',', $list);
-	$arraylist = array_map('strtolower', $arraylist);
+	$arraylist = array_map('mb_strtolower', $arraylist);
 	$arraylist = array_map('trim', $arraylist);
 	$list = implode(',',$arraylist);
 
@@ -1306,11 +1196,11 @@ elseif ($job == 'avupload') {
 	   <td class="mbox" width="50%"><input type="text" name="avfilesize" value="<?php echo $config['avfilesize']; ?>" size="10"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_weidth_ava'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_max_weidth_ava_info'); ?></span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_width_ava'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="avwidth" value="<?php echo $config['avwidth']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_height_ava'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_max_height_ava_info'); ?></span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_max_height_ava'); ?></td>
 	   <td class="mbox" width="50%"><input type="text" name="avheight" value="<?php echo $config['avheight']; ?>" size="5"></td>
 	  </tr>
 	  <tr>
@@ -1328,7 +1218,7 @@ elseif ($job == 'avupload2') {
 
 	$list = $gpc->get('avfiletypes', none);
 	$arraylist = explode(',', $list);
-	$arraylist = array_map('strtolower', $arraylist);
+	$arraylist = array_map('mb_strtolower', $arraylist);
 	$arraylist = array_map('trim', $arraylist);
 	$arraylist = array_intersect($imagetype_extension, $arraylist);
 	$list = implode(',',$arraylist);
@@ -1397,7 +1287,7 @@ elseif ($job == 'general') {
 	echo head();
 
 	// HTTP_HOST is having the correct browser url in most cases...
-	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
 	$https = ini_isSecureHttp() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
@@ -1409,7 +1299,7 @@ elseif ($job == 'general') {
 	$source = trim(trim(dirname($source)), '/');
 	$furl = $https.$server_name.'/'.$source;
 
-	if (!check_hp($furl)) {
+	if (!is_url($furl)) {
 		$furl = $lang->phrase('admin_unable_to_analyze_url');
 	}
 
@@ -1443,7 +1333,7 @@ elseif ($job == 'general') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_output_benchmark'); ?></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="benchmarkresult" value="1"<?php echo iif($config['benchmarkresult'],' checked="checked"'); ?>></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="debug" value="1"<?php echo iif($config['debug'],' checked="checked"'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
@@ -1462,7 +1352,7 @@ elseif ($job == 'general2') {
 	$c->updateconfig('furl', str);
 	$c->updateconfig('fpath', str);
 	$c->updateconfig('forenmail', str);
-	$c->updateconfig('benchmarkresult', int);
+	$c->updateconfig('debug', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');
@@ -1481,7 +1371,7 @@ elseif ($job == 'sitestatus') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_offline_msg'); ?><br><span class="stext"><?php echo $lang->phrase('admin_offline_msg_info'); ?></span></td>
-	   <td class="mbox" width="50%"><textarea class="texteditor" name="foffline_message" rows="5" cols="60"><?php echo htmlspecialchars($config['foffline_message']); ?></textarea></td>
+	   <td class="mbox" width="50%"><textarea class="texteditor" name="foffline_message" rows="5" cols="60"><?php echo viscacha_htmlspecialchars($config['foffline_message']); ?></textarea></td>
 	  </tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
@@ -1519,43 +1409,43 @@ elseif ($job == 'datetime') {
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_from_timezone'); ?><br><font class="stext"><?php echo $lang->phrase('admin_from_timezone_info'); ?></font></td>
 	   <td class="mbox" width="50%"><select name="timezone">
-			<option value="-12"<?php selectTZ($config['timezone'], -12); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
-			<option value="-11"<?php selectTZ($config['timezone'], -11); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
-			<option value="-10"<?php selectTZ($config['timezone'], -10); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
-			<option value="-9"<?php selectTZ($config['timezone'], -9); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
-			<option value="-8"<?php selectTZ($config['timezone'], -8); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
-			<option value="-7"<?php selectTZ($config['timezone'], -7); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
-			<option value="-6"<?php selectTZ($config['timezone'], -6); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
-			<option value="-5"<?php selectTZ($config['timezone'], -5); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
-			<option value="-4"<?php selectTZ($config['timezone'], -4); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
-			<option value="-3.5"<?php selectTZ($config['timezone'], -3.5); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
-			<option value="-3"<?php selectTZ($config['timezone'], -3); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
-			<option value="-2"<?php selectTZ($config['timezone'], -2); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
-			<option value="-1"<?php selectTZ($config['timezone'], -1); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
-			<option value="0"<?php selectTZ($config['timezone'], 0); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
-			<option value="+1"<?php selectTZ($config['timezone'], 1); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
-			<option value="+2"<?php selectTZ($config['timezone'], 2); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
-			<option value="+3"<?php selectTZ($config['timezone'], 3); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
-			<option value="+3.5"<?php selectTZ($config['timezone'], 3.5); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
-			<option value="+4"<?php selectTZ($config['timezone'], 4); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
-			<option value="+4.5"<?php selectTZ($config['timezone'], 4.5); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
-			<option value="+5"<?php selectTZ($config['timezone'], 5); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
-			<option value="+5.5"<?php selectTZ($config['timezone'], 5.5); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
-			<option value="+5.75"<?php selectTZ($config['timezone'], 5.75); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
-			<option value="+6"<?php selectTZ($config['timezone'], 6); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
-			<option value="+6.5"<?php selectTZ($config['timezone'], 6.5); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
-			<option value="+7"<?php selectTZ($config['timezone'], 7); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
-			<option value="+8"<?php selectTZ($config['timezone'], 8); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
-			<option value="+9"<?php selectTZ($config['timezone'], 9); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
-			<option value="+9.5"<?php selectTZ($config['timezone'], 9.5); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
-			<option value="+10"<?php selectTZ($config['timezone'], 10); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
-			<option value="+11"<?php selectTZ($config['timezone'], 11); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
-			<option value="+12"<?php selectTZ($config['timezone'], 12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
+			<option value="-12"<?php echo selectTZ(-12); ?>><?php echo $lang->phrase('timezone_n12'); ?></option>
+			<option value="-11"<?php echo selectTZ(-11); ?>><?php echo $lang->phrase('timezone_n11'); ?></option>
+			<option value="-10"<?php echo selectTZ(-10); ?>><?php echo $lang->phrase('timezone_n10'); ?></option>
+			<option value="-9"<?php echo selectTZ(-9); ?>><?php echo $lang->phrase('timezone_n9'); ?></option>
+			<option value="-8"<?php echo selectTZ(-8); ?>><?php echo $lang->phrase('timezone_n8'); ?></option>
+			<option value="-7"<?php echo selectTZ(-7); ?>><?php echo $lang->phrase('timezone_n7'); ?></option>
+			<option value="-6"<?php echo selectTZ(-6); ?>><?php echo $lang->phrase('timezone_n6'); ?></option>
+			<option value="-5"<?php echo selectTZ(-5); ?>><?php echo $lang->phrase('timezone_n5'); ?></option>
+			<option value="-4"<?php echo selectTZ(-4); ?>><?php echo $lang->phrase('timezone_n4'); ?></option>
+			<option value="-3.5"<?php echo selectTZ(-3.5); ?>><?php echo $lang->phrase('timezone_n35'); ?></option>
+			<option value="-3"<?php echo selectTZ(-3); ?>><?php echo $lang->phrase('timezone_n3'); ?></option>
+			<option value="-2"<?php echo selectTZ(-2); ?>><?php echo $lang->phrase('timezone_n2'); ?></option>
+			<option value="-1"<?php echo selectTZ(-1); ?>><?php echo $lang->phrase('timezone_n1'); ?></option>
+			<option value="0"<?php echo selectTZ(0); ?>><?php echo $lang->phrase('timezone_0'); ?></option>
+			<option value="+1"<?php echo selectTZ(1); ?>><?php echo $lang->phrase('timezone_p1'); ?></option>
+			<option value="+2"<?php echo selectTZ(2); ?>><?php echo $lang->phrase('timezone_p2'); ?></option>
+			<option value="+3"<?php echo selectTZ(3); ?>><?php echo $lang->phrase('timezone_p3'); ?></option>
+			<option value="+3.5"<?php echo selectTZ(3.5); ?>><?php echo $lang->phrase('timezone_p35'); ?></option>
+			<option value="+4"<?php echo selectTZ(4); ?>><?php echo $lang->phrase('timezone_p4'); ?></option>
+			<option value="+4.5"<?php echo selectTZ(4.5); ?>><?php echo $lang->phrase('timezone_p45'); ?></option>
+			<option value="+5"<?php echo selectTZ(5); ?>><?php echo $lang->phrase('timezone_p5'); ?></option>
+			<option value="+5.5"<?php echo selectTZ(5.5); ?>><?php echo $lang->phrase('timezone_p55'); ?></option>
+			<option value="+5.75"<?php echo selectTZ(5.75); ?>><?php echo $lang->phrase('timezone_p575'); ?></option>
+			<option value="+6"<?php echo selectTZ(6); ?>><?php echo $lang->phrase('timezone_p6'); ?></option>
+			<option value="+6.5"<?php echo selectTZ(6.5); ?>><?php echo $lang->phrase('timezone_p65'); ?></option>
+			<option value="+7"<?php echo selectTZ(7); ?>><?php echo $lang->phrase('timezone_p7'); ?></option>
+			<option value="+8"<?php echo selectTZ(8); ?>><?php echo $lang->phrase('timezone_p8'); ?></option>
+			<option value="+9"<?php echo selectTZ(9); ?>><?php echo $lang->phrase('timezone_p9'); ?></option>
+			<option value="+9.5"<?php echo selectTZ(9.5); ?>><?php echo $lang->phrase('timezone_p95'); ?></option>
+			<option value="+10"<?php echo selectTZ(10); ?>><?php echo $lang->phrase('timezone_p10'); ?></option>
+			<option value="+11"<?php echo selectTZ(11); ?>><?php echo $lang->phrase('timezone_p11'); ?></option>
+			<option value="+12"<?php echo selectTZ(12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
 		</select></td>
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_use_today_yesterday'); ?></font></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="new_dformat4" value="1"<?php echo iif($config['new_dformat4'],' checked'); ?>></td>
+	   <td class="mbox" width="50%"><input type="checkbox" name="semantic_datetime" value="1"<?php echo iif($config['semantic_datetime'],' checked'); ?>></td>
 	  </tr>
 	  <tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
@@ -1569,7 +1459,7 @@ elseif ($job == 'datetime2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('new_dformat4',int);
+	$c->updateconfig('semantic_datetime',int);
 	$c->updateconfig('timezone',str);
 	$c->savedata();
 
@@ -1615,12 +1505,12 @@ elseif ($job == 'textprocessing') {
 	$config = $gpc->prepare($config);
 
 	if (!empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['PHP_SELF'])) {
-		$surl = "http://".$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF']), '/\\').'/images/smileys';
+		$surl = "http://".$_SERVER['HTTP_HOST'].rtrim(dirname($_SERVER['PHP_SELF']), '/\\').'/assets/smileys';
 	}
 	else {
 		$surl = $lang->phrase('admin_unable_to_analyze_url');
 	}
-	$spath = str_replace('\\', '/', realpath('./')).'/images/smileys';
+	$spath = str_replace('\\', '/', realpath('./')).'/assets/smileys';
 
 	echo head();
 	?>
@@ -1963,10 +1853,10 @@ elseif ($job == 'new_group2') {
 	$desc = $gpc->get('description', str);
 	$package = $gpc->get('package', int);
 
-	if (strlen($title) < 3 || strlen($title) > 120) {
+	if (mb_strlen($title) < 3 || strlen($title) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_title_short_long'));
 	}
-	if (strlen($name) < 3 || strlen($name) > 120) {
+	if (mb_strlen($name) < 3 || strlen($name) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_group_name_short_long'));
 	}
 
@@ -2068,7 +1958,7 @@ elseif ($job == 'new2') {
 	$result = $db->query("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$group}'");
 	$row = $db->fetch_assoc($result);
 
-	if (isset($config[$row['name']][$name]) || strlen($name) < 3 || strlen($name) > 120) {
+	if (isset($config[$row['name']][$name]) || mb_strlen($name) < 3 || strlen($name) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_name_exists'));
 	}
 	if ($type != 'checkbox' && $type != 'text' && $type != 'textarea' && $type != 'select') {
@@ -2328,7 +2218,6 @@ else {
 		  <form name="act" action="admin.php?action=locate" method="post">
 		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
 		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
-		  	  <option value="admin.php?action=misc&amp;job=captcha"><?php echo $lang->phrase('admin_select_captcha_manager'); ?></option>
 		  	  <option value="admin.php?action=slog&job=s_general"><?php echo $lang->phrase('admin_select_registration_statistic'); ?></option>
 		  	  <option value="admin.php?action=language&amp;job=lang_rules&amp;id=<?php echo $config['langdir']; ?>"><?php echo $lang->phrase('admin_select_terms_of_behaviour'); ?></option>
 	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
@@ -2403,15 +2292,7 @@ else {
 	  <tr class="mbox">
 		<td nowrap="nowrap"><a href="admin.php?action=settings&amp;job=captcha"><?php echo $lang->phrase('admin_setting_spam_bot'); ?></a></td>
 		<td class="stext"><?php echo $lang->phrase('admin_setting_spam_bot_info'); ?></td>
-		<td>
-		  <form name="act" action="admin.php?action=locate" method="post">
-		    <select style="width: 80%" size="1" name="url" onchange="locate(this.value)">
-		      <option value="" style="font-weight: bold;"><?php echo $lang->phrase('admin_select_tools'); ?></option>
-		  	  <option value="admin.php?action=misc&amp;job=captcha_noises"><?php echo $lang->phrase('admin_select_captcha_bg'); ?></option>
-		  	  <option value="admin.php?action=misc&amp;job=captcha_fonts"><?php echo $lang->phrase('admin_select_captcha_fonts'); ?></option>
-	        </select> <input style="width: 18%" type="submit" value="<?php echo $lang->phrase('admin_form_go'); ?>">
-		  </form>
-		</td>
+		<td><?php echo $lang->phrase('admin_setting_none'); ?></td>
 	  </tr>
 	</table>
 <?php

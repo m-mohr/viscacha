@@ -3,8 +3,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 // Gets a file with php-functions
 @include_once("classes/function.phpcore.php");
-// Debugging / Error Handling things
-require_once("classes/function.errorhandler.php");
 // A class for Languages
 require_once("classes/class.language.php");
 $lang = new lang();
@@ -12,9 +10,6 @@ $lang = new lang();
 require_once("classes/class.filesystem.php");
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 $filesystem->set_wd($config['ftp_path'], $config['fpath']);
-
-@ini_set('default_charset', '');
-header('Content-type: text/html; charset=iso-8859-1');
 
 // Colours
 $txt2img_fg = '204a87';
@@ -46,13 +41,15 @@ include_once ("classes/class.language.php");
 // Global functions
 require_once ("classes/function.global.php");
 
-$benchmark = benchmarktime();
-
 $slog = new slog();
 $my = $slog->logged();
 $lang->initAdmin($my->language);
-$tpl = new tpl();
-$slog->checkBan();
+$tpl = new Theme($my->theme, $config['theme']);
+$banned = $slog->checkBan();
+if ($banned !== false) {
+	sendStatusCode(403);
+	exit;
+}
 $my->p = $slog->Permissions();
 
 $job = $gpc->get('job', str);
@@ -118,13 +115,13 @@ $glk_forums = array(
 	'f_edit' => 'edit',
 	'f_voting' => 'voting'
 );
-$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit');
+$guest_limitation = array('admin', 'gmod', 'pm', 'usepic', 'useabout', 'usesignature', 'voting', 'edit', 'posttopics', 'postreplies', 'addvotes', 'attachments');
 
 function getLangCodesByDir($dir) {
 	$d = dir($dir);
 	$codes = array();
 	while (false !== ($entry = $d->read())) {
-		if (preg_match('~^(\w{2})_?(\w{0,2})$~i', $entry, $code) && is_dir("{$dir}/{$entry}")) {
+		if (preg_match('~^(\w{2})_?(\w{0,2})$~iu', $entry, $code) && is_dir("{$dir}/{$entry}")) {
 			if (!isset($codes[$code[1]])) {
 				$codes[$code[1]] = array();
 			}
@@ -145,7 +142,7 @@ function getLangCodesByDir($dir) {
 function getLangCodesByKeys($keys) {
 	$codes = array();
 	foreach ($keys as $entry) {
-		if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+		if (preg_match('~language_(\w{2})_?(\w{0,2})~iu', $entry, $code)) {
 			if (!isset($codes[$code[1]])) {
 				$codes[$code[1]] = array();
 			}
@@ -163,7 +160,7 @@ function getLangCodesByKeys($keys) {
 }
 
 function nl2whitespace($str){
-	return preg_replace("~(\r\n|\n|\r)~", " ", $str);
+	return preg_replace("~(\r\n|\n|\r)~u", " ", $str);
 }
 
 function AdminLogInForm() {
@@ -192,7 +189,7 @@ function AdminLogInForm() {
 }
 
 function isInvisibleHook($hook) {
-	return (bool) preg_match("~^((un)?install|update_(init|finish)|source(_\d+)?)$~i", $hook);
+	return (bool) preg_match("~^((un)?install|update_(init|finish)|source(_\d+)?)$~iu", $hook);
 }
 
 function getHookArray() {
@@ -210,7 +207,7 @@ function getHookArray() {
 			continue;
 		}
 		if ($group != null && $line{0} == '-') {
-			$hooks[$group][] = substr($line, 1);
+			$hooks[$group][] = mb_substr($line, 1);
 		}
 	}
 	return $hooks;
@@ -276,7 +273,7 @@ function gzTempfile($file, $new = null) {
 	$data = ob_get_contents();
 	ob_end_clean();
 	if (empty($new)) {
-		$new = 'temp/'.md5(microtime()).'.enc.tar';
+		$new = 'temp/'.generate_uid().'.enc.tar';
 	}
 	$filesystem->file_put_contents($new, $data);
 	return $new;
@@ -284,16 +281,16 @@ function gzTempfile($file, $new = null) {
 
 function get_webserver() {
 	global $lang;
-	if (preg_match('#Apache/([0-9\.\s]+)#si', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
+	if (preg_match('~Apache/([0-9\.\s]+)~siu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Apache v$wsregs[1]";
 	}
-	elseif (preg_match('#Microsoft-IIS/([0-9\.]+)#siU', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
+	elseif (preg_match('~Microsoft-IIS/([0-9\.]+)~siUu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "IIS v$wsregs[1]";
 	}
-	elseif (preg_match('#Zeus/([0-9\.]+)#siU', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
+	elseif (preg_match('~Zeus/([0-9\.]+)~siUu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Zeus v$wsregs[1]";
 	}
-	elseif (strtoupper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {
+	elseif (mb_strtoupper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {
 		$webserver = 'Apache';
 	}
 	elseif (defined('SAPI_NAME')) {
@@ -429,13 +426,13 @@ function pages ($anzposts, $uri, $teiler=50) {
 }
 
 function head($onload = '') {
-	global $htmlhead, $config, $my;
+	global $htmlhead, $config, $my, $tpl;
 	?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
 	<title><?php echo $config['fname']; ?>: Administration Control Panel - powered by Viscacha</title>
-	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
 	<meta http-equiv="Pragma" content="no-cache" />
 	<meta http-equiv="Expires" content="-1" />
 	<meta http-equiv="Cache-Control" content="no-cache" />
@@ -447,7 +444,7 @@ function head($onload = '') {
 		var sidx = '<?php echo SID2URL_JS_x; ?>';
 		var sid1 = '<?php echo SID2URL_JS_1; ?>';
 	--></script>
-	<script src="templates/global.js" language="Javascript" type="text/javascript"></script>
+	<script src="<?php echo $tpl->getFolder(); ?>/global.js" language="Javascript" type="text/javascript"></script>
 	<script src="admin/html/admin.js" language="Javascript" type="text/javascript"></script>
 	<?php echo $htmlhead; ?>
 </head>
@@ -455,15 +452,9 @@ function head($onload = '') {
 	<?php
 }
 function foot($nocopy = false) {
+	global $config;
 	if ($nocopy == false) {
-		global $config, $benchmark, $db, $lang;
-		$benchmark = round(benchmarktime()-$benchmark, 5);
-		$queries = $db->benchmark('queries');
-		$lang->assign('queries', $queries);
-		$lang->assign('benchmark', $benchmark);
 		?>
-		<br style="line-height: 8px;" />
-		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
 		<div id="copyright">
 			Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
 			Copyright &copy; 2004-2014, The Viscacha Project
@@ -476,7 +467,7 @@ function foot($nocopy = false) {
 }
 
 function error ($errorurl, $errormsg = null, $time = null) {
-	global $config, $my, $db, $lang, $slog;
+	global $my, $lang, $slog;
 	if ($errormsg == null) {
 		$errormsg = array($lang->phrase('admin_an_unexpected_error_occured'));
 	}
@@ -511,12 +502,11 @@ window.setTimeout('<?php echo JS_URL($errorurl); ?>', <?php echo $time; ?>);
 	<?php
 	echo foot();
 	$slog->updatelogged();
-	$db->close();
 	exit;
 }
 
 function ok ($url, $msg = null, $time = 1500) {
-	global $config, $my, $db, $lang, $slog;
+	global $my, $lang, $slog;
 	if ($msg == null) {
 		$msg = $lang->phrase('admin_settings_successfully_saved');
 	}
@@ -540,7 +530,6 @@ window.setTimeout('<?php echo JS_URL($url); ?>', <?php echo $time; ?>);
 	<?php
 	echo foot();
 	$slog->updatelogged();
-	$db->close();
 	exit;
 }
 

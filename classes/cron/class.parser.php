@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /**####################################################################################################**\
    Version: V1.01
    Release Date: 12 Sep 2005
@@ -74,7 +72,7 @@ class CronParser {
 	 */
 	function calcLastRan($string) {
 
- 		$tstart = microtime();
+ 		$tstart = microtime(true);
 		$this->lastRan = 0;
 		$this->year = NULL;
 		$this->month = NULL;
@@ -85,9 +83,9 @@ class CronParser {
 		$this->minutes_arr = array();
 		$this->months_arr = array();
 
-		$string = preg_replace('/[\s]{2,}/', ' ', $string);
+		$string = preg_replace('/[\s]{2,}/u', ' ', $string);
 
-		if (preg_match('/[^-,* \\d]/', $string) !== 0) {
+		if (preg_match('/[^-,* \\d]/u', $string) !== 0) {
 			return false;
 		}
 
@@ -169,7 +167,7 @@ class CronParser {
 			}
 		}
 
-		$tend = microtime();
+		$tend = microtime(true);
 		$this->taken = $tend - $tstart;
 
 		//if the last due is beyond 1970

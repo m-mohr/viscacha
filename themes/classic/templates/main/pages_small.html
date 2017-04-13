@@ -1,0 +1,15 @@
+<span class="pagination_small">
+	@lang('pages')
+	@foreach ($pages as $page => $row)
+		@if($row['type'] == PAGES_CURRENT)
+			<span class="page_number_current">{{ $page }}</span>
+		@elseif($row['type'] == PAGES_SEPARATOR)
+			@lang('pages_sep')
+		@elseif($row['type'] == PAGES_NUM)
+			<a class="page_number" href="{{ $row['url'] }}">{{ $page }}</a>
+		@endif
+		@if($row['separator'])
+			<span class="page_separator">@lang('pages_sep2')</span>
+		@endif
+	@endforeach
+</span>

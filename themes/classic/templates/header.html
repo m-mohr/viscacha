@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="@lang('html_read_direction')">
+	<head>
+		<title>@breadcrumb(' &raquo; ')</title>
+
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta http-equiv="content-language" content="@lang('lang_code')" />
+		<meta name="generator" content="Viscacha (http://www.viscacha.org)" />
+		<meta name="description" content="{{ $config['fdesc'] }}" />
+
+		<link rel="stylesheet" type="text/css" href="@theme('standard.css')" />
+
+		<link rel="home" href="index.php" />
+		<link rel="up" href="#" />
+		<link rel="search" href="search.php" />
+		<link rel="copyright" href="http://www.viscacha.org" />
+		@if(defined('LINK_FIRST_PAGE'))
+		<link rel="first" href="{{ LINK_FIRST_PAGE }}" />
+		@endif
+		@if(defined('LINK_PREVIOUS_PAGE'))
+		<link rel="previous" href="{{ LINK_PREVIOUS_PAGE }}" />
+		@endif
+		@if(defined('LINK_NEXT_PAGE'))
+		<link rel="next" href="{{ LINK_NEXT_PAGE }}" />
+		@endif
+		@if(defined('LINK_LAST_PAGE'))
+		<link rel="last" href="{{ LINK_LAST_PAGE }}" />
+		@endif
+
+		<script src="assets/cache/language_{{ $my->language }}.js" type="text/javascript"></script>
+		<script type="text/javascript">
+		<!--
+		lng['ajax3_0'] = '@theme('images/dir_closed.gif')';
+		lng['ajax4_0'] = '@theme('images/dir_open.gif')';
+		lng['ajax3_1'] = '@theme('images/dir_closed2.gif')';
+		lng['ajax4_1'] = '@theme('images/dir_open2.gif')';
+		lng['ajax_markforumread'] = '@theme('images/cat_open.gif')';
+		lng['ajax_markforumread_small'] = '@theme('images/subcat_open.gif')';
+		var mq_img_on = '@theme('images/mquote.gif')';
+		var mq_img_off = '@theme('images/no_mquote.gif')';
+		var box_img_plus = '@theme('images/plus.gif')';
+		var box_img_minus = '@theme('images/minus.gif')';
+		var sidx = '{!! SID2URL_JS_x !!}';
+		var sid1 = '{!! SID2URL_JS_1 !!}';
+		-->
+		</script>
+		<script src="@theme('global.js')" type="text/javascript"></script>
+		<script src="@theme('frontend.js')" type="text/javascript"></script>
+
+		{!! $htmlhead !!}
+	</head>
+
+	<body{!! $htmlbody !!}>
+		<script type="text/javascript">
+		<!--
+		window.onload = function () {
+		initImg({{ $config['resizebigimgwidth'] }});
+		mq_init();
+		{!! $htmlonload !!}
+		}
+		-->
+		</script>
+		<div id="container">
+			<h1><a href="index.php">{{ $config['fname'] }}</a></h1>
+			<div id="navigation">@navigation(left)</div>
+			<div class="breadcrumb">@breadcrumb(' &raquo; ', true)</div>
+	<div id="content">
+		@include('menu')
+		{!! FlashMessage::show() !!}

@@ -124,7 +124,6 @@ elseif ($job == 'mods') {
 	  <?php if ($bid == 0) { ?>
 	  <td width="30%" rowspan="2"><a<?php echo iif($orderby != 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=board"><?php echo $lang->phrase('admin_forum_order_by_forum'); ?></a> </td>
 	  <?php } ?>
-	  <td width="20%" rowspan="2"><?php echo $lang->phrase('admin_forum_period'); ?></td>
 	  <td width="14%" colspan="2" align="center"><?php echo $lang->phrase('admin_forum_topic'); ?></td>
 	</tr>
 	<tr class="ubox">
@@ -133,22 +132,15 @@ elseif ($job == 'mods') {
 	</tr>
 	<?php
 	while ($row = $db->fetch_assoc($result)) {
-	if ($row['time'] > -1) {
-		$row['time'] = $lang->phrase('admin_forum_until').gmdate('M d, Y',times($row['time']));
-	}
-	else {
-		$row['time'] = '<em>'.$lang->phrase('admin_forum_no_restriction').'</em>';
-	}
-	$p1 = ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=mods_ajax_changeperm&mid='.$row['mid'].'&bid='.$row['bid'].'&key=';
-	$p2 = '\')"';
-?>
+		$p1 = ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=mods_ajax_changeperm&mid='.$row['mid'].'&bid='.$row['bid'].'&key=';
+		$p2 = '\')"';
+		?>
 	<tr>
 	  <td class="mbox" width="5%" align="center"><input type="checkbox" value="<?php echo $row['mid'].'_'.$row['bid']; ?>" name="delete[]"></td>
 	  <td class="mbox" width="30%"><a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $row['mid']; ?>"><?php echo $row['user']; ?></a></td>
 	  <?php if ($bid == 0) { ?>
 	  <td class="mbox" width="30%"><a href="admin.php?action=forums&amp;job=mods&id=<?php echo $row['cat_id']; ?>"><?php echo $row['cat']; ?></a></td>
 	  <?php } ?>
-	  <td class="mbox" width="20%"><?php echo $row['time']; ?></td>
 	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_mc'], $p1.'p_mc'.$p2); ?></td>
 	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_delete'], $p1.'p_delete'.$p2); ?></td>
 	</tr>
@@ -223,15 +215,6 @@ elseif ($job == 'mods_add') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_period'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_forum_valid_until'); ?></span></td>
-   <td class="mbox" width="50%">
-   	<?php echo $lang->phrase('admin_forum_day'); ?> <input type="text" name="day" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;
-   	<?php echo $lang->phrase('admin_forum_month'); ?> <input type="text" name="month" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;
-   	<?php echo $lang->phrase('admin_forum_year'); ?> <input type="text" name="weekday" size="6" />
-   </td>
-  </tr>
-  <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_manage_posts'); ?></td>
    <td class="mbox" width="50%">
    <input type="checkbox" name="delete" value="1" checked="checked" /> <?php echo $lang->phrase('admin_forum_delete_topics'); ?><br />
@@ -253,9 +236,6 @@ elseif ($job == 'mods_add2') {
 	$id = $gpc->get('id', int);
 	$bid = $gpc->get('bid', int);
 	$temp1 = $gpc->get('name', str);
-	$month = $gpc->get('month', int);
-	$day = $gpc->get('day', int);
-	$weekday = $gpc->get('weekday', int);
 	if (!is_id($id)) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
@@ -263,19 +243,13 @@ elseif ($job == 'mods_add2') {
 	if ($uid[0] < 1) {
 		error('admin.php?action=forums&job=mods_add'.iif($bid > 0, '&id='.$id), $lang->phrase('admin_forum_member_not_found'));
 	}
-	if ($month > 0 && $day > 0 && $weekday > 0) {
-		$timestamp = "'".times(gmmktime(0, 0, 0, $month, $day, $weekday, -1))."'";
-	}
-	else {
-		$timestamp = 'NULL';
-	}
 
 	$move = $gpc->get('move', int);
 	$delete = $gpc->get('delete', int);
 
 	$db->query("
-	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc, time)
-	VALUES ('{$uid[0]}', '{$id}', '{$delete}', '{$move}', {$timestamp})
+	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc)
+	VALUES ('{$uid[0]}', '{$id}', '{$delete}', '{$move}')
 	");
 
 	if ($db->affected_rows() == 1) {
@@ -557,19 +531,19 @@ elseif ($job == 'forum_edit2') {
 		$error[] = $lang->phrase('admin_forum_invalid_id');
 	}
 	$data = $db->fetch_assoc($result);
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		$error[] = $lang->phrase('admin_forum_name_short');
 	}
-	if (strlen($name) > 200) {
+	if (mb_strlen($name) > 200) {
 		$error[] = $lang->phrase('admin_forum_name_long');
 	}
-	if ($message_active > 0 && strlen($message_title) < 2) {
+	if ($message_active > 0 && mb_strlen($message_title) < 2) {
 		$error[] = $lang->phrase('admin_forum_rules_title_short');
 	}
-	if ($message_active > 0 && strlen($message_title) > 200) {
+	if ($message_active > 0 && mb_strlen($message_title) > 200) {
 		$error[] = $lang->phrase('admin_forum_rules_title_long');
 	}
-	if (strlen($opt_re) > 255) {
+	if (mb_strlen($opt_re) > 255) {
 		$error[] = $lang->phrase('admin_forum_link_too_long');
 	}
 	$result = $db->query("SELECT id FROM {$db->pre}categories WHERE id = '{$parent}' LIMIT 1");
@@ -605,7 +579,7 @@ elseif ($job == 'forum_edit2') {
 			$post_order = -1;
 		}
 
-		$emails = preg_split('/[\r\n]+/', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$reply_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -613,7 +587,7 @@ elseif ($job == 'forum_edit2') {
 			}
 		}
 		$reply_notification = implode("\n", $reply_notification);
-		$emails = preg_split('/[\r\n]+/', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$topic_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -622,14 +596,14 @@ elseif ($job == 'forum_edit2') {
 		}
 		$topic_notification = implode("\n", $topic_notification);
 
-		if (strlen($opt_re) > 0) {
+		if (mb_strlen($opt_re) > 0) {
 			$opt = 're';
 			$optvalue = $opt_re;
 			if ($invisible == 1) {
 				$invisible = 0;
 			}
 		}
-		elseif (strlen($opt_pw) > 0) {
+		elseif (mb_strlen($opt_pw) > 0) {
 			$opt = 'pw';
 			$optvalue = $opt_pw;
 			if ($invisible == 1) {
@@ -839,19 +813,19 @@ elseif ($job == 'forum_add2') {
 	$post_order = $gpc->get('post_order', int);
 
 	$error = array();
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		$error[] = $lang->phrase('admin_forum_name_short');
 	}
-	if (strlen($name) > 200) {
+	if (mb_strlen($name) > 200) {
 		$error[] = $lang->phrase('admin_forum_name_long');
 	}
-	if ($message_active > 0 && strlen($message_title) < 2) {
+	if ($message_active > 0 && mb_strlen($message_title) < 2) {
 		$error[] = $lang->phrase('admin_forum_rules_title_short');
 	}
-	if ($message_active > 0 && strlen($message_title) > 200) {
+	if ($message_active > 0 && mb_strlen($message_title) > 200) {
 		$error[] = $lang->phrase('admin_forum_rules_title_long');
 	}
-	if (strlen($opt_re) > 255) {
+	if (mb_strlen($opt_re) > 255) {
 		$error[] = $lang->phrase('admin_forum_link_too_long');
 	}
 	$result = $db->query("SELECT id FROM {$db->pre}categories WHERE id = '{$parent}' LIMIT 1");
@@ -887,7 +861,7 @@ elseif ($job == 'forum_add2') {
 			$post_order = -1;
 		}
 
-		$emails = preg_split('/[\r\n]+/', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $reply_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$reply_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -895,7 +869,7 @@ elseif ($job == 'forum_add2') {
 			}
 		}
 		$reply_notification = implode("\n", $reply_notification);
-		$emails = preg_split('/[\r\n]+/', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $topic_notification, -1, PREG_SPLIT_NO_EMPTY);
 		$topic_notification = array();
 		foreach ($emails as $email) {
 			if(check_mail($email, true)) {
@@ -937,14 +911,14 @@ elseif ($job == 'forum_add2') {
 			}
 		}
 
-		if (strlen($opt_re) > 0) {
+		if (mb_strlen($opt_re) > 0) {
 			$opt = 're';
 			$optvalue = $opt_re;
 			if ($invisible == 1) {
 				$invisible = 0;
 			}
 		}
-		elseif (strlen($opt_pw) > 0) {
+		elseif (mb_strlen($opt_pw) > 0) {
 			$opt = 'pw';
 			$optvalue = $opt_pw;
 			if ($invisible == 1) {
@@ -979,7 +953,7 @@ elseif ($job == 'forum_add2') {
 				$db->query("INSERT INTO {$db->pre}fgroups ({$columns}, bid, gid) VALUES ('{$row_str}', '{$newid}', '{$gid}')");
 			}
 		}
-		$prefixes = preg_split('/[\r\n]+/', $prefix, -1, PREG_SPLIT_NO_EMPTY);
+		$prefixes = preg_split('/[\r\n]+/u', $prefix, -1, PREG_SPLIT_NO_EMPTY);
 		if (count($prefixes) > 0) {
 			$sql_values = array();
 			foreach ($prefixes as $p) {
@@ -1292,10 +1266,10 @@ elseif ($job == 'cat_add2') {
 	$description = $gpc->get('description', db_esc);
 	$position = null;
 
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		error('admin.php?action=forums&job=cat_add', $lang->phrase('admin_forum_name_short'));
 	}
-	elseif (strlen($name) > 200) {
+	elseif (mb_strlen($name) > 200) {
 		error('admin.php?action=forums&job=cat_add', $lang->phrase('admin_forum_name_long'));
 	}
 
@@ -1415,10 +1389,10 @@ elseif ($job == 'cat_edit2') {
 		}
 	}
 
-	if (strlen($name) < 2) {
+	if (mb_strlen($name) < 2) {
 		error('admin.php?action=forums&job=cat_edit&id='.$id, $lang->phrase('admin_forum_name_short'));
 	}
-	elseif (strlen($name) > 200) {
+	elseif (mb_strlen($name) > 200) {
 		error('admin.php?action=forums&job=cat_edit&id='.$id, $lang->phrase('admin_forum_name_long'));
 	}
 
@@ -1526,7 +1500,7 @@ elseif ($job == 'prefix_edit') {
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_value'); ?></td>
-   <td class="mbox" width="50%"><input type="text" name="name" size="50" value="<?php echo htmlspecialchars($row['value']); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="name" size="50" value="<?php echo viscacha_htmlspecialchars($row['value']); ?>" /></td>
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_standard'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_forum_prefix_category_status'); ?></span></td>

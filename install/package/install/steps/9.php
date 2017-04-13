@@ -47,31 +47,26 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$_REQUEST['pwx'] = GPC_escape($_REQUEST['pwx']);
 			}
 
-			if (strlen($_REQUEST['name']) > 50) {
+			if (mb_strlen($_REQUEST['name']) > 50) {
 				$error[] = 'Name is too long (max. 50 chars)';
 			}
-			if (strlen($_REQUEST['name']) < 3) {
+			if (mb_strlen($_REQUEST['name']) < 3) {
 				$error[] = 'Name is too short (min. 3 chars)';
 			}
-			if (strlen($_REQUEST['pw']) > 64) {
+			if (mb_strlen($_REQUEST['pw']) > 64) {
 				$error[] = 'Password is too long (max. 64 chars)';
 			}
-			if (strlen($_REQUEST['pw']) < 4) {
+			if (mb_strlen($_REQUEST['pw']) < 4) {
 				$error[] = 'Passwort is too short (min. 4 chars)';
 			}
 			if (strlen($_REQUEST['email']) > 200) {
 				$error[] = 'Email address is too long (max. 200 chars)';
 			}
-			if (strlen($_REQUEST['email']) < 7 || strpos($_REQUEST['email'], '@') === false) {
+			if (mb_strlen($_REQUEST['email']) < 7 || mb_strpos($_REQUEST['email'], '@') === false) {
 				$error[] = 'The specified email address is not valid';
 			}
 			if ($_REQUEST['pw'] != $_REQUEST['pwx']) {
 				$error[] = 'The specified passwords are not exactly the same';
-			}
-
-			$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$_REQUEST['name'].'" LIMIT 1');
-			if ($db->num_rows($result) > 0) {
-				$error[] = 'The specified user name is already in use';
 			}
 
 			if (count($error) > 0) {
@@ -88,7 +83,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			}
 			else {
 			    $reg = time();
-			    $_REQUEST['pwx'] = md5($_REQUEST['pwx']);
+			    $_REQUEST['pwx'] = hash_pw($_REQUEST['pwx']);
 				$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$_REQUEST['name']}', '{$_REQUEST['pwx']}', '{$_REQUEST['email']}', '{$reg}', '11', '1', '', '')");
 				?>
 		<div class="bfoot">Your account (<em><?php echo $_REQUEST['name']; ?></em>) has been created!</div>
@@ -98,11 +93,11 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	}
 }
 
-// Cache löschen
-$cachedir = 'cache/';
+// Cache lÃ¶schen
+$cachedir = 'data/cache/';
 if ($dh = @opendir($dir)) {
 	while (($file = readdir($dh)) !== false) {
-		if (strpos($file, '.inc.php') !== false) {
+		if (mb_strpos($file, '.inc.php') !== false) {
 			$fileTrim = str_replace('.inc.php', '', $file);
 			$filesystem->unlink($cachedir.$file);
 		}

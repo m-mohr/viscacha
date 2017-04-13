@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -31,65 +31,37 @@ include ("classes/function.viscacha_frontend.php");
 
 $my->p = $slog->Permissions();
 
-$is_guest = false;
-$is_member = false;
-$url_ext = '';
-$guest = $gpc->get('guest', int);
-
-$memberdata_obj = $scache->load('memberdata');
-$memberdata = $memberdata_obj->get();
-
-if (isset($memberdata[$_GET['id']])) {
-	$username = $memberdata[$_GET['id']];
-}
-else {
-	$username = $lang->phrase('fallback_no_username');
-}
-
 if ($my->p['profile'] != 1) {
 	errorLogin();
 }
 
-if ($guest > 0) {
-	$result = $db->query("SELECT email, name, guest FROM {$db->pre}replies WHERE id = '{$guest}' AND guest = '1' LIMIT 1");
-	if ($db->num_rows($result) == 1) {
-		$guest_data = $db->fetch_assoc($result);
-		$is_guest = true;
-		$username = $guest_data['name'];
-		$url_ext = '&amp;guest='.$guest;
-	}
-}
-if (isset($memberdata[$_GET['id']])) {
-	$is_member = true;
-}
-
 ($code = $plugins->load('profile_start')) ? eval($code) : null;
 
-$breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
-$breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('members'), 'members.php'.SID2URL_1);
 
-if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
-	$result=$db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
+if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail')) {
+	$result = $db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$_GET['id']}'");
 	$row = $slog->cleanUserData($db->fetch_object($result));
-	$breadcrumb->Add($lang->phrase('profile_mail_2'));
+	$username = $row['name'];
+	Breadcrumb::universal()->add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].SID2URL_x);
+	Breadcrumb::universal()->add($lang->phrase('profile_mail_2'));
 
 	if ($my->vlogin && $row->opt_hidemail != 1) {
 		if ($_GET['action'] == 'sendmail') {
-
 			$error = array();
 			if (flood_protect() == FALSE) {
 				$error[] = $lang->phrase('flood_control');
 			}
-			if (strxlen($_POST['comment']) > $config['maxpostlength']) {
+			if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
 				$error[] = $lang->phrase('comment_too_long');
 			}
-			if (strxlen($_POST['comment']) < $config['minpostlength']) {
+			if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 				$error[] = $lang->phrase('comment_too_short');
 			}
-			if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
+			if (mb_strlen($_POST['topic']) > $config['maxtitlelength']) {
 				$error[] = $lang->phrase('title_too_long');
 			}
-			if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+			if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
 				$error[] = $lang->phrase('title_too_short');
 			}
 			($code = $plugins->load('profile_mail_errorhandling')) ? eval($code) : null;
@@ -133,25 +105,17 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 		errorLogin();
 	}
 }
-elseif ($is_guest) {
-	$breadcrumb->resetUrl();
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
-	$group = 'fallback_no_username';
-	($code = $plugins->load('profile_guest_prepared')) ? eval($code) : null;
-	echo $tpl->parse("profile/guest");
-}
-elseif ($is_member) {
+else {
 	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.id = {$_GET['id']}");
-
-	$breadcrumb->resetUrl();
-	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
+	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.deleted_at IS NULL AND u.id = {$_GET['id']}");
 
 	if ($db->num_rows($result) == 1) {
 		$row = $slog->cleanUserData($db->fetch_object($result));
+
+		$username = $row->name;
+		Breadcrumb::universal()->add($lang->phrase('profile_title'));
+		echo $tpl->parse("header");
 
 		$days2 = null;
 		if ($config['showpostcounter'] == 1) {
@@ -167,17 +131,8 @@ elseif ($is_member) {
 		$row->p = $slog->StrangerPermissions($row->groups, true);
 		$row->level = $slog->getStatus($row->groups);
 
-		$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
-		if ($row->lastvisit > 0) {
-			$row->lastvisit = str_date($lang->phrase('dformat1'), times($row->lastvisit));
-		}
-		else {
-			$row->lastvisit = $lang->phrase('profile_never');
-		}
-
 		BBProfile($bbcode);
 		$bbcode->setSmileys(1);
-		$bbcode->setAuthor($row->id);
 		$row->about = $bbcode->parse($row->about);
 
 		BBProfile($bbcode, 'signature');
@@ -211,12 +166,8 @@ elseif ($is_member) {
 		}
 
 		$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
-		$wwo = $db->fetch_num($result);
-		$osi = false;
-		if ($wwo[0] > 0) {
-			$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
-			$osi = true;
-		}
+		$wwo = $db->fetch_assoc($result);
+		$osi = ($wwo['mid'] > 0);
 
 		// Custom Profile Fields
 		include_once('classes/class.profilefields.php');
@@ -229,22 +180,12 @@ elseif ($is_member) {
 		($code = $plugins->load('profile_member_end')) ? eval($code) : null;
 	}
 	else {
-		$group = 'fallback_no_username_group';
-		($code = $plugins->load('profile_member_fallback')) ? eval($code) : null;
-		echo $tpl->parse("profile/guest");
+		error($lang->phrase('profile_deleted_member'));
 	}
-}
-else {
-	$db->close();
-	sendStatusCode(301, 'members.php');
-	exit;
 }
 
 ($code = $plugins->load('profile_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

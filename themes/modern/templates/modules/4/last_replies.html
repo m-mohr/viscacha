@@ -1,0 +1,21 @@
+<br />
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('last_posts_reply')</h3></div>
+	@if($info['posts'] >= $num)
+	<div class="panel-footer">
+		@lang('last_posts_info_reply')
+		<a href="showtopic.php?id={{ $info['id'] }}" target="_blank">@lang('last_posts_info_reply2')</a>
+	</div>
+	@endif
+</div>
+@foreach ($data as $row)
+
+<div class="panel panel-default">
+	<div class="panel-footer topfooter"><strong>{{ $row->name }}</strong> (@reldatetime($row->date)):</div>
+	<div class="panel-body">
+		<span class="stext">@lang('subject') <strong>{{ $row->topic }}</strong></span>
+		<hr />
+		{!! $row->comment !!}
+	</div>
+</div>
+@endforeach

@@ -1,0 +1,66 @@
+<form method="post" action="editprofile.php?action=profile2{{ SID2URL_x }}">
+	<div class="border">
+		<h3><img src="@theme('images/user.gif')" alt="" /> @lang('editprofile_profile')</h3>
+		<div class="bbody">
+			<label for="name">@lang('editprofile_name')</label>
+			@if($config['changename_allowed'] == 1)
+			<input class="label" id="name" type="text" name="name" size="40" value="{{ $my->name }}" />
+			@else
+			<div class="label">{{ $my->name }}</div>
+			@endif 
+			<br class="newinput" /><hr class="formsep" />
+			<label for="fullname">@lang('editprofile_fullname')</label>
+			<input class="label" id="fullname" type="text" name="fullname" size="40" value="{{ $my->fullname }}" /> 
+			<br class="newinput" /><hr class="formsep" />											
+			<label for="email">@lang('editprofile_email')</label> 
+			<input class="label" id="email" type="text" name="email" size="40" value="{{ $my->mail }}" /> 
+			<br class="newinput" /><hr class="formsep" />
+			<label for="location">@lang('editprofile_location')</label>
+			<input class="label" id="location" type="text" name="location" size="40" value="{{ $my->location }}" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="gender">@lang('editprofile_gender')</label> 
+			<select class="label" id="gender" size="1" name="gender">
+				<option value="">@lang('no_choice')</option>
+				<option value="m"@selected($my->gender == 'm')>@lang('gender_m')</option>
+				<option value="w"@selected($my->gender == 'w')>@lang('gender_w')</option>
+			</select> 
+			<br class="newinput" /><hr class="formsep" />
+			<label for="birthday">@lang('editprofile_birthday')</label> 
+			<div class="label">
+				<select id="birthday" size="1" name="birthday">
+					<option value="0">--</option>
+					@foreach(range(1,31) as $i)
+					<option value="{{ leading_zero($i) }}"@selected($bday[2] == $i)>{{ $i }}</option>
+					@endforeach
+				</select>. 
+				<select size="1" name="birthmonth">
+					<option value="0">--</option>
+					@foreach(range(1,12) as $i)
+					<option value="{{ $i }}"@selected($bday[1] == $i)>@lang("months_{$i}")</option>
+					@endforeach
+				</select> 
+				<select size="1" name="birthyear">
+					<option value="0">----</option>
+					@foreach(range($maxy,$miny) as $i)
+					<option value="{{ $i }}"@selected($bday[1] == $i)>{{ $i }}</option>
+					@endforeach
+				</select>
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="hp">@lang('editprofile_hp')</label> 
+			<input class="label" id="hp" type="text" name="hp" size="40" value="{{ $my->hp }}" /> 
+			@foreach ($customfields as $row)
+			<br class="newinput" /><hr class="formsep" />
+			<label for="{{ $row['field'] }}">
+				{{ $row['name'] }}
+				@if(!empty($row['description']))
+				<br /><span class="stext">{{ $row['description'] }}</span>
+				@endif
+			</label> 
+			{{ $row['input'] }}
+			@endforeach
+			<br class="newinput" /><br class="minibr" />
+		</div>
+		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
+	</div>
+</form>

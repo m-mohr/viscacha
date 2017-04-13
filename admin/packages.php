@@ -211,12 +211,11 @@ elseif ($job == 'package_update2') {
 	else {
 		$c = new manageconfig();
 
-		$tdir = "temp/".md5(microtime()).'/';
+		$tdir = "temp/".generate_uid().'/';
 		$filesystem->mkdir($tdir, 0777);
 		if (!is_dir($tdir)) {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_err_temporary_directory_could_not_be_created'));
 		}
-		include('classes/class.zip.php');
 		$archive = new PclZip($sourcefile);
 		if ($archive->extract(PCLZIP_OPT_PATH, $tdir) == 0) {
 			error('admin.php?action=packages&job=package_update', $archive->errorInfo(true));
@@ -304,13 +303,13 @@ elseif ($job == 'package_update2') {
 		// Abgleich von Einstellungen
 		$c->getdata();
 		foreach ($settings as $section) {
-			if (substr($section, 0, 8) == 'setting_') {
-				$name = substr($section, 8);
+			if (mb_substr($section, 0, 8) == 'setting_') {
+				$name = mb_substr($section, 8);
 				if ($sg != null && isset($old[$section]) && isset($package[$section])) { // Nur aktualisieren
 					$values = $package[$section];
 					$db->query("UPDATE {$db->pre}settings SET title = '{$values['title']}', description = '{$values['description']}', type = '{$values['type']}', optionscode = '{$values['optionscode']}', value = '{$values['value']}' WHERE name = '{$name}' AND sgroup = '{$sg}'");
 				}
-				elseif ($sg != null && !isset($old[$section]) && isset($package[$section])) { // Hinzufügen
+				elseif ($sg != null && !isset($old[$section]) && isset($package[$section])) { // HinzufÃ¼gen
 					$values = $package[$section];
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
@@ -318,7 +317,7 @@ elseif ($job == 'package_update2') {
 					");
 					$c->updateconfig(array($package['info']['internal'], $name), none, $values['value']);
 				}
-				else { // Löschen
+				else { // LÃ¶schen
 					$c->delete(array($package['info']['internal'], $name));
 					$db->query("DELETE FROM {$db->pre}settings WHERE sgroup = '{$sg}' AND name = '{$name}'");
 				}
@@ -559,7 +558,7 @@ elseif ($job == 'package_update2') {
 							}
 						}
 					}
-					$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+					$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 				}
 			}
 			$delobj = $scache->load('modules_navigation');
@@ -726,12 +725,11 @@ elseif ($job == 'package_import2') {
 	else {
 		$c = new manageconfig();
 
-		$tdir = "temp/".md5(microtime()).'/';
+		$tdir = "temp/".generate_uid().'/';
 		$filesystem->mkdir($tdir, 0777);
 		if (!is_dir($tdir)) {
 			error('admin.php?action=packages&job=package_import', $lang->phrase('admin_packages_err_temporary_directory_could_not_be_created'));
 		}
-		include('classes/class.zip.php');
 		$archive = new PclZip($sourcefile);
 		if ($archive->extract(PCLZIP_OPT_PATH, $tdir) == 0) {
 			error('admin.php?action=packages&job=package_import', $archive->errorInfo(true));
@@ -786,9 +784,9 @@ elseif ($job == 'package_import2') {
 			$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')");
 			$sg = $db->insert_id();
 			foreach ($package as $section => $values) {
-				if (substr($section, 0, 8) == 'setting_') {
+				if (mb_substr($section, 0, 8) == 'setting_') {
 					// TODO: Check data for completeness, e.q. optionscode might be missing
-					$name = $gpc->save_str(substr($section, 8));
+					$name = $gpc->save_str(mb_substr($section, 8));
 					$db->query("
 					INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
 					VALUES ('{$name}', '{$values['title']}', '{$values['description']}', '{$values['type']}', '{$values['optionscode']}', '{$values['value']}', '{$sg}')
@@ -812,7 +810,7 @@ elseif ($job == 'package_import2') {
 				$codes = array();
 				$keys = array_keys($plug);
 				foreach ($keys as $entry) {
-				   	if (preg_match('~language_(\w{2})_?(\w{0,2})~i', $entry, $code)) {
+				   	if (preg_match('~language_(\w{2})_?(\w{0,2})~iu', $entry, $code)) {
 				   		if (!isset($codes[$code[1]])) {
 				   			$codes[$code[1]] = array();
 				   		}
@@ -891,7 +889,7 @@ elseif ($job == 'package_import2') {
 					VALUES
 					('{$plug['names'][$hook]}','{$packageid}','{$priority}','{$plug['required'][$hook]}','{$hook}')
 					");
-					$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+					$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 				}
 			}
 		}
@@ -978,12 +976,11 @@ elseif ($job == 'package_export') {
 	// Determine standard template pack
 	$loaddesign_obj = $scache->load('loaddesign');
 	$cache = $loaddesign_obj->get();
-	$design = $cache[$config['templatedir']];
+	$design = $cache[$config['theme']];
 
 	// ZIP-File
 	$tempdir = "temp/";
 	$file = $data['internal'].'.zip';
-	require_once('classes/class.zip.php');
 	$error = array();
 	$archive = new PclZip($tempdir.$file);
 
@@ -1156,17 +1153,13 @@ elseif ($job == 'package_delete2') {
 
 		$result = $db->query("SELECT * FROM {$db->pre}plugins WHERE module = '{$package['id']}' GROUP BY position");
 		while ($data = $db->fetch_assoc($result)) {
-			$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($data['position']).'.php');
 		}
 
-		$cache = array();
-		$result = $db->query("SELECT template, stylesheet, images FROM {$db->pre}designs");
-		while ($row = $db->fetch_assoc($result)) {
-			$cache[] = $row;
-		}
+		$themes = Theme::all();
 		// Delete templates
-		foreach ($cache as $row) {
-			$tpldir = "templates/{$row['template']}/modules/{$package['id']}/";
+		foreach ($themes as $row) {
+			$tpldir = "{$row['path']}/templates/modules/{$package['id']}/";
 			if (file_exists($tpldir)) {
 				$filesystem->rmdirr($tpldir);
 			}
@@ -1191,21 +1184,6 @@ elseif ($job == 'package_delete2') {
 				}
 			}
 		}
-		// Delete images
-		if (isset($plug['images']) && count($plug['images']) > 0) {
-			foreach ($cache as $design) {
-				foreach ($plug['images'] as $file) {
-					$filesystem->unlink("./images/{$design['images']}/{$file}");
-				}
-			}
-		}
-		if (isset($plug['designs']) && count($plug['designs']) > 0) {
-			foreach ($cache as $design) {
-				foreach ($plug['designs'] as $file) {
-					$filesystem->unlink("./designs/{$design['stylesheet']}/{$file}");
-				}
-			}
-		}
 
 		// Remove hooks
 		removeHookFromArray('component_'.$package['internal']);
@@ -1223,7 +1201,7 @@ elseif ($job == 'package_delete2') {
 		$delobj->delete();
 		if (isset($plug['php']) && is_array($plug['php'])) {
 			foreach ($plug['php'] as $pos => $file) {
-				$path = 'cache/modules/'.$plugins->_group($pos).'.php';
+				$path = 'data/cache/modules/'.$plugins->_group($pos).'.php';
 				if (!isInvisibleHook($pos) && file_exists($path)) {
 					$filesystem->unlink($path);
 				}
@@ -1398,7 +1376,7 @@ elseif ($job == 'package_edit2') {
 	$url = $gpc->get('url', none);
 	$dependency = $gpc->get('dependency', arr_none);
 
-	if (strlen($title) < 4) {
+	if (mb_strlen($title) < 4) {
 		error('admin.php?action=packages&job=package_edit&id='.$id, $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($title) > 200) {
@@ -1710,13 +1688,13 @@ elseif ($job == 'package_add2') {
 	$url = $gpc->get('url', none);
 	$dependency = $gpc->get('dependency', arr_none);
 
-	if (strlen($title) < 4) {
+	if (mb_strlen($title) < 4) {
 		error('admin.php?action=packages&job=package_add', $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($title) > 200) {
 		error('admin.php?action=packages&job=package_add', $lang->phrase('admin_packages_err_maximum_number_of_characters_for_title'));
 	}
-	if (strlen($internal) < 10) {
+	if (mb_strlen($internal) < 10) {
 		error('admin.php?action=packages&job=package_add', $lang->phrase('admin_packages_err_internal_name_is_too_short'));
 	}
 
@@ -1779,7 +1757,7 @@ elseif ($job == 'package_active') {
 		$db->query("UPDATE {$db->pre}packages SET active = '{$active}' WHERE id = '{$id}'");
 		$result = $db->query("SELECT DISTINCT position FROM {$db->pre}plugins WHERE module = '{$id}'");
 		while ($row = $db->fetch_assoc($result)) {
-			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		}
 		$delobj = $scache->load('components');
 		$delobj->delete();
@@ -2017,7 +1995,7 @@ elseif ($job == 'plugins_move') {
 		elseif ($pos > 0) {
 			$db->query('UPDATE '.$db->pre.'plugins SET ordering = ordering+1 WHERE id = "'.$id.'"');
 		}
-		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		$delobj = $scache->load('components');
 		$delobj->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
@@ -2038,7 +2016,7 @@ elseif ($job == 'plugins_active') {
 	else {
 		$active = $row['active'] == 1 ? 0 : 1;
 		$db->query('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = "'.$id.'"');
-		$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		$delobj = $scache->load('components');
 		$delobj->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
@@ -2109,7 +2087,7 @@ elseif ($job == 'plugins_delete2') {
 		$delobj->delete();
 		$delobj = $scache->load('components');
 		$delobj->delete();
-		$path = 'cache/modules/'.$plugins->_group($data['position']).'.php';
+		$path = 'data/cache/modules/'.$plugins->_group($data['position']).'.php';
 		if (!isInvisibleHook($data['position']) && file_exists($path)) {
 			$filesystem->unlink($path);
 		}
@@ -2144,12 +2122,12 @@ elseif ($job == 'plugins_hook_pos') {
 	  <td class="mbox">
 	  <?php
 	  if (file_exists($file)) {
-		$data = htmlspecialchars(file_get_contents($file));
+		$data = viscacha_htmlspecialchars(file_get_contents($file));
 		$data = str_replace("\t", "	", $data);
 		$data = str_replace("  ", "&nbsp;&nbsp;", $data);
-		$search = preg_quote(htmlspecialchars('$plugins->load(\''.$hook.'\')'), '~');
-		$data = preg_replace('~('.$search.')~i', '<a name="key"><span style="font-weight: bold; color: maroon;">\1</span></a>', $data);
-		$data = preg_split("~(\r\n|\r|\n)~", $data);
+		$search = preg_quote(viscacha_htmlspecialchars('$plugins->load(\''.$hook.'\')'), '~');
+		$data = preg_replace('~('.$search.')~iu', '<a name="key"><span style="font-weight: bold; color: maroon;">\1</span></a>', $data);
+		$data = preg_split("~(\r\n|\r|\n)~u", $data);
 		echo "<ol style='width: 560px;'>";
 		foreach ($data as $row) {
 			echo "<li class=\"monospace\">{$row}</li>";
@@ -2204,7 +2182,7 @@ elseif ($job == 'plugins_edit') {
 		$ini = $myini->read($dir.'plugin.ini');
 	}
 
-	$isComponent = (preg_match('/^(admin_)?component_/', $package['position']) == 1);
+	$isComponent = (preg_match('/^(admin_)?component_/u', $package['position']) == 1);
 
 
 	$hooks = getHookArray();
@@ -2246,7 +2224,7 @@ elseif ($job == 'plugins_edit') {
 			<optgroup label="<?php echo $group; ?>">
 			<?php
 			foreach ($positions as $hook) {
-				if ($hook == 'source' && preg_match("~^source(_\d+)?$~i", $package['position'])) { ?>
+				if ($hook == 'source' && preg_match("~^source(_\d+)?$~iu", $package['position'])) { ?>
 					<option value="<?php echo $package['position']; ?>" selected="selected"><?php echo $hook; ?></option>
 				<?php } else { ?>
 					<option value="<?php echo $hook; ?>"<?php echo iif($hook == $package['position'], ' selected="selected"'); ?>><?php echo $hook; ?></option>
@@ -2277,7 +2255,7 @@ elseif ($job == 'plugins_edit') {
 	  </ul>
 	  <?php } ?>
 	  </td>
-	  <td><textarea name="code" rows="10" cols="80" class="texteditor"><?php echo htmlspecialchars($code); ?></textarea></td>
+	  <td><textarea name="code" rows="10" cols="80" class="texteditor"><?php echo viscacha_htmlspecialchars($code); ?></textarea></td>
 	 </tr>
 	 <tr class="mbox">
 	  <td width="25%">
@@ -2339,7 +2317,7 @@ elseif ($job == 'plugins_edit2') {
 		$ini = $myini->read($dir."plugin.ini");
 	}
 
-	if (strlen($name) < 4) {
+	if (mb_strlen($name) < 4) {
 		error('admin.php?action=packages&job=plugins_edit&id='.$id, $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($name) > 200) {
@@ -2374,14 +2352,14 @@ elseif ($job == 'plugins_edit2') {
 		unset($ini['php'][$data['position']]);
 		unset($ini['names'][$data['position']]);
 		unset($ini['required'][$data['position']]);
-		$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 	}
 	else {
 		$ini['required'][$hook] = $ini['required'][$data['position']];
 	}
 
 	$myini->write($dir."plugin.ini", $ini);
-	$filesystem->unlink('cache/modules/'.$plugins->_group($data['position']).'.php');
+	$filesystem->unlink('data/cache/modules/'.$plugins->_group($data['position']).'.php');
 
 	ok('admin.php?action=packages&job=plugins', $lang->phrase('admin_packages_ok_plugin_successfully_edited'));
 }
@@ -2453,7 +2431,7 @@ elseif ($job == 'plugins_add2') {
 		error('admin.php?action=packages&job=plugins_add', $lang->phrase('admin_packages_err_specified_package_foo_does_not_exist'));
 	}
 	$package = $db->fetch_assoc($result);
-	if (strlen($title) < 4) {
+	if (mb_strlen($title) < 4) {
 		error('admin.php?action=packages&job=plugins_add&id='.$package['id'], $lang->phrase('admin_packages_err_minimum_number_of_characters_for_title'));
 	}
 	elseif (strlen($title) > 200) {
@@ -2472,12 +2450,7 @@ elseif ($job == 'plugins_add2') {
 
 	$filetitle = convert2adress($title);
 	$dir = "modules/{$package['id']}/";
-	$codefile = "{$filetitle}.php";
-	$i = 1;
-	while (file_exists($dir.$codefile)) {
-		$codefile = "{$filetitle}_{$i}.php";
-		$i++;
-	}
+	$codefile = basename($filesystem->new_filename($dir.$codefile));
 
 	$last = null;
 	?>
@@ -2488,7 +2461,7 @@ elseif ($job == 'plugins_add2') {
 	 </tr>
 	 <tr class="mbox">
 	  <td width="25%"><?php echo $lang->phrase('admin_packages_plugins_edit_title_for_plugin'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_edit_title_text'); ?></span></td>
-	  <td width="75%"><input type="text" name="title" size="40" value="<?php echo htmlspecialchars($title); ?>" /></td>
+	  <td width="75%"><input type="text" name="title" size="40" value="<?php echo viscacha_htmlspecialchars($title); ?>" /></td>
 	 </tr>
 	 <tr class="mbox">
 	  <td><?php echo $lang->phrase('admin_packages_plugins_edit_package'); ?></td>
@@ -2567,7 +2540,7 @@ elseif ($job == 'plugins_add3') {
 		$hook = $data['position'];
 		$dir = "modules/{$data['module']}/";
 
-		if (strlen($title) < 4 || strlen($title) > 200) {
+		if (mb_strlen($title) < 4 || strlen($title) > 200) {
 			$title = $data['title'];
 		}
 		if ($required == 1) {
@@ -2623,7 +2596,7 @@ elseif ($job == 'plugins_add3') {
 	$delobj->delete();
 
 	if (!$isInvisibleHook) {
-		$filesystem->unlink('cache/modules/'.$plugins->_group($hook).'.php');
+		$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 	}
 	if ($hook == 'navigation') {
 		ok('admin.php?action=cms&job=nav_addplugin&id='.$package, $lang->phrase('admin_packages_ok_step_3_of_3_plugin_successfully_added_to_navigation'));
@@ -2649,19 +2622,18 @@ elseif ($job == 'plugins_template') {
 		$ini = array();
 	}
 
-	$designObj = $scache->load('loaddesign');
-	$designs = $designObj->get(true);
+	$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+	$designs = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$designs[$row['id']] = $row;
+	}
 	$standardDesign = $designs[$config['templatedir']]['template'];
 	$tpldir = "templates/{$standardDesign}/modules/{$data['id']}/";
 
-	// ToDo: Prüfen ob .html variabel sein sollte (class.template.php => Endung der Templates ist variabel, nur standardmäßig html)
+	// ToDo: PrÃ¼fen ob .html variabel sein sollte (class.template.php => Endung der Templates ist variabel, nur standardmÃ¤ÃŸig html)
 	$filetitle = convert2adress($data['title']);
 	$codefile = "{$filetitle}.html";
-	$i = 1;
-	while (file_exists($tpldir.$codefile)) {
-		$codefile = "{$filetitle}_{$i}.html";
-		$i++;
-	}
+	$codefile = basename($filesystem->new_filename($tpldir.$codefile));
 
 	echo head();
 	?>
@@ -2740,8 +2712,11 @@ elseif ($job == 'plugins_template_add') {
 	$data = $db->fetch_assoc($result);
 	$dir = "modules/{$data['id']}/";
 
-	$designObj = $scache->load('loaddesign');
-	$designs = $designObj->get(true);
+	$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+	$designs = array();
+	while ($row = $db->fetch_assoc($result)) {
+		$designs[$row['id']] = $row;
+	}
 	$standardDesign = $designs[$config['templatedir']]['template'];
 	$tpldir = "templates/{$standardDesign}/modules/{$data['id']}/";
 	if (!is_dir($tpldir)) {
@@ -2780,8 +2755,11 @@ elseif ($job == 'plugins_template_edit') {
 	$ini = $myini->read($dir."plugin.ini");
 
 	if (count($deleteId) > 0) {
-		$designObj = $scache->load('loaddesign');
-		$designs = $designObj->get(true);
+		$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+		$designs = array();
+		while ($row = $db->fetch_assoc($result)) {
+			$designs[$row['id']] = $row;
+		}
 
 		foreach ($deleteId as $key) {
 			if (!isset($ini['template'][$key])) {
@@ -2811,8 +2789,12 @@ elseif ($job == 'plugins_template_edit') {
 			<?php
 		}
 		$codefile = $ini['template'][$editId];
-		$designObj = $scache->load('loaddesign');
-		$designs = $designObj->get(true);
+
+		$result = $db->query("SELECT id, internal, name FROM {$db->pre}designs");
+		$designs = array();
+		while ($row = $db->fetch_assoc($result)) {
+			$designs[$row['id']] = $row;
+		}
 
 		$tpldirs = array();
 		foreach ($designs as $designId => $row) {
@@ -2923,7 +2905,7 @@ elseif ($job == 'plugins_language') {
 	}
 
 	$file = 'modules.lng.php';
-	$group = substr($file, 0, strlen($file)-8);
+	$group = mb_substr($file, 0, mb_strlen($file)-8);
 	$page = $gpc->get('page', int, 1);
 	$cache = array();
 	$diff = array();
@@ -3096,7 +3078,7 @@ elseif ($job == 'plugins_language_delete') {
 	$ini = $myini->read("modules/{$data['id']}/plugin.ini");
 	$langkeys = array();
 	foreach ($ini as $key => $x) {
-		if (substr($key, 0, 8) == 'language') {
+		if (mb_substr($key, 0, 8) == 'language') {
 			$langkeys[] = $key;
 		}
 	}
@@ -3154,7 +3136,7 @@ elseif ($job == 'plugins_language_edit') {
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_packages_language_edit_text'); ?><br />
    <span class="stext"><?php echo $lang->phrase('admin_packages_language_edit_text_text'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo htmlspecialchars(nl2whitespace($ini['language'][$phrase])); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="text" size="50" value="<?php echo viscacha_htmlspecialchars(nl2whitespace($ini['language'][$phrase])); ?>" /></td>
   </tr>
   <tr>
    <td class="obox" colspan="2"><?php echo $lang->phrase('admin_packages_language_edit_translations'); ?></td>
@@ -3174,7 +3156,7 @@ elseif ($job == 'plugins_language_edit') {
   ?>
   <tr>
    <td class="mbox" width="50%"><em><?php echo $row['language']; ?></em> <?php echo $lang->phrase('admin_packages_language_edit_translation'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_packages_language_edit_translation_text'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo htmlspecialchars(nl2whitespace($phrases[$phrase])); ?>" /></td>
+   <td class="mbox" width="50%"><input type="text" name="langt[<?php echo $row['id']; ?>]" size="50" value="<?php echo viscacha_htmlspecialchars(nl2whitespace($phrases[$phrase])); ?>" /></td>
   </tr>
   <?php } ?>
   <tr>
@@ -3318,7 +3300,7 @@ elseif ($job == 'browser') {
    </td>
   </tr>
   <tr>
-   <td class="ubox" valign="top"><?php $foo = ucfirst($types[$type]['name2']); echo $lang->phrase('admin_packages_browser_foo_of_the_moment');?></td>
+   <td class="ubox" valign="top"><?php $foo = mb_ucfirst($types[$type]['name2']); echo $lang->phrase('admin_packages_browser_foo_of_the_moment');?></td>
   </tr>
   <tr>
    <td class="mbox" valign="top">

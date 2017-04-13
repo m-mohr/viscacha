@@ -1,11 +1,11 @@
 $ignorewords = $lang->get_words();
-$ignorewords = array_map("strtolower", $ignorewords);
+$ignorewords = array_map("mb_strtolower", $ignorewords);
 
-$searchtopic = splitWords(strtolower($info['topic']));
+$searchtopic = splitWords(mb_strtolower($info['topic']));
 
 $sqltopic = array();
 foreach ($searchtopic as $val) {
-	if (strlen($val) > 3) {
+	if (mb_strlen($val) > 3) {
 		if (in_array($val, $ignorewords)) {
 			continue;
 		}

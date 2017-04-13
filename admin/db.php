@@ -11,7 +11,7 @@ function exec_query_form ($query = '') {
 	$tables = $db->list_tables();
 	$lang->assign('maxfilesize', formatFilesize(ini_maxupload()));
 ?>
-<script type="text/javascript" src="templates/editor/bbcode.js"></script>
+<script type="text/javascript" src="admin/html/editor/bbcode.js"></script>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -274,7 +274,6 @@ elseif ($job == 'backup4') {
 	$ok = $lang->phrase('admin_db_backup_successfully_created');
     if (!empty($temp['zip'])) {
     	$zipfile = "admin/backup/{$name}.zip";
-		require_once('classes/class.zip.php');
 		$archive = new PclZip($zipfile);
 		$v_list = $archive->create($file, PCLZIP_OPT_REMOVE_PATH, dirname($file));
 
@@ -315,11 +314,7 @@ elseif ($job == 'backup4') {
 	echo foot();
 }
 elseif ($job == 'restore_info') {
-	$mem_limit = @ini_get('memory_limit');
-	if (empty($mem_limit)) {
-		$mem_limit = @get_cfg_var('memory_limit');
-	}
-	$mem_limit = intval($mem_limit)*1024*1024;
+	$mem_limit = ini_getSize('memory_limit');
 	$ziplimit = $mem_limit / 3;
 	$sqllimit = $mem_limit / 1.5;
 
@@ -327,19 +322,18 @@ elseif ($job == 'restore_info') {
 	$file = $gpc->get('file', path);
 
 	$nfo = pathinfo($dir.$file);
-    if (strtolower($nfo['extension']) == 'zip') {
-		require_once('classes/class.zip.php');
+    if (mb_strtolower($nfo['extension']) == 'zip') {
 		$archive = new PclZip($dir.$file);
 		if (($list = $archive->listContent()) != 0) {
 			if ($list[0]['size'] < $ziplimit) {
 				$data = $archive->extractByIndex($list[0]['index'], PCLZIP_OPT_EXTRACT_AS_STRING);
-				$data[0]['content'] = preg_split("/\r\n|\r|\n/", $data[0]['content']);
+				$data[0]['content'] = preg_split("/\r\n|\r|\n/u", $data[0]['content']);
 				if (count($data[0]['content']) > 0) {
 					$header = array();
 		            foreach ($data[0]['content'] as $h) {
-		            	$comment = substr($h, 0, 2);
+		            	$comment = mb_substr($h, 0, 2);
 		            	if ($comment == '--' || $comment == '//') {
-		            		$header[] = substr($h, 2);
+		            		$header[] = mb_substr($h, 2);
 		            	}
 		            	elseif (count($header) > 0) {
 		            		break;
@@ -358,15 +352,15 @@ elseif ($job == 'restore_info') {
     		$header = $lang->phrase('admin_db_file_damaged');
     	}
     }
-    elseif (strtolower($nfo['extension']) == 'sql') {
+    elseif (mb_strtolower($nfo['extension']) == 'sql') {
     	if (filesize($dir.$file) < $sqllimit) {
 			$fd = fopen($dir.$file, "r");
 			$header = array();
 			while (!feof($fd)) {
 				$str = fgets($fd);
-				$comment = substr($str, 0, 2);
+				$comment = mb_substr($str, 0, 2);
 				if ($comment == '--' || $comment == '//') {
-					$header[] = substr($str, 2);
+					$header[] = mb_substr($str, 2);
 				}
 				elseif (count($header) > 0) {
 					break;
@@ -491,7 +485,6 @@ elseif ($job == 'restore2') {
 	$ext = get_extension($file);
 	if (($ext == 'zip' || $ext == 'sql') && file_exists($dir.$file)) {
 		if ($ext == 'zip') {
-			require_once('classes/class.zip.php');
 			$archive = new PclZip($dir.$file);
 			if (($list = $archive->listContent()) == 0) {
 				error($archive->errorInfo(true));
@@ -507,16 +500,16 @@ elseif ($job == 'restore2') {
 			$q = $db->multi_query($lines);
 
 			// Clear Cache
-			if ($dh = @opendir("./cache/")) {
+			if ($dh = @opendir("./data/cache/")) {
 				while (($file = readdir($dh)) !== false) {
-					if (strpos($file, '.inc.php') !== false) {
+					if (mb_strpos($file, '.inc.php') !== false) {
 						$fileTrim = str_replace('.inc.php', '', $file);
-						if (file_exists("classes/cache/{$fileTrim}")) {
+						if (file_exists("classes/data/cache/{$fileTrim}")) {
 							$cache = $scache->load($file);
 							$cache->delete();
 						}
 						else {
-							$filesystem->unlink("./cache/{$file}");
+							$filesystem->unlink("./data/cache/{$file}");
 						}
 					}
 			    }
@@ -594,7 +587,6 @@ elseif ($job == 'query2') {
 			$ext = get_extension($file);
 			if (($ext == 'zip' || $ext == 'sql') && file_exists($file)) {
 				if ($ext == 'zip') {
-					require_once('classes/class.zip.php');
 					$archive = new PclZip($file);
 					if (($list = $archive->listContent()) == 0) {
 						error($archive->errorInfo(true));
@@ -648,7 +640,7 @@ elseif ($job == 'query2') {
 					foreach ($num as $row) {
 						echo "<tr>";
 						foreach ($keys as $field) {
-							echo '<td class="mbox">'.nl2br(htmlentities($row[$field])).'</td>';
+							echo '<td class="mbox">'.nl2br(viscacha_htmlentities($row[$field])).'</td>';
 						}
 					}
 					echo '</table>';

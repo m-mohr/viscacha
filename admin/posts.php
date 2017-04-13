@@ -17,10 +17,11 @@ if ($_GET['job'] == 'reports') {
 	$start = ($page-1)*$perpage;
 
 	$result = $db->query("
-	SELECT t.prefix, r.topic_id, r.id, r.report, t.board, t.topic, r.topic AS title, r.date, r.name, f.name AS forumname
+	SELECT t.prefix, r.topic_id, r.id, r.report, t.board, t.topic, r.topic AS title, r.date, u.id as uid, u.name AS uname, f.name AS forumname
 	FROM {$db->pre}replies AS r
 	    LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
 	    LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
+		LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 	WHERE r.report != ''
 	ORDER BY r.topic_id DESC, r.date DESC
 	LIMIT {$start}, {$perpage}"
@@ -47,10 +48,6 @@ if ($_GET['job'] == 'reports') {
 	<th width="38%"><?php echo $lang->phrase('admin_message'); ?></th>
   </tr>
 	<?php
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
 	$prefix_obj = $scache->load('prefix');
 
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
@@ -65,14 +62,6 @@ if ($_GET['job'] == 'reports') {
 			$prefix = '';
 		}
 
-		if(is_id($row->name) && isset($memberdata[$row->name])) {
-			$row->mid = $row->name;
-			$row->name = $memberdata[$row->name];
-		}
-		else {
-			$row->mid = FALSE;
-		}
-
 		?>
         <tr class="mbox">
         <td><input type="checkbox" value="<?php echo $row->id; ?>" name="delete[]" /></td>
@@ -85,7 +74,7 @@ if ($_GET['job'] == 'reports') {
         </td>
         <td>
         	<?php echo gmdate('d.m.Y H:i', times($row->date)); ?><br />
-        	<?php echo iif($row->mid, "<a href='admin.php?action=members&amp;job=edit&amp;id=".$row->mid."'>".$row->name."</a>", $row->name); ?>
+        	<a href='admin.php?action=members&amp;job=edit&amp;id=<?php echo $row->uid; ?>'><?php echo $row->uname; ?></a>
         </td>
         <td align="center"><textarea cols="30" rows="3" style="width: 99%;"><?php echo $row->report; ?></textarea></td>
         </tr>

@@ -1,0 +1,286 @@
+@media (min-width: 981px) {
+	body {
+		padding-top: 70px;
+	}
+}
+
+hr {
+    height: 1px;
+    background-color: #490A3D;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#copyright {
+	padding-top: 1em;
+}
+
+.panel-title a {
+	text-decoration: underline;
+}
+.breadcrumb a {
+	color: #fff;
+	text-decoration: underline;
+}
+.breadcrumb a:hover, .breadcrumb a:focus, .breadcrumb a:active {
+	color: #f9f9f9;
+}
+
+.table {
+	border: 1px solid #490A3D;
+}
+
+.table thead {
+	background-color: #490A3D;
+	color: #fff;
+}
+
+.notification-icon .label {
+    border: 1px solid #ffffff;
+	border-radius: 10px;
+    font-weight: 500;
+    padding: 3px 5px;
+    text-align: center;
+}
+
+#copyright {
+	text-align: center;
+}
+
+.forums h3 {
+	margin-top: 10px;
+	margin-bottom: 0px;
+}
+.forums h4 {
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+.forums.table > tbody > tr > td {
+    vertical-align: middle;
+}
+.forums .cell-icon {
+    text-align: center;
+	padding-left: 16px;
+}
+.forums.table th.cell-stat {
+    width: 15%;
+}
+.forums.table th.cell-stat-2x {
+    width: 25%;
+}
+
+.threads .cell-icon {
+    text-align: center;
+}
+.threads.table th.cell-stat {
+    width: 10%;
+}
+.threads.table th.cell-stat-2x {
+    width: 20%;
+}
+
+.pagination {
+	margin-top: 0px;
+	margin-bottom: 20px;
+}
+
+.navbar .container-fluid {
+	padding-left: 0px;
+}
+
+.nav-condensed > li > a {
+   padding-top: 4px; 
+   padding-bottom: 4px; 
+}
+.panel-footer.nav {
+	padding: 4px;
+}
+
+.user-header img.avatar {
+	height: 1.5em;
+	width: auto;
+	border-radius: 0.3em;
+}
+
+.post .avatar {
+	margin-right: 0.5em;
+}
+
+.post img.avatar {
+	height: 2.25em;
+	width: auto;
+	border-radius: 0.5em;
+}
+
+.icon-neutral, .icon-old, .icon-offline {
+	color: #373330;
+}
+.icon-new {
+	color: #bc0100;
+}
+.icon-online {
+	color: #8A9B0F;
+}
+
+/* BB-Codes */
+
+.bb_inlinecode {
+	color: #880000;
+	white-space: normal;
+}
+
+.bb_blockcode {
+	border: 1px solid #839FBC;
+	background-color: #F5F8FA;
+	padding: 1%;
+	margin-left: 3%;
+	overflow: auto;
+	max-height: 400px;
+	min-height: 50px;
+	width: 94%;
+}
+.bb_blockcode * {
+	font-family: 'Courier New', monospace;
+}
+.bb_blockcode li {
+	margin-left: 12px;
+	white-space: pre;
+}
+
+.bb_header {
+	margin: 0px;
+	margin-top: 10px;
+}
+.bb_size_extended {
+	letter-spacing: 3px;
+}
+.bb_quote {
+	margin: 0px;
+	width: 98%;
+	padding-left: 5px;
+}
+.bb_quote blockquote {
+	border-bottom: 1px solid #839FBC;
+	border-top: 1px solid #839FBC;
+	padding-left: 10px;
+	font-size: 9pt;
+	margin: 1px;
+}
+.bb_ot span {
+	border-top: 1px dashed #BCCADA;
+	border-bottom: 1px dashed #BCCADA;
+	padding-left: 10px;
+	color: #7E9AB8;
+	font-size: 9pt;
+	display: block;
+	margin: 1px;
+}
+.bb_edit ins {
+	display: block;
+	margin: 1px;
+	padding-left: 5px;
+	text-decoration: none;
+	border-left: 2px solid #BCCADA;
+}
+
+/* BB-Code-Editor */
+.editor_textarea_outer {
+	border: 1px solid #888888;
+	width: 100%;
+	border-collapse: collapse;
+	
+}
+.editor_textarea_outer td {
+	padding: 4px;
+}
+.editor_textarea_outer a, .editor_textarea_outer a:hover {
+	text-decoration: none;
+}
+.editor_toolbar {
+	border-bottom: 1px solid #C9C9C9;
+	background-color: #F4F4F4;
+	height: 28px;
+}
+.editor_toolbar .dropdown {
+	display: inline;
+}
+.editor_toolbar .dropdown a {
+	border: 1px solid #F4F4F4;
+	padding: 2px;
+	color: #000000;
+	font-size: 9pt;
+}
+.editor_toolbar .dropdown a:hover {
+	border: 1px solid #999999;
+}
+.editor_toolbar_smiley {
+	border: 1px solid #F4F4F4;
+	padding: 2px;
+}
+.editor_toolbar_smiley_on {
+	border: 1px solid #999999;
+	padding: 2px;
+}
+.editor_toolbar_button {
+	width: 20px;
+	height: 20px;
+	border: 1px solid #F4F4F4;
+}
+.editor_toolbar_button_on {
+	width: 20px;
+	height: 20px;
+	border: 1px solid #999999;
+}
+.editor_textarea_inner {
+	background-color: #FFFFFF;
+	font-size: 9pt;
+	border-width: 0px;
+	width: 100%;
+	margin: -4px;
+	padding: 4px;
+}
+.editor_statusbar {
+	font-size: 8pt;
+	background-color: #F4F4F4;
+	border-top: 1px solid #C9C9C9;
+}
+.editor_statusbar a {
+	color: #000000;
+	text-decoration: none;
+}
+.editor_statusbar a:hover {
+	text-decoration: underline;
+}
+
+
+.bbcolor {
+	padding: 10px;
+	background-color: #ffffff;
+	line-height: 12px;
+	font-size: 12px;
+}
+.bbcolor img {
+	width: 8px;
+	height: 10px;
+	display: block;
+	float: left;
+	cursor: pointer;
+	border-width: 1px;
+	border-style: solid;
+}
+.bbtable {
+	background-color: #ffffff;
+	padding: 4px;
+}
+.bbtable input {
+	width: 35px;
+	float: left;
+	background-color: #ffffff;
+	border: 1px solid #888888;
+	text-align: center;
+	margin-right: 5px;
+}
+
+.bbsmileys img {
+	margin: 2px 8px 2px 4px;
+}

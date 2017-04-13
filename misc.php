@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -53,9 +53,7 @@ if ($_GET['action'] == "boardin") {
 	}
 	else {
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl'].'/showforum.php?id='.$board.SID2URL_JS_x);
-		exit;
 	}
 
 }
@@ -92,12 +90,12 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	}
 
 	$topforums = get_headboards($fc, $last, TRUE);
-	$breadcrumb->Add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
-	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
+	Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
+	Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
 	if ($info['tstart'] == '0') {
-		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
+		Breadcrumb::universal()->add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	}
-	$breadcrumb->Add($lang->phrase('report_post'));
+	Breadcrumb::universal()->add($lang->phrase('report_post'));
 
 	forum_opt($last);
 
@@ -110,7 +108,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 		if (flood_protect() == false) {
 			$error[] = $lang->phrase('flood_control');
 		}
-		if (strxlen($_POST['comment']) < $config['minpostlength']) {
+		if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 			$error[] = $lang->phrase('comment_too_short');
 		}
 		if (count($error) > 0) {
@@ -156,7 +154,6 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	}
 	else {
 		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
 		echo $tpl->parse("misc/report_post");
 	}
 }
@@ -168,9 +165,8 @@ elseif ($_GET['action'] == "wwo") {
 		errorLogin();
 	}
 
-	$breadcrumb->Add($lang->phrase('wwo_detail_title'));
+	Breadcrumb::universal()->add($lang->phrase('wwo_detail_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$wwo = array(
 		'i' => 0,
@@ -180,15 +176,12 @@ elseif ($_GET['action'] == "wwo") {
 	$inner['wwo_bit_member'] = '';
 	$inner['wwo_bit_guest'] = '';
 
-	// Foren cachen
+	// Cache forums
 	$catbid = $scache->load('cat_bid');
 	$cat_cache = $catbid->get();
-	// Documents cachen
+	// Cache documents
 	$wrap_obj = $scache->load('wraps');
 	$wrap_cache = $wrap_obj->get();
-	// Mitglieder
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	// Cache
 	$cache = array();
 
@@ -197,24 +190,18 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
 	$result=$db->query("
-	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent
-	FROM {$db->pre}session
-	ORDER BY active DESC
+	SELECT s.ip, s.mid, s.active, s.wiw_script, s.wiw_action, s.wiw_id, s.user_agent, u.name
+	FROM {$db->pre}session AS s
+		LEFT JOIN {$db->pre}user AS u ON u.id = s.mid
+	ORDER BY s.active DESC
 	");
 
 	while ($row = $db->fetch_object($result)) {
 		$row->user_agent = strip_tags($row->user_agent);
 		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
-		$time = gmdate($lang->phrase('dformat3'), times($row->active));
-		if (isset($memberdata[$row->mid])) {
-			$row->name = $memberdata[$row->mid];
-		}
-		else {
-			$row->name = $lang->phrase('fallback_no_username');
-		}
 
-		switch (strtolower($row->wiw_script)) {
+		switch (mb_strtolower($row->wiw_script)) {
 		case 'managetopic':
 		case 'managemembers':
 		case 'manageforum':
@@ -256,23 +243,17 @@ elseif ($_GET['action'] == "wwo") {
 			break;
 		case 'docs':
 			$id = $row->wiw_id;
+			$loc = $lang->phrase('wwo_docs');
 			if (isset($wrap_cache[$id]) && GroupCheck($wrap_cache[$id]['groups'])) {
 				$lid = getDocLangID($wrap_cache[$id]['titles']);
-				$title = $wrap_cache[$id]['titles'][$lid];
-				$loc = $lang->phrase('wwo_docs');
-			}
-			else {
-				$loc = $lang->phrase('wwo_docs_fallback');
+				$loc .= '<br /><a href="docs.php?id='.$id.'">'.viscacha_htmlspecialchars($wrap_cache[$id]['titles'][$lid]).'</a>';
 			}
 			break;
 		case 'showforum':
 			$id = $row->wiw_id;
-			if (!isset($cat_cache[$id]['name']) || (($cat_cache[$id]['opt'] == 'pw' && (!isset($my->pwfaccess[$id]) || $my->pwfaccess[$id] != $cat_cache[$id]['optvalue'])) || $my->pb[$id]['forum'] == 0)) {
-				$loc = $lang->phrase('wwo_showforum_fallback');
-			}
-			else {
-				$title = $cat_cache[$id]['name'];
-				$loc = $lang->phrase('wwo_showforum');
+			$loc = $lang->phrase('wwo_showforum');
+			if (isset($cat_cache[$id]['name']) && !(($cat_cache[$id]['opt'] == 'pw' && (!isset($my->pwfaccess[$id]) || $my->pwfaccess[$id] != $cat_cache[$id]['optvalue'])) || $my->pb[$id]['forum'] == 0)) {
+				$loc .= '<br /><a href="showforum.php?id='.$id.'">'.viscacha_htmlspecialchars($cat_cache[$id]['name']).'</a>';
 			}
 			break;
 		case 'newtopic':
@@ -281,8 +262,7 @@ elseif ($_GET['action'] == "wwo") {
 				$loc = $lang->phrase('wwo_newtopic');
 			}
 			else {
-				$title = $cat_cache[$id]['name'];
-				$loc = $lang->phrase('wwo_newtopic_forum');
+				$loc = $lang->phrase('wwo_newtopic_forum').' <a href="showforum.php?id='.$id.'">'.viscacha_htmlspecialchars($cat_cache[$id]['name']).'</a>';
 			}
 			break;
 		case 'profile':
@@ -293,18 +273,9 @@ elseif ($_GET['action'] == "wwo") {
 			else {
 				$loc = $lang->phrase('wwo_profile');
 			}
-			if (isset($memberdata[$id])) {
-				$loc .= ': <a href="profile.php?id='.$id.'">'.$memberdata[$id].'</a>';
-			}
 			break;
 		case 'pm':
-			if ($row->wiw_action == 'show') {
-				$loc = $lang->phrase('wwo_pm_view');
-			}
-			elseif ($row->wiw_action == 'massmanage' || $row->wiw_action == 'massdelete' || $row->wiw_action == 'massmove' || $row->wiw_action == 'delete' || $row->wiw_action == 'delete2') {
-				$loc = $lang->phrase('wwo_pm_manage');
-			}
-			elseif ($row->wiw_action == 'save' || $row->wiw_action == "new" || $row->wiw_action == "preview" || $row->wiw_action == "quote" || $row->wiw_action == 'reply') {
+			if ($row->wiw_action == 'save' || $row->wiw_action == "new" || $row->wiw_action == "preview" || $row->wiw_action == "quote" || $row->wiw_action == 'reply') {
 				$loc = $lang->phrase('wwo_pm_write');
 			}
 			else {
@@ -320,8 +291,7 @@ elseif ($_GET['action'] == "wwo") {
 			}
 			break;
 		case 'addreply':
-		case 'showtopic':
-		case 'print': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
+		case 'showtopic': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
 			$id = $row->wiw_id;
 			if (!isset($cache['t'.$id])) {
 				$result2 = $db->query("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1");
@@ -330,12 +300,9 @@ elseif ($_GET['action'] == "wwo") {
 					$cache['t'.$id] = $nfo;
 				}
 			}
-			if (!isset($cache['t'.$id]) || (($cat_cache[$cache['t'.$id]['board']]['opt'] == 'pw' && (!isset($my->pwfaccess[$cache['t'.$id]['board']]) || $my->pwfaccess[$cache['t'.$id]['board']] != $cat_cache[$cache['t'.$id]['board']]['optvalue'])) || $my->pb[$cache['t'.$id]['board']]['forum'] == 0)) {
-				$loc = $lang->phrase('wwo_'.$row->wiw_script.'_fallback');
-			}
-			else {
-				$title = $gpc->prepare($cache['t'.$id]['topic']);
-				$loc = $lang->phrase('wwo_'.$row->wiw_script);
+			$loc = $lang->phrase('wwo_'.$row->wiw_script);
+			if (isset($cache['t'.$id]) && !(($cat_cache[$cache['t'.$id]['board']]['opt'] == 'pw' && (!isset($my->pwfaccess[$cache['t'.$id]['board']]) || $my->pwfaccess[$cache['t'.$id]['board']] != $cat_cache[$cache['t'.$id]['board']]['optvalue'])) || $my->pb[$cache['t'.$id]['board']]['forum'] == 0)) {
+				$loc .= '<br /><a href="showtopic.php?id='.$id.'">'. viscacha_htmlspecialchars($cache['t'.$id]['topic']).'</a>';
 			}
 			break;
 		case 'misc':
@@ -435,7 +402,6 @@ elseif ($_GET['action'] == "bbhelp") {
 	$my->p = $slog->Permissions();
 	$lang->group("bbcodes");
 	BBProfile($bbcode);
-	$bbcode->setAuthor($my->id);
 
 	$smileys = $bbcode->getSmileys();
 	$cbb = $bbcode->getCustomBB();
@@ -475,7 +441,7 @@ elseif ($_GET['action'] == "bbhelp") {
 		array(
 			'tag' => 'img',
 			'params' => 0,
-			'example' => array('[img]'.$tpl->img('help').'[/img]')
+			'example' => array('[img]assets/smileys/smile.gif[/img]')
 		),
 		array(
 			'tag' => 'url',
@@ -629,19 +595,18 @@ elseif ($_GET['action'] == "bbhelp") {
 		}
 	}
 
-	$breadcrumb->Add($lang->phrase('bbhelp_title'));
+	Breadcrumb::universal()->add($lang->phrase('bbhelp_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('misc_bbhelp_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/bbhelp");
 	($code = $plugins->load('misc_bbhelp_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "markasread") {
 	$my->p = $slog->Permissions();
-	if (check_hp($_SERVER['HTTP_REFERER'])) {
+	if (is_url($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
-		if (strpos($config['furl'], $url['host']) !== FALSE) {
-			$loc = htmlspecialchars($_SERVER['HTTP_REFERER']);
+		if (mb_strpos($config['furl'], $url['host']) !== FALSE) {
+			$loc = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);
 		}
 	}
 	if (empty($loc)) {
@@ -657,15 +622,13 @@ elseif ($_GET['action'] == "markforumasread") {
 		errorLogin();
 	}
 	$slog->setForumRead($board);
-	$slog->updatelogged();
 	ok($lang->phrase('marked_as_read'), 'showforum.php?id='.$board);
 
 }
 elseif ($_GET['action'] == "rules") {
 	$my->p = $slog->Permissions();
-	$breadcrumb->Add($lang->phrase('rules_title'));
+	Breadcrumb::universal()->add($lang->phrase('rules_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	$rules = $lang->get_words('rules');
 	($code = $plugins->load('misc_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/rules");
@@ -687,13 +650,12 @@ elseif ($_GET['action'] == "board_rules") {
 	($code = $plugins->load('misc_board_rules_start')) ? eval($code) : null;
 
 	$topforums = get_headboards($fc, $info);
-	$breadcrumb->Add($info['name'], "showforum.php?id=".$info['id'].SID2URL_x);
-	$breadcrumb->Add($lang->phrase('board_rules'));
+	Breadcrumb::universal()->add($info['name'], "showforum.php?id=".$info['id'].SID2URL_x);
+	Breadcrumb::universal()->add($lang->phrase('board_rules'));
 
 	forum_opt($info);
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('misc_board_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/board_rules");
@@ -707,17 +669,17 @@ elseif ($_GET['action'] == "error") {
 	}
 	sendStatusCode($errid);
 	($code = $plugins->load('misc_error_prepared')) ? eval($code) : null;
-	$breadcrumb->Add($lang->phrase('htaccess_error_'.$errid));
+	Breadcrumb::universal()->add($lang->phrase('htaccess_error_'.$errid));
 	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
 }
 elseif ($_GET['action'] == "edithistory") {
 	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
+	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name, u.id as mid, u.groups, u.deleted_at
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
-		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
+		LEFT JOIN {$db->pre}user AS u ON r.name = u.id
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
 	");
@@ -747,36 +709,23 @@ elseif ($_GET['action'] == "edithistory") {
 	}
 	
 	$topforums = get_headboards($fc, $last, TRUE);
-	$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-	$breadcrumb->Add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
+	Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+	Breadcrumb::universal()->add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
 	if ($row['tstart'] != 1) {
-		$breadcrumb->Add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
+		Breadcrumb::universal()->add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
 	}
-	$breadcrumb->Add($lang->phrase('edithistory'));
+	Breadcrumb::universal()->add($lang->phrase('edithistory'));
 
 	forum_opt($last);
 
 	($code = $plugins->load('misc_edithistory_start')) ? eval($code) : null;
 
-	if ($row['guest'] == 0) {
-		$row['mail'] = '';
-		$row['name'] = $row['uname'];
-	}
-	else {
-		$row['mail'] = $row['gmail'];
-		$row['name'] = $row['gname'];
-		$row['mid'] = 0;
-		$row['groups'] = GROUP_GUEST;
-	}
-
-	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
-
 	$edit = array();
 	if (!empty($row['edit'])) {
-		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row['edit'], $edits, PREG_SET_ORDER);
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~mu', $row['edit'], $edits, PREG_SET_ORDER);
 		foreach ($edits as $e) {
 			$edit[] = array(
-				'date' => str_date($lang->phrase('dformat1'), times($e[2])),
+				'date' => $e[2],
 				'reason' => empty($e[3]) ? $lang->phrase('post_editinfo_na') : $e[3],
 				'name' => $e[1],
 				'ip' => empty($e[4]) ? '-' : $e[4]
@@ -793,11 +742,8 @@ elseif ($_GET['action'] == "edithistory") {
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-if ($tpl->tplsent("header")) {
-	$zeitmessung = t2();
+if ($tpl->wasTemplateSent("header")) {
 	echo $tpl->parse("footer");
 }
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

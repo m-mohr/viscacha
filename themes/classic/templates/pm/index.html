@@ -1,0 +1,33 @@
+@include('pm.menu')
+@if($count > 0)
+<table class="tables">
+	@if($ib > 0)
+	<tr>
+		<th colspan="3"><img src="@theme('images/pm.gif')" alt="" /> @lang('pm_title_index')</th>
+	</tr>
+	<tr class="tfoot">
+		<td width="4%">&nbsp;</td>
+		<td width="66%">@lang('forum_topic')</td>
+		<td width="30%">@lang('pm_authordate')</td>
+	</tr>
+	{!! $inner['index_bit'] !!}
+	@endif
+	@if($ibo > 0)
+	<tr>
+		<th colspan="3"><img src="@theme('images/pm.gif')" alt="" /> @lang('pm_index_old')</th>
+	</tr>
+	<tr class="tfoot">
+		<td width="4%">&nbsp;</td>
+		<td width="66%">@lang('forum_topic')</td>
+		<td width="30%">@lang('pm_authordate')</td>
+	</tr>
+	{!! $inner['index_bit_old'] !!}
+	@endif
+</table>
+@else
+<div class="border">
+	<h3><img src="@theme('images/pm.gif')" alt="" /> @lang('editprofile_pm')</h3>
+	<div class="bbody center">@lang('pm_empty')</div>
+</div>
+<br class="minibr" />
+@endif

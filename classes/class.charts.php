@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 /**
  * PowerGraphic
  * Version 1.0
@@ -159,7 +157,7 @@ class PowerGraphic {
 		// Defines array $temp
 		foreach ($x as $id => $value) {
 
-			if (strlen($value) < 1) {
+			if (empty($value)) {
 				continue;
 			}
 			if (empty($y[$id])) {
@@ -181,7 +179,7 @@ class PowerGraphic {
 			$this->x[$i] = $value;
 			$this->y[$i] = $y[$id];
 
-			if ((!empty($z[$i])) && (preg_match("~^(1|2|3|4)$~", $this->type))) {
+			if ((!empty($z[$i])) && (preg_match("~^(1|2|3|4)$~u", $this->type))) {
 				$this->graphic_2_exists = true;
 
 				if (empty($z[$id])) {
@@ -239,7 +237,7 @@ class PowerGraphic {
 
 
 		// Draw axis and background lines for "vertical bars", "dots" and "lines"
-		if (preg_match("~^(1|3|4)$~", $this->type)) {
+		if (preg_match("~^(1|3|4)$~u", $this->type)) {
 			if ($this->legend_exists == true) {
 				$this->draw_legend();
 			}
@@ -293,7 +291,7 @@ class PowerGraphic {
 
 				imageline($this->img, ($this->graphic_area_x1+$dec_x), $this->graphic_area_y1, ($this->graphic_area_x1+$dec_x), $this->graphic_area_y2, $this->color['bg_lines']);
 				if ($i % 2 == 0) {
-					$alt   = (strlen($this->biggest_y) > 4 && $alt != 15) ? 15 : 2;
+					$alt   = (mb_strlen($this->biggest_y) > 4 && $alt != 15) ? 15 : 2;
 					$value = $this->number_formated($this->higher_value * $i / 10);
 					$this->imagestring($this->img, 3, (($this->graphic_area_x1+$dec_x) - ($this->string_width($value, 3)/2)), ($this->graphic_area_y2+$alt), $value, $this->color['axis_values']);
 				}
@@ -610,7 +608,7 @@ class PowerGraphic {
 			case 2:
 				$this->legend_box_width   = ($this->legend_exists == true) ? ($this->string_width($this->biggest_graphic_name, 3) + 25) : 0;
 				$this->graphic_area_width = ($this->string_width($this->higher_value_str, 3) > 50) ? (5 * ($this->string_width($this->higher_value_str, 3)) * 0.85) : 200;
-				$this->graphic_area_x1 += 7 * strlen($this->biggest_x);
+				$this->graphic_area_x1 += 7 * mb_strlen($this->biggest_x);
 				$this->width += ($this->legend_exists == true) ? 60 : (($this->string_width($this->axis_y, 3)) + 30);
 				$this->width += $this->graphic_area_x1;
 				break;
@@ -746,7 +744,7 @@ class PowerGraphic {
 		$line_height = $this->legend_lineheight - 8;
 
 		// Draw legend values for VERTICAL BARS, HORIZONTAL BARS, DOTS and LINES
-		if (preg_match("~^(1|2|3|4)$~", $this->type)) {
+		if (preg_match("~^(1|2|3|4)$~u", $this->type)) {
 			$color_1 = ($this->type == 1 ||  $this->type == 2) ? $this->color['bars_1']   : $this->color['line_1'];
 			$color_2 = ($this->type == 1 ||  $this->type == 2) ? $this->color['bars_2'] : $this->color['line_2'];
 			$correction_1 = $line_height-$this->string_height($this->graphic_1, 3);
@@ -860,7 +858,7 @@ class PowerGraphic {
 	}
 
 	function calculate_higher_value() {
-		$digits   = strlen(round($this->biggest_y));
+		$digits   = mb_strlen(round($this->biggest_y));
 		$interval = pow(10, ($digits-1));
 		$this->higher_value		= round(($this->biggest_y - ($this->biggest_y % $interval) + $interval), 1);
 		$this->higher_value_str = $this->number_formated($this->higher_value);

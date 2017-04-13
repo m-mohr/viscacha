@@ -1,0 +1,14 @@
+				</div>
+			</div>
+			<div class="text-center">@navigation(bottom)</div>
+			<br />
+			<div class="text-center">@lang('timestamps_gmt_diff') @lang('timezone_desc') @time</div>
+			<div id="copyright">
+				Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha {{ $config['version'] }}</a></strong>
+				@if($config['pccron'] == 1)
+				<img src="cron.php" width="0" height="0" alt="" />
+				@endif
+			</div>
+		</div>
+	</body>
+</html>

@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 if(!defined('CRLF')) define('CRLF',"\r\n");
 if(!defined("FTP_AUTOASCII")) define("FTP_AUTOASCII", -1);
 if(!defined("FTP_BINARY")) define("FTP_BINARY", 1);

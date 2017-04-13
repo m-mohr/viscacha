@@ -1,0 +1,45 @@
+{
+	"name": "lutana/viscacha",
+	"description": "Viscacha Bulletin Board and CMS",
+	"license": "GPL-2.0+",
+	"type": "project",
+	"homepage": "http://viscacha.org",
+	"authors": [
+		{
+			"name": "Matthias Mohr",
+			"homepage": "http://lutana.de"
+		}
+	],
+	"require": {
+		"php": "^5.6 || ^7.0",
+		"ext-gd": "*",
+		"ext-json": "*",
+		"ext-mbstring": "*",
+		"ext-mysqli": "*",
+		"ext-pcre": "*",
+		"mso/idna-convert": "1.1.*",
+		"eftec/bladeone": "1.8",
+		"lutana/pclzip": "2.8.*",
+		"snoopy/snoopy": "2.0.*",
+		"phpmailer/phpmailer": "5.2.*",
+		"monolog/monolog": "1.*",
+		"maximebf/debugbar": "*"
+	},
+	"suggest": {
+		"ext-fileinfo": "Needed to get mime type information for uploaded files",
+		"ext-ftp": "Needed to use FTP fallback for file operations",
+		"ext-openssl": "Needed to get truly random numbers for security purposes",
+		"ext-sockets": "Needed to improve networking, especially for sending mails.",
+		"ext-zlib": "Needed to extract gzip files"
+	},
+	"autoload": {
+		"classmap": [],
+		"psr-4": {
+			"Viscacha\\": "classes/",
+			"eftec\\": "classes/vendor/eftec/"
+		}
+	},
+	"config": {
+		"vendor-dir": "classes/vendor/"
+	}
+}

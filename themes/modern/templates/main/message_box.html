@@ -1,0 +1,12 @@
+<div class="alert @if($type == 'ok') alert-success @elseif($type == 'error') alert-danger @else alert-warning @endif" role="alert">
+	<strong>{{ $title }}</strong><br />
+	@if(is_array($messages))
+	<ul>
+		@foreach($messages as $message)
+		<li>{{ $message }}</li>
+		@endforeach
+	</ul>
+	@else
+	<span>{{ $messages }}</span>
+	@endif
+</div>

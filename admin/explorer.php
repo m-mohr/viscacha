@@ -39,22 +39,6 @@ if ($job == 'upload') {
 		$dir = realpath('./admin/backup/');
 		$url = 'admin.php?action=db&job=restore';
 	}
-	elseif ($cfg == 'captcha_fonts') {
-		$ups = 1;
-		$filesize = 500; // 500KB
-		$filetypes = 'ttf';
-		$dir = realpath('./classes/fonts/');
-		$url = 'admin.php?action=misc&job=captcha_fonts';
-	}
-	elseif ($cfg == 'captcha_noises') {
-		$ups = 1;
-		$filesize = 200; // 200KB
-		$filetypes = 'jpg';
-		$dir = realpath('./classes/graphic/noises/');
-		$url = 'admin.php?action=misc&job=captcha_noises';
-		$imgwidth = 300;
-		$imgheight = 80;
-	}
 	else {
 		$ups = $uploadfields;
 		$filesize = ini_maxupload();
@@ -111,20 +95,6 @@ if ($job == 'upload') {
 		error($url, $inserterrors);
 	}
 	else {
-		if ($cfg == 'captcha_fonts') {
-			$n = 1;
-			while(file_exists($dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf')) {
-				$n++;
-			}
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'captcha_'.$n.'.ttf');
-		}
-		elseif ($cfg == 'captcha_noises') {
-			$n = 1;
-			while(file_exists($dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg')) {
-				$n++;
-			}
-			$filesystem->rename($dir.DIRECTORY_SEPARATOR.$my_uploader->fileinfo('filename'), $dir.DIRECTORY_SEPARATOR.'noise_'.$n.'.jpg');
-		}
 		ok($url, $lang->phrase('admin_explorer_upload_ready'));
 	}
 }
@@ -306,7 +276,7 @@ elseif ($job == "delete") {
 	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
 	if (!file_exists($path)) {
-		$name = ucfirst($name);
+		$name = mb_ucfirst($name);
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($path, false)), $lang->phrase('admin_explorer_x_does_not_exist'));
 	}
 	?>
@@ -332,7 +302,7 @@ elseif ($job == "delete2") {
 
 	$repath = urlencode(extract_dir($path, false));
 	if (@$filesystem->rmdirr($path)) {
-		$name = ucfirst($name);
+		$name = mb_ucfirst($name);
 		ok('admin.php?action=explorer&path='.$repath, $lang->phrase('admin_explorer_x_successfully_deleted'));
 	}
 	else {
@@ -358,7 +328,7 @@ elseif ($job == "edit") {
   </tr>
   <tr>
    <td class="mbox" width="15%"><?php echo $lang->phrase('admin_explorer_edit_content'); ?></td>
-   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo htmlspecialchars($content); ?></textarea></td>
+   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo viscacha_htmlspecialchars($content); ?></textarea></td>
   </tr>
   <tr>
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_save'); ?>" /></td>
@@ -411,15 +381,14 @@ elseif ($job == "extract2") {
 	$file = $gpc->get('path', path);
 	$dir = $gpc->get('to', path);
 
-	set_chmod($dir, 0777, CHMOD_EX);
+	set_chmod($dir, 0777, CHMOD_DIR);
 	$redirect = 'admin.php?action=explorer&path='.urlencode(extract_dir($file, false));
-	if (!preg_match('#\.(gz|zip)$#is', $file, $ext)) {
+	if (!preg_match('/\.(gz|zip)$/isu', $file, $ext)) {
 		error($redirect, $lang->phrase('admin_explorer_archive_is_not_supported'));
 	}
 	if (isset($ext[1])) {
 		$extension = $ext[1];
 		if ($extension == 'zip') {
-			include('classes/class.zip.php');
 			$archive = new PclZip($file);
 			if ($archive->extract(PCLZIP_OPT_PATH, $dir) == 0) {
 				error($redirect, $archive->errorInfo(true));

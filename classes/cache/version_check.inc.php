@@ -3,7 +3,7 @@ class cache_version_check extends CacheItem {
 
 	private $tempXml;
 	
-	function __construct($filename, $cachedir = "cache/") {
+	function __construct($filename, $cachedir) {
 		parent::__construct($filename, $cachedir);
 		$this->max_age = 60*60*24;
 	}
@@ -39,6 +39,7 @@ class cache_version_check extends CacheItem {
 	}
 	
 	function readRssInfo() {
+		// TODO: Move over to JSON - removes the xml-extension dependency
 		if (!function_exists('xml_parser_create')) {
 			return false;
 		}
@@ -64,7 +65,7 @@ class cache_version_check extends CacheItem {
 	}
 	
 	function startRssElement($parser, $name, $attrs) {
-		$name = strtolower($name);
+		$name = mb_strtolower($name);
 		switch($name) {
 			case 'item':
 				$this->tempXml = array(
@@ -89,7 +90,7 @@ class cache_version_check extends CacheItem {
 	}
 
 	function endRssElement($parser, $name) {
-		$name = strtolower($name);
+		$name = mb_strtolower($name);
 		if (is_array($this->tempXml)) {
 			switch($name) {
 				case 'item':
@@ -106,7 +107,7 @@ class cache_version_check extends CacheItem {
 				case 'link':
 				case 'description':
 				case 'pubDate':
-					$this->tempXml['elements']['description'] = htmlentities(trim($this->tempXml['elements']['description']));
+					$this->tempXml['elements']['description'] = viscacha_htmlentities(trim($this->tempXml['elements']['description']));
 					$this->tempXml['currentElement'] = null;
 					break;
 			}

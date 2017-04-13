@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@ error_reporting(E_ALL);
 
 define('SCRIPTNAME', 'ajax');
 define('VISCACHA_CORE', '1');
-define('TEMPSHOWLOG', 1);
+define('NON_HTML_RESPONSE', 1);
 
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
@@ -41,35 +41,7 @@ send_nocache_header();
 ($code = $plugins->load('ajax_start')) ? eval($code) : null;
 
 // Schliesst oder oeffnet einen Beitrag mittels AJAX
-if ($action == 'openclosethread') {
-    $result = $db->query("SELECT status, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-    $row = $db->fetch_assoc($result);
-    $my->p = $slog->Permissions($row['board']);
-    $my->mp = $slog->ModPermissions($row['board']);
-
-    $request = 1;
-
-    if ($my->p['admin'] == 1 || $my->p['gmod'] == 1 || $my->mp[0] == 1) {
-	    if ($row['status'] == 0) {
-	    	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$_GET['id']}'");
-			if ($db->affected_rows() == 1) {
-	        	$request = 3;
-	    	}
-	    }
-	    else {
-	    	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '{$_GET['id']}'");
-			if ($db->affected_rows() == 1) {
-	        	$request = 4;
-	    	}
-	    }
-	}
-	else {
-		$request = 2;
-	}
-
-	echo $request;
-}
-elseif ($action == 'markforumread') {
+if ($action == 'markforumread') {
 	$board = $gpc->get('id', int);
 	$my->p = $slog->Permissions($board);
 	if (!is_id($board) || $my->p['forum'] == 0) {
@@ -80,7 +52,7 @@ elseif ($action == 'markforumread') {
 	echo '1';
 }
 elseif ($action == 'doubleudata') {
-	if (strlen($_GET['name']) > 3) {
+	if (mb_strlen($_GET['name']) > 3) {
 		$request = 1;
 		if (!$my->vlogin) {
 			if (double_udata('name',$_GET['name']) == false) {
@@ -98,8 +70,8 @@ elseif ($action == 'doubleudata') {
 }
 elseif ($action == 'searchmember') {
 	$request = 1;
-	if (strlen($_GET['name']) > 2) {
-		$result = $db->query('SELECT name FROM '.$db->pre.'user WHERE name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
+	if (mb_strlen($_GET['name']) > 2) {
+		$result = $db->query('SELECT name FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
 		$user = array();
 		while ($row = $db->fetch_assoc($result)) {
 			$user[] = $row['name'];
@@ -113,23 +85,23 @@ elseif ($action == 'searchmember') {
 }
 elseif ($action == 'search') {
 	$search = $gpc->get('search', str);
-	if (strlen($search) > 2) {
+	if (mb_strlen($search) > 2) {
 		$search = urldecode($search);
-		$search = preg_replace("/(\s){1,}/is"," ",$search);
-	    $search = preg_replace("/\*{1,}/is",'*',$search);
+		$search = preg_replace("/(\s){1,}/isu"," ",$search);
+	    $search = preg_replace("/\*{1,}/isu",'*',$search);
 		$ignorewords = $lang->get_words();
 		$searchwords = splitWords($search);
 		$ignored = array();
 		foreach ($searchwords as $sw) {
 			$sw = trim($sw);
 			if ($sw{0} == '-') {
-				$sw2 = substr($sw, 1);
+				$sw2 = mb_substr($sw, 1);
 			}
 			else {
 				$sw2 = $sw;
 			}
 			$sw2 = str_replace('*','',$sw2);
-			if (in_array(strtolower($sw2), $ignorewords) || strxlen($sw2) < $config['searchminlength']) {
+			if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strlen($sw2) < $config['searchminlength']) {
 				$ignored[] = $sw2;
 			}
 		}
@@ -148,5 +120,3 @@ elseif ($action == 'search') {
 ($code = $plugins->load('ajax_end')) ? eval($code) : null;
 
 $phpdoc->Out();
-$db->close();
-?>

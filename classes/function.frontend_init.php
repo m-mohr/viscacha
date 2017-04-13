@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 	trigger_error('Error: Hacking Attemp (Config variable)', E_USER_ERROR);
 }
@@ -32,14 +30,8 @@ if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 require_once("classes/function.phpcore.php");
 
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
-	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
+	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "README.md"!', E_USER_ERROR);
 }
-if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'] == 0) {
-	trigger_error('You have specified database authentification data that is not safe. Please change your database user and the database password!', E_USER_ERROR);
-}
-
-// Debugging / Error Handling things
-require_once("classes/function.errorhandler.php");
 
 // Variables
 require_once ("classes/function.gpc.php");
@@ -98,7 +90,7 @@ $http_vars = array(
 	'opt_1' => int,
 	'opt_2' => int,
 	'opt_3' => int,
-	'opt_4' => int,
+	'opt_4' => str,
 	'opt_5' => int,
 	'opt_6' => int,
 	'opt_7' => int,
@@ -141,13 +133,6 @@ if ($config['nocache'] == 1) {
 	';
 }
 
-if ($config['avwidth'] == 0) {
-	$config['avwidth'] = 2048;
-}
-if ($config['avheight'] == 0) {
-	$config['avheight'] = 2048;
-}
-
 // Permission and Logging Class
 require_once ("classes/class.permissions.php");
 // A class for Templates
@@ -156,13 +141,15 @@ require_once ("classes/class.template.php");
 include_once ("classes/class.breadcrumb.php");
 // Global functions
 require_once ("classes/function.global.php");
+// Flash messagesw
+require_once ("classes/class.flashmessage.php");
 
 if (!file_exists('.htaccess')) {
 	$htaccess = array();
 	if ($config['hterrordocs'] == 1) {
 		$htaccess[] = "ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400";
 		// 401 ErrorDocument entfernt wegen Fehlermeldung (Bug #293): "Cannot use a full URL in a 401 ErrorDocument directive"
-		// Grund: Relative Angaben beschädigen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
+		// Grund: Relative Angaben beschÃ¤digen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
 		$htaccess[] = "ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403";
 		$htaccess[] = "ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404";
 		$htaccess[] = "ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500";
@@ -179,34 +166,53 @@ if (!file_exists('.htaccess')) {
 	$filesystem->file_put_contents('.htaccess', implode("\r\n", $htaccess));
 }
 
-$breadcrumb = new breadcrumb();
-$breadcrumb->Add($config['fname'], 'index.php');
-
 $phpdoc = new OutputDoc();
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
 // Global and important functions (not for cron)
-if (defined('TEMPNOFUNCINIT') == false || ($config['foffline'] && defined('TEMPSHOWLOG') == false)) {
-	define('SCRIPT_START_TIME', benchmarktime());
+if (!defined('CONSOLE_REQUEST')) {
 	$slog = new slog();
 	$my = $slog->logged();
 	$lang->init($my->language);
-	$tpl = new tpl();
-	$slog->checkBan();
-}
+	$tpl = new Theme($my->theme, $config['theme']);
 
-if ($config['foffline'] && defined('TEMPSHOWLOG') == false) {
-	$my->p = $slog->Permissions();
+	Breadcrumb::universal()->add($config['fname'], 'index.php');
+	if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, ['forum', 'showforum', 'showtopic', 'edit', 'addreply', 'newtopic', 'manageforum', 'managetopic'])) {
+		Breadcrumb::universal()->add($lang->phrase('forumname'), 'forum.php');
+		if (SCRIPTNAME == 'forum') {
+			Breadcrumb::universal()->resetUrl();
+		}
+	}
 
-	if ($my->p['admin'] != 1) {
-		sendStatusCode(503, 3600);
-		($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
-		echo $tpl->parse("offline");
+	$banned = $slog->checkBan();
+	if ($banned !== false) {
+		if (empty($banned['reason'])) {
+			$banned['reason'] = $lang->phrase('banned_no_reason');
+		}
 
-		$phpdoc->Out();
-		$db->close();
+		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
+		if (!defined('NON_HTML_RESPONSE')) {
+			echo $tpl->parse("banned");
+			$phpdoc->Out();
+		}
+		else {
+			sendStatusCode(403);
+		}
 		exit();
 	}
 }
-?>
+
+
+if ($config['foffline']) {
+	$my->p = $slog->Permissions();
+	if (!$my->p['admin']) {
+		sendStatusCode(503, 5*60*60);
+		($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
+		if (!defined('NON_HTML_RESPONSE')) {
+			echo $tpl->parse("offline");
+			$phpdoc->Out();
+		}
+		exit;
+	}
+}

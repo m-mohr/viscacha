@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -75,16 +75,16 @@ if ($_GET['action'] == "save") {
 	if (double_udata('mail',$_POST['email']) == false) {
 		$error[] = $lang->phrase('email_already_used');
 	}
-	if (strxlen($_POST['name']) > $config['maxnamelength']) {
+	if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (strxlen($_POST['name']) < $config['minnamelength']) {
+	if (mb_strlen($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
-	if (strxlen($_POST['pw']) > $config['maxpwlength']) {
+	if (mb_strlen($_POST['pw']) > $config['maxpwlength']) {
 		$error[] = $lang->phrase('pw_too_long');
 	}
-	if (strxlen($_POST['pw']) < $config['minpwlength']) {
+	if (mb_strlen($_POST['pw']) < $config['minpwlength']) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {
@@ -116,10 +116,10 @@ if ($_GET['action'] == "save") {
 		set_flood();
 	    $reg = time();
 	    $confirmcode = md5($config['cryptkey'].$reg);
-	    $pw_md5 = md5($_POST['pwx']);
+	    $hashed_pw = hash_pw($_POST['pwx']);
 
 	    ($code = $plugins->load('register_save_queries')) ? eval($code) : null;
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}', '".GROUP_MEMBER."', '', '')");
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$_POST['name']}', '{$hashed_pw}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}', '".GROUP_MEMBER."', '', '')");
         $redirect = $db->insert_id();
 
 		// Custom profile fields
@@ -132,12 +132,9 @@ if ($_GET['action'] == "save") {
 			xmail($to, $from, $data['title'], $data['comment']);
 		}
 
-		$com = $scache->load('memberdata');
-		$cache = $com->delete();
-
 		($code = $plugins->load('register_save_end')) ? eval($code) : null;
 
-		$emails = preg_split('/[\r\n]+/', $config['register_notification'], -1, PREG_SPLIT_NO_EMPTY);
+		$emails = preg_split('/[\r\n]+/u', $config['register_notification'], -1, PREG_SPLIT_NO_EMPTY);
 
 		if (count($emails) > 0) {
 			$to = array();
@@ -158,10 +155,9 @@ if ($_GET['action'] == "save") {
 }
 elseif ($_GET['action'] == 'resend') {
 	($code = $plugins->load('register_resend_start')) ? eval($code) : null;
-	$breadcrumb->Add($lang->phrase('register_title'), "register.php".SID2URL_1);
-	$breadcrumb->Add($lang->phrase('register_resend_title'));
+	Breadcrumb::universal()->add($lang->phrase('register_title'), "register.php".SID2URL_1);
+	Breadcrumb::universal()->add($lang->phrase('register_resend_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	if ($config['botgfxtest'] > 0) {
 		$captcha = newCAPTCHA();
@@ -175,13 +171,13 @@ elseif ($_GET['action'] == 'resend') {
 	($code = $plugins->load('register_resend_form_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == 'resend2') {
-	$breadcrumb->Add($lang->phrase('register_title'), "register.php".SID2URL_1);
-	$breadcrumb->Add($lang->phrase('register_resend_title'));
+	Breadcrumb::universal()->add($lang->phrase('register_title'), "register.php".SID2URL_1);
+	Breadcrumb::universal()->add($lang->phrase('register_resend_title'));
 
 	($code = $plugins->load('register_resend2_start')) ? eval($code) : null;
 
 	$error = array();
-	$result = $db->query("SELECT id, name, mail, regdate, confirm FROM {$db->pre}user WHERE name = '{$_POST['name']}' AND (confirm = '10' OR confirm = '00') LIMIT 1");
+	$result = $db->query("SELECT id, name, mail, regdate, confirm FROM {$db->pre}user WHERE name = '{$_POST['name']}' AND deleted_at IS NULL AND (confirm = '10' OR confirm = '00') LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('register_resend_no_user');
 	}
@@ -223,7 +219,7 @@ elseif ($_GET['action'] == 'confirm') {
 
 	($code = $plugins->load('register_confirm_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND confirm != '01' AND confirm != '11' LIMIT 1");
+	$result = $db->query("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL AND confirm != '01' AND confirm != '11' LIMIT 1");
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('register_code_no_user'), "log.php?action=login".SID2URL_x);
 	}
@@ -279,9 +275,8 @@ else {
 		$captcha = null;
 	}
 
-	$breadcrumb->Add($lang->phrase('register_title'));
+	Breadcrumb::universal()->add($lang->phrase('register_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$rules = $lang->get_words('rules');
 
@@ -292,9 +287,6 @@ else {
 	($code = $plugins->load('register_form_end')) ? eval($code) : null;
 }
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

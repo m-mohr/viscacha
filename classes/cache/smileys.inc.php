@@ -14,8 +14,8 @@ class cache_smileys extends CacheItem {
 			$this->data = array();
 			while ($smiley = $db->fetch_assoc($result)) {
 				$smiley['jssearch'] = addslashes($smiley['search']);
-				$smiley['desc'] = htmlspecialchars($smiley['desc']);
-				$smiley['search'] = htmlentities($smiley['search'], ENT_QUOTES);
+				$smiley['desc'] = viscacha_htmlspecialchars($smiley['desc']);
+				$smiley['search'] = viscacha_htmlentities($smiley['search']);
 				$smiley['replace'] = str_replace('{folder}', $this->url, $smiley['replace']);
 				$this->data[] = $smiley;
 			}

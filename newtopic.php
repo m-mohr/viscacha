@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ $board = $gpc->get('id', int);
 $fid = $gpc->get('fid', str);
 
 $my->p = $slog->Permissions($board);
+$my->mp = $slog->ModPermissions($board);
 
 $catbid = $scache->load('cat_bid');
 $fc = $catbid->get();
@@ -51,8 +52,8 @@ else {
 }
 
 $topforums = get_headboards($fc, $last, true);
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($lang->phrase('newtopic_title'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('newtopic_title'));
 
 ($code = $plugins->load('newtopic_start')) ? eval($code) : null;
 
@@ -60,8 +61,6 @@ if ($_GET['action'] == "startvote") {
 
 	$result = $db->query("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 	$info = $db->fetch_assoc($result);
-
-	$my->mp = $slog->ModPermissions($info['board']);
 
 	$temp = $gpc->get('temp', int, 2);
 	if ($temp < 2) {
@@ -97,10 +96,9 @@ if ($_GET['action'] == "startvote") {
 		$data['question'] = '';
 	}
 
-	$breadcrumb->Add($lang->phrase('add_vote_to_thread'));
+	Breadcrumb::universal()->add($lang->phrase('add_vote_to_thread'));
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('newtopic_startvote_prepared')) ? eval($code) : null;
 	echo $tpl->parse("newtopic/startvote");
 	($code = $plugins->load('newtopic_startvote_end')) ? eval($code) : null;
@@ -116,9 +114,7 @@ elseif ($_GET['action'] == "savevote") {
 		$notices['question'] = $_POST['question'];
 		$fid = save_error_data($notices, $fid);
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
-		exit;
 	}
 
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion'])) {
@@ -132,10 +128,10 @@ elseif ($_GET['action'] == "savevote") {
 	if ($db->num_rows($result) != 1) {
 		$error[] = $lang->phrase('query_string_error');
 	}
-	if (strxlen($_POST['question']) > $config['maxtitlelength']) {
+	if (mb_strlen($_POST['question']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('question_too_long');
 	}
-	if (strxlen($_POST['question']) < $config['mintitlelength']) {
+	if (mb_strlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$i = 1;
@@ -144,7 +140,7 @@ elseif ($_GET['action'] == "savevote") {
 		if (strlen($uval) >= 255) {
 			$error[] = $lang->phrase('vote_reply_too_long');
 		}
-		if (strlen($uval) == 0) {
+		if (empty($uval)) {
 			unset($notices[$id]);
 		}
 		else {
@@ -194,61 +190,19 @@ elseif ($_GET['action'] == "save") {
 	if (is_hash($fid)) {
 		$error_data = import_error_data($fid);
 	}
-	$human = empty($error_data['human']) ? false : $error_data['human'];
-	if (!$my->vlogin) {
-		if ($config['botgfxtest_posts'] > 0 && $human == false) {
-			$captcha = newCAPTCHA('posts');
-			$status = $captcha->check();
-			if ($status == CAPTCHA_FAILURE) {
-				$error[] = $lang->phrase('veriword_failed');
-			}
-			elseif ($status == CAPTCHA_MISTAKE) {
-				$error[] = $lang->phrase('veriword_mistake');
-			}
-			else {
-				$human = true;
-			}
-		}
-		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
-			$error[] = $lang->phrase('illegal_mail');
-		}
-		if (double_udata('name',$_POST['name']) == false) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (is_id($_POST['name'])) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (strxlen($_POST['name']) > $config['maxnamelength']) {
-			$error[] = $lang->phrase('name_too_long');
-		}
-		if (strxlen($_POST['name']) < $config['minnamelength']) {
-			$error[] = $lang->phrase('name_too_short');
-		}
-		if (strlen($_POST['email']) > 200) {
-			$error[] = $lang->phrase('email_too_long');
-		}
-		$pname = $_POST['name'];
-		$pid = 0;
-		$pnameid = $_POST['name'];
-	}
-	else {
-		$pname = $my->name;
-		$pid = $my->id;
-		$pnameid = $my->id;
-	}
 	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
-	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
+	if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (strxlen($_POST['comment']) < $config['minpostlength']) {
+	if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
-	if (strxlen($_POST['topic']) > $config['maxtitlelength']) {
+	if (mb_strlen($_POST['topic']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('title_too_long');
 	}
-	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+	if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
 
@@ -272,30 +226,14 @@ elseif ($_GET['action'] == "save") {
 			'dosmileys' => $_POST['dosmileys'],
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
-			'human' => $human,
-			'digest' => $digest,
-			'name' => null,
-			'email' => null,
-			'guest' => 0
+			'digest' => $digest
 		);
 
-		if (!$my->vlogin) {
-			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
-				$data['email'] = '';
-			}
-			else {
-				$data['email'] = $_POST['email'];
-			}
-			$data['name'] = $_POST['name'];
-			$data['guest'] = 1;
-		}
 		($code = $plugins->load('newtopic_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl']."/newtopic.php?action=preview&id={$board}&fid=".$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error,"newtopic.php?id={$board}&amp;fid=".$fid.SID2URL_x);
@@ -306,31 +244,24 @@ elseif ($_GET['action'] == "save") {
 
 		$date = time();
 
-		if ($my->vlogin) {
-			$guest = 0;
-		}
-		else {
-			$guest = 1;
-		}
-
 		($code = $plugins->load('newtopic_save_savedata')) ? eval($code) : null;
 
 		$db->query("
 		INSERT INTO {$db->pre}topics (board,topic,name,date,last,last_name,prefix,vquestion)
-		VALUES ('{$board}','{$_POST['topic']}','{$pnameid}','{$date}','{$date}','{$pnameid}','{$_POST['opt_0']}','')
+		VALUES ('{$board}','{$_POST['topic']}','{$my->id}','{$date}','{$date}','{$my->id}','{$_POST['opt_0']}','')
 		");
 		$tredirect = $db->insert_id();
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,tstart,ip,guest,edit,report)
-		VALUES ('{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,date,tstart,ip,edit,report)
+		VALUES ('{$_POST['topic']}','{$tredirect}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','1','{$my->ip}','','')
 		");
 		$rredirect = $db->insert_id();
 
-		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$pid}' AND topic_id = '0' AND tid = '0'");
+		$db->query("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$my->id}' AND topic_id = '0' AND tid = '0'");
 
 		// Insert notifications
-		if ($my->vlogin && $digest != 0) {
+		if ($digest != 0) {
 			switch ($digest) {
 				case 2:  $type = 'd'; break;
 				case 3:  $type = 'w'; break;
@@ -339,19 +270,11 @@ elseif ($_GET['action'] == "save") {
 			$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$type}')");
 		}
 
-
-		$my->mp = $slog->ModPermissions($board);
-
-		$close = $gpc->get('close', int);
-		$pin = $gpc->get('pin', int);
-		$stat = $gpc->get('status', int);
-		if (($close == 1 || $pin == 1) && $my->vlogin) {
-			if ($close == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'");
-			}
-			if ($pin == 1 && $my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
-			}
+		if ($gpc->get('close', int) == 1 && $my->mp[0] == 1) {
+			$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$tredirect}'");
+		}
+		if ($gpc->get('pin', int) == 1 && $my->mp[0] == 1) {
+			$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
@@ -390,10 +313,7 @@ elseif ($_GET['action'] == "save") {
 
 }
 else {
-	$my->mp = $slog->ModPermissions($board);
-
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	BBProfile($bbcode);
 
@@ -404,12 +324,9 @@ else {
 		'prefix' => 0,
 		'vote' => '',
 		'replies' => '',
-		'name' => '',
-		'email' => '',
 		'comment' => '',
 		'dosmileys' => 1,
 		'topic' => '',
-		'human' => false,
 		'digest' => 0
 	);
 
@@ -462,13 +379,6 @@ else {
 		$inner['index_prefix'] = '';
 	}
 
-	if ($config['botgfxtest_posts'] > 0 && $data['human'] == false) {
-		$captcha = newCAPTCHA('posts');
-	}
-	else {
-		$captcha = null;
-	}
-
 	($code = $plugins->load('newtopic_form_prepared')) ? eval($code) : null;
 
 	echo $tpl->parse("newtopic/index");
@@ -478,9 +388,6 @@ else {
 
 ($code = $plugins->load('newtopic_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

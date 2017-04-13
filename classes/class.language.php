@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 class lang {
 
 	var $dir;
@@ -35,7 +33,7 @@ class lang {
 	var $cache;
 	var $js;
 
-	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
+	// ToDo: Alternatives Verzeichnis fÃ¼r den Fall, dass eine ID Ã¼bergeben wurde, die nichtmehr aktiv ist...
 	function __construct($js = false, $level = E_USER_ERROR) {
 		$this->file = '';
 		$this->vars = array();
@@ -69,9 +67,10 @@ class lang {
 		$this->group('modules');
 		$this->group('custom');
 
-		@ini_set('default_charset', '');
+		@ini_set('default_charset', 'utf-8');
+		mb_internal_encoding('UTF-8');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset='.$this->charset());
+			viscacha_header('Content-type: text/html; charset=utf-8');
 		}
 
 		global $slog;
@@ -82,7 +81,7 @@ class lang {
 		if (isset($breadcrumb)) {
 			$isforum = array('addreply','attachments','edit','forum','manageforum','managetopic','misc','newtopic','search','showforum','showtopic');
 			if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, $isforum)) {
-				$breadcrumb->Add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
+				Breadcrumb::universal()->add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
 			}
 		}
 	}
@@ -103,9 +102,10 @@ class lang {
 		$this->group('modules');
 		$this->group('custom');
 
-		@ini_set('default_charset', '');
+		@ini_set('default_charset', 'utf-8');
+		mb_internal_encoding('UTF-8');
 		if (!headers_sent()) {
-			viscacha_header('Content-type: text/html; charset='.$this->charset());
+			viscacha_header('Content-type: text/html; charset=utf-8');
 		}
 	}
 
@@ -135,16 +135,6 @@ class lang {
 		return false;
 	}
 
-	function charset() {
-		if (empty($this->lngarray['charset'])) {
-			global $config;
-			return $config['asia_charset'];
-		}
-		else {
-			return $this->lngarray['charset'];
-		}
-	}
-
 	function get_mail($file) {
 		global $gpc;
 		$this->benchmark['all']++;
@@ -155,7 +145,7 @@ class lang {
 		}
         $this->benchmark['ok']++;
         $content = file_get_contents($this->file);
-        preg_match("|<title>(.+?)</title>.*?<comment>(.+?)</comment>|is", $content, $matches);
+        preg_match("~<title>(.+?)</title>.*?<comment>(.+?)</comment>~isu", $content, $matches);
 		$matches[1] = $this->parse_pvar($matches[1]);
 		$matches[2] = $this->parse_pvar($matches[2]);
         return array(
@@ -190,11 +180,16 @@ class lang {
 			echo "<!-- Could not load language-file {$file} -->";
 		}
 	}
+	
+	function exists($phrase) {
+		return isset($this->lngarray[$phrase]);
+	}
 
-	function phrase($phrase) {
-		if (isset($this->lngarray[$phrase])) {
+	function phrase($phrase, $vars = array()) {
+		$this->massAssign($vars);
+		if ($this->exists($phrase)) {
 			$pphrase = $this->lngarray[$phrase];
-			if (strpos($pphrase, '{') !== false) {
+			if (mb_strpos($pphrase, '{') !== false) {
         		$pphrase = $this->parse_pvar($pphrase);
 			}
 			return $pphrase;
@@ -204,48 +199,25 @@ class lang {
 		}
 	}
 
+	function massAssign(array $vars) {
+		foreach($vars as $key => $value) {
+			$this->assign($key, $value);
+		}
+	}
+
 	function assign($key, $val) {
 		$this->assign[$key] = $val;
 	}
 
 	function parse_pvar($content) {
-		return preg_replace_callback('~\{(\$|\%|\@|\&)(.+?)\}~i', array($this, 'parse_variable'), $content);
+		$content = preg_replace_callback('~\{(\$|\%|\@)(.+?)\}~iu', array($this, 'parse_variable'), $content);
+		return preg_replace('~\{\\\(\$|\%|\@)(.+?)\}~iu', '{\1\2}', $content);
 	}
 
 	function parse_variable($params) {
 		list(, $type, $key) = $params;
 		$keys = explode('->',$key);
-		if ($type == '&') {
-			if (count($keys) == 1) { // Function
-				if (substr($keys[0], -1) == ')') {
-					$keys[0] = substr($keys[0], 0, -1);
-				}
-				$methodKeys = explode('(', $keys[0], 2);
-				if (function_exists($methodKeys[0])) {
-					$args = array();
-					if (!empty($methodKeys[1])) {
-						$args = array($methodKeys[1]);
-					}
-					return call_user_func_array($methodKeys[0], $args);
-				}
-			}
-			elseif (count($keys) == 2 && class_exists($keys[0])) { // Class property / method
-				$methodKeys = explode('(', $keys[1], 2);
-				if (count($methodKeys) > 1 && substr($methodKeys[1], -1) == ')' && method_exists($keys[0], $methodKeys[0])) { // Object method
-					$args = array();
-					$arg = substr($methodKeys[1], 0, -1);
-					if (!empty($arg)) {
-						$args = array($arg);
-					}
-					return call_user_func_array(array($keys[0], $methodKeys[0]), $args);
-				}
-// ToDo: This is not available on all PHP 5 versions, create a woraround...
-//				elseif (count($methodKeys) == 1 && isset($keys[0]::${$methodKeys[0]})) { // Class property
-//					return $keys[0]::${$methodKeys[0]};
-//				}
-			}
-		}
-		elseif ($type == '%') { // Object property / method
+		if ($type == '%') { // Object property / method
 			if (isset($this->assign[$keys[0]])) {
 				$var = $this->assign[$keys[0]];
 			}
@@ -255,9 +227,9 @@ class lang {
 
 			if (count($keys) == 2 && isset($var) && is_object($var)) {
 				$methodKeys = explode('(', $keys[1], 2);
-				if (count($methodKeys) > 1 && substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
+				if (count($methodKeys) > 1 && mb_substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
 					$args = array();
-					$arg = substr($methodKeys[1], 0, -1);
+					$arg = mb_substr($methodKeys[1], 0, -1);
 					if (!empty($arg)) {
 						$args = array($arg);
 					}
@@ -310,7 +282,7 @@ class lang {
 		if (@is_dir($dir) == false) {
 			$dir = "{$config['fpath']}/language/{$dirId}";
 			if (@is_dir($dir) == false) {
-				$dir = extract_dir(dirname(__FILE__));
+				$dir = extract_dir(__DIR__);
 				$dir = "{$dir}/language/{$dirId}";
 			}
 		}

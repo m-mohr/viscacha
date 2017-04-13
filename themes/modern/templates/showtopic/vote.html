@@ -1,0 +1,14 @@
+<form name="form2" method="post" action="misc.php?action=vote&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">
+				<span class="right">[<a href="showtopic.php?temp=1&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">@lang('vote_showresult')</a>]</span>
+				<i class="fa fa-bar-chart"></i> {{ $vote['question'] }}
+			</h3></div>
+		<div class="panel-body">
+			@foreach ($vote['entries'] as $row)
+			<input type="radio" id="vote_{{ $row['id'] }}" value="{{ $row['id'] }}" name="temp"@checked($vote['voted'] == $row['id']) /><label class="plainlabel sep" for="vote_{{ $row['id'] }}">{{ $row['answer'] }}</label><br />
+			@endforeach
+		</div>
+		<div class="panel-footer center"><input type="submit" value="@lang('submit_form')" /></div>
+	</div>
+</form>

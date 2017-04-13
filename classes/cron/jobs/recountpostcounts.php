@@ -1,6 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 global $db, $config, $scache;
 
 if ($config['updatepostcounter'] == 0) {
@@ -20,7 +18,7 @@ if ($config['updatepostcounter'] == 0) {
 		SELECT r.name
 		FROM {$db->pre}replies AS r
 			LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
-		WHERE r.guest = '0' AND r.date > '{$jobData}'". iif(count($id) > 0, " AND t.board NOT IN (".implode(',', $id).")") ."
+		WHERE r.date > '{$jobData}'". iif(count($id) > 0, " AND t.board NOT IN (".implode(',', $id).")") ."
 		GROUP BY r.name
 	");
 

@@ -23,7 +23,7 @@ if($job == "add2") {
 	$type = $gpc->get('type', none);
 	if($type != "text" && $type != "textarea") {
 		$options = $gpc->get('options', none);
-		$options2 = preg_split("~(\r\n|\r|\n)+~", $options);
+		$options2 = preg_split("~(\r\n|\r|\n)+~u", $options);
 		$options = array($type);
 		$keys = array();
 		foreach ($options2 as $key => $row) {
@@ -58,7 +58,7 @@ if($job == "add2") {
 	);
 	$db->query('INSERT INTO '.$db->pre.'profilefields SET '.array2sqlsetlist($insert));
 	$fid = $db->insert_id();
-	$db->query("ALTER TABLE {$db->pre}userfields ADD fid{$fid} TEXT NOT NULL");
+	$db->query("ALTER TABLE {$db->pre}userfields ADD fid{$fid} TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL");
 	echo head();
 	ok("admin.php?action=profilefield&job=edit&fid=".$fid, $lang->phrase('admin_profilefield_successfully_added'));
 }
@@ -75,7 +75,7 @@ elseif($job == "edit2") {
 	$type = $gpc->get('type', none);
 	if($type != "text" && $type != "textarea") {
 		$options = $gpc->get('options', none);
-		$options2 = preg_split("~(\r\n|\r|\n)+~", $options);
+		$options2 = preg_split("~(\r\n|\r|\n)+~u", $options);
 		$options = array($type);
 		$keys = array();
 		foreach ($options2 as $key => $row) {

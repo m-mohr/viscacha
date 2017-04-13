@@ -2,10 +2,15 @@
 /admin/backup/*.sql
 /admin/backup/*.zip
 /admin/html/language_*.js
-/cache/
+/assets/cache/
+/classes/vendor/
+/data/cache/
 /data/cron/*.job
+/data/logs/
 /feeds/
-/templates/language_*.js
 /temp/
+/uploads/
 locked.txt
+composer.lock
 !.htaccess
+!.gitkeep

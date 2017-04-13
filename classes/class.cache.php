@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -25,8 +25,6 @@
 	This class is part of Viscacha.
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 class CacheItem {
 
 	var $name;
@@ -34,7 +32,7 @@ class CacheItem {
 	var $data;
 	var $max_age;
 
-	function __construct($filename, $cachedir = "cache/") {
+	function __construct($filename, $cachedir = "data/cache/") {
 		$this->name = $filename;
 		$this->file = $cachedir.$filename.".inc.php";
 		$this->data = null;
@@ -139,7 +137,7 @@ class CacheServer {
 	var $cachedir;
 	var $data;
 
-	function __construct($cachedir = 'cache/') {
+	function __construct($cachedir = 'data/cache/') {
 		$this->cachedir = $cachedir;
 		$this->data = array();
 	}

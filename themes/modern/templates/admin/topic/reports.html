@@ -1,0 +1,14 @@
+<form name="form2" method="post" action="managetopic.php?action=reports2&amp;id={{ $_GET['id'] }}&amp;topic_id={{ $_GET['topic_id'] }}{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">@lang('admin_report')</h3></div>
+		<div class="panel-body">
+			<label for="comment">@lang('report_message')</label>
+			<textarea name="comment" id="comment" readonly="readonly" class="label" cols="70" rows="10">{{ $data['report'] }}</textarea>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="temp">@lang('admin_report_reset')</label>
+			<input class="label" type="checkbox" id="temp" name="temp" value="1" />
+			<br class="newinput" />
+		</div>
+		<div class="panel-footer center"><input type="submit" value="@lang('submit_form')" /></div>
+	</div>
+</form>

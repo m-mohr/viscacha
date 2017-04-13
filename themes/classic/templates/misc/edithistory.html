@@ -1,0 +1,33 @@
+<table class="tables">
+	<tr><th colspan="3">@lang('edithistory')</th></tr>
+	<tr><td class="tbody" colspan="3">
+			@lang('showtopic_subject') <strong>{{ $row['topic'] }}</strong>
+		</td></tr>
+	<tr class="tfoot">
+		<td width="20%">@lang('date')</td>
+		<td width="30%">@lang('author')</td>
+		<td width="50%">@lang('edithistory_reason')</td>
+	</tr>
+	<tr class="tbody">
+		<td>@reldatetime($row['date'])</td>
+		<td>
+			{{ $row['name'] }}
+			@if($my->p['admin'] == 1)
+			<br /><span class="stext">@lang('ipadress') {{ $row['ip'] }}</span>
+			@endif
+		</td>
+		<td><em>@lang('edithistory_topicstart')</em></td>
+	</tr>
+	@foreach ($edit as $line)
+	<tr class="tbody">
+		<td>@reldatetime($line['date'])</td>
+		<td>
+			{{ $line['name'] }}
+			@if($my->p['admin'] == 1)
+			<br /><span class="stext">@lang('ipadress') {{ $line['ip'] }}</span>
+			@endif
+		</td>
+		<td>{{ $line['reason'] }}</td>
+	</tr>
+	@endforeach
+</table>

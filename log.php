@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,6 @@ if ($_GET['action'] == "login2") {
 	$loc = getRedirectURL();
 	if ($my->vlogin) {
 		$slog->updatelogged();
-		$db->close();
 		viscacha_header("Location: {$loc}");
 		exit;
 	}
@@ -78,9 +77,7 @@ elseif ($_GET['action'] == "logout") {
 
 	if (!$my->vlogin) {
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(302, $config['furl'].'/log.php');
-		exit;
 	}
 	else {
 		$loc = getRedirectURL();
@@ -95,13 +92,11 @@ elseif ($_GET['action'] == "pwremind") {
 	if ($my->vlogin) {
 		error($lang->phrase('log_already_logged'));
 	}
-	$breadcrumb->Add($lang->phrase('log_pwremind_title'));
+	Breadcrumb::universal()->add($lang->phrase('log_pwremind_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('log_pwremind_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/pwremind");
 	($code = $plugins->load('log_pwremind_form_end')) ? eval($code) : null;
-	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind2") {
 	if (flood_protect(FLOOD_TYPE_PWMAIL) == false) {
@@ -111,13 +106,13 @@ elseif ($_GET['action'] == "pwremind2") {
 
 	($code = $plugins->load('log_pwremind2_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' LIMIT 1");
+	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' AND deleted_at IS NULL LIMIT 1");
 
-	$user = $db->fetch_assoc($result);
 	if ($db->num_rows($result) != 1) {
 		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
 	}
 	else {
+		$user = $db->fetch_assoc($result);
 
 		$confirmcode = md5($config['cryptkey'].$user['pw']);
 
@@ -132,7 +127,6 @@ elseif ($_GET['action'] == "pwremind2") {
 
 		ok($lang->phrase('log_pwremind_success'), "log.php?action=login".SID2URL_x);
 	}
-	$slog->updatelogged();
 }
 elseif ($_GET['action'] == "pwremind3") {
 	if (flood_protect(FLOOD_TYPE_PWRENEW) == false) {
@@ -142,26 +136,30 @@ elseif ($_GET['action'] == "pwremind3") {
 
 	($code = $plugins->load('log_pwremind3_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' LIMIT 1");
-	$user = $db->fetch_assoc($result);
-
-	$confirmcode = md5($config['cryptkey'].$user['pw']);
-	if ($confirmcode == $gpc->get('fid')) {
-		$pw = random_word();
-		$md5 = md5($pw);
-		$db->query("UPDATE {$db->pre}user SET pw = '{$md5}' WHERE id = '{$user['id']}' LIMIT 1");
-
-		$data = $lang->get_mail('pwremind2');
-		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
-		$from = array();
-		xmail($to, $from, $data['title'], $data['comment']);
-
-		($code = $plugins->load('log_pwremind3_success')) ? eval($code) : null;
-		ok($lang->phrase('log_pwremind_changed'), "log.php?action=login".SID2URL_x);
+	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL LIMIT 1");
+	if ($db->num_rows($result) != 1) {
+		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
 	}
 	else {
-		($code = $plugins->load('log_pwremind3_failed')) ? eval($code) : null;
-		error($lang->phrase('log_pwremind_wrong_code'), "log.php?action=pwremind".SID2URL_x);
+		$user = $db->fetch_assoc($result);
+		$confirmcode = md5($config['cryptkey'].$user['pw']);
+		if ($confirmcode == $gpc->get('fid')) {
+			$pw = random_word();
+			$hashed_pw = hash_pw($pw);
+			$db->query("UPDATE {$db->pre}user SET pw = '{$hashed_pw}' WHERE id = '{$user['id']}' LIMIT 1");
+
+			$data = $lang->get_mail('pwremind2');
+			$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));
+			$from = array();
+			xmail($to, $from, $data['title'], $data['comment']);
+
+			($code = $plugins->load('log_pwremind3_success')) ? eval($code) : null;
+			ok($lang->phrase('log_pwremind_changed'), "log.php?action=login".SID2URL_x);
+		}
+		else {
+			($code = $plugins->load('log_pwremind3_failed')) ? eval($code) : null;
+			error($lang->phrase('log_pwremind_wrong_code'), "log.php?action=pwremind".SID2URL_x);
+		}
 	}
 }
 else {
@@ -169,25 +167,21 @@ else {
 	if (empty($loc)) {
 		$loc = getRefererURL();
 	}
-	$loc = htmlspecialchars($loc);
+	$loc = viscacha_htmlspecialchars($loc);
 	if ($my->vlogin) {
 		error($lang->phrase('log_already_logged'), $loc);
 	}
 
-	$breadcrumb->Add($lang->phrase('log_title'));
+	Breadcrumb::universal()->add($lang->phrase('log_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('log_login_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/login");
 	($code = $plugins->load('log_login_form_end')) ? eval($code) : null;
-	$slog->updatelogged();
 }
 
 ($code = $plugins->load('log_end')) ? eval($code) : null;
 
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

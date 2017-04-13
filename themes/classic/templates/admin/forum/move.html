@@ -1,0 +1,28 @@
+<form name="form2" method="post" action="manageforum.php?action=move2&amp;id={{ $board }}{{ SID2URL_x }}">
+	<div class="border">
+		<h3>@lang('admin_mass_move')</h3>
+		<div class="bbody">
+			<label>@lang('admin_where_to')</label>
+			<select class="label" size="1" name="opt_0">{{ $forums }}</select>
+			<br class="newinput" /><hr class="formsep" />
+			<label>@lang('admin_massmove_redirect')</label>
+			<div class="label">
+				<input type="radio" value="1" checked="checked" name="temp" /> @lang('confirm_yes')
+				<input class="sep" type="radio" name="temp" value="0" /> @lang('confirm_no')
+			</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label>@lang('admin_massmove_email')</label>
+			<div class="label">
+				<input type="radio" value="1" checked="checked" name="temp2" /> @lang('confirm_yes')
+				<input class="sep" type="radio" name="temp2" value="0" /> @lang('confirm_no')
+			</div>
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center">
+			@foreach ($_POST['delete'] as $row)
+			<input type="hidden" name="delete[]" value="{{ $row }}" />
+			@endforeach
+			<input type="submit" name="Submit1" value="@lang('move_form')" />
+		</div>
+	</div>
+</form>

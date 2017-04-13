@@ -1,0 +1,10 @@
+<form method="post" action="misc.php?action=boardin&amp;board={{ $bid }}{{ SID2URL_x }}">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/login.gif')" alt="" /> @lang('pwfaccess_title')</h3></div>
+		<div class="panel-body">
+			<label for="pw">@lang('login_password')</label><input tabindex="1" class="label" type="password" id="pw" name="pw" size="40" />
+			<br class="newinput" />
+		</div>
+		<div class="panel-footer center"><input type="submit" name="Submit1" tabindex="2" value="@lang('submit_form')" /></div>
+	</div>
+</form>

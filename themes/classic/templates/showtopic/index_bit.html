@@ -1,0 +1,82 @@
+<div class="border">
+	<div class="bfoot topfooter">
+		<span class="right">
+			@if($my->vlogin && empty($row->report))
+			<a class="sep" href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@theme('images/rules.gif')" alt="" /> @lang('post_report')</a>
+			@elseif($my->mp[0] == 1 && !empty($row->report))
+			<a class="sep" href="managetopic.php?action=reports&amp;topic_id={{ $row->id }}&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><img src="@theme('images/rules.gif')" alt="" /> @lang('post_reported')</a>
+			@endif
+			@if($can_edit)
+			<a class="sep" href="edit.php?id={{ $row->id }}{{ SID2URL_x }}"><img src="@theme('images/edit.gif')" alt="" /> @lang('post_edit')</a>
+			@endif
+			@if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == 0)
+			<a class="sep" id="menu_mquote_{{ $row->id }}" onmouseover="RegisterMenu('mquote_{{ $row->id }}');" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}"><img src="@theme('images/no_mquote.gif')" alt="@lang('box_collapse')" id="mq_{{ $row->id }}" /> @lang('post_quote')</a>
+			<div class="popup" id="popup_mquote_{{ $row->id }}">
+				<strong>@lang('post_quote')</strong>
+				<ul>
+					<li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang('post_quote_direct')</a></li>
+					<li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang('post_quote_multi')</a></li>
+				</ul>
+			</div>
+			@endif
+			<strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
+			@if($my->mp[0] == 1 && $info['posts'] > 0)
+			<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="{{ $row->id }}" />
+			@endif
+		</span>
+		<img src="@theme('images/post_'.$new.'.gif')" alt="" /> @reldatetime($row->date)
+		@if($firstnew == 1)
+		<a name="firstnew" id="firstnew"></a>
+		@endif
+		<a name="p{{ $row->id }}" id="p{{ $row->id }}"></a>
+	</div>
+	<div class="inlineheader h3">
+		<div class="viewmembername">
+			<a href="profile.php?id={{ $row->mid }}{{ SID2URL_x }}">{{ $row->name }}</a>
+			@if($row->online == 1)
+			<img src="@theme('images/online.gif')" title="@lang('profile_online')" alt="@lang('profile_online')" />
+			@else
+			<img src="@theme('images/offline.gif')" title="@lang('profile_offline')" alt="@lang('profile_offline')" />
+			@endif
+			<br /><span class="stext">{{ $row->level }}</span>
+		</div>
+		<div class="viewmemberdetails stext">
+			@if($row->deleted_at === null)
+			@lang('post_info_registered_since') @date($row->regdate)<br />
+			@lang('post_info_postcount') {{ numbers($row->posts) }}
+			@endif
+		</div>
+		<br class="invclear" />
+	</div>
+	<div class="bbody">
+		<span class="stext">
+			@lang('showtopic_subject')<strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
+		</span>
+		<hr />
+		{!! $row->comment !!}
+		@if(!empty($inner['uploads']))
+		<div class="uploadbox">
+			<strong class="heading">@lang('attachments')</strong>
+			{!! $inner['uploads'] !!}
+			<br class="clear" />
+		</div>
+		@endif
+		@if($bottom)
+		<hr />
+		@if(!empty($row->fullname) && $config['fullname_posts'] == 1)
+		<div class="fullname stext">{{ $row->fullname }}</div>
+		@endif
+		@if(!empty($row->signature) && $my->opt_showsig == 1)
+		<div class="signature">{!! $row->signature !!}</div>
+		@endif
+		@endif
+		<div class="textright stext">
+			@if(!empty($row->edit))
+			@lang('post_editinfo1')
+			<strong><a href="misc.php?action=edithistory&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $anz }}</a></strong>
+			@lang('post_editinfo2')
+			@endif
+		</div>
+	</div>
+</div>
+<br class="minibr" />

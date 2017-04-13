@@ -32,7 +32,7 @@ elseif (empty($job) || $job == 'start') {
 	}
 
 	// Count the inactive members
-	$result = $db->query('SELECT COUNT(*) as activate FROM '.$db->pre.'user WHERE confirm = "00" OR confirm = "01"');
+	$result = $db->query('SELECT COUNT(*) as activate FROM '.$db->pre.'user WHERE deleted_at IS NULL AND (confirm = "00" OR confirm = "01")');
 	$user = $db->fetch_assoc($result);
 	if ($user['activate'] > 0) {
 		$tasks[] = '<a href="admin.php?action=members&job=activate">'.$lang->phrase('admin_task_moderate_members').'</a>';
@@ -47,7 +47,7 @@ elseif (empty($job) || $job == 'start') {
 			if ($nfo['extension'] == 'zip' || $nfo['extension'] == 'sql') {
 				$date = str_replace('.zip', '', $nfo['basename']);
 				$date = str_replace('.sql', '', $date);
-				$valid = preg_match('/(\d{1,2})_(\d{1,2})_(\d{2,4})-(\d{1,2})_(\d{1,2})_(\d{1,2})/', $date, $mktime);
+				$valid = preg_match('/(\d{1,2})_(\d{1,2})_(\d{2,4})-(\d{1,2})_(\d{1,2})_(\d{1,2})/u', $date, $mktime);
 				if ($valid == 0) {
 					$diff = times(filemtime($dir.$file));
 				}

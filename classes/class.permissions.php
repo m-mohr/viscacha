@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,13 +22,11 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 // Load flood check (essential for this class)
 include_once("classes/function.flood.php");
 
 // TODO: Dieser Code sollte nicht auf $my basieren, da sonst bei der Abfrage von fremden Rechten
-// eine gefährliche Vermischung stattfindet.
+// eine gefÃ¤hrliche Vermischung stattfindet.
 
 class slog {
 
@@ -144,8 +142,11 @@ function getIP() {
  * @param String Separator for the titles or empty string
  * @return mixed An array with the titles or a string (depends on second parameter)
  */
-function getStatus($groups, $implode = '') {
-	global $scache;
+function getStatus($groups, $implode = '', $deleted = false) {
+	global $scache, $lang;
+	if ($deleted) {
+		return $lang->phrase('fallback_no_username_group');
+	}
 	$titles = array();
 	if (count($this->statusdata) == 0) {
 		$group_status = $scache->load('groups');
@@ -168,15 +169,6 @@ function getStatus($groups, $implode = '') {
 			if (!isset($this->statusdata[$gid])) {
 				continue;
 			}
-/* This is to show only the Admintitle for admins. Removed in 0.8 RC5 (was an undocumented feature before ;-) )
-			if ($this->statusdata[$gid]['admin'] == 1) {
-				if (empty($implode)) {
-					return array($this->statusdata[$gid]['title']);
-				}
-				else {
-					return $this->statusdata[$gid]['title'];
-				}
-			} */
 			if ($this->statusdata[$gid]['core'] != 1 || $this->statusdata[$gid]['admin'] == 1) {
 				$titles[] = $this->statusdata[$gid]['title'];
 			}
@@ -211,7 +203,6 @@ function setlang() {
 		$my->name = $lang->phrase('fallback_no_username');
 	}
 	$my->timezone_str = $this->getTimezone();
-	$my->current_time = gmdate($lang->phrase('dformat3'), times());
 	$my->ip = $this->ip;
 }
 
@@ -228,7 +219,7 @@ function getTimezone($base = null) {
 	}
 
 	if ($base != 0) {
-		preg_match('~^(\+|-)?(\d{1,2})\.?(\d{0,2})?$~', $base, $parts);
+		preg_match('~^(\+|-)?(\d{1,2})\.?(\d{0,2})?$~u', $base, $parts);
 		$parts[2] = intval($parts[2]);
 		$parts[3] = intval($parts[3]);
 	}
@@ -281,37 +272,32 @@ function updatelogged () {
 	$serialized = $db->escape_string(serialize($my->mark));
 	$serializedpwf = $db->escape_string(serialize($my->pwfaccess));
 	$serializedstg = $db->escape_string(serialize($my->settings));
-	$sqlwhere = $sqlset = array();
 	if ($my->id > 0 && !is_id($this->change_mid)) {
-		$sqlwhere[] = "mid = '{$my->id}'";
+		$sqlwhere = "mid = '{$my->id}'";
 	}
 	else {
-		$sqlwhere[] = "sid = '{$this->sid}'";
+		$sqlwhere = "sid = '{$this->sid}'";
 	}
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
 
+	$sqlset = '';
 	if (is_id($this->change_mid)) {
-		$sqlset[] = "mid = '{$this->change_mid}'";
+		$sqlset = ", mid = '{$this->change_mid}'";
 	}
 
 	($code = $plugins->load('permissions_updatelogged_query')) ? eval($code) : null;
-
-	$sqlset = iif(count($sqlset) > 0, ', ').implode(', ', $sqlset);
-	$sqlwhere2 = implode(', ', $sqlwhere);
-
-	if (count($sqlwhere) > 0) {
-		$db->query ("
-		UPDATE {$db->pre}session
-		SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."',
-			pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}', lastvisit = '{$my->clv}' {$sqlset}
-		WHERE {$sqlwhere2}
-		LIMIT 1
-		");
-	}
+	
+	$db->query ("
+	UPDATE {$db->pre}session
+	SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."',
+		pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}', lastvisit = '{$my->clv}' {$sqlset}
+	WHERE {$sqlwhere}
+	LIMIT 1
+	");
 
 	if ($my->vlogin) {
-		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
+		// Eigentlich kÃ¶nnten wir uns das Updaten der User-Lastvisit-Spalte sparen, fÃ¼r alle User die Cookies nutzen. Einmal, am Anfang der Session wÃ¼rde dann reichen
 		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'");
 	}
 
@@ -341,7 +327,7 @@ function deleteOldSessions () {
  * @return object Data of the user who is calling this script
  */
 function logged () {
-	global $config, $db, $gpc, $scache, $plugins;
+	global $config, $db, $gpc, $scache, $plugins, $tpl;
 
 	$this->deleteOldSessions();
 
@@ -433,34 +419,10 @@ function logged () {
 	if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 		$my->timezone = $config['timezone'];
 	}
-
-	$admin = $gpc->get('admin', str);
-	if ($admin != $config['cryptkey']) {
-		$fresh = false;
+	
+	if (!isset($my->theme)) {
+		$my->theme = null;
 	}
-	else {
-		$fresh = true;
-	}
-
-	$loaddesign_obj = $scache->load('loaddesign');
-	$cache = $loaddesign_obj->get($fresh);
-
-	$q_tpl = $gpc->get('design', int);
-	if (isset($my->template) == false || isset($cache[$my->template]) == false) {
-		$my->template = $config['templatedir'];
-	}
-	if (isset($my->settings['q_tpl']) && isset($cache[$my->settings['q_tpl']])) {
-		$my->template = $my->settings['q_tpl'];
-	}
-	if (isset($cache[$q_tpl])) {
-		if ($admin != 1) {
-			$my->settings['q_tpl'] = $q_tpl;
-		}
-		$my->template = $q_tpl;
-	}
-	$my->templateid = $cache[$my->template]['template'];
-	$my->imagesid = $cache[$my->template]['images'];
-	$my->cssid = $cache[$my->template]['stylesheet'];
 
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$cache2 = $loadlanguage_obj->get();
@@ -495,43 +457,6 @@ function logged () {
 }
 
 /**
- * Bans a user.
- *
- * After calling the function exit() is called and script ends.
- * Connection to database is closed. Template 'banned' will be shown.
- * This is not shown in the AdminCP!
- */
-function banish($reason = null, $until = null) {
-	global $config, $db, $phpdoc, $lang, $plugins, $tpl, $my, $breadcrumb;
-
-	if (substr($reason, 0, 6) == 'lang->') {
-		$key = substr($reason, 6);
-		$reason = $lang->phrase($key);
-	}
-	if ($reason == null) {
-		$reason = $lang->phrase('banned_no_reason');
-	}
-	else {
-		$reason = htmlspecialchars($reason);
-	}
-	if ($until > 0) {
-		$until = gmdate($lang->phrase('dformat1'), times($until));
-	}
-	else {
-		$until = $lang->phrase('banned_left_never');
-	}
-
-	($code = $plugins->load('permissions_banish')) ? eval($code) : null;
-
-	$tpl->globalvars(compact('reason', 'until'));
-	echo $tpl->parse("banned");
-
-	$phpdoc->Out();
-	$db->close();
-	exit();
-}
-
-/**
  * Checks whether a user has to be banned, and if so, calls $this->banisch().
  */
 function checkBan() {
@@ -550,7 +475,7 @@ function checkBan() {
 		$row = explode("\t", $row, 6);
 		if ($row[0] == 'ip') {
 			$row[2] = intval($row[2]);
-			if (strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
+			if (mb_strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
 				$ban = true;
 				break;
 			}
@@ -575,8 +500,9 @@ function checkBan() {
 		if ($row[2] != 0) {
 			$until = $row[2];
 		}
-		$this->banish($reason, $until);
+		return compact("reason", "until");
 	}
+	return false;
 }
 
 /**
@@ -612,7 +538,7 @@ function sid_load() {
 	FROM '.$db->pre.'session AS s
 		LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id
 		LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
-	WHERE '.$sql.'
+	WHERE u.deleted_at IS NULL AND '.$sql.'
 	LIMIT 1
 	');
 
@@ -654,7 +580,11 @@ function sid_new() {
 	}
 
 	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
-		$result = $db->query('SELECT u.*, f.* FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id WHERE u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'" LIMIT 1');
+		$result = $db->query('
+			SELECT u.*, f.*
+			FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
+			WHERE u.deleted_at IS NULL AND u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"
+			LIMIT 1');
 		$my = $this->cleanUserData($db->fetch_object($result));
 		$nodata = ($db->num_rows($result) == 1) ? false : true;
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
@@ -731,38 +661,18 @@ function sid_logout() {
 function sid_login($remember = true) {
 	global $my, $config, $db, $gpc, $scache;
 	$username = $gpc->get('name', str);
-	$pw = $gpc->get('pw', str);
+	$pw = $gpc->get('pw', none);
 
 	$result = $db->query("
 	SELECT u.*, f.*, u.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM {$db->pre}user AS u
 		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}')
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id
-	WHERE u.name = '{$username}' AND u.pw = MD5('{$pw}')
+	WHERE u.name = '{$username}' AND u.deleted_at IS NULL
 	");
-	$sessions = $db->num_rows($result);
-
-	if ($sessions > 1) {
-		while ($row = $db->fetch_object($result)) {
-			if ($row->sid == $this->sid) {
-				$mytemp = $this->cleanUserData($row);
-				break;
-			}
-		}
-		if (!isset($mytemp)) {
-			$mytemp = $this->cleanUserData($row);
-			unset($row);
-		}
-		else {
-			unset($row);
-			$db->query("DELETE FROM {$db->pre}session WHERE mid = '{$mytemp->id}' AND sid != '{$mytemp->sid}'");
-		}
-	}
-	else {
-		$mytemp = $this->cleanUserData($db->fetch_object($result));
-	}
-
-	if ($sessions > 0 && $mytemp->confirm == '11') {
+	$mytemp = $db->fetch_object($result);
+	if (is_object($mytemp) && check_pw($pw, $mytemp->pw) && $mytemp->confirm == '11') {
+		$mytemp = $this->cleanUserData($mytemp);
 
 		$mytemp->mark = $my->mark;
 		$mytemp->pwfaccess = $my->pwfaccess;
@@ -775,27 +685,10 @@ function sid_login($remember = true) {
 		if (!isset($my->timezone) || $my->timezone === null || $my->timezone === '') {
 			$my->timezone = $config['timezone'];
 		}
-
-		$loaddesign_obj = $scache->load('loaddesign');
-		$cache = $loaddesign_obj->get();
-
-		$q_tpl = $gpc->get('design', int);
-		if (isset($my->template) == false || isset($cache[$my->template]) == false) {
-			$my->template = $config['templatedir'];
+	
+		if (!isset($my->theme)) {
+			$my->theme = null;
 		}
-		if (isset($my->settings['q_tpl']) && isset($cache2[$my->settings['q_tpl']]) != false) {
-			$my->template = $my->settings['q_tpl'];
-		}
-		if (isset($cache2[$q_tpl]) != false) {
-			$my->settings['q_tpl'] = $q_tpl;
-			$my->template = $q_tpl;
-		}
-		if (isset($cache[$q_tpl]) != false) {
-			$my->template = $q_tpl;
-		}
-		$my->templateid = $cache[$my->template]['template'];
-		$my->imagesid = $cache[$my->template]['images'];
-		$my->cssid = $cache[$my->template]['stylesheet'];
 
 		$loadlanguage_obj = $scache->load('loadlanguage');
 		$cache2 = $loadlanguage_obj->get();
@@ -829,7 +722,7 @@ function sid_login($remember = true) {
 		}
 		makecookie($config['cookie_prefix'].'_vdata', $my->id.'|'.$my->pw, $expire);
 		$this->cookiedata[0] = $my->id;
-		$this->cookiedata[1] = $my->pw;
+		$this->cookiedata[1] = $my->pw; // TODO: Password nicht im Cookie speichern!!!
 		return true;
 	}
 	else {
@@ -873,7 +766,7 @@ function cleanUserData($data) {
 	global $gpc;
 	$trust = array(
 		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'language',
-		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
+		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'theme', 'confirm', // from user-table
 		'ufid', // from userfields-table
 		'mid', 'active', 'wiw_id', 'last_visit', 'mark', 'pwfaccess', 'settings' // from session-table
 	);
@@ -903,7 +796,7 @@ function cleanUserData($data) {
  * @return String Session-ID
  */
 function construct_sid() {
-	$this->sid = str_shuffle(md5(uniqid(mt_rand())));
+	$this->sid = generate_uid();
 	return $this->sid;
 }
 
@@ -1089,7 +982,7 @@ function Permissions ($board = 0, $groups = null, $defaultToMemberPerms = null) 
 
 		$permissions3 = array();
 		foreach ($this->fFields as $key) {
-			$orig_key = substr($key, 2, strlen($key));
+			$orig_key = mb_substr($key, 2, mb_strlen($key));
 			foreach ($permissions2 as $bid => $arr) {
 				if (isset($permissions2[$bid][$key]) && $permissions2[$bid][$key] != -1 && !isset($permissions3[$orig_key])) {
 					$permissions3[$orig_key] = $arr[$key];
@@ -1157,7 +1050,7 @@ function GlobalPermissions() {
 
 	$fFieldValues = array();
 	foreach ($this->fFields as $key) {
-		$key = substr($key, 2, strlen($key));
+		$key = mb_substr($key, 2, mb_strlen($key));
 		$fFieldValues[$key] = $this->permissions[$key];
 	}
 	if (count($boardid) > 0) {
@@ -1193,7 +1086,7 @@ function GlobalPermissions() {
 
 		$permissions3 = array();
 		foreach ($this->fFields as $key) {
-			$orig_key = substr($key, 2, strlen($key));
+			$orig_key = mb_substr($key, 2, mb_strlen($key));
 			foreach ($permissions2 as $bid => $arr) {
 				if (isset($permissions2[$bid][$key]) && $permissions2[$bid][$key] != -1 && !isset($permissions3[$orig_key])) {
 					$permissions3[$orig_key] = $arr[$key];
@@ -1233,10 +1126,10 @@ function ModPermissions ($bid) {
 	global $my, $db;
 	if ($my->vlogin && $my->id > 0) {
 		if ($this->permissions['admin'] == 1 || $this->permissions['gmod'] == 1) {
-			return array(1,1,1,1,1,1);
+			return array(1,1,1);
 		}
 		else {
-			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
+			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
 			if ($db->num_rows($result) > 0) {
 				$row = $db->fetch_assoc($result);
 				return array(1, $row['p_delete'], $row['p_mc']);
@@ -1329,7 +1222,7 @@ function setTopicRead($tid, $parents) {
 	global $my, $db;
 	$my->mark['t'][$tid] = time();
 
-	// Erstelle ein Array mit schon gelesenen Beiträgen
+	// Erstelle ein Array mit schon gelesenen BeitrÃ¤gen
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");

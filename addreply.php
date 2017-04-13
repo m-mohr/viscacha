@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -42,6 +42,7 @@ if ($db->num_rows($result) == 0) {
 	error($lang->phrase('query_string_error'));
 }
 $my->p = $slog->Permissions($info['board']);
+$my->mp = $slog->ModPermissions($info['board']);
 
 $info['topic'] = $gpc->prepare($info['topic']);
 
@@ -61,9 +62,9 @@ if ($info['prefix'] > 0) {
 }
 
 $topforums = get_headboards($fc, $last, true);
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], 'showtopic.php?id='.$id.SID2URL_x);
-$breadcrumb->Add($lang->phrase('addreply_title'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($prefix.$info['topic'], 'showtopic.php?id='.$id.SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('addreply_title'));
 
 if ($info['status'] != 0) {
 	error($lang->phrase('topic_closed'));
@@ -76,14 +77,10 @@ if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) {
 
 $validDigest = array(-1, 1, 2, 3, 9);
 $standard_data = array(
-	'name' => '',
-	'email' => '',
-	'guest' => iif($my->vlogin, 0, 1),
 	'comment' => '',
 	'dosmileys' => 1,
 	'digest' => 0,
 	'topic' => $lang->phrase('reply_prefix').$info['topic'],
-	'human' => false,
 	'id' => $id
 );
 
@@ -95,63 +92,21 @@ if ($_GET['action'] == "save") {
 	if (is_hash($fid)) {
 		$error_data = import_error_data($fid);
 	}
-	$human = empty($error_data['human']) ? false : $error_data['human'];
-	if (!$my->vlogin) {
-		if ($config['botgfxtest_posts'] > 0 && $human == false) {
-			$captcha = newCAPTCHA('posts');
-			$status = $captcha->check();
-			if ($status == CAPTCHA_FAILURE) {
-				$error[] = $lang->phrase('veriword_failed');
-			}
-			elseif ($status == CAPTCHA_MISTAKE) {
-				$error[] = $lang->phrase('veriword_mistake');
-			}
-			else {
-				$human = true;
-			}
-		}
-		if (!check_mail($_POST['email']) && ($config['guest_email_optional'] == 0 || !empty($_POST['email']))) {
-			$error[] = $lang->phrase('illegal_mail');
-		}
-		if (double_udata('name',$_POST['name']) == false) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (is_id($_POST['name'])) {
-			$error[] = $lang->phrase('username_registered');
-		}
-		if (strxlen($_POST['name']) > $config['maxnamelength']) {
-			$error[] = $lang->phrase('name_too_long');
-		}
-		if (strxlen($_POST['name']) < $config['minnamelength']) {
-			$error[] = $lang->phrase('name_too_short');
-		}
-		if (strlen($_POST['email']) > 200) {
-			$error[] = $lang->phrase('email_too_long');
-		}
-		$pname = $_POST['name'];
-		$pnameid = $_POST['name'];
-		$pid = 0;
-	}
-	else {
-		$pname = $my->name;
-		$pnameid = $my->id;
-		$pid = $my->id;
-	}
 	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
-	if (strxlen($_POST['comment']) > $config['maxpostlength']) {
+	if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (strxlen($_POST['comment']) < $config['minpostlength']) {
+	if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	// Add some chars for reply title prefix
-	$maxlength = $config['maxtitlelength'] + strxlen($lang->phrase('reply_prefix'));
-	if (strxlen($_POST['topic']) > $maxlength) {
+	$maxlength = $config['maxtitlelength'] + mb_strlen($lang->phrase('reply_prefix'));
+	if (mb_strlen($_POST['topic']) > $maxlength) {
 		$error[] = $lang->phrase('title_too_long');
 	}
-	if (strxlen($_POST['topic']) < $config['mintitlelength']) {
+	if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('title_too_short');
 	}
 	($code = $plugins->load('addreply_save_errorhandling')) ? eval($code) : null;
@@ -165,29 +120,13 @@ if ($_GET['action'] == "save") {
 			'comment' => $_POST['comment'],
 			'dosmileys' => $_POST['dosmileys'],
 			'id' => $id,
-			'digest' => $digest,
-			'guest' => 0,
-			'human' => $human,
-			'name' => null,
-			'email' => null
+			'digest' => $digest
 		);
-		if (!$my->vlogin) {
-			if ($config['guest_email_optional'] == 0 && empty($_POST['email'])) {
-				$data['email'] = '';
-			}
-			else {
-				$data['email'] = $_POST['email'];
-			}
-			$data['guest'] = 1;
-			$data['name'] = $_POST['name'];
-		}
 		($code = $plugins->load('addreply_save_errordata')) ? eval($code) : null;
 		$fid = save_error_data($data, $fid);
 		if (!empty($_POST['Preview'])) {
 			$slog->updatelogged();
-			$db->close();
 			sendStatusCode(302, $config['furl']."/addreply.php?action=preview&id={$id}&fid=".$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error,"addreply.php?id={$id}&amp;fid=".$fid.SID2URL_x);
@@ -196,34 +135,27 @@ if ($_GET['action'] == "save") {
 	else {
 		set_flood(FLOOD_TYPE_POSTING);
 
-		if ($my->vlogin) {
-			$guest = 0;
-		}
-		else {
-			$guest = 1;
-		}
-
 		$date = time();
 
 		($code = $plugins->load('addreply_save_queries')) ? eval($code) : null;
 
 		$db->query("
 		UPDATE {$db->pre}topics
-		SET last_name = '{$pnameid}', last = '{$date}', posts = posts+1
+		SET last_name = '{$my->id}', last = '{$date}', posts = posts+1
 		WHERE id = '{$id}'
 		");
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,ip,guest,edit,report)
-		VALUES ('{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,date,ip,edit,report)
+		VALUES ('{$_POST['topic']}','{$id}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','{$my->ip}','','')
 		");
 		$redirect = $db->insert_id();
 
 		// Set uploads to correct reply
-		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'");
+		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$my->id}' AND topic_id = '{$id}' AND tid = '0'");
 
 		// Update, insert, delete notifications
-		if ($my->vlogin && in_array($digest, $validDigest)) {
+		if (in_array($digest, $validDigest)) {
 			switch ($digest) {
 				case 1:  $type = '';  break;
 				case 2:  $type = 'd'; break;
@@ -234,13 +166,13 @@ if ($_GET['action'] == "save") {
 			
 			$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 			$row = $db->fetch_assoc($result);
-			if ($row && $type === null) { // Lösche Abo
+			if ($row && $type === null) { // LÃ¶sche Abo
 				$db->query("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'");
 			}
-			else if ($row && $type != $row['type']) { // Aktualisiere Abo, wenn veränderter Typ
+			else if ($row && $type != $row['type']) { // Aktualisiere Abo, wenn verÃ¤nderter Typ
 				$db->query("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'");
 			}
-			else if (!$row && $type !== null) { // Füge Abo hinzu
+			else if (!$row && $type !== null) { // FÃ¼ge Abo hinzu
 				$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')");
 			}
 		}
@@ -294,11 +226,8 @@ if ($_GET['action'] == "save") {
 		$lang->setdir($lang_dir);
 
 		$close = $gpc->get('close', int);
-		if ($close == 1 && $my->vlogin) {
-			$my->mp = $slog->ModPermissions($info['board']);
-			if ($my->mp[0] == 1) {
-				$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$info['id']}'");
-			}
+		if ($close == 1 && $my->mp[0] == 1) {
+			$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$info['id']}'");
 		}
 
 		// Set topic read
@@ -312,7 +241,6 @@ if ($_GET['action'] == "save") {
 else {
 
 	$qids = array();
-	$my->mp = $slog->ModPermissions($info['board']);
 	BBProfile($bbcode);
 
 	($code = $plugins->load('addreply_form_start')) ? eval($code) : null;
@@ -337,13 +265,10 @@ else {
 	else {
 		$data = $standard_data;
 
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
-
 		// Multiquote
 		$qids = $gpc->get('qid', arr_int);
 		$pids = getcookie('vquote');
-		if(!empty($pids) && preg_match("/^[0-9,]+$/", $pids)) {
+		if(!empty($pids) && preg_match("/^[0-9,]+$/u", $pids)) {
 			$qids = array_merge($qids, explode(',', $pids));
 			$qids = array_unique($qids);
 			makecookie($config['cookie_prefix'].'_vquote', '', 0);
@@ -351,19 +276,17 @@ else {
 
 		if (count($qids) > 0) {
 
-			$result = $db->query('SELECT name, comment, guest FROM '.$db->pre.'replies WHERE id IN('.implode(',',$qids).') LIMIT '.$config['maxmultiquote']);
+			$result = $db->query('
+				SELECT u.name, r.comment
+				FROM '.$db->pre.'replies AS r
+					LEFT JOIN '.$db->pre.'user AS u ON u.id = r.name
+				WHERE r.id IN('.implode(',',$qids).')
+				LIMIT '.$config['maxmultiquote']
+			);
 
 			while($row = $gpc->prepare($db->fetch_assoc($result))) {
-				if ($row['guest'] == 0) {
-					if (isset($memberdata[$row['name']])) {
-						$row['name'] = $memberdata[$row['name']];
-					}
-					else {
-						$row['name'] = '';
-					}
-				}
 				($code = $plugins->load('addreply_form_quotes')) ? eval($code) : null;
-				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/is', '', $row['comment']);
+				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $row['comment']);
 				$row['comment'] = $bbcode->censor(trim($row['comment']));
 				$data['comment'] .= "\r\n[quote".iif(!empty($row['name']), "=".$row['name'])."]";
 				$data['comment'] .= $row['comment'];
@@ -372,14 +295,7 @@ else {
 		}
 	}
 
-	if ($config['botgfxtest_posts'] > 0 && $data['human'] == false) {
-		$captcha = newCAPTCHA('posts');
-	}
-	else {
-		$captcha = null;
-	}
-
-	if ($my->vlogin && !in_array($data['digest'], $validDigest)) {
+	if (!in_array($data['digest'], $validDigest)) {
 		$result = $db->query("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 		if ($db->num_rows($result) > 0) {
 			$temp = $db->fetch_assoc($result);
@@ -397,7 +313,6 @@ else {
 	}
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('addreply_form_prepared')) ? eval($code) : null;
 
@@ -409,9 +324,6 @@ else {
 
 ($code = $plugins->load('addreply_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

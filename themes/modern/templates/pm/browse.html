@@ -1,0 +1,35 @@
+@include('pm.menu')
+<form name="form" method="post" action="pm.php?action=massmanage{{ SID2URL_x }}">
+	<table class="table table-striped">
+		<tr>
+			<th colspan="4"><img src="@theme('images/pm.gif')" alt="" /> @lang('pm_browse_title')</th>
+		</tr> 
+		@if($count[0] != 0)
+		<tr> 
+			<td class="tfoot textright" colspan="4">{!! $temp !}</td>
+		</tr>
+		<tr> 
+			<th width="4%" colspan="2" nowrap="nowrap"><input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" /> @lang('check_all')</th>
+			<th width="66%">@lang('forum_topic')</th>
+			<th width="30%">@lang('pm_authordate')</th>
+		</tr>	
+		{!! $inner['index_bit'] !!}
+		<tr> 
+			<td class="tfoot textright" colspan="4">{!! $temp !!}</td>
+		</tr>
+		<tr> 
+			<td class="tfoot center" colspan="4">
+				<input type="submit" name="delete2" value="@lang('delete_form')" />
+				@if($_GET['id'] != '2')
+				<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
+				<input type="submit" name="move2" value="@lang('move_form')" />
+				@endif
+			</td>
+		</tr>
+		@else
+		<tr>
+			<td class="tbody center" colspan="4">@lang('pm_empty')</td>
+		</tr>
+		@endif
+	</table>
+</form>

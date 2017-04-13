@@ -1,0 +1,122 @@
+@if($error_state)
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title">@lang('re_error_title')</h3></div>
+	<div class="panel-body">
+		@if($hidden == 0)
+		@lang('error_no_forums_found')
+		@elselang('error_no_forum_permissions')
+		@if($hidden > 0)
+		<div class="panel-footer">
+			<label>@lang('logged_in_as')</label>{{ $my->name }}
+		</div>
+		@endif
+	</div>
+	
+	@else
+	@foreach ($cats as $cat)
+	<table class="table forums table-striped">
+		<thead>
+			<tr>
+				<th colspan="2">
+					<div class="panel-heading"><h3 class="panel-title">
+							{{ $cat['name'] }}
+							@if(!empty($cat['description']))
+							<small>{{ $cat['description'] }}</small>
+							@endif
+						</h3></div>
+				</th>
+				<th class="cell-stat hidden-xs hidden-sm">@lang('contentcounter')</th>
+				<th class="cell-stat-2x hidden-xs">@lang('last_post')</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach($cat['forums'] as $forum)
+			@if($forum['opt'] == 're')
+			<tr>
+				<td class="cell-icon"><i class="fa fa-arrow-right fa-2x icon-neutral"></i></td>
+				<td>
+
+					<h4>
+						<a href="{{ $forum['optvalue'] }}">{{ $forum['name'] }}</a>
+						<small>{{ $forum['optvalue'] }}</small>
+					</h4>
+					@if(!empty($forum['description']))
+					<small>{{ $forum['description'] }}</small>
+					@endif
+				</td>
+				<td class="cell-stat hidden-xs hidden-sm"></td>
+				<td class="cell-stat-2x hidden-xs"></td>
+			</tr>
+			@else
+			<tr>
+				<td class="cell-icon">
+					@if($forum['state'] == BOARD_STATE_LOCKED)
+					<i class="fa fa-lock fa-2x icon-old"></i>
+					@elseif($forum['state'] == BOARD_STATE_NEW)
+					<i class="fa fa-folder-open fa-2x icon-new" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $forum['id'] }}, this)"></i>
+					@else
+					<i class="fa fa-folder-open fa-2x icon-neutral"></i>
+					@endif
+				</td>
+				<td>
+					<h4><a href="showforum.php?id={{ $forum['id'] }}{{ SID2URL_x }}">{{ $forum['name'] }}</a></h4>
+					@if(!empty($forum['description']))
+					<small>{{ $forum['description'] }}</small>
+					@endif
+					@if(!empty($forum['mod']))
+					<br />
+					<small>
+						<strong>@lang('forum_mods')</strong>
+						@foreach($forum['mod'] as $m)
+						<a href="profile.php?id={{ $m['mid'] }}{{ SID2URL_x }}">{{ $m['name'] }}</a>{{ $m['sep'] }}
+						@endforeach
+					</small>
+					@endif
+					@if(!empty($forum['sub']))
+					<br />
+					<small>
+						<strong>@lang('forum_subforums')</strong>
+						@foreach ($forum['sub'] as $s)
+						<br />
+						@if($forum['state'] == BOARD_STATE_WWW)
+						<i class="fa fa-arrow-right icon-neutral"></i>
+						@elseif($forum['state'] == BOARD_STATE_LOCKED)
+						<i class="fa fa-lock icon-neutral"></i>
+						@elseif($forum['state'] == BOARD_STATE_NEW)
+						<i class="fa fa-folder-open icon-new" title="@lang('forum_options_markread')" onmouseover="HandCursor(this)" onclick="ajax_markforumread({{ $s['id'] }}, this, 1)"></i>
+						@else
+						<i class="fa fa-folder-open icon-old"></i>
+						@endif
+						@if($s['opt'] != 're')
+						<a href="showforum.php?id={{ $s['id'] }}{{ SID2URL_x }}">
+							@else
+							<a href="{{ $s['optvalue'] }}">
+								@endif
+								{{ $s['name'] }}</a>
+							@endforeach
+					</small>
+					@endif
+				</td>
+				<td class="hidden-xs hidden-sm text-nowrap">
+					{{ $forum['topics'] }} @lang('xtopics')<br />
+					{{ $forum['replies'] }} @lang('xreplies')
+				</td>
+				<td class="hidden-xs">
+					@if(!empty($forum['l_topic']))
+					<a title="{{ $forum['l_topic_full'] }}" href="showtopic.php?id={{ $forum['l_tid'] }}{{ SID2URL_x }}&amp;action=last">
+						<strong>{{ $forum['l_prefix'] }}{{ $forum['l_topic'] }}</strong>
+					</a><br />
+					<small class="pull-right text-nowrap"><i class="fa fa-clock-o"></i>&nbsp;@reldatetime($forum['l_date'])</small>
+					<small>
+						@lang('by')
+						<a href="profile.php?id={{ $forum['l_uid'] }}{{ SID2URL_x }}">{{ $forum['l_name'] }}</a>
+					</small>
+					@elselang('cat_no_lastpost')
+				</td>
+			</tr>
+			@endif
+			@endforeach
+		</tbody>
+	</table>
+	@endforeach
+	@endif

@@ -1,0 +1,38 @@
+<table class="table table-striped">
+	<thead>
+		<tr>
+			<th colspan="4">
+				@if(($config['vote_change'] == 1 || $vote['voted'] == 0) && $vote['phrase'])
+				<span class="right">[<a href="showtopic.php?temp=2&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">{{ $lang->phrase($vote['phrase']) }}</a>]</span>
+				@endif
+				<i class="fa fa-bar-chart"></i> {{ $vote['question'] }}
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach ($vote['entries'] as $row)
+		<tr>
+			<td width="40%">{{ $row['answer'] }}</td>
+			<td width="40%">
+				<div class="progress">
+					<div class="progress-bar" role="progressbar" aria-valuenow="{{ round($row['percent']) }}" aria-valuemin="0" aria-valuemax="100" style="min-width: 1px; width: {{ round($row['percent']) }}%;">
+						<span class="sr-only">{{ $row['percent'] }}%</span>
+					</div>
+				</div>
+			</td>
+			<td width="10%" class="text-right">{{ $row['votes'] }}</td>
+			<td width="10%" class="text-right">{{ $row['percent'] }}%</td>
+		</tr>
+		@if($my->p['admin'] == 1)
+		<tr>
+			<td class="text-right" colspan="4">{{ $vote['voter'][$row['id']][0] }}</td>
+		</tr>
+		@endif
+		@endforeach
+	</tbody>
+	<tfoot>
+		<tr>
+			<td colspan="4" class="text-right">@lang('vote_counter'){{ $vote['count'] }}</td>
+		</tr>
+	</tfoot>
+</table>

@@ -1,0 +1,56 @@
+<table class="table table-striped">
+	<tr> 
+		<th colspan="3"><img src="@theme('images/last.gif')" alt="" /> @lang('editprofile_mylast')</th>
+	</tr>
+	@if($anz > 0)
+	<tr>
+		<td class="tfoot textright" colspan="3">{!! $pages !!}</td>
+	</tr>
+	<tr>
+		<th width="5%">&nbsp;</th>
+		<th width="85%">@lang('forum_topic')</th>
+		<th width="10%">@lang('forum_replies')</th> 
+	</tr>
+	@foreach ($cache as $row)
+	<tr class="tbody">
+		<td width="5%">
+			@if($row['read'])
+			@if($row['status'] == 0)
+			<img src="@theme('images/dir_open.gif')" alt="@lang('forum_icon_old')" />
+			@else
+			<img src="@theme('images/dir_closed.gif')" alt="@lang('forum_icon_closed')" />
+			@endif
+			@else
+			@if($row['status'] == 0)
+			<img src="@theme('images/dir_open2.gif')" alt="@lang('forum_icon_new')" />
+			@else
+			<img src="@theme('images/dir_closed2.gif')" alt="@lang('forum_icon_closed')" />
+			@endif
+			@endif
+		</td>
+		<td width="85%">
+			@if(!$row['read'])
+			<a href="showtopic.php?action=firstnew&amp;id={{ $row['id'] }}{{ SID2URL_x }}"><img src="@theme('images/desc.gif')" alt="@lang('move_to_first_new_post')" /></a>
+			<strong>
+				@endif
+				{{ $row['pre'] }}
+				<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row['pid'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a>
+				@if(!$row['read'])
+			</strong>
+			@endif
+			@if(!empty($row['topic_pages']))
+			(<span class="stext" style="white-space: nowrap;">{!! $row['topic_pages'] !!}</span>)
+			@endif
+		</td>
+		<td width="10%">{{ $row['posts'] }}</td> 
+	</tr>
+	@endforeach
+	<tr>
+		<td class="tfoot textright" colspan="3">{!! $pages !!}</td>
+	</tr>
+	@else
+	<tr>
+		<td class="tbody center" colspan="3">@lang('forum_empty')</td>
+	</tr>
+	@endif				
+</table>

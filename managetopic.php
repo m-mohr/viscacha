@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -42,7 +42,6 @@ if ($db->num_rows($result) != 1) {
 	error($lang->phrase('query_string_error'));
 }
 $info = $db->fetch_assoc($result);
-$info['last_name'] = $gpc->prepare($info['last_name']);
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
@@ -63,33 +62,32 @@ if ($info['prefix'] > 0) {
 	}
 }
 
-$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
-$breadcrumb->Add($lang->phrase('teamcp'));
+Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
+Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
 echo $tpl->parse("header");
 
 forum_opt($last);
 
-if (!$my->vlogin || $my->mp[0] == 0) {
-	errorLogin($lang->phrase('not_allowed'));
+if (!$my->vlogin || $my->mp[0] != 1) {
+	errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 }
 
 ($code = $plugins->load('managetopic_start')) ? eval($code) : null;
 
 if ($action == "delete") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/delete");
 }
 elseif ($action == "delete2") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND topic_id = '{$info['id']}' GROUP BY name");
+		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' GROUP BY name");
 		while ($row = $db->fetch_assoc($result)) {
 			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
 		}
@@ -134,22 +132,21 @@ elseif ($action == "delete2") {
 }
 elseif ($action == "move") {
 	$my->pb = $slog->GlobalPermissions();
-	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
+	if ($my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$forums = BoardSubs();
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/move");
 }
 elseif ($action == "move2") {
-	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
+	if ($my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 
 	$result = $db->query("
-		SELECT r.date, r.topic, r.name, r.email, r.guest, u.name AS uname, u.mail AS uemail
+		SELECT r.date, r.topic, r.name, u.name, u.mail, u.deleted_at
 		FROM {$db->pre}replies AS r
-			LEFT JOIN {$db->pre}user AS u ON u.id = r.name AND r.guest = '0'
+			LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 		WHERE topic_id = '{$info['id']}' AND tstart = '1'
 	");
 	$old = $db->fetch_assoc($result);
@@ -159,18 +156,15 @@ elseif ($action == "move2") {
 	$db->query("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1");
 	$anz = $db->affected_rows();
 
+	// TODO: Prefix und Editierungen werden nicht übernommen
 	if ($_POST['temp'] == 1) {
-		$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}', vquestion = ''");
+		$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_int($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}', vquestion = ''");
 		$tid = $db->insert_id();
-		$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''");
+		$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
 	}
 	if ($_POST['temp2'] == 1) {
-		if ($old['guest'] == 0) {
-			$old['email'] = $old['uemail'];
-			$old['name'] = $old['uname'];
-		}
 		$data = $lang->get_mail('topic_moved');
-		$to = array('0' => array('name' => $old['name'], 'mail' => $old['email']));
+		$to = array('0' => array('name' => $old['name'], 'mail' => $old['mail']));
 		$from = array();
 		xmail($to, $from, $data['title'], $data['comment']);
 	}
@@ -187,8 +181,6 @@ elseif ($action == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showtopic.php?id='.$info['id']);
 }
 elseif ($action == "reports") {
-	echo $tpl->parse("menu");
-
 	$result = $db->query("SELECT id, report, topic_id, tstart, topic FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 	$data = $gpc->prepare($db->fetch_assoc($result));
 	if ($db->num_rows($result) == 0) {
@@ -256,7 +248,6 @@ elseif ($action == "vote_export") {
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);
 
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_export");
 }
 elseif ($action == "vote_edit") {
@@ -287,15 +278,14 @@ elseif ($action == "vote_edit") {
 	}
 
 	$i = 0;
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_edit");
 }
 elseif ($action == "vote_edit2") {
 	$error = array();
-	if (strxlen($_POST['question']) > $config['maxtitlelength']) {
+	if (mb_strlen($_POST['question']) > $config['maxtitlelength']) {
 		$error[] = $lang->phrase('question_too_long');
 	}
-	if (strxlen($_POST['question']) < $config['mintitlelength']) {
+	if (mb_strlen($_POST['question']) < $config['mintitlelength']) {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$notices = $gpc->get('notice', arr_str);
@@ -325,7 +315,7 @@ elseif ($action == "vote_edit2") {
 		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
 		while($row = $db->fetch_assoc($result)) {
 			if ($notices[$row['id']] != $row['answer']) {
-				if (strlen($notices[$row['id']]) > 0) {
+				if (mb_strlen($notices[$row['id']]) > 0) {
 					$db->query("UPDATE {$db->pre}vote SET answer = '{$notices[$row['id']]}' WHERE id = '{$row['id']}'");
 				}
 				else {
@@ -341,14 +331,13 @@ elseif ($action == "vote_edit2") {
 	}
 }
 elseif ($action == "vote_delete") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_delete");
 }
 elseif ($action == "vote_delete2") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$anz = 0;
@@ -368,7 +357,7 @@ elseif ($action == "vote_delete2") {
 	ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
 }
 elseif ($action == "pdelete") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$ids = $gpc->get('ids', arr_int);
@@ -379,9 +368,9 @@ elseif ($action == "pdelete") {
 	$iid = implode(',', $ids);
 
 	if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE guest = '0' AND id IN ({$iid}) GROUP BY name");
+		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE id IN ({$iid}) GROUP BY name");
 		while ($row = $db->fetch_assoc($result)) {
-			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
+			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
 		}
 	}
 
@@ -436,19 +425,14 @@ elseif ($action == "pmerge") {
 	}
 	$iid = implode(',', $ids);
 
-	$result = $db->query("SELECT r.*, u.name AS uname, u.id AS uid, u.mail AS umail FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iid}) ORDER BY date ASC");
+	$result = $db->query("SELECT r.*, u.name, u.id AS uid, u.mail, u.deleted_at FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iid}) ORDER BY date ASC");
 	$author = array();
 	$comment = array();
 	$posts = array();
 	$topic = array();
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
-		if ($row['guest'] == 1) {
-			$row['uid'] = 0;
-			$row['uname'] = $row['name'];
-			$row['umail'] = $row['email'];
-		}
 		$posts[$row['id']] = $row;
-		$author[$row['id']] = $row['uname'];
+		$author[$row['id']] = $row['name'];
 		$topic[$row['id']] = $row['topic'];
 		$comment[$row['id']] = $row['comment'];
 	}
@@ -483,11 +467,8 @@ elseif ($action == "pmerge2") {
 	else {
 		$cache = array();
 		$base = array('date' => time());
-		$result = $db->query("SELECT r.*, u.name AS uname FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iids})");
+		$result = $db->query("SELECT r.*, u.name, u.deleted_at FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iids})");
 		while ($row = $db->fetch_assoc($result)) {
-			if ($row['guest'] == 1) {
-				$row['uname'] = $row['name'];
-			}
 			$cache[$row['id']] = $row;
 			if ($row['date'] < $base['date']) {
 				$base = $row;
@@ -504,14 +485,7 @@ elseif ($action == "pmerge2") {
 
 		$topic = $cache[$_POST['topic_id']]['topic'];
 		$name = $cache[$author]['name'];
-		$email = $cache[$author]['email'];
 		$ip = $cache[$author]['ip'];
-		if (is_id($name)) {
-			$guest = '0';
-		}
-		else {
-			$guest = '1';
-		}
 
 		$rev = array();
 		foreach ($cache as $row) {
@@ -533,7 +507,7 @@ elseif ($action == "pmerge2") {
 		foreach ($old as $id) {
 			$row = $cache[$id];
 			$rev[] = array(
-				'name' => $row['uname'],
+				'name' => $row['name'],
 				'date' => $row['date'],
 				'reason' => $lang->phrase('admin_merge_edit_add'),
 				'ip' => $row['ip']
@@ -557,7 +531,7 @@ elseif ($action == "pmerge2") {
 		$db->query ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 		$db->query ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 
-		$db->query ("UPDATE {$db->pre}replies SET topic = '{$topic}', name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', email = '{$email}', ip = '{$ip}', edit = '{$edit}', guest = '{$guest}' WHERE id = '{$base['id']}'");
+		$db->query ("UPDATE {$db->pre}replies SET topic = '{$topic}', name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', ip = '{$ip}', edit = '{$edit}' WHERE id = '{$base['id']}'");
 		$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iold})");
 
 		($code = $plugins->load('managetopic_pmerge_end')) ? eval($code) : null;
@@ -577,9 +551,6 @@ elseif ($action == "pmerge2") {
 
 ($code = $plugins->load('managetopic_end')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

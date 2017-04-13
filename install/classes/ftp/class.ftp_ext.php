@@ -1,5 +1,4 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 class ftp extends ftp_base {
 
@@ -45,7 +44,7 @@ class ftp extends ftp_base {
 
 	function _connect($host, $port) {
 		$this->SendMSG("Creating ftp connection");
-		$sock = ftp_connect(convert_host_to_idna($host), $port, $this->_timeout);
+		$sock = ftp_connect($host, $port, $this->_timeout);
 		if (!$sock) {
 			$this->PushError('_connect','ftp connect failed');
 			return false;

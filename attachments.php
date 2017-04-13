@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -86,7 +86,6 @@ if ($_GET['action'] == "thumbnail") {
 
 }
 elseif ($_GET['action'] == "attachment") {
-
 	if (!is_id($_GET['id'])) {
 		error($lang->phrase('no_id_given'));
 	}
@@ -129,7 +128,6 @@ elseif ($_GET['action'] == "attachment") {
 
 		($code = $plugins->load('attachments_attachment_end')) ? eval($code) : null;
 		$slog->updatelogged();
-		$db->close();
 		exit();
 	}
 }
@@ -151,10 +149,10 @@ else {
 	}
 	elseif ($_GET['type'] == 'newtopic' && is_id($_GET['id'])) {
 		$upinfo = array(
-		'board' => $_GET['id'],
-		'name' => $my->id,
-		'topic_id' => 0,
-		'id' => 0
+			'board' => $_GET['id'],
+			'name' => $my->id,
+			'topic_id' => 0,
+			'id' => 0
 		);
 	}
 	elseif ($_GET['type'] == 'edit' && $_GET['id'] > 0) {
@@ -176,19 +174,18 @@ else {
 	}
 	($code = $plugins->load('attachments_upload_error')) ? eval($code) : null;
 	if ($error == true) {
-		echo $tpl->parse("popup/header");
 		error($lang->phrase('query_string_error'), 'javascript:self.close();');
 	}
 	$my->p = $slog->Permissions($upinfo['board']);
 	$my->mp = $slog->ModPermissions($upinfo['board']);
 
 	if ($my->p['attachments'] != 1) {
-		echo $tpl->parse("popup/header");
-		errorLogin($lang->phrase('not_allowed'), 'javascript:self.close();');
+		error($lang->phrase('not_allowed'), 'javascript:self.close();');
 	}
 
 	if ($_GET['action'] == "save") {
 		($code = $plugins->load('attachments_upload_save_start')) ? eval($code) : null;
+		$url = 'attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x;
 		if (is_array($_POST['delete']) && count($_POST['delete']) > 0) {
 			if ($my->mp[0] == 1 || $upinfo['name'] == $my->id) {
 				$ids = array();
@@ -215,10 +212,8 @@ else {
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				');
 
-				$slog->updatelogged();
-				$db->close();
-				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
-				exit;
+				$anz = $db->affected_rows();
+				ok($lang->phrase('editprofile_attachments_deleted'), $url);
 			}
 		}
 		else {
@@ -228,7 +223,7 @@ else {
 
 			($code = $plugins->load('attachments_upload_save_add_start')) ? eval($code) : null;
 
-			for ($i = 0; $i < $config['tpcmaxuploads']; $i++) {
+			for ($i = 1; $i <= $config['tpcmaxuploads']; $i++) {
 
 				$field = "upload_{$i}";
 				if (empty($_FILES[$field]['name'])) {
@@ -272,20 +267,14 @@ else {
 			($code = $plugins->load('attachments_upload_save_add_end')) ? eval($code) : null;
 
 			if (count($inserterrors) > 0) {
-				echo $tpl->parse('popup/header');
-				error($inserterrors, 'attachments.php?type='.$_GET['type'].'&amp;id='.$_GET['id'].SID2URL_x);
+				error($inserterrors, $url);
 			}
 			else {
-				$slog->updatelogged();
-				$db->close();
-				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
-				exit;
+				ok($lang->phrase('data_success'), $url);
 			}
 		}
 	}
 	else {
-		echo $tpl->parse("popup/header");
-
 		$filetypes = implode($lang->phrase('listspacer'), explode(',',$config['tpcfiletypes']));
 		$filesize = formatFilesize($config['tpcfilesize']);
 
@@ -297,31 +286,24 @@ else {
 		}
 		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
 
-		$free = $config['tpcmaxuploads'] - $db->num_rows($result);
-		if ($free < 1) {
-			$free = 0;
-		}
-
-		$uploads = array();
+		$uploads = array_fill(1, $config['tpcmaxuploads'], null);
+		$i = 1;
 		while ($row = $db->fetch_assoc($result)) {
 			$fsize = filesize('uploads/topics/'.$row['source']);
 			$fsize = formatFilesize($fsize);
 			($code = $plugins->load('attachments_upload_form_upload')) ? eval($code) : null;
-			$uploads[] = array(
-			'file' => $row['file'],
-			'filesize' => $fsize,
-			'id' => $row['id']
+			$uploads[$i++] = array(
+				'file' => $row['file'],
+				'filesize' => $fsize,
+				'id' => $row['id']
 			);
 		}
 
 		($code = $plugins->load('attachments_upload_form_prepared')) ? eval($code) : null;
 		echo $tpl->parse("attachments");
 		($code = $plugins->load('attachments_upload_form_end')) ? eval($code) : null;
-		echo $tpl->parse("popup/footer");
 	}
 }
 
 $slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

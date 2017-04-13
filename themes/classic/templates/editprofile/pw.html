@@ -1,0 +1,18 @@
+<form method="post" action="editprofile.php?action=pw2{{ SID2URL_x }}">
+	<div class="border">
+		<h3><img src="@theme('images/password.gif')" alt="" /> @lang('editprofile_pw')</h3>
+		<div class="bbody">
+			<label for="pw">@lang('editprofile_pw_old')</label>
+			<input type="password" tabindex="1" class="label" id="pw" name="pw" size="40" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="type">@lang('editprofile_pw_new')<br />
+				<span class="stext">@lang('minmax_password')</span></label>
+			<input type="password" tabindex="2" class="label" id="type" name="type" size="40" />
+			<br class="newinput" /><hr class="formsep" />
+			<label for="pwx">@lang('editprofile_pw_new_repeat')</label>
+			<input type="password" tabindex="3" class="label" id="pwx" name="pwx" size="40" />
+			<br class="newinput" />
+		</div>
+		<div class="bfoot center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
+	</div>
+</form>

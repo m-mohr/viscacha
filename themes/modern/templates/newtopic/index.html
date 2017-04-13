@@ -1,0 +1,95 @@
+@if($_GET['action'] == 'preview')
+<div class="panel panel-default">
+	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/newtopic.gif')" alt="" /> @lang('preview_title')</h3></div>
+	<div class="panel-body">
+		<span class="stext">@lang('showtopic_subject') @if($showprefix) @lang('showtopic_prefix_title') @endif <strong>{{ $data['topic'] }}</strong></span>
+		<hr />
+		{!! $data['formatted_comment'] !!}
+	</div>
+</div>
+@else
+	@if($last['message_active'] == 1)
+	<div class="panel panel-warning">
+		<div class="panel-heading"><h3 class="panel-title">{{ $last['message_title'] }}</h3></div>
+		<div class="panel-body">
+			{!! $last['message_text'] !!}
+		</div>
+	</div>
+	@endif
+@endif
+<form name="form2" method="post" action="newtopic.php?id={{ $board }}&amp;fid={{ $fid }}{{ SID2URL_x }}&amp;action=save">
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/newtopic.gif')" alt="" /> @lang('newtopic_title')</h3></div>
+		<div class="panel-body">
+			<label>@lang('logged_in_as')</label>
+			<span>{{ $my->name }} [<a href="log.php?action=logout{{ SID2URL_x }}">@lang('logout')</a>]</span>
+			<br class="newinput" /><hr class="formsep" />
+			@if($last['message_active'] == '2')
+			<label>@lang('board_rules'):</label>
+			<a class="label" href="misc.php?action=board_rules&amp;id={{ $board }}{{ SID2URL_x }}" target="_blank">{{ $last['message_title'] }}</a>
+			<br class="newinput" /><hr class="formsep" />
+			@endif
+			<label for="topic">@lang('title')</label>
+			@if(empty($inner['index_prefix']))
+			<input type="text" tabindex="4" class="label" id="topic" name="topic" size="40" value="{{ $data['topic'] }}" />
+			@else
+			<div class="label">
+				{!! $inner['index_prefix'] !!}<input tabindex="5" type="text" id="topic" name="topic" size="35" value="{{ $data['topic'] }}" />
+			</div>
+			@endif
+			<br class="newinput" /><hr class="formsep" />
+			<label for="comment">@lang('post')</label>
+			<div class="label textright"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@theme('images/help.gif')" alt="" /> <strong>@lang('bbcode_help')</strong></a></div>
+			<br class="newinput" />
+			{!! $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="6"') !!}
+			<hr class="formsep" />
+			<label for="dosmileys">@lang('post_settings')</label>
+			<div class="label">
+				<input type="checkbox" tabindex="7" name="dosmileys" value="1"@checked($data['dosmileys'] == 1) /> @lang('post_settings_smileys')
+			</div>
+			<br class="newinput" />
+			@if($p_upload == 1)
+			<hr class="formsep" />
+			<label>@lang('attachments')&nbsp;</label>
+			<div class="label">
+				<a tabindex="9" href="attachments.php?type=newtopic&amp;id={{ $board }}&amp;location=comment{{ SID2URL_x }}" target="adduploads" onclick="adduploads(this);"><strong>@lang('manage_uploads')</strong></a><br />
+				<span class="stext">@lang('max_uploads')</span>
+			</div>
+			<br class="newinput" />
+			@endif
+			@if($my->p['addvotes'] == 1)
+			<hr class="formsep" />
+			<label for="temp">@lang('add_vote')</label>
+			<div class="label">
+				<input type="checkbox" tabindex="10" name="opt_2" value="1"@checked($data['vote'] == 1) /> @lang('yes_add_vote')<br />
+				@lang('vote_replies') <input tabindex="11" type="text" id="temp" name="temp" size="4" value="{{ $data['replies'] }}" />
+			</div>
+			<br class="newinput" />
+			<hr class="formsep" />
+			<label for="digest">@lang('topic_abo')</label>
+			<select class="label" name="digest" id="digest" tabindex="12">
+				<option value="0"@selected($data['digest'] == 0)>@lang('digest_none')</option>
+				<option value="1"@selected($data['digest'] == 1)>@lang('digest_s')</option>
+				<option value="2"@selected($data['digest'] == 2)>@lang('digest_d')</option>
+				<option value="3"@selected($data['digest'] == 3)>@lang('digest_w')</option>
+			</select>
+			<br class="newinput" />
+			@endif
+		</div>
+		<div class="panel-footer center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="@lang('submit_form')"> <input tabindex="14" type="submit" name="Preview" value="@lang('preview_form')" /></div>
+	</div>
+	@if($my->mp[0] == 1)
+	
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">@lang('admin_options')</h3></div>
+		<div class="panel-body">
+			<label for="close">@lang('admin_addpost_close')</label>
+			<div class="label"><input type="checkbox" tabindex="15" id="close" name="close" value="1" /> @lang('admin_addpost_close_desc')</div>
+			<br class="newinput" /><hr class="formsep" />
+			<label for="pin">@lang('admin_addpost_pin')</label>
+			<div class="label"><input type="checkbox" tabindex="16" id="pin" name="pin" value="1" /> @lang('admin_addpost_pin_desc')</div>
+			<br class="newinput" />
+		</div>
+	</div>
+	@endif
+</form>

@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define('FLOOD_TYPE_POSTING', 'pos');
 define('FLOOD_TYPE_EDIT', 'edi');
@@ -72,9 +70,9 @@ function set_flood($type = FLOOD_TYPE_STANDARD) {
 	}
 	$time = time();
 	$limit = $time - $my->p['flood'];
-	// Alte Daten löschen (zu alte oder eigene)
+	// Alte Daten lÃ¶schen (zu alte oder eigene)
 	$db->query("DELETE FROM {$db->pre}flood WHERE (time <= '{$limit}' AND type != '".FLOOD_TYPE_LOGIN."') OR (type = '{$type}' AND {$field} = '{$value}')");
-	// Daten einfügen
+	// Daten einfÃ¼gen
 	$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', {$field} = '{$value}', type = '{$type}'");
 	return true;
 }

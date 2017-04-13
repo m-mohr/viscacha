@@ -1,0 +1,12 @@
+<div class="border">
+	<h3><img id="img_cat_i2" alt="switch" src="@theme('images/minus.gif')" title="@lang('box_collapse')" /> <a href="pm.php{{ SID2URL_1 }}">@lang('new_pms')</a></h3>
+	<div id="part_cat_i2" class="bbody">
+		@lang('new_pms_since_last_visit')
+		<ul>
+			@foreach($pmcache as $row)
+			<li><span class="stext"><a href="pm.php?action=show&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a> @lang('by') {{ $row['name'] }}</span></li>
+			@endforeach
+		</ul>
+	</div>
+</div>
+<br class="minibr" />

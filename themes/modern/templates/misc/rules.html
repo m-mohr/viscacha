@@ -1,0 +1,12 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title"><img src="@theme('images/rules.gif')" alt="" /> @lang('rules')</h3>
+	</div>
+	<div class="panel-body">
+		<ol>
+			@foreach ($rules as $line)
+			<li class="stext">{{ $line }}</li>
+			@endforeach
+		</ol>
+	</div>
+</div>

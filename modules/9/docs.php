@@ -1,9 +1,14 @@
 $id = $config['viscacha_document_on_portal']['doc_id'];
 $separator = $tpl->parse("modules/{$pluginid}/separator");
 
-$result = $db->query("SELECT d.id, d.author, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title FROM {$db->pre}documents AS d LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did WHERE d.id = '{$id}' ".iif($my->p['admin'] != 1, ' AND c.active = "1"'));
+$result = $db->query("
+	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
+	FROM {$db->pre}documents AS d
+		LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
+		LEFT JOIN {$db->pre}user AS u ON u.id = d.author
+	WHERE d.id = '{$id}' ".iif($my->p['admin'] != 1, ' AND c.active = "1"')
+);
 if ($db->num_rows($result) > 0) {
-
 	$info = null;
 	$data = array();
 	while ($row = $db->fetch_assoc($result)) {
@@ -17,7 +22,7 @@ if ($db->num_rows($result) > 0) {
 				'update2' => $row['update'],
 				'type' => $row['type'],
 				'groups' => $row['groups'],
-				'name' => null
+				'name' => $row['name']
 			);
 		}
 		$data[$row['lid']] = array(
@@ -28,23 +33,17 @@ if ($db->num_rows($result) > 0) {
 	}
 	
 	if (GroupCheck($info['groups'])) {
-		$memberdata_obj = $scache->load('memberdata');
-		$memberdata = $memberdata_obj->get();
-	
-		if(is_id($info['author']) && isset($memberdata[$info['author']])) {
-			$info['name'] = $memberdata[$info['author']];
-		}
-		else {
+		if(empty($info['name'])) {
 			$info['name'] = $lang->phrase('fallback_no_username');
 		}
 		if ($info['date'] > 0 ) {
-			$info['date'] = str_date($lang->phrase('dformat1'), times($info['date']));
+			$info['date'] = str_date(times($info['date']));
 		}
 		else {
 			$info['date'] = $lang->phrase('docs_date_na');
 		}
 		if ($info['update'] > 0) {
-			$info['update'] = str_date($lang->phrase('dformat1'), times($info['update']));
+			$info['update'] = str_date(times($info['update']));
 		}
 		else {
 			$info['update'] = $lang->phrase('docs_date_na');
@@ -83,8 +82,8 @@ if ($db->num_rows($result) > 0) {
 		}
 		else {
 			if (empty($typedata['template'])) {
-				preg_match("~<title>(.+?)</title>~is", $info['content'], $match_title);
-				preg_match("~<body[^>]*?>(.+?)</body>~is", $info['content'], $match_body);
+				preg_match("~<title>(.+?)</title>~isu", $info['content'], $match_title);
+				preg_match("~<body[^>]*?>(.+?)</body>~isu", $info['content'], $match_body);
 	
 				if (!empty($match_title[1])) {
 					$info['title'] = $match_title[1];

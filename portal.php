@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -34,7 +34,6 @@ require_once("classes/function.viscacha_frontend.php");
 
 if ($config['indexpage'] == SCRIPTNAME && !defined('IS_INCLUDED')) {
 	sendStatusCode(301, 'index.php'.SID2URL_1);
-    exit;
 }
 
 if ($plugins->countPlugins('portal') == 0) {
@@ -43,26 +42,19 @@ if ($plugins->countPlugins('portal') == 0) {
 	}
 	else {
 		$slog->updatelogged();
-		$db->close();
 		sendStatusCode(301, 'index.php');
-	    exit;
 	}
 }
 
 $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();
 
-$breadcrumb->Add($lang->phrase('portal_title'));
+Breadcrumb::universal()->add($lang->phrase('portal_title'));
 echo $tpl->parse("header");
 
 BBProfile($bbcode);
 
 ($code = $plugins->load('portal')) ? eval($code) : null;
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
-
-$phpdoc->Out();
-$db->close();
-?>
+$slog->updatelogged();

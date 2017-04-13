@@ -16,7 +16,6 @@ else {
 	$sub = intval($_REQUEST['sub']);
 }
 require('install/classes/function.chmod.php');
-require('install/classes/class.zip.php');
 $zip = new PclZip('install/files/' . $zip_packs[$sub]);
 $error = 0;
 $files = array();
@@ -36,8 +35,8 @@ if (is_array($zcontent)) {
 	}
 }
 $files = implode("\n", $files);
-$dirs = array('language' => null, 'templates' => null, 'designs' => null, 'images' => null);
-preg_match_all('~^('.implode('|', array_keys($dirs)).')/(\d+)/([^\n]+)$~m', $files, $replicable, PREG_SET_ORDER);
+$dirs = array('language' => null, 'themes' => null);
+preg_match_all('~^('.implode('|', array_keys($dirs)).')/(\d+)/([^\n]+)$~mu', $files, $replicable, PREG_SET_ORDER);
 foreach ($replicable as $rep) {
 	if ($dirs[$rep[1]] === null) {
 		$dirs[$rep[1]] = array();

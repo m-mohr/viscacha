@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,10 +22,8 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 if (!class_exists('ftp')) {
-	$classpath = dirname(__FILE__);
+	$classpath = __DIR__;
 	require_once("{$classpath}/ftp/class.ftp.php");
 	$pemftp_class = pemftp_class_module();
 	if ($pemftp_class !== null) {
@@ -46,7 +44,7 @@ class filesystem {
 
 	function __construct($server, $user, $pw, $port = 21) {
 		if (class_exists('ftp', false) == true) {
-			$this->server = $server;
+			$this->server = idna($server);
 			$this->port = $port;
 			$this->user = $user;
 			$this->pw = $pw;
@@ -57,7 +55,7 @@ class filesystem {
 	}
 
 	function _ftpize_path($path) {
-		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~i', '', $path);
+		$path = preg_replace('~^'.preg_quote($this->root_path, '~').'~iu', '', $path);
 		return $path;
 	}
 
@@ -202,6 +200,19 @@ class filesystem {
 			$this->chmod($file, $chmod);
 			return true;
 		}
+	}
+	
+	function new_filename($path, $sep = '_') {
+		$dir = dirname($path);
+		$dir = (empty($dir) || $dir == '.') ? '' : $dir . DIRECTORY_SEPARATOR;
+		$ext = get_extension($path, true);
+		$basename = basename($path, $ext);
+		$n = 1;
+		while(file_exists($path)) {
+			$path = $dir . $basename . $sep . $n . $ext;
+			$n++;
+		} 
+		return $path;
 	}
 
 	function rename($old, $new) {

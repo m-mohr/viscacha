@@ -1,0 +1,24 @@
+@foreach ($navigation as $sub)
+	@if(!empty($sub['link']))
+			@if(!empty($sub['param']))
+			<a class="sep" href="{{ $sub['link'] }}" target="{{ $sub['param'] }}">
+			@else
+			<a class="sep" href="{{ $sub['link'] }}">
+			@endif
+			{{ $sub['name'] }}</a>
+	@else
+		<strong class="sep">{{ $sub['name'] }}</strong>
+	@endif
+	@foreach($sub['navigation'] as $sub2)
+		@if(!empty($sub2['link']))
+			@if(!empty($sub2['param']))
+			<a class="sep" href="{{ $sub2['link'] }}" target="{{ $sub2['param'] }}">
+			@else
+			<a class="sep" href="{{ $sub2['link'] }}">
+			@endif
+			{{ $sub2['name'] }}</a>
+		@else
+			<strong class="sep">{{ $sub2['name'] }}</strong>
+		@endif
+	@endforeach
+@endforeach

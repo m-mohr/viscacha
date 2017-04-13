@@ -1,33 +1,21 @@
 <?php
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
 global $scache, $db, $lang, $config;
-
-$i = 0;
 
 $lastdate = mktime(0, 0); // midnight today
 $lastdate -= 24 * 60 * 60; // yesterday midnight
 
-$memberdata_obj = $scache->load('memberdata');
-$memberdata = $memberdata_obj->get();
-
 $result = $db->query("
-SELECT t.id, t.board, t.topic, t.last_name, t.name as gname, u.mail, u.name, u.language
+SELECT t.id, t.board, t.topic, u.mail, u.name, u.language, l.name AS last_name
 FROM {$db->pre}abos AS a
 	LEFT JOIN {$db->pre}user AS u ON u.id = a.mid
 	LEFT JOIN {$db->pre}topics AS t ON t.id = a.tid
+	LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
 WHERE a.type = 'd' AND t.last > '{$lastdate}' AND t.last_name != u.id
 ");
 
 $lang_dir = $lang->getdir(true);
 
 while ($row = $db->fetch_assoc($result)) {
-	if (isset($memberdata[$row['name']])) {
-		$row['name'] = $memberdata[$row['name']];
-	}
-	if (isset($memberdata[$row['last_name']])) {
-		$row['last_name'] = $memberdata[$row['last_name']];
-	}
 	$lang->setdir($row['language']);
 	$lang->assign('row', $row);
 	$data = $lang->get_mail('digest_d');

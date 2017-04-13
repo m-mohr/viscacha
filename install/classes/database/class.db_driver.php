@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,9 +22,7 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
-
-class DB_Driver { // abstract class
+abstract class DB_Driver {
 
 	var $host;
 	var $user;
@@ -34,14 +32,10 @@ class DB_Driver { // abstract class
 	var $pre;
 	var $conn;
 	var $result;
-	var $dbqd;
-	var $logerrors;
-	var $freeResult;
 	var $new_line;
 	var $commentdel;
-	var $errlogfile;
 	var $std_limit;
-	var $all_results;
+	var $system;
 
 	function __construct($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
 	    $this->host = $host;
@@ -49,15 +43,11 @@ class DB_Driver { // abstract class
 	    $this->pwd = $pwd;
 	    $this->database = $dbname;
 	    $this->pre = $dbprefix;
-	    $this->freeResult = true;
 	    $this->result = false;
 	    $this->conn = null;
-	    $this->logerrors = true;
-	    $this->dbqd = array();
         $this->new_line = "\n";
         $this->commentdel = '-- ';
         $this->std_limit = 5000;
-        $this->all_results = array();
 	}
 
 	function quitOnError($die = true) {
@@ -93,7 +83,7 @@ class DB_Driver { // abstract class
     }
 
     // offset = -1 => Alle Zeilen
-    // offset >= 0 => Ab offset die nächsten $this->std_limit Zeilen
+    // offset >= 0 => Ab offset die nÃ¤chsten $this->std_limit Zeilen
     function getData($table, $offset = -1) {
 	    $table_data = $this->new_line. $this->commentdel.' Data: ' .$table . iif ($offset != -1, ' {'.$offset.', '.($offset+$this->std_limit).'}' ). $this->new_line;
      	// Datensaetze vorhanden?
@@ -127,15 +117,15 @@ class DB_Driver { // abstract class
 		$lines = array_map("trim", $lines);
 		$line = '';
 		foreach ($lines as $h) {
-			$comment = substr($h, 0, 2);
-			if ($comment == '--' || $comment == '//' || strlen($h) <= 10) {
+			$comment = mb_substr($h, 0, 2);
+			if ($comment == '--' || $comment == '//' || empty($h)) {
 				continue;
 			}
 			$line .= $h."\n";
 		}
-		$lines = explode(";\n", $line);
+		$lines = array_map('trim', explode(";\n", $line));
 		foreach ($lines as $h) {
-			if (strlen($h) > 10) {
+			if (!empty($h)) {
 				unset($result);
 				$result = $this->query($h, $die);
 				if ($this->isResultSet($result)) {
@@ -160,22 +150,6 @@ class DB_Driver { // abstract class
 
 	function prefix() {
 		return $this->pre;
-	}
-
-	function benchmark($type='array') {
-		if ($type == 'time') {
-			$time = 0;
-			foreach ($this->dbqd as $query) {
-				$time += $query['time'];
-			}
-			return $time;
-		}
-		elseif ($type == 'queries') {
-			return count($this->dbqd);
-		}
-		else {
-			return $this->dbqd;
-		}
 	}
 
 	function open($host=null,$user=null,$pwd=null,$dbname=null)  {
@@ -208,43 +182,8 @@ class DB_Driver { // abstract class
 			}
 		}
 
-		if ($this->logerrors) {
-			if (file_exists($this->errlogfile)) {
-				$lines = file($this->errlogfile);
-				foreach($lines as $key => $value) {
-					$value = trim($value);
-					if (empty($value)) {
-						unset($lines[$key]);
-					}
-					else {
-						$lines[$key] = $value; // Also trim it for the file
-					}
-				}
-			}
-			else {
-				$lines = array();
-			}
-
-			$cols = array(
-				$this->errno(),
-				makeOneLine($this->errstr()),
-				$errfile,
-				$errline,
-				makeOneLine($_SERVER['REQUEST_URI']),
-				time(),
-				makeOneLine($errcomment)
-			);
-			$lines[] = implode("\t", $cols);
-
-			@file_put_contents($this->errlogfile, implode("\n", $lines));
-		}
 		$errcomment = nl2br($errcomment);
 	    return "DB ERROR ".$this->errno().": ".$this->errstr()."<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";
-	}
-
-	function benchmarktime() {
-	   list($usec, $sec) = explode(" ", microtime());
-	   return ((float)$usec + (float)$sec);
 	}
 
 	function list_tables($db = null) {
@@ -268,45 +207,9 @@ class DB_Driver { // abstract class
 		return $columns;
 	}
 
-	function cb_unescape_string($m) { // NL Hack
-		if ($m[1] == '\\\\') {
-			return '\\'.$m[2];
-		}
-		else {
-			switch($m[2]) {
-				case 'n':
-					return "\n";
-				case 'r':
-					return "\r";
-				case '0':
-					return "\0";
-				default:
-					return "\Z";
-			}
-		}
-	}
-
-	// mysqli_real_escape_string() prepends backslashes to: \x00, \n, \r, \, ', " and \x1a.
-	function unescape_string($value) { // NL Hack
-		$value = preg_replace_callback(
-			'~(\\\\\\\\|\\\\)(n|r|0|Z)~',
-			array(&$this, 'cb_unescape_string'),
-			$value
-		);
-
-		$value = str_replace(
-			array("\\'", '\\"', '\\\\'),
-			array("'",   '"',   '\\'),
-			$value
-		);
-
-		return $value;
-	}
-
 	function fetch_one($result = null) {
 	    $row = $this->fetch_num($result);
 		return isset($row[0]) ? $row[0] : null;
 	}
 
 }
-?>

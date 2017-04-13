@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -22,37 +22,40 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
+error_reporting($config['debug'] ? E_ALL : E_ERROR);
+
+require 'vendor/autoload.php';
+
+include('classes/class.debug.php');
+Debug::init($config['debug'], $config['error_log']);
 
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 
+$imagetype_extension = array('gif', 'jpg', 'jpeg', 'png');
+
 /* Fixed php functions */
 
-define('ENCODING_LIST', 'ISO-8859-1, ISO-8859-15, UTF-8, ASCII, cp1252, cp1251, GB2312, SJIS, KOI8-R');
-// IDNA Convert Class
-include_once (dirname(__FILE__).'/class.idna.php');
-
-function convert_host_to_idna($host) {
-	$idna = new idna_convert();
-	if (function_exists('mb_convert_encoding')) {
-		$host = mb_convert_encoding($host, 'UTF-8', ENCODING_LIST);
-	}
-	else {
-		$host = utf8_encode($host);
-	}
-	$host = $idna->encode($host);
-	return $host;
-}
-
-function fsockopen_idna($host, $port, $timeout) {
-	$host = convert_host_to_idna($host);
-	$fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
-	return array($fp, $errno, $errstr, $host);
+function idna($host) {
+	$idna = new \Mso\IdnaConvert\IdnaConvert();
+	return $idna->encode($host);
 }
 
 function is_id ($x) {
 	return (is_numeric($x) && $x >= 1 ? intval($x) == $x : false);
+}
+
+// Generates an alpha-numeric 32 char unique ID
+function generate_uid() {
+	if (function_exists('random_bytes')) {
+		return bin2hex(random_bytes(16));
+	}
+	else if (function_exists('openssl_random_pseudo_bytes')) {
+		return bin2hex(openssl_random_pseudo_bytes(16));
+	}
+	else {
+		return md5(uniqid(mt_rand(), true));
+	}
 }
 
 // Variable headers are not secure in php (HTTP response Splitting).
@@ -70,6 +73,102 @@ function viscacha_header($header, $replace = true, $code = 0) {
 	}
 }
 
+function viscacha_htmlentities($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = TRUE) {
+	return htmlentities($text, $quote, 'UTF-8', $double_encode);
+}
+
+function viscacha_html_entity_decode($text, $quote = ENT_QUOTES | ENT_HTML5) {
+	return html_entity_decode($text, $quote, 'UTF-8');
+}
+
+function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = TRUE) {
+	return htmlspecialchars($text, $quote, 'UTF-8', $double_encode);
+}
+
+function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES | ENT_HTML5) {
+	return htmlspecialchars_decode($text, $quote);
+}
+
+if (!function_exists('mb_strcasecmp')) {
+	function mb_strcasecmp($str1, $str2, $encoding = 'UTF-8') {
+	  return strcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+	}
+}
+
+if (!function_exists('mb_strnatcasecmp')) {
+	function mb_strnatcasecmp($str1, $str2, $encoding = 'UTF-8') {
+	  return strnatcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+	}
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_ucwords')) {
+    /**
+     * @param string $str
+     * @param string $encoding
+     * @return string Uc Words
+     */
+    function mb_ucwords($str, $encoding = 'UTF-8')
+    {
+        $upper = true;
+        $res = '';
+        for ($i = 0; $i < mb_strlen($str, $encoding); $i++) {
+            $c = mb_substr($str, $i, 1, $encoding);
+            if ($upper) {
+                $c = mb_convert_case($c, MB_CASE_UPPER, $encoding);
+                $upper = false;
+            }
+            if ($c == ' ') {
+                $upper = true;
+            }
+            $res .= $c;
+        }
+        return $res;
+    }
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_ucfirst')) {
+    /**
+     * @param string $str
+     * @param string $encoding
+     * @return string Uc first
+     */
+    function mb_ucfirst($str, $encoding = 'UTF-8')
+    {
+        $firstLetter = mb_substr($str, 0, 1, $encoding);
+        $rest = mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
+        return mb_strtoupper($firstLetter, $encoding) . $rest;
+    }
+}
+
+// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
+if (!function_exists('mb_str_split')) {
+    /**
+     * @param string $string
+     * @param int $split_length
+     * @param string $encoding
+     * @return array
+     * @throws Exception
+     */
+    function mb_str_split($string, $split_length = 1, $encoding = 'UTF-8')
+    {
+        if ($split_length == 0) {
+            throw new \Exception('The length of each segment must be greater than zero');
+        }
+        $ret = array();
+        $len = mb_strlen($string, $encoding);
+        for ($i = 0; $i < $len; $i += $split_length) {
+            $ret[] = mb_substr($string, $i, $split_length, $encoding);
+        }
+        if (!$ret) {
+            // behave like str_split() on empty input
+            return array("");
+        }
+        return $ret;
+    }
+}
+
 /**
  * Sends a http status code to the client.
  *
@@ -79,6 +178,7 @@ function viscacha_header($header, $replace = true, $code = 0) {
  * - 201/202/301/302/307 => Location: Specify a new location (url)
  * - 401 => WWW-Authenticate: Specify a page name
  * - 503 => Retry-after: Specify the time the page is unavailable
+ * After location headers the program exits.
  *
  * @param int $code Error Code Number
  * @param mixed $additional Additional Header data (depends in error code number)
@@ -142,6 +242,7 @@ function sendStatusCode($code, $additional = null) {
 				case '302':
 				case '307':
 					viscacha_header("Location: {$additional}");
+					exit;
 				break;
 				case '401':
 					viscacha_header('WWW-Authenticate: Basic Realm="'.$additional.'"');
@@ -163,13 +264,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+	if (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows') !== false) {
 		return true;
 	}
-	elseif (isset($_SERVER['OS']) && strpos(strtolower($_SERVER['OS']), 'Windows') !== false) {
+	else if (isset($_SERVER['OS']) && mb_stristr($_SERVER['OS'], 'Windows') !== false) {
 		return true;
 	}
-	elseif (function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
+	else if (defined(PHP_OS) && mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
 	else {
@@ -177,12 +278,12 @@ function isWindows() {
 	}
 }
 function isMac() {
-	$mac = strtoupper(substr(PHP_OS, 0, 3));
+	$mac = mb_strtoupper(mb_substr(PHP_OS, 0, 3));
 	return ($mac == 'MAC' || $mac == 'DAR');
 }
 
 function ini_isActive($value) {
-	return ($value == 'true' || $value == '1' || strtolower($value) == 'on');
+	return ($value == 'true' || $value == '1' || mb_strtolower($value) == 'on');
 }
 
 function ini_isSecureHttp() {
@@ -194,23 +295,30 @@ function ini_isSecureHttp() {
 		return false;
 }
 
+function ini_getSize($value) {
+	$size = @ini_get($value);
+	$size = trim($size);
+	$last = mb_strtolower(substr($size, -1));
+	$size = intval($size);
+	
+	switch($last) {
+		case 'g':
+			$size *= 1024;
+		case 'm':
+			$size *= 1024;
+		case 'k':
+			$size *= 1024;
+	}
+	return $size;
+}
+
 function ini_maxupload() {
 	$keys = array(
 		'post_max_size' => 0,
 		'upload_max_filesize' => 0
 	);
 	foreach ($keys as $key => $bytes) {
-		$val = intval(trim(@ini_get($key)));
-		$last = strtolower($val{strlen($val)-1});
-		switch($last) {
-			case 'g':
-				$val *= 1024;
-			case 'm':
-				$val *= 1024;
-			case 'k':
-				$val *= 1024;
-		}
-		$keys[$key] = $val;
+		$keys[$key] = ini_getSize($key);
 	}
 	return min($keys);
 }
@@ -233,7 +341,7 @@ function ini_maxupload() {
 function getDocumentRoot(){
 	//sets up the localpath
 	$localpath = getenv("SCRIPT_NAME");
- 	$localpath = substr($localpath, strpos($localpath, '/', iif(strlen($localpath) >= 1, 1, 0)), strlen($localpath));
+ 	$localpath = mb_substr($localpath, mb_strpos($localpath, '/', iif(mb_strlen($localpath) >= 1, 1, 0)), mb_strlen($localpath));
 
 	//realpath sometimes doesn't work, but gets the full path of the file
 	$absolutepath = realpath($localpath);
@@ -247,7 +355,7 @@ function getDocumentRoot(){
 	}
 
 	//prepares the document root string
-	$docroot = substr($absolutepath,0,strpos($absolutepath,$localpath));
+	$docroot = mb_substr($absolutepath,0,mb_strpos($absolutepath,$localpath));
 	return $docroot;
 }
 
@@ -264,27 +372,15 @@ function extract_dir($source, $realpath = true) {
 	else {
 		$source = rtrim($source, '/\\');
 	}
-	$pos = strrpos($source, '/');
+	$pos = mb_strrpos($source, '/');
 	if ($pos === false) {
-		$pos = strrpos($source, '\\');
+		$pos = mb_strrpos($source, '\\');
 	}
 	if ($pos > 0) {
-		$dest = substr($source, 0, $pos+1);
+		$dest = mb_substr($source, 0, $pos+1);
 	}
 	else {
 		$dest = '';
 	}
 	return $dest;
 }
-
-/* Error constants */
-if (!defined('E_RECOVERABLE_ERROR')) {
-	define('E_RECOVERABLE_ERROR', 4096);
-}
-if (!defined('E_DEPRECATED')) {
-	define('E_DEPRECATED', 8192);
-}
-if (!defined('E_USER_DEPRECATED')) {
-	define('E_USER_DEPRECATED', 16384);
-}
-?>

@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-
-if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 include('classes/class.gpc.php');
 $gpc = new GPC();
@@ -50,8 +48,8 @@ else {
 }
 foreach ($http_svars as $http_var) {
 	$func_key = '';
-	if (substr($http_var, 0, 5) == 'HTTP_') {
-		$func_key = strtolower(str_replace('_', ' ', substr($http_var, 5)));
+	if (mb_substr($http_var, 0, 5) == 'HTTP_') {
+		$func_key = mb_strtolower(str_replace('_', ' ', mb_substr($http_var, 5)));
 		$func_key = str_replace(' ', '-', ucwords($func_key));
 	}
 	if (empty($_SERVER[$http_var]) && !empty($ref[$func_key])) {

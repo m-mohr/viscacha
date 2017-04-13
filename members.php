@@ -1,10 +1,10 @@
 <?php
 /*
-	Viscacha - A bulletin board solution for easily managing your content
-	Copyright (C) 2004-2009  The Viscacha Project
+	Viscacha - An advanced bulletin board solution to manage your content easily
+	Copyright (C) 2004-2017, Lutana
+	http://www.viscacha.org
 
-	Author: Matthias Mohr (et al.)
-	Publisher: The Viscacha Project, http://www.viscacha.org
+	Authors: Matthias Mohr et al.
 	Start Date: May 22, 2004
 
 	This program is free software; you can redistribute it and/or modify
@@ -39,11 +39,11 @@ elseif ($_GET['action'] != 'team' && $my->p['members'] == 0) {
 }
 
 if ($_GET['action'] == 'team') {
-	$breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
-	$breadcrumb->Add($lang->phrase('team'));
+	Breadcrumb::universal()->add($lang->phrase('members'), 'members.php'.SID2URL_1);
+	Breadcrumb::universal()->add($lang->phrase('team'));
 }
 else {
-	$breadcrumb->Add($lang->phrase('members'));
+	Breadcrumb::universal()->add($lang->phrase('members'));
 }
 
 if ($_GET['action'] == 'team') {
@@ -62,7 +62,7 @@ if ($_GET['action'] == 'team') {
 	$result = $db->query('
 	SELECT id, name, mail, hp, location, fullname, groups
 	FROM '.$db->pre.'user
-	WHERE '.implode(' OR ',$cache).'
+	WHERE deleted_at IS NULL AND '.implode(' OR ',$cache).'
 	ORDER BY name ASC
 	');
 
@@ -82,7 +82,7 @@ if ($_GET['action'] == 'team') {
 	}
 
 	$result = $db->query('
-	SELECT m.time, m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname, f.invisible
+	SELECT m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname, f.invisible
 	FROM '.$db->pre.'moderators AS m
 		LEFT JOIN '.$db->pre.'user AS u ON u.id = m.mid
 		LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
@@ -106,12 +106,6 @@ if ($_GET['action'] == 'team') {
 			if ($bdata->invisible == 1 && isset($my->pb[$bid]) && $my->pb[$bid]['forum'] == 0) {
 				continue;
 			}
-			if ($config['team_mod_dateuntil'] == 1 && !empty($bdata->time)) {
-				$bdata->time = gmdate($lang->phrase('dformat2'), times($bdata->time));
-			}
-			else {
-				$bdata->time = 0;
-			}
 			$inner['moderator_bit_forum'][] = $bdata;
 		}
 		($code = $plugins->load('team_moderator_prepared')) ? eval($code) : null;
@@ -119,7 +113,6 @@ if ($_GET['action'] == 'team') {
 	}
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('team_prepared')) ? eval($code) : null;
 	echo $tpl->parse("team/index");
 	($code = $plugins->load('team_end')) ? eval($code) : null;
@@ -136,11 +129,11 @@ else {
 	$colspan = 1+count($fields);
 	if (in_array('fullname', $fields)) {$colspan--; }
 
-	$_GET['order'] = strtolower($_GET['order']);
+	$_GET['order'] = mb_strtolower($_GET['order']);
 	if ($_GET['order'] != 'desc') {
 		$_GET['order'] = 'asc';
 	}
-	$_GET['sort'] = strtolower($_GET['sort']);
+	$_GET['sort'] = mb_strtolower($_GET['sort']);
 	if ($_GET['sort'] != 'hp' && $_GET['sort'] != 'online' && $_GET['sort'] != 'posts' && $_GET['sort'] != 'regdate' && $_GET['sort'] != 'location' && $_GET['sort'] != 'gender' && $_GET['sort'] != 'birthday' && $_GET['sort'] != 'lastvisit') {
 		$sqlorderby = "name {$_GET['order']}";
 	}
@@ -148,9 +141,9 @@ else {
 		$sqlorderby = "{$_GET['sort']} {$_GET['order']}, name {$_GET['order']}";
 	}
 
-	$sqlwhere = array();
+	$sqlwhere = array('deleted_at IS NULL');
 	$_GET['letter'] = $gpc->get('letter', db_esc);
-	if (strxlen($_GET['letter']) == 1) {
+	if (mb_strlen($_GET['letter']) == 1) {
 		if ($_GET['letter'] == '#') {
 			$sqlwhere[] = "LEFT(name, 1) REGEXP '^[^".implode('', $available)."]'";
 		}
@@ -186,9 +179,6 @@ else {
 		elseif (count($sqlwhere_findinset) > 1) {
 			$sqlwhere[] = '('.implode(' OR ', $sqlwhere_findinset).')';
 		}
-	}
-	if (count($sqlwhere) == 0) {
-		$sqlwhere[] = '1=1';
 	}
 	$sqlwhere = implode(' AND ', $sqlwhere);
 
@@ -270,9 +260,6 @@ else {
 
 	$inner['index_bit'] = '';
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
-		if (isset($row['regdate'])) {
-			$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
-		}
 		if (isset($row['location'])) {
 			$row['location'] = iif(!empty($row['location']), $row['location'], $lang->phrase('location_no_data'));
 		}
@@ -299,12 +286,6 @@ else {
 		if(!empty($row['pic']) && !file_exists($row['pic'])) {
 			$row['pic'] = '';
 		}
-		if(isset($row['lastvisit'])) {
-			$row['lastvisit'] = iif ($row['lastvisit'] > 0, gmdate($lang->phrase('dformat1'), times($row['lastvisit'])), $lang->phrase('members_na'));
-		}
-		if (isset($row['online'])) {
-			$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
-		}
 		($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
 		$inner['index_bit'] .= $tpl->parse("members/index_bit");
 	}
@@ -313,7 +294,7 @@ else {
 		'' => array('url' => '', 'html' => $lang->phrase('members_all'))
 	);
 	$specials = false;
-	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user ORDER BY letter");
+	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user WHERE deleted_at IS NULL ORDER BY letter");
 	while ($row = $db->fetch_assoc($result)) {
 		if (in_array($row['letter'], $available)) {
 			$letter[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);
@@ -325,16 +306,12 @@ else {
 	ksort($letter);
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('members_prepared')) ? eval($code) : null;
 	echo $tpl->parse("members/index");
 	($code = $plugins->load('members_end')) ? eval($code) : null;
 
 }
 
-$slog->updatelogged();
-$zeitmessung = t2();
 echo $tpl->parse("footer");
+$slog->updatelogged();
 $phpdoc->Out();
-$db->close();
-?>

@@ -21,7 +21,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			unset($cbb[$key]);
 			continue;
 		}
-		$cbb[$key]['title'] = htmlspecialchars($bb['title']);
+		$cbb[$key]['title'] = viscacha_htmlspecialchars($bb['title']);
 		if ($bb['twoparams']) {
 			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}=]','[/{$bb['bbcodetag']}]');";
 		}
@@ -43,40 +43,40 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 		}
 	}
 	?>
-	<script src="templates/editor/bbcode.js" type="text/javascript"></script>
+	<script src="admin/html/editor/bbcode.js" type="text/javascript"></script>
 	<table class="editor_textarea_outer">
 		<tr><td class="editor_toolbar">
-			<a id="menu_bbcolor_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbcolor_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
+			<a id="menu_bbcolor_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbcolor_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
 			<div class="popup" id="popup_bbcolor_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
 			<div class="bbcolor">
 				<script type="text/javascript">
-					document.write(generateColorPicker("InsertTagsMenu('<?php echo $id; ?>', '[color=<color>]', '[/color]', 'bbcolor_<?php echo $id; ?>')"));
+					document.write(generateColorPicker("InsertTags('<?php echo $id; ?>', '[color=<color>]', '[/color]')"));
 				</script>
 			</div>
 			</div>
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
 			<div class="popup" id="popup_bbsize">
 			<strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
 		   	<ul>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=large]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=small]','[/size]','bbsize_<?php echo $id; ?>')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[size=extended]','[/size]','bbsize_<?php echo $id; ?>')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=large]','[/size]')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=small]','[/size]')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
+				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=extended]','[/size]')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
 			</ul>
 			</div>
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<a id="menu_bbhx_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbhx_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_header'); ?></a>
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbhx_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbhx_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_header'); ?></a>
 			<div class="popup" id="popup_bbhx_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('bbcodes_header_title'); ?></strong>
 			<ul>
-				<li><h4 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=large]','[/h]','bbhx_<?php echo $id; ?>')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
-				<li><h5 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=middle]','[/h]','bbhx_<?php echo $id; ?>')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
-				<li><h6 class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[h=small]','[/h]','bbhx_<?php echo $id; ?>')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
+				<li><h4 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=large]','[/h]')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
+				<li><h5 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=middle]','[/h]')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
+				<li><h6 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=small]','[/h]')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
 			</ul>
 			</div>
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<a id="menu_bbtable_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbtable_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_table'); ?></a>
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<a id="menu_bbtable_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbtable_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_table'); ?></a>
 			<div class="popup" id="popup_bbtable_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('bbcodes_create_table'); ?></strong>
 			<div class="bbtable">
@@ -90,51 +90,51 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			</div>
 			</div>
 			<?php
-			echo iif(count($cbb), '<img src="templates/editor/images/seperator.gif" alt="" />');
+			echo iif(count($cbb), '<img src="admin/html/editor/images/seperator.gif" alt="" />');
 			foreach ($cbb as $bb) { ?>
 			<img src="<?php echo $bb['buttonimage']; ?>" onclick="<?php echo $bb['href']; ?>" title="<?php echo $bb['title']; ?>" alt="<?php echo $bb['title']; ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<?php } ?>
 		</td></tr>
 		<tr><td class="editor_toolbar">
-			<img src="templates/editor/images/bold.gif" onclick="InsertTags('<?php echo $id; ?>', '[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/italic.gif" onclick="InsertTags('<?php echo $id; ?>', '[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/underline.gif" onclick="InsertTags('<?php echo $id; ?>', '[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<img src="templates/editor/images/left.gif" onclick="InsertTags('<?php echo $id; ?>','[align=left]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_left'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_left'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/center.gif" onclick="InsertTags('<?php echo $id; ?>','[align=center]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_center'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_center'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/right.gif" onclick="InsertTags('<?php echo $id; ?>','[align=right]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_right'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_right'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/justify.gif" onclick="InsertTags('<?php echo $id; ?>','[align=justify]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<img src="templates/editor/images/img.gif" onclick="InsertTags('<?php echo $id; ?>', '[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/url.gif" onclick="InsertTagsURL('<?php echo $id; ?>', '[url={param1}]{param2}','[/url]');" title="<?php echo $lang->phrase('bbcodes_url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/email.gif" onclick="InsertTags('<?php echo $id; ?>', '[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<img src="templates/editor/images/quote.gif" onclick="InsertTags('<?php echo $id; ?>', '[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/ot.gif" onclick="InsertTags('<?php echo $id; ?>', '[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/edit.gif" onclick="InsertTags('<?php echo $id; ?>', '[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/code.gif" onclick="InsertTags('<?php echo $id; ?>', '[code]','[/code]');" title="<?php echo $lang->phrase('bbcodes_code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<img src="templates/editor/images/list_unordered.gif" onclick="InsertTagsList('<?php echo $id; ?>');" title="<?php echo $lang->phrase('bbcodes_list'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/list_ordered.gif" onclick="InsertTagsList('<?php echo $id; ?>', 'ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<img src="templates/editor/images/hr.gif" onclick="InsertTags('<?php echo $id; ?>', '[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/tt.gif" onclick="InsertTags('<?php echo $id; ?>', '[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<img src="templates/editor/images/subscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/superscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/bold.gif" onclick="InsertTags('<?php echo $id; ?>', '[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/italic.gif" onclick="InsertTags('<?php echo $id; ?>', '[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/underline.gif" onclick="InsertTags('<?php echo $id; ?>', '[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<img src="admin/html/editor/images/left.gif" onclick="InsertTags('<?php echo $id; ?>','[align=left]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_left'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_left'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/center.gif" onclick="InsertTags('<?php echo $id; ?>','[align=center]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_center'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_center'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/right.gif" onclick="InsertTags('<?php echo $id; ?>','[align=right]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_right'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_right'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/justify.gif" onclick="InsertTags('<?php echo $id; ?>','[align=justify]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<img src="admin/html/editor/images/img.gif" onclick="InsertTags('<?php echo $id; ?>', '[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/url.gif" onclick="InsertTagsURL('<?php echo $id; ?>', '[url={param1}]{param2}','[/url]');" title="<?php echo $lang->phrase('bbcodes_url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/email.gif" onclick="InsertTags('<?php echo $id; ?>', '[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<img src="admin/html/editor/images/quote.gif" onclick="InsertTags('<?php echo $id; ?>', '[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/ot.gif" onclick="InsertTags('<?php echo $id; ?>', '[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/edit.gif" onclick="InsertTags('<?php echo $id; ?>', '[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/code.gif" onclick="InsertTags('<?php echo $id; ?>', '[code]','[/code]');" title="<?php echo $lang->phrase('bbcodes_code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<img src="admin/html/editor/images/list_unordered.gif" onclick="InsertTagsList('<?php echo $id; ?>');" title="<?php echo $lang->phrase('bbcodes_list'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/list_ordered.gif" onclick="InsertTagsList('<?php echo $id; ?>', 'ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<img src="admin/html/editor/images/hr.gif" onclick="InsertTags('<?php echo $id; ?>', '[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/tt.gif" onclick="InsertTags('<?php echo $id; ?>', '[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/seperator.gif" alt="" />
+			<img src="admin/html/editor/images/subscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/superscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 		</td></tr>
 		<tr><td class="editor_toolbar" style="height: auto; overflow: auto;">
 			<?php foreach ($smileys[1] as $bb) { ?>
 			<img src="<?php echo $bb['replace']; ?>" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '');" title="<?php echo $bb['desc']; ?>" alt="<?php echo $bb['desc']; ?>" class="editor_toolbar_smiley" onmouseover="buttonOverSmiley(this)" onmouseout="buttonOutSmiley(this)" /></a>
 			<?php } ?>
-		<img src="templates/editor/images/seperator.gif" alt="" />
+		<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<?php if (count($smileys[0]) > 0) { ?>
-			<a id="menu_bbsmileys_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsmileys_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /> <?php echo $lang->phrase('more_smileys'); ?></a>
+			<a id="menu_bbsmileys_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsmileys_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="" /> <?php echo $lang->phrase('more_smileys'); ?></a>
 			<div class="popup" id="popup_bbsmileys_<?php echo $id; ?>">
 			<strong><?php echo $lang->phrase('more_smileys'); ?></strong>
 			<ul class="bbsmileys">
 			<?php foreach ($smileys[0] as $bb) { ?>
-			  <li><span class="popup_line stext" onclick="InsertTagsMenu('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '', 'bbsmileys_<?php echo $id; ?>')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
+			  <li><span class="popup_line stext" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
 			<?php }?>
 			</ul>
 			</div>
@@ -152,7 +152,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 }
 function parseNavPosSetting() {
 	global $admconfig;
-	$explode = preg_split("~(\r\n|\r|\n)+~", trim($admconfig['nav_positions']));
+	$explode = preg_split("~(\r\n|\r|\n)+~u", trim($admconfig['nav_positions']));
 	$arr = array();
 	foreach ($explode as $val) {
 		$dat = explode('=', $val, 2);
@@ -161,7 +161,7 @@ function parseNavPosSetting() {
 	return $arr;
 }
 function attachWYSIWYG() {
-	$r = '<script type="text/javascript" src="templates/editor/wysiwyg.js"></script>';
+	$r = '<script type="text/javascript" src="admin/html/editor/wysiwyg.js"></script>';
 	$r .= '<script type="text/javascript"> WYSIWYG.attach("all", full); </script>';
 	return $r;
 }
@@ -171,7 +171,7 @@ function getNavTitle() {
 	$title = trim($title);
 	$parts = explode('->', $title);
 	if (!empty($parts[0])) {
-		$parts[0] = strtolower($parts[0]);
+		$parts[0] = mb_strtolower($parts[0]);
 		if ($parts[0] == 'doc' || $parts[0] == 'lang') {
 			$title = $db->escape_string($title);
 		}
@@ -407,7 +407,7 @@ if ($data['sub'] > 0) {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+	   		echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 	   	}
    		$select = iif($row['id'] == $data['sub'], ' selected="selected"');
    		echo '<option style="font-weight: bold;" value="'.$row['id'].'"'.$select.'>'.$plugins->navLang($row['name'], true).'</option>';
@@ -458,7 +458,7 @@ if ($data['sub'] == 0) {
 	   		if (!isset($pos[$last])) {
 	   			$pos[$last] = $row['position'];
 	   		}
-		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'"'.iif($row['id'] == $data['id'], ' selected="selected"').'">'.$plugins->navLang($row['name'], true).'</option>';
@@ -466,7 +466,7 @@ if ($data['sub'] == 0) {
 	foreach ($pos as $key => $name) {
 		?>
 		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<optgroup label="<?php echo viscacha_htmlspecialchars($name); ?>">
 		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
 		<?php
 	}
@@ -528,10 +528,10 @@ elseif ($job == 'nav_edit2') {
 	}
 	else {
 		$sort = $gpc->get('sort', str);
-		if (substr($sort, 0, 4) == 'pos_') {
+		if (mb_substr($sort, 0, 4) == 'pos_') {
 			$sort = array(
 				'ordering' => 0,
-				'position' => substr($sort, 4)
+				'position' => mb_substr($sort, 4)
 			);
 		}
 		else {
@@ -548,7 +548,7 @@ elseif ($job == 'nav_edit2') {
 			if ($db->num_rows($result) > 0) {
 				$module_sql = ", module = '{$plug}'";
 				$row = $db->fetch_assoc($result);
-				$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+				$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 				// Do not do that anymore, because it may be required
 				// $db->query("UPDATE {$db->pre}plugins SET active = '{$active}' WHERE id = '{$plug}' LIMIT 1");
 			}
@@ -636,7 +636,7 @@ elseif ($job == 'nav_active') {
 		if ($db->num_rows($result) > 0) {
 			$module_sql = ", module = '{$plug}'";
 			$row = $db->fetch_assoc($result);
-			$filesystem->unlink('cache/modules/'.$plugins->_group($row['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 			// Do not do that anymore, because it may be required
 			// $db->query("UPDATE {$db->pre}plugins SET active = '{$pos}' WHERE id = '{$plug}' LIMIT 1");
 		}
@@ -688,7 +688,7 @@ elseif ($job == 'nav_addplugin') {
 	   		if (!isset($pos[$last])) {
 	   			$pos[$last] = $row['position'];
 	   		}
-		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
@@ -696,7 +696,7 @@ elseif ($job == 'nav_addplugin') {
 	foreach ($pos as $key => $name) {
 		?>
 		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<optgroup label="<?php echo viscacha_htmlspecialchars($name); ?>">
 		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
 		<?php
 	}
@@ -731,10 +731,10 @@ elseif ($job == 'nav_addplugin2') {
 		$title = $data['name'];
 	}
 	$sort = $gpc->get('sort', str);
-	if (substr($sort, 0, 4) == 'pos_') {
+	if (mb_substr($sort, 0, 4) == 'pos_') {
 		$sort = array(
 			'ordering' => 0,
-			'position' => substr($sort, 4)
+			'position' => mb_substr($sort, 4)
 		);
 	}
 	else {
@@ -801,7 +801,7 @@ elseif ($job == 'nav_add') {
 				echo '</optgroup>';
 	   		}
 	   		$last = $row['position'];
-	   		echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+	   		echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 	   	}
    		echo '<option style="font-weight: bold;" value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
    		if (isset($cache[$row['id']])) {
@@ -912,7 +912,7 @@ elseif ($job == 'nav_addbox') {
 	   		if (!isset($pos[$last])) {
 	   			$pos[$last] = $row['position'];
 	   		}
-		   	echo '<optgroup label="'.htmlspecialchars($pos[$last], ENT_QUOTES).'">';
+		   	echo '<optgroup label="'.viscacha_htmlspecialchars($pos[$last]).'">';
 		   	unset($pos[$last]);
 	   	}
    		echo '<option value="'.$row['id'].'">'.$plugins->navLang($row['name'], true).'</option>';
@@ -920,7 +920,7 @@ elseif ($job == 'nav_addbox') {
 	foreach ($pos as $key => $name) {
 		?>
 		</optgroup>
-		<optgroup label="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
+		<optgroup label="<?php echo viscacha_htmlspecialchars($name); ?>">
 		<option value="pos_<?php echo $key; ?>">&lt;<?php echo $lang->phrase('admin_cms_sort_in_here'); ?>&gt;</option>
 		<?php
 	}
@@ -954,15 +954,15 @@ elseif ($job == 'nav_addbox2') {
 
 
 	$sort = $gpc->get('sort', str);
-	if (substr($sort, 0, 4) == 'pos_') {
+	if (mb_substr($sort, 0, 4) == 'pos_') {
 		$sort = array(
 			'ordering' => 0,
-			'position' => substr($sort, 4)
+			'position' => mb_substr($sort, 4)
 		);
 	}
 	else {
 		$result = $db->query("SELECT ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
-		$sort = $db->fetch_assoc($result); // Keine Erhöhung des Prioritätswerts nötig, da ID der neuen Box > ID gewählten Box
+		$sort = $db->fetch_assoc($result); // Keine ErhÃ¶hung des PrioritÃ¤tswerts nÃ¶tig, da ID der neuen Box > ID gewÃ¤hlten Box
 	}
 
 	$groups = $gpc->get('groups', arr_int);
@@ -1014,7 +1014,7 @@ elseif ($job == 'nav_comslist') {
 	  <tr>
 	   <td class="mbox">
 	   <?php while ($row = $db->fetch_assoc($result)) { ?>
-	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo htmlentities($row['title']); ?>')"> <?php echo $row['name']; ?> (<?php echo $lang->phrase('admin_cms_nav_package').' '.$row['title']; ?>)<br />
+	   <input type="radio" name="data" onclick="insert_doc('components.php?cid=<?php echo $row['id']; ?>','<?php echo viscacha_htmlentities($row['title']); ?>')"> <?php echo $row['name']; ?> (<?php echo $lang->phrase('admin_cms_nav_package').' '.$row['title']; ?>)<br />
 	   <?php } ?>
 	   </td>
 	 </table>
@@ -1022,7 +1022,7 @@ elseif ($job == 'nav_comslist') {
 	echo foot();
 }
 elseif ($job == 'doc_create_table') {
-	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	$htmlhead .= '<script type="text/javascript" src="admin/html/editor/wysiwyg-popup.js"></script>';
 	echo head();
 	?>
 	<table class="border" style="width: 490px;" border="0" cellpadding="4" cellspacing="0" align="center">
@@ -1094,7 +1094,7 @@ elseif ($job == 'doc_create_table') {
 	echo foot(true);
 }
 elseif ($job == 'doc_insert_hr') {
-	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	$htmlhead .= '<script type="text/javascript" src="admin/html/editor/wysiwyg-popup.js"></script>';
 	echo head();
 	?>
 	<form name="hr_form">
@@ -1141,7 +1141,7 @@ elseif ($job == 'doc_insert_hr') {
 	echo foot(true);
 }
 elseif ($job == 'doc_insert_hyperlink') {
-	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	$htmlhead .= '<script type="text/javascript" src="admin/html/editor/wysiwyg-popup.js"></script>';
 	echo head('loadLink();');
 	?>
 	<table class="border" width="360" border="0" cellpadding="4" cellspacing="0" align="center">
@@ -1175,7 +1175,7 @@ elseif ($job == 'doc_insert_hyperlink') {
 	echo foot(true);
 }
 elseif ($job == 'doc_select_color') {
-	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	$htmlhead .= '<script type="text/javascript" src="admin/html/editor/wysiwyg-popup.js"></script>';
 	echo head("loadColor();");
 	?>
 	<form onSubmit="selectColor(document.getElementById('enterColor').value);">
@@ -1202,7 +1202,7 @@ elseif ($job == 'doc_select_color') {
 	 <tr class="mbox">
 	  <td align="center">
 	   <div class="colorpicker-td">
-		<script type="text/javascript">document.write(generateColorPicker("previewColor('<color>')", 'images/empty.gif'));</script>
+		<script type="text/javascript">document.write(generateColorPicker("previewColor('<color>')", 'assets/empty.gif'));</script>
 	   </div>
 	  </td>
 	 </tr>
@@ -1253,7 +1253,7 @@ elseif ($job == 'doc_select_image') {
 				$dirs[] = $file;
 			}
 			else if (is_file($leadon.$file) == true) {
-				$ext = strtolower(get_extension($file));
+				$ext = mb_strtolower(get_extension($file));
 				if(in_array($ext, $supportedextentions)) {
 					$files[] = $file;
 				}
@@ -1335,7 +1335,7 @@ elseif ($job == 'doc_insert_image') {
 		$qdir = $gpc->get('dir', path);
 		$ndir = $gpc->get('newdir', path);
 		if($qdir == '#') {
-			if (!preg_match('/[^\w\d\-\.]/i', $qdir) || empty($ndir)) {
+			if (!preg_match('/[^\w\d\-\.]/iu', $qdir) || empty($ndir)) {
 				$error = $lang->phrase('admin_wysiwyg_folder_restrictions');
 			}
 			else {
@@ -1368,7 +1368,7 @@ elseif ($job == 'doc_insert_image') {
 
 	$filesize = formatFilesize(ini_maxupload());
 
-	$htmlhead .= '<script type="text/javascript" src="templates/editor/wysiwyg-popup.js"></script>';
+	$htmlhead .= '<script type="text/javascript" src="admin/html/editor/wysiwyg-popup.js"></script>';
 	echo head(' onLoad="loadImage();"');
 	?>
 <form method="post" action="admin.php?action=cms&amp;job=doc_insert_image&amp;wysiwyg=<?php echo $wysiwyg; ?>" enctype="multipart/form-data">
@@ -1467,23 +1467,19 @@ elseif ($job == 'doc_insert_image') {
 	echo foot(true);
 }
 elseif ($job == 'doc') {
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
 
 	$result = $db->query("
-		SELECT d.id, d.author, d.update, d.icomment, c.lid, c.title, c.active
+		SELECT d.id, u.name AS author, d.update, d.icomment, c.lid, c.title, c.active
 		FROM {$db->pre}documents AS d
 			LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
+			LEFT JOIN {$db->pre}user AS u ON u.id = d.author
 		ORDER BY c.title
 	");
 	$data = array();
 	while ($row = $db->fetch_assoc($result)) {
-		if(is_id($row['author']) && isset($memberdata[$row['author']])) {
-			$row['author'] = $memberdata[$row['author']];
-		}
-		else {
+		if(empty($row['author'])) {
 			$row['author'] = $lang->phrase('admin_cms_unknown');
 		}
 		if ($row['update'] > 0) {
@@ -1492,8 +1488,8 @@ elseif ($job == 'doc') {
 		else {
 			$row['update'] = $lang->phrase('admin_cms_unknown');
 		}
-		if (strlen($row['icomment']) > 100) {
-			$row['icomment'] = substr($row['icomment'], 0, 100).'...';
+		if (mb_strlen($row['icomment']) > 100) {
+			$row['icomment'] = mb_substr($row['icomment'], 0, 100).'...';
 		}
 		$newRow = array(
 			'title' => $row['title'],
@@ -1756,14 +1752,14 @@ elseif ($job == 'doc_add3') {
 
 	foreach ($use as $lid => $usage) {
 		if ($usage == 1) {
-			if (strlen($content[$lid]) < 20) {
+			if (mb_strlen($content[$lid]) < 20) {
 				$content[$lid] = trim(strip_tags($content[$lid]));
 			}
 			if (empty($content[$lid]) && $format['remote'] != 1) {
 				continue;
 			}
 			if (empty($title[$lid])) {
-				$title[$lid] = substr(strip_tags($content[$lid]), 0, 50).'...';
+				$title[$lid] = mb_substr(strip_tags($content[$lid]), 0, 50).'...';
 			}
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
@@ -1807,7 +1803,11 @@ elseif ($job == 'doc_edit') {
 	$id = $gpc->get('id', int);
 	$types = doctypes();
 
-	$result = $db->query("SELECT * FROM {$db->pre}documents WHERE id = '{$id}'");
+	$result = $db->query("
+		SELECT d.*, u.name AS author_name
+		FROM {$db->pre}documents AS d
+			LEFT JOIN {$db->pre}user AS u ON u.id = d.author
+		WHERE id = '{$id}'");
 	if ($db->num_rows($result) == 0) {
 		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_invalid_id_given'));
 	}
@@ -1822,9 +1822,6 @@ elseif ($job == 'doc_edit') {
 	$format = $types[$row['type']];
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 	$garr = explode(',', $row['groups']);
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
 
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
@@ -1857,7 +1854,7 @@ elseif ($job == 'doc_edit') {
   <tr>
    <td class="mbox">
 	<?php echo $lang->phrase('admin_cms_doc_author_change'); ?><br />
-	<input type="radio" value="<?php echo $row['author']; ?>" name="author" checked="checked" /> <?php echo $lang->phrase('admin_cms_keep_current_author'); ?> <strong><?php echo isset($memberdata[$row['author']]) ? $memberdata[$row['author']] : $lang->phrase('admin_cms_unknown'); ?></strong><br />
+	<input type="radio" value="<?php echo $row['author']; ?>" name="author" checked="checked" /> <?php echo $lang->phrase('admin_cms_keep_current_author'); ?> <strong><?php echo !empty($row['author_name']) ? $row['author_name'] : $lang->phrase('admin_cms_unknown'); ?></strong><br />
 	<input type="radio" value="<?php echo $my->id; ?>" name="author" /> <?php echo $lang->phrase('admin_cms_change_author_to'); ?> <strong><?php echo $my->name; ?></strong>
    </td>
   </tr>
@@ -1986,7 +1983,7 @@ elseif ($job == 'doc_edit2') {
 			$usage = 1;
 		}
 		$lid = $gpc->save_int($lid);
-		if (strlen($content[$lid]) < 20) {
+		if (mb_strlen($content[$lid]) < 20) {
 			$content[$lid] = trim(strip_tags($content[$lid]));
 		}
 		if (empty($content[$lid]) || $usage != 1) {
@@ -1994,7 +1991,7 @@ elseif ($job == 'doc_edit2') {
 		}
 		elseif ($usage == 1) {
 			if (empty($title[$lid])) {
-				$title[$lid] = substr(strip_tags($content[$lid]), 0, 50).'...';
+				$title[$lid] = mb_substr(strip_tags($content[$lid]), 0, 50).'...';
 			}
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
