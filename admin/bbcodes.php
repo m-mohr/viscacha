@@ -936,7 +936,7 @@ elseif ($job == 'custombb_edit2') {
 	}
 
 	if (mb_strtolower($query['bbcodetag']) != mb_strtolower($query['bbcodetag_old'])) {
-		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}' AND ");
+		$result = $db->query("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'");
 		if ($db->num_rows($result) > 0) {
 			$bbcodetag = $query['bbcodetag'];
 			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
