@@ -298,34 +298,6 @@ class GPC {
 		}
 	}
 
-	// from php.net
-	// ToDo: Remove in 0.8 RC5
-	function html_entity_decode($string, $mode = ENT_COMPAT) {
-	    // replace literal entities
-	    static $trans_tbl;
-	    if (!isset($trans_tbl)) {
-	        $trans_tbl = array();
-
-	        foreach (get_html_translation_table(HTML_ENTITIES, $mode) as $val=>$key) {
-	            $trans_tbl[$key] = utf8_encode($val);
-	        }
-	    }
-		static $cb1;
-		if (!isset($cb1)) {
-			$cb1 = create_function('$m', 'return code2utf(hexdec($m[1]));');
-		}
-		static $cb2;
-		if (!isset($cb2)) {
-			$cb2 = create_function('$m', 'return code2utf($m[1]);');
-		}
-
-	    // replace numeric entities
-	    $string = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $string);
-	    $string = preg_replace_callback('~&#0*([0-9]+);~', $cb2, $string);
-
-	    return strtr($string, $trans_tbl);
-	}
-
 	function plain_str($var, $utf = true) {
 		if (is_numeric($var) || empty($var)) {
 			// Do nothing to save time
@@ -341,7 +313,7 @@ class GPC {
 		}
 		elseif (is_string($var)){
 			if ($utf == true) {
-				$var = $this->html_entity_decode($var, ENT_QUOTES); // Todo: Make PHP5 only: html_entity_decode($var, ENT_QUOTES, 'UTF-8');
+				$var = html_entity_decode($var, ENT_QUOTES | ENT_HTML401, 'UTF-8');
 			}
 			else {
 				global $lang;
@@ -357,21 +329,11 @@ class GPC {
 				
 				$var = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $var); // ToDo: Convert to correct charset
 				$var = preg_replace_callback('~&#([0-9]+);~', $cb2, $var);
-				$var = html_entity_decode($var, ENT_QUOTES, $lang->charset());
+				$var = html_entity_decode($var, ENT_QUOTES | ENT_HTML401, $lang->charset());
 			}
 		}
 		return $var;
 	}
 
-}
-
-// Returns the utf string corresponding to the unicode value (from php.net, courtesy - romans@void.lv)
-// ToDo: Remove in 0.8 RC5
-function code2utf($num) {
-    if ($num < 128) return chr($num);
-    if ($num < 2048) return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-    if ($num < 65536) return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-    if ($num < 2097152) return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-    return '';
 }
 ?>
