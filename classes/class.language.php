@@ -36,7 +36,7 @@ class lang {
 	var $js;
 
 	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
-	function lang($js = false, $level = E_USER_ERROR) {
+	function __construct($js = false, $level = E_USER_ERROR) {
 		$this->file = '';
 		$this->vars = array();
 		$this->benchmark = array('all' => 0, 'ok' => 0, 'error' => 0);
@@ -276,8 +276,8 @@ class lang {
 					}
 					return call_user_func_array(array($var, $methodKeys[0]), $args);
 				}
-				elseif (count($methodKeys) == 1 && isset($var->$methodKeys[0])) { // Object property
-					return $var->$methodKeys[0];
+				elseif (count($methodKeys) == 1 && isset($var->{$methodKeys[0]})) { // Object property
+					return $var->{$methodKeys[0]};
 				}
 			}
 

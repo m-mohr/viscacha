@@ -365,9 +365,6 @@ while ($row = $db->fetch_object($result)) {
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}
-	if (count($q) > 0) {
-		$bbcode->setHighlight('highlight', $q);
-	}
 	$row->comment = $bbcode->parse($row->comment);
 
 	if ($my->opt_showsig == 1) {

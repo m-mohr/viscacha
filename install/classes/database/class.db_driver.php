@@ -44,7 +44,7 @@ class DB_Driver { // abstract class
 	var $persistence;
 	var $all_results;
 
-	function DB_Driver($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
+	function __construct($host="localhost", $user="root", $pwd="", $dbname="", $dbprefix='') {
 	    $this->host = $host;
 	    $this->user = $user;
 	    $this->pwd = $pwd;

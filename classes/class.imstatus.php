@@ -49,7 +49,7 @@ class IMStatus {
 	var $errstr = null;
 	var $snoopy = null;
 
-	function IMStatus () {
+	function __construct () {
 		// For Servers see: http://osi.viscacha.org
 		$server = file('data/imservers.php');
 		$this->server = array_map('trim', $server);

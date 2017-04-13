@@ -1,0 +1,14 @@
+/nbproject/
+/admin/backup/*.sql
+/admin/backup/*.zip
+/admin/html/language_*.js
+/cache/
+/data/cron/*.job
+/data/errlog_*.php
+/feeds/
+/temp/
+/templates/language_*.js
+/uploads/
+locked.txt
+!.htaccess
+!.gitkeep

@@ -1,5 +1,5 @@
 ########################################
-# Readme for Viscacha 0.8.1.2          #
+# Readme for Viscacha 0.8.1.3          #
 ########################################
 
 == Table of Contents ==
@@ -47,13 +47,12 @@ Note: You can only upgrade from Viscacha 0.8.1.1. To update from a
 == System requirements ==
 
 Minimum system requirements:
- - PHP Version: 5.0.0 and above
-               (PHP 4 is unsupported as of 0.8 RC7)
+ - PHP Version: 5.6 and above
  - PHP-Extensions: mysql or mysqli, pcre, gd, zlib
  - MySQL Version: 4.0 and above
 
 Recommended system requirements:
- - PHP Version: 5.2.0 and above, 5.3.0 on Windows
+ - PHP Version: 5.6 and above
  - PHP-Extensions: mysql or mysqli, pcre, gd, zlib, xml, mime_magic,
                    mbstring, sockets, xdiff, ftp
  - MySQL Version: 5.0 and above (Strict mode off)

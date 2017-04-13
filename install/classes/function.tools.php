@@ -282,60 +282,11 @@ function GPC_escape($var, $type = GPC_HTML){
 	return $var;
 }
 
-function GPC_unescape($var){
-	if (is_numeric($var) || empty($var)) {
-		// Do nothing to save time
-	}
-	elseif (is_array($var)) {
-		foreach ($var as $key => $value) {
-			$var[$key] = GPC_unescape($value);
-		}
-	}
-	elseif (is_string($var)){
-		$var = stripslashes(trim($var));
-	}
-	return $var;
-}
-
 // Variables
-@set_magic_quotes_runtime(0);
-@ini_set('magic_quotes_gpc',0);
-// Start - Thanks to phpBB for this code
 if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
 	trigger_error("Hacking attempt (Globals)", E_USER_ERROR);
 }
 if (isset($_SESSION) && !is_array($_SESSION)) {
 	trigger_error("Hacking attempt (Session Variable)", E_USER_ERROR);
-}
-if (ini_isActive(@ini_get('register_globals'))) {
-	unset($not_used, $input);
-	$not_unset = array('_GET', '_POST', '_COOKIE', '_SERVER', '_SESSION', '_ENV', '_FILES');
-
-	$input = array_merge($_GET, $_POST, $_COOKIE, $_ENV, $_FILES);
-	if (isset($_SERVER) && is_array($_SERVER)) {
-		$input = array_merge($input, $_SERVER);
-	}
-	if (isset($_SESSION) && is_array($_SESSION)) {
-		$input = array_merge($input, $_SESSION);
-	}
-
-	unset($input['input'], $input['not_unset']);
-
-	while (list($var,) = @each($input)) {
-		if (!in_array($var, $not_unset)) {
-			unset($$var);
-			// Testen
-			if (isset($GLOBALS[$var])) {
-				unset($GLOBALS[$var]);
-			}
-		}
-	}
-
-	unset($input);
-}
-// End
-
-if (get_magic_quotes_gpc() == 1) {
-	$_REQUEST = GPC_unescape($_REQUEST);
 }
 ?>

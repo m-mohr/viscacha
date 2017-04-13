@@ -4,7 +4,7 @@ class UniversalCodeCache extends CacheItem {
 	var $lng;
 	var $source;
 
-	function UniversalCodeCache() {
+	function __construct() {
 		$this->name = '';
 		$this->file = '';
 		$this->data = null;

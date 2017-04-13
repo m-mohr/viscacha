@@ -59,7 +59,7 @@ class tar {
 	// or if we are creating a tar, then it must be the path and name of the tar file
 	// to create.
 	//+--------------------------------------------------------------------------
-	function tar($tarpath, $tarname) {
+	function __construct($tarpath, $tarname) {
 
 		$this->tarfile_name = $tarname;
 		$this->tarfile_path = $tarpath;

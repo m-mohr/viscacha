@@ -32,7 +32,7 @@ class PluginSystem {
 	var $menu;
 	var $docs;
 
-	function PluginSystem() {
+	function __construct() {
 		$this->cache = array();
 		$this->pos = array();
 		$this->sqlcache = null;
@@ -226,7 +226,6 @@ class PluginSystem {
 		$cfgdata = array();
 		$code = array();
 		foreach ($this->sqlcache[$group] as $position => $mods) {
-			$code[$position] = '';
 			foreach ($mods as $id => $plugin) {
 				if (!isset($cfgdata[$plugin])) {
 					$inifile = $this->plugdir.$plugin.'/plugin.ini';

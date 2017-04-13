@@ -1,8 +1,8 @@
 <?php
 class cache_version_check extends CacheItem {
 
-	function cache_version_check ($filename, $cachedir = "cache/") {
-		$this->CacheItem($filename, $cachedir);
+	function __construct($filename, $cachedir = "cache/") {
+		parent::__construct($filename, $cachedir);
 		$this->max_age = 60*60*24;
 	}
 

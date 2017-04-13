@@ -30,10 +30,10 @@ class DB extends DB_Driver { // MySQL
 
 	var $system;
 
-	function DB($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '', $open = true) {
+	function __construct($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '', $open = true) {
 	    $this->system = 'mysql';
 		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
-		parent::DB_Driver($host, $user, $pwd, $dbname, $dbprefix, $open);
+		parent::__construct($host, $user, $pwd, $dbname, $dbprefix, $open);
 		@ini_set('mysql.trace_mode', 0);
 		$tracemode = @ini_get('mysql.trace_mode');
 		if ($tracemode == 'ON' || $tracemode == 'On' || $tracemode === true || $tracemode == '1') {

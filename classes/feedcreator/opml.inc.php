@@ -8,7 +8,7 @@
  */
 class OPML extends FeedCreator {
 
-	function OPML() {
+	function __construct() {
 	}
 
 	function createFeed() {

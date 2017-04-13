@@ -6,7 +6,7 @@
 */
 class GOOGLESITEMAP extends FeedCreator {
 
-function GOOGLESITEMAP() {
+function __construct() {
 }
 
 /**

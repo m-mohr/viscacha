@@ -14,7 +14,7 @@ class RSS091 extends FeedCreator {
 	 */
 	var $RSSVersion;
 
-	function RSS091() {
+	function __construct() {
 		$this->_setRSSVersion("0.91");
 		$this->contentType = "application/rss+xml";
 		$this->descriptionTruncSize = 500;

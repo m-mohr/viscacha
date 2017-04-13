@@ -31,7 +31,7 @@ var $level;
 var $sid;
 var $cfg;
 
-function OutputDoc($cfg) {
+function __construct($cfg) {
 	$this->enc = $this->CanGZIP();
 	$this->cfg = $cfg;
 }

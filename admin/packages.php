@@ -3206,7 +3206,6 @@ elseif ($job == 'package_updates') {
 			else {
 				ok('admin.php?action=packages&job=package_info&id='.$id, $lang->phrase('admin_packages_ok_this_package_seems_to_be_up_to_date'), 3000);
 			}
-			break;
 		}
 		ok('admin.php?action=packages&job=package_info&id='.$id, $lang->phrase('admin_packages_ok_the_package_was_not_found_on_one_of_the_known_servers'), 3000);
 	}

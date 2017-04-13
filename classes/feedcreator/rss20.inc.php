@@ -13,7 +13,7 @@ class RSS20 extends FeedCreator {
 	 */
 	var $RSSVersion;
 
-	function RSS20() {
+	function __construct() {
 		$this->_setRSSVersion("2.0");
 		$this->contentType = "application/rss+xml";
 		$this->descriptionTruncSize = 500;

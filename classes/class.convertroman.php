@@ -30,7 +30,7 @@ class ConvertRoman {
 	var $romovr;
 	var $result;
 
-	function ConvertRoman($number, $letter = FALSE) {
+	function __construct($number, $letter = FALSE) {
 		$this->number = $number;
 
 		$this->numrom = array(	"I"=>1,"A"=>4,

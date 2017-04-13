@@ -24,7 +24,7 @@ class RSSCache {
 	var $ERROR 		= "";			// accumulate error messages
 	var $mtime		= 0;
 
-	function RSSCache ($base='', $age='') {
+	function __construct ($base='', $age='') {
 		if ( $base ) {
 			$this->BASE_CACHE = $base;
 		}

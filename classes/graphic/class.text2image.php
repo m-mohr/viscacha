@@ -21,7 +21,7 @@ class text2image {
 	var $font;
 	var $img;
 
-	function text2image() {
+	function __construct() {
 		// Nothing to do...
 	}
 

@@ -58,7 +58,7 @@ var $change_mid;
  * This class manages the user-permissions, login and logout.
  * This function does some initial work: caching search engine user agents, detects the spiders and gets the ip of the user.
  */
-function slog () {
+function __construct () {
 	global $config, $scache;
 
 	$this->statusdata = array();
@@ -80,7 +80,7 @@ function slog () {
 	$this->change_mid = null;
 	$data = unserialize(file_get_contents('data/group_fields.php'));
 	foreach ($data as $key => $values) {
-		$this->$key = $values;
+		$this->{$key} = $values;
 	}
 }
 
@@ -554,7 +554,7 @@ function logged () {
 			$fields = array_merge($fields, $db->list_fields($db->pre.'session'));
 			$fields = array_merge($fields, $db->list_fields($db->pre.'userfields'));
 			foreach ($fields as $field) {
-				$my->$field = null;
+				$my->{$field} = null;
 			}
 		}
 	}
@@ -1063,7 +1063,7 @@ function cleanUserData($data) {
 	if (is_object($data)) {
 		foreach ($data as $key => $value) {
 			if (in_array($key, $trust) == false) {
-				$data->$key = $gpc->prepare($value);
+				$data->{$key} = $gpc->prepare($value);
 			}
 		}
 	}

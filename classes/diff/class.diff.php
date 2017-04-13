@@ -31,7 +31,7 @@ class Text_Diff {
      *                           lines from a file.
      * @param array $to_lines    An array of strings.
      */
-    function Text_Diff($engine, $params)
+    function __construct($engine, $params)
     {
         // Backward compatibility workaround.
         if (!is_string($engine)) {

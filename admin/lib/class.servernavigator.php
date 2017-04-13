@@ -26,7 +26,7 @@ class ServerNavigator
 	var $plain;
 	var $extract;
 
-	function ServerNavigator($use_image_icons = true, $show_subfolders_size = false) {
+	function __construct($use_image_icons = true, $show_subfolders_size = false) {
 		global $gpc, $lang;
 
 		// MM: MultiLangAdmin

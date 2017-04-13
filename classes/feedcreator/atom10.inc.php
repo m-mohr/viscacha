@@ -17,7 +17,7 @@
  */
  class ATOM10 extends FeedCreator {
 
-	function ATOM10() {
+	function __construct() {
 		$this->contentType = "application/atom+xml";
 	}
 

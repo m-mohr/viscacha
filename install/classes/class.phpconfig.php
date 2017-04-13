@@ -32,7 +32,7 @@ class manageconfig {
 	var $opt;
 	var $varname;
 
-	function manageconfig() {
+	function __construct() {
 		if (!defined('str')) {
 			define('str', 2);
 		}

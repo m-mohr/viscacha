@@ -1,8 +1,8 @@
 <?php
 class cache_index_moderators extends CacheItem {
 
-	function cache_index_moderators($filename, $cachedir = "cache/") {
-		$this->CacheItem($filename, $cachedir);
+	function __construct($filename, $cachedir = "cache/") {
+		parent::__construct($filename, $cachedir);
 		$this->max_age = 60*60; // Maximal 1 h alt
 	}
 

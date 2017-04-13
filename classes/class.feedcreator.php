@@ -155,7 +155,7 @@ class FeedHtmlField {
 	 * Creates a new instance of FeedHtmlField.
 	 * @param  $string: if given, sets the rawFieldContent property
 	 */
-	function FeedHtmlField($parFieldContent, $encoding) {
+	function __construct($parFieldContent, $encoding) {
 		if ($parFieldContent) {
 			$this->rawFieldContent = $parFieldContent;
 		}
@@ -377,7 +377,7 @@ class FeedCreator extends HtmlDescribable {
 	 * @param int        length the maximum length the string should be truncated to
 	 * @return string    the truncated string
 	 */
-	function iTrunc($string, $length) {
+	static function iTrunc($string, $length) {
 		if (strxlen($string)<=$length) {
 			return $string;
 		}
@@ -407,11 +407,11 @@ class FeedCreator extends HtmlDescribable {
 		return FeedCreator::_htmlspecialchars($content, $this->encoding);
 	}
 
-	function static_htmlspecialchars($content, $enc) {
+	static function static_htmlspecialchars($content, $enc) {
 		return FeedCreator::_htmlspecialchars($content, $enc);
 	}
 
-	function _htmlspecialchars($content, $enc) {
+	static function _htmlspecialchars($content, $enc) {
 		global $gpc;
 		if ($enc == 'UTF-8') {
 			$content = $gpc->plain_str($content);

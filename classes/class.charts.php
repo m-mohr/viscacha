@@ -87,7 +87,7 @@ class PowerGraphic {
 	var $fontFile;
 	var $legend_lineheight;
 
-	function PowerGraphic() {
+	function __construct() {
 		$this->x = $this->y = $this->z = array();
 
 		$this->fontFile = './classes/fonts/trebuchet.ttf';

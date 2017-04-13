@@ -9,7 +9,7 @@
  */
 class PIE01 extends FeedCreator {
 
-	function PIE01() {
+	function __construct() {
 	}
 
 	function createFeed() {

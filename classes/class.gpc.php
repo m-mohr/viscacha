@@ -29,7 +29,7 @@ class GPC {
 	var $prepare_original;
 	var $prepare_entity;
 
-	function GPC() {
+	function __construct() {
 		if (!defined('str')) {
 			define('str', 2);
 		}
@@ -161,7 +161,7 @@ class GPC {
 
 			for ($i = 0; $i < $cnt; $i++) {
 				$key = $keys[$i];
-				$var->$key = $this->prepare($ovar[$key]);
+				$var->{$key} = $this->prepare($ovar[$key]);
 			}
 		}
 		elseif (is_string($var)) {
@@ -255,7 +255,7 @@ class GPC {
 
 			for ($i = 0; $i < $cnt; $i++) {
 				$key = $keys[$i];
-				$var->$key = $this->unescape($ovar[$key]);
+				$var->{$key} = $this->unescape($ovar[$key]);
 			}
 		}
 		elseif (is_string($var)) {

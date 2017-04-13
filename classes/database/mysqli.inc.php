@@ -31,10 +31,10 @@ class DB extends DB_Driver { // MySQLi
 	var $system;
 	var $fieldType;
 
-	function DB($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '') {
+	function __construct($host = 'localhost', $user = 'root', $pwd = '', $dbname = '', $dbprefix = '') {
 	    $this->system = 'mysqli';
 		$this->errlogfile = 'data/errlog_'.$this->system.'.inc.php';
-		parent::DB_Driver($host, $user, $pwd, $dbname, $dbprefix);
+		parent::__construct($host, $user, $pwd, $dbname, $dbprefix);
 		$this->fieldType = array(
 			0 => "decimal",
 			1 => "tinyint",

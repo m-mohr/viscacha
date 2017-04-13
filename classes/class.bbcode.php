@@ -47,7 +47,7 @@ class BBCode {
 	var $url_regex2;
 	var $currentCBB;
 
-	function BBCode ($profile = 'viscacha') {
+	function __construct ($profile = 'viscacha') {
 		$this->benchmark = array(
 			'smileys' => 0,
 			'bbcode' => 0
@@ -542,7 +542,6 @@ class BBCode {
 		$text = $this->nl2br($text, $type);
 		$text = $this->replacePID($text);
 		$text = $this->censor($text);
-		$text = $this->highlight($text);
 		$thiszm2=benchmarktime();
 		$this->benchmark['bbcode'] += $thiszm2-$thiszm1;
 		return $text;
@@ -795,8 +794,6 @@ class BBCode {
 				'reducelength' => 60,
 				'reducesep' => ' ... ',
 				'resizeImg' => 0,
-				'highlight_class' => 0,
-				'highlight' => array(),
 				'disallow' => array(
 					'img' => false,
 					'code' => false,
@@ -845,36 +842,8 @@ class BBCode {
 		$this->profile['reducelength'] = $maxurllength;
 		$this->profile['reducesep'] = $maxurltrenner;
 	}
-	function setHighlight ($class, $words) {
-		$this->profile['highlight_class'] = $class;
-		$this->profile['highlight'] = $words;
-	}
 	function ResizeImgSize() {
 		return $this->profile['resizeImg'];
-	}
-	function highlight($text) {
-		if (isset($this->profile['highlight']) && count($this->profile['highlight']) > 0) {
-			$class = htmlspecialchars($this->profile['highlight_class'], ENT_QUOTES);
-			foreach ($this->profile['highlight'] as $token) {
-				if (strxlen($token) > 2) {
-					$token = preg_quote($token, '#');
-					$text = str_replace(
-						'\"',
-						'"',
-						substr(
-							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
-								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
-								"preg_replace('#\b({$token})\b#i', '<span class=\"{$class}\">\\\\1</span>', '\\0')",
-								">{$text}<"
-							),
-							1,
-							-1
-						)
-					);
-				}
-			}
-		}
-		return $text;
 	}
 	function dict($text, $type = 'html') {
 		if ($this->profile['useDict'] == 1) {
@@ -882,46 +851,21 @@ class BBCode {
 			foreach ($this->bbcodes['word'] as $word) {
 				$this->index++;
 				$word['search'] = trim($word['search']);
-				if ($type == 'plain') {
-					$text = str_replace(
-						'\"',
-						'"',
-						substr(
-							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
-								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
-								"preg_replace(
-									'#\b({$word['search']})\b#i',
-									'\\\\1 ({$word['replace']})',
-									'\\0'
-								)",
-								'>' . $text . '<',
-								1 // Only the first occurance
-							)
-							, 1,
-							-1
-						)
-					);
-				}
-				else {
+				if ($type != 'plain') {
 					$word['search'] = htmlspecialchars($word['search']);
-					$text = str_replace(
-						'\"',
-						'"',
-						substr(
-							@preg_replace( // TODO: Remove @ (omits strict error msg) and replace with preg_replace_callback
-								'#(\>(((?>([^><]+|(?R)))*)\<))#se',
-								"preg_replace(
-									'#\b({$word['search']})\b#i',
-									'<acronym title=\"{$word['replace']}\" id=\"menu_tooltip_{$this->index}\" onmouseover=\"RegisterTooltip({$this->index})\">\\\\1</acronym><div class=\"tooltip\" id=\"popup_tooltip_{$this->index}\"><span id=\"header_tooltip_{$this->index}\"></span><div class=\"tooltip_body\">{$word['desc']}</div></div>',
-									'\\0'
-								)",
-								'>' . $text . '<',
-								1 // Only the first occurance
-							),
-							1,
-							-1
-						)
+					$text = preg_replace_callback(
+						'#(\>(((?>([^><]+|(?R)))*)\<))#s',
+						function($matches) use ($word) {
+							return preg_replace(
+								"#\b({$word['search']})\b#i",
+								"<acronym title=\"{$word['replace']}\" id=\"menu_tooltip_{$this->index}\" onmouseover=\"RegisterTooltip({$this->index})\">\\1</acronym><div class=\"tooltip\" id=\"popup_tooltip_{$this->index}\"><span id=\"header_tooltip_{$this->index}\"></span><div class=\"tooltip_body\">{$word['desc']}</div></div>",
+								$matches[0]
+							);
+						},
+						'>' . $text . '<',
+						1 // Only the first occurance
 					);
+					$text = str_replace('\"', '"', substr($text, 1, -1));
 				}
 			}
 		}
