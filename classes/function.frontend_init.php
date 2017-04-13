@@ -30,7 +30,7 @@ if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 require_once("classes/function.phpcore.php");
 
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
-	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
+	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "README.md"!', E_USER_ERROR);
 }
 
 // Variables

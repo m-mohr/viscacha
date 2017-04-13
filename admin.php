@@ -31,7 +31,7 @@ include ("data/config.inc.php");
 include ("admin/data/config.inc.php");
 
 if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
-	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "_docs/readme.txt"!', E_USER_ERROR);
+	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "README.md"!', E_USER_ERROR);
 }
 
 include ("admin/lib/function.viscacha_backend.php");
