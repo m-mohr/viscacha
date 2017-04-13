@@ -554,7 +554,7 @@ class FeedDate {
 	 * Accepts RFC 822, ISO 8601 date formats as well as unix time stamps.
 	 * @param mixed $dateString optional the date this FeedDate will represent. If not specified, the current date and time is used.
 	 */
-	function FeedDate($dateString="") {
+	function __construct($dateString="") {
 		if ($dateString=="") {
 			$dateString = time();
 		}
