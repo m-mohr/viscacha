@@ -139,29 +139,6 @@ class Theme {
 class Blade extends bladeone\BladeOne {
 
 	/**
-	 * File extension for the template files.
-	 *
-	 * @var string
-	 */
-	protected $fileExtension = '.blade.php';
-
-	/**
-	 * Bob the constructor.
-	 *
-	 * @param  string $templatePath
-	 * @param $compiledPath
-	 */
-	public function __construct($templatePath, $compiledPath) {
-		parent::__construct($templatePath, $compiledPath);
-		if (!file_exists($this->compiledPath)) {
-			$ok = @mkdir($this->compiledPath, 0777, true);
-			if (!$ok) {
-				$this->showError("Constructing", "Unable to create the compile folder [{$this->compiledPath}]. Check the permissions of it's parent folder.", true);
-			}
-		}
-	}
-
-	/**
 	 * Set mode of the engine.
 	 * 
 	 * Can only be called once.
@@ -172,43 +149,6 @@ class Blade extends bladeone\BladeOne {
 		if (!defined('BLADEONE_MODE')) {
 			define("BLADEONE_MODE", $mode);
 		}
-	}
-
-	/**
-	 * Get the full path of the compiled file.
-	 * @return string
-	 */
-	public function getTemplateFile() {
-		$arr = explode('.', $this->fileName);
-		$c = count($arr);
-		if ($c == 1) {
-			return $this->templatePath . '/' . $this->fileName . $this->fileExtension;
-		} else {
-			$file = $arr[$c - 1];
-			array_splice($arr, $c - 1, $c - 1); // delete the last element
-			$path = implode('/', $arr);
-			return $this->templatePath . '/' . $path . '/' . $file . $this->fileExtension;
-		}
-	}
-
-	/**
-	 * Get the file extension for template files.
-	 *
-	 * @return string
-	 */
-	public function getFileExtension() {
-		return $this->fileExtension;
-	}
-
-	/**
-	 * Set the file extension for the template files.
-	 *
-	 * Including the leading dot for the extension is required, e.g. .blade.php
-	 *
-	 * @param $fileExtension
-	 */
-	public function setFileExtension($fileExtension) {
-		$this->fileExtension = $fileExtension;
 	}
 
 	public function compileLang($expression) {
