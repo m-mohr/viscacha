@@ -252,7 +252,7 @@ class BBCode {
 
 		return $prefix . $ahref . $suffix;
 	}
-	
+  
 	public function setAttachmentPlaceholder($placeholder) {
 		$this->attachmentPlaceholder = $placeholder;
 	}
