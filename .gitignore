@@ -13,3 +13,4 @@
 locked.txt
 composer.lock
 !.htaccess
+!.gitkeep
