@@ -73,19 +73,19 @@ function viscacha_header($header, $replace = true, $code = 0) {
 	}
 }
 
-function viscacha_htmlentities($text, $quote = ENT_QUOTES, $double_encode = TRUE) {
+function viscacha_htmlentities($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = TRUE) {
 	return htmlentities($text, $quote, 'UTF-8', $double_encode);
 }
 
-function viscacha_html_entity_decode($text, $quote = ENT_QUOTES) {
+function viscacha_html_entity_decode($text, $quote = ENT_QUOTES | ENT_HTML5) {
 	return html_entity_decode($text, $quote, 'UTF-8');
 }
 
-function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES, $double_encode = TRUE) {
+function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = TRUE) {
 	return htmlspecialchars($text, $quote, 'UTF-8', $double_encode);
 }
 
-function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES) {
+function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES | ENT_HTML5) {
 	return htmlspecialchars_decode($text, $quote);
 }
 
