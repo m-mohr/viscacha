@@ -17,62 +17,146 @@
 		<!--	<script src="assets/cache/language_{{ $my->language }}.js" type="text/javascript"></script> -->
 		<script src="@theme('js/jquery.min.js')" type="text/javascript"></script>
 		<script src="@theme('js/bootstrap.min.js')" type="text/javascript"></script>
+		<script src="@theme('js/viscacha.js')" type="text/javascript"></script>
 
 		{!! $htmlhead !!}
 	</head>
 
 	<body{!! $htmlbody !!}>
 		<nav class="navbar navbar-inverse navbar-fixed-top" id="header">
-			<div class="container">
-				<div class="navbar-header">
-					<a class="navbar-brand" href="index.php">{{ $config['fname'] }}</a>
-				</div>
-				<ul class="nav navbar-nav navbar-right">
-					@if($my->p['pm'])
-					<li>
-						<a href="pm.php{{ SID2URL_1 }}" class="notification-icon">
-							<i class="fa fa-envelope-o fa-lg"></i>&nbsp;
-							<span class="label label-danger">4</span>
-						</a>
-					</li>
-					@endif 
-					<li>
-						<a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}" class="notification-icon">
-							<i class="fa fa-bell-o fa-lg"></i>&nbsp;
-							<span class="label label-danger">10</span>
-						</a>
-					</li>
-					<li class="user-header">
-						<a href="#">
-							@if(!empty($my->pic))
-							<img src="{{ $my->pic }}" alt="{{ $my->name }}" class="avatar">
-							@else
-							<i class="fa fa-user-circle-o fa-lg avatar"></i>
-							@endif
-							<span class="hidden-xs">&nbsp;{{ $my->name }}</span>
-						</a>
-					</li>
-				</ul>
+			<div class="navbar-header pull-left">
+				<button class="navbar-toggle collapse in sidebar-toggle" data-toggle="collapse"><i class="fa fa-lg fa-bars"></i></button><a class="navbar-brand" href="index.php">{{ $config['fname'] }}</a>
 			</div>
-		</nav>
-
-		<div class="container" id="container">
-
-			<ol class="breadcrumb">
-				@foreach (Breadcrumb::universal()->get() as $item)
-				@if(!empty($item['url']))
-				<li><a href="{{ $item['url'] }}">{{ $item['title'] }}</a></li>
-				@else
-				<li class="active">{{ $item['title'] }}</li>
+			<ul class="nav navbar-nav navbar-right pull-right user-notification-header">
+				@if($my->p['pm'])
+				<li class="message-header pull-left">
+					<a href="pm.php{{ SID2URL_1 }}" class="notification-icon">
+						<i class="fa fa-envelope-o fa-lg"></i>&nbsp;
+						<span class="label label-danger">4</span>
+					</a>
+				</li>
 				@endif
-				@endforeach
-			</ol>
+				@if($my->vlogin)
+				<li class="notification-header pull-left">
+					<a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}" class="notification-icon">
+						<i class="fa fa-bell-o fa-lg"></i>&nbsp;
+						<span class="label label-danger">10</span>
+					</a>
+				</li>
+				@endif
+				<li class="user-header pull-left">
+					<a href="editprofile.php{{ SID2URL_1 }}">
+						@if(!empty($my->pic))
+						<img src="{{ $my->pic }}" alt="{{ $my->name }}" class="avatar">
+						@else
+						<i class="fa fa-user-circle-o fa-lg avatar"></i>
+						@endif
+						<span class="hidden-xs">&nbsp;{{ $my->name }}</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+		
+		<div id="wrapper">
 
-			<div class="row">
-				<div id="navigation" class="col-md-3">@navigation(left)</div>
+			<div id="sidebar-wrapper">
+				<ul class="sidebar-nav nav-pills nav-stacked" id="sidebar">				
+					<li>
+						<a href="#"><i class="fa fa-user"></i> {{ $my->name }}<!-- ToDo: Should be replaced with a generic name, like "Account", "Membership" or so --></a>
+						   <ul class="nav-pills nav-stacked">
+							
+							@if($my->vlogin)
+							<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out"></i> @lang('logout')</a></li>
+							<li><a href="editprofile.php?action=profile{{ SID2URL_x }}" title="@lang('editprofile_profile_desc')"><i class="fa fa-id-card"></i> @lang('editprofile_profile')</a></li>
+							<li><a href="editprofile.php?action=settings{{ SID2URL_x }}" title="@lang('editprofile_settings_desc')"><i class="fa fa-wrench"></i> @lang('editprofile_settings')</a></li>
+							<li><a href="editprofile.php?action=pw{{ SID2URL_x }}" title="@lang('editprofile_pw_desc')"><i class="fa fa-lock"></i> @lang('editprofile_pw')</a></li>
+							@if($my->p['usepic'] == 1)
+							<li><a href="editprofile.php?action=pic{{ SID2URL_x }}" title="@lang('editprofile_pic_desc')"><i class="fa fa-photo"></i> @lang('editprofile_pic')</a></li>
+							@endif
+							<li><a href="editprofile.php?action=signature{{ SID2URL_x }}" title="@lang('editprofile_signature_desc')"><i class="fa fa-pencil"></i> @lang('editprofile_signature')</a></li>
+							@if($my->p['useabout'] == 1)
+							<li><a href="editprofile.php?action=about{{ SID2URL_x }}" title="@lang('editprofile_about_desc')"><i class="fa fa-file-text"></i> @lang('editprofile_about')</a></li>
+							@endif
+							<li><a href="editprofile.php?action=abos{{ SID2URL_x }}" title="@lang('editprofile_abos_desc')"><i class="fa fa-bell"></i> @lang('editprofile_abos')</a></li>
+							<li><a href="editprofile.php?action=mylast{{ SID2URL_x }}" title="@lang('editprofile_mylast_desc')"><i class="fa fa-comments"></i> @lang('editprofile_mylast')</a></li>
+							@if($config['tpcallow'] == 1)
+							<li><a href="editprofile.php?action=attachments{{ SID2URL_x }}" title="@lang('editprofile_attachments_desc')"><i class="fa fa-paperclip"></i> @lang('editprofile_attachments')</a></li>
+							@endif
+							<li><a href="profile.php?id={{ $my->id }}{{ SID2URL_x }}" title="@lang('editprofile_ownprofile_desc')"><i class="fa fa-user"></i> @lang('editprofile_ownprofile')</a></li>
+							@else
+							<li><a href="log.php?action=login{{ SID2URL_x }}"><i class="fa fa-sign-in"></i> @lang('login')</a></li>
+							<li><a href="register.php{{ SID2URL_1 }}"><i class="fa fa-user-plus"></i> @lang('register_title')</a></li>
+							@endif
+							<li><a href="misc.php?action=rules{{ SID2URL_x }}"><i class="fa fa-legal"></i> @lang('rules')</a></li>
+						</ul>
+					</li>
+					@if($my->p['pm'] == 1)
+					<li>
+						<a href="#"><i class="fa fa-envelope"></i> @lang('pm_short')</a>
+						<ul class="nav-pills nav-stacked">
+							<li><a href="pm.php{{ SID2URL_1 }}"><i class="fa fa-inbox"></i> @lang('pm_dir_index')</a></li>
+							<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
+							<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
+							<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
+							<li><a href="pm.php?action=browse&amp;id=3{{ SID2URL_x }}"><i class="fa fa-archive"></i> @lang('pm_dirs_archive')</a></li>
+						</ul>
+					</li>
+					@endif
+					<li>
+						<a href="#"><i class="fa fa-comments"></i> @lang('forumname')</a>
+						<ul class="nav-pills nav-stacked">
+							<li><a href="forum.php{{ SID2URL_1 }}"><i class="fa fa-list"></i> @lang('n_forum')<!-- ToDo: This is a custom phrase and must be replaced --></a></li>
+							<li><a href="#"><i class="fa fa-newspaper-o"></i> @lang('search_active_topics')</a>
+								<ul class="nav-pills nav-stacked">
+									<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}"><i class="fa fa-newspaper-o"></i> @lang('sat_lastvisit')</a></li>
+									<li><a href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}"><i class="fa fa-clock-o"></i> @lang('sat_24h')</a></li>
+									@if($my->vlogin)
+									<li><a href="search.php?action=active&amp;type=abo{{ SID2URL_x }}"><i class="fa fa-envelope-open"></i> @lang('sat_abo')</a></li>
+									<li><a href="search.php?action=active&amp;type=fav{{ SID2URL_x }}"><i class="fa fa-bell"></i> @lang('sat_fav')</a></li>
+									@endif
+								</ul>
+							</li>
+							@if($my->p['search'] == 1)
+							<li><a href="search.php{{ SID2URL_1 }}"><i class="fa fa-search"></i> @lang('search')</a></li>
+							@endif
+							@if($my->p['members'] == 1)
+							<li><a href="members.php{{ SID2URL_1 }}"><i class="fa fa-users"></i> @lang('members_short')</a></li>
+							@endif
+							@if($my->p['team'] == 1)
+							<li><a href="members.php?action=team{{ SID2URL_x }}"><i class="fa fa-user-md"></i> @lang('team_short')</a></li>
+							@endif
+							<li><a href="misc.php?action=markasread{{ SID2URL_x }}"><i class="fa fa-check"></i> @lang('mark_all_posts_read')</a></li>
+						</ul>
+					</li>
+					<!--
+					<li>
+						<a href="#"> <i class="fa fa-file-text"></i> Documents</a>
+						<ul class="nav-pills nav-stacked">
+							<li><a href="#"><i class="fa fa-flag"></i>link1</a></li>
+							<li><a href="#"><i class="fa fa-flag"></i>link2</a></li>
+						</ul>
+					</li>
+					<li>
+						<a href="#"><i class="fa fa-legal"></i> Imprint</a>
+					</li>
+					-->
+				</ul>
+				<br clear="all" />
+			</div>
 
-				<div id="content" class="col-md-9">
+			<div class="container" id="container">
 
-					<!-- @include('menu') -->
+				<ol class="breadcrumb nav-breadcrumb">
+					@foreach (Breadcrumb::universal()->get() as $item)
+					@if(!empty($item['url']))
+					<li><a href="{{ $item['url'] }}">{{ $item['title'] }}</a></li>
+					@else
+					<li class="active">{{ $item['title'] }}</li>
+					@endif
+					@endforeach
+				</ol>
+
+				<div id="content">
+
 					{!! FlashMessage::show() !!}
 

@@ -1,9 +1,183 @@
-@media (min-width: 981px) {
+/* Header related */
+.nav-breadcrumb li:first-child {
+	display: none;
+}
+
+#header {
+	padding-right: 15px;
+}
+#header.navbar-fixed-top {
+	position: relative;
+}
+#header .navbar-header {
+	white-space: nowrap;
+}
+#header .navbar-brand {
+	display: inline-block;
+	float: none;
+}
+
+@media (min-width: 640px) {
 	body {
 		padding-top: 70px;
 	}
+	#header.navbar-fixed-top {
+		position: fixed;
+	}
+	.nav-breadcrumb li:first-child {
+		display: inline-block;
+	}
 }
 
+.notification-icon .label {
+    border: 1px solid #ffffff;
+	border-radius: 10px;
+    font-weight: 500;
+    padding: 3px 5px;
+    text-align: center;
+}
+
+.breadcrumb a {
+	color: #fff;
+	text-decoration: underline;
+}
+.breadcrumb a:hover, .breadcrumb a:focus, .breadcrumb a:active {
+	color: #f9f9f9;
+}
+
+.nav-condensed > li > a {
+   padding-top: 4px; 
+   padding-bottom: 4px; 
+}
+
+.user-notification-header a .label-danger {
+	background-color: #bd1550;
+}
+.user-notification-header a:hover .label-danger {
+	background-color: #373330;
+}
+
+.user-header img.avatar {
+	height: 1.5em;
+	width: auto;
+	border-radius: 0.3em;
+}
+
+/* Sidebar */
+#wrapper {
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.sidebar-toggle {
+	color: #fff;
+	margin-left: 5px;
+	display: none;
+	border-width: 0px;
+	padding: 15px 15px;
+	font-size: 18px;
+	line-height: 20px;
+	height: 50px;
+	width: 50px;
+	margin: 0px;
+	float: none;
+}
+
+#sidebar-wrapper {
+    z-index: 1000;
+    position: absolute;
+    left: 0px;
+    width: 0px;
+	height: 100%; /* Fit to actual content size */
+	max-height: 100%;
+	margin-left: 0px;
+	margin-top: -20px;
+	overflow-x: hidden;
+    overflow-y: auto;
+    background: #373330;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+}
+
+.sidebar-toggled #sidebar-wrapper {
+   width: 250px;
+}
+@media(min-width:768px) {
+	#wrapper {
+		margin-left: 50px;
+	}
+    #sidebar-wrapper {
+        width: 50px;
+		position: fixed;
+		height: 100%;
+    }
+    .sidebar-toggled #sidebar-wrapper, #sidebar-wrapper:hover {
+        width: 300px;
+    }
+	#header.navbar .container-fluid {
+		padding-left: 0px;
+	}
+}
+
+@media(min-width:992px) {
+	#wrapper {
+		margin-left: 300px;
+	}
+    #sidebar-wrapper {
+        width: 300px;
+    }
+	#wrapper.sidebar-toggled {
+		margin-left: 50px;
+	}
+    .sidebar-toggled #sidebar-wrapper {
+        width: 50px;
+    }
+    .sidebar-toggled #sidebar-wrapper:hover {
+        width: 300px;
+    }
+}
+
+.sidebar-nav {
+    position: absolute;
+    top: 0;
+    width: 300px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    margin-top: 20px;
+}
+ 
+.sidebar-nav li {
+    text-indent: 15px;
+    line-height: 40px;
+}
+ 
+.sidebar-nav li a {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+}
+ 
+.sidebar-nav li a:hover {
+    text-decoration: none;
+    color: #fff;
+    background: #bd1550;
+}
+
+.sidebar-nav .fa {
+	width: 2em;
+	height: 2em;
+	line-height: 2em;
+	float: left;
+	font-size: 1.33333333em;
+	text-align: center;
+}
+
+/* Misc */
 hr {
     height: 1px;
     background-color: #490A3D;
@@ -13,17 +187,11 @@ hr {
 
 #copyright {
 	padding-top: 1em;
+	text-align: center;
 }
 
 .panel-title a {
 	text-decoration: underline;
-}
-.breadcrumb a {
-	color: #fff;
-	text-decoration: underline;
-}
-.breadcrumb a:hover, .breadcrumb a:focus, .breadcrumb a:active {
-	color: #f9f9f9;
 }
 
 .table {
@@ -35,17 +203,7 @@ hr {
 	color: #fff;
 }
 
-.notification-icon .label {
-    border: 1px solid #ffffff;
-	border-radius: 10px;
-    font-weight: 500;
-    padding: 3px 5px;
-    text-align: center;
-}
-
-#copyright {
-	text-align: center;
-}
+/* Forum table */
 
 .forums h3 {
 	margin-top: 10px;
@@ -69,6 +227,8 @@ hr {
     width: 25%;
 }
 
+/* Thread table */
+
 .threads .cell-icon {
     text-align: center;
 }
@@ -84,22 +244,8 @@ hr {
 	margin-bottom: 20px;
 }
 
-.navbar .container-fluid {
-	padding-left: 0px;
-}
-
-.nav-condensed > li > a {
-   padding-top: 4px; 
-   padding-bottom: 4px; 
-}
 .panel-footer.nav {
 	padding: 4px;
-}
-
-.user-header img.avatar {
-	height: 1.5em;
-	width: auto;
-	border-radius: 0.3em;
 }
 
 .post .avatar {
