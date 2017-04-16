@@ -91,15 +91,13 @@ if (ceil($info['topics']/$info['forumzahl']) < $_GET['page']) {
 }
 $pages = pages($info['topics'], $info['forumzahl'], 'showforum.php?id='.$board.'&amp;sort='.$_GET['sort'].'&amp;', $_GET['page']);
 
-echo $tpl->parse("header");
-
 ($code = $plugins->load('showforum_forums_start')) ? eval($code) : null;
 
 $subforums = BoardSelect($board);
 
 ($code = $plugins->load('showforum_forums_end')) ? eval($code) : null;
 
-$inner['index_bit'] = '';
+$topics = array();
 if ($info['topics'] > 0) {
 	$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
@@ -115,54 +113,42 @@ if ($info['topics'] > 0) {
 	LIMIT {$start}, {$info['forumzahl']}
 	");
 
-	while ($row = $gpc->prepare($db->fetch_object($result))) {
-		$pref = '';
-
-		$showprefix = false;
+	while ($row = $db->fetch_object($result)) {
 		if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
-			$showprefix = true;
-			$prefix = $prefix_arr[$row->prefix]['value'];
+			$row->prefix = $prefix_arr[$row->prefix]['value'];
 		}
 		else {
-			$prefix = '';
+			$row->prefix = '';
 		}
 
-		$last = $fc[$row->board];
-
+		$row->type = '';
 		if ($row->status == 2) {
-			$pref .= $lang->phrase('forum_moved');
+			$row->type .= $lang->phrase('forum_moved');
 		}
 		else if ($row->sticky == '1') {
-			$pref .= $lang->phrase('forum_announcement');
+			$row->type .= $lang->phrase('forum_announcement');
 		}
 
 		$row->read = $slog->isTopicRead($row->id, $row->last);
 
+		$row->pages = '';
+		$last = $fc[$row->board];
 		if ($last['topiczahl'] < 1) {
 			$last['topiczahl'] = $config['topiczahl'];
 		}
-
 		if ($row->posts > $last['topiczahl']) {
-			$topic_pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
-		}
-		else {
-			$topic_pages = '';
+			$row->pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 		}
 
 		($code = $plugins->load('showforum_entry_prepared')) ? eval($code) : null;
 
-		$inner['index_bit'] .= $tpl->parse("showforum/index_bit");
+		$topics[] = $row;
 	}
-}
-else {
-	($code = $plugins->load('showforum_empty')) ? eval($code) : null;
-	$inner['index_bit'] .= $tpl->parse("showforum/index_bit_empty");
 }
 
 ($code = $plugins->load('showforum_prepared')) ? eval($code) : null;
-echo $tpl->parse("showforum/index");
+echo $tpl->parse("showforum", compact("info", "pages", "topics", "subforums", "filter", "prefix_filter"));
 ($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

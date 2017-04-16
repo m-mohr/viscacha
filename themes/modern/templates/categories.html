@@ -17,7 +17,7 @@
 	<table class="table forums table-striped">
 		<thead>
 			<tr>
-				<th colspan="2">
+				<th class="cell-name" colspan="2">
 					<div class="panel-heading"><h3 class="panel-title">
 							{{ $cat['name'] }}
 							@if(!empty($cat['description']))
@@ -26,7 +26,7 @@
 						</h3></div>
 				</th>
 				<th class="cell-stat hidden-xs hidden-sm">@lang('contentcounter')</th>
-				<th class="cell-stat-2x hidden-xs">@lang('last_post')</th>
+				<th class="cell-last hidden-xs">@lang('last_post')</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -34,7 +34,7 @@
 			@if($forum['opt'] == 're')
 			<tr>
 				<td class="cell-icon"><i class="fa fa-arrow-right fa-2x icon-neutral"></i></td>
-				<td>
+				<td class="cell-name">
 
 					<h4>
 						<a href="{{ $forum['optvalue'] }}">{{ $forum['name'] }}</a>
@@ -45,7 +45,7 @@
 					@endif
 				</td>
 				<td class="cell-stat hidden-xs hidden-sm"></td>
-				<td class="cell-stat-2x hidden-xs"></td>
+				<td class="cell-last hidden-xs"></td>
 			</tr>
 			@else
 			<tr>
@@ -58,7 +58,7 @@
 					<i class="fa fa-folder-open fa-2x icon-neutral"></i>
 					@endif
 				</td>
-				<td>
+				<td class="cell-name">
 					<h4><a href="showforum.php?id={{ $forum['id'] }}{{ SID2URL_x }}">{{ $forum['name'] }}</a></h4>
 					@if(!empty($forum['description']))
 					<small>{{ $forum['description'] }}</small>
@@ -97,11 +97,11 @@
 					</small>
 					@endif
 				</td>
-				<td class="hidden-xs hidden-sm text-nowrap">
+				<td class="cell-stat hidden-xs hidden-sm text-nowrap">
 					{{ $forum['topics'] }} @lang('xtopics')<br />
 					{{ $forum['replies'] }} @lang('xreplies')
 				</td>
-				<td class="hidden-xs">
+				<td class="cell-last hidden-xs">
 					@if(!empty($forum['l_topic']))
 					<a title="{{ $forum['l_topic_full'] }}" href="showtopic.php?id={{ $forum['l_tid'] }}{{ SID2URL_x }}&amp;action=last">
 						<strong>{{ $forum['l_prefix'] }}{{ $forum['l_topic'] }}</strong>

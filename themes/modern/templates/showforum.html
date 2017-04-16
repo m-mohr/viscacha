@@ -1,3 +1,5 @@
+@include('header')
+
 @if($info['message_active'] == 1)
 @include('misc.board_rules')
 @endif
@@ -39,17 +41,17 @@
 	<thead>
 		<tr>
 			<th class="cell-icon"></th>
-			<th>@lang('forum_topic')</th>
-			<th class="cell-stat-2x hidden-xs">@lang('forum_start')</th>
+			<th class="cell-name">@lang('forum_topic')</th>
+			<th class="cell-author hidden-xs">@lang('forum_start')</th>
 			<th class="cell-stat hidden-xs hidden-sm">@lang('forum_replies')</th>
-			<th class="cell-stat-2x">@lang('forum_last')</th>
+			<th class="cell-last">@lang('forum_last')</th>
 		</tr>
 	</thead>
 	<tbody>
 		@if($info['message_active'] == '2')
 		<tr>
-			<td colspan="1" class="text-center"><i class="fa fa-lg fa-exclamation icon-new"></i></td>
-			<td colspan="4">
+			<td colspan="1" class="cell-icon"><i class="fa fa-lg fa-exclamation icon-new"></i></td>
+			<td colspan="4" class="cell-name">
 				@lang('board_rules'):
 				<a href="misc.php?action=board_rules&amp;id={{ $board }}{{ SID2URL_x }}">
 					{{ $info['message_title'] }}
@@ -57,7 +59,63 @@
 			</td>
 		</tr>
 		@endif
-		{!! $inner['index_bit'] !!}
+		@forelse($topics as $row)
+		<tr>
+			<td class="cell-icon">
+				@if($row->read)
+				@if($row->status == 0)
+				<i class="fa fa-lg fa-folder-open icon-old" title="@lang('forum_icon_old')"></i>
+				@else
+				<i class="fa fa-lg fa-lock icon-old" title="@lang('forum_icon_closed')"></i>
+				@endif
+				@else
+				@if($row->status == 0)
+				<i class="fa fa-lg fa-folder-open icon-new" title="@lang('forum_icon_new')"></i>
+				@else
+				<i class="fa fa-lg fa-lock icon-new" title="@lang('forum_icon_closed')"></i>
+				@endif
+				@endif
+			</td>
+			<td class="cell-name">
+				@if($row->vquestion)
+				<i class="fa fa-bar-chart pull-right" aria-hidden="true" title="@lang('vote_titlevote') {{$row->vquestion}}"></i>
+				@endif
+				@if(!$row->read)
+				<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-chevron-down" title="@lang('move_to_first_new_post')"></i></a>
+				<strong>
+				@endif
+					{{ $row->type }}
+					<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">
+					@php
+					$lang->assign('prefix', $row->prefix); // ToDo: Remove this
+					@endphp 
+					@if(!empty($row->prefix)) @lang('showtopic_prefix_title') @endif
+					{{ $row->topic }}
+				@if(!$row->read)
+				</strong>
+				@endif
+				</a>
+				@if(!empty($row->pages))
+				<br /><span class="stext">{!! $row->pages !!}</span>
+				@endif
+			</td>
+			<td class="cell-author hidden-xs">
+				@reldatetime($row->date)<br />
+				@lang('written_by')
+				<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
+			</td>
+			<td class="cell-stat text-center hidden-xs hidden-sm">{{ numbers($row->posts) }}</td>
+			<td class="cell-last">
+				<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->id }}{{ SID2URL_x }}">@reldatetime($row->last)</a><br />
+				@lang('written_by')
+				<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
+			</td>
+		</tr>
+		@empty
+		<tr>
+			<td class="tbody center" colspan="5">@lang('forum_empty')</td>
+		</tr>
+		@endforelse
 	</tbody>
 </table>
 
@@ -74,12 +132,12 @@
 		</thead>
 		@if(!empty($prefix_arr))
 		<tr>
-			<td class="tfoot" width="50%"></td>
-			<td class="tfoot" width="50%"></td>
+			<td width="50%"></td>
+			<td width="50%"></td>
 		</tr>
 		@endif
 		<tr>
-			<td class="tbody">
+			<td>
 				<select size="1" name="sort">
 					<option value="0"@selected($filter == 0)>@lang('forum_filter_opt0')</option>
 					<option value="6"@selected($filter == 6)>@lang('forum_filter_opt6')</option>
@@ -102,3 +160,5 @@
 	</table>
 </form>
 @endif
+
+@include('footer')

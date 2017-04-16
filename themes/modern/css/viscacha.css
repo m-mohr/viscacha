@@ -249,7 +249,7 @@ hr {
 .forums.table th.cell-stat {
     width: 15%;
 }
-.forums.table th.cell-stat-2x {
+.forums.table th.cell-last {
     width: 25%;
 }
 
@@ -261,7 +261,7 @@ hr {
 .threads.table th.cell-stat {
     width: 10%;
 }
-.threads.table th.cell-stat-2x {
+.threads.table th.cell-author, .threads.table th.cell-last {
     width: 20%;
 }
 

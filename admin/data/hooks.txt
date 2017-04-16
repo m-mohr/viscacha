@@ -321,7 +321,6 @@ showforum.php
 -showforum_filer_query
 -showforum_query
 -showforum_entry_prepared
--showforum_empty
 -showforum_prepared
 -showforum_end
 
