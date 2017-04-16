@@ -46,8 +46,8 @@
 }
 
 .nav-condensed > li > a {
-   padding-top: 4px; 
-   padding-bottom: 4px; 
+	padding-top: 4px; 
+	padding-bottom: 4px; 
 }
 
 .user-notification-header a .label-danger {
@@ -104,7 +104,7 @@
 }
 
 .sidebar-toggled #sidebar-wrapper {
-   width: 250px;
+	width: 250px;
 }
 @media(min-width:768px) {
 	#wrapper {
@@ -121,9 +121,16 @@
 	#header.navbar .container-fluid {
 		padding-left: 0px;
 	}
+	.container {
+		width: 700px;
+	}
 }
-
-@media(min-width:992px) {
+@media(min-width: 992px) {
+	.container {
+		width: 920px;
+	}
+}
+@media(min-width:1200px) {
 	#wrapper {
 		margin-left: 300px;
 	}
@@ -140,6 +147,16 @@
         width: 300px;
     }
 }
+@media(min-width: 1250px) {
+	.container {
+		width: 920px;
+	}
+}
+@media(min-width: 1500px) {
+	.container {
+		width: 1170px;
+	}
+}
 
 .sidebar-nav {
     position: absolute;
@@ -150,18 +167,18 @@
     list-style: none;
     margin-top: 20px;
 }
- 
+
 .sidebar-nav li {
     text-indent: 15px;
     line-height: 40px;
 }
- 
+
 .sidebar-nav li a {
     display: block;
     text-decoration: none;
     color: #fff;
 }
- 
+
 .sidebar-nav li a:hover {
     text-decoration: none;
     color: #fff;
@@ -203,7 +220,16 @@ hr {
 	color: #fff;
 }
 
-/* Forum table */
+.pagination {
+	margin-top: 0px;
+	margin-bottom: 20px;
+}
+
+.panel-footer.nav {
+	padding: 4px;
+}
+
+/* Forum list table */
 
 .forums h3 {
 	margin-top: 10px;
@@ -227,7 +253,7 @@ hr {
     width: 25%;
 }
 
-/* Thread table */
+/* Thread list table */
 
 .threads .cell-icon {
     text-align: center;
@@ -239,14 +265,26 @@ hr {
     width: 20%;
 }
 
-.pagination {
-	margin-top: 0px;
-	margin-bottom: 20px;
+/* Team */
+
+.team .cell-icon {
+    text-align: center;
+}
+.team.table th.cell-name {
+    width: 35%;
+}
+.team.table th.cell-contact, .team.table td.cell-contact {
+    width: 10%;
+	text-align: center;
+}
+.team.table th.cell-location {
+    width: 35%;
+}
+.team.table td.cell-location ul {
+    margin: 0px;
 }
 
-.panel-footer.nav {
-	padding: 4px;
-}
+/* Thread and Post view */
 
 .post .avatar {
 	margin-right: 0.5em;
@@ -257,6 +295,8 @@ hr {
 	width: auto;
 	border-radius: 0.5em;
 }
+
+/* Icons */
 
 .icon-neutral, .icon-old, .icon-offline {
 	color: #373330;
@@ -334,7 +374,7 @@ hr {
 	border: 1px solid #888888;
 	width: 100%;
 	border-collapse: collapse;
-	
+
 }
 .editor_textarea_outer td {
 	padding: 4px;

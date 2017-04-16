@@ -106,7 +106,7 @@ class Theme {
 		return file_exists($this->getTemplateFile($file));
 	}
 
-	public function parse($template) {
+	public function parse($template, $vars = array()) {
 		Debug::startMeasurement("tpl::parse({$template})");
 
 		$tplpath = $this->getTemplateFile($template);
@@ -118,8 +118,16 @@ class Theme {
 			return null;
 		}
 
+		if (!empty($vars)) {
+			global $config, $lang, $tpl, $my, $htmlhead, $htmlbody, $plugins;
+			$vars = array_merge(compact("config", "lang", "tpl", "my", "htmlhead", "htmlbody", "plugins"), $this->vars, $vars);
+		}
+		else {
+			$vars = array_merge($GLOBALS, $this->vars, $vars);
+		}
+		
 		$content = $this->blade->run(
-				str_replace('/', '.', $template), array_merge($GLOBALS, $this->vars)
+			str_replace('/', '.', $template), $vars
 		);
 
 		$this->sent[] = $tplpath;

@@ -1,0 +1,148 @@
+@include('header')
+
+<h1>@lang('team')</h1>
+<h2>@lang('team_admins')</h2>
+<table class="table team table-striped">
+	<thead>
+		<tr>
+			<th class="cell-name">@lang('th_name')</th>
+			<th class="cell-contact">@lang('th_pm')</th>
+			<th class="cell-contact hidden-xs">@lang('th_email')</th>
+			<th class="cell-contact hidden-xs">@lang('th_homepage')</th>
+			<th class="cell-location hidden-sm hidden-xs">@lang('th_location')</th>
+		</tr>
+	</thead>
+	@foreach($admins as $row)
+	<tbody>
+		<tr>
+			<td class="cell-name">
+				<a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
+				@if($row->fullname)
+				<br /><small>{{ $row->fullname }}</small>
+				@endif
+			</td>
+			<td class="cell-contact">
+				<a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}">
+					<i class="fa fa-envelope fa-lg"></i>
+				</a>
+			</td>
+			<td class="cell-contact hidden-xs">
+				<a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}">
+					<i class="fa fa-envelope fa-lg"></i>
+				</a>
+			</td>
+			<td class="cell-contact hidden-xs">
+				@if($row->hp)
+				<a href="{{ $row->hp }}" target="_blank">
+					<i class="fa fa-home fa-lg"></i>
+				</a>
+				@elselang('homepage_no_data')
+			</td>
+			<td class="cell-location hidden-sm hidden-xs">
+				@if($row->location)
+				{{ $row->location }}
+				@elselang('location_no_data')
+			</td>
+		</tr>
+		@endforeach
+	</tbody>
+</table>
+@if(!empty($gmods))
+<h2>@lang('team_gmods')</h2>
+<table class="table team table-striped">
+	<thead>
+		<tr>
+			<th class="cell-name">@lang('th_name')</th>
+			<th class="cell-contact">@lang('th_pm')</th>
+			<th class="cell-contact hidden-xs">@lang('th_email')</th>
+			<th class="cell-contact hidden-xs">@lang('th_homepage')</th>
+			<th class="cell-location hidden-sm hidden-xs">@lang('th_location')</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach($gmods as $row)
+		<tr>
+			<td class="cell-name">
+				<a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
+				@if($row->fullname)
+				<br /><small>{{ $row->fullname }}</small>
+				@endif
+			</td>
+			<td class="cell-contact">
+				<a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}">
+					<i class="fa fa-envelope fa-lg"></i>
+				</a>
+			</td>
+			<td class="cell-contact hidden-xs">
+				<a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}">
+					<i class="fa fa-envelope fa-lg"></i>
+				</a>
+			</td>
+			<td class="cell-contact hidden-xs">
+				@if($row->hp)
+				<a href="{{ $row->hp }}" target="_blank">
+					<i class="fa fa-home fa-lg"></i>
+				</a>
+				@elselang('homepage_no_data')
+			</td>
+			<td class="cell-location hidden-sm hidden-xs">
+				@if($row->location)
+				{{ $row->location }}
+				@elselang('location_no_data')
+			</td>
+		</tr>
+		@endforeach
+</table>
+@endif
+@if(!empty($mods))
+<h2>@lang('team_mods')</h2>
+<table class="table team table-striped">
+	<thead>
+		<tr>
+			<th class="cell-name">@lang('th_name')</th>
+			<th class="cell-contact hidden-xs">@lang('th_pm')</th>
+			<th class="cell-contact hidden-xs">@lang('th_email')</th>
+			<th class="cell-contact hidden-sm hidden-xs">@lang('th_homepage')</th>
+			<th class="cell-location">@lang('team_mod_boards')</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach($mods as $row)
+		<tr>
+			<td class="cell-name">
+				<a href="profile.php?id={{ $row->id }}{{ SID2URL_x }}">{{ $row->name }}</a>
+				@if($row->fullname)
+				<br /><em>{{ $row->fullname }}</em>
+				@endif
+			</td>
+			<td class="cell-contact hidden-xs">
+				<a href="pm.php?action=new&amp;id={{ $row->id }}{{ SID2URL_x }}">
+					<i class="fa fa-envelope fa-lg"></i>
+				</a>
+			</td>
+			<td class="cell-contact hidden-xs">
+				<a href="profile.php?action=mail&amp;id={{ $row->id }}{{ SID2URL_x }}">
+					<i class="fa fa-envelope fa-lg"></i>
+				</a>
+			</td>
+			<td class="cell-contact hidden-sm hidden-xs">
+				@if($row->hp)
+				<a href="{{ $row->hp }}" target="_blank">
+					<i class="fa fa-home fa-lg"></i>
+				</a>
+				@elselang('homepage_no_data')
+			</td>
+			<td class="cell-location">
+				<ul>
+					@foreach($row->forums as $fid => $fname)
+					<li><a href="showforum.php?id={{ $fid }}{{ SID2URL_x }}">{{ $fname }}</a></li>
+					@endforeach
+				</ul>
+			</td>
+		</tr>
+	@endforeach
+	</tbody>
+</table>
+@endif
+
+@include('footer')

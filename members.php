@@ -31,94 +31,83 @@ include ("classes/function.viscacha_frontend.php");
 
 $my->p = $slog->Permissions();
 
-if ($_GET['action'] == 'team' && $my->p['team'] == 0) {
-	errorLogin();
-}
-elseif ($_GET['action'] != 'team' && $my->p['members'] == 0) {
-	errorLogin();
-}
-
 if ($_GET['action'] == 'team') {
 	Breadcrumb::universal()->add($lang->phrase('members'), 'members.php'.SID2URL_1);
 	Breadcrumb::universal()->add($lang->phrase('team'));
-}
-else {
-	Breadcrumb::universal()->add($lang->phrase('members'));
-}
 
-if ($_GET['action'] == 'team') {
+	if ($my->p['team'] == 0) {
+		errorLogin();
+	}
 
 	($code = $plugins->load('team_top')) ? eval($code) : null;
+	
+	$my->pb = $slog->GlobalPermissions();
 
 	$groups = $scache->load('groups');
 	$team = $groups->team();
 
-	$cache = array();
+	$sqlConditions = array();
 	$t = array_merge($team['admin'], $team['gmod']);
 	foreach ($t as $row) {
-		$cache[] = "FIND_IN_SET({$row},groups)";
+		$sqlConditions[] = "FIND_IN_SET({$row},groups)";
 	}
 
+	$admins = array();
+	$gmods = array();
+	$mods = array();
+
 	$result = $db->query('
-	SELECT id, name, mail, hp, location, fullname, groups
-	FROM '.$db->pre.'user
-	WHERE deleted_at IS NULL AND '.implode(' OR ',$cache).'
-	ORDER BY name ASC
+		SELECT id, name, mail, hp, location, fullname, groups
+		FROM '.$db->pre.'user
+		WHERE deleted_at IS NULL AND '.implode(' OR ', $sqlConditions).'
+		ORDER BY name ASC
 	');
-
-	$admin_cache = array();
-	$gmod_cache = array();
-
-	while($row = $gpc->prepare($db->fetch_object($result))) {
-		$gids = explode(',',$row->groups);
+	while($row = $db->fetch_object($result)) {
+		$gids = explode(',', $row->groups);
 		foreach ($gids as $gid) {
 			if (in_array($gid, $team['admin'])) {
-				$admin_cache[] = $row;
+				$admins[] = $row;
 			}
 			elseif (in_array($gid, $team['gmod'])) {
-				$gmod_cache[] = $row;
+				$gmods[] = $row;
 			}
 		}
 	}
 
 	$result = $db->query('
-	SELECT m.mid, u.name as member, m.bid, f.name as board, u.mail, u.hp, u.location, u.fullname, f.invisible
-	FROM '.$db->pre.'moderators AS m
-		LEFT JOIN '.$db->pre.'user AS u ON u.id = m.mid
-		LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
-	WHERE invisible != "2"
-	ORDER BY u.name ASC
+		SELECT u.id, u.name, u.mail, u.hp, u.location, u.fullname, f.id AS forum_id, f.name as forum_name, f.invisible AS forum_invisible
+		FROM '.$db->pre.'moderators AS m
+			INNER JOIN '.$db->pre.'user AS u ON u.id = m.mid
+			LEFT JOIN '.$db->pre.'forums AS f ON f.id = m.bid
+		WHERE f.invisible != "2"
+		ORDER BY u.name ASC
 	');
 
-	$inner['moderator_bit'] = '';
-	$board_cache = array();
-	$member_cache = array();
-	$my->pb = $slog->GlobalPermissions();
-
-	while($row = $gpc->prepare($db->fetch_object($result))) {
-		$board_cache[$row->mid][$row->bid] = $row;
-		$member_cache[$row->mid] = $row;
-	}
-
-	foreach ($member_cache as $mid => $mdata) {
-		$inner['moderator_bit_forum'] = array();
-		foreach ($board_cache[$mid] as $bid => $bdata) {
-			if ($bdata->invisible == 1 && isset($my->pb[$bid]) && $my->pb[$bid]['forum'] == 0) {
-				continue;
-			}
-			$inner['moderator_bit_forum'][] = $bdata;
+	while($row = $db->fetch_object($result)) {
+		if ($row->forum_invisible == 1 && empty($my->pb[$row->forum_id]['forum'])) {
+			continue;
 		}
+		
+		if (!isset($mods[$row->id])) {
+			$row->forums = array();
+			$mods[$row->id] = $row;
+		}
+		
+		$mods[$row->id]->forums[$row->forum_id] = $row->forum_name;
+
 		($code = $plugins->load('team_moderator_prepared')) ? eval($code) : null;
-		$inner['moderator_bit'] .= $tpl->parse("team/moderator_bit");
 	}
 
-	echo $tpl->parse("header");
 	($code = $plugins->load('team_prepared')) ? eval($code) : null;
-	echo $tpl->parse("team/index");
+	echo $tpl->parse("members/team", compact('admins', 'gmods', 'mods'));
 	($code = $plugins->load('team_end')) ? eval($code) : null;
-
 }
 else {
+	Breadcrumb::universal()->add($lang->phrase('members'));
+
+	if ($my->p['members'] == 0) {
+		errorLogin();
+	}
 
 	$available = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9');
 
@@ -309,9 +298,8 @@ else {
 	($code = $plugins->load('members_prepared')) ? eval($code) : null;
 	echo $tpl->parse("members/index");
 	($code = $plugins->load('members_end')) ? eval($code) : null;
-
+	echo $tpl->parse("footer");
 }
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();
