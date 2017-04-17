@@ -373,10 +373,6 @@ else {
 		if ($data['prefix'] > 0) {
 			$sel = $data['prefix'];
 		}
-		$inner['index_prefix'] = $tpl->parse("newtopic/index_prefix");
-	}
-	else {
-		$inner['index_prefix'] = '';
 	}
 
 	($code = $plugins->load('newtopic_form_prepared')) ? eval($code) : null;

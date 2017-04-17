@@ -89,7 +89,7 @@ function admin_customfields($uid) {
 				if(!$profilefield['length']) {
 					$profilefield['length'] = 3;
 				}
-				$code = "<select id=\"{$field}\" class=\"label\" name=\"{$field}[]\" size=\"{$profilefield['length']}\" multiple=\"multiple\">{$select}</select>";
+				$code = "<select id=\"{$field}\" class=\"form-control\" name=\"{$field}[]\" size=\"{$profilefield['length']}\" multiple=\"multiple\">{$select}</select>";
 			}
 		}
 		elseif($type == "select") {
@@ -103,7 +103,7 @@ function admin_customfields($uid) {
 				if(!$profilefield['length']) {
 					$profilefield['length'] = 1;
 				}
-				$code = "<select id=\"{$field}\" class=\"label\" name=\"{$field}\" size=\"{$profilefield['length']}\">{$select}</select>";
+				$code = "<select id=\"{$field}\" class=\"form-control\" name=\"{$field}\" size=\"{$profilefield['length']}\">{$select}</select>";
 			}
 		}
 		elseif($type == "radio") {
@@ -113,7 +113,7 @@ function admin_customfields($uid) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br />";
 				}
-				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
+				$code = '<div id="'.$field.'" class="form-control">'.$select.'</div>';
 			}
 		}
 		elseif($type == "checkbox") {
@@ -127,16 +127,16 @@ function admin_customfields($uid) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br />";
 				}
-				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
+				$code = '<div id="'.$field.'" class="form-control">'.$select.'</div>';
 			}
 		}
 		elseif($type == "textarea") {
 			$value = $gpc->prepare($saved[$field]);
-			$code = "<textarea id=\"{$field}\" class=\"label\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
+			$code = "<textarea id=\"{$field}\" class=\"form-control\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
 		}
 		else {
 			$value = $gpc->prepare($saved[$field]);
-			$code = "<input id=\"{$field}\" class=\"label\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
+			$code = "<input id=\"{$field}\" class=\"form-control\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
 		}
 		$customfields[$profilefield['editable']][] = array(
 			'input' => $code,
@@ -418,7 +418,7 @@ function editprofile_customfields($editable, $uid) {
 				if(!$profilefield['length']) {
 					$profilefield['length'] = 3;
 				}
-				$code = "<select id=\"{$field}\" class=\"label\" name=\"{$field}[]\" size=\"{$profilefield['length']}\" multiple=\"multiple\">{$select}</select>";
+				$code = "<select id=\"{$field}\" class=\"form-control\" name=\"{$field}[]\" size=\"{$profilefield['length']}\" multiple=\"multiple\">{$select}</select>";
 			}
 		}
 		elseif($type == "select") {
@@ -432,7 +432,7 @@ function editprofile_customfields($editable, $uid) {
 				if(!$profilefield['length']) {
 					$profilefield['length'] = 1;
 				}
-				$code = "<select id=\"{$field}\" class=\"label\" name=\"{$field}\" size=\"{$profilefield['length']}\">{$select}</select>";
+				$code = "<select id=\"{$field}\" class=\"form-control\" name=\"{$field}\" size=\"{$profilefield['length']}\">{$select}</select>";
 			}
 		}
 		elseif($type == "radio") {
@@ -442,7 +442,7 @@ function editprofile_customfields($editable, $uid) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br />";
 				}
-				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
+				$code = '<div id="'.$field.'" class="form-control">'.$select.'</div>';
 			}
 		}
 		elseif($type == "checkbox") {
@@ -456,16 +456,16 @@ function editprofile_customfields($editable, $uid) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br />";
 				}
-				$code = '<div id="'.$field.'" class="label">'.$select.'</div>';
+				$code = '<div id="'.$field.'" class="form-control">'.$select.'</div>';
 			}
 		}
 		elseif($type == "textarea") {
 			$value = $gpc->prepare($saved[$field]);
-			$code = "<textarea id=\"{$field}\" class=\"label\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
+			$code = "<textarea id=\"{$field}\" class=\"form-control\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
 		}
 		else {
 			$value = $gpc->prepare($saved[$field]);
-			$code = "<input id=\"{$field}\" class=\"label\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
+			$code = "<input id=\"{$field}\" class=\"form-control\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
 		}
 		$customfields[] = array(
 			'input' => $code,

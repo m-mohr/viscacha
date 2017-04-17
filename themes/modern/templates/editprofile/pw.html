@@ -1,18 +1,21 @@
+<h1>@lang('editprofile_pw')</h1>
 <form method="post" action="editprofile.php?action=pw2{{ SID2URL_x }}">
-	<div class="panel panel-default">
-		<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/password.gif')" alt="" /> @lang('editprofile_pw')</h3></div>
-		<div class="panel-body">
-			<label for="pw">@lang('editprofile_pw_old')</label>
-			<input type="password" tabindex="1" class="label" id="pw" name="pw" size="40" />
-			<br class="newinput" /><hr class="formsep" />
-			<label for="type">@lang('editprofile_pw_new')<br />
-				<span class="stext">@lang('minmax_password')</span></label>
-			<input type="password" tabindex="2" class="label" id="type" name="type" size="40" />
-			<br class="newinput" /><hr class="formsep" />
-			<label for="pwx">@lang('editprofile_pw_new_repeat')</label>
-			<input type="password" tabindex="3" class="label" id="pwx" name="pwx" size="40" />
-			<br class="newinput" />
-		</div>
-		<div class="panel-footer center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
+	<div class="form-group">
+		<label for="pw">@lang('editprofile_pw_old')</label>
+		<input type="password" tabindex="1" class="form-control" id="pw" name="pw" size="40" />
+	</div>
+	<div class="form-group">
+		<label for="type">
+			@lang('editprofile_pw_new')
+			<small>@lang('minmax_password')</small>
+		</label>
+		<input type="password" tabindex="2" class="form-control" id="type" name="type" size="40" />
+	</div>
+	<div class="form-group">
+		<label for="pwx">@lang('editprofile_pw_new_repeat')</label>
+		<input type="password" tabindex="3" class="form-control" id="pwx" name="pwx" size="40" />
+	</div>
+	<div class="form-group form-buttons">
+		<input accesskey="s" tabindex="4" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>

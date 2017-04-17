@@ -1,12 +1,8 @@
-<form name="form2" method="post" action="editprofile.php?action=abos2{{ SID2URL_x }}">
+<h1>@lang('editprofile_abos')</h1>
+@if($count > 0)
+{!! $pages !!}
+<form method="post" action="editprofile.php?action=abos2{{ SID2URL_x }}">
 	<table class="table table-striped">
-		<tr> 
-			<th colspan="4"><img src="@theme('images/user.gif')" alt="" /> @lang('editprofile_abos')</th>
-		</tr>
-		@if($count > 0)
-		<tr> 
-			<td class="tfoot" colspan="4">{!! $pages !!}</td>
-		</tr>
 		<tr> 
 			<th width="2%">
 				<input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" />
@@ -43,32 +39,27 @@
 		<tr> 
 			<td class="tfoot" colspan="4">
 				<span class="right"><input accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" /></span>
-				{!! $pages !!}
 			</td>
 		</tr>
-		@else
-		<tr>
-			<td class="tbody center" colspan="4">@lang('forum_empty')</td>
-		</tr>
-		@endif
 	</table>
 </form>
-
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">@lang('forum_filter')</h3></div>
-	<div class="panel-body">
-		<form method="get" action="editprofile.php">
-			<select name="type">
-				<option value=""@selected(empty($_GET['type']))>@lang('editprofile_no_filter')</option>
-				<option value="f"@selected($_GET['type'] == 'f')>@lang('editprofile_digest_f')</option>
-				<option value="s"@selected($_GET['type'] == 's')>@lang('editprofile_digest_s')</option>
-				<option value="d"@selected($_GET['type'] == 'd')>@lang('editprofile_digest_d')</option>
-				<option value="w"@selected($_GET['type'] == 'w')>@lang('editprofile_digest_w')</option>
-			</select>
-			<input type="hidden" name="page" value="{{ $_GET['page'] }}" />
-			<input type="hidden" name="action" value="{{ $_GET['action'] }}" />
-			<input type="hidden" name="s" value="{{ SID2URL }}" />
-			<input type="submit" accesskey="s" value="@lang('submit_form')" />
-		</form>
+{!! $pages !!}
+@else
+<div class="alert alert-info" role="alert">@lang('forum_empty')</div>
+@endif
+<form method="get" action="editprofile.php" class="form-inline">
+	<input type="hidden" name="page" value="{{ $_GET['page'] }}" />
+	<input type="hidden" name="action" value="{{ $_GET['action'] }}" />
+	<input type="hidden" name="s" value="{{ SID2URL }}" />
+	<div class="form-group">
+		<label for="filter">@lang('forum_filter')</label> <!-- ToDo: Inline form not correctly working -->
+		<select name="type" class="form-control" id="filter">
+			<option value=""@selected(empty($_GET['type']))>@lang('editprofile_no_filter')</option>
+			<option value="f"@selected($_GET['type'] == 'f')>@lang('editprofile_digest_f')</option>
+			<option value="s"@selected($_GET['type'] == 's')>@lang('editprofile_digest_s')</option>
+			<option value="d"@selected($_GET['type'] == 'd')>@lang('editprofile_digest_d')</option>
+			<option value="w"@selected($_GET['type'] == 'w')>@lang('editprofile_digest_w')</option>
+		</select>
 	</div>
-</div>
+	<button type="submit" accesskey="s" class="btn btn-primary">@lang('submit_form')</button>
+</form>

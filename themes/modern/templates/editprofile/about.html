@@ -1,23 +1,19 @@
+<h1>@lang('editprofile_about')</h1>
+<p>@lang('editprofile_about_longdesc')</p>
 @if($preview)
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/about.gif')" alt="" /> @lang('editprofile_about_preview')</h3></div>
-	<div class="panel-body">{!! $parsedPreview !!}</div>
-</div>
-
+<h2>@lang('editprofile_about_preview')</h2>
+<div class="well">{!! $parsedPreview !!}</div>
 @endif
-<form name="form2" method="post" action="editprofile.php?action=about2{{ SID2URL_x }}">
-	<div class="panel panel-default">
-		<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/about.gif')" alt="" /> @lang('editprofile_about')</h3></div>
-		<div class="panel-body">
-			<span class="right"><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><img src="@theme('images/help.gif')" alt="" /> <strong>@lang('bbcode_help')</strong></a></span>
-			@lang('editprofile_about_longdesc')<br />
-			@lang('editprofile_about_longdesc2')
-			<hr class="formsep" />
-			{!! $bbcode->getEditorArea('about', $data, 'cols="80" rows="18" tabindex="1"', $config['maxaboutlength']) !!}
-		</div>
-		<div class="panel-footer center">
-			<input accesskey="s" type="submit" name="Submit" tabindex="2" value="@lang('submit_form')" />
-			<input accesskey="p" type="submit" name="Preview" tabindex="3" value="@lang('preview_form')" />
-		</div>
+<form method="post" action="editprofile.php?action=about2{{ SID2URL_x }}">
+	<div class="form-group">
+		<span class="pull-right">
+			<a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><i class="fa fa-question-circle"></i> @lang('bbcode_help')</a>
+		</span>
+		<p>@lang('editprofile_about_longdesc2')<p>
+		{!! $bbcode->getEditorArea('about', $data, 'cols="80" rows="18" tabindex="1"', $config['maxaboutlength']) !!}
+	</div>
+	<div class="form-group form-buttons">
+		<input accesskey="p" type="submit" name="Preview" tabindex="3" class="btn btn-primary" value="@lang('preview_form')" />
+		<input accesskey="s" type="submit" name="Submit" tabindex="2" class="btn btn-default" value="@lang('submit_form')" />
 	</div>
 </form>

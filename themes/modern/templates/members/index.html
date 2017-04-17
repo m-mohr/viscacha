@@ -107,25 +107,21 @@
 	@endif
 </table>
 @if($config['mlist_filtergroups'] == 1)
-
+<h2>@lang('members_filtergroups')</h2>
 <form action="members.php" method="get">
 	<input type="hidden" name="letter" value="{{ $_GET['letter'] }}" />
 	<input type="hidden" name="sort" value="{{ $_GET['sort'] }}" />
 	<input type="hidden" name="order" value="{{ $_GET['order'] }}" />
-	<div class="panel panel-default">
-		<div class="panel-heading"><h3 class="panel-title">@lang('members_filtergroups')</h3></div>
-		<div>
-			<div class="panel-body">
-				<label for="g[]">@lang('members_filtergroups_label')</label>
-				<select name="g[]" id="g[]" size="{{ count($groups) }}" multiple="multiple" class="label">
-					@foreach ($groups as $id => $title)
-					<option value="{{ $id }}"@selected(in_array($id, $g))>{{ $title }}</option>
-					@endforeach
-				</select>
-				<br class="newinput" />
-			</div>
-			<div class="panel-footer center"><input type="submit" value="@lang('members_show_form')" /></div>
-		</div>
+	<div class="form-group">
+		<label for="g[]">@lang('members_filtergroups_label')</label>
+		<select name="g[]" id="g[]" size="{{ count($groups) }}" multiple="multiple" class="form-control">
+			@foreach ($groups as $id => $title)
+			<option value="{{ $id }}"@selected(in_array($id, $g))>{{ $title }}</option>
+			@endforeach
+		</select>
+	</div>
+	<div class="form-group form-buttons">
+		<input type="submit" value="@lang('members_show_form')" class="btn btn-primary" />
 	</div>
 </form>
 @endif

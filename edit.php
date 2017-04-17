@@ -239,16 +239,11 @@ if ($allowed == true) {
 			if ($last['prefix'] == 0) {
 				$prefix_arr = $prefix_obj->addEmptyPrefix($prefix_arr);
 			}
-			$sel = $data['prefix'];
-			$inner['index_prefix'] = $tpl->parse("edit/prefix");
-		}
-		else {
-			$inner['index_prefix'] = '';
 		}
 
 		($code = $plugins->load('edit_form_prepared')) ? eval($code) : null;
 
-		echo $tpl->parse("edit/edit");
+		echo $tpl->parse("edit");
 
 		($code = $plugins->load('edit_form_end')) ? eval($code) : null;
 	}

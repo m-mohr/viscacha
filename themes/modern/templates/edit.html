@@ -1,0 +1,66 @@
+<h1>@lang('edit')</h1>
+@if($_GET['action'] == 'preview')
+<h2>@lang('preview_title')</h2>
+<div class="well">
+	@lang('showtopic_subject') <strong>@if(!empty($data['formatted_prefix'])) [{{ $data['formatted_prefix']}}] @endif {{ $data['topic'] }}</strong>
+	<hr />
+	{!! $data['formatted_comment'] !!}
+</div>
+@endif
+<form name="form2" method="post" action="edit.php?id={{ $_GET['id'] }}{{ SID2URL_x }}&amp;action=save">
+	<div class="form-group">
+		<label for="topic">@lang('title')</label>
+		@if(count($prefix_arr) > 0 && $info['tstart'] == 1)
+		<div class="input-group">
+			<div class="input-group-addon">[</div>
+			<select name="opt_0" class="form-control" tabindex="1">
+				@foreach ($prefix_arr as $id => $value)
+				<option value="{{ $id }}"@selected($data['prefix'] == $id)>{{ $value['value'] }}</option>
+				@endforeach
+			</select>
+			<div class="input-group-addon">]</div>
+			<input type="text" class="form-control" id="topic" name="topic" size="40" tabindex="2" value="{{ $data['topic'] }}" />
+		</div>
+		@else
+		<input type="text" class="form-control" id="topic" name="topic" size="40" tabindex="1" value="{{ $data['topic'] }}" />
+		@endif
+	</div>
+	<div class="form-group">
+		<label for="about">@lang('edit_reason')</label>
+		<input class="form-control" type="text" id="about" name="about" size="40" tabindex="3" value="{{ $data['about'] }}" />
+	</div>
+	<div class="form-group">
+		<label for="comment">
+			@lang('post')
+			<small><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><i class="fa fa-question-circle"></i> @lang('bbcode_help')</a></small>
+		</label>
+		{!! $bbcode->getEditorArea('comment', $data['comment'], 'cols="75" rows="9" tabindex="4"') !!}
+	</div>
+	<div class="form-group">
+		<label for="dosmileys">
+			<input type="checkbox" name="dosmileys" tabindex="7" value="1"@checked($data['dosmileys'] == 1) />
+			@lang('post_settings_smileys')
+		</label>
+	</div>
+	@if($del_mod || $del_user)
+	<div class="form-group">
+		<label for="temp">
+			<input type="checkbox" id="temp" name="temp" tabindex="8" onclick="confirmdelete(this);" value="1" />
+			@lang('edit_del')
+		</label>
+	</div>
+	@endif
+	@if($p_upload)
+	<div class="form-group">
+		<label>@lang('attachments')</label>
+		<div class="form-control-static">
+			<a href="attachments.php?type=edit&amp;id={{ $_GET['id'] }}&amp;location=comment{{ SID2URL_x }}" tabindex="7" target="adduploads" onclick="adduploads(this);"><strong>@lang('manage_uploads')</strong></a><br />
+			<small>@lang('max_uploads')</small>
+		</div>
+	</div>
+	@endif
+	<div class="form-group form-buttons">
+		<input type="submit" accesskey="p" tabindex="9" name="Preview" value="@lang('preview_form')" class="btn btn-default" />
+		<input type="submit" accesskey="s" tabindex="10" name="Submit" value="@lang('submit_form')" class="btn btn-primary" />
+	</div>
+</form>

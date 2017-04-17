@@ -1,25 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" dir="@lang('html_read_direction')">
+<!DOCTYPE html>
+<html lang="@lang('lang_code')" dir="@lang('html_read_direction')">
 	<head>
-		<title>@breadcrumb(' &raquo; ')</title>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link rel="stylesheet" type="text/css" href="@theme('standard.css')" />
-		<script src="assets/cache/language_{{ $my->language }}.js" type="text/javascript"></script>
-		<script type="text/javascript">
-<!--
-var box_img_plus = '@theme('
-images / plus.gif')';
-var box_img_minus = '@theme('
-		images / minus.gif')';
-var sidx = '{!! SID2URL_JS_x !!}';
-var sid1 = '{!! SID2URL_JS_1 !!}';
--->
-		</script>
-		<script src="@theme('global.js')" type="text/javascript"></script>
+		<meta http-equiv="content-language" content="@lang('lang_code')" />
+		<meta name="generator" content="Viscacha (http://www.viscacha.org)" />
+
+		<title>@breadcrumb(' &raquo; ')</title>
+
+		<link rel="stylesheet" type="text/css" href="@theme('css/bootstrap.min.css')" />
+		<link rel="stylesheet" type="text/css" href="@theme('css/font-awesome.min.css')" />
+		<link rel="stylesheet" type="text/css" href="@theme('css/viscacha.css')" />
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bree+Serif">
+
+		<!--	<script src="assets/cache/language_{{ $my->language }}.js" type="text/javascript"></script> -->
+		<script src="@theme('js/jquery.min.js')" type="text/javascript"></script>
+		<script src="@theme('js/bootstrap.min.js')" type="text/javascript"></script>
+		<script src="@theme('js/viscacha.js')" type="text/javascript"></script>
+
 		{!! $htmlhead !!}
 	</head>
-	<body{!! $htmlbody !!}>
-		<div id="blank">
+	<body class="popup"{!! $htmlbody !!}>
+		<div class="container" id="container">
 			{!! FlashMessage::show() !!}
 			@yield('content')
 		</div>

@@ -1,35 +1,31 @@
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/vote.gif')" alt="" /> @lang('add_vote_to_thread')</h3></div>
-	<div class="panel-footer">@lang('title_refresh_vote_replies')</div>
-	<form method="post" action="newtopic.php?action=savevote&amp;id={{ $board }}&amp;topic_id={{ $_GET['topic_id'] }}{{ SID2URL_x }}">
-		<div class="panel-body">
-			<label for="temp">@lang('add_vote_replies')<br /><span class="stext">@lang('add_vote_replies_desc')</span></label>
-			<div class="label">
-				<input type="text" tabindex="1" size="3" id="temp" name="temp" value="{{ $temp }}" />
-				<input type="submit" tabindex="2" name="Update" value="@lang('refresh_form')" />
-			</div>
-			<br class="newinput" />
-		</div>
-		@if(empty($error))
-		<div class="panel-footer">@lang('title_vote_question_replies')</div>
-		<div class="panel-body">
-			<label for="question">@lang('add_vote_question')</label>
-			<input type="text" size="40" tabindex="3" id="question" class="label" name="question" value="{{ $data['question'] }}" />
-			<br class="newinput" />
-		</div>
-		<div class="panel-footer">@lang('title_vote_replies')</div>
-		<div class="panel-body">
-			@foreach(range($i, $temp) as $i)
-			@if($i > 1)
-			<hr class="formsep" />
-			@endif
-			@php $lang->assign('i', $i) @endphp
+<h1>@lang('add_vote_to_thread')</h1>
+<form method="post" action="newtopic.php?action=savevote&amp;id={{ $board }}&amp;topic_id={{ $_GET['topic_id'] }}{{ SID2URL_x }}">
+	<div class="form-group">
+		<label for="question">
+			@lang('title_vote_question_replies')
+			<small>@lang('title_vote_question_replies_desc')</small>
+		</label>
+		<input type="text" size="40" tabindex="3" id="question" class="form-control" name="question" value="{{ $data['question'] }}" />
+	</div>
+	<h2>@lang('title_vote_replies')</h2>
+	<div class="form-group">
+		<label for="temp">
+			@lang('title_refresh_vote_replies')
+			<small>@lang('add_vote_replies_desc')</small>
+		</label>
+		<input type="text" tabindex="1" size="3" id="temp" name="temp" value="{{ $temp }}" class="form-control" />
+	</div>
+	<div class="form-group form-buttons">
+		<input type="submit" tabindex="2" name="Update" value="@lang('refresh_form')" class="btn btn-default" />
+	</div>
+	@foreach(range(1, $temp) as $i)
+		<div class="form-group">
+			@php $lang->assign('i', $i) @endphp <!-- ToDo: Remove this PHP code -->
 			<label for="notice_{{ $i }}">@lang('add_vote_reply')</label>
-			<input type="text" size="40" tabindex="1{{ $i }}" id="notice_{{ $i }}" class="label" name="notice[{{ $i }}]" value="{{ $data[$i] }}" />
-			<br class="newinput" />
-			@endforeach
+			<input type="text" size="40" tabindex="1{{ $i }}" id="notice_{{ $i }}" class="form-control" name="notice[{{ $i }}]" value="{{ $data[$i] }}" />
 		</div>
-		<div class="panel-footer center"><input type="submit" tabindex="200" accesskey="s" value="@lang('submit_form')" /></div>
-	</form>
-	@endif
-</div>
+	@endforeach
+	<div class="form-group form-buttons">
+		<input type="submit" tabindex="200" accesskey="s" value="@lang('submit_form')" class="btn btn-primary" />
+	</div>
+</form>

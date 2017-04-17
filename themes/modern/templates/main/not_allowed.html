@@ -1,30 +1,32 @@
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">@lang('re_login_title')</h3></div>
-	<div class="panel-body">
-		<ul>
-			@foreach ($errormsg as $error)
-			<li>{{ $error }}</li>
-			@endforeach
-		</ul>
-	</div>
-	<h3 class="inlineheader"><img src="@theme('images/login.gif')" alt="" /> @lang('re_login_login')</h3></div>
+<h1>@lang('re_login_title')</h1>
+<div class="alert alert-danger alert-dismissible" role="alert">
+	<ul>
+		@foreach ($errormsg as $error)
+		<li>{{ $error }}</li>
+		@endforeach
+	</ul>
+</div>
+<h2>@lang('re_login_login')</h2>
+<p>
+	<strong>@lang('logged_in_as')</strong>
+	{{ $my->name }}
+	@if($my->vlogin)
+	<a href="log.php?action=logout&amp;redirect={{ rawurlencode($errorurl) }}{{ SID2URL_x }}" class="btn btn-danger">@lang('logout')</a>
+	@endif
+</p>
 @if(!$my->vlogin)
 <form method="post" action="log.php?action=login2{{ SID2URL_x }}">
-	<div class="panel-body">
+	<div class="form-group">
 		<label for="name">@lang('login_name')</label>
-		<input type="text" name="name" tabindex="1" id="name" class="label" size="15" />
-		<br class="newinput" /><hr class="formsep" />
-		<label for="pw">@lang('login_password')</label>
-		<input type="password" name="pw" tabindex="2" id="pw" class="label" size="15" />
-		<input type="hidden" name="redirect" value="{{ $errorurl }}" />
-		<br class="newinput" />
+		<input type="text" name="name" tabindex="1" id="name" class="form-control" size="15" />
 	</div>
-	<div class="panel-footer center"><input accesskey="s" tabindex="3" type="submit" value="@lang('submit_form')" /></div>
+	<div class="form-group">
+		<label for="pw">@lang('login_password')</label>
+		<input type="password" name="pw" tabindex="2" id="pw" class="form-control" size="15" />
+		<input type="hidden" name="redirect" value="{{ $errorurl }}" />
+	</div>
+	<div class="form-group form-buttons">
+		<input accesskey="s" tabindex="3" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
+	</div>
 </form>
-@else
-<div class="panel-body">
-	<label>@lang('logged_in_as')</label>
-	{{ $my->name }} [<a href="log.php?action=logout&amp;redirect={{ rawurlencode($errorurl) }}{{ SID2URL_x }}">@lang('logout')</a>]
-</div>
 @endif
-</div>

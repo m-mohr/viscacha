@@ -42,15 +42,16 @@
 			<div class="dropdown">
 				<a id="menu_bbtable_{{ $id }}" href="#" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_table')</a>
 				<div class="dropdown-menu" aria-labelledby="menu_bbtable_{{ $id }}">
-					<strong>@lang('bbcodes_create_table')</strong>
 					<div class="bbtable">
-						<input type="checkbox" style="height: 2em;" id="table_head_{{ $id }}" value="1" /> @lang('bbcodes_table_show_head')
-						<br class="newinput" /><hr class="formsep" />
+						<strong>@lang('bbcodes_create_table')</strong>
+						<hr />
+						<input type="checkbox" id="table_head_{{ $id }}" value="1" /> @lang('bbcodes_table_show_head')
+						<hr />
 						<input type="text" size="4" id="table_rows_{{ $id }}" value="2" /> @lang('bbcodes_table_rows')
-						<br class="newinput" /><hr class="formsep" />
+						<hr />
 						<input type="text" size="4" id="table_cols_{{ $id }}" value="2" /> @lang('bbcodes_table_cols')
-						<br class="newinput" /><hr class="formsep" />
-						<div class="center">[ <b><a href="javascript:InsertTable('{{ $id }}')">@lang('bbcodes_table_insert_table')</a></b> ]</div>
+						<hr />
+						<button type="button" class="btn btn-primary" onclick="InsertTable('{{ $id }}')">@lang('bbcodes_table_insert_table')</button>
 					</div>
 				</div>
 			</div>
@@ -95,7 +96,7 @@
 	@endif
 	@if(!in_array(TOOLBAR_SMILEYS, $disable))
 	<tr>
-		<td class="editor_toolbar" style="height: auto; overflow: auto;">
+		<td class="editor_toolbar">
 			@foreach ($smileys[1] as $bb)
 			<img src="{{ $bb['replace'] }}" onclick="InsertTags('{{ $id }}', ' {{ $bb['jssearch'] }} ', '');" title="{{ $bb['desc'] }}" alt="{{ $bb['desc'] }}" class="editor_toolbar_smiley" onmouseover="buttonOverSmiley(this)" onmouseout="buttonOutSmiley(this)" /></a>
 			@endforeach
@@ -119,7 +120,7 @@
 	</tr>
 	@endif
 	<tr>
-		<td>
+		<td class="editor_textarea">
 			<textarea name="{{ $id }}" id="{{ $id }}" class="editor_textarea_inner"{!! $taAttr !!}>{{ $content }}</textarea>
 		</td>
 	</tr>

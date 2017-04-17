@@ -1,39 +1,37 @@
-<form name="form2" method="post" action="log.php?action=login2{{ SID2URL_x }}">
-	<div class="panel panel-default">
-		<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/login.gif')" alt="" /> @lang('login')</h3></div>
-		<div class="panel-body">
-			<label for="name">
-				@lang('login_name')
-			</label>
-			<input tabindex="1" id="name" class="label" type="text" name="name" size="40" />
-			<br class="newinput" /><hr class="formsep" />
-			<label for="pw">
-				@lang('login_password')<br />
-				<span class="stext"><a tabindex="5" href="log.php?action=pwremind{{ SID2URL_x }}">@lang('login_lost_password')</a></span>
-			</label>
-			<input tabindex="2" id="pw" class="label" type="password" name="pw" size="40" />
-			<br class="newinput" /><hr class="formsep" />
-			<label for="remember">@lang('login_rememberme')</label>
-			<div class="label center"><input type="checkbox" tabindex="3" id="remember" name="remember" value="1" checked="checked" /></div>
-			<br class="newinput" />
-		</div>
-		<div class="panel-footer center">
-			<input type="hidden" name="redirect" value="{{ $loc }}" />
-			<input tabindex="4" type="submit" accesskey="s" name="Submit1" value="@lang('submit_form')" />
-		</div>
+<h1>@lang('login')</h1>
+<form method="post" action="log.php?action=login2{{ SID2URL_x }}">
+	<input type="hidden" name="redirect" value="{{ $loc }}" />
+	<div class="form-group">
+		<label for="name">@lang('login_name')</label>
+		<input tabindex="1" id="name" class="form-control" type="text" name="name" size="40" />
+	</div>
+	<div class="form-group">
+		<label for="pw">
+			@lang('login_password')
+			<small><a tabindex="5" href="log.php?action=pwremind{{ SID2URL_x }}">@lang('login_lost_password')</a></small>
+		</label>
+		<input tabindex="2" id="pw" class="form-control" type="password" name="pw" size="40" />	
+	</div>
+	<div class="form-group">
+		<label for="remember">
+			<input type="checkbox" tabindex="3" id="remember" name="remember" value="1" checked="checked" />
+			@lang('login_rememberme')
+		</label>
+	</div>
+	<div class="form-group form-buttons">
+		<input tabindex="4" type="submit" accesskey="s" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
 
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/register.gif')" alt="" /> @lang('why_register')</h3></div>
+<div class="panel panel-info">
+	<div class="panel-heading"><h3 class="panel-title">@lang('why_register')</h3></div>
 	<div class="panel-body">
 		<p>@lang('why_register_desc')</p>
-		<p class="center">
-			[<a tabindex="6" href="misc.php?action=rules{{ SID2URL_x }}">@lang('rules')</a>]
-			@if (!$config['disableregistration'])
-			&nbsp; [<a tabindex="7" href="register.php{{ SID2URL_1 }}">@lang('login_registered')</a>]
-			@endif
-			&nbsp; [<a tabindex="8" href="register.php?action=resend{{ SID2URL_x }}">@lang('register_resend_title')</a>]
-		</p>
+		<ul>
+			<li><a tabindex="6" href="misc.php?action=rules{{ SID2URL_x }}">@lang('rules')</a></li>
+			<li><a tabindex="7" href="register.php{{ SID2URL_1 }}">@lang('login_registered')</a></li>
+			<li><a tabindex="8" href="register.php?action=resend{{ SID2URL_x }}">@lang('register_resend_title')</a></li>
+		</ul>
 	</div>
+
 </div>

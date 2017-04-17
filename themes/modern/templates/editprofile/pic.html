@@ -1,32 +1,36 @@
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/user.gif')" alt="" /> @lang('editprofile_pic')</h3></div>
-	<form method="post" action="editprofile.php?action=pic3{{ SID2URL_x }}">
-		<div class="panel-footer">@lang('editprofile_pic_current')</div>
-		<div class="bbody center">
-			@if(file_exists($my->pic))
-			<img src="{{ $my->pic }}" border="0" alt="" />
-			<hr class="formsep" />
-			<input type="checkbox" name="temp" tabindex="1" id="delete_pic" value="1" /> <label class="plainlabel" for="delete_pic">@lang('editprofile_pic_delete')</label> <input class="sep" type="submit" value="@lang('delete_form')" />
-			@elselang('editprofile_pic_empty')
-		</div>
-	</form>
-	<div class="panel-footer">@lang('editprofile_pic_new')</div>
-	<form name="form2" method="post" action="editprofile.php?action=pic2{{ SID2URL_x }}" enctype="multipart/form-data">
-		<div class="panel-body">
-			<label class="plainlabel" for="pic"><strong>@lang('editprofile_pic_url')</strong></label><br />
-			<input type="text" name="pic" tabindex="2" id="pic" size="60" value="" />
-			<hr class="formsep" />
-			<label class="plainlabel" for="upload"><strong>@lang('editprofile_pic_upload')</strong></label><br />
-			<input type="file" name="upload" tabindex="3" id="upload" size="60" value="" />
-			<hr class="formsep" />
-			<span class="stext">
-				<strong>@lang('editprofile_pic_settings')</strong>
-				<br />
-				@lang('upload_restriction_filesize') {{ $filesize }}<br />
-				@lang('editprofile_pic_restricitons')<br />
-				@lang('upload_restriction_filetype') {{ $filetypes }}
-			</span>
-		</div>
-		<div class="panel-footer center"><input accesskey="s" tabindex="4" type="submit" name="Submit1" value="@lang('submit_form')" /></div>
-	</form>
-</div>
+<h1>@lang('editprofile_pic')</h1>
+<h2>@lang('editprofile_pic_current')</h2>
+@if(file_exists($my->pic))
+<img src="{{ $my->pic }}" border="0" alt="" class="pull-left" />
+<form method="post" action="editprofile.php?action=pic3{{ SID2URL_x }}" class="form-inline">
+	<div class="checkbox">
+		<label for="delete_pic">
+			<input type="checkbox" name="temp" tabindex="1" id="delete_pic" value="1" />
+			@lang('editprofile_pic_delete')
+		</label>
+	</div>
+	<input type="submit" value="@lang('delete_form')" class="btn btn-danger" />
+</form>
+@elselang('editprofile_pic_empty')
+<h2>@lang('editprofile_pic_new')</h2>
+<form name="form2" method="post" action="editprofile.php?action=pic2{{ SID2URL_x }}" enctype="multipart/form-data">
+	<div class="form-group">
+		<label>@lang('editprofile_pic_settings')</label>
+		<ul class="form-control-static">
+			<li>@lang('upload_restriction_filesize') {{ $filesize }}</li>
+			<li>@lang('editprofile_pic_restricitons')</li>
+			<li>@lang('upload_restriction_filetype') {{ $filetypes }}</li>
+		</ul>
+	</div>
+	<div class="form-group">
+		<label for="upload">@lang('editprofile_pic_upload')</label>
+		<input type="file" name="upload" tabindex="3" id="upload" size="60" class="form-control" />
+	</div>
+	<div class="form-group">
+		<label for="pic">@lang('editprofile_pic_url')</label>
+		<input type="text" name="pic" tabindex="2" id="pic" size="60" class="form-control" />
+	</div>
+	<div class="form-group form-buttons">
+		<input accesskey="s" tabindex="4" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
+	</div>
+</form>

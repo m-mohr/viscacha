@@ -147,7 +147,7 @@ if ($info['topics'] > 0) {
 }
 
 ($code = $plugins->load('showforum_prepared')) ? eval($code) : null;
-echo $tpl->parse("showforum", compact("info", "pages", "topics", "subforums", "filter", "prefix_filter"));
+echo $tpl->parse("showforum", compact("info", "pages", "topics", "subforums", "filter", "prefix_filter", "board"));
 ($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
 $slog->updatelogged();

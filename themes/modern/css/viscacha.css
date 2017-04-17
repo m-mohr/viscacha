@@ -2,6 +2,9 @@
 .nav-breadcrumb li:first-child {
 	display: none;
 }
+.nav-breadcrumb {
+	border-bottom: 1px solid #bd1550;
+}
 
 #header {
 	padding-right: 15px;
@@ -21,6 +24,9 @@
 	body {
 		padding-top: 70px;
 	}
+	body.popup {
+		padding: 10px;
+	}
 	#header.navbar-fixed-top {
 		position: fixed;
 	}
@@ -35,14 +41,6 @@
     font-weight: 500;
     padding: 3px 5px;
     text-align: center;
-}
-
-.breadcrumb a {
-	color: #fff;
-	text-decoration: underline;
-}
-.breadcrumb a:hover, .breadcrumb a:focus, .breadcrumb a:active {
-	color: #f9f9f9;
 }
 
 .nav-condensed > li > a {
@@ -220,6 +218,9 @@ hr {
 	color: #fff;
 }
 
+.pagination-container {
+	text-align: right;
+}
 .pagination {
 	margin-top: 0px;
 	margin-bottom: 20px;
@@ -227,6 +228,23 @@ hr {
 
 .panel-footer.nav {
 	padding: 4px;
+}
+
+@media(min-width: 992px) {
+	/* ToDo: Check what happens when there are multiple of these alerts */
+	.alert-dismissible {
+		z-index: 2000;
+		position: fixed;
+		bottom: 10px;
+		right: 10px;
+		min-width: 300px;
+		max-width: 500px;
+		margin: 0px;
+	}
+}
+
+.manage-attachments input[type="file"] {
+	display: inline-block;
 }
 
 /* Forum list table */
@@ -284,6 +302,31 @@ hr {
     margin: 0px;
 }
 
+/* Edit profile */
+.editprofile-nav i {
+	display: none;
+}
+.editprofile-nav p {
+	display: none;
+}
+.editprofile-nav a {
+	display: block;
+}
+	
+@media(min-width:768px) {
+	.editprofile-nav i {
+		display: inline-block;
+		width: 2em;
+		text-align: center;
+	}
+	.editprofile-nav p {
+		display: block;
+	}
+	.editprofile-nav a {
+		display: inline;
+	}
+}
+
 /* Thread and Post view */
 
 .post .avatar {
@@ -306,6 +349,22 @@ hr {
 }
 .icon-online {
 	color: #8A9B0F;
+}
+
+/* Forms */
+label {
+	display: block;
+}
+label small {
+	float: right;
+	font-weight: normal;
+	margin: 2px 0; /* Optimize vertical-align for small width forms */
+}
+label small:after {
+	clear: right;
+}
+.form-buttons {
+	text-align: left;
 }
 
 /* BB-Codes */
@@ -379,6 +438,9 @@ hr {
 .editor_textarea_outer td {
 	padding: 4px;
 }
+.editor_textarea_outer td.editor_textarea {
+	padding: 0px;
+}
 .editor_textarea_outer a, .editor_textarea_outer a:hover {
 	text-decoration: none;
 }
@@ -422,7 +484,6 @@ hr {
 	font-size: 9pt;
 	border-width: 0px;
 	width: 100%;
-	margin: -4px;
 	padding: 4px;
 }
 .editor_statusbar {

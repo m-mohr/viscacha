@@ -42,7 +42,7 @@ Breadcrumb::universal()->add($lang->phrase('members'), 'members.php'.SID2URL_1);
 if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail')) {
 	$result = $db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$_GET['id']}'");
 	$row = $slog->cleanUserData($db->fetch_object($result));
-	$username = $row['name'];
+	$username = $row->name;
 	Breadcrumb::universal()->add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].SID2URL_x);
 	Breadcrumb::universal()->add($lang->phrase('profile_mail_2'));
 
