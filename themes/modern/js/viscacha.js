@@ -11,13 +11,18 @@ function initMenu() {
 	$('#sidebar li a').click(
 		function () {
 			var checkElement = $(this).next();
-			if ((checkElement.is('ul')) && (checkElement.is(':visible'))) {
-				checkElement.slideUp('normal');
-				return false;
-			}
-			if ((checkElement.is('ul')) && (!checkElement.is(':visible'))) {
-//				$('#sidebar ul:visible').slideUp('normal'); // ToDo: Clicking Subsubmenus closes the parent menu
-				checkElement.slideDown('normal');
+			if (checkElement.is('ul')) {
+				if (checkElement.is(':visible')) {
+					checkElement.slideUp('normal');
+				}
+				else {
+					$('#sidebar ul:visible').each(function() {
+						if ($(this).has(checkElement).length === 0) {
+							$(this).slideUp('normal');
+						}
+					});
+					checkElement.slideDown('normal');
+				}
 				return false;
 			}
 		}
