@@ -122,3 +122,16 @@ function multiquote(id) {
 $(document).ready(function () {
 	mq_init();
 });
+
+// AJAX
+var sidx = '';
+function markforumread(id, element) {
+	$.get("ajax.php?action=markforumread&id=" + id + sidx, function() {
+		$(element).removeClass("clickable").removeClass("icon-new").addClass("icon-old").attr("title", "");
+	});
+}
+function marktopicread(id, element) {
+	$.get("ajax.php?action=marktopicread&id=" + id + sidx, function() {
+		$(element).removeClass("clickable").removeClass("icon-new").addClass("icon-old").attr("title", "");
+	});
+}

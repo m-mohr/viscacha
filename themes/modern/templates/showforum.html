@@ -70,9 +70,9 @@
 				@endif
 				@else
 				@if($row->status == 0)
-				<i class="fa fa-lg fa-folder-open icon-new" title="@lang('forum_icon_new')"></i>
+				<i class="fa fa-lg fa-folder-open icon-new clickable" onclick="marktopicread({{ $row->id }},this)" title="@lang('forum_icon_new') | @lang('forum_options_markread')"></i>
 				@else
-				<i class="fa fa-lg fa-lock icon-new" title="@lang('forum_icon_closed')"></i>
+				<i class="fa fa-lg fa-lock icon-new clickable" onclick="marktopicread({{ $row->id }},this)" title="@lang('forum_icon_closed') | @lang('forum_options_markread')"></i>
 				@endif
 				@endif
 			</td>
@@ -81,7 +81,7 @@
 				<i class="fa fa-bar-chart pull-right" aria-hidden="true" title="@lang('vote_titlevote') {{$row->vquestion}}"></i>
 				@endif
 				@if(!$row->read)
-				<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-chevron-down" title="@lang('move_to_first_new_post')"></i></a>
+				<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-chevron-down clickable" title="@lang('move_to_first_new_post')"></i></a>
 				<strong>
 				@endif
 					{{ $row->type }}

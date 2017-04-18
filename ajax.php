@@ -35,21 +35,38 @@ $my->p = $slog->Permissions();
 
 $action = $gpc->get('action', str);
 
-viscacha_header("Content-type: text/plain");
 send_nocache_header();
 
 ($code = $plugins->load('ajax_start')) ? eval($code) : null;
 
-// Schliesst oder oeffnet einen Beitrag mittels AJAX
 if ($action == 'markforumread') {
 	$board = $gpc->get('id', int);
 	$my->p = $slog->Permissions($board);
+	// ToDo: Make this permission check better, more like in showforum.php
 	if (!is_id($board) || $my->p['forum'] == 0) {
-		echo '0';
+		sendStatusCode(403);
 	}
 	$slog->setForumRead($board);
 	$slog->updatelogged();
-	echo '1';
+	sendStatusCode(200);
+}
+elseif ($action == 'marktopicread') {
+	$topic = $gpc->get('id', int);
+	$result = $db->query("SELECT board FROM {$db->pre}topics WHERE id = '{$topic}'");
+	$board = $db->fetch_one($result);
+	
+	$my->p = $slog->Permissions($board);
+	// ToDo: Make this permission check better, more like in showtopic.php
+	if (!is_id($topic) || $my->p['forum'] == 0) {
+		sendStatusCode(403);
+	}
+
+	$cat_bid_obj = $scache->load('cat_bid');
+	$forums = $cat_bid_obj->get();
+	$parentForums = get_headboards($fc, $forums[$board], true);
+	$slog->setTopicRead($topic, $parentForums);
+	$slog->updatelogged();
+	sendStatusCode(200);
 }
 elseif ($action == 'doubleudata') {
 	if (mb_strlen($_GET['name']) > 3) {

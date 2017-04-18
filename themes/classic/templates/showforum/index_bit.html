@@ -19,7 +19,7 @@
 		<img align="right" src="@theme('images/vote.gif')" alt="@lang('vote_titlevote') {{$row->vquestion}}" />
 		@endif
 		@if(!$row->read)
-		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}"><img src="@theme('images/desc.gif')" alt="@lang('move_to_first_new_post')" /></a>
+		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id }}{{ SID2URL_x }}" class="clickable"><img src="@theme('images/desc.gif')" alt="@lang('move_to_first_new_post')" /></a>
 		<strong>
 		@endif
 		{{ $pref }}
