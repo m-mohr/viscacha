@@ -5,10 +5,10 @@ var box_img_minus = 'admin/html/images/minus.gif';
 ///////////////////////// General / Misc. /////////////////////////
 function disable (txt) {
 	if (txt.id == 'dis1') {
-		input = FetchElement("dis2");
+		input = document.getElementById("dis2");
 	}
 	else {
-		input = FetchElement("dis1");
+		input = document.getElementById("dis1");
 	}
 
 	if (txt.value != '') {
@@ -28,8 +28,8 @@ function locate(url) {
 }
 function hideLanguageBoxes() {
 	for(var i=1;i<256;i++) {
-		box = FetchElement('language_'+i);
-		check = FetchElement('use_'+i);
+		box = document.getElementById('language_'+i);
+		check = document.getElementById('use_'+i);
 		if (box && check) {
 			if (check.checked != true && check.checked != 'checked') {
 				box.style.display = 'none';
@@ -57,7 +57,7 @@ function insert_doc(url,title) {
 function openHookPosition(hook) {
 	var url = 'admin.php?action=packages&job=plugins_hook_pos&hook=';
 	if (hook == null) {
-		var hook = FetchElement('hook').value;
+		var hook = document.getElementById('hook').value;
 	}
 	window.open(url+hook+'#key', "sourcecode", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes");
 	return false;
@@ -69,7 +69,7 @@ function coms() {
     window.open("admin.php?action=cms&job=nav_comslist","","width=480,height=480,resizable=yes,scrollbars=yes");
 }
 function changeLanguageUsage(lid) {
-	box = FetchElement('language_'+lid);
+	box = document.getElementById('language_'+lid);
 	if (box.style.display == 'none') {
 		box.style.display = '';
 		return true;
@@ -92,7 +92,7 @@ function init() {
 			switchimg = document.images[i];
 			id = switchimg.id.replace("img_","");
 			boxes[i] = id;
-			part = FetchElement("part_"+id);
+			part = document.getElementById("part_"+id);
 			if(document.cookie && part.style.display != 'none') {
 				hide = GetCookie(id);
 				if(hide != '') {
@@ -115,7 +115,7 @@ function initTranslateDetails() {
 			switchimg = document.images[i];
 			id = switchimg.id.replace("img_","");
 			boxes[i] = id;
-			part = FetchElement("part_"+id);
+			part = document.getElementById("part_"+id);
 			part.style.display = 'none';
 			HandCursor(switchimg);
 			Switch(switchimg, true);
@@ -130,7 +130,7 @@ function All(job) {
 		if (name == 'collapse') {
 			switchimg = document.images[i];
 			id = switchimg.id.replace("img_","");
-			part = FetchElement("part_"+id);
+			part = document.getElementById("part_"+id);
 			if(job == 1) {
 				switchimg.src = box_img_plus;
 				part.style.display = 'none';
@@ -148,7 +148,7 @@ function All(job) {
 
 ///////////////////////// AJAX /////////////////////////
 function ajax_backupinfo(file, id) {
-	inline = FetchElement(id);
+	inline = document.getElementById(id);
 	inline.innerHTML = lng['ajax4'];
 	var myConn = new ajax();
 	if (!myConn) {alert(lng['ajax0']);}
@@ -165,7 +165,7 @@ function ajax_searchmember(field, ins, key) {
 			return;
 		}
 	}
-	inline = FetchElement(ins);
+	inline = document.getElementById(ins);
 	if (field.value.length > 2) {
 		var myConn = new ajax();
 		if (!myConn) {alert(lng['ajax0']);}
@@ -189,9 +189,9 @@ function ajax_searchmember(field, ins, key) {
 	}
 }
 function ajax_smIns(name, form, sugg) {
-	inline = FetchElement(form);
+	inline = document.getElementById(form);
 	inline.value = name;
-	inline2 = FetchElement(sugg);
+	inline2 = document.getElementById(sugg);
 	inline2.innerHTML = lng['ajax1'];
 }
 function ajax_noki(img, params) {
@@ -220,22 +220,22 @@ function noki(integer) {
 // Bases on Jeroen's Chmod Calculator
 // By Jeroen Vermeulen of Alphamega Hosting <jeroen@alphamegahosting.com>
 function octalchange() {
-	var val = FetchElement('chmod').value;
+	var val = document.getElementById('chmod').value;
 	var ownerbin = parseInt(val.charAt(0)).toString(2);
 	while (ownerbin.length<3) { ownerbin="0"+ownerbin; };
 	var groupbin = parseInt(val.charAt(1)).toString(2);
 	while (groupbin.length<3) { groupbin="0"+groupbin; };
 	var otherbin = parseInt(val.charAt(2)).toString(2);
 	while (otherbin.length<3) { otherbin="0"+otherbin; };
-	FetchElement('owner4').checked = parseInt(ownerbin.charAt(0));
-	FetchElement('owner2').checked = parseInt(ownerbin.charAt(1));
-	FetchElement('owner1').checked = parseInt(ownerbin.charAt(2));
-	FetchElement('group4').checked = parseInt(groupbin.charAt(0));
-	FetchElement('group2').checked = parseInt(groupbin.charAt(1));
-	FetchElement('group1').checked = parseInt(groupbin.charAt(2));
-	FetchElement('other4').checked = parseInt(otherbin.charAt(0));
-	FetchElement('other2').checked = parseInt(otherbin.charAt(1));
-	FetchElement('other1').checked = parseInt(otherbin.charAt(2));
+	document.getElementById('owner4').checked = parseInt(ownerbin.charAt(0));
+	document.getElementById('owner2').checked = parseInt(ownerbin.charAt(1));
+	document.getElementById('owner1').checked = parseInt(ownerbin.charAt(2));
+	document.getElementById('group4').checked = parseInt(groupbin.charAt(0));
+	document.getElementById('group2').checked = parseInt(groupbin.charAt(1));
+	document.getElementById('group1').checked = parseInt(groupbin.charAt(2));
+	document.getElementById('other4').checked = parseInt(otherbin.charAt(0));
+	document.getElementById('other2').checked = parseInt(otherbin.charAt(1));
+	document.getElementById('other1').checked = parseInt(otherbin.charAt(2));
 	calc_chmod(1);
 };
 function calc_chmod(nototals) {
@@ -249,14 +249,14 @@ function calc_chmod(nototals) {
 		var field1 = user + "1";
 		var number = 0;
 
-		if (FetchElement(field4).checked == true) { number += 4; }
-		if (FetchElement(field2).checked == true) { number += 2; }
-		if (FetchElement(field1).checked == true) { number += 1; }
+		if (document.getElementById(field4).checked == true) { number += 4; }
+		if (document.getElementById(field2).checked == true) { number += 2; }
+		if (document.getElementById(field1).checked == true) { number += 1; }
 
 		totals[i] = totals[i]+number;
 
   };
 	if (!nototals) {
-	    FetchElement('chmod').value = totals[0] + totals[1] + totals[2];
+	    document.getElementById('chmod').value = totals[0] + totals[1] + totals[2];
 	}
 }

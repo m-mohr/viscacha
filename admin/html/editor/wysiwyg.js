@@ -2787,7 +2787,7 @@ var WYSIWYG_Table = {
  * @param id Element identifier
  */
 function $(id) {
-	return FetchElement(id);
+	return document.getElementById(id);
 }
 
 /**
