@@ -200,9 +200,18 @@ hr {
     margin-bottom: 0.5em;
 }
 
-#copyright {
+#footer {
 	padding-top: 1em;
 	text-align: center;
+}
+
+#footer span {
+	padding-top: 1em;
+	display: block;
+}
+
+.docs-container {
+	margin-bottom: 1em;
 }
 
 .navbar-toggle {

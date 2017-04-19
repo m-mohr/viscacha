@@ -1,18 +1,16 @@
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">
-			@if($my->p['wwo'] == 1)
-			<a href="misc.php?action=wwo{{ SID2URL_x }}">@lang('wiw')</a>
-			@elselang('wiw')
-		</h3></div>
-	<div class="panel-body">
-		@lang('active_usercounter')<br />
-		<span class="stext">@lang('active_members')
-			@forelse($wwo['list'] as $row)
-			<a href="profile.php?id={{ $row['mid'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>{{ $row['sep'] }}
-			@empty
-			@lang('no_members_online')
-			@endforelse
-		</span>
-	</div>
-</div>
+<h2>
+	@if($my->p['wwo'] == 1)
+	<a href="misc.php?action=wwo{{ SID2URL_x }}">@lang('wiw')</a>
+	@elselang('wiw')
+</h2>
+<p>@lang('active_usercounter')<br />
+	<small>
+		@lang('active_members')
+		@forelse($wwo['list'] as $row)
+		<a href="profile.php?id={{ $row['mid'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>{{ $row['sep'] }}
+		@empty
+		@lang('no_members_online')
+		@endforelse
+	</small>
+</p>
 
