@@ -17,9 +17,7 @@
 			<td>
 				{{ $row['prefix'] }}
 				<a href="showtopic.php?id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['prefix'] }}{{ $row['topic'] }}</a>
-				@if(!empty($row['topic_pages']))
-				<br /><span class="stext">{!! $row['topic_pages'] !!}</span>
-				@endif
+				{!! $row['topic_pages'] !!}
 			</td>
 			<td class="textright stext">
 				<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">@reldatetime($row['last'])</a><br />

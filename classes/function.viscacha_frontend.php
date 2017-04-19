@@ -315,93 +315,50 @@ define('PAGES_SEPARATOR', 4);
  * Gives out html formatted page numbers.
  *
  * It uses the set of templates specified in the last parameter.
- * The template sets are in the directory "main" and are prefixed with "pages".
- * Example: the last parameter is "_small", the main template is "pages_small.html".
+ * The template sets are in the directory "main".
  *
  * @param int $anzposts Number of entries
  * @param int $perpage Number of entries per page
  * @param string $uri URL to the page with & or ? at the end (page=X will be appended)
- * @param int $p The current page
- * @param string $template Name of template set (see description)
- * @param boolean $linkrel Enable/Disable the browser based navigation (default: enabled)
+ * @param int $page The current page
+ * @param string $template Name of template set
  * @return string HTML formatted page numbers and prefix
  */
-function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = true) {
+function pages ($anzposts, $perpage, $uri, $page = 1, $template = 'pages') {
 	global $config, $tpl, $lang;
 
-	if (!is_id($anzposts)) {
-		$anzposts = 1;
+	if ($anzposts < 0) {
+		$anzposts = 0;
 	}
-	if (!is_id($perpage)) {
+	if ($perpage < 1) {
 		$perpage = 10;
 	}
 
 	// Last page / Number of pages
-	$anz = ceil($anzposts/$perpage);
-	// Array with all page numbers
-	$available_pages = range(1, $anz);
-	// Page data for template
-	$pages = array();
-
-	if ($anz > 10) {
-		// What we want to be shown if available
-		$show = array(
-			1,
-			$p-1,
-			$p,
-			$p+1,
-			$anz
-		);
-		$show = array_unique($show);
-		foreach ($show as $num) {
-			if (in_array($num, $available_pages) == true) {
-				if (in_array($num-1, $show) == false && $num > 1) { // Add separator when page numbers are missing
-					$pages[$num-1] = array(
-						'type' => PAGES_SEPARATOR,
-						'url' => null,
-						'separator' => false
-					);
-				}
-				$pages[$num] = array(
-					'type' => iif($num == $p, PAGES_CURRENT, PAGES_NUM),
-					'url' => $uri.'page='.$num.SID2URL_x,
-					'separator' => in_array($num+1, $show)
-				);
-			}
-		}
+	$pagecount = ceil($anzposts/$perpage);
+	// Theoretical page number we want to show and remove duplicates
+	if ($page == 0) {
+		$pages = array_unique(array(1,2,$pagecount-1,$pagecount));
 	}
 	else {
-		for ($i = 1; $i <= $anz; $i++) {
-			$pages[$i] = array(
-				'type' => iif($i == $p, PAGES_CURRENT, PAGES_NUM),
-				'url' => $uri.'page='.$i.SID2URL_x,
-				'separator' => ($i != $anz)
-			);
-		}
+		$pages = array_unique(array(
+			1,
+			$page - 1,
+			$page,
+			$page + 1,
+			$pagecount
+		));
+		// Filter invalid page numbers
+		$pages = array_filter($pages, function($value) use ($pagecount) {
+			return ($value >= 1 && $value <= $pagecount);
+		});
+		// normalize keys (enumerated, beginning with 0, increasing by 1)
+		$pages = array_values($pages);
 	}
 
-	if ($linkrel) {
-		if (!defined('LINK_FIRST_PAGE')) {
-			define('LINK_FIRST_PAGE', $pages[1]['url']);
-		}
-		if (!defined('LINK_PREVIOUS_PAGE') && isset($pages[$p-1])) {
-			define('LINK_PREVIOUS_PAGE', $pages[$p-1]['url']);
-		}
-		if (!defined('LINK_NEXT_PAGE') && isset($pages[$p+1])) {
-			define('LINK_NEXT_PAGE', $pages[$p+1]['url']);
-		}
-		if (!defined('LINK_LAST_PAGE') && isset($pages[$anz]) && $anz > 1) {
-			define('LINK_LAST_PAGE', $pages[$anz]['url']);
-		}
-	}
-
-	ksort($pages);
-
-	$tpl->assignVars(compact("uri", "anz", "pages"));
-	$lang->assign('anz', $anz);
-	return $tpl->parse("main/pages".$template);
+	$tpl->assignVars(compact("uri", "page", "pagecount", "pages"));
+	return $tpl->parse("main/{$template}");
 }
-
 
 function UpdateTopicStats($topic) {
 	global $db;

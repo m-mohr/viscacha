@@ -95,9 +95,7 @@
 				</strong>
 				@endif
 				</a>
-				@if(!empty($row->pages))
-				<br /><span class="stext">{!! $row->pages !!}</span>
-				@endif
+				{!! $row->pages !!}
 			</td>
 			<td class="cell-author hidden-xs">
 				@reldatetime($row->date)<br />

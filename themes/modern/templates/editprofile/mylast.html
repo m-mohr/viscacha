@@ -38,11 +38,9 @@
 				@if(!$row['read'])
 			</strong>
 			@endif
-			@if(!empty($row['topic_pages']))
-			(<span class="stext" style="white-space: nowrap;">{!! $row['topic_pages'] !!}</span>)
-			@endif
+			{!! $row['topic_pages'] !!}
 		</td>
-		<td width="10%">{{ $row['posts'] }}</td> 
+		<td width="10%">{{ numbers($row['posts']) }}</td> 
 	</tr>
 	@endforeach
 	<tr>

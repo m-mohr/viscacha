@@ -170,13 +170,7 @@ elseif ($_GET['action'] == "abos") {
 		}
 
 		$row['read'] = $slog->isTopicRead($row['tid'], $row['last']);
-
-		if ($row['posts'] > $info['topiczahl']) {
-			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
-		}
-		else {
-			$row['topic_pages'] = '';
-		}
+		$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, 'pages_small');
 
 		($code = $plugins->load('editprofile_abos_entry_prepared')) ? eval($code) : null;
 		$cache[] = $row;
@@ -691,8 +685,7 @@ elseif ($_GET['action'] == "mylast") {
 		else {
 			$row['pre'] = '';
 		}
-		$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
-		$row['posts'] = numbers($row['posts']);
+		$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, 'pages_small');
 		($code = $plugins->load('editprofile_mylast_entry_prepared')) ? eval($code) : null;
 		$cache[] = $row;
 	}

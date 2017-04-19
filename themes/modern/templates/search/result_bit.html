@@ -23,10 +23,8 @@
 		@endif
 		{{ $pref }}
 		<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}&amp;q={{ $qhighlight }}">@if($showprefix) @lang('showtopic_prefix_title') @endif {{$row->topic }}</a>
-		@if(!empty($topic_pages))
-		<br /><span class="stext">{!! $topic_pages !!}</span>
-		@endif
-		<br /><span class="stext">@lang('result_board') <a href="showforum.php?id={{ $row->board }}{{ SID2URL_x }}" target="_blank">{{ $forums[$row->board]['name'] }}</a></span>
+		{!! $topic_pages !!}
+		<span class="stext">@lang('result_board') <a href="showforum.php?id={{ $row->board }}{{ SID2URL_x }}" target="_blank">{{ $forums[$row->board]['name'] }}</a></span>
 	</td>
 	<td class="stext">
 		@reldatetime($row->date)<br />

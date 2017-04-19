@@ -15,7 +15,7 @@
 		<ul class="nav navbar-nav">
 			@foreach ($letters as $compare => $row)
 			@if($letter == $compare)
-			<li class="active"><a>{{ $row['html'] }}</a></li>
+			<li class="active"><span>{{ $row['html'] }}</span></li>
 			@else
 			<li><a href="members.php?letter={{ $row['url'] }}&amp;{{ $query_letter }}">{{ $row['html'] }}</a></li>
 			@endif
