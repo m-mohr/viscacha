@@ -1,103 +1,45 @@
 $id = $config['viscacha_document_on_portal']['doc_id'];
-$separator = $tpl->parse("modules/{$pluginid}/separator");
 
 $result = $db->query("
-	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
+	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.date AS date2, d.update AS update2, d.parser, d.template, d.groups
 	FROM {$db->pre}documents AS d
-		LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
 		LEFT JOIN {$db->pre}user AS u ON u.id = d.author
-	WHERE d.id = '{$id}' ".iif($my->p['admin'] != 1, ' AND c.active = "1"')
-);
-if ($db->num_rows($result) > 0) {
-	$info = null;
-	$data = array();
-	while ($row = $db->fetch_assoc($result)) {
-		if (!is_array($info)) {
-			$info = array(
-				'id' => $row['id'],
-				'author' => $row['author'],
-				'date' => $row['date'],
-				'date2' => $row['date'],
-				'update' => $row['update'],
-				'update2' => $row['update'],
-				'type' => $row['type'],
-				'groups' => $row['groups'],
-				'name' => $row['name']
-			);
-		}
-		$data[$row['lid']] = array(
-			'content' => $row['content'],
-			'active' => $row['active'],
-			'title' => $row['title']
-		);
-	}
-	
-	if (GroupCheck($info['groups'])) {
-		if(empty($info['name'])) {
-			$info['name'] = $lang->phrase('fallback_no_username');
-		}
-		if ($info['date'] > 0 ) {
-			$info['date'] = str_date(times($info['date']));
-		}
-		else {
-			$info['date'] = $lang->phrase('docs_date_na');
-		}
-		if ($info['update'] > 0) {
-			$info['update'] = str_date(times($info['update']));
-		}
-		else {
-			$info['update'] = $lang->phrase('docs_date_na');
-		}
-	
-		$type = doctypes();
-		if (isset($type[$info['type']])) {
-			$typedata = $type[$info['type']];
-		}
-		else {
-			$typedata = array(
-				'title' => 'Fallback',
-				'template' => '',
-				'parser' => 1,
-				'inline' => 1,
-				'remote' => 0
-			);
-		}
-
-		$lid = getDocLangID($data);
-		$info = array_merge($info, $data[$lid]);
-	
-		if ($typedata['inline'] == 0) {
-			if ($typedata['remote'] == 0) {
-				$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
-			}
-			else {
-				$info['file'] = $info['content'];
-			}
-			if (empty($typedata['template'])) {
-				echo $info['content'].$separator;
-			}
-			else {
-				echo $tpl->parse("docs/{$typedata['template']}").$separator;
-			}
-		}
-		else {
-			if (empty($typedata['template'])) {
-				preg_match("~<title>(.+?)</title>~isu", $info['content'], $match_title);
-				preg_match("~<body[^>]*?>(.+?)</body>~isu", $info['content'], $match_body);
-	
-				if (!empty($match_title[1])) {
-					$info['title'] = $match_title[1];
-				}
-				if (!empty($match_body[1])) {
-					$info['content'] = $match_body[1];
-				}
-				echo DocCodeParser($info['content'], $typedata['parser']).$separator;
-			}
-			else {
-				$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
-				echo $tpl->parse("docs/{$typedata['template']}").$separator;
-			}
-	
-		}
-	}
+	WHERE d.id = '{$id}'
+");
+if ($db->num_rows($result) == 0) {
+	return;
 }
+$info = $db->fetch_assoc($result);
+
+$result2 = $db->query("SELECT * FROM  {$db->pre}documents_content WHERE did = '{$id}'");
+$data = array();
+while ($row = $db->fetch_assoc($result2)) {
+	$data[$row['lid']] = $row;
+}
+
+if (!GroupCheck($info['groups'])) {
+	return;
+}
+
+$lid = getDocLangID($data);
+$document = $data[$lid];
+
+if(empty($info['name'])) {
+	$info['name'] = $lang->phrase('fallback_no_username');
+}
+if ($info['date'] > 0 ) {
+	$info['date'] = date($lang->phrase('datetime_format'), times($info['date']));
+}
+else {
+	$info['date'] = $lang->phrase('docs_date_na');
+}
+if ($info['update'] > 0) {
+	$info['update'] = date($lang->phrase('datetime_format'), times($info['update']));
+}
+else {
+	$info['update'] = $lang->phrase('docs_date_na');
+}
+	
+$document['content'] = DocCodeParser($document['content'], $info['parser']);
+
+echo $tpl->parse("docs/{$info['template']}");

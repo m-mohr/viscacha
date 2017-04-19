@@ -63,12 +63,10 @@ cron.php
 -cron_end
 
 docs.php
--docs_query
--docs_prepare
--docs_body_start
--docs_html_start
--docs_html_parser_prepared
--docs_html_template_prepared
+-docs_start
+-docs_queried
+-docs_prepared
+-docs_output_start
 -docs_end
 
 edit.php

@@ -150,7 +150,7 @@ function cmp_edit_date($a, $b) {
 function DocCodePagination($cc) {
 	$pos1 = mb_stripos($cc, '{pagebreak}');
 	if ($pos1 === false) {
-		return array($cc, 1);
+		return array($cc, '');
 	}
 	else {
 		$page = $_GET['page']-1;
@@ -159,28 +159,27 @@ function DocCodePagination($cc) {
 			$page = 0;
 			$_GET['page'] = 1;
 		}
-		return array($pgc[$page], count($pgc));
+		$id = viscacha_htmlspecialchars($_GET['id']);
+		$pages = pages(count($pgc), 1, "docs.php?id={$id}&amp;", $_GET['page']);
+		return array($pgc[$page], $pages);
 	}
 }
 
-function DocCodeParser($syntax, $parser = 1) {
-	global $bbcode, $info;
-	if ($parser == 2) {
-		ob_start();
+function DocCodeParser($syntax, $parser = 'html') {
+	if ($parser == 'php') {
 		$code = str_replace('<'.'?php','<'.'?',$syntax);
 		$code = '?'.'>'.trim($code).'<'.'?';
 		extract($GLOBALS, EXTR_SKIP);
+		ob_start();
 		eval($code);
 		$syntax = ob_get_contents();
 		ob_end_clean();
 	}
-	elseif ($parser == 3) {
+	elseif ($parser == 'bbcode') {
+		global $bbcode;
 		BBProfile($bbcode);
 		$bbcode->setSmileys();
 		$syntax = $bbcode->parse($syntax);
-	}
-	elseif ($parser == 0) {
-		$syntax = viscacha_htmlspecialchars($syntax, ENT_NOQUOTES);
 	}
 	return $syntax;
 }
@@ -325,7 +324,7 @@ define('PAGES_SEPARATOR', 4);
  * @return string HTML formatted page numbers and prefix
  */
 function pages ($anzposts, $perpage, $uri, $page = 1, $template = 'pages') {
-	global $config, $tpl, $lang;
+	global $tpl;
 
 	if ($anzposts < 0) {
 		$anzposts = 0;
@@ -339,6 +338,9 @@ function pages ($anzposts, $perpage, $uri, $page = 1, $template = 'pages') {
 	// Theoretical page number we want to show and remove duplicates
 	if ($page == 0) {
 		$pages = array_unique(array(1,2,$pagecount-1,$pagecount));
+	}
+	else if ($pagecount <= 5) {
+		$pages = range(1, $pagecount);
 	}
 	else {
 		$pages = array_unique(array(

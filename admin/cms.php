@@ -1583,60 +1583,41 @@ elseif ($job == 'doc_ajax_active') {
 }
 elseif ($job == 'doc_add') {
 	echo head();
-	$type = doctypes();
-	$parser = array(
-		'0' => $lang->phrase('admin_cms_doc_no_parser'),
-		'1' => $lang->phrase('admin_cms_doc_html'),
-		'2' => $lang->phrase('admin_cms_doc_php_html'),
-		'3' => $lang->phrase('admin_cms_doc_bbcodes')
-	);
+	$parser = docparser();
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
-   <td class="obox" colspan="4"><?php echo $lang->phrase('admin_cms_create_doc_step_1'); ?></td>
+   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_cms_create_doc_step_1'); ?></td>
   </tr>
   <tr>
-   <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_title'); ?></td>
-   <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_template'); ?></td>
-   <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_parser'); ?></td>
-   <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_integration_of_templates'); ?></td>
+   <td class="mbox">
+    <?php echo $lang->phrase('admin_cms_doc_parser'); ?>
+    <ul>
+    <?php foreach ($parser as $type => $name) { ?>
+	 <li><a href="admin.php?action=cms&job=doc_add2&parser=<?php echo $type; ?>"><?php echo $name; ?></a></li>
+    <?php } ?>
+	</ul>
+   </td>
   </tr>
-<?php
-foreach ($type as $id => $row) {
-	$row['parser'] = isset($parser[$row['parser']]) ? $parser[$row['parser']] : $lang->phrase('admin_cms_doc_parser_unknown');
-	$row['inline'] = ($row['inline'] == 1) ? $lang->phrase('admin_cms_doc_static') : $lang->phrase('admin_cms_doc_dynamic');
-?>
-  <tr>
-   <td class="mbox"><a href="admin.php?action=cms&job=doc_add2&type=<?php echo $id; ?>"><?php echo $row['title']; ?></a></td>
-   <td class="mbox"><?php echo $row['template']; ?></td>
-   <td class="mbox"><?php echo $row['parser']; ?></td>
-   <td class="mbox"><?php echo $row['inline']; ?></td>
-  </tr>
-<?php } ?>
  </table>
 	<?php
 	echo foot();
 }
 elseif ($job == 'doc_add2') {
-	$type = $gpc->get('type', int);
-	$types = doctypes();
+	$type = $gpc->get('parser', db_esc);
+	$types = docparser();
 	if (!isset($types[$type])) {
-		$type = 3;
+		$type = 'html';
 	}
-	$format = $types[$type];
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
-	if ($format['parser'] == 1) {
-		$tas = array();
-		foreach ($language as $lid => $data) {
-			$tas[] = "template[{$lid}]";
-		}
+	if ($type != 'bbcode') {
 		$htmlhead .= attachWYSIWYG();
 	}
 	echo head(' onload="hideLanguageBoxes()"');
   	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 ?>
-<form id="form" method="post" action="admin.php?action=cms&job=doc_add3&type=<?php echo $type; ?>">
+<form id="form" method="post" action="admin.php?action=cms&job=doc_add3&parser=<?php echo $type; ?>">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
    <td class="obox"><?php echo $lang->phrase('admin_cms_create_doc_step_2'); ?></td>
@@ -1645,15 +1626,28 @@ elseif ($job == 'doc_add2') {
   <td class="ubox"><?php echo $lang->phrase('admin_cms_doc_global_settings'); ?></td>
   </tr>
   <tr>
-   <td class="mbox"><span class="stext right"><?php echo $lang->phrase('admin_cms_doc_groups_text'); ?></span><?php echo $lang->phrase('admin_cms_doc_groups'); ?><br />
-   <?php while ($row = $db->fetch_assoc($groups)) { ?>
-	<input type="checkbox" name="groups[]" checked="checked" value="<?php echo $row['id']; ?>"> <?php echo $row['name']; ?><br />
-   <?php } ?>
+   <td class="mbox">
+	<span class="stext right"><?php echo $lang->phrase('admin_cms_doc_groups_text'); ?></span>
+    <?php echo $lang->phrase('admin_cms_doc_groups'); ?><br />
+    <?php while ($row = $db->fetch_assoc($groups)) { ?>
+     <span style="margin-right: 1em;"><input type="checkbox" name="groups[]" checked="checked" value="<?php echo $row['id']; ?>"> <?php echo $row['name']; ?></span>
+    <?php } ?>
    </td>
   </tr>
   <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_doc_internal_note'); ?><br />
-   <textarea name="icomment" class="texteditor" cols="80" rows="3"></textarea>
+   <td class="mbox">
+    <?php echo $lang->phrase('admin_cms_doc_internal_note'); ?><br />
+    <textarea name="icomment" class="texteditor" cols="80" rows="3"></textarea>
+   </td>
+  </tr>
+  <tr>
+   <td class="mbox">
+    <?php echo $lang->phrase('admin_cms_doc_template'); ?><br />
+    <select name="tpl" cols="80" rows="3">
+     <option value="default">Default</option>
+     <option value="article">Article</option>
+     <option value="blank">Blank</option>
+	</select>
    </td>
   </tr>
 <?php foreach ($language as $lid => $data) { ?>
@@ -1666,35 +1660,20 @@ elseif ($job == 'doc_add2') {
   <tbody id="language_<?php echo $lid; ?>">
   <tr>
    <td class="mbox">
-	<?php if ($format['inline'] == 1 && empty($format['template'])) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_no_title_can_be_parsed'); ?></span><?php } ?>
 	<?php echo $lang->phrase('admin_cms_news_title'); ?><br />
 	<input type="text" name="title[<?php echo $lid; ?>]" size="60" />
    </td>
   </tr>
   <tr>
    <td class="mbox">
-   <?php
-	if($format['remote'] != 1) {
-		if($format['parser'] == 3) {
-			?>
-			<strong><a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a></strong>
-			<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
-			<br />
-			<?php
-			BBCodeToolBox("template[{$lid}]", '', 'rows="18" cols="110" class="texteditor editor_textarea_inner"');
-		}
-		else {
-			echo $lang->phrase('admin_cms_doc_sourcecode');
-			?>
-			<br /><textarea id="template[<?php echo $lid; ?>]" name="template[<?php echo $lid; ?>]" rows="20" cols="110" class="texteditor"></textarea>
-			<?php
-		}
-	}
-	else {
-	   	echo $lang->phrase('admin_cms_nav_file_url');
-		?>
+   <?php if($type == 'bbcode') { ?>
+		<strong><a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a></strong>
+		<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
 		<br />
-		<input type="text" name="template[<?php echo $lid; ?>]" size="60" />
+		<?php BBCodeToolBox("template[{$lid}]", '', 'rows="18" cols="110" class="texteditor editor_textarea_inner"'); ?>
+    <?php } else { ?>
+		<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
+		<br /><textarea id="template[<?php echo $lid; ?>]" name="template[<?php echo $lid; ?>]" rows="20" cols="110" class="texteditor"></textarea>
 	<?php } ?>
    </td>
   </tr>
@@ -1705,7 +1684,7 @@ elseif ($job == 'doc_add2') {
    </td>
   </tr>
   </tbody>
-<?php } ?>
+  <?php } ?>
   <tr><td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_add'); ?>" /></td></tr>
  </table>
 </form>
@@ -1715,16 +1694,14 @@ echo foot();
 elseif ($job == 'doc_add3') {
 	echo head();
 
-	$type = $gpc->get('type', int);
+	$parser = $gpc->get('parser', db_esc);
+	$tpl = $gpc->get('tpl', db_esc);
 	$icomment = $gpc->get('icomment', str);
 	$title = $gpc->get('title', arr_str);
 	$active = $gpc->get('active', arr_int);
 	$use = $gpc->get('use', arr_int);
   	$groups = $gpc->get('groups', arr_int);
   	$content = $gpc->get('template', arr_none);
-
-	$types = doctypes();
-	$format = $types[$type];
 
 	$i = 0;
 	foreach ($use as $lid => $usage) {
@@ -1747,7 +1724,7 @@ elseif ($job == 'doc_add3') {
 
 	$time = time();
 
-	$db->query("INSERT INTO {$db->pre}documents (`author`, `date`, `update`, `type`, `groups`, `icomment`) VALUES ('{$my->id}', '{$time}' , '{$time}' , '{$type}', '{$groups}', '{$icomment}')");
+	$db->query("INSERT INTO {$db->pre}documents (`author`, `date`, `update`, `parser`, `template`, `groups`, `icomment`) VALUES ('{$my->id}', '{$time}' , '{$time}' , '{$parser}', '{$tpl}', '{$groups}', '{$icomment}')");
 	$did = $db->insert_id();
 
 	foreach ($use as $lid => $usage) {
@@ -1764,13 +1741,7 @@ elseif ($job == 'doc_add3') {
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
 			}
-			if ($format['parser'] == 3) { // bb code page
-				// Handle bb-code like in the forums (entites etc.)
-				$content[$lid] = $gpc->save_str($content[$lid]);
-			}
-			else { // html page or inline frame
-				$content[$lid] = $db->escape_string($content[$lid]);
-			}
+			$content[$lid] = $db->escape_string($content[$lid]);
 			$lid = $gpc->save_int($lid);
 			$db->query("INSERT INTO {$db->pre}documents_content ( `did` , `lid` , `title` , `content` , `active` ) VALUES ('{$did}', '{$lid}', '{$title[$lid]}', '{$content[$lid]}', '{$active[$lid]}')");
 		}
@@ -1801,14 +1772,15 @@ elseif ($job == 'doc_delete') {
 }
 elseif ($job == 'doc_edit') {
 	$id = $gpc->get('id', int);
-	$types = doctypes();
+	$types = docparser();
 
 	$result = $db->query("
 		SELECT d.*, u.name AS author_name
 		FROM {$db->pre}documents AS d
 			LEFT JOIN {$db->pre}user AS u ON u.id = d.author
-		WHERE id = '{$id}'");
+		WHERE d.id = '{$id}'");
 	if ($db->num_rows($result) == 0) {
+		echo head();
 		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_invalid_id_given'));
 	}
 	$row = $db->fetch_assoc($result);
@@ -1819,14 +1791,14 @@ elseif ($job == 'doc_edit') {
 		$content[$row2['lid']] = $row2;
 	}
 
-	$format = $types[$row['type']];
+	$format = $types[$row['parser']];
 	$groups = $db->query("SELECT id, name FROM {$db->pre}groups");
 	$garr = explode(',', $row['groups']);
 
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
 
-	if ($format['parser'] == 1) {
+	if ($row['parser'] != 'bbcode') {
 		$htmlhead .= attachWYSIWYG();
 	}
 	echo head(' onload="hideLanguageBoxes()"');
@@ -1842,7 +1814,7 @@ elseif ($job == 'doc_edit') {
   <tr>
    <td class="mbox"><span class="stext right"><?php echo $lang->phrase('admin_cms_doc_groups_text'); ?></span><?php echo $lang->phrase('admin_cms_doc_groups'); ?><br />
    <?php while ($g = $db->fetch_assoc($groups)) { ?>
-	<input type="checkbox" name="groups[]"<?php echo iif($row['groups'] == 0 || in_array($g['id'], $garr),'checked="checked"'); ?> value="<?php echo $g['id']; ?>"> <?php echo $g['name']; ?><br />
+	<span style="margin-right: 1em;"><input type="checkbox" name="groups[]"<?php echo iif($row['groups'] == 0 || in_array($g['id'], $garr),'checked="checked"'); ?> value="<?php echo $g['id']; ?>"> <?php echo $g['name']; ?></span>
    <?php } ?>
    </td>
   </tr>
@@ -1851,6 +1823,14 @@ elseif ($job == 'doc_edit') {
    <textarea name="icomment" class="texteditor" cols="80" rows="3"><?php echo $gpc->prepare($row['icomment']); ?></textarea>
    </td>
   </tr>
+   <td class="mbox">
+    <?php echo $lang->phrase('admin_cms_doc_template'); ?><br />
+    <select name="tpl" cols="80" rows="3">
+     <option value="default"<?php echo iif($row['template'] == 'default', ' selected="selected"'); ?>>Default</option>
+     <option value="article"<?php echo iif($row['template'] == 'article', ' selected="selected"'); ?>>Article</option>
+     <option value="blank"<?php echo iif($row['template'] == 'blank', ' selected="selected"'); ?>>Blank</option>
+	</select>
+   </td>
   <tr>
    <td class="mbox">
 	<?php echo $lang->phrase('admin_cms_doc_author_change'); ?><br />
@@ -1881,35 +1861,20 @@ elseif ($job == 'doc_edit') {
   <tbody id="language_<?php echo $lid; ?>">
   <tr>
    <td class="mbox">
-	<?php if ($format['inline'] == 1 && empty($format['template'])) { ?><span class="stext right"><?php echo $lang->phrase('admin_cms_if_no_title_can_be_parsed'); ?></span><?php } ?>
 	<?php echo $lang->phrase('admin_cms_news_title'); ?><br />
 	<input type="text" name="title[<?php echo $lid; ?>]" size="60" value="<?php echo $gpc->prepare($row2['title']); ?>" />
    </td>
   </tr>
   <tr>
    <td class="mbox">
-   <?php
-	if($format['remote'] != 1) {
-		if($format['parser'] == 3) {
-			?>
-			<strong><a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a></strong>
-			<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
-			<br />
-			<?php
-			BBCodeToolBox("template[{$lid}]", $row2['content'], 'rows="18" cols="110" class="texteditor editor_textarea_inner"');
-		}
-		else {
-			echo $lang->phrase('admin_cms_doc_sourcecode');
-			?>
-			<br /><textarea id="template[<?php echo $lid; ?>]" name="template[<?php echo $lid; ?>]" rows="20" cols="110" class="texteditor"><?php echo $row2['content']; ?></textarea>
-			<?php
-		}
-	}
-	else {
-	   	echo $lang->phrase('admin_cms_nav_file_url');
-		?>
+	<?php if($row['parser'] == 'bbcode') { ?>
+		<strong><a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a></strong>
+		<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
 		<br />
-		<input type="text" name="template[<?php echo $lid; ?>]" size="60" value="<?php echo $gpc->prepare($row2['content']); ?>" />
+		<?php BBCodeToolBox("template[{$lid}]", $row2['content'], 'rows="18" cols="110" class="texteditor editor_textarea_inner"'); ?>
+	<?php } else { ?>
+		<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
+		<br /><textarea id="template[<?php echo $lid; ?>]" name="template[<?php echo $lid; ?>]" rows="20" cols="110" class="texteditor"><?php echo $row2['content']; ?></textarea>
 	<?php } ?>
    </td>
   </tr>
@@ -1929,7 +1894,6 @@ elseif ($job == 'doc_edit') {
 echo foot();
 }
 elseif ($job == 'doc_edit2') {
-
 	echo head();
 
 	$id = $gpc->get('id', int);
@@ -1940,14 +1904,7 @@ elseif ($job == 'doc_edit2') {
 	$use = $gpc->get('use', arr_int);
   	$groups = $gpc->get('groups', arr_int);
   	$content = $gpc->get('template', arr_none);
-
-	$result = $db->query("SELECT type FROM {$db->pre}documents WHERE id = '{$id}' LIMIT 1");
-	if ($db->num_rows($result) == 0) {
-		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_document_doesnt_exist'));
-	}
-	$doc = $db->fetch_assoc($result);
-	$types = doctypes();
-	$format = $types[$doc['type']];
+	$tpl = $gpc->get('tpl', db_esc);
 
 	$i = 0;
 	foreach ($use as $lid => $usage) {
@@ -1970,7 +1927,7 @@ elseif ($job == 'doc_edit2') {
 
 	$time = time();
 
-	$db->query("UPDATE {$db->pre}documents SET `update` = '{$time}', `groups` = '{$groups}', `author` = '{$author}', `icomment` = '{$icomment}' WHERE id = '{$id}' LIMIT 1");
+	$db->query("UPDATE {$db->pre}documents SET `update` = '{$time}', `groups` = '{$groups}', `author` = '{$author}', `icomment` = '{$icomment}', `template` = '{$tpl}' WHERE id = '{$id}' LIMIT 1");
 
 	$language_obj = $scache->load('loadlanguage');
 	$language = $language_obj->get();
@@ -1997,13 +1954,7 @@ elseif ($job == 'doc_edit2') {
 				$active[$lid] = 0;
 			}
 			$result = $db->query("SELECT lid FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
-			if ($format['parser'] == 3) { // bb code page
-				// Handle bb-code like in the forums (entites etc.)
-				$content[$lid] = $gpc->save_str($content[$lid]);
-			}
-			else { // html page or inline frame
-				$content[$lid] = $db->escape_string($content[$lid]);
-			}
+			$content[$lid] = $db->escape_string($content[$lid]);
 			if ($db->num_rows($result) == 1) {
 				$db->query("UPDATE {$db->pre}documents_content SET `title` = '{$title[$lid]}', `content` = '{$content[$lid]}', `active` = '{$active[$lid]}' WHERE did = '{$id}' AND lid = '{$lid}'");
 			}

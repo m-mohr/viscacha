@@ -1,19 +1,10 @@
 @php
-list($content, $pages) = DocCodePagination($info['content']);
+list($content, $pages) = DocCodePagination($document['content']);
 @endphp
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">{{ $info['title'] }}</h3></div>
-	@if($pages > 1)
-	<div class="panel-footer pagination">
-		@foreach(range(1,$pages) as $i)
-		@if($i != $_GET['page'])
-		<a class="page_number" href="docs.php?id={{ $id }}&amp;page={{ $i }}{{ SID2URL_x }}">{{ $i }}</a>
-		@else
-		<strong class="page_number_current">{{ $i }}</strong>
-		@endif
-		@endforeach
-	</div>
-	@endif
-	<div class="panel-body">{!! $content !!}</div>
-	<div class="panel-footer">@lang('docs_metadata')</div>
+<div class="docs-container">
+	<h1>{{ $document['title'] }}</h1>
+	{!! $pages !!}
+	{!! $content !!}
+	{!! $pages !!}
+	<div class="well">@lang('docs_metadata')</div>
 </div>

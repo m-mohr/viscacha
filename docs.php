@@ -34,147 +34,66 @@ $my->p = $slog->Permissions();
 
 $id = $gpc->get('id', int);
 
-($code = $plugins->load('docs_query')) ? eval($code) : null;
+($code = $plugins->load('docs_start')) ? eval($code) : null;
+
 $result = $db->query("
-	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.type, d.groups, c.lid, c.content, c.active, c.title
+	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.date AS date2, d.update AS update2, d.parser, d.template, d.groups
 	FROM {$db->pre}documents AS d
-		LEFT JOIN {$db->pre}documents_content AS c ON d.id = c.did
 		LEFT JOIN {$db->pre}user AS u ON u.id = d.author
-	WHERE d.id = '{$id}' ".iif($my->p['admin'] != 1, ' AND c.active = "1"')
-);
+	WHERE d.id = '{$id}'
+");
 if ($db->num_rows($result) == 0) {
 	error($lang->phrase('docs_not_found'));
 }
-$info = null;
+$info = $db->fetch_assoc($result);
+
+$result2 = $db->query("SELECT * FROM  {$db->pre}documents_content WHERE did = '{$id}'");
 $data = array();
-while ($row = $db->fetch_assoc($result)) {
-	if (!is_array($info)) {
-		$info = array(
-			'id' => $row['id'],
-			'author' => $row['author'],
-			'date' => $row['date'],
-			'date2' => $row['date'],
-			'update' => $row['update'],
-			'update2' => $row['update'],
-			'type' => $row['type'],
-			'groups' => $row['groups'],
-			'name' => $row['name']
-		);
-	}
-	$data[$row['lid']] = array(
-		'content' => $row['content'],
-		'active' => $row['active'],
-		'title' => $row['title']
-	);
+while ($row = $db->fetch_assoc($result2)) {
+	$data[$row['lid']] = $row;
 }
 
-/*
-Parser:
- 0 = None, 1 = HTML, 2 = PHP+HTML, 3 = BB-Code
-Template:
- Leer = Ausgabe, Vorhanden = Einfügen
-Inline:
- 0 = Template hinzufügen, 1 = Template in der Datei
-*/
+($code = $plugins->load('docs_queried')) ? eval($code) : null;
 
-if (GroupCheck($info['groups'])) {
-	if(empty($info['name'])) {
-		$info['name'] = $lang->phrase('fallback_no_username');
-	}
-	if ($info['date'] > 0 ) {
-		$info['date'] = str_date(times($info['date']));
-	}
-	else {
-		$info['date'] = $lang->phrase('docs_date_na');
-	}
-	if ($info['update'] > 0) {
-		$info['update'] = str_date(times($info['update']));
-	}
-	else {
-		$info['update'] = $lang->phrase('docs_date_na');
-	}
-	($code = $plugins->load('docs_prepare')) ? eval($code) : null;
-
-	$type = doctypes();
-	if (isset($type[$info['type']])) {
-		$typedata = $type[$info['type']];
-	}
-	else {
-		$typedata = array(
-			'title' => 'Fallback',
-			'template' => '',
-			'parser' => 1,
-			'inline' => 1,
-			'remote' => 0
-		);
-	}
-
-	// Get the correct lid and merge data to one info array (compatibility)
-	$lid = getDocLangID($data);
-	$info = array_merge($info, $data[$lid]);
-
-	if ($lid != $my->language) { // We don't use the correct language... Let's print a notice
-		FlashMessage::addNotice($lang->phrase('doc_wrong_language_shown'));
-	}
-
-	if ($typedata['inline'] == 0) {
-		if ($typedata['remote'] == 0) {
-			$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
-		}
-		else { // Only for backward compatibility of templates
-			$info['file'] = $info['content'];
-		}
-		Breadcrumb::universal()->add($info['title']);
-		echo $tpl->parse("header");
-		($code = $plugins->load('docs_body_start')) ? eval($code) : null;
-		if (empty($typedata['template'])) {
-			echo $info['content'];
-		}
-		else {
-			echo $tpl->parse("docs/{$typedata['template']}");
-		}
-	}
-	else {
-		($code = $plugins->load('docs_html_start')) ? eval($code) : null;
-		if (empty($typedata['template'])) {
-			preg_match("~<body([^>]+?)>~isu", $info['content'], $match_body_attr);
-			preg_match("~<title>(.+?)</title>~isu", $info['content'], $match_title);
-			preg_match("~<body[^>]*?>(.+?)</body>~isu", $info['content'], $match_body);
-			preg_match("~<head[^>]*?>(.+?)</head>~isu", $info['content'], $match_head);
-
-			if (!empty($match_head[1])) {
-				$match_head[1] = preg_replace("~<title>(.+?)</title>~isu", "", $match_head[1]);
-				$htmlhead .= $match_head[1];
-			}
-			if (!empty($match_body_attr[1])) {
-				$htmlbody .= $match_body_attr[1];
-			}
-			if (!empty($match_title[1])) {
-				$info['title'] = $match_title[1];
-			}
-			Breadcrumb::universal()->add($info['title']);
-			if (!empty($match_body[1])) {
-				$info['content'] = $match_body[1];
-			}
-			echo $tpl->parse("header");
-			($code = $plugins->load('docs_html_parser_prepared')) ? eval($code) : null;
-			echo DocCodeParser($info['content'], $typedata['parser']);
-		}
-		else {
-			Breadcrumb::universal()->add($info['title']);
-			$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
-			echo $tpl->parse("header");
-			($code = $plugins->load('docs_html_template_prepared')) ? eval($code) : null;
-			echo $tpl->parse("docs/{$typedata['template']}");
-		}
-
-	}
-	($code = $plugins->load('docs_end')) ? eval($code) : null;
-}
-else {
+if (!GroupCheck($info['groups'])) {
 	errorLogin();
 }
 
+$lid = getDocLangID($data);
+$document = $data[$lid];
+if ($lid != $my->language) { // We don't use the correct language... Let's print a notice
+	FlashMessage::addNotice($lang->phrase('doc_wrong_language_shown'));
+}
+
+if(empty($info['name'])) {
+	$info['name'] = $lang->phrase('fallback_no_username');
+}
+if ($info['date'] > 0 ) {
+	$info['date'] = date($lang->phrase('datetime_format'), times($info['date']));
+}
+else {
+	$info['date'] = $lang->phrase('docs_date_na');
+}
+if ($info['update'] > 0) {
+	$info['update'] = date($lang->phrase('datetime_format'), times($info['update']));
+}
+else {
+	$info['update'] = $lang->phrase('docs_date_na');
+}
+	
+$document['content'] = DocCodeParser($document['content'], $info['parser']);
+
+($code = $plugins->load('docs_prepared')) ? eval($code) : null;
+
+Breadcrumb::universal()->add($document['title']);
+
+($code = $plugins->load('docs_output_start')) ? eval($code) : null;
+
+echo $tpl->parse("header");
+echo $tpl->parse("docs/{$info['template']}");
 echo $tpl->parse("footer");
+
+($code = $plugins->load('docs_end')) ? eval($code) : null;
+
 $slog->updatelogged();
 $phpdoc->Out();

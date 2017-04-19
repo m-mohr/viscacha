@@ -271,13 +271,13 @@ function double_udata ($opt,$val) {
 
 function getDocLangID($data) {
 	global $my, $config;
-	if (isset($my->language) && is_id($my->language) && isset($data[$my->language])) {
+	if (isset($my->language) && is_id($my->language) && isset($data[$my->language]) && (!isset($data[$my->language]['active']) || $data[$my->language]['active'] == 1 || $my->p['admin'])) {
 		return $my->language; // Best case: Language specified by the user
 	}
-	elseif (is_id($config['doclang']) && isset($data[$config['doclang']])) {
+	elseif (is_id($config['doclang']) && isset($data[$config['doclang']]) && (!isset($data[$config['doclang']]['active']) || $data[$config['doclang']]['active'] == 1 || $my->p['admin'])) {
 		return $config['doclang']; // Normal Case: Standard language specified for documents
 	}
-	elseif (is_id($config['langdir']) && isset($data[$config['langdir']])) {
+	elseif (is_id($config['langdir']) && isset($data[$config['langdir']]) && (!isset($data[$config['langdir']]['active']) || $data[$config['langdir']]['active'] == 1 || $my->p['admin'])) {
 		return $config['langdir']; // Worse Case: Standard language of the page
 	}
 	else {
@@ -299,20 +299,16 @@ function send_nocache_header() {
 	header ('Pragma: no-cache');
 }
 
-function doctypes() {
-	$data = file('data/documents.php');
-	$arr = array();
-	foreach ($data as $line) {
-		list($id, $title, $tpl, $parser, $inline, $file) = explode("\t", $line, 6);
-		$arr[$id] = array(
-			'title' => $title,
-			'template' => $tpl,
-			'parser' => $parser,
-			'inline' => $inline,
-			'remote' => $file
-		);
+function docparser() {
+	global $lang;
+	if (!$lang->group_is_loaded('admin/cms')) {
+		$lang->group('admin/cms');
 	}
-	return $arr;
+	return array(
+		'html' => $lang->phrase('admin_cms_doc_html'),
+		'php' => $lang->phrase('admin_cms_doc_php_html'),
+		'bbcode' => $lang->phrase('admin_cms_doc_bbcodes')
+	);
 }
 
 function file2array($file, $delimiter = ';') {
