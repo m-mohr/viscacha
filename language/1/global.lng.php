@@ -330,7 +330,6 @@ $lang['members_filtergroups_label'] = 'Zeige nur Mitglieder der Gruppe:';
 $lang['members_na'] = '-';
 $lang['members_short'] = 'Mitglieder';
 $lang['members_show_form'] = 'Zeigen';
-$lang['member_count'] = '{@count->0} Mitglieder';
 $lang['member_deleted'] = 'Mitglied erfolgreich gelöscht';
 $lang['member_delete_yourself_error'] = 'Sie können Ihren eigenen Account nicht löschen!';
 $lang['member_recount_ok'] = 'Anzahl der Beiträge wurde erfolgreich neugezählt. Es ergab sich eine Änderung um {$diff} Beiträge.';

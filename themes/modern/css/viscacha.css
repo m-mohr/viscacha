@@ -205,6 +205,10 @@ hr {
 	text-align: center;
 }
 
+.navbar-toggle {
+	color: #fff;
+}
+
 .panel-title a {
 	text-decoration: underline;
 }
@@ -339,12 +343,29 @@ hr {
 	border-radius: 0.5em;
 }
 
+/* Member list */
+.members > thead > tr > th {
+	vertical-align: top;
+}
+.members > thead > tr > th .btn {
+	padding: 1px 5px;
+}
+.members .full-name {
+	display: none;
+}
+@media(min-width:768px) {
+	.members .full-name {
+		font-style: italic;
+		display: block;
+	}
+}
+
 /* Icons */
 
 .fa {
 	cursor: default;
 }
-.clickable {
+.clickable, a .fa {
 	cursor: pointer;
 }
 .icon-neutral, .icon-old, .icon-offline {

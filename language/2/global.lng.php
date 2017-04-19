@@ -330,7 +330,6 @@ $lang['members_filtergroups_label'] = 'Show only members of the group:';
 $lang['members_na'] = '-';
 $lang['members_short'] = 'Members';
 $lang['members_show_form'] = 'Show';
-$lang['member_count'] = '{@count->0} Members';
 $lang['member_deleted'] = 'Member successfully deleted';
 $lang['member_delete_yourself_error'] = 'You cannot delete you own account!';
 $lang['member_recount_ok'] = 'Number of posts successfully recounted. The change is {$diff} posts.';

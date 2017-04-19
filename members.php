@@ -109,8 +109,6 @@ else {
 		errorLogin();
 	}
 
-	$available = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2','3','4','5','6','7','8','9');
-
 	($code = $plugins->load('members_start')) ? eval($code) : null;
 
 	$fields = explode(',', $config['mlist_fields']);
@@ -131,14 +129,9 @@ else {
 	}
 
 	$sqlwhere = array('deleted_at IS NULL');
-	$_GET['letter'] = $gpc->get('letter', db_esc);
-	if (mb_strlen($_GET['letter']) == 1) {
-		if ($_GET['letter'] == '#') {
-			$sqlwhere[] = "LEFT(name, 1) REGEXP '^[^".implode('', $available)."]'";
-		}
-		else {
-			$sqlwhere[] = "LEFT(name, 1) = '{$_GET['letter']}'";
-		}
+	$letter = $gpc->get('letter', db_esc);
+	if (mb_strlen($letter) == 1) {
+		$sqlwhere[] = "LEFT(name, 1) = '{$letter}'";
 	}
 	if ($config['mlist_showinactive'] == 0) {
 		$sqlwhere[] = "confirm = '11'";
@@ -173,7 +166,7 @@ else {
 
 	$query_page = 	http_build_query(
 						array(
-							'letter' => rawurlencode($_GET['letter']),
+							'letter' => rawurlencode($letter),
 							'id' => $_GET['id'],
 							'sort' => $_GET['sort'],
 							'order' => $_GET['order']
@@ -189,7 +182,7 @@ else {
 					);
 	$query_th =		http_build_query(
 						array(
-							'letter' => rawurlencode($_GET['letter']),
+							'letter' => rawurlencode($letter),
 							'id' => $_GET['id'],
 							'page' => $_GET['page']
 						)
@@ -198,9 +191,9 @@ else {
 	($code = $plugins->load('members_queries')) ? eval($code) : null;
 
 	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE {$sqlwhere}");
-	$count = $db->fetch_num($result);
+	$count = $db->fetch_one($result);
 
-	$temp = pages($count[0], $config['mlistenzahl'], "members.php?{$query_page}&amp;", $_GET['page']);
+	$temp = pages($count, $config['mlistenzahl'], "members.php?{$query_page}&amp;", $_GET['page']);
 	$start = ($_GET['page'] - 1) * $config['mlistenzahl'];
 
 	$sqljoin = '';
@@ -243,22 +236,14 @@ else {
 	LIMIT {$start},{$config['mlistenzahl']}
 	");
 
-	if ($count[0] > 0 && $db->num_rows($result) == 0) {
+	if ($count > 0 && $db->num_rows($result) == 0) {
 		error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
 	}
 
-	$inner['index_bit'] = '';
+	$members = array();
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 		if (isset($row['location'])) {
 			$row['location'] = iif(!empty($row['location']), $row['location'], $lang->phrase('location_no_data'));
-		}
-		if (isset($row['gender'])) {
-			if ($row['gender'] == 'm' || $row['gender'] == 'w') {
-				$row['gender'] = $lang->phrase('gender_'.$row['gender']);
-			}
-			else {
-				$row['gender'] = $lang->phrase('gender_na');
-			}
 		}
 		if (isset($row['posts'])) {
 			$row['posts'] = numbers($row['posts']);
@@ -276,29 +261,21 @@ else {
 			$row['pic'] = '';
 		}
 		($code = $plugins->load('members_prepare_bit')) ? eval($code) : null;
-		$inner['index_bit'] .= $tpl->parse("members/index_bit");
+		$members[] = $row;
 	}
 
-	$letter = array(
-		'' => array('url' => '', 'html' => $lang->phrase('members_all'))
+	$letters = array(
+		'' => array('url' => '', 'html' => $lang->phrase('members_all')),
 	);
-	$specials = false;
 	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user WHERE deleted_at IS NULL ORDER BY letter");
 	while ($row = $db->fetch_assoc($result)) {
-		if (in_array($row['letter'], $available)) {
-			$letter[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);
-		}
-		elseif ($specials == false) {
-			$letter['#'] = array('url' => rawurlencode('#'), 'html' => '#');
-		}
+		$letters[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);
 	}
-	ksort($letter);
+	ksort($letters);
 
-	echo $tpl->parse("header");
 	($code = $plugins->load('members_prepared')) ? eval($code) : null;
 	echo $tpl->parse("members/index");
 	($code = $plugins->load('members_end')) ? eval($code) : null;
-	echo $tpl->parse("footer");
 }
 
 $slog->updatelogged();
