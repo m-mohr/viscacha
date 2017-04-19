@@ -347,13 +347,9 @@ function pages ($anzposts, $perpage, $uri, $p = 1, $template = '', $linkrel = tr
 		// What we want to be shown if available
 		$show = array(
 			1,
-			2,
-			$p-2,
 			$p-1,
 			$p,
 			$p+1,
-			$p+2,
-			$anz-1,
 			$anz
 		);
 		$show = array_unique($show);

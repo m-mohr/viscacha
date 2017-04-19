@@ -691,12 +691,7 @@ elseif ($_GET['action'] == "mylast") {
 		else {
 			$row['pre'] = '';
 		}
-		if ($row['posts'] > $info['topiczahl']) {
-			$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
-		}
-		else {
-			$row['topic_pages'] = '';
-		}
+		$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, '_small', false);
 		$row['posts'] = numbers($row['posts']);
 		($code = $plugins->load('editprofile_mylast_entry_prepared')) ? eval($code) : null;
 		$cache[] = $row;

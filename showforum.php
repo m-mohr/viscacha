@@ -136,9 +136,7 @@ if ($info['topics'] > 0) {
 		if ($last['topiczahl'] < 1) {
 			$last['topiczahl'] = $config['topiczahl'];
 		}
-		if ($row->posts > $last['topiczahl']) {
-			$row->pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
-		}
+		$row->pages = pages($row->posts+1, $last['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 
 		($code = $plugins->load('showforum_entry_prepared')) ? eval($code) : null;
 

@@ -1,3 +1,4 @@
+@if(count($pages) > 1)
 <span class="pagination_small">
 	@lang('pages')
 	@foreach ($pages as $page => $row)
@@ -13,3 +14,4 @@
 	@endif
 	@endforeach
 </span>
+@endif

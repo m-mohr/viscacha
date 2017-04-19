@@ -42,6 +42,14 @@ function adduploads(elem) { // ToDo: Non-JS alternative
 	window.open(elem.href, "adduploads", "width=550,height=450,resizable=yes,scrollbars=yes,location=no,status=yes");
 }
 
+// Jump to page
+function jumptopage(url) {
+	var page = prompt(lng['js_page_jumpto'], '');
+	if (page !== null && !isNaN(page) && page > 0) {
+		document.location.href = url.replace(/&amp;/g, '&') + 'page=' + page + sidx;
+	}
+}
+
 // Cookies
 function SetCookie(name, value) {
 	name = cookieprefix + '_' + name;

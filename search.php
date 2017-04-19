@@ -308,12 +308,7 @@ elseif ($_GET['action'] == "result") {
 			$info['topiczahl'] = $config['topiczahl'];
 		}
 
-		if ($row->posts > $info['topiczahl']) {
-			$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
-		}
-		else {
-			$topic_pages = '';
-		}
+		$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 
 		($code = $plugins->load('search_result_entry_prepared')) ? eval($code) : null;
 		$inner['index_bit'] .= $tpl->parse("search/result_bit");
@@ -433,12 +428,7 @@ elseif ($_GET['action'] == "active") {
 					$info['topiczahl'] = $config['topiczahl'];
 				}
 
-				if ($row->posts > $info['topiczahl']) {
-					$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
-				}
-				else {
-					$topic_pages = '';
-				}
+				$topic_pages = pages($row->posts+1, $info['topiczahl'], "showtopic.php?id=".$row->id."&amp;", 0, '_small', false);
 
     			($code = $plugins->load('search_active_entry_prepared')) ? eval($code) : null;
     			$inner['index_bit'] .= $tpl->parse("search/active_bit");
