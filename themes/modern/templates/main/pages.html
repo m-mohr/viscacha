@@ -2,7 +2,7 @@
 <nav class="pagination-block">
 	<ul class="pagination">
 		@if($page > 1)
-		<li class="pagination-previous"><a href="{{ $uri }}page={{ $page - 1 }}{{ SID2URL_x }}"><i class="fa fa-angle-left"></i> @lang('pages_previous')</a></li>
+		<li class="pagination-previous"><a href="{{ $uri }}page={{ $page - 1 }}{{ SID2URL_x }}"><i class="fa fa-angle-left"></i><span class="pagination-btn-label">@lang('pages_previous')</span></a></li>
 		@endif
 		@foreach($pages as $k => $i)
 			@if($i == $page)
@@ -15,7 +15,7 @@
 			@endif
 		@endforeach
 		@if($page < $pagecount)
-		<li class="pagination-next"><a href="{{ $uri }}page={{ $page + 1 }}{{ SID2URL_x }}">@lang('pages_next') <i class="fa fa-angle-right"></i></a></li>
+		<li class="pagination-next"><a href="{{ $uri }}page={{ $page + 1 }}{{ SID2URL_x }}"><span class="pagination-btn-label">@lang('pages_next')</span><i class="fa fa-angle-right"></i></a></li>
 		@endif
 		@if($pagecount > 5)
 		<li class="pagination-jumpto"><a href="javascript:jumptopage('{{ $uri }}');"><i class="fa fa-angle-double-down"></i></a></li>

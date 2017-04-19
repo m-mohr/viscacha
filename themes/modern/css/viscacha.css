@@ -258,6 +258,12 @@ hr {
 .pagination-inline .pagination-sm > li > a, .pagination-inline  .pagination-sm > li > span {
 	padding: 2px 6px;
 }
+.pagination-block .pagination-next i, .pagination-block .pagination-previous i {
+	margin: 0 0.5em;
+}
+.pagination-block .pagination-btn-label {
+	display: none;
+}
 .pagination-inline .pagination > li.pagination-label > span {
 	color: #000;
 }
@@ -265,6 +271,15 @@ li.pagination-jumpto, li.pagination-separator, li.pagination-label {
 	display: none;
 }
 @media(min-width:768px) {
+	.pagination-block .pagination-next i {
+		margin-right: 0px;
+	}
+	.pagination-block .pagination-previous i {
+		margin-left: 0px;
+	}
+	.pagination-block .pagination-btn-label {
+		display: inline;
+	}
 	li.pagination-jumpto, li.pagination-separator, li.pagination-label {
 		display: inline;
 	}
