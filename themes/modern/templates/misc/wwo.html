@@ -1,22 +1,29 @@
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/wwo.gif')" alt="" /> @lang('wiw')</h3></div>
-	<div class="panel-body">@lang('active_usercounter')</div>
-</div><br />
+<h1>
+	@lang('wiw')
+	<span class="badge">{{ $wwo['i'] }}</span>
+</h1>
 @if($wwo['r'] > 0)
+<h2>
+	@lang('wiw_r')
+	<span class="badge">{{ $wwo['r'] }}</span>
+</h2>
 <table class="table table-striped">
-	<tr>
-		<th colspan="2">@lang('wiw_r') {{ $wwo['r'] }}</th>
-	</tr>
 	{!! $inner['wwo_bit_member'] !!}
 </table>
-
 @endif
+
 @if($wwo['g'] > 0)
+<h2>
+	@lang('wiw_g')
+	<span class="badge">{{ $wwo['g'] }}</span>
+</h2>
 <table class="table table-striped">
-	<tr>
-		<th colspan="2">@lang('wiw_g') {{ $wwo['g'] }}</th>
-	</tr>
 	{!! $inner['wwo_bit_guest'] !!}
 </table>
-
 @endif
+
+<script type="text/javascript">
+$(function () {
+	$('[data-toggle="tooltip"]').tooltip()
+});
+</script>

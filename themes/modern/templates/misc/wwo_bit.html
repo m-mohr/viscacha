@@ -1,19 +1,14 @@
 <tr class="tbody">
 	<td width="45%" valign="top">
-		<span class="right">@time($row->active)</span>
+		<span class="pull-right"><i class="fa fa-clock-o"></i> @time($row->active)</span>
 		@if($row->mid >= 1)
 		<a href="profile.php?id={{ $row->mid }}">{{ $row->name }}</a>
 		@elselang('wiw_guest')
 		@if($my->p['admin'] == 1)
-		<span class="stext">
-			<br />
-			@lang('wiw_ip')
 			@if(check_ip($row->ip))
-			<a href="admin.php?addr={{ rawurlencode('admin.php?action=members&job=ips&ipaddress='.$row->ip) }}" target="_blank">{{ $row->ip }}</a>
-			@elselang('ip_unknown')
-			<br />
-			@lang('wiw_useragent') {{ $row->user_agent }}
-		</span>
+			<i class="fa fa-sitemap" title="@lang('wiw_ip') {{ $row->ip }}" data-toggle="tooltip" data-placement="bottom"></i>
+			@endif
+			<i class="fa fa-internet-explorer" title="@lang('wiw_useragent') {{ $row->user_agent }}" data-toggle="tooltip" data-placement="bottom"></i>
 		@endif
 	</td>
 	<td width="55%">{!! $loc !!}</td>
