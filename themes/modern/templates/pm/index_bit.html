@@ -1,9 +1,9 @@
 <tr class="tbody">
 	<td width="4%" class="center">
 		@if($row['status'])
-		<i class="fa fa-lg fa-envelope icon-new" title="@lang('pm_newicon')"></i>
-		@else
 		<i class="fa fa-lg fa-envelope icon-neutral" title="@lang('pm_oldicon')"></i>
+		@else
+		<i class="fa fa-lg fa-envelope icon-new" title="@lang('pm_newicon')"></i>
 		@endif
 	</td>
 	<td width="66%"><a href="pm.php?action=show&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a></td>

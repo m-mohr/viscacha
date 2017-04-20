@@ -1,10 +1,10 @@
 <tr class="tbody">
 	<td width="2%" class="center"><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
 	<td width="2%" class="center">
-		@if($row['status'] == 0)
-		<img src="@theme('dir_open2')" alt="@lang('pm_newicon')" />
+		@if($row['status'])
+		<i class="fa fa-lg fa-envelope icon-neutral" title="@lang('pm_oldicon')"></i>
 		@else
-		<img src="@theme('dir_open')" alt="@lang('pm_oldicon')" />
+		<i class="fa fa-lg fa-envelope icon-new" title="@lang('pm_newicon')"></i>
 		@endif
 	</td>
 	<td width="66%"><a href="pm.php?action=show&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a></td>
