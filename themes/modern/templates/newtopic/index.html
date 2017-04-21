@@ -75,10 +75,9 @@
 		<label for="digest">@lang('topic_abo')</label>
 		<select class="form-control" name="digest" id="digest" tabindex="10">
 			<option value="-1"@selected($data['digest'] == -1)>@lang('digest_none')</option>
+			<option value="9"@selected($data['digest'] == 9)>@lang('digest_f')</option>
 			<option value="1"@selected($data['digest'] == 1)>@lang('digest_s')</option>
 			<option value="2"@selected($data['digest'] == 2)>@lang('digest_d')</option>
-			<option value="3"@selected($data['digest'] == 3)>@lang('digest_w')</option>
-			<option value="9"@selected($data['digest'] == 9)>@lang('digest_f')</option>
 		</select>
 	</div>
 	<div class="form-group form-buttons">

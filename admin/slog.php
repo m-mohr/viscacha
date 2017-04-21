@@ -396,11 +396,8 @@ if ($show == 1) {
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
 	$members = $db->fetch_num($result);
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type != "f"');
+	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos');
 	$abos = $db->fetch_num($result);
-
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos WHERE type = "f"');
-	$favs = $db->fetch_num($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'uploads');
 	$uploads = $db->fetch_num($result);
@@ -414,28 +411,16 @@ if ($show == 1) {
   </tr>
   <tr>
    <td class="mbox">
-	<table class="inlinetable">
-	<tr>
-	  <td><?php echo $lang->phrase('admin_slog_members'); ?></td><td><code><?php echo $members[0];?></code></td>
-	  <td colspan="2">&nbsp;</td>
-	</tr>
-	<tr>
-	  <td><?php echo $lang->phrase('admin_slog_posts2'); ?></td><td><code><?php echo $posts[0];?></code></td>
-	  <td><?php echo $lang->phrase('admin_slog_attachments'); ?></td><td><code><?php echo $uploads[0];?></code></td>
-	</tr>
-	<tr>
-	  <td><?php echo $lang->phrase('admin_slog_threads'); ?></td><td><code><?php echo $topics[0];?></code></td>
-	  <td><?php echo $lang->phrase('admin_slog_replies'); ?></td><td><code><?php echo $replies;?></code></td>
-	</tr>
-	<tr>
-	  <td><?php echo $lang->phrase('admin_slog_subscriptions'); ?></td><td><code><?php echo $abos[0];?></code></td>
-	  <td><?php echo $lang->phrase('admin_slog_favourite_threads'); ?></td><td><code><?php echo $favs[0];?></code></td>
-	</tr>
-	<tr>
-	  <td width="25%"><?php echo $lang->phrase('admin_slog_votes'); ?></td><td width="25%"><code><?php echo $vote[0];?></code></td>
-	  <td width="25%"><?php echo $lang->phrase('admin_slog_participants'); ?></td><td width="25%"><code><?php echo $votes[0];?></code></td>
-	</tr>
-	</table>
+	<ul>
+	  <li><?php echo $lang->phrase('admin_slog_members'); ?> <?php echo $members[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_posts2'); ?> <?php echo $posts[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_threads'); ?> <?php echo $topics[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_replies'); ?> <?php echo $replies;?></li>
+	  <li><?php echo $lang->phrase('admin_slog_attachments'); ?> <?php echo $uploads[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_subscriptions'); ?> <?php echo $abos[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_votes'); ?> <?php echo $vote[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_participants'); ?> <?php echo $votes[0];?></li>
+	</ul>
    </td>
   </tr>
  </table>

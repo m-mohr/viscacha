@@ -1,59 +1,65 @@
 <h1>@lang('editprofile_abos')</h1>
 @if($count > 0)
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<form method="get" action="editprofile.php" class="navbar-form navbar-left">
+			<input type="hidden" name="page" value="{{ $_GET['page'] }}" />
+			<input type="hidden" name="action" value="{{ $_GET['action'] }}" />
+			<input type="hidden" name="s" value="{{ SID2URL }}" />
+			<div class="input-group">
+				<select name="type" class="form-control" id="filter">
+					<option value="">@lang('editprofile_no_filter')</option>
+					<option value="f"@selected($_GET['type'] == 'f')>@lang('editprofile_digest_f')</option>
+					<option value="s"@selected($_GET['type'] == 's')>@lang('editprofile_digest_s')</option>
+					<option value="d"@selected($_GET['type'] == 'd')>@lang('editprofile_digest_d')</option>
+				</select>
+				<span class="input-group-btn">
+					<button type="submit" accesskey="s" class="btn btn-primary"><i class="fa fa-filter"></i></button>
+				</span>
+			</div>
+
+		</form>
+    </div>
+</nav>
 {!! $pages !!}
 <form method="post" action="editprofile.php?action=abos2{{ SID2URL_x }}">
-	<table class="table table-striped">
+	<table class="table notifications table-striped">
 		<thead>
 			<tr> 
-				<th width="2%"><input type="checkbox" onclick="checkAll(this)" value="delete[]" class="js-only" /></th>
-				<th width="42%">@lang('forum_topic')</th>
-				<th width="21%">@lang('forum_last')</th>
-				<th width="35%">@lang('editprofile_digest_type')</th> 
+				<th class="cell-icon"><input type="checkbox" onclick="checkAll(this)" value="delete[]" class="js-only" /></th>
+				<th class="cell-topic">@lang('forum_topic')</th>
+				<th class="cell-last hidden-xs">@lang('forum_last')</th>
+				<th class="cell-type">@lang('editprofile_digest_type')</th> 
 			</tr>
 		</thead>
 		<tbody>
-		@foreach ($cache[$p] as $row)
-		<tr> 
-			<td><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
-			<td>
-				{{ $row['prefix'] }}
-				<a href="showtopic.php?id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a>
-				{!! $row['topic_pages'] !!}
-			</td>
-			<td class="textright stext">
-				<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">@reldatetime($row['last'])</a><br />
-				@lang('written_by')
-				<a href="profile.php?id={{ $row['luid'] }}{{ SID2URL_x }}">{{ $row['luname'] }}</a>
-			</td>
-			<td>
-				<select name="digest[{{ $row['id'] }}]">
-					<option value="f"@selected($row['type'] == 'f')>@lang('editprofile_digest_f')</option>
-					<option value="s"@selected($row['type'] == 's')>@lang('editprofile_digest_s')</option>
-					<option value="d"@selected($row['type'] == 'd')>@lang('editprofile_digest_d')</option>
-				</select>
-			</td> 
-		</tr>
-		@endforeach
+			@foreach ($cache[$p] as $row)
+			<tr> 
+				<td class="cell-icon"><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
+				<td class="cell-topic">
+					{{ $row['prefix'] }}
+					<a href="showtopic.php?id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a>
+					{!! $row['topic_pages'] !!}
+				</td>
+				<td class="cell-last hidden-xs">
+					<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">@reldatetime($row['last'])</a><br />
+					@lang('written_by')
+					<a href="profile.php?id={{ $row['luid'] }}{{ SID2URL_x }}">{{ $row['luname'] }}</a>
+				</td>
+				<td class="cell-type">
+					<select name="digest[{{ $row['id'] }}]">
+						<option value="f"@selected($row['type'] == 'f')>@lang('digest_f')</option>
+						<option value="s"@selected($row['type'] == 's')>@lang('digest_s')</option>
+						<option value="d"@selected($row['type'] == 'd')>@lang('digest_d')</option>
+					</select>
+				</td> 
+			</tr>
+			@endforeach
 		</tbody>
 	</table>
-	<input accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" class="btn btn-danger" />
+	<input accesskey="s" type="submit" value="@lang('submit_form')" class="btn btn-danger" />
 </form>
 {!! $pages !!}
 @else
 <div class="alert alert-info" role="alert">@lang('forum_empty')</div>
 @endif
-<form method="get" action="editprofile.php" class="form-inline">
-	<input type="hidden" name="page" value="{{ $_GET['page'] }}" />
-	<input type="hidden" name="action" value="{{ $_GET['action'] }}" />
-	<input type="hidden" name="s" value="{{ SID2URL }}" />
-	<div class="form-group">
-		<label for="filter">@lang('forum_filter')</label> <!-- ToDo: Inline form not correctly working -->
-		<select name="type" class="form-control" id="filter">
-			<option value=""@selected(empty($_GET['type']))>@lang('editprofile_no_filter')</option>
-			<option value="f"@selected($_GET['type'] == 'f')>@lang('editprofile_digest_f')</option>
-			<option value="s"@selected($_GET['type'] == 's')>@lang('editprofile_digest_s')</option>
-			<option value="d"@selected($_GET['type'] == 'd')>@lang('editprofile_digest_d')</option>
-		</select>
-	</div>
-	<button type="submit" accesskey="s" class="btn btn-primary">@lang('submit_form')</button>
-</form>

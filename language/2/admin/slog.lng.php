@@ -11,7 +11,6 @@ $lang['admin_slog_delete_log_now'] = 'Clear log file';
 $lang['admin_slog_descending'] = 'Descending';
 $lang['admin_slog_error_num'] = 'No.';
 $lang['admin_slog_error_report'] = 'Error report';
-$lang['admin_slog_favourite_threads'] = 'Favourite threads:';
 $lang['admin_slog_file'] = 'File: ';
 $lang['admin_slog_general_statistics'] = 'General Statistics';
 $lang['admin_slog_generate'] = 'Generate';

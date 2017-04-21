@@ -48,7 +48,6 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 		<tr><td class="editor_toolbar">
 			<a id="menu_bbcolor_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbcolor_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_color'); ?></a>
 			<div class="popup" id="popup_bbcolor_<?php echo $id; ?>">
-			<strong><?php echo $lang->phrase('bbcodes_color_title'); ?></strong>
 			<div class="bbcolor">
 				<script type="text/javascript">
 					document.write(generateColorPicker("InsertTags('<?php echo $id; ?>', '[color=<color>]', '[/color]')"));
@@ -58,27 +57,24 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<a id="menu_bbsize" href="#" onmouseover="RegisterMenu('bbsize');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_size'); ?></a>
 			<div class="popup" id="popup_bbsize">
-			<strong><?php echo $lang->phrase('bbcodes_size_title'); ?></strong>
 		   	<ul>
-				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=large]','[/size]')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
-				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=small]','[/size]')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
-				<li><span class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[size=extended]','[/size]')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
+				<li><span onclick="InsertTags('<?php echo $id; ?>', '[size=large]','[/size]')" style="font-size: 1.3em;"><?php echo $lang->phrase('bbcodes_size_large'); ?></span></li>
+				<li><span onclick="InsertTags('<?php echo $id; ?>', '[size=small]','[/size]')" style="font-size: 0.8em;"><?php echo $lang->phrase('bbcodes_size_small'); ?></span></li>
+				<li><span onclick="InsertTags('<?php echo $id; ?>', '[size=extended]','[/size]')" style="letter-spacing: 3px;"><?php echo $lang->phrase('bbcodes_size_extended'); ?></span></li>
 			</ul>
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<a id="menu_bbhx_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbhx_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_header'); ?></a>
 			<div class="popup" id="popup_bbhx_<?php echo $id; ?>">
-			<strong><?php echo $lang->phrase('bbcodes_header_title'); ?></strong>
 			<ul>
-				<li><h4 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=large]','[/h]')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
-				<li><h5 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=middle]','[/h]')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
-				<li><h6 class="popup_line" onclick="InsertTags('<?php echo $id; ?>', '[h=small]','[/h]')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
+				<li><h4 onclick="InsertTags('<?php echo $id; ?>', '[h=large]','[/h]')" style="margin: 0px; font-size: 14pt;"><?php echo $lang->phrase('bbcodes_header_h1'); ?></h4></li>
+				<li><h5 onclick="InsertTags('<?php echo $id; ?>', '[h=middle]','[/h]')" style=" margin: 0px; font-size: 13pt;"><?php echo $lang->phrase('bbcodes_header_h2'); ?></h5></li>
+				<li><h6 onclick="InsertTags('<?php echo $id; ?>', '[h=small]','[/h]')" style="margin: 0px; font-size: 12pt;"><?php echo $lang->phrase('bbcodes_header_h3'); ?></h6></li>
 			</ul>
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<a id="menu_bbtable_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbtable_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="admin/html/images/desc.gif" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_table'); ?></a>
 			<div class="popup" id="popup_bbtable_<?php echo $id; ?>">
-			<strong><?php echo $lang->phrase('bbcodes_create_table'); ?></strong>
 			<div class="bbtable">
 				<input type="checkbox" style="height: 2em;" id="table_head_<?php echo $id; ?>" value="1" /> <?php echo $lang->phrase('bbcodes_table_show_head'); ?>
 				<br class="newinput" /><hr class="formsep" />
@@ -92,36 +88,36 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<?php
 			echo iif(count($cbb), '<img src="admin/html/editor/images/seperator.gif" alt="" />');
 			foreach ($cbb as $bb) { ?>
-			<img src="<?php echo $bb['buttonimage']; ?>" onclick="<?php echo $bb['href']; ?>" title="<?php echo $bb['title']; ?>" alt="<?php echo $bb['title']; ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="<?php echo $bb['buttonimage']; ?>" onclick="<?php echo $bb['href']; ?>" title="<?php echo $bb['title']; ?>" alt="<?php echo $bb['title']; ?>" class="editor_toolbar_button" />
 			<?php } ?>
 		</td></tr>
 		<tr><td class="editor_toolbar">
-			<img src="admin/html/editor/images/bold.gif" onclick="InsertTags('<?php echo $id; ?>', '[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/italic.gif" onclick="InsertTags('<?php echo $id; ?>', '[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/underline.gif" onclick="InsertTags('<?php echo $id; ?>', '[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/bold.gif" onclick="InsertTags('<?php echo $id; ?>', '[b]','[/b]');" title="<?php echo $lang->phrase('bbcodes_bold'); ?>" alt="<?php echo $lang->phrase('bbcodes_bold'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/italic.gif" onclick="InsertTags('<?php echo $id; ?>', '[i]','[/i]');" title="<?php echo $lang->phrase('bbcodes_italic'); ?>" alt="<?php echo $lang->phrase('bbcodes_italic'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/underline.gif" onclick="InsertTags('<?php echo $id; ?>', '[u]','[/u]');" title="<?php echo $lang->phrase('bbcodes_underline'); ?>" alt="<?php echo $lang->phrase('bbcodes_underline'); ?>" class="editor_toolbar_button" />
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
-			<img src="admin/html/editor/images/left.gif" onclick="InsertTags('<?php echo $id; ?>','[align=left]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_left'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_left'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/center.gif" onclick="InsertTags('<?php echo $id; ?>','[align=center]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_center'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_center'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/right.gif" onclick="InsertTags('<?php echo $id; ?>','[align=right]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_right'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_right'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/justify.gif" onclick="InsertTags('<?php echo $id; ?>','[align=justify]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/left.gif" onclick="InsertTags('<?php echo $id; ?>','[align=left]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_left'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_left'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/center.gif" onclick="InsertTags('<?php echo $id; ?>','[align=center]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_center'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_center'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/right.gif" onclick="InsertTags('<?php echo $id; ?>','[align=right]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_right'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_right'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/justify.gif" onclick="InsertTags('<?php echo $id; ?>','[align=justify]','[/align]');" title="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" alt="<?php echo $lang->phrase('bbcodes_align_justify'); ?>" class="editor_toolbar_button" />
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
-			<img src="admin/html/editor/images/img.gif" onclick="InsertTags('<?php echo $id; ?>', '[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/url.gif" onclick="InsertTagsURL('<?php echo $id; ?>', '[url={param1}]{param2}','[/url]');" title="<?php echo $lang->phrase('bbcodes_url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/email.gif" onclick="InsertTags('<?php echo $id; ?>', '[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/img.gif" onclick="InsertTags('<?php echo $id; ?>', '[img]','[/img]');" title="<?php echo $lang->phrase('bbcodes_img'); ?>" alt="<?php echo $lang->phrase('bbcodes_img'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/url.gif" onclick="InsertTagsURL('<?php echo $id; ?>', '[url={param1}]{param2}','[/url]');" title="<?php echo $lang->phrase('bbcodes_url'); ?>" alt="<?php echo $lang->phrase('bbcodes_url'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/email.gif" onclick="InsertTags('<?php echo $id; ?>', '[email]','[/email]');" title="<?php echo $lang->phrase('bbcodes_email'); ?>" alt="<?php echo $lang->phrase('bbcodes_email'); ?>" class="editor_toolbar_button" />
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
-			<img src="admin/html/editor/images/quote.gif" onclick="InsertTags('<?php echo $id; ?>', '[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/ot.gif" onclick="InsertTags('<?php echo $id; ?>', '[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/edit.gif" onclick="InsertTags('<?php echo $id; ?>', '[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/code.gif" onclick="InsertTags('<?php echo $id; ?>', '[code]','[/code]');" title="<?php echo $lang->phrase('bbcodes_code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/quote.gif" onclick="InsertTags('<?php echo $id; ?>', '[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/ot.gif" onclick="InsertTags('<?php echo $id; ?>', '[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/edit.gif" onclick="InsertTags('<?php echo $id; ?>', '[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/code.gif" onclick="InsertTags('<?php echo $id; ?>', '[code]','[/code]');" title="<?php echo $lang->phrase('bbcodes_code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" class="editor_toolbar_button" />
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
-			<img src="admin/html/editor/images/list_unordered.gif" onclick="InsertTagsList('<?php echo $id; ?>');" title="<?php echo $lang->phrase('bbcodes_list'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/list_ordered.gif" onclick="InsertTagsList('<?php echo $id; ?>', 'ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/list_unordered.gif" onclick="InsertTagsList('<?php echo $id; ?>');" title="<?php echo $lang->phrase('bbcodes_list'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/list_ordered.gif" onclick="InsertTagsList('<?php echo $id; ?>', 'ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" class="editor_toolbar_button" />
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
-			<img src="admin/html/editor/images/hr.gif" onclick="InsertTags('<?php echo $id; ?>', '[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/tt.gif" onclick="InsertTags('<?php echo $id; ?>', '[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/hr.gif" onclick="InsertTags('<?php echo $id; ?>', '[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/tt.gif" onclick="InsertTags('<?php echo $id; ?>', '[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" class="editor_toolbar_button" />
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
-			<img src="admin/html/editor/images/subscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="admin/html/editor/images/superscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="admin/html/editor/images/subscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" class="editor_toolbar_button" />
+			<img src="admin/html/editor/images/superscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sup]','[/sup]');" title="<?php echo $lang->phrase('bbcodes_sup'); ?>" alt="<?php echo $lang->phrase('bbcodes_sup'); ?>" class="editor_toolbar_button" />
 		</td></tr>
 		<tr><td class="editor_toolbar" style="height: auto; overflow: auto;">
 			<?php foreach ($smileys[1] as $bb) { ?>

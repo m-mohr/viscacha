@@ -328,13 +328,13 @@ elseif ($_GET['action'] == "active") {
     unset($count);
 
 	$sqlwhere = "";
-	if ($_GET['type'] == 'abo' || $_GET['type'] == 'fav') {
+	if ($_GET['type'] == 'abo') {
 	    if (!$my->vlogin) {
 	        error($lang->phrase('not_allowed'));
 	    }
 		$timestamp = $my->clv;
 		$ids = array();
-   		$result = $db->query("SELECT tid FROM {$db->pre}abos WHERE mid = '{$my->id}' AND type ".iif($_GET['type'] == 'fav', '=', '!=')." 'f'");
+   		$result = $db->query("SELECT tid FROM {$db->pre}abos WHERE mid = '{$my->id}'");
    		if ($db->num_rows($result) > 0) {
        		while ($row = $db->fetch_assoc($result)) {
        			$ids[] = $row['tid'];

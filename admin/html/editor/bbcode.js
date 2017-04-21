@@ -52,19 +52,6 @@ function hoverColor(elem, state) {
 	}
 }
 
-function buttonOver(button) {
-	 button.className = 'editor_toolbar_button_on';
-}
-function buttonOut(button) {
-	 button.className = 'editor_toolbar_button';
-}
-function buttonOverSmiley(button) {
-	 button.className = 'editor_toolbar_smiley_on';
-}
-function buttonOutSmiley(button) {
-	 button.className = 'editor_toolbar_smiley';
-}
-
 function resize_textarea(ta, type) {
 	var textarea = document.getElementById(ta);
 	var newrows = textarea.rows + type * 3;

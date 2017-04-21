@@ -330,6 +330,25 @@ li.pagination-jumpto, li.pagination-separator, li.pagination-label {
     width: 20%;
 }
 
+/* Notifications */
+
+.notifications .cell-icon {
+    text-align: center;
+    width: 2%;
+}
+.notifications.table th.cell-topic {
+    width: 48%;
+}
+.notifications.table th.cell-last {
+    width: 20%;
+}
+.notifications.table th.cell-type {
+    width: 30%;
+}
+.notifications.table td.cell-type select {
+    width: 100%;
+}
+
 /* Team */
 
 .team .cell-icon {
@@ -535,18 +554,16 @@ label small:after {
 	border: 1px solid #F4F4F4;
 	padding: 2px;
 }
-.editor_toolbar_smiley_on {
+.editor_toolbar_smiley:hover {
 	border: 1px solid #999999;
 	padding: 2px;
 }
 .editor_toolbar_button {
-	width: 20px;
-	height: 20px;
+	width: 22px;
+	height: 22px;
 	border: 1px solid #F4F4F4;
 }
-.editor_toolbar_button_on {
-	width: 20px;
-	height: 20px;
+.editor_toolbar_button:hover {
 	border: 1px solid #999999;
 }
 .editor_textarea_inner {
@@ -571,33 +588,37 @@ label small:after {
 
 
 .bbcolor {
+	width: 240px;
 	padding: 10px;
-	background-color: #ffffff;
 	line-height: 12px;
 	font-size: 12px;
 }
 .bbcolor img {
-	width: 8px;
-	height: 10px;
+	width: 12px;
+	height: 12px;
 	display: block;
 	float: left;
 	cursor: pointer;
 	border-width: 1px;
 	border-style: solid;
 }
+.bbheading h1, .bbheading h2, .bbheading h3, .bbheading h4, .bbheading h5, .bbheading h6 {
+	margin: 4px;
+}
 .bbtable {
-	background-color: #ffffff;
+	width: 300px;
 	padding: 4px;
 }
 .bbtable input {
 	width: 35px;
-	float: left;
-	background-color: #ffffff;
-	border: 1px solid #888888;
 	text-align: center;
 	margin-right: 5px;
 }
 
+.bbsmileys {
+	max-height: 200px;
+	overflow: auto;
+}
 .bbsmileys img {
 	margin: 2px 8px 2px 4px;
 }
