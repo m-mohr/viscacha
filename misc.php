@@ -59,7 +59,7 @@ if ($_GET['action'] == "boardin") {
 }
 elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, r.topic AS title, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
+	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
 	$info = $gpc->prepare($db->fetch_assoc($result));
 
 	$my->p = $slog->Permissions($info['board']);
@@ -91,10 +91,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 
 	$topforums = get_headboards($fc, $last, TRUE);
 	Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
-	Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
-	if ($info['tstart'] == '0') {
-		Breadcrumb::universal()->add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
-	}
+	Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	Breadcrumb::universal()->add($lang->phrase('report_post'));
 
 	forum_opt($last);
@@ -676,7 +673,7 @@ elseif ($_GET['action'] == "error") {
 elseif ($_GET['action'] == "edithistory") {
 	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name, u.id as mid, u.groups, u.deleted_at
+	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, t.topic, t.prefix, r.date, u.name, u.id as mid, u.groups, u.deleted_at
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}user AS u ON r.name = u.id
@@ -710,10 +707,7 @@ elseif ($_GET['action'] == "edithistory") {
 	
 	$topforums = get_headboards($fc, $last, TRUE);
 	Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
-	Breadcrumb::universal()->add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
-	if ($row['tstart'] != 1) {
-		Breadcrumb::universal()->add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
-	}
+	Breadcrumb::universal()->add($prefix.$row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
 	Breadcrumb::universal()->add($lang->phrase('edithistory'));
 
 	forum_opt($last);

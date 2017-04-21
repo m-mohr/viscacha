@@ -17,7 +17,7 @@ if ($_GET['job'] == 'reports') {
 	$start = ($page-1)*$perpage;
 
 	$result = $db->query("
-	SELECT t.prefix, r.topic_id, r.id, r.report, t.board, t.topic, r.topic AS title, r.date, u.id as uid, u.name AS uname, f.name AS forumname
+	SELECT t.prefix, r.topic_id, r.id, r.report, t.board, t.topic, r.date, u.id as uid, u.name AS uname, f.name AS forumname
 	FROM {$db->pre}replies AS r
 	    LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
 	    LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
@@ -66,9 +66,10 @@ if ($_GET['job'] == 'reports') {
         <tr class="mbox">
         <td><input type="checkbox" value="<?php echo $row->id; ?>" name="delete[]" /></td>
         <td>
-			<strong><a href="showtopic.php?action=jumpto&topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->title; ?></a></strong><br />
+			<strong><a href="showtopic.php?action=jumpto&topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank">
+				<?php echo iif($showprefix, '['.$prefix.'] ') . $row->topic; ?>
+			</a></strong><br />
         	<span class="stext">
-        		<a target="_blank" href="showtopic.php?id=<?php echo $row->id; ?>"><?php echo iif($showprefix, '['.$prefix.'] ').$row->topic; ?></a><br />
         		<?php echo $row->forumname; ?>
         	</span>
         </td>

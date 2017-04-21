@@ -31,11 +31,8 @@ if (count($sqltopic) > 0) {
 	LIMIT {$config['viscacha_related_topics']['relatednum']}"
 	);
 
-	if ($db->num_rows($result) > 0) {
-		while ($line = $db->fetch_assoc($result)) {
-			$line['topic'] = $gpc->prepare($line['topic']);
-			$rows[] = $line;
-		}
+	while ($line = $db->fetch_assoc($result)) {
+		$rows[] = $line;
 	}
 }
 if ((count($rows) > 0 && $config['viscacha_related_topics']['hide_empty'] == 1) || $config['viscacha_related_topics']['hide_empty'] != 1) {

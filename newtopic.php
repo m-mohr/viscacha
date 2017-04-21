@@ -186,6 +186,10 @@ elseif ($_GET['action'] == "savevote") {
 }
 elseif ($_GET['action'] == "save") {
 	$digest = $gpc->get('digest', int);
+
+	BBProfile($bbcode);
+	$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
+
 	$error = array();
 	if (is_hash($fid)) {
 		$error_data = import_error_data($fid);
@@ -212,9 +216,6 @@ elseif ($_GET['action'] == "save") {
 	if (!isset($prefix_arr[$_POST['opt_0']]) && $last['prefix'] == 1) {
 		$error[] = $lang->phrase('prefix_not_optional');
 	}
-
-	BBProfile($bbcode);
-	$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
 
 	($code = $plugins->load('newtopic_save_errorhandling')) ? eval($code) : null;
 

@@ -191,7 +191,7 @@ elseif ($_GET['action'] == "move2") {
 	$anz = 0;
 	foreach ($_POST['delete'] as $id) {
 		$result = $db->query("
-		SELECT r.date, r.topic, r.name, u.name, u.mail AS email, u.deleted_at
+		SELECT r.date, r.name, u.name, u.mail AS email, u.deleted_at
 		FROM {$db->pre}replies AS r
 			LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 		WHERE topic_id = '{$id}' AND tstart = '1'
@@ -204,7 +204,7 @@ elseif ($_GET['action'] == "move2") {
 			// TODO: Prefix und Bearbeitungen werden nicht übernommen!
 			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
 			$tid = $db->insert_id();
-			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
+			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
 		}
 		if ($_POST['temp2'] == 1) {
 			$data = $lang->get_mail('mass_topic_moved');

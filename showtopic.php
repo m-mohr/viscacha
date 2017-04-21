@@ -254,7 +254,7 @@ $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
-	r.id, r.edit, r.dosmileys, r.topic, r.comment, r.date, r.report, r.tstart,
+	r.id, r.edit, r.dosmileys, r.comment, r.date, r.report, r.tstart,
 	u.id as mid, u.name, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.deleted_at,
 	f.*, IF (s.mid > 0, 1, 0) AS online
 FROM {$db->pre}replies AS r

@@ -32,13 +32,11 @@ include ("classes/function.viscacha_frontend.php");
 
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
-$result = $db->query('
-SELECT r.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status
-FROM '.$db->pre.'replies AS r
-	LEFT JOIN '.$db->pre.'topics AS t ON r.topic_id = t.id
-WHERE r.id = "'.$_GET['id'].'"
-LIMIT 1
-');
+$result = $db->query("
+SELECT t.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status
+FROM {$db->pre}replies AS r
+	LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
+WHERE r.id = '{$_GET['id']}' LIMIT 1");
 
 if ($db->num_rows($result) != 1) {
 	error(array($lang->phrase('query_string_error')));
@@ -139,6 +137,11 @@ if ($allowed == true) {
 			ok($lang->phrase('edit_postdeleted'),iif($info['tstart'] == 1, "showforum.php?id=".$info['board'], "showtopic.php?action=last&id=".$info['topic_id']).SID2URL_x);
 		}
 		else {
+			BBProfile($bbcode);
+			if($info['tstart']) {
+				$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
+			}
+
 			$error = array();
 			if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
 				$error[] = $lang->phrase('comment_too_long');
@@ -146,10 +149,10 @@ if ($allowed == true) {
 			if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 				$error[] = $lang->phrase('comment_too_short');
 			}
-			if (mb_strlen($_POST['topic']) > $config['maxtitlelength']) {
+			if ($info['tstart'] && mb_strlen($_POST['topic']) > $config['maxtitlelength']) {
 				$error[] = $lang->phrase('title_too_long');
 			}
-			if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
+			if ($info['tstart'] && mb_strlen($_POST['topic']) < $config['mintitlelength']) {
 				$error[] = $lang->phrase('title_too_short');
 			}
 			if (mb_strlen($_POST['about']) > $config['maxeditlength']) {
@@ -163,17 +166,16 @@ if ($allowed == true) {
 			}
 			($code = $plugins->load('edit_save_errorhandling')) ? eval($code) : null;
 
-			BBProfile($bbcode);
-			$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
-
 			if (count($error) > 0 || !empty($_POST['Preview'])) {
 				$data = array(
-					'topic' => $_POST['topic'],
 					'comment' => $_POST['comment'],
 					'prefix' => $_POST['opt_0'],
 					'dosmileys' => $_POST['dosmileys'],
 					'about' => $_POST['about']
 				);
+				if ($info['tstart']) {
+					$data['topic'] = $_POST['topic'];
+				}
 				($code = $plugins->load('edit_save_errordata')) ? eval($code) : null;
 				$fid = save_error_data($data);
 				if (!empty($_POST['Preview'])) {
@@ -190,18 +192,16 @@ if ($allowed == true) {
 
 				$db->query ("
 				UPDATE {$db->pre}replies
-				SET edit = '{$info['edit']}', topic = '{$_POST['topic']}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}'
+				SET edit = '{$info['edit']}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}'
 				WHERE id = '{$_GET['id']}'
 				");
 
-				if ($info['tstart'] == '1') {
-
+				if ($info['tstart']) {
 					$db->query ("
 					UPDATE {$db->pre}topics
 					SET prefix = '{$_POST['opt_0']}', topic = '{$_POST['topic']}'
 					WHERE id = '{$info['topic_id']}'
 					");
-
 				}
 				ok($lang->phrase('data_success'),'showtopic.php?action=jumpto&topic_id='.$info['id'].SID2URL_x);
 			}
@@ -226,12 +226,14 @@ if ($allowed == true) {
 		}
 		else {
 			$data = array(
-				'topic' => $info['topic'],
 				'comment' => $info['comment'],
 				'prefix' => $info['prefix'],
 				'dosmileys' => $info['dosmileys'],
 				'about' => ''
 			);
+			if ($info['tstart']) {
+				$data['topic'] = $info['topic'];
+			}
 		}
 
 		if (count($prefix_arr) > 0 && $info['tstart'] == 1) {

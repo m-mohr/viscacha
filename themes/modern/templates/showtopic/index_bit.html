@@ -37,14 +37,6 @@
 		</div>
 	</div>
 	<div class="panel-body">
-		<span class="pull-right">
-			<strong>#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
-			@if($my->mp[0] == 1 && $info['posts'] > 0)
-			<input type="checkbox" name="ids[]" value="{{ $row->id }}" />
-			@endif
-		</span>
-		@lang('showtopic_subject') <strong><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->topic }}</a></strong>
-		<hr />
 		{!! $row->comment !!}
 		@if(!empty($inner['uploads']))
 		<div class="uploadbox">
@@ -62,15 +54,24 @@
 		<div class="signature">{!! $row->signature !!}</div>
 		@endif
 		@endif
-		<div class="textright stext">
-			@if(!empty($row->edit))
+		@if(!empty($row->edit))
+		<div class="text-right">
+			<small>
 			@lang('post_editinfo1')
 			<strong><a href="misc.php?action=edithistory&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $anz }}</a></strong>
 			@lang('post_editinfo2')
-			@endif
+			</small>
 		</div>
+		@endif
 	</div>
-		<ul class="panel-footer nav nav-pills nav-condensed">
+	<div class="panel-footer">
+		<span class="pull-right">
+			<strong>#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
+			@if($my->mp[0] == 1 && $info['posts'] > 0)
+			<input type="checkbox" name="ids[]" value="{{ $row->id }}" />
+			@endif
+		</span>
+		<ul class="nav nav-pills nav-condensed pull-left">
 			@if($my->vlogin && empty($row->report))
 			<li><a href="misc.php?action=report_post&amp;id={{ $row->id }}{{ SID2URL_x }}"><i class="fa fa-bomb"></i> @lang('post_report')</a></li>
 			@elseif($my->mp[0] == 1 && !empty($row->report))
@@ -89,5 +90,7 @@
 			</li>
 			@endif
 		</ul>
+		<br clear="both"> <!-- ToDo: Remove this br and replace with proper CSS -->
+	</div>
 </div>
 

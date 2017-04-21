@@ -117,10 +117,10 @@ if ($_GET['action'] == "search") {
 			$sql_where_like .= $op.$not;
 		}
 		if ($gpc->get('opt_0', int) == 0) {
-			$sql_where_like .= "(r.topic LIKE{$binary} '%{$str}%' OR r.comment LIKE{$binary} '%{$str}%') ";
+			$sql_where_like .= "(t.topic LIKE{$binary} '%{$str}%' OR r.comment LIKE{$binary} '%{$str}%') ";
 		}
 		else {
-			$sql_where_like .= "r.topic LIKE{$binary} '%{$str}%' ";
+			$sql_where_like .= "t.topic LIKE{$binary} '%{$str}%' ";
 		}
 	}
 

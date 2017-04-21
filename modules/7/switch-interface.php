@@ -1,6 +1,5 @@
 if (!empty($_POST['Extended']) && $my->vlogin) {
 	$data = array(
-		'topic' => $_POST['topic'],
 		'comment' => $_POST['comment'],
 		'dosmileys' => $_POST['dosmileys'],
 		'id' => $_POST['id'],

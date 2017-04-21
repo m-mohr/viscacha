@@ -144,7 +144,7 @@ elseif ($action == "move2") {
 	}
 
 	$result = $db->query("
-		SELECT r.date, r.topic, r.name, u.name, u.mail, u.deleted_at
+		SELECT r.date, r.name, u.name, u.mail, u.deleted_at
 		FROM {$db->pre}replies AS r
 			LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 		WHERE topic_id = '{$info['id']}' AND tstart = '1'
@@ -160,7 +160,7 @@ elseif ($action == "move2") {
 	if ($_POST['temp'] == 1) {
 		$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_int($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}', vquestion = ''");
 		$tid = $db->insert_id();
-		$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
+		$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
 	}
 	if ($_POST['temp2'] == 1) {
 		$data = $lang->get_mail('topic_moved');
@@ -181,7 +181,7 @@ elseif ($action == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showtopic.php?id='.$info['id']);
 }
 elseif ($action == "reports") {
-	$result = $db->query("SELECT id, report, topic_id, tstart, topic FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
+	$result = $db->query("SELECT id, report, topic_id, tstart FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 	$data = $gpc->prepare($db->fetch_assoc($result));
 	if ($db->num_rows($result) == 0) {
 		error($lang->phrase('query_string_error'), 'showtopic.php?id='.$info['id'].SID2URL_x);
@@ -429,15 +429,12 @@ elseif ($action == "pmerge") {
 	$author = array();
 	$comment = array();
 	$posts = array();
-	$topic = array();
 	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
 		$posts[$row['id']] = $row;
 		$author[$row['id']] = $row['name'];
-		$topic[$row['id']] = $row['topic'];
 		$comment[$row['id']] = $row['comment'];
 	}
 	$author = array_unique($author);
-	$topic = array_unique($topic);
 	$comment = array_unique($comment);
 
 	BBProfile($bbcode);
@@ -456,9 +453,6 @@ elseif ($action == "pmerge2") {
 	}
 	if (empty($author)) {
 		$error[] = $lang->phrase('name_too_short');
-	}
-	if (empty($_POST['topic_id'])) {
-		$error[] = $lang->phrase('title_too_short');
 	}
 
 	if (count($error) > 0) {
@@ -483,7 +477,6 @@ elseif ($action == "pmerge2") {
 		}
 		$iold = implode(',', $old);
 
-		$topic = $cache[$_POST['topic_id']]['topic'];
 		$name = $cache[$author]['name'];
 		$ip = $cache[$author]['ip'];
 
@@ -531,7 +524,7 @@ elseif ($action == "pmerge2") {
 		$db->query ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 		$db->query ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 
-		$db->query ("UPDATE {$db->pre}replies SET topic = '{$topic}', name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', ip = '{$ip}', edit = '{$edit}' WHERE id = '{$base['id']}'");
+		$db->query ("UPDATE {$db->pre}replies SET name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', ip = '{$ip}', edit = '{$edit}' WHERE id = '{$base['id']}'");
 		$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iold})");
 
 		($code = $plugins->load('managetopic_pmerge_end')) ? eval($code) : null;

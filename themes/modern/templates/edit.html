@@ -8,9 +8,10 @@
 </div>
 @endif
 <form name="form2" method="post" action="edit.php?id={{ $_GET['id'] }}{{ SID2URL_x }}&amp;action=save">
+	@if($info['tstart'])
 	<div class="form-group">
 		<label for="topic">@lang('title')</label>
-		@if(count($prefix_arr) > 0 && $info['tstart'] == 1)
+		@if(count($prefix_arr) > 0)
 		<div class="input-group">
 			<div class="input-group-addon">[</div>
 			<select name="opt_0" class="form-control" tabindex="1">
@@ -25,6 +26,7 @@
 		<input type="text" class="form-control" id="topic" name="topic" size="40" tabindex="1" value="{{ $data['topic'] }}" />
 		@endif
 	</div>
+	@endif
 	<div class="form-group">
 		<label for="about">@lang('edit_reason')</label>
 		<input class="form-control" type="text" id="about" name="about" size="40" tabindex="3" value="{{ $data['about'] }}" />

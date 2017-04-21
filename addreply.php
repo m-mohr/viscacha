@@ -44,8 +44,6 @@ if ($db->num_rows($result) == 0) {
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
 
-$info['topic'] = $gpc->prepare($info['topic']);
-
 $cat_bid_obj = $scache->load('cat_bid');
 $fc = $cat_bid_obj->get();
 $last = $fc[$info['board']];
@@ -80,7 +78,6 @@ $standard_data = array(
 	'comment' => '',
 	'dosmileys' => 1,
 	'digest' => 0,
-	'topic' => $lang->phrase('reply_prefix').$info['topic'],
 	'id' => $id
 );
 
@@ -101,22 +98,12 @@ if ($_GET['action'] == "save") {
 	if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
-	// Add some chars for reply title prefix
-	$maxlength = $config['maxtitlelength'] + mb_strlen($lang->phrase('reply_prefix'));
-	if (mb_strlen($_POST['topic']) > $maxlength) {
-		$error[] = $lang->phrase('title_too_long');
-	}
-	if (mb_strlen($_POST['topic']) < $config['mintitlelength']) {
-		$error[] = $lang->phrase('title_too_short');
-	}
 	($code = $plugins->load('addreply_save_errorhandling')) ? eval($code) : null;
 
 	BBProfile($bbcode);
-	$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
 
 	if (count($error) > 0 || !empty($_POST['Preview'])) {
 		$data = array(
-			'topic' => $_POST['topic'],
 			'comment' => $_POST['comment'],
 			'dosmileys' => $_POST['dosmileys'],
 			'id' => $id,
@@ -146,8 +133,8 @@ if ($_GET['action'] == "save") {
 		");
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,date,ip,edit,report)
-		VALUES ('{$_POST['topic']}','{$id}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','{$my->ip}','','')
+		INSERT INTO {$db->pre}replies (topic_id,name,comment,dosmileys,date,ip,edit,report)
+		VALUES ('{$id}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','{$my->ip}','','')
 		");
 		$redirect = $db->insert_id();
 
@@ -251,7 +238,6 @@ else {
 		if ($id != $data['id']) {
 			error($lang->phrase('query_string_error'), 'showforum.php?id='.$info['board'].SID2URL_x);
 		}
-		$info['topic'] = $data['topic'];
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);

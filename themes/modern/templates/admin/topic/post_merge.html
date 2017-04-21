@@ -12,14 +12,6 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="topic">@lang('title')</label>
-		<div class="radio" id="topic">
-			@foreach ($posts as $row)
-			<label><input type="radio" name="topic_id" value="{{ $row['id'] }}" /> {{ $row['topic'] }}</label>
-			@endforeach
-		</div>
-	</div>
-	<div class="form-group">
 		<label for="comment">
 			@lang('post')
 			<small><a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><i class="fa fa-question-circle"></i> @lang('bbcode_help')</a></small>

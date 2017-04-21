@@ -231,10 +231,6 @@ hr {
 	color: #fff;
 }
 
-.panel-footer.nav {
-	padding: 4px;
-}
-
 @media(min-width: 992px) {
 	/* ToDo: Check what happens when there are multiple of these alerts */
 	.alert-dismissible {

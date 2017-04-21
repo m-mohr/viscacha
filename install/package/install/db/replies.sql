@@ -1,6 +1,5 @@
 CREATE TABLE `{:=DBPREFIX=:}replies` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `topic` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `topic_id` int(10) unsigned NOT NULL,
   `name` int(10) unsigned NOT NULL,
   `comment` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,

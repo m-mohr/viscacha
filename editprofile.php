@@ -92,7 +92,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT t.board, r.topic, u.id, u.tid, u.file, u.source, u.hits
+	SELECT t.board, t.topic, u.id, u.tid, u.file, u.source, u.hits
 	FROM {$db->pre}uploads AS u
 		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
@@ -103,7 +103,6 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	$all = array(0,0,0);
 	$cache = array();
 	while ($row = $db->fetch_assoc($result)) {
-		$row['topic'] = $gpc->prepare($row['topic']);
 		$uppath = 'uploads/topics/'.$row['source'];
 		$fsize = filesize($uppath);
 		$all[0]++;
@@ -116,6 +115,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	}
 	$all[1] = formatFilesize($all[1]);
 	$all[2] = numbers($all[2]);
+	// ToDo: Move formatting to template
 	($code = $plugins->load('editprofile_attachments_prepared')) ? eval($code) : null;
 	echo $tpl->parse("editprofile/attachments");
 	($code = $plugins->load('editprofile_attachments_end')) ? eval($code) : null;
@@ -164,7 +164,6 @@ elseif ($_GET['action'] == "abos") {
 		else {
 			$row['prefix'] = '';
 		}
-		$row['topic'] = $gpc->prepare($row['topic']);
 		if ($row['type'] != 'd' && $row['type'] != 'w' && $row['type'] != 'f') {
 			$row['type'] = 's';
 		}
@@ -651,14 +650,13 @@ elseif ($_GET['action'] == "mylast") {
 	$start = ($_GET['page'] - 1) * $config['mylastzahl'];
 	
 	$result = $db->query("
-	SELECT t.last, t.posts, t.id, t.board, r.topic, r.date, r.name, t.prefix, t.status, r.id AS pid
+	SELECT t.last, t.posts, t.id, t.board, t.topic, r.date, r.name, t.prefix, t.status, r.id AS pid
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE r.name = '{$my->id}' AND f.invisible != '2'
 	ORDER BY r.date DESC
 	LIMIT {$start}, {$config['mylastzahl']}");
-	$anz = $db->num_rows($result);
 	
 	$pages = pages($entry_count, $config['mylastzahl'], 'editprofile.php?action=mylast&amp;', $_GET['page']);
 
@@ -672,9 +670,6 @@ elseif ($_GET['action'] == "mylast") {
 		if ($info['topiczahl'] < 1) {
 			$info['topiczahl'] = $config['topiczahl'];
 		}
-
-		$row['topic'] = $gpc->prepare($row['topic']);
-		$row['name'] = $gpc->prepare($row['name']);
 
 		$row['read'] = $slog->isTopicRead($row['id'], $row['last']);
 

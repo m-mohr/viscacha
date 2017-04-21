@@ -17,7 +17,6 @@ if ($my->vlogin) {
 			if (empty($row['name'])) {
 				$row['name'] = $lang->phrase('fallback_no_username');
 			}
-			$row['topic'] = $gpc->prepare($row['topic']);
 			$pmcache[] = $row;
 		}
 		$tpl->assignVars(compact("pmcache"));
