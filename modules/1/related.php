@@ -26,7 +26,7 @@ if (count($sqltopic) > 0) {
 	$result = $db->query("
 	SELECT id, board, topic, MATCH (topic) AGAINST ('{$matchsql}') AS af
 	FROM {$db->pre}topics
-	WHERE {$boardsql} id != '{$_GET['id']}' AND status != '2' AND MATCH (topic) AGAINST ('$matchsql') > 0.6
+	WHERE {$boardsql} id != '{$_GET['id']}' AND status != '2' AND MATCH (topic) AGAINST ('$matchsql') > 0.5
 	ORDER BY af DESC
 	LIMIT {$config['viscacha_related_topics']['relatednum']}"
 	);
