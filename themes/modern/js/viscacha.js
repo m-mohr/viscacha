@@ -1,22 +1,27 @@
-var cookieprefix = 'vc';
-var mq_cookiename = 'mquote';
-var sidebar_cookiename = 'sidebar';
+$(document).ready(function () {
+	// Rmove js only UI elements
+	$('.js-only').removeClass('js-only');
+	// Initialize MultiQuote
+	MultiQuote.init();
+	// Initalize Menu
+	Sidebar.init();
+});
 
 // Sidebar
-function initMenu() {
-	// ToDo: Store sidebar state in Cookie
-	$(".sidebar-toggle").css('display', 'inline-block');
-	$('#sidebar ul').hide();
-	$('#sidebar ul').children('.current').parent().show();
-	$('#sidebar li a').click(
-		function () {
+var Sidebar = {
+	cookiename: 'sidebar',
+	init: function() {
+		// ToDo: Store sidebar state in Cookie
+		$(".sidebar-toggle").css('display', 'inline-block');
+		$('#sidebar ul').hide();
+		$('#sidebar ul').children('.current').parent().show();
+		$('#sidebar li a').click(function () {
 			var checkElement = $(this).next();
 			if (checkElement.is('ul')) {
 				if (checkElement.is(':visible')) {
 					checkElement.slideUp('normal');
-				}
-				else {
-					$('#sidebar ul:visible').each(function() {
+				} else {
+					$('#sidebar ul:visible').each(function () {
 						if ($(this).has(checkElement).length === 0) {
 							$(this).slideUp('normal');
 						}
@@ -25,21 +30,104 @@ function initMenu() {
 				}
 				return false;
 			}
+		});
+		$(".sidebar-toggle").click(function (e) {
+			e.preventDefault();
+			$("#wrapper").toggleClass("sidebar-toggled");
+			$('#sidebar ul').hide();
+		});
+	}
+};
+
+// Cookies
+var Cookies = {
+	prefix: 'vc',
+	set: function (name, value) {
+		var a = new Date((new Date()).getTime() + 1000 * 60 * 60 * 24 * 365);
+		document.cookie = this._Name(name) + '=' + escape(value) + '; expires=' + a.toGMTString() + ';';
+	},
+	get: function (name) {
+		if (document.cookie != '') {
+			name = this._Name(name);
+			var firstPos = document.cookie.indexOf(name);
+			if (firstPos !== -1) {
+				firstPos += name.length + 1;
+				var lastPos = document.cookie.indexOf(';', firstPos);
+				if (lastPos === -1) {
+					lastPos = document.cookie.length;
+				}
+				return unescape(document.cookie.substring(firstPos, lastPos));
+			}
 		}
-	);
-	$(".sidebar-toggle").click(function (e) {
-		e.preventDefault();
-		$("#wrapper").toggleClass("sidebar-toggled");
-		$('#sidebar ul').hide();
-	});
+		return false;
+	},
+	kill: function (name) {
+		document.cookie = this._Name(name) + '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
+	},
+	_Name: function (name) {
+		return this.prefix + '_' + name;
+	}
+};
+
+// Multiquote
+var MultiQuote = {
+	cookieName: 'mquote',
+	init: function () {
+		var c = Cookies.get(this.cookieName);
+		if (c) {
+			var values = c.split(',');
+			for (var i = 0; i < values.length; i++) {
+				this._toggleBtn(values[i], true);
+			}
+		}
+
+	},
+	toggle: function (id) {
+		var c = Cookies.get(this.cookieName);
+		var values = new Array();
+		var newval = new Array();
+		var add = true;
+		if (c) {
+			values = c.split(',');
+			for (var i = 0; i < values.length; i++) {
+				if (values[i] == id) {
+					add = false;
+				} else {
+					newval[newval.length] = values[i];
+				}
+			}
+		}
+		this._toggleBtn(id, add);
+		if (add) {
+			newval[newval.length] = id;
+		}
+
+		Cookies.set(this.cookieName, newval.join(','));
+	},
+	_toggleBtn: function (id, add) {
+		if (add) {
+			$('#mq_' + id).addClass('active');
+			// ToDo: Add language resources
+			//		$('#mq_'+id+'_link').text(lng['js_quote_multi_2']);
+		} else {
+			$('#mq_' + id).removeClass('active');
+			//		$('#mq_'+id+'_link').text(lng['js_quote_multi']);
+		}
+	}
+};
+
+// Helpers
+
+function checkAll(elem) {
+	var all = document.getElementsByName(elem.value);
+	for (var i = 0; i < all.length; i++) {
+		all[i].checked = elem.checked;
+	}
 }
-$(document).ready(function () {
-	initMenu();
-});
 
 // Upload Popup
-function adduploads(elem) { // ToDo: Non-JS alternative
-	window.open(elem.href, "adduploads", "width=550,height=450,resizable=yes,scrollbars=yes,location=no,status=yes");
+function adduploads() {
+	window.open(null, "adduploads", "width=550,height=500,resizable=yes,scrollbars=yes,location=no,status=yes");
 }
 
 // Jump to page
@@ -50,96 +138,15 @@ function jumptopage(url) {
 	}
 }
 
-// Cookies
-function SetCookie(name, value) {
-	name = cookieprefix + '_' + name;
-	var a = new Date();
-	a = new Date(a.getTime() + 1000*60*60*24*365);
-	document.cookie = name + '=' + escape(value)+ '; expires='+a.toGMTString()+';';
-}
-function GetCookie(name) {
-	if(document.cookie == '') {
-		return false;
-	}
-
-	name = cookieprefix + '_' + name;
-	var c = document.cookie;
-	var firstPos = c.indexOf(name);
-	if(firstPos != -1) {
-		firstPos += name.length + 1;
-		var lastPos = c.indexOf(';', firstPos);
-		if(lastPos == -1) {
-			lastPos = c.length;
-		}
-		return unescape(c.substring(firstPos, lastPos));
-	}
-	else {
-		return false;
-	}
-}
-function KillCookie(name) {
-	name = cookieprefix + '_' + name;
-	document.cookie = name + '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
-}
-
-// Multiquote
-function mq_init() {
-	var c = GetCookie(mq_cookiename);
-	if(c) {
-		var values = c.split(',');
-		for(var i = 0; i < values.length; i++) {
-			mq_toggle_button(values[i], true);
-		}
-	}
-}
-function mq_toggle_button(id, add) {
-	if (add) {
-		$('#mq_'+id).addClass('active');
-// ToDo: Add language resources
-//		$('#mq_'+id+'_link').text(lng['js_quote_multi_2']);
-	}
-	else {
-		$('#mq_'+id).removeClass('active');
-//		$('#mq_'+id+'_link').text(lng['js_quote_multi']);
-	}
-}
-
-function multiquote(id) {
-	var c = GetCookie(mq_cookiename);
-	var values = new Array();
-	var newval = new Array();
-	var add = true;
-	if(c) {
-		values = c.split(',');
-		for(var i = 0; i < values.length; i++) {
-			if(values[i] == id) {
-				 add = false;
-			}
-			else {
-				newval[newval.length] = values[i];
-			}
-		}
-	}
-	mq_toggle_button(id, add);
-	if(add) {
-		newval[newval.length] = id;
-	}
-
-	SetCookie(mq_cookiename, newval.join(','));
-}
-$(document).ready(function () {
-	mq_init();
-});
-
 // AJAX
 var sidx = '';
 function markforumread(id, element) {
-	$.get("ajax.php?action=markforumread&id=" + id + sidx, function() {
+	$.get("ajax.php?action=markforumread&id=" + id + sidx, function () {
 		$(element).removeClass("clickable").removeClass("icon-new").addClass("icon-old").attr("title", "");
 	});
 }
 function marktopicread(id, element) {
-	$.get("ajax.php?action=marktopicread&id=" + id + sidx, function() {
+	$.get("ajax.php?action=marktopicread&id=" + id + sidx, function () {
 		$(element).removeClass("clickable").removeClass("icon-new").addClass("icon-old").attr("title", "");
 	});
 }

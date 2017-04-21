@@ -92,7 +92,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT t.board, t.topic, u.id, u.tid, u.file, u.source, u.hits
+	SELECT t.board, t.topic, u.id, u.tid, u.file, u.source
 	FROM {$db->pre}uploads AS u
 		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
@@ -107,8 +107,6 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 		$fsize = filesize($uppath);
 		$all[0]++;
 		$all[1] += $fsize;
-		$all[2] += $row['hits'];
-		$row['hits'] = numbers($row['hits']);
 		$row['fsize'] = formatFilesize($fsize);
 		($code = $plugins->load('editprofile_attachments_entry_prepared')) ? eval($code) : null;
 		$cache[] = $row;

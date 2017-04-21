@@ -85,7 +85,7 @@
 				<a id="mquote_{{ $row->id }}" href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-quote-right"></i> @lang('post_quote')</a>
 				<ul class="dropdown-menu" aria-labelledby="popup_mquote_{{ $row->id }}">
 					<li><a href="addreply.php?id={{ $info['id'] }}{{ SID2URL_x }}&amp;qid[]={{ $row->id }}">@lang('post_quote_direct')</a></li>
-					<li><a href="javascript:multiquote({{ $row->id }});" id="mq_{{ $row->id }}_link">@lang('post_quote_multi')</a></li>
+					<li><a href="javascript:MultiQuote.toggle({{ $row->id }})" id="mq_{{ $row->id }}_link">@lang('post_quote_multi')</a></li>
 				</ul>
 			</li>
 			@endif

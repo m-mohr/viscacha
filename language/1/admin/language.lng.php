@@ -97,7 +97,6 @@ $lang['admin_lang_notification_new_members'] = 'Benachrichtigung über neu regis
 $lang['admin_lang_notification_new_pm'] = 'Benachrichtigung über eine neue PN.';
 $lang['admin_lang_notification_new_posts_daily'] = 'Tägliche Benachrichtigung zu neuen Beiträgen';
 $lang['admin_lang_notification_new_posts_immediate'] = 'Sofortige Benachrichtigung zu einem neuen Beitrag';
-$lang['admin_lang_notification_new_posts_weekly'] = 'Wöchentliche Benachrichtigung zu neuen Beiträgen';
 $lang['admin_lang_notification_new_replies'] = 'Benachrichtigung zu neuen Antworten (für das Board-Team)';
 $lang['admin_lang_notification_new_topics'] = 'Benachrichtigung zu neuen Themen (für das Board-Team)';
 $lang['admin_lang_notification_reported_post'] = 'Benachrichtigung wegen einem gemeldeten Beitrag';

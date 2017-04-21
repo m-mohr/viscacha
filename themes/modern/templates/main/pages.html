@@ -18,7 +18,7 @@
 		<li class="pagination-next"><a href="{{ $uri }}page={{ $page + 1 }}{{ SID2URL_x }}"><span class="pagination-btn-label">@lang('pages_next')</span><i class="fa fa-angle-right"></i></a></li>
 		@endif
 		@if($pagecount > 5)
-		<li class="pagination-jumpto"><a href="javascript:jumptopage('{{ $uri }}');"><i class="fa fa-angle-double-down"></i></a></li>
+		<li class="pagination-jumpto js-only"><a href="javascript:jumptopage('{{ $uri }}');"><i class="fa fa-angle-double-down"></i></a></li>
 		@endif
 	</ul>
 </nav>

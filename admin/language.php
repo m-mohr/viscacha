@@ -21,7 +21,6 @@ $mailbase = array(
 	'admin_confirmed' => $lang->phrase('admin_lang_note_member_activated_by_admin'),
 	'digest_d' => $lang->phrase('admin_lang_notification_new_posts_daily'),
 	'digest_s' => $lang->phrase('admin_lang_notification_new_posts_immediate'),
-	'digest_w' => $lang->phrase('admin_lang_notification_new_posts_weekly'),
 	'mass_topic_moved' => $lang->phrase('admin_lang_notification_mass_topic_moved'),
 	'newpm' => $lang->phrase('admin_lang_notification_new_pm'),
 	'new_member' => $lang->phrase('admin_lang_notification_new_members'),

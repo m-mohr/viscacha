@@ -21,7 +21,7 @@
 				<ul class="dropdown-menu" aria-labelledby="admin_options">
 					<li><a href="managetopic.php?action=delete&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><i class="fa fa-trash"></i> @lang('admin_topics_delete')</a></li>
 				@if ($info['status'] != 2)
-					@if ($info['status'] == 1) {
+					@if ($info['status'] == 1)
 					<li><a href="managetopic.php?action=open&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><i class="fa fa-unlock"></i> @lang('admin_topics_open')</a></li>
 					@else
 					<li><a href="managetopic.php?action=close&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><i class="fa fa-lock"></i> @lang('admin_topics_close')</a></li>

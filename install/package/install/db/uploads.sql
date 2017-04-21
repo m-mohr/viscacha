@@ -5,7 +5,6 @@ CREATE TABLE `{:=DBPREFIX=:}uploads` (
   `mid` int(7) unsigned NOT NULL,
   `file` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `source` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `hits` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY  (`id`),
   KEY `tid` (`tid`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;

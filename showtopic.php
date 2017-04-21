@@ -236,7 +236,7 @@ if (!empty($info['vquestion'])) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, source, hits FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
+	$result = $db->query("SELECT id, tid, mid, file, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
 	$uploads = array();
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;

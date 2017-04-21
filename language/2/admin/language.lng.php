@@ -97,7 +97,6 @@ $lang['admin_lang_notification_new_members'] = 'Notification about new members f
 $lang['admin_lang_notification_new_pm'] = 'Notification about a new PM';
 $lang['admin_lang_notification_new_posts_daily'] = 'Daily notification about new posts';
 $lang['admin_lang_notification_new_posts_immediate'] = 'Immediate notification about new posts';
-$lang['admin_lang_notification_new_posts_weekly'] = 'Weekly notification about new posts';
 $lang['admin_lang_notification_new_replies'] = 'Notification about new replies for the board team';
 $lang['admin_lang_notification_new_topics'] = 'Notification about new topics for the board team';
 $lang['admin_lang_notification_reported_post'] = 'Notification about a reported post';

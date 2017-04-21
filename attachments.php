@@ -116,8 +116,6 @@ elseif ($_GET['action'] == "attachment") {
 			error($lang->phrase('no_upload_found'));
 		}
 
-		$db->query('UPDATE '.$db->pre.'uploads SET hits = hits+1 WHERE id = '.$_GET['id']);
-
 		$mime = get_mimetype($uppath);
 
 		($code = $plugins->load('attachments_attachment_prepared')) ? eval($code) : null;

@@ -218,6 +218,10 @@ hr {
 	color: #fff;
 }
 
+.js-only {
+	display: none;
+}
+
 .panel-title a {
 	text-decoration: underline;
 }

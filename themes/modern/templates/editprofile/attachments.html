@@ -6,7 +6,6 @@
 				<th width="40%">@lang('forum_topic')</th>
 				<th width="40%">@lang('editprofile_attachments_uploads')</th>
 				<th width="10%">@lang('editprofile_attachments_size')</th>
-				<th width="5%">@lang('editprofile_attachments_hits')</th>
 				<th width="5%">@lang('delete_title')</th>
 			</tr>
 		</thead>
@@ -16,7 +15,6 @@
 			<td width="40%"><a href="showtopic.php?action=jumpto&amp;topic_id={{ $row['tid'] }}{{ SID2URL_x }}" target="_blank">{{ $row['topic'] }}</a></td>
 			<td width="40%"><a href="attachments.php?action=attachment&amp;id={{ $row['id'] }}{{ SID2URL_x }}" target="_blank">{{ $row['file'] }}</a></td>
 			<td width="10%" nowrap="nowrap">{{ $row['fsize'] }}</td>
-			<td class="textright" width="5%">{{ $row['hits'] }}</td>
 			<td class="center" width="5%"><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
 		</tr>
 		@endforeach
@@ -26,7 +24,7 @@
 			<td class="textright" colspan="2">@lang('editprofile_attachments_allfiles')</td> 
 			<td nowrap="nowrap">{{ $all[1] }}</td> 
 			<td nowrap="nowrap" class="textright">{{ $all[2] }}</td>
-			<td nowrap="nowrap"><input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" /> @lang('check_all')</td>  
+			<td nowrap="nowrap"><input type="checkbox" onclick="checkAll(this)" value="delete[]" /></td>  
 		</tr>
 		</tfoot>
 	</table>
