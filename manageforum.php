@@ -57,26 +57,36 @@ if (!$my->vlogin || $my->mp[0] == 0) {
 }
 
 if ($_GET['action'] == "index") {
+	$marksql = '';
 	if ($_GET['type'] == 'open') {
+		$title = $lang->phrase('admin_mass_open');
 		$marksql = ' AND t.status = "1" ';
 	}
 	elseif ($_GET['type'] == 'close') {
+		$title = $lang->phrase('admin_mass_close');
 		$marksql = ' AND t.status = "0" ';
 	}
-	else { // 'close' or 'move'
-		$marksql = '';
+	elseif ($_GET['type'] == 'delete') {
+		$title = $lang->phrase('admin_mass_delete');
+	}
+	elseif ($_GET['type'] == 'move') {
+		$title = $lang->phrase('admin_mass_move');
+	}
+	else {
+		error($lang->phrase('querz_string_error'));
 	}
 
+	Breadcrumb::universal()->add($title);
+	
 	($code = $plugins->load('manageforum_filter_query')) ? eval($code) : null;
 
 	if (!empty($marksql)) {
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics AS t WHERE t.board = '{$board}' {$marksql}");
-		$vlasttopics = $db->fetch_num($result);
-		$info['topics'] = $vlasttopics[0];
+		$info['topics'] = $db->fetch_one($result);
 	}
 
 	$pages = pages($info['topics'], $info['forumzahl'], 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
-	$inner['index_bit'] = '';
+	$threads = array();
 	if ($info['topics'] > 0) {
 		$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
@@ -95,33 +105,26 @@ if ($_GET['action'] == "index") {
 		$prefix_arr = $prefix_obj->get($board);
 
 		while ($row = $gpc->prepare($db->fetch_object($result))) {
-			$pref = '';
-			$showprefix = false;
+			$row->label = '';
 			if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
-				$prefix = $prefix_arr[$row->prefix]['value'];
-				$showprefix = true;
+				$row->prefix = $prefix_arr[$row->prefix]['value'];
 			}
 			else {
-				$prefix = '';
+				$row->prefix = '';
 			}
 
 			if ($row->status == '2') {
-				$pref .= $lang->phrase('forum_moved');
+				$row->label .= $lang->phrase('forum_moved');
 			}
 			else if ($row->sticky == '1') {
-				$pref .= $lang->phrase('forum_announcement');
+				$row->label .= $lang->phrase('forum_announcement');
 			}
 
 			($code = $plugins->load('manageforum_entry_prepared')) ? eval($code) : null;
-			$inner['index_bit'] .= $tpl->parse("admin/forum/index_bit");
+			$threads[] = $row;
 		}
 	}
-	else {
-		($code = $plugins->load('manageforum_empty')) ? eval($code) : null;
-		$inner['index_bit'] .= $tpl->parse("admin/forum/index_bit_empty");
-	}
 
-	echo $tpl->parse("header");
 	($code = $plugins->load('manageforum_index_prepared')) ? eval($code) : null;
 	echo $tpl->parse("admin/forum/index");
 	($code = $plugins->load('manageforum_index_end')) ? eval($code) : null;
@@ -183,6 +186,7 @@ elseif ($_GET['action'] == "move") {
 	$forums = BoardSubs();
 	echo $tpl->parse("header");
 	echo $tpl->parse("admin/forum/move");
+	echo $tpl->parse("footer");
 }
 elseif ($_GET['action'] == "move2") {
 	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
@@ -291,6 +295,5 @@ elseif ($_GET['action'] == "stat") {
 
 ($code = $plugins->load('manageforum_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

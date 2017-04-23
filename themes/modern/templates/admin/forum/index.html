@@ -1,27 +1,49 @@
+@include('header')
+<h1>{{ $title }}</h1>
 <form name="form2" method="post" action="manageforum.php?action={{ $_GET['type'] }}&amp;id={{ $board }}{{ SID2URL_x }}">
-	<div class="panel panel-default">
-		<div class="panel-body text-right">{!! $pages !!}</div>
-		<table class="table table-striped">
-			<thead>
-				<tr> 
-					<th width="2%">
-						@lang('check_all')<input type="checkbox" onclick="checkAll(this)" value="delete[]" />
-					</th>
-					<th width="48%">@lang('forum_topic')</th>
-					<th width="20%">@lang('forum_start')</th>
-					<th width="10%">@lang('forum_replies')</th>
-					<th width="20%">@lang('forum_last')</th>
-				</tr>
-			</thead>
-			<tbody>
-				{!! $inner['index_bit'] !!}
-			</tbody>
-			<tfoot>
-				<tr> 
-					<td colspan="5" class="text-center"><input type="submit" value="@lang('submit_form')" /></td>
-				</tr>
-			</tfoot>
-		</table>
-		<div class="panel-body text-right">{!! $pages !!}</div>
-	</div>
+	{!! $pages !!}
+	<table class="table threads table-striped">
+		<thead>
+			<tr> 
+				<th class="cell-icon"><input type="checkbox" onclick="checkAll(this)" value="delete[]" title="@lang('check_all')" /></th>
+				<th class="cell-name">@lang('forum_topic')</th>
+				<th class="cell-author hidden-xs">@lang('forum_start')</th>
+				<th class="cell-stat hidden-xs hidden-sm">@lang('forum_replies')</th>
+				<th class="cell-last">@lang('forum_last')</th>
+			</tr>
+		</thead>
+		<tbody>
+			@forelse($threads as $row)
+			<tr>
+				<td class="cell-icon"><input type="checkbox" name="delete[]" value="{{ $row->id }}{{ SID2URL_x }}" /></td>
+				<td class="cell-name">
+					@if($row->vquestion)
+					<i class="fa fa-bar-chart pull-right" aria-hidden="true" title="@lang('vote_titlevote') {{$row->vquestion}}"></i>
+					@endif
+					{{ $row->label }}
+					<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">@if(!empty($row->prefix)) [{{ $row->prefix }}] @endif {{ $row->topic }}</a>
+				</td>
+				<td class="cell-author hidden-xs">
+					@reldatetime($row->date)<br />
+					@lang('written_by')
+					<a href="profile.php?id={{ $row->uid }}{{ SID2URL_x }}">{{ $row->name }}</a>
+				</td>
+				<td class="cell-stat hidden-xs hidden-sm">{{ numbers($row->posts) }}</td>
+				<td class="cell-last">
+					@reldatetime($row->last)<br />
+					@lang('written_by')
+					<a href="profile.php?id={{ $row->luid }}{{ SID2URL_x }}">{{ $row->luname }}</a>
+				</td>
+			</tr>
+			@empty
+			<tr>
+				<td class="text-center" colspan="5">@lang('forum_empty')</td>
+			</tr>
+			@endforelse
+		</tbody>
+	</table>
+	<span class="pull-left"><input type="submit" value="@lang('submit_form')" class="btn btn-primary" /></span>
+	<span class="pull-right">{!! $pages !!}</span>
 </form>
+
+@include('footer')
