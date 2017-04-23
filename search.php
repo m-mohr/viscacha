@@ -287,9 +287,7 @@ elseif ($_GET['action'] == "result") {
 	foreach ($pages[$_GET['page']-1] as $row) {
 		$pref = '';
 		$prefix = '';
-		$showprefix = false;
 		if (isset($prefix_arr[$row->board][$row->prefix]) && $row->prefix > 0) {
-			$showprefix = true;
 			$prefix = $prefix_arr[$row->board][$row->prefix]['value'];
 		}
 		$info = $forums[$row->board];
@@ -406,10 +404,8 @@ elseif ($_GET['action'] == "active") {
     		$inner['index_bit'] = '';
     		while ($row = $db->fetch_object($result)) {
     			$pref = '';
-    			$showprefix = false;
     			$prefix = '';
     			if ($row->prefix > 0 && isset($prefix_arr[$row->board][$row->prefix])) {
-    				$showprefix = true;
     				$prefix = $prefix_arr[$row->board][$row->prefix]['value'];
     			}
 

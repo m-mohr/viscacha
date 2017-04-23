@@ -84,8 +84,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 		$prefix_obj = $scache->load('prefix');
 		$prefix_arr = $prefix_obj->get($info['board']);
 		if (isset($prefix_arr[$info['prefix']])) {
-			$prefix = $prefix_arr[$info['prefix']]['value'];
-			$prefix = $lang->phrase('showtopic_prefix_title');
+			$prefix = '[' . $prefix_arr[$info['prefix']]['value'] . ']';
 		}
 	}
 
@@ -698,8 +697,7 @@ elseif ($_GET['action'] == "edithistory") {
 		$prefix_obj = $scache->load('prefix');
 		$prefix_arr = $prefix_obj->get($row['board']);
 		if (isset($prefix_arr[$row['prefix']])) {
-			$prefix = $prefix_arr[$row['prefix']]['value'];
-			$prefix = $lang->phrase('showtopic_prefix_title');
+			$prefix = '[' . $prefix_arr[$row['prefix']]['value'] . ']';
 		}
 	}
 	

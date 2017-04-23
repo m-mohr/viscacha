@@ -540,7 +540,6 @@ $lang['search_x_results'] = '{$count} Suchergebnisse bei der Suche nach:';
 $lang['showtopic_na'] = '-';
 $lang['showtopic_options_abo'] = 'Benachrichtigung';
 $lang['showtopic_options_abo_remove'] = 'Abonnement beenden';
-$lang['showtopic_prefix_title'] = '[{$prefix}] ';
 $lang['showtopic_subject'] = 'Betreff: ';
 $lang['show_first_unread_post'] = 'Ersten ungelesenen Beitrag anzeigen';
 $lang['standard_bbcodes'] = 'Standard-BB-Codes';

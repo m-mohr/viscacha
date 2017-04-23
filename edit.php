@@ -57,8 +57,7 @@ $prefix_arr = $prefix_obj->get($info['board']);
 $prefix = '';
 if ($info['prefix'] > 0) {
 	if (isset($prefix_arr[$info['prefix']])) {
-		$prefix = $prefix_arr[$info['prefix']]['value'];
-		$prefix = $lang->phrase('showtopic_prefix_title');
+		$prefix = '[' . $prefix_arr[$info['prefix']]['value'] . ']';
 	}
 }
 get_headboards($fc, $last);

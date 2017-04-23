@@ -2,7 +2,7 @@
 @if($_GET['action'] == 'preview')
 <h2>@lang('preview_title')</h2>
 <div class="well">
-	@lang('showtopic_subject') <strong>@if(!empty($prefix)) @lang('showtopic_prefix_title') @endif {{ $data['topic'] }}</strong>
+	@lang('showtopic_subject') <strong>@if(!empty($prefix)) [{{ $prefix }}] @endif {{ $data['topic'] }}</strong>
 	<hr />
 	{!! $data['formatted_comment'] !!}
 </div>

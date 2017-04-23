@@ -86,15 +86,12 @@
 				@endif
 					{{ $row->type }}
 					<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">
-					@php
-					$lang->assign('prefix', $row->prefix); // ToDo: Remove this
-					@endphp 
-					@if(!empty($row->prefix)) @lang('showtopic_prefix_title') @endif
+					@if(!empty($row->prefix)) [{{ $row->prefix }}] @endif
 					{{ $row->topic }}
+					</a>
 				@if(!$row->read)
 				</strong>
 				@endif
-				</a>
 				{!! $row->pages !!}
 			</td>
 			<td class="cell-author hidden-xs">

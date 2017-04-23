@@ -23,7 +23,7 @@
 		<strong>
 			@endif
 			{{ $pref }}
-			<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">@if($showprefix) @lang('showtopic_prefix_title') @endif {{ $row->topic }}</a>
+			<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}">@if(!empty($prefix)) [{{ $prefix }}] @endif {{ $row->topic }}</a>
 			@if(!$row->read)
 		</strong>
 		@endif

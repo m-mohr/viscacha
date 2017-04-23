@@ -53,10 +53,8 @@ if ($_GET['job'] == 'reports') {
 	while ($row = $gpc->prepare($db->fetch_object($result))) {
 		$prefix_arr = $prefix_obj->get($row->board);
 		$pref = '';
-		$showprefix = false;
 		if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
 			$prefix = $prefix_arr[$row->prefix]['value'];
-			$showprefix = true;
 		}
 		else {
 			$prefix = '';
@@ -67,7 +65,7 @@ if ($_GET['job'] == 'reports') {
         <td><input type="checkbox" value="<?php echo $row->id; ?>" name="delete[]" /></td>
         <td>
 			<strong><a href="showtopic.php?action=jumpto&topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank">
-				<?php echo iif($showprefix, '['.$prefix.'] ') . $row->topic; ?>
+				<?php echo iif(!empty($prefix), '['.$prefix.'] ') . $row->topic; ?>
 			</a></strong><br />
         	<span class="stext">
         		<?php echo $row->forumname; ?>

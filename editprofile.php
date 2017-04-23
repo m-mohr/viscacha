@@ -156,8 +156,7 @@ elseif ($_GET['action'] == "abos") {
 		}
 		
 		if (!empty($row['prefix']) && isset($prefix_arr[$row['board']][$row['prefix']])) {
-			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
-			$row['prefix'] = $lang->phrase('showtopic_prefix_title');
+			$row['prefix'] = '[' . $prefix_arr[$row['board']][$row['prefix']]['value'] . ']';
 		}
 		else {
 			$row['prefix'] = '';
@@ -672,8 +671,7 @@ elseif ($_GET['action'] == "mylast") {
 		$row['read'] = $slog->isTopicRead($row['id'], $row['last']);
 
 		if (isset($prefix_arr[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
-			$prefix = $prefix_arr[$row['board']][$row['prefix']]['value'];
-			$row['pre'] = $lang->phrase('showtopic_prefix_title');
+			$row['pre'] = '[' . $prefix_arr[$row['board']][$row['prefix']]['value'] . ']';
 		}
 		else {
 			$row['pre'] = '';

@@ -54,8 +54,7 @@ if ($info['prefix'] > 0) {
 	$prefix_obj = $scache->load('prefix');
 	$prefix_arr = $prefix_obj->get($info['board']);
 	if (isset($prefix_arr[$info['prefix']])) {
-		$prefix = $prefix_arr[$info['prefix']]['value'];
-		$prefix = $lang->phrase('showtopic_prefix_title');
+		$prefix = "[" . $prefix_arr[$info['prefix']]['value'] . "]";
 	}
 }
 

@@ -22,7 +22,7 @@
 		<a href="showtopic.php?action=firstnew&amp;id={{ $row->id}}&amp;q={{ $qhighlight }}{{ SID2URL_x }}"><img src="@theme('images/desc.gif')" alt="@lang('move_to_first_new_post')" /></a>
 		@endif
 		{{ $pref }}
-		<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}&amp;q={{ $qhighlight }}">@if($showprefix) @lang('showtopic_prefix_title') @endif {{$row->topic }}</a>
+		<a href="showtopic.php?id={{ $row->id }}{{ SID2URL_x }}&amp;q={{ $qhighlight }}">@if(!empty($prefix)) [{{ $prefix }}] @endif {{$row->topic }}</a>
 		{!! $topic_pages !!}
 		<span class="stext">@lang('result_board') <a href="showforum.php?id={{ $row->board }}{{ SID2URL_x }}" target="_blank">{{ $forums[$row->board]['name'] }}</a></span>
 	</td>

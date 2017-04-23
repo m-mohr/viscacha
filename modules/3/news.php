@@ -20,8 +20,7 @@ while ($row = $db->fetch_assoc($result)) {
 		$prefix_obj = $scache->load('prefix');
 		$prefix_arr = $prefix_obj->get($row['board']);
 		if (isset($prefix_arr[$row['prefix']])) {
-			$lang->assign('prefix', $prefix_arr[$row['prefix']]['value']);
-			$row['pre'] = $lang->phrase('showtopic_prefix_title');
+			$row['pre'] = '[' . $prefix_arr[$row['prefix']]['value'] . ']';
 		}
 	}
 

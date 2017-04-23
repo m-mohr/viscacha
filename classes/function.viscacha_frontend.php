@@ -500,8 +500,7 @@ function BoardSelect($board = 0) {
 					}
 					if (!empty($forum['l_topic'])) {
 						if (isset($prefix[$forum['id']][$forum['l_prefix']]) && $forum['l_prefix'] > 0) {
-							$lang->assign('prefix', $prefix[$forum['id']][$forum['l_prefix']]['value']);
-							$forum['l_prefix'] = $lang->phrase('showtopic_prefix_title');
+							$forum['l_prefix'] = '[' . $prefix[$forum['id']][$forum['l_prefix']]['value'] . ']';
 						}
 						else {
 							$forum['l_prefix'] = '';
