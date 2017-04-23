@@ -64,7 +64,7 @@ function admin_customfields($uid) {
 	$query = $db->query("SELECT * FROM ".$db->pre."profilefields ORDER BY disporder");
 	while($profilefield = $db->fetch_assoc($query)) {
 		$select = '';
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
+		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		if (!isset($thing[1])) {
@@ -131,11 +131,11 @@ function admin_customfields($uid) {
 			}
 		}
 		elseif($type == "textarea") {
-			$value = $gpc->prepare($saved[$field]);
+			$value = viscacha_htmlspecialchars($saved[$field]);
 			$code = "<textarea id=\"{$field}\" class=\"form-control\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
 		}
 		else {
-			$value = $gpc->prepare($saved[$field]);
+			$value = viscacha_htmlspecialchars($saved[$field]);
 			$code = "<input id=\"{$field}\" class=\"form-control\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
 		}
 		$customfields[$profilefield['editable']][] = array(
@@ -156,7 +156,7 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 	$upquery = array();
 	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
 	while($profilefield = $db->fetch_assoc($query)) {
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
+		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
@@ -215,7 +215,7 @@ function addprofile_customfields($data = array()) {
 	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE required = '1' AND editable != '0' ORDER BY disporder");
 	while($profilefield = $db->fetch_assoc($query)) {
 		$select = '';
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
+		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		if (!isset($thing[1])) {
@@ -299,7 +299,7 @@ function addprofile_customfields($data = array()) {
 		}
 		elseif($type == "textarea") {
 			if (!empty($data[$field])) {
-				$content = $gpc->prepare($data[$field]);
+				$content = viscacha_htmlspecialchars($data[$field]);
 			}
 			else {
 				$content = '';
@@ -393,7 +393,7 @@ function editprofile_customfields($editable, $uid) {
 	$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE editable = '{$editable}' ORDER BY disporder");
 	while($profilefield = $db->fetch_assoc($query)) {
 		$select = '';
-		$profilefield['type'] = $gpc->prepare($profilefield['type']);
+		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		if (!isset($thing[1])) {
@@ -460,11 +460,11 @@ function editprofile_customfields($editable, $uid) {
 			}
 		}
 		elseif($type == "textarea") {
-			$value = $gpc->prepare($saved[$field]);
+			$value = viscacha_htmlspecialchars($saved[$field]);
 			$code = "<textarea id=\"{$field}\" class=\"form-control\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
 		}
 		else {
-			$value = $gpc->prepare($saved[$field]);
+			$value = viscacha_htmlspecialchars($saved[$field]);
 			$code = "<input id=\"{$field}\" class=\"form-control\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
 		}
 		$customfields[] = array(

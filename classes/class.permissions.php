@@ -543,7 +543,7 @@ function sid_load() {
 	');
 
 	if ($db->num_rows($result) == 1) {
-		$my = $this->cleanUserData($db->fetch_object($result));
+		$my = $db->fetch_object($result);
 		if ($my->id > 0 && $my->confirm == '11') {
 			$my->vlogin = TRUE;
 		}
@@ -585,7 +585,7 @@ function sid_new() {
 			FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
 			WHERE u.deleted_at IS NULL AND u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"
 			LIMIT 1');
-		$my = $this->cleanUserData($db->fetch_object($result));
+		$my = $db->fetch_object($result);
 		$nodata = ($db->num_rows($result) == 1) ? false : true;
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
 			makecookie($config['cookie_prefix'].'_vdata', '|', 0);
@@ -672,8 +672,6 @@ function sid_login($remember = true) {
 	");
 	$mytemp = $db->fetch_object($result);
 	if (is_object($mytemp) && check_pw($pw, $mytemp->pw) && $mytemp->confirm == '11') {
-		$mytemp = $this->cleanUserData($mytemp);
-
 		$mytemp->mark = $my->mark;
 		$mytemp->pwfaccess = $my->pwfaccess;
 		$mytemp->settings = $my->settings;
@@ -760,34 +758,6 @@ function sid2url($my = null) {
 			DEFINE('SID2URL', $this->sid);
 		}
 	}
-}
-
-function cleanUserData($data) {
-	global $gpc;
-	$trust = array(
-		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'language',
-		'opt_pmnotify', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'theme', 'confirm', // from user-table
-		'ufid', // from userfields-table
-		'mid', 'active', 'wiw_id', 'last_visit', 'mark', 'pwfaccess', 'settings' // from session-table
-	);
-	if (is_object($data)) {
-		foreach ($data as $key => $value) {
-			if (in_array($key, $trust) == false) {
-				$data->{$key} = $gpc->prepare($value);
-			}
-		}
-	}
-	else if (is_array($data)) {
-		foreach ($data as $key => $value) {
-			if (in_array($key, $trust) == false) {
-				$data[$key] = $gpc->prepare($value);
-			}
-		}
-	}
-	else if ($data != null) {
-		trigger_error('Data passed to cleanUserData has not been not secured! Wrong data type specified.', E_USER_WARNING);
-	} // else: $data == null
-	return $data;
 }
 
 /**

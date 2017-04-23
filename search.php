@@ -260,7 +260,7 @@ elseif ($_GET['action'] == "result") {
 	);
 
 	$cache = array();
-	while ($row = $gpc->prepare($db->fetch_object($result))) {
+	while ($row = $db->fetch_object($result)) {
 		($code = $plugins->load('search_result_prepare')) ? eval($code) : null;
 		$cache[] = $row;
 	}
@@ -404,7 +404,7 @@ elseif ($_GET['action'] == "active") {
 			$prefix_arr = $prefix_obj->get();
 
     		$inner['index_bit'] = '';
-    		while ($row = $gpc->prepare($db->fetch_object($result))) {
+    		while ($row = $db->fetch_object($result)) {
     			$pref = '';
     			$showprefix = false;
     			$prefix = '';

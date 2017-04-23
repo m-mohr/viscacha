@@ -14,7 +14,7 @@ $prefix = $prefix_obj->get();
 if ($db->num_rows($result) > 0) {
 
 	$lastbox = array();
-	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+	while ($row = $db->fetch_assoc($result)) {
 		if (isset($prefix[$row['board']][$row['prefix']]) && $row['prefix'] > 0) {
 			$lang->assign('prefix', $prefix[$row['board']][$row['prefix']]['value']);
 			$row['prefix'] = $lang->phrase('showtopic_prefix_title');

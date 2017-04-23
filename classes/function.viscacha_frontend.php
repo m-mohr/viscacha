@@ -435,8 +435,6 @@ function BoardSelect($board = 0) {
 	);
 
 	while($row = $db->fetch_assoc($result)) {
-		$row['name'] = $gpc->prepare($row['name']);
-		$row['l_name'] = $gpc->prepare($row['l_name']);
 		$row['bid'] = $cat_cache[$row['parent']]['parent'];
 		// Caching for Subforums
 		if (!empty($row['bid'])) {

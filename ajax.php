@@ -93,7 +93,7 @@ elseif ($action == 'searchmember') {
 		while ($row = $db->fetch_assoc($result)) {
 			$user[] = $row['name'];
 		}
-		$request = implode(',', $gpc->prepare($user));
+		$request = implode(',', viscacha_htmlspecialchars($user));
 		echo $request;
 	}
 	else {

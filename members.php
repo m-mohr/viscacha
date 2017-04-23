@@ -241,7 +241,7 @@ else {
 	}
 
 	$members = array();
-	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+	while ($row = $db->fetch_assoc($result)) {
 		if (isset($row['location'])) {
 			$row['location'] = iif(!empty($row['location']), $row['location'], $lang->phrase('location_no_data'));
 		}

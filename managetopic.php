@@ -182,7 +182,7 @@ elseif ($action == "move2") {
 }
 elseif ($action == "reports") {
 	$result = $db->query("SELECT id, report, topic_id, tstart FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
-	$data = $gpc->prepare($db->fetch_assoc($result));
+	$data = $db->fetch_assoc($result);
 	if ($db->num_rows($result) == 0) {
 		error($lang->phrase('query_string_error'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
@@ -254,7 +254,7 @@ elseif ($action == "vote_edit") {
 	$error = array();
 
 	$result = $db->query('SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM '.$db->pre.'topics WHERE id = '.$_GET['id'].' LIMIT 1');
-	$info = $gpc->prepare($db->fetch_assoc($result));
+	$info = $db->fetch_assoc($result);
 
 	$fid = $gpc->get('fid', str);
 	if (is_hash($fid)) {
@@ -429,7 +429,7 @@ elseif ($action == "pmerge") {
 	$author = array();
 	$comment = array();
 	$posts = array();
-	while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+	while ($row = $db->fetch_assoc($result)) {
 		$posts[$row['id']] = $row;
 		$author[$row['id']] = $row['name'];
 		$comment[$row['id']] = $row['comment'];

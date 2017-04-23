@@ -37,7 +37,7 @@ if (!is_id($_GET['id']) && is_id($_GET['topic_id'])) {
 
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
 $result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-$info = $gpc->prepare($db->fetch_assoc($result));
+$info = $db->fetch_assoc($result);
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
@@ -280,8 +280,6 @@ include_once('classes/class.profilefields.php');
 $pfields = new ProfileFieldViewer();
 $rel_post_num = $start;
 while ($row = $db->fetch_object($result)) {
-	$row = $slog->cleanUserData($row);
-
 	// Custom Profile Fields
 	$pfields->setUserId($row->mid);
 	$pfields->setUserData($row);

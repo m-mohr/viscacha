@@ -48,7 +48,7 @@ $result = $db->query("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AN
 if ($db->num_rows($result) != 1) {
 	error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 }
-$user = $gpc->prepare($db->fetch_assoc($result));
+$user = $db->fetch_assoc($result);
 
 ($code = $plugins->load('managemembers_prepare')) ? eval($code) : null;
 

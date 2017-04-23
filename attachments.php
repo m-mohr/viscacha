@@ -139,7 +139,7 @@ else {
 			$error = true;
 		}
 		$upinfo = $db->fetch_assoc($result);
-		$upinfo['name'] = $gpc->prepare($my->id);
+		$upinfo['name'] = $my->id;
 		if ($upinfo['status'] != 0) {
 			$error = true;
 		}
@@ -165,7 +165,6 @@ else {
 			$error = true;
 		}
 		$upinfo = $db->fetch_assoc($result);
-		$upinfo['name'] = $gpc->prepare($upinfo['name']);
 	}
 	else {
 		$error = true;

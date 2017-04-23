@@ -41,7 +41,7 @@ WHERE r.id = '{$_GET['id']}' LIMIT 1");
 if ($db->num_rows($result) != 1) {
 	error(array($lang->phrase('query_string_error')));
 }
-$info = $gpc->prepare($db->fetch_assoc($result));
+$info = $db->fetch_assoc($result);
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);

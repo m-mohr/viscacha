@@ -225,7 +225,6 @@ elseif ($_GET['action'] == 'confirm') {
 	}
 
 	$row = $db->fetch_assoc($result);
-	$row['name'] = $gpc->prepare($row['name']);
 	$confirmcode = md5($config['cryptkey'].$row['regdate']);
 
 	($code = $plugins->load('register_confirm_check')) ? eval($code) : null;
@@ -279,8 +278,6 @@ else {
 	echo $tpl->parse("header");
 
 	$rules = $lang->get_words('rules');
-
-	$_GET['email'] = $gpc->prepare($_GET['email']);
 
 	($code = $plugins->load('register_form_prepared')) ? eval($code) : null;
 	echo $tpl->parse("register/register");

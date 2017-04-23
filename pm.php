@@ -59,7 +59,7 @@ if ($_GET['action'] == 'show') {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
 
-	$row = $slog->cleanUserData($db->fetch_assoc($result));
+	$row = $db->fetch_assoc($result);
 
 	if ($row['status'] == '0') {
 		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
@@ -246,7 +246,7 @@ elseif ($_GET['action'] == "save") {
 
 		$lang_dir = $lang->getdir(true);
 		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$name_id}'");
-		$row = $slog->cleanUserData($db->fetch_assoc($result));
+		$row = $db->fetch_assoc($result);
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
 			$maildata = $lang->get_mail('newpm');
@@ -287,7 +287,7 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		if ($db->num_rows($result) != 1) {
 			error($lang->phrase('pm_not_found'), 'pm.php'.SID2URL_1);
 		}
-		$info = $gpc->prepare($db->fetch_assoc($result));
+		$info = $db->fetch_assoc($result);
 		$data = array(
 			'name' => $info['name'],
 			'name_id' => $info['uid'],
@@ -352,7 +352,6 @@ elseif ($_GET['action'] == "browse") {
 	echo $tpl->parse("header");
 
 	while ($row = $db->fetch_assoc($result)) {
-		$row['topic'] = $gpc->prepare($row['topic']);
 		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}

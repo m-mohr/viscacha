@@ -270,7 +270,7 @@ else {
 				LIMIT '.$config['maxmultiquote']
 			);
 
-			while($row = $gpc->prepare($db->fetch_assoc($result))) {
+			while($row = $db->fetch_assoc($result)) {
 				($code = $plugins->load('addreply_form_quotes')) ? eval($code) : null;
 				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $row['comment']);
 				$row['comment'] = $bbcode->censor(trim($row['comment']));

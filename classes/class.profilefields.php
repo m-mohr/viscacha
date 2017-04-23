@@ -98,7 +98,6 @@ class ProfileFieldViewer {
 			$result = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$this->uid}'");
 			$row = $db->fetch_assoc($result);
 			unset($row['ufid']);
-			$row = $gpc->prepare($row);
 			$this->data[$this->uid] = $row;
 		}
 	}

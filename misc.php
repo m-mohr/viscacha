@@ -60,7 +60,7 @@ if ($_GET['action'] == "boardin") {
 elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
 	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
-	$info = $gpc->prepare($db->fetch_assoc($result));
+	$info = $db->fetch_assoc($result);
 
 	$my->p = $slog->Permissions($info['board']);
 
@@ -194,8 +194,6 @@ elseif ($_GET['action'] == "wwo") {
 	");
 
 	while ($row = $db->fetch_object($result)) {
-		$row->user_agent = strip_tags($row->user_agent);
-		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
 
 		switch (mb_strtolower($row->wiw_script)) {
@@ -685,7 +683,7 @@ elseif ($_GET['action'] == "edithistory") {
 		error($lang->phrase('query_string_error'));
 	}
 
-	$row = $gpc->prepare($db->fetch_assoc($result));
+	$row = $db->fetch_assoc($result);
 	$my->p = $slog->Permissions($row['board']);
 	if ($my->p['forum'] == 0) {
 		errorLogin();

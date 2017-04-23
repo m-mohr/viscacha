@@ -104,7 +104,7 @@ if ($_GET['action'] == "index") {
 		$prefix_obj = $scache->load('prefix');
 		$prefix_arr = $prefix_obj->get($board);
 
-		while ($row = $gpc->prepare($db->fetch_object($result))) {
+		while ($row = $db->fetch_object($result)) {
 			$row->label = '';
 			if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
 				$row->prefix = $prefix_arr[$row->prefix]['value'];

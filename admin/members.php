@@ -579,7 +579,7 @@ elseif ($job == 'manage') {
 		</tr>
 	<?php
 	while ($row = $db->fetch_object($result)) {
-		$row = $slog->cleanUserData($row);
+		$row = $gpc->prepare($row); // ToDo: This encodes to much data, replace with something different
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = 'Never';

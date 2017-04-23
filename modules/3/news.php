@@ -14,7 +14,7 @@ ORDER BY r.date DESC
 LIMIT 0,{$limit}"
 );
 BBProfile($bbcode);
-while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+while ($row = $db->fetch_assoc($result)) {
 	$row['pre'] = '';
 	if ($row['prefix'] > 0) {
 		$prefix_obj = $scache->load('prefix');

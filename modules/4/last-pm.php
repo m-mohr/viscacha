@@ -9,7 +9,7 @@ $result = $db->query("
 ");
 
 if ($db->num_rows($result) != 0) {
-	$row = $gpc->prepare($db->fetch_assoc($result));
+	$row = $db->fetch_assoc($result);
 
 	if (empty($row['name'])) {
 		$row['name'] = $lang->phrase('fallback_no_username');

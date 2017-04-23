@@ -11,7 +11,7 @@ LIMIT '.$num
 
 BBProfile($bbcode);
 $data = array();
-while ($row = $gpc->prepare($db->fetch_object($result))) {
+while ($row = $db->fetch_object($result)) {
 	$bbcode->setSmileys($row->dosmileys);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
