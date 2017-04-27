@@ -184,9 +184,7 @@ elseif ($_GET['action'] == "move") {
 		errorLogin($lang->phrase('not_allowed'), 'showforum.php?id='.$board.SID2URL_x);
 	}
 	$forums = BoardSubs();
-	echo $tpl->parse("header");
 	echo $tpl->parse("admin/forum/move");
-	echo $tpl->parse("footer");
 }
 elseif ($_GET['action'] == "move2") {
 	if ($my->mp[0] == 1 && $my->mp[2] == 0) {

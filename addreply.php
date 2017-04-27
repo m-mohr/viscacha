@@ -297,8 +297,6 @@ else {
 		}
 	}
 
-	echo $tpl->parse("header");
-
 	($code = $plugins->load('addreply_form_prepared')) ? eval($code) : null;
 
 	echo $tpl->parse("addreply");
@@ -309,6 +307,5 @@ else {
 
 ($code = $plugins->load('addreply_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('register_resend_title')</h1>
 <form method="post" action="register.php?action=resend2{{ SID2URL_x }}">
 	<p>@lang('register_resend_desc')</p>
@@ -20,3 +22,5 @@
 		<input tabindex="3" accesskey="s" type="submit" name="Submit1" value="@lang('submit_form')" />
 	</div>
 </form>
+
+@include('footer')

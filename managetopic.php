@@ -65,8 +65,6 @@ Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2
 Breadcrumb::universal()->add($prefix.$info['topic'], "showtopic.php?id=".$info['id'].SID2URL_x);
 Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
-echo $tpl->parse("header");
-
 forum_opt($last);
 
 if (!$my->vlogin || $my->mp[0] != 1) {
@@ -79,7 +77,9 @@ if ($action == "delete") {
 	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
+	echo $tpl->parse("header");
 	echo $tpl->parse("admin/topic/delete");
+	echo $tpl->parse("footer");
 }
 elseif ($action == "delete2") {
 	if ($my->mp[1] == 0) {
@@ -333,7 +333,9 @@ elseif ($action == "vote_delete") {
 	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
+	echo $tpl->parse("header");
 	echo $tpl->parse("admin/topic/vote_delete");
+	echo $tpl->parse("footer");
 }
 elseif ($action == "vote_delete2") {
 	if ($my->mp[1] == 0) {
@@ -543,6 +545,5 @@ elseif ($action == "pmerge2") {
 
 ($code = $plugins->load('managetopic_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('report_post')</h1>
-<form name="form2" method="post" action="misc.php?action=report_post2&amp;id={{ $info['id'] }}{{ SID2URL_x }}">
+<form method="post" action="misc.php?action=report_post2&amp;id={{ $info['id'] }}{{ SID2URL_x }}">
 	<div class="form-group">
 		<label for="comment">
 			@lang('report_message')
@@ -11,3 +13,5 @@
 		<input type="submit" tabindex="2" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

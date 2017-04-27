@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('editprofile_attachments')</h1>
-<form name="form2" method="post" action="editprofile.php?action=attachments2{{ SID2URL_x }}">
+<form method="post" action="editprofile.php?action=attachments2{{ SID2URL_x }}">
 	<table class="table table-striped">
 		<thead>
 			<tr> 
@@ -30,3 +32,5 @@
 	</table>
 	<input type="submit" name="Submit1" value="@lang('delete_form')"class="btn btn-danger" />
 </form>
+
+@include('footer')

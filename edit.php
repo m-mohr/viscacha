@@ -64,7 +64,6 @@ get_headboards($fc, $last);
 Breadcrumb::universal()->add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
 Breadcrumb::universal()->add($prefix.$info['topic'], 'showtopic.php?id='.$info['topic_id'].SID2URL_x);
 Breadcrumb::universal()->add($lang->phrase('edit'));
-echo $tpl->parse("header");
 
 if ($info['status'] != 0 && $my->mp[0] != 1) {
 	error($lang->phrase('topic_closed'), 'showtopic.php?action=jumpto&topic_id='.$info['id'].SID2URL_x);
@@ -259,6 +258,5 @@ else {
 }
 ($code = $plugins->load('edit_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

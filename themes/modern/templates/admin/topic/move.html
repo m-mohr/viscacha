@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('admin_move_title')</h1>
-<form name="form2" method="post" action="managetopic.php?action=move2&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
+<form method="post" action="managetopic.php?action=move2&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
 	<div class="form-group">
 		<label>@lang('admin_where_to')</label>
 		<select class="form-control" size="10" name="board">{!! $forums !!}</select>
@@ -18,3 +20,5 @@
 		<input type="submit" value="@lang('move_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

@@ -1,3 +1,5 @@
+@include('header')
+
 <table class="table table-striped">
 	<tr> 
 		<th colspan="5"><img src="@theme('images/suchen.gif')" border="0" alt="" /> @lang('search_x_results') <em>{{ implode(', ', $data['used']) }}</em></th>
@@ -22,3 +24,5 @@
 		<td class="tfoot textright" colspan="5">{!! $temp !!}</td>
 	</tr>
 </table>
+
+@include('footer')

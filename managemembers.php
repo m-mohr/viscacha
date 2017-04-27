@@ -36,7 +36,6 @@ include_once ("classes/function.profilefields.php");
 
 Breadcrumb::universal()->add($lang->phrase('teamcp'));
 
-echo $tpl->parse("header");
 
 ($code = $plugins->load('managemembers_start')) ? eval($code) : null;
 
@@ -56,7 +55,9 @@ if ($_GET['action'] == 'delete') {
 	if ($my->id == $user['id']) {
 		error($lang->phrase('member_delete_yourself_error'));
 	}
+	echo $tpl->parse("header");
 	echo $tpl->parse("admin/members/delete");
+	echo $tpl->parse("footer");
 }
 elseif ($_GET['action'] == 'recount') {
 	$posts = UpdateMemberStats($user['id']);
@@ -288,6 +289,5 @@ else {
 	error($lang->phrase('docs_not_found'), "profile.php?id={$user['id']}");
 }
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

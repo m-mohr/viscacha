@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('register_title')</h1>
 <form method="post" action="register.php?action=save&amp;fid={{ $fid }}{{ SID2URL_x }}">
 	<div class="form-group">
@@ -63,3 +65,5 @@
 		<input type="submit" accesskey="s" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

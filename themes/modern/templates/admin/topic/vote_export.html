@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('admin_topic_vote_export')</h1>
-<form name="form2" method="get" action="managetopic.php">
+<form method="get" action="managetopic.php">
 	<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
 	<input type="hidden" name="action" value="vote_export" />
 	<div class="form-group">
@@ -34,3 +36,5 @@
 		<input value="{{ $config['furl'] }}/images.php?action=vote&amp;id={{ $_GET['id'] }}&amp;skin={{ $skin }}&amp;modus={{ $modus }}" class="form-control" type="text" />
 	</div>
 </form>
+
+@include('footer')

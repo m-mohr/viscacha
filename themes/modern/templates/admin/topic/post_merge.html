@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('admin_merge_title')</h1>
 <form method="post" action="managetopic.php?action=pmerge2&amp;id={{ $info['id'] }}{{ SID2URL_x }}">
 	@foreach ($ids as $id)
@@ -28,3 +30,5 @@
 		<input type="submit" accesskey="s" name="Submit1" value="@lang('submit_form')" class="btn btn-primary" />
 </div>
 </form>
+
+@include('footer')

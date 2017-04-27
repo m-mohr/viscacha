@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('pm_writenew')</h1>
 @if(!empty($data['formatted_comment']))
 <h2>@lang('preview_title')</h2>
@@ -7,7 +9,7 @@
 	{!! $data['formatted_comment'] !!}
 </div>
 @endif
-<form name="form2" method="post" action="pm.php?action=save{{ SID2URL_x }}">
+<form method="post" action="pm.php?action=save{{ SID2URL_x }}">
 	<div class="form-group">
 		<label for="membersuggest_name">@lang('pm_addressee')</label>
 		<input id="membersuggest_name" class="form-control" name="name" tabindex="1" type="text" onkeyup="ajax_searchmember(this.value, key(event))" onblur="ajax_searchmember(this.value)" size="40" value="{{ $data['name'] }}" />
@@ -35,3 +37,5 @@
 		<input type="submit" accesskey="s" tabindex="2004" name="Submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

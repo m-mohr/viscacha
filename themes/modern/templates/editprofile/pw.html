@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('editprofile_pw')</h1>
 <form method="post" action="editprofile.php?action=pw2{{ SID2URL_x }}">
 	<div class="form-group">
@@ -19,3 +21,5 @@
 		<input accesskey="s" tabindex="4" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

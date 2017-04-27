@@ -93,7 +93,6 @@ if ($_GET['action'] == 'show') {
 	Breadcrumb::universal()->add(get_pmdir($row['dir']), 'pm.php?action=browse&amp;id='.$row['dir'].SID2URL_x);
 	Breadcrumb::universal()->add($lang->phrase('pm_show'));
 
-	echo $tpl->parse("header");
 	echo $tpl->parse("pm/show");
 	($code = $plugins->load('pm_show_end')) ? eval($code) : null;
 }
@@ -115,6 +114,7 @@ elseif ($_GET['action'] == "massmanage") {
 		($code = $plugins->load('pm_massmanage_delete')) ? eval($code) : null;
 		echo $tpl->parse("pm/delete");
 	}
+	echo $tpl->parse("footer");
 }
 elseif ($_GET['action'] == "massdelete") {
 	Breadcrumb::universal()->add($lang->phrase('pm_massmanage'));
@@ -162,6 +162,7 @@ elseif ($_GET['action'] == "delete") {
 	echo $tpl->parse("header");
 	$data = $info['id'];
 	echo $tpl->parse("pm/delete");
+	echo $tpl->parse("footer");
 }
 elseif ($_GET['action'] == "delete2") {
 	Breadcrumb::universal()->add($lang->phrase('pm_manage'));
@@ -261,7 +262,6 @@ elseif ($_GET['action'] == "save") {
 }
 elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['action'] == "quote" || $_GET['action'] == 'reply') {
 	Breadcrumb::universal()->add($lang->phrase('pm_new_title'));
-	echo $tpl->parse("header");
 
 	BBProfile($bbcode);
 
@@ -348,8 +348,6 @@ elseif ($_GET['action'] == "browse") {
 	LIMIT {$start}, {$config['pmzahl']}
 	");
 
-	echo $tpl->parse("header");
-
 	while ($row = $db->fetch_assoc($result)) {
 		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
@@ -366,6 +364,5 @@ else {
 
 ($code = $plugins->load('pm_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('log_pwremind_title')</h1>
 <p>@lang('log_pwremind_desc')</p>
 <form method="post" action="log.php?action=pwremind2{{ SID2URL_x }}">
@@ -9,3 +11,5 @@
 		<input accesskey="s" tabindex="2" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

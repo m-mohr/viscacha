@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('admin_mass_move')</h1>
-<form name="form2" method="post" action="manageforum.php?action=move2&amp;id={{ $board }}{{ SID2URL_x }}">
+<form method="post" action="manageforum.php?action=move2&amp;id={{ $board }}{{ SID2URL_x }}">
 	@foreach ($_POST['delete'] as $row)
 	<input type="hidden" name="delete[]" value="{{ $row }}" />
 	@endforeach
@@ -21,3 +23,5 @@
 		<input type="submit" value="@lang('move_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

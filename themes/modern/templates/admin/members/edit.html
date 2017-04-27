@@ -1,3 +1,5 @@
+@include('header')
+
 <!-- ToDo: Improve whole form -->
 <h2>@lang('editprofile_profile')</h2>
 <form name="form_{{ $random }}" method="post" action="managemembers.php?action=edit2&amp;random={{ $random }}&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
@@ -205,3 +207,5 @@
 	</div>
 	<div class="form-group form-buttons"><input type="submit" name="Submit1" value="@lang('submit_form')" class="btn btn-primary" /></div>
 </form>
+
+@include('footer')

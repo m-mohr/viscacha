@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('admin_topic_vote_edit')</h1>
-<form name="form2" method="post" action="managetopic.php?action=vote_edit2&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
+<form method="post" action="managetopic.php?action=vote_edit2&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
 	<div class="form-group">
 		<label for="question">@lang('add_vote_question')</label>
 		<input type="text" size="40" id="question" class="form-control" name="question" value="{{ $data['question'] }}" />
@@ -23,3 +25,5 @@
 		<input type="submit" name="Submit2" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

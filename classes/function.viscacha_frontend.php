@@ -599,7 +599,6 @@ function GoBoardPW ($bpw, $bid) {
 		($code = $plugins->load('frontend_goboardpw')) ? eval($code) : null;
 		$tpl->assignVars(compact("bid"));
 		echo $tpl->parse("main/boardpw");
-		echo $tpl->parse("footer");
 		$slog->updatelogged();
 		$phpdoc->Out();
 		exit;

@@ -1,6 +1,10 @@
+@include('header')
+
 <h1>@lang('rules')</h1>
 <ol>
 	@foreach($rules as $line)
 	<li>{{ $line }}</li>
 	@endforeach
 </ol>
+
+@include('footer')

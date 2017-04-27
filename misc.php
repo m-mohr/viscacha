@@ -149,7 +149,6 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 		}
 	}
 	else {
-		echo $tpl->parse("header");
 		echo $tpl->parse("misc/report_post");
 	}
 }
@@ -162,7 +161,6 @@ elseif ($_GET['action'] == "wwo") {
 	}
 
 	Breadcrumb::universal()->add($lang->phrase('wwo_detail_title'));
-	echo $tpl->parse("header");
 
 	$wwo = array(
 		'i' => 0,
@@ -590,7 +588,6 @@ elseif ($_GET['action'] == "bbhelp") {
 	}
 
 	Breadcrumb::universal()->add($lang->phrase('bbhelp_title'));
-	echo $tpl->parse("header");
 	($code = $plugins->load('misc_bbhelp_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/bbhelp");
 	($code = $plugins->load('misc_bbhelp_end')) ? eval($code) : null;
@@ -617,12 +614,10 @@ elseif ($_GET['action'] == "markforumasread") {
 	}
 	$slog->setForumRead($board);
 	ok($lang->phrase('marked_as_read'), 'showforum.php?id='.$board);
-
 }
 elseif ($_GET['action'] == "rules") {
 	$my->p = $slog->Permissions();
 	Breadcrumb::universal()->add($lang->phrase('rules_title'));
-	echo $tpl->parse("header");
 	$rules = $lang->get_words('rules');
 	($code = $plugins->load('misc_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/rules");
@@ -650,10 +645,10 @@ elseif ($_GET['action'] == "board_rules") {
 	forum_opt($info);
 
 	echo $tpl->parse("header");
-
 	($code = $plugins->load('misc_board_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/board_rules");
 	($code = $plugins->load('misc_board_rules_end')) ? eval($code) : null;
+	echo $tpl->parse("footer");
 }
 elseif ($_GET['action'] == "error") {
 	$my->p = $slog->Permissions();
@@ -664,7 +659,6 @@ elseif ($_GET['action'] == "error") {
 	sendStatusCode($errid);
 	($code = $plugins->load('misc_error_prepared')) ? eval($code) : null;
 	Breadcrumb::universal()->add($lang->phrase('htaccess_error_'.$errid));
-	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
 }
 elseif ($_GET['action'] == "edithistory") {
@@ -724,7 +718,6 @@ elseif ($_GET['action'] == "edithistory") {
 		}
 	}
 
-	echo $tpl->parse("header");
 	($code = $plugins->load('misc_edithistory_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/edithistory");
 	($code = $plugins->load('misc_edithistory_end')) ? eval($code) : null;
@@ -732,8 +725,5 @@ elseif ($_GET['action'] == "edithistory") {
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 
-if ($tpl->wasTemplateSent("header")) {
-	echo $tpl->parse("footer");
-}
 $slog->updatelogged();
 $phpdoc->Out();

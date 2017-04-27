@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('editprofile_pic')</h1>
 <h2>@lang('editprofile_pic_current')</h2>
 @if(file_exists($my->pic))
@@ -13,7 +15,7 @@
 </form>
 @elselang('editprofile_pic_empty')
 <h2>@lang('editprofile_pic_new')</h2>
-<form name="form2" method="post" action="editprofile.php?action=pic2{{ SID2URL_x }}" enctype="multipart/form-data">
+<form method="post" action="editprofile.php?action=pic2{{ SID2URL_x }}" enctype="multipart/form-data">
 	<div class="form-group">
 		<label>@lang('editprofile_pic_settings')</label>
 		<ul class="form-control-static">
@@ -34,3 +36,5 @@
 		<input accesskey="s" tabindex="4" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

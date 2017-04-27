@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('editprofile_profile')</h1>
 <form method="post" action="editprofile.php?action=profile2{{ SID2URL_x }}">
 	@if($config['changename_allowed'] == 1)
@@ -70,3 +72,5 @@
 		<input accesskey="s" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

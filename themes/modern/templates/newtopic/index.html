@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('newtopic_title')</h1>
 @if($_GET['action'] == 'preview')
 <h2>@lang('preview_title')</h2>
@@ -104,3 +106,5 @@
 	</div>
 	@endif
 </form>
+
+@include('footer')

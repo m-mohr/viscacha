@@ -1,6 +1,6 @@
 @include('header')
 <h1>{{ $title }}</h1>
-<form name="form2" method="post" action="manageforum.php?action={{ $_GET['type'] }}&amp;id={{ $board }}{{ SID2URL_x }}">
+<form method="post" action="manageforum.php?action={{ $_GET['type'] }}&amp;id={{ $board }}{{ SID2URL_x }}">
 	{!! $pages !!}
 	<table class="table threads table-striped">
 		<thead>

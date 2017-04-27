@@ -1,9 +1,11 @@
+@include('header')
+
 <h1>@lang('editprofile_signature')</h1>
 @if($preview)
 <h2><img src="@theme('images/signature.gif')" alt="" /> @lang('editprofile_signature_preview')</h2>
 <div class="well">{!! $parsedPreview !!}</div>
 @endif
-<form name="form2" method="post" action="editprofile.php?action=signature{{ SID2URL_x }}">
+<form method="post" action="editprofile.php?action=signature{{ SID2URL_x }}">
 	<div class="form-group">
 		<div class="text-right">
 			<a href="misc.php?action=bbhelp{{ SID2URL_x }}" target="_blank"><i class="fa fa-question-circle"></i> @lang('bbcode_help')</a>
@@ -15,3 +17,5 @@
 		<input type="submit" name="Submit" tabindex="2" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

@@ -3,7 +3,7 @@
 	<i class="fa fa-bar-chart"></i> {{ $vote['question'] }}
 </h2>
 
-<form name="form2" method="post" action="misc.php?action=vote&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">
+<form method="post" action="misc.php?action=vote&amp;id={{ $info['id'] }}&amp;page={{ $_GET['page'] }}{{ SID2URL_x }}">
 	<div class="list-group">
 		@foreach ($vote['entries'] as $row)
 		<label for="vote_{{ $row['id'] }}" class="list-group-item">

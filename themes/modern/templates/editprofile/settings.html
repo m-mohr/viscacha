@@ -1,5 +1,7 @@
+@include('header')
+
 <h1>@lang('editprofile_settings')</h1>
-<form name="form2" method="post" action="editprofile.php?action=settings2{{ SID2URL_x }}">
+<form method="post" action="editprofile.php?action=settings2{{ SID2URL_x }}">
 	<div class="form-group">
 		<label for="opt_1">
 			@lang('editprofile_emailpn')
@@ -104,3 +106,5 @@
 	<input accesskey="s" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 </div>
 </form>
+
+@include('footer')

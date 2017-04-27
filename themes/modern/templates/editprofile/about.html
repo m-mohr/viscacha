@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('editprofile_about')</h1>
 <p>@lang('editprofile_about_longdesc')</p>
 @if($preview)
@@ -17,3 +19,5 @@
 		<input accesskey="s" type="submit" name="Submit" tabindex="2" class="btn btn-primary" value="@lang('submit_form')" />
 	</div>
 </form>
+
+@include('footer')

@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('pm_browse_title')</h1>
 @if($count > 0)
 <form name="form" method="post" action="pm.php?action=massmanage{{ SID2URL_x }}">
@@ -44,3 +46,5 @@
 @else
 <div class="alert alert-info" role="alert">@lang('pm_empty')</div>
 @endif
+
+@include('footer')

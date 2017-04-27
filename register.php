@@ -157,7 +157,6 @@ elseif ($_GET['action'] == 'resend') {
 	($code = $plugins->load('register_resend_start')) ? eval($code) : null;
 	Breadcrumb::universal()->add($lang->phrase('register_title'), "register.php".SID2URL_1);
 	Breadcrumb::universal()->add($lang->phrase('register_resend_title'));
-	echo $tpl->parse("header");
 
 	if ($config['botgfxtest'] > 0) {
 		$captcha = newCAPTCHA();
@@ -275,7 +274,6 @@ else {
 	}
 
 	Breadcrumb::universal()->add($lang->phrase('register_title'));
-	echo $tpl->parse("header");
 
 	$rules = $lang->get_words('rules');
 
@@ -284,6 +282,5 @@ else {
 	($code = $plugins->load('register_form_end')) ? eval($code) : null;
 }
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('edit')</h1>
 @if($_GET['action'] == 'preview')
 <h2>@lang('preview_title')</h2>
@@ -7,7 +9,7 @@
 	{!! $data['formatted_comment'] !!}
 </div>
 @endif
-<form name="form2" method="post" action="edit.php?id={{ $_GET['id'] }}{{ SID2URL_x }}&amp;action=save">
+<form method="post" action="edit.php?id={{ $_GET['id'] }}{{ SID2URL_x }}&amp;action=save">
 	@if($info['tstart'])
 	<div class="form-group">
 		<label for="topic">@lang('title')</label>
@@ -66,3 +68,5 @@
 		<input type="submit" accesskey="s" tabindex="10" name="Submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')

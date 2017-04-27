@@ -93,7 +93,6 @@ elseif ($_GET['action'] == "pwremind") {
 		error($lang->phrase('log_already_logged'));
 	}
 	Breadcrumb::universal()->add($lang->phrase('log_pwremind_title'));
-	echo $tpl->parse("header");
 	($code = $plugins->load('log_pwremind_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/pwremind");
 	($code = $plugins->load('log_pwremind_form_end')) ? eval($code) : null;
@@ -173,7 +172,6 @@ else {
 	}
 
 	Breadcrumb::universal()->add($lang->phrase('log_title'));
-	echo $tpl->parse("header");
 
 	($code = $plugins->load('log_login_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/login");
@@ -182,6 +180,5 @@ else {
 
 ($code = $plugins->load('log_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

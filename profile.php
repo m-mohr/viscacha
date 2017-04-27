@@ -94,11 +94,9 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail')) {
 					'topic' => ''
 				);
 			}
-			echo $tpl->parse("header");
 			($code = $plugins->load('profile_mail_prepared')) ? eval($code) : null;
 			echo $tpl->parse("profile/mail");
 			($code = $plugins->load('profile_mail_end')) ? eval($code) : null;
-
 		}
 	}
 	else {
@@ -115,7 +113,6 @@ else {
 
 		$username = $row->name;
 		Breadcrumb::universal()->add($lang->phrase('profile_title'));
-		echo $tpl->parse("header");
 
 		$days2 = null;
 		if ($config['showpostcounter'] == 1) {
@@ -186,6 +183,5 @@ else {
 
 ($code = $plugins->load('profile_end')) ? eval($code) : null;
 
-echo $tpl->parse("footer");
 $slog->updatelogged();
 $phpdoc->Out();

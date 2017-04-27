@@ -1,3 +1,5 @@
+@include('header')
+
 <h1>@lang('profile_mail_2')</h1>
 <form name="form" method="post" action="profile.php?action=sendmail&amp;id={{ $row->id }}{{ SID2URL_x }}">
 	@if($row->opt_hidemail == 0)
@@ -18,3 +20,5 @@
 		<input accesskey="s" tabindex="3" type="submit" value="@lang('submit_form')" class="btn btn-primary" />
 	</div>
 </form>
+
+@include('footer')
