@@ -1,6 +1,8 @@
 $(document).ready(function () {
-	// Rmove js only UI elements
+	// Remove js only UI elements
 	$('.js-only').removeClass('js-only');
+	// Remove js only UI elements
+	$('.pagination-separator').removeClass('disabled');
 	// Initialize MultiQuote
 	MultiQuote.init();
 	// Initalize Menu

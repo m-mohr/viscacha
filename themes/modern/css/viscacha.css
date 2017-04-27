@@ -276,7 +276,7 @@ hr {
 .pagination-inline .pagination > li.pagination-label > span {
 	color: #000;
 }
-li.pagination-jumpto, li.pagination-separator, li.pagination-label {
+li.pagination-separator, li.pagination-label {
 	display: none;
 }
 @media(min-width:768px) {
@@ -289,7 +289,7 @@ li.pagination-jumpto, li.pagination-separator, li.pagination-label {
 	.pagination-block .pagination-btn-label {
 		display: inline;
 	}
-	li.pagination-jumpto, li.pagination-separator, li.pagination-label {
+	li.pagination-separator, li.pagination-label {
 		display: inline;
 	}
 }
