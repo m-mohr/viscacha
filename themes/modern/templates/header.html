@@ -65,7 +65,6 @@
 					<li>
 						<a href="#"><i class="fa fa-user"></i> {{ $my->name }}<!-- ToDo: Should be replaced with a generic name, like "Account", "Membership" or so --></a>
 						   <ul class="nav-pills nav-stacked">
-							
 							@if($my->vlogin)
 							<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out"></i> @lang('logout')</a></li>
 							<li><a href="editprofile.php?action=profile{{ SID2URL_x }}" title="@lang('editprofile_profile_desc')"><i class="fa fa-id-card"></i> @lang('editprofile_profile')</a></li>
@@ -95,11 +94,10 @@
 					<li>
 						<a href="#"><i class="fa fa-envelope"></i> @lang('pm_short')</a>
 						<ul class="nav-pills nav-stacked">
-							<li><a href="pm.php{{ SID2URL_1 }}"><i class="fa fa-inbox"></i> @lang('pm_dir_index')</a></li>
-							<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
 							<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
 							<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
 							<li><a href="pm.php?action=browse&amp;id=3{{ SID2URL_x }}"><i class="fa fa-archive"></i> @lang('pm_dirs_archive')</a></li>
+							<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
 						</ul>
 					</li>
 					@endif

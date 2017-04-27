@@ -67,7 +67,6 @@ if ($_GET['action'] == 'show') {
 
 	$bbcode->setSmileys(1);
 	$row['comment'] = $bbcode->parse($row['comment']);
-	$row['read'] = iif($row['status'] == 1,'old','new');
 	$row['level'] = $slog->getStatus($row['groups'], ', ', $row['deleted_at'] !== null);
 	if ($row['dir'] == 2) {
 		$row['fullname'] = $my->fullname;
@@ -332,12 +331,12 @@ elseif ($_GET['action'] == "browse") {
 	FROM {$db->pre}pm
 	WHERE pm_to = '{$my->id}' AND dir = '{$_GET['id']}'
 	");
-	$count = $db->fetch_num($result);
+	$count = $db->fetch_one($result);
 
-	$temp = pages($count[0], $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
+	$temp = pages($count, $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
 	$start = ($_GET['page'] - 1) * $config['pmzahl'];
 
-	$inner['index_bit'] = '';
+	$messages = array();
 
 	($code = $plugins->load('pm_browse_query')) ? eval($code) : null;
 	$result = $db->query("
@@ -356,51 +355,13 @@ elseif ($_GET['action'] == "browse") {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}
 		($code = $plugins->load('pm_browse_entry_prepared')) ? eval($code) : null;
-		$inner['index_bit'] .= $tpl->parse("pm/browse_bit");
+		$messages[] = $row;
 	}
 	echo $tpl->parse("pm/browse");
 	($code = $plugins->load('pm_browse_end')) ? eval($code) : null;
 }
 else {
-	Breadcrumb::universal()->resetUrl();
-	echo $tpl->parse("header");
-
-	$time = time()-60*60*24*7;
-	$timestamp = $time > $my->clv ? $my->clv : $time;
-
-	($code = $plugins->load('pm_index_start')) ? eval($code) : null;
-
-	$result = $db->query("
-	SELECT p.id, p.topic, p.date, p.status, p.pm_to, u.id AS pm_from, u.name
-	FROM {$db->pre}pm AS p
-		LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
-	WHERE p.pm_to = '{$my->id}' AND (p.date > {$timestamp} OR  p.status = '0') AND p.dir != '2'
-	ORDER BY p.date DESC
-	");
-
-	$count = $db->num_rows($result);
-	$inner['index_bit'] = '';
-	$inner['index_bit_old'] = '';
-	$ib = 0;
-	$ibo = 0;
-	while ($row = $db->fetch_assoc($result)) {
-		if (empty($row['name'])) {
-			$row['name'] = $lang->phrase('fallback_no_username');
-		}
-		($code = $plugins->load('pm_index_entry_prepared')) ? eval($code) : null;
-		if ($row['date'] >= $my->clv || $row['status'] == '0') {
-			$ib++;
-			$inner['index_bit'] .= $tpl->parse("pm/index_bit");
-		}
-		else {
-			$ibo++;
-			$inner['index_bit_old'] .= $tpl->parse("pm/index_bit");
-		}
-	}
-
-	($code = $plugins->load('pm_index_prepared')) ? eval($code) : null;
-	echo $tpl->parse("pm/index");
-	($code = $plugins->load('pm_index_end')) ? eval($code) : null;
+	sendStatusCode(302, $config['furl'].'/pm.php?action=browse&id=1');
 }
 
 ($code = $plugins->load('pm_end')) ? eval($code) : null;

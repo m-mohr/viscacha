@@ -1,15 +1,12 @@
-<div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">@lang('delete_title')</h3></div>
-	<div class="panel-body">
-		<p class="center">@lang('pm_confirmdelete')</p>
-		<p class="center">
-			@if($_GET['action'] == "massmanage")
-			<a href="pm.php?action=massdelete&amp;data={{ $data }}{{ SID2URL_x }}">
-				@else
-				<a href="pm.php?action=delete2&amp;id={{ $data }}{{ SID2URL_x }}">
-					@endif
-					<img src="@theme('images/yes.gif')" alt="@lang('confirm_yes')" /> @lang('confirm_yes')</a>
-				<a class="sep" href="javascript:history.back(-1);"><img alt="" src="@theme('images/no.gif')" /> @lang('confirm_no')</a>
-		</p>
-	</div>
-</div>
+<h1>@lang('delete_title')</h1>
+<p>@lang('pm_confirmdelete')</p>
+@if($_GET['action'] == "massmanage")
+<a class="btn btn-danger" href="pm.php?action=massdelete&amp;data={{ $data }}{{ SID2URL_x }}">
+@else
+<a class="btn btn-danger" href="pm.php?action=delete2&amp;id={{ $data }}{{ SID2URL_x }}">
+@endif
+	<i class="fa fa-trash"></i> @lang('confirm_yes')
+</a>
+<a class="btn btn-success" href="javascript:history.back(-1);">
+	<i class="fa fa-level-up"></i> @lang('confirm_no')
+</a>

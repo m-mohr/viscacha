@@ -28,14 +28,6 @@
 			<small>{{ $row->level }}</small>
 		</h3>
 	</div>
-	<div class="popover hidden-lg">
-		<div class="viewmemberdetails stext">
-			@if($row->deleted_at === null)
-			@lang('post_info_registered_since') @date($row->regdate)<br />
-			@lang('post_info_postcount') {{ numbers($row->posts) }}
-			@endif
-		</div>
-	</div>
 	<div class="panel-body">
 		{!! $row->comment !!}
 		@if(!empty($inner['uploads']))

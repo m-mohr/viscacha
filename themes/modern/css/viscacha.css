@@ -368,6 +368,18 @@ li.pagination-separator, li.pagination-label {
     margin: 0px;
 }
 
+/* PM */
+.conversations .cell-select, .conversations .cell-icon {
+    text-align: center;
+	width: 2%;
+}
+.conversations .cell-title {
+	width: 66%;
+}
+.conversations .cell-author {
+	width: 30%;
+}
+
 /* Edit profile */
 .editprofile-nav i {
 	display: none;

@@ -1,34 +1,46 @@
+<h1>@lang('pm_browse_title')</h1>
+@if($count > 0)
 <form name="form" method="post" action="pm.php?action=massmanage{{ SID2URL_x }}">
-	<table class="table table-striped">
-		<tr>
-			<th colspan="4"><img src="@theme('images/pm.gif')" alt="" /> @lang('pm_browse_title')</th>
-		</tr> 
-		@if($count[0] != 0)
-		<tr> 
-			<td class="tfoot textright" colspan="4">{!! $temp !!}</td>
-		</tr>
-		<tr> 
-			<th width="4%" colspan="2" nowrap="nowrap"><input type="checkbox" onclick="checkAll(this)" value="delete[]" title="@lang('check_all')" /></th>
-			<th width="66%">@lang('forum_topic')</th>
-			<th width="30%">@lang('pm_authordate')</th>
-		</tr>	
-		{!! $inner['index_bit'] !!}
-		<tr> 
-			<td class="tfoot textright" colspan="4">{!! $temp !!}</td>
-		</tr>
-		<tr> 
-			<td class="tfoot center" colspan="4">
-				<input type="submit" name="delete2" value="@lang('delete_form')" />
-				@if($_GET['id'] != '2')
-				<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
-				<input type="submit" name="move2" value="@lang('move_form')" />
-				@endif
-			</td>
-		</tr>
-		@else
-		<tr>
-			<td class="tbody center" colspan="4">@lang('pm_empty')</td>
-		</tr>
-		@endif
+	{!! $temp !!}
+	<table class="table conversations table-striped">
+		<thead>
+			<tr> 
+				<th class="cell-select"><input type="checkbox" onclick="checkAll(this)" value="delete[]" title="@lang('check_all')" class="js-only" /></th>
+				<th class="cell-icon"></th>
+				<th class="cell-title">@lang('forum_topic')</th>
+				<th class="cell-author">@lang('pm_authordate')</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach($messages as $row)
+			<tr class="tbody">
+				<td class="cell-select"><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
+				<td class="cell-icon">
+					@if($row['status'])
+					<i class="fa fa-lg fa-envelope icon-neutral" title="@lang('pm_oldicon')"></i>
+					@else
+					<i class="fa fa-lg fa-envelope icon-new" title="@lang('pm_newicon')"></i>
+					@endif
+				</td>
+				<td class="cell-title"><a href="pm.php?action=show&amp;id={{ $row['id'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a></td>
+				<td class="cell-author">
+					@reldatetime($row['date'])<br />
+					@if($_GET['id'] != 2) @lang('by') @elselang('pm_outgoing_by')
+					<a href="profile.php?id={{ $row['pm_from'] }}{{ SID2URL_x }}">{{ $row['name'] }}</a>
+				</td>
+			</tr>
+			@endforeach
+		</tbody>
 	</table>
+	<span class="pull-left">
+		<input type="submit" name="delete2" value="@lang('delete_form')" class="btn btn-danger" />
+		@if($_GET['id'] != '2')
+		<input type="hidden" name="id" value="{{ $_GET['id'] }}" />
+		<input type="submit" name="move2" value="@lang('move_form')" class="btn btn-default" />
+		@endif
+	</span>
+	<span class="pull-right">{!! $temp !!}</span>
 </form>
+@else
+<div class="alert alert-info" role="alert">@lang('pm_empty')</div>
+@endif
