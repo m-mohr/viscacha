@@ -238,7 +238,7 @@ hr {
 @media(min-width: 992px) {
 	/* ToDo: Check what happens when there are multiple of these alerts */
 	.alert-dismissible {
-		z-index: 2000;
+		z-index: 20000;
 		position: fixed;
 		bottom: 10px;
 		right: 10px;
