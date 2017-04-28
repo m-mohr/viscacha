@@ -19,17 +19,17 @@
 		"ext-pcre": "*",
 		"mso/idna-convert": "1.1.*",
 		"eftec/bladeone": "1.*",
-		"lutana/pclzip": "*",
+		"lutana/pclzip": "2.*",
 		"snoopy/snoopy": "2.0.*",
 		"phpmailer/phpmailer": "5.2.*",
 		"monolog/monolog": "1.*",
-		"maximebf/debugbar": "*"
+		"maximebf/debugbar": "1.*"
 	},
 	"suggest": {
 		"ext-fileinfo": "Needed to get mime type information for uploaded files",
 		"ext-ftp": "Needed to use FTP fallback for file operations",
 		"ext-openssl": "Needed to get truly random numbers for security purposes",
-		"ext-sockets": "Needed to improve networking, especially for sending mails.",
+		"ext-sockets": "Needed to improve networking, especially for sending mails",
 		"ext-zlib": "Needed to extract gzip files"
 	},
 	"autoload": {
