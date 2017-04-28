@@ -56,7 +56,7 @@ class Debug {
 		// Create the default logger
 		self::$defaultLogger = self::createLogger('viscacha');
 		// Register the error handler and consume the error handler events with the default logger
-		self::$errorHandler = ErrorHandler::register(self::$defaultLogger);
+		self::$errorHandler = ErrorHandler::register(self::$defaultLogger, array(), false, false);
 
 		if (self::$debugModeEnabled) {
 			// Set up the debug bar
