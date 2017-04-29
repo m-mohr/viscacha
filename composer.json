@@ -15,7 +15,7 @@
 		"ext-gd": "*",
 		"ext-json": "*",
 		"ext-mbstring": "*",
-		"ext-mysqli": "*",
+		"ext-pdo": "*",
 		"ext-pcre": "*",
 		"mso/idna-convert": "1.1.*",
 		"eftec/bladeone": "1.*",
