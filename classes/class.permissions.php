@@ -269,9 +269,9 @@ function updatelogged () {
 	if (!isset($my->mark) || !is_array($my->mark)) {
 		$my->mark = array();
 	}
-	$serialized = $db->escape_string(serialize($my->mark));
-	$serializedpwf = $db->escape_string(serialize($my->pwfaccess));
-	$serializedstg = $db->escape_string(serialize($my->settings));
+	$serialized = $db->escape(serialize($my->mark));
+	$serializedpwf = $db->escape(serialize($my->pwfaccess));
+	$serializedstg = $db->escape(serialize($my->settings));
 	if ($my->id > 0 && !is_id($this->change_mid)) {
 		$sqlwhere = "mid = '{$my->id}'";
 	}
@@ -288,7 +288,7 @@ function updatelogged () {
 
 	($code = $plugins->load('permissions_updatelogged_query')) ? eval($code) : null;
 	
-	$db->query ("
+	$db->execute ("
 	UPDATE {$db->pre}session
 	SET mark = '{$serialized}', wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '".time()."',
 		pwfaccess = '{$serializedpwf}', settings = '{$serializedstg}', lastvisit = '{$my->clv}' {$sqlset}
@@ -298,7 +298,7 @@ function updatelogged () {
 
 	if ($my->vlogin) {
 		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
-		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'");
+		$db->execute("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'");
 	}
 
 }
@@ -313,7 +313,7 @@ function deleteOldSessions () {
 	if ($this->SessionDel() == true) {
 		$sessionsave = $config['sessionsave']*60;
 		$old = time()-$sessionsave;
-		$db->query ("DELETE FROM {$db->pre}session WHERE active <= '{$old}'");
+		$db->execute ("DELETE FROM {$db->pre}session WHERE active <= '{$old}'");
 		return true;
 	}
 	else {
@@ -363,9 +363,9 @@ function logged () {
 	}
 
 	if (empty($this->sid) && array_empty($this->cookiedata)) {
-		$result = $db->query('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1');
-		if ($db->num_rows($result) == 1) {
-			$sidrow = $db->fetch_assoc($result);
+		$result = $db->execute('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1');
+		if ($result->getResultCount() == 1) {
+			$sidrow = $result->fetch();
 			$this->sid = $sidrow['sid'];
 			$this->querysid = true;
 		}
@@ -533,7 +533,7 @@ function sid_load() {
 		$sql = $sid_checkip;
 	}
 
-	$result = $db->query('
+	$result = $db->execute('
 	SELECT u.*, f.*, s.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM '.$db->pre.'session AS s
 		LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id
@@ -542,8 +542,8 @@ function sid_load() {
 	LIMIT 1
 	');
 
-	if ($db->num_rows($result) == 1) {
-		$my = $db->fetch_object($result);
+	if ($result->getResultCount() == 1) {
+		$my = $result->fetchObject();
 		if ($my->id > 0 && $my->confirm == '11') {
 			$my->vlogin = TRUE;
 		}
@@ -571,8 +571,8 @@ function sid_new() {
 	global $config, $db, $gpc;
 
 	if (!$this->sidload && !array_empty($this->cookiedata)) {
-		$load = $db->query('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1');
-		if ($db->num_rows($load) == 1) {
+		$load = $db->execute('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1');
+		if ($load->getResultCount() == 1) {
 			$this->sidload = true;
 			$my = $this->sid_load();
 			return $my;
@@ -580,13 +580,13 @@ function sid_new() {
 	}
 
 	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
-		$result = $db->query('
+		$result = $db->execute('
 			SELECT u.*, f.*
 			FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
 			WHERE u.deleted_at IS NULL AND u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"
 			LIMIT 1');
-		$my = $db->fetch_object($result);
-		$nodata = ($db->num_rows($result) == 1) ? false : true;
+		$my = $result->fetchObject();
+		$nodata = ($result->getResultCount() == 1) ? false : true;
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
 			makecookie($config['cookie_prefix'].'_vdata', '|', 0);
 			set_failed_login();
@@ -624,9 +624,9 @@ function sid_new() {
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
 
-	$db->query("INSERT INTO {$db->pre}session
+	$db->execute("INSERT INTO {$db->pre}session
 	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings) VALUES
-	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."')");
+	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape($my->mark)."','".$db->escape($my->pwfaccess)."','".$db->escape($my->settings)."')");
 
 	return $my;
 }
@@ -641,13 +641,13 @@ function sid_logout() {
 	$qid = $gpc->get('id', int);
 	$time = time();
 
-	$db->query ("
+	$db->execute ("
 	UPDATE {$db->pre}session
 	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0', pwfaccess = ''
 	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$this->sid}'")."
 	LIMIT 1
 	");
-	$db->query("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'");
+	$db->execute("UPDATE {$db->pre}user SET lastvisit = '{$time}' WHERE id = '{$my->id}'");
 
 	makecookie($config['cookie_prefix'].'_vdata', '|', 0);
 }
@@ -663,14 +663,14 @@ function sid_login($remember = true) {
 	$username = $gpc->get('name', str);
 	$pw = $gpc->get('pw', none);
 
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT u.*, f.*, u.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM {$db->pre}user AS u
 		LEFT JOIN {$db->pre}session AS s ON (u.id = s.mid OR s.sid = '{$this->sid}')
 		LEFT JOIN {$db->pre}userfields as f ON f.ufid = u.id
 	WHERE u.name = '{$username}' AND u.deleted_at IS NULL
 	");
-	$mytemp = $db->fetch_object($result);
+	$mytemp = $result->fetchObject();
 	if (is_object($mytemp) && check_pw($pw, $mytemp->pw) && $mytemp->confirm == '11') {
 		$mytemp->mark = $my->mark;
 		$mytemp->pwfaccess = $my->pwfaccess;
@@ -1099,9 +1099,9 @@ function ModPermissions ($bid) {
 			return array(1,1,1);
 		}
 		else {
-			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
-			if ($db->num_rows($result) > 0) {
-				$row = $db->fetch_assoc($result);
+			$result = $db->execute("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
+			if ($result->getResultCount() > 0) {
+				$row = $result->fetch();
 				return array(1, $row['p_delete'], $row['p_mc']);
 			}
 			else {
@@ -1195,8 +1195,8 @@ function setTopicRead($tid, $parents) {
 	// Erstelle ein Array mit schon gelesenen Beiträgen
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");
-		$row = $db->fetch_one($result);
+		$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");
+		$row = $result->fetchOne();
 		if ($row == 0) {
 			$my->mark['f'][$tf] = time();
 		}
@@ -1205,8 +1205,8 @@ function setTopicRead($tid, $parents) {
 
 function setForumRead($fid) {
 	global $db, $my;
-	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last >= '{$my->clv}'");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT id FROM {$db->pre}topics WHERE board = '{$fid}' AND last >= '{$my->clv}'");
+	while ($row = $result->fetch()) {
 		$my->mark['t'][$row['id']] = time();
 	}
 	$my->mark['f'][$fid] = time();
@@ -1222,16 +1222,16 @@ function setForumRead($fid) {
 function setAllRead() {
 	global $my, $db;
 	if ($my->vlogin) {
-		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'");
+		$db->execute ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'");
 	}
 	else {
-		$db->query ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'");
+		$db->execute ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'");
 	}
 	// Todo: Save some queries!
 	// This queries can be saved normally, because it will be saved with updatelogged (in ok/error funcs) later!
 	$my->mark = array();
 	$my->clv = time();
-	if ($db->affected_rows() > 0) {
+	if ($db->getAffectedRows() > 0) {
 		return true;
 	}
 	else {

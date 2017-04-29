@@ -9,12 +9,12 @@ class cache_cat_bid extends CacheItem {
 		else {
 			$categories_obj = $scache->load('categories');
 			$cat_cache = $categories_obj->get();
-		    $result = $db->query("
+		    $result = $db->execute("
 			SELECT id, name, parent, position, description, topics, replies, opt, optvalue, forumzahl, topiczahl, prefix, invisible, readonly, active_topic, count_posts, reply_notification, topic_notification, message_active, message_title, message_text, lid, post_order
 			FROM {$db->pre}forums
 			");
 		    $this->data = array();
-		    while ($row = $db->fetch_assoc($result)) {
+		    while ($row = $result->fetch()) {
 		    	$row['bid'] = $cat_cache[$row['parent']]['parent'];
 
 				$emails = preg_split('/[\r\n]+/u', $row['topic_notification'], -1, PREG_SPLIT_NO_EMPTY);

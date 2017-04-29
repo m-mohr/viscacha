@@ -31,19 +31,19 @@ include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
 if (!is_id($_GET['id']) && is_id($_GET['topic_id'])) {
-	$result = $db->query("SELECT topic_id FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}'");
-	$_GET['id'] = $db->fetch_one($result);
+	$result = $db->execute("SELECT topic_id FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}'");
+	$_GET['id'] = $result->fetchOne();
 }
 
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-$info = $db->fetch_assoc($result);
+$result = $db->execute("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
+$info = $result->fetch();
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
 
 $error = array();
-if ($db->num_rows($result) < 1) {
+if ($result->getResultCount() < 1) {
 	$error[] = $lang->phrase('query_string_error');
 }
 if ($my->p['forum'] == 0) {
@@ -62,8 +62,8 @@ if ($last['topiczahl'] < 1) {
 
 if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	$sql_order = iif($last['post_order'] == 1, '>', '<=');
-	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$my->clv}'");
-	$old = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$my->clv}'");
+	$old = $result->fetch();
 	if ($last['post_order'] != 1) {
 		$old['count']++; // Number of old post (with topic start post) + 1, to get the first new post, not the last old post
 	}
@@ -76,8 +76,8 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 elseif ($_GET['action'] == 'last') {
 	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
 	// For post_order = 1: Query could be saved, we can just jump to the first page, first post is the post we are looking for...
-	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' ORDER BY date DESC LIMIT 1");
-	$new = $db->fetch_one($result);
+	$result = $db->execute("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' ORDER BY date DESC LIMIT 1");
+	$new = $result->fetchOne();
 	if ($last['post_order'] == 1) {
 		$pgs = 1;
 	}
@@ -87,11 +87,11 @@ elseif ($_GET['action'] == 'last') {
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new);
 }
 elseif ($_GET['action'] == 'mylast') {
-	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND name = '{$my->id}' ORDER BY date DESC LIMIT 1");
-	$mylast = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND name = '{$my->id}' ORDER BY date DESC LIMIT 1");
+	$mylast = $result->fetch();
 	$sql_order = iif($last['post_order'] == 1, '>=', '<');
-	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} {$mylast['date']}");
-	$new = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} {$mylast['date']}");
+	$new = $result->fetch();
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
 	if ($pgs < 1) {
@@ -100,11 +100,11 @@ elseif ($_GET['action'] == 'mylast') {
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast['id']);
 }
 elseif ($_GET['action'] == 'jumpto') {
-	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND id = '{$_GET['topic_id']}'");
-	$mylast = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND id = '{$_GET['topic_id']}'");
+	$mylast = $result->fetch();
 	$sql_order = iif($last['post_order'] == 1, '<', '>');
-	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$mylast['date']}'");
-	$new = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$mylast['date']}'");
+	$new = $result->fetch();
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
 	if ($pgs < 1) {
@@ -161,7 +161,7 @@ if (!empty($info['vquestion'])) {
 	}
 
 	// Get data: count of votes per option, option id, option text
-	$vresult = $db->query("
+	$vresult = $db->execute("
 		SELECT COUNT(r.id) as votes, v.id, v.answer
 		FROM {$db->pre}vote AS v
 			LEFT JOIN {$db->pre}votes AS r ON r.aid = v.id
@@ -169,9 +169,9 @@ if (!empty($info['vquestion'])) {
 		GROUP BY v.id
 		ORDER BY v.id
 	");
-	if ($db->num_rows($vresult) > 0) {
+	if ($vresult->getResultCount() > 0) {
 		// Collect and cache data for a single query instead of multiple
-		while ($row = $db->fetch_assoc($vresult)) {
+		while ($row = $vresult->fetch()) {
 			$vote['entries'][$row['id']] = $row;
 			$vote['voter'][$row['id']] = array();
 			$vote['count'] += $row['votes'];
@@ -179,13 +179,13 @@ if (!empty($info['vquestion'])) {
 
 		// Now get more data (for what the users voted exactly)
 		$sql_aid_in = implode(',', array_keys($vote['entries']));
-		$vresult = $db->query("
+		$vresult = $db->execute("
 			SELECT u.id AS mid, u.name, v.aid
 			FROM {$db->pre}votes AS v
 				LEFT JOIN {$db->pre}user AS u ON u.id = v.mid
 			WHERE v.aid IN({$sql_aid_in})
 		");
-		while ($row = $db->fetch_assoc($vresult)) {
+		while ($row = $vresult->fetch()) {
 			// Save the data for the member who is calling this page
 			if ($row['mid'] == $my->id) {
 				if ($config['vote_change'] != 1 || ($config['vote_change'] == 1 && $_GET['temp'] != 2)) {
@@ -235,9 +235,9 @@ if (!empty($info['vquestion'])) {
 }
 
 if ($config['tpcallow'] == 1) {
-	$result = $db->query("SELECT id, tid, mid, file, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
+	$result = $db->execute("SELECT id, tid, mid, file, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
 	$uploads = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$uploads[$row['tid']][] = $row;
 	}
 }
@@ -251,7 +251,7 @@ else {
 }
 $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
-$result = $db->query("
+$result = $db->execute("
 SELECT
 	r.id, r.edit, r.dosmileys, r.comment, r.date, r.report, r.tstart,
 	u.id as mid, u.name, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.deleted_at,
@@ -266,7 +266,7 @@ ORDER BY date {$sql_order}
 ");
 
 if ($last['post_order'] == 1) {
-	$firstnew_id = $db->fetch_one($db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date > '{$my->clv}'"));
+	$firstnew_id = $db->fetchOne($db->execute("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date > '{$my->clv}'"));
 }
 $firstnew = 0;
 $firstnew_url = null;
@@ -278,7 +278,7 @@ if ($info['last'] >= $my->clv) {
 include_once('classes/class.profilefields.php');
 $pfields = new ProfileFieldViewer();
 $rel_post_num = $start;
-while ($row = $db->fetch_object($result)) {
+while ($row = $result->fetchObject()) {
 	// Custom Profile Fields
 	$pfields->setUserId($row->mid);
 	$pfields->setUserData($row);
@@ -386,8 +386,8 @@ while ($row = $db->fetch_object($result)) {
 }
 
 if ($my->vlogin && is_id($info['id'])) {
-	$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'");
-	$abox = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'");
+	$abox = $result->fetch();
 }
 else {
 	$abox = array('id' => null, 'type' => null);

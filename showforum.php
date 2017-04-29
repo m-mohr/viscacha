@@ -78,8 +78,8 @@ if ($prefix_filter >= 0) {
 ($code = $plugins->load('showforum_filer_query')) ? eval($code) : null;
 
 if (!empty($marksql)) {
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' {$marksql}");
-	$vlasttopics = $db->fetch_one($result);
+	$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' {$marksql}");
+	$vlasttopics = $result->fetchOne();
 	$info['topics'] = $vlasttopics;
 }
 
@@ -102,7 +102,7 @@ if ($info['topics'] > 0) {
 	$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
 	($code = $plugins->load('showforum_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
 		u.name, u.id AS uid, l.id AS luid, l.name AS luname
 	FROM {$db->pre}topics AS t
@@ -113,7 +113,7 @@ if ($info['topics'] > 0) {
 	LIMIT {$start}, {$info['forumzahl']}
 	");
 
-	while ($row = $db->fetch_object($result)) {
+	while ($row = $result->fetchObject()) {
 		if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
 			$row->prefix = $prefix_arr[$row->prefix]['value'];
 		}

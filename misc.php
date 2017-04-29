@@ -59,13 +59,13 @@ if ($_GET['action'] == "boardin") {
 }
 elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
-	$info = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT r.id, r.report, r.topic_id, r.tstart, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
+	$info = $result->fetch();
 
 	$my->p = $slog->Permissions($info['board']);
 
 	$error = array();
-	if ($db->num_rows($result) < 1) {
+	if ($result->getResultCount() < 1) {
 		$error[] = $lang->phrase('query_string_error');
 	}
 	if ($my->p['forum'] == 0) {
@@ -114,7 +114,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			set_flood();
 			$message = $_POST['comment'];
 			// Update the report
-			$db->query("UPDATE {$db->pre}replies SET report = '{$message}' WHERE id = '{$info['id']}' LIMIT 1");
+			$db->execute("UPDATE {$db->pre}replies SET report = '{$message}' WHERE id = '{$info['id']}' LIMIT 1");
 			// Get administrators and global moderators
 			$groups = $scache->load('groups');
 			$team = $groups->team();
@@ -124,14 +124,14 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 				$cache[] = "FIND_IN_SET({$row}, groups)";
 			}
 			$cache = implode(' OR ',$cache);
-			$result = $db->query("SELECT id, name, mail, language FROM {$db->pre}user WHERE {$cache}");
+			$result = $db->execute("SELECT id, name, mail, language FROM {$db->pre}user WHERE {$cache}");
 			$cache = array();
-			while ($row = $db->fetch_assoc($result)) {
+			while ($row = $result->fetch()) {
 				$cache[$row['id']] = $row;
 			}
 			// Get moderators
-			$result = $db->query("SELECT u.id, u.name, u.mail, u.language FROM {$db->pre}moderators AS m LEFT JOIN {$db->pre}user AS u ON u.id = m.mid WHERE m.bid = '{$info['board']}'");
-			while ($row = $db->fetch_assoc($result)) {
+			$result = $db->execute("SELECT u.id, u.name, u.mail, u.language FROM {$db->pre}moderators AS m LEFT JOIN {$db->pre}user AS u ON u.id = m.mid WHERE m.bid = '{$info['board']}'");
+			while ($row = $result->fetch()) {
 				// If ID exists already in array then overwrite it
 				$cache[$row['id']] = $row;
 			}
@@ -183,14 +183,14 @@ elseif ($_GET['action'] == "wwo") {
 
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
-	$result=$db->query("
+	$result=$db->execute("
 	SELECT s.ip, s.mid, s.active, s.wiw_script, s.wiw_action, s.wiw_id, s.user_agent, u.name
 	FROM {$db->pre}session AS s
 		LEFT JOIN {$db->pre}user AS u ON u.id = s.mid
 	ORDER BY s.active DESC
 	");
 
-	while ($row = $db->fetch_object($result)) {
+	while ($row = $result->fetchObject()) {
 		$wwo['i']++;
 
 		switch (mb_strtolower($row->wiw_script)) {
@@ -286,9 +286,9 @@ elseif ($_GET['action'] == "wwo") {
 		case 'showtopic': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
 			$id = $row->wiw_id;
 			if (!isset($cache['t'.$id])) {
-				$result2 = $db->query("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1");
-				if ($db->num_rows($result2) == 1) {
-					$nfo = $db->fetch_assoc($result2);
+				$result2 = $db->execute("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1");
+				if ($result2->getResultCount() == 1) {
+					$nfo = $result2->fetch();
 					$cache['t'.$id] = $nfo;
 				}
 			}
@@ -344,8 +344,8 @@ elseif ($_GET['action'] == "vote") {
 
 	($code = $plugins->load('misc_vote_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT board, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
-	$info = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT board, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
+	$info = $result->fetch();
 	$my->p = $slog->Permissions($info['board']);
 
 	if (!$my->vlogin || $my->p['forum'] == 0 || $my->p['voting'] == 0) {
@@ -357,19 +357,19 @@ elseif ($_GET['action'] == "vote") {
 	}
 
 	$answers = array();
-	$result = $db->query("
+	$result = $db->execute("
 		SELECT r.id
 		FROM {$db->pre}vote AS v
 			LEFT JOIN {$db->pre}votes AS r ON v.id = r.aid
 		WHERE v.tid = '{$_GET['id']}' AND r.mid = '{$my->id}'
 	");
-	if ($db->num_rows($result) > 0) {
-		$voted = $db->fetch_one($result);
+	if ($result->getResultCount() > 0) {
+		$voted = $result->fetchOne();
 	}
 
 	$error = array();
-	$result = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$_GET['id']}' AND id = '{$_POST['temp']}'");
-	if ($db->num_rows($result) == 0) {
+	$result = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$_GET['id']}' AND id = '{$_POST['temp']}'");
+	if ($result->getResultCount() == 0) {
 		$error[] = $lang->phrase('vote_no_value_checked');
 	}
 	if ($voted > 0 && $config['vote_change'] != 1) {
@@ -382,10 +382,10 @@ elseif ($_GET['action'] == "vote") {
 	else {
 		($code = $plugins->load('misc_vote_savedata')) ? eval($code) : null;
 		if ($voted > 0) {
-			$db->query("UPDATE {$db->pre}votes SET aid = '{$_POST['temp']}' WHERE id = '{$voted}'");
+			$db->execute("UPDATE {$db->pre}votes SET aid = '{$_POST['temp']}' WHERE id = '{$voted}'");
 		}
 		else {
-			$db->query("INSERT INTO {$db->pre}votes (mid, aid) VALUES ('{$my->id}','{$_POST['temp']}')");
+			$db->execute("INSERT INTO {$db->pre}votes (mid, aid) VALUES ('{$my->id}','{$_POST['temp']}')");
 		}
 		ok($lang->phrase('data_success'), 'showtopic.php?id='.$_GET['id'].'&page='.$_POST['page'].SID2URL_x);
 	}
@@ -663,7 +663,7 @@ elseif ($_GET['action'] == "error") {
 }
 elseif ($_GET['action'] == "edithistory") {
 	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, t.topic, t.prefix, r.date, u.name, u.id as mid, u.groups, u.deleted_at
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
@@ -671,12 +671,12 @@ elseif ($_GET['action'] == "edithistory") {
 	WHERE r.id = '{$_GET['id']}'
 	LIMIT 1
 	");
-	$found = $db->num_rows($result);
+	$found = $result->getResultCount();
 	if ($found == 0) {
 		error($lang->phrase('query_string_error'));
 	}
 
-	$row = $db->fetch_assoc($result);
+	$row = $result->fetch();
 	$my->p = $slog->Permissions($row['board']);
 	if ($my->p['forum'] == 0) {
 		errorLogin();

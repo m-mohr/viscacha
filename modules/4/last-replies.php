@@ -1,6 +1,6 @@
 $num = $config['viscacha_addreply_last_replies']['repliesnum'];
 
-$result = $db->query('
+$result = $db->execute('
 SELECT r.dosmileys, r.id, r.comment, r.date, u.id AS uid, u.name, u.deleted_at
 FROM '.$db->pre.'replies AS r
 	LEFT JOIN '.$db->pre.'user AS u ON u.id = r.name
@@ -11,7 +11,7 @@ LIMIT '.$num
 
 BBProfile($bbcode);
 $data = array();
-while ($row = $db->fetch_object($result)) {
+while ($row = $result->fetchObject()) {
 	$bbcode->setSmileys($row->dosmileys);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');

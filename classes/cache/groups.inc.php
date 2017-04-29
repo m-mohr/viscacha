@@ -11,11 +11,11 @@ class cache_groups extends CacheItem {
 			$fields = array_merge($fields['gFields'], $fields['maxFields'], $fields['minFields']);
 			$keys = array_combine($fields, range(1, count($fields)));
 
-			$result = $db->query('SELECT * FROM '.$db->pre.'groups');
+			$result = $db->execute('SELECT * FROM '.$db->pre.'groups');
 			$this->data = array();
 			$this->data['groupstandard'] = $this->data['group_status'] = array();
 			$this->data['team_ag'] = array('gmod' => array(), 'admin' => array());
-			while ($row = $db->fetch_assoc($result)) {
+			while ($row = $result->fetch()) {
 				// groups
 				$this->data['groups'][$row['id']] = array_intersect_key($row, $keys);
 

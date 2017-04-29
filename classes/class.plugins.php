@@ -106,13 +106,13 @@ class PluginSystem {
 
 	function countPlugins($pos){
 		global $db;
-		$result = $db->query("
+		$result = $db->execute("
 		SELECT COUNT(*) AS num
 		FROM {$db->pre}plugins AS m
 			LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
 		WHERE m.position = '{$pos}' AND p.active = '1' AND m.active = '1'
 		");
-		$info = $db->fetch_assoc($result);
+		$info = $result->fetch();
 		return $info['num'];
 	}
 
@@ -204,14 +204,14 @@ class PluginSystem {
 		if ($this->sqlcache == null) {
 			$this->sqlcache = array();
 			$this->sqlcache[$group] = array();
-			$result = $db->query("
+			$result = $db->execute("
 				SELECT m.id, m.module, m.position
 				FROM {$db->pre}plugins AS m
 					LEFT JOIN {$db->pre}packages AS p ON m.module = p.id
 				WHERE p.active = '1' AND m.active = '1'
 				ORDER BY m.ordering
 			");
-			while ($row = $db->fetch_assoc($result)) {
+			while ($row = $result->fetch()) {
 				$row['group'] = $this->_group($row['position']);
 				$this->sqlcache[$row['group']][$row['position']][$row['id']] = $row['module'];
 			}

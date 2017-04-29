@@ -13,9 +13,9 @@ class cache_loadlanguage extends CacheItem {
 			}
 		}
 		else {
-		    $result = $db->query("SELECT id, language, detail FROM {$db->pre}language WHERE publicuse != '0'");
+		    $result = $db->execute("SELECT id, language, detail FROM {$db->pre}language WHERE publicuse != '0'");
 		    $this->data = array();
-		    while ($row = $db->fetch_assoc($result)) {
+		    while ($row = $result->fetch()) {
 		        $this->data[$row['id']] = $row;
 		    }
 			$this->createJavascript();

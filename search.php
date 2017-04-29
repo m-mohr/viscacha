@@ -75,9 +75,9 @@ if ($_GET['action'] == "search") {
 
 	$name = $gpc->get('name', str);
 	if (mb_strlen($name) >= $config['searchminlength']) {
-		$result = $db->query("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
-		if ($db->num_rows($result) == 1) {
-			$rname = $db->fetch_one($result);
+		$result = $db->execute("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
+		if ($result->getResultCount() == 1) {
+			$rname = $result->fetchOne();
 		}
 		else {
 			$rname = $name;
@@ -163,7 +163,7 @@ if ($_GET['action'] == "search") {
 	$sql_where .= " AND f.invisible != '2' ";
 
 	($code = $plugins->load('search_search_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT r.topic_id
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
@@ -174,7 +174,7 @@ if ($_GET['action'] == "search") {
 	");
 
 	$searchresult = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$searchresult[] = $row['topic_id'];
 	}
 
@@ -249,7 +249,7 @@ elseif ($_GET['action'] == "result") {
 	}
 
 	($code = $plugins->load('search_result_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
 		u.name, u.id AS uid, l.id AS luid, l.name AS luname
 	FROM {$db->pre}topics AS t
@@ -260,7 +260,7 @@ elseif ($_GET['action'] == "result") {
 	);
 
 	$cache = array();
-	while ($row = $db->fetch_object($result)) {
+	while ($row = $result->fetchObject()) {
 		($code = $plugins->load('search_result_prepare')) ? eval($code) : null;
 		$cache[] = $row;
 	}
@@ -331,9 +331,9 @@ elseif ($_GET['action'] == "active") {
 	    }
 		$timestamp = $my->clv;
 		$ids = array();
-   		$result = $db->query("SELECT tid FROM {$db->pre}abos WHERE mid = '{$my->id}'");
-   		if ($db->num_rows($result) > 0) {
-       		while ($row = $db->fetch_assoc($result)) {
+   		$result = $db->execute("SELECT tid FROM {$db->pre}abos WHERE mid = '{$my->id}'");
+   		if ($result->getResultCount() > 0) {
+       		while ($row = $result->fetch()) {
        			$ids[] = $row['tid'];
        		}
        		$sqlwhere .= " id IN (".implode(',', $ids).") AND ";
@@ -371,15 +371,15 @@ elseif ($_GET['action'] == "active") {
     	$start = ($_GET['page']-1)*$config['activezahl'];
 
     	($code = $plugins->load('search_active_query')) ? eval($code) : null;
-    	$result = $db->query("
+    	$result = $db->execute("
     	SELECT COUNT(*)
     	FROM {$db->pre}topics AS t
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')
     	);
-    	$count = $db->fetch_one($result);
+    	$count = $result->fetchOne();
 
-    	$result = $db->query("
+    	$result = $db->execute("
     	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
 			u.name, u.id AS uid, l.id AS luid, l.name AS luname
     	FROM {$db->pre}topics AS t
@@ -400,7 +400,7 @@ elseif ($_GET['action'] == "active") {
 			$prefix_arr = $prefix_obj->get();
 
     		$inner['index_bit'] = '';
-    		while ($row = $db->fetch_object($result)) {
+    		while ($row = $result->fetchObject()) {
     			$pref = '';
     			$prefix = '';
     			if ($row->prefix > 0 && isset($prefix_arr[$row->board][$row->prefix])) {

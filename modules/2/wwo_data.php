@@ -23,15 +23,14 @@ class WWO_Cache {
 			'list' => array()
 		);
 		
-		$result = $db->query("
+		$result = $db->execute("
 			SELECT s.mid, u.name
 			FROM {$db->pre}session AS s 
 				LEFT JOIN {$db->pre}user AS u ON s.mid = u.id
 			ORDER BY u.name
 		");
-		$count = $db->num_rows($result);
 		$sep = $lang->phrase('listspacer');
-		while ($row = $db->fetch_assoc($result)) {
+		while ($row = $result->fetch()) {
 			$wwo['i']++;
 			if ($row['mid'] > 0) {
 				$wwo['r']++;

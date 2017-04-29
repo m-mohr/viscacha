@@ -364,14 +364,14 @@ function pages ($anzposts, $perpage, $uri, $page = 1, $template = 'pages') {
 
 function UpdateTopicStats($topic) {
 	global $db;
-	$resultc = $db->query("SELECT COUNT(*) as posts FROM {$db->pre}replies WHERE topic_id = '{$topic}' AND tstart = '0'");
-	$count = $db->fetch_assoc($resultc);
-	$result = $db->query("SELECT date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date DESC LIMIT 1");
-	$last = $db->fetch_assoc($result);
-	$result = $db->query("SELECT id, date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date ASC LIMIT 1");
-	$start = $db->fetch_assoc($result);
-	$db->query("UPDATE {$db->pre}topics SET posts = '{$count['posts']}', last = '{$last['date']}', last_name = '{$last['name']}', date = '{$start['date']}', name = '{$start['name']}' WHERE id = '{$topic}'");
-	$db->query("UPDATE {$db->pre}replies SET tstart = '1' WHERE id = '{$start['id']}'");
+	$resultc = $db->execute("SELECT COUNT(*) as posts FROM {$db->pre}replies WHERE topic_id = '{$topic}' AND tstart = '0'");
+	$count = $resultc->fetch();
+	$result = $db->execute("SELECT date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date DESC LIMIT 1");
+	$last = $result->fetch();
+	$result = $db->execute("SELECT id, date, name FROM {$db->pre}replies WHERE topic_id = '{$topic}' ORDER BY date ASC LIMIT 1");
+	$start = $result->fetch();
+	$db->execute("UPDATE {$db->pre}topics SET posts = '{$count['posts']}', last = '{$last['date']}', last_name = '{$last['name']}', date = '{$start['date']}', name = '{$start['name']}' WHERE id = '{$topic}'");
+	$db->execute("UPDATE {$db->pre}replies SET tstart = '1' WHERE id = '{$start['id']}'");
 	return $count['posts'];
 }
 
@@ -413,7 +413,7 @@ function BoardSelect($board = 0) {
 
 	($code = $plugins->load('forums_query')) ? eval($code) : null;
 	// Fetch Forums
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT
 		f.id, f.name, f.description, f.opt, f.optvalue, f.parent, f.topics, f.replies, f.last_topic, f.invisible,
 		t.topic as l_topic, t.prefix AS l_prefix, t.id as l_tid, t.last as l_date, u.name AS l_name, u.id AS l_uid, f.id AS l_bid
@@ -434,7 +434,7 @@ function BoardSelect($board = 0) {
 		'l_bid' => null
 	);
 
-	while($row = $db->fetch_assoc($result)) {
+	while($row = $result->fetch()) {
 		$row['bid'] = $cat_cache[$row['parent']]['parent'];
 		// Caching for Subforums
 		if (!empty($row['bid'])) {

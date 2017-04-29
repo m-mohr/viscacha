@@ -81,8 +81,8 @@ if ($_GET['action'] == "index") {
 	($code = $plugins->load('manageforum_filter_query')) ? eval($code) : null;
 
 	if (!empty($marksql)) {
-		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics AS t WHERE t.board = '{$board}' {$marksql}");
-		$info['topics'] = $db->fetch_one($result);
+		$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}topics AS t WHERE t.board = '{$board}' {$marksql}");
+		$info['topics'] = $result->fetchOne();
 	}
 
 	$pages = pages($info['topics'], $info['forumzahl'], 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
@@ -91,7 +91,7 @@ if ($_GET['action'] == "index") {
 		$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
 		($code = $plugins->load('manageforum_query')) ? eval($code) : null;
-		$result = $db->query("
+		$result = $db->execute("
 		SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,
 			u.name, u.id AS uid, l.id AS luid, l.name AS luname
 		FROM {$db->pre}topics AS t
@@ -104,7 +104,7 @@ if ($_GET['action'] == "index") {
 		$prefix_obj = $scache->load('prefix');
 		$prefix_arr = $prefix_obj->get($board);
 
-		while ($row = $db->fetch_object($result)) {
+		while ($row = $result->fetchObject()) {
 			$row->label = '';
 			if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {
 				$row->prefix = $prefix_arr[$row->prefix]['value'];
@@ -140,8 +140,8 @@ elseif ($_GET['action'] == "close") {
 		$slog->updatelogged();
 		sendStatusCode(302, $config['furl'].'/'.$url);
 	}
-	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
-	if ($db->affected_rows() > 0) {
+	$db->execute("UPDATE {$db->pre}topics SET status = '1' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
+	if ($db->getAffectedRows() > 0) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showforum.php?id='.$board.SID2URL_x);
 	}
 	else {
@@ -160,8 +160,8 @@ elseif ($_GET['action'] == "open") {
 		sendStatusCode(302, $config['furl'].'/'.$url);
 		exit;
 	}
-	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
-	if ($db->affected_rows() > 0) {
+	$db->execute("UPDATE {$db->pre}topics SET status = '0' WHERE board = '{$board}' AND id IN(".implode(',', $_POST['delete']).")");
+	if ($db->getAffectedRows() > 0) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showforum.php?id='.$board.SID2URL_x);
 	}
 	else {
@@ -192,21 +192,21 @@ elseif ($_GET['action'] == "move2") {
 	}
 	$anz = 0;
 	foreach ($_POST['delete'] as $id) {
-		$result = $db->query("
+		$result = $db->execute("
 		SELECT r.date, r.name, u.name, u.mail AS email, u.deleted_at
 		FROM {$db->pre}replies AS r
 			LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 		WHERE topic_id = '{$id}' AND tstart = '1'
 		");
-		$old = $db->fetch_assoc($result);
-		$db->query("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1");
-		$anz += $db->affected_rows();
+		$old = $result->fetch();
+		$db->execute("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1");
+		$anz += $db->getAffectedRows();
 
 		if ($_POST['temp'] == 1) {
 			// TODO: Prefix und Bearbeitungen werden nicht übernommen!
-			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
-			$tid = $db->insert_id();
-			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
+			$db->execute("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
+			$tid = $db->getInsertId();
+			$db->execute("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
 		}
 		if ($_POST['temp2'] == 1) {
 			$data = $lang->get_mail('mass_topic_moved');
@@ -243,38 +243,38 @@ elseif ($_GET['action'] == "delete") {
 	}
 	$ids = implode(',', $_POST['delete']);
 	if ($config['updatepostcounter'] == 1 && $info['count_posts'] == 1) {
-		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id IN({$ids}) GROUP BY name");
-		while ($row = $db->fetch_assoc($result)) {
-			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
+		$result = $db->execute("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id IN({$ids}) GROUP BY name");
+		while ($row = $result->fetch()) {
+			$db->execute("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})");
-	$anz = $db->affected_rows();
-	$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
-	while ($urow = $db->fetch_assoc($uresult)) {
+	$db->execute ("DELETE FROM {$db->pre}replies WHERE topic_id IN({$ids})");
+	$anz = $db->getAffectedRows();
+	$uresult = $db->execute ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
+	while ($urow = $uresult->fetch()) {
 		$filesystem->unlink('uploads/topics/'.$urow['source']);
 		$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
 		if (file_exists($thumb)) {
 			$filesystem->unlink($thumb);
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
-	$anz += $db->affected_rows();
-	$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
-	$anz += $db->affected_rows();
-	$db->query ("DELETE FROM {$db->pre}topics WHERE id IN({$ids})");
-	$anz += $db->affected_rows();
-	$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");
+	$db->execute ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
+	$anz += $db->getAffectedRows();
+	$db->execute ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
+	$anz += $db->getAffectedRows();
+	$db->execute ("DELETE FROM {$db->pre}topics WHERE id IN({$ids})");
+	$anz += $db->getAffectedRows();
+	$votes = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");
 	$voteaids = array();
-	while ($row = $db->fetch_assoc($votes)) {
+	while ($row = $votes->fetch()) {
 		$voteaids[] = $row['id'];
 	}
 	if (count($voteaids) > 0) {
-		$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
-		$anz += $db->affected_rows();
+		$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+		$anz += $db->getAffectedRows();
 	}
-	$db->query ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})");
-	$anz += $db->affected_rows();
+	$db->execute ("DELETE FROM {$db->pre}vote WHERE tid IN({$ids})");
+	$anz += $db->getAffectedRows();
 	($code = $plugins->load('manageforum_delete_end')) ? eval($code) : null;
 
 	if ($config['updateboardstats'] == 1) {

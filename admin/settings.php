@@ -1678,7 +1678,7 @@ elseif ($job == 'custom') {
 	echo head();
 	$id = $gpc->get('id', int);
 	$package = $gpc->get('package', int);
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT s.*, g.name AS groupname, p.id as package
 	FROM {$db->pre}settings AS s
 		LEFT JOIN {$db->pre}settings_groups AS g ON s.sgroup = g.id
@@ -1696,7 +1696,7 @@ elseif ($job == 'custom') {
 	   </td>
 	  </tr>
 	<?php
-	if ($db->num_rows($result) > 0) {
+	if ($result->getResultCount() > 0) {
 		?>
 		  <tr>
 		   <td class="ubox"><?php echo $lang->phrase('admin_custom_setting'); ?></td>
@@ -1705,7 +1705,7 @@ elseif ($job == 'custom') {
 		   <td class="ubox"><?php echo $lang->phrase('admin_custom_variable'); ?></td>
 		  </tr>
 		<?php
-		while ($row = $db->fetch_assoc($result)) {
+		while ($row = $result->fetch()) {
 			call_user_func('custom_'.$row['type'], $row);
 		}
 		?>
@@ -1733,14 +1733,14 @@ elseif ($job == 'custom2') {
 	$package = $gpc->get('package', int);
 	$c->getdata();
 
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT s.*, g.name AS groupname
 	FROM {$db->pre}settings AS s
 		LEFT JOIN {$db->pre}settings_groups AS g ON s.sgroup = g.id
 	WHERE s.sgroup = '{$id}'
 	ORDER BY s.name
 	");
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$c->updateconfig(array($row['groupname'], $row['name']), none);
 	}
 
@@ -1752,11 +1752,11 @@ elseif ($job == 'delete') {
 	$name = $gpc->get('name', str);
 	$id = $gpc->get('id', int);
 	$package = $gpc->get('package', int);
-	$db->query("DELETE FROM {$db->pre}settings WHERE name = '{$name}' AND sgroup = '{$id}' LIMIT 1");
-	$upd = $db->affected_rows();
+	$db->execute("DELETE FROM {$db->pre}settings WHERE name = '{$name}' AND sgroup = '{$id}' LIMIT 1");
+	$upd = $db->getAffectedRows();
 	if ($upd == 1) {
-		$result = $db->query("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$id}'");
-		$row = $db->fetch_assoc($result);
+		$result = $db->execute("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$id}'");
+		$row = $result->fetch();
 		$c->getdata();
 		$c->delete(array($row['name'], $name));
 		$c->savedata();
@@ -1775,7 +1775,7 @@ elseif ($job == 'delete_group') {
 	echo head();
 	$id = $gpc->get('id', int);
 	$package = $gpc->get('package', int);
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT s.name, g.name AS groupname
 	FROM {$db->pre}settings AS s
 		LEFT JOIN {$db->pre}settings_groups AS g ON s.sgroup = g.id
@@ -1783,7 +1783,7 @@ elseif ($job == 'delete_group') {
 	if ($package > 0) {
 		$ini = $myini->read("modules/{$package}/package.ini");
 	}
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$c->getdata();
 		$c->delete(array($row['groupname'], $row['name']));
 		if ($package > 0) {
@@ -1795,8 +1795,8 @@ elseif ($job == 'delete_group') {
 		unset($ini['config']);
 		$myini->write("modules/{$package}/package.ini", $ini);
 	}
-	$db->query("DELETE FROM {$db->pre}settings WHERE sgroup = '{$id}'");
-	$db->query("DELETE FROM {$db->pre}settings_groups WHERE id = '{$id}' LIMIT 1");
+	$db->execute("DELETE FROM {$db->pre}settings WHERE sgroup = '{$id}'");
+	$db->execute("DELETE FROM {$db->pre}settings_groups WHERE id = '{$id}' LIMIT 1");
 
 	if ($package > 0) {
 		ok('admin.php?action=packages&job=package_edit&id='.$package, $lang->phrase('admin_all_settings_deleted'));
@@ -1810,8 +1810,8 @@ elseif ($job == 'new_group') {
 	echo head();
 	if ($package > 0) {
 		$ini = $myini->read("modules/{$package}/package.ini");
-		$result = $db->query("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$ini['info']['internal']}' LIMIT 1");
-		if ($db->num_rows($result) > 0) {
+		$result = $db->execute("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$ini['info']['internal']}' LIMIT 1");
+		if ($result->getResultCount() > 0) {
 			error('admin.php?action=packages&job=package_edit&id='.$package, $lang->phrase('admin_package_has_already_a_group'));
 		}
 	}
@@ -1860,8 +1860,8 @@ elseif ($job == 'new_group2') {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_group_name_short_long'));
 	}
 
-	$result = $db->query("SELECT id FROM {$db->pre}packages WHERE internal = '{$name}'");
-	$key = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT id FROM {$db->pre}packages WHERE internal = '{$name}'");
+	$key = $result->fetch();
 	if ($package == 0 && $key['id'] > 0) {
 		$package = $key['id'];
 	}
@@ -1874,7 +1874,7 @@ elseif ($job == 'new_group2') {
 		$myini->write("modules/{$package}/package.ini", $ini);
 	}
 
-	$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$title}', '{$name}', '{$desc}')");
+	$db->execute("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$title}', '{$name}', '{$desc}')");
 
 	ok('admin.php?action=settings&job=custom&package='.$package, $lang->phrase('admin_group_inserted'));
 }
@@ -1882,7 +1882,7 @@ elseif ($job == 'new') {
 	echo head();
 	$package = $gpc->get('package', int);
 	if ($package > 0) {
-		$result = $db->query("
+		$result = $db->execute("
 			SELECT g.id, g.title
 			FROM {$db->pre}settings_groups AS g
 				LEFT JOIN {$db->pre}packages AS p ON p.internal = g.name
@@ -1890,7 +1890,7 @@ elseif ($job == 'new') {
 		");
 	}
 	else {
-		$result = $db->query("SELECT id, title FROM {$db->pre}settings_groups ORDER BY title");
+		$result = $db->execute("SELECT id, title FROM {$db->pre}settings_groups ORDER BY title");
 	}
 	?>
 <form action="admin.php?action=settings&amp;job=new2&amp;package=<?php echo $package; ?>" method="post">
@@ -1909,7 +1909,7 @@ elseif ($job == 'new') {
 <tr>
 <td class="mbox" width="40%"><?php echo $lang->phrase('admin_setting_group'); ?></td>
 <td class="mbox" width="60%"><select name="group">
-<?php while ($row = $db->fetch_assoc($result)) { ?>
+<?php while ($row = $result->fetch()) { ?>
 <option value="<?php echo $row['id']; ?>"><?php echo $row['title']; ?></option>
 <?php } ?>
 </select></td>
@@ -1955,8 +1955,8 @@ elseif ($job == 'new2') {
 	$group = $gpc->get('group', int);
 	$package = $gpc->get('package', int);
 
-	$result = $db->query("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$group}'");
-	$row = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$group}'");
+	$row = $result->fetch();
 
 	if (isset($config[$row['name']][$name]) || mb_strlen($name) < 3 || strlen($name) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_name_exists'));
@@ -1976,7 +1976,7 @@ elseif ($job == 'new2') {
 		$typevalue = '';
 	}
 
-	$db->query("
+	$db->execute("
 	INSERT INTO {$db->pre}settings (name, title, description, type, optionscode, value, sgroup)
 	VALUES ('{$name}', '{$title}', '{$desc}', '{$type}', '".$gpc->save_str($typevalue)."', '".$gpc->save_str($value)."', '{$group}')
 	");
@@ -1985,8 +1985,8 @@ elseif ($job == 'new2') {
 	$c->updateconfig(array($row['name'], $name), none, $value);
 	$c->savedata();
 
-	$result = $db->query("SELECT id FROM {$db->pre}packages WHERE internal = '{$row['name']}'");
-	$key = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT id FROM {$db->pre}packages WHERE internal = '{$row['name']}'");
+	$key = $result->fetch();
 	if ($package == 0 && $key['id'] > 0) {
 		$package = $key['id'];
 	}
@@ -2006,7 +2006,7 @@ elseif ($job == 'new2') {
 }
 else {
 	echo head();
-	$result = $db->query("SELECT id, title, description, name FROM {$db->pre}settings_groups ORDER BY title");
+	$result = $db->execute("SELECT id, title, description, name FROM {$db->pre}settings_groups ORDER BY title");
 	?>
 	<table class="border">
 	  <tr>
@@ -2296,10 +2296,10 @@ else {
 	  </tr>
 	</table>
 <?php
-if ($db->num_rows($result) > 0) {
-	$result2 = $db->query("SELECT id, title, internal FROM {$db->pre}packages");
+if ($result->getResultCount() > 0) {
+	$result2 = $db->execute("SELECT id, title, internal FROM {$db->pre}packages");
 	$cache = array();
-	while ($row = $db->fetch_assoc($result2)) {
+	while ($row = $result2->fetch()) {
 		$cache[$row['internal']] = $row;
 	}
 	?>
@@ -2319,7 +2319,7 @@ if ($db->num_rows($result) > 0) {
 	  <td width="50%"><?php echo $lang->phrase('admin_setting_description'); ?></td>
 	  <td nowrap="nowrap" width="23%"><?php echo $lang->phrase('admin_setting_option'); ?></td>
 	 </tr>
-	 <?php while ($row = $db->fetch_assoc($result)) { ?>
+	 <?php while ($row = $result->fetch()) { ?>
 	 <tr class="mbox">
 	  <td nowrap="nowrap"><a href="admin.php?action=settings&amp;job=custom&amp;id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a></td>
 	  <td class="stext"><?php echo $row['description']; ?><?php echo isset($cache[$row['name']]) ? '<br />'.$lang->phrase('admin_package_x').$cache[$row['name']]['title'] : ''; ?></td>

@@ -3,10 +3,10 @@ global $db, $config;
 
 // Added with 0.8 RC5: Kill old flood elements (only old login attempts)
 $limit = time() - $config['login_attempts_time']*60;
-$db->query("DELETE FROM {$db->pre}flood WHERE type = 'log' AND time <= '{$limit}'");
+$db->execute("DELETE FROM {$db->pre}flood WHERE type = 'log' AND time <= '{$limit}'");
 
 if ($config['optimizetables'] == '*') {
-	$tables = $db->list_tables();
+	$tables = $db->getTables();
 }
 else {
 	$tables = explode(',', $config['optimizetables']);
@@ -15,7 +15,7 @@ else {
 foreach ($tables as $table) {
 	$table = trim($table);
 	if (!empty($table)) {
-		$db->query("OPTIMIZE TABLE {$table}");
+		$db->execute("OPTIMIZE TABLE {$table}");
 	}
 }
 ?>

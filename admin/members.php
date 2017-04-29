@@ -13,7 +13,7 @@ if ($job == 'emailsearch') {
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
 
-	$result = $db->query("SELECT id, title, name FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC, guest ASC, core ASC");
+	$result = $db->execute("SELECT id, title, name FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC, guest ASC, core ASC");
 	?>
 <form name="form" method="post" action="admin.php?action=members&job=emailsearch2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -106,7 +106,7 @@ if ($job == 'emailsearch') {
    <td class="mbox">
 	<select size="3" name="groups[]" multiple="multiple">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
-	  <?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
+	  <?php while ($row = $gpc->prepare($result->fetch())) { ?>
 		<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 	  <?php } ?>
 	</select>
@@ -327,10 +327,10 @@ elseif ($job == 'emailsearch2') {
 
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT DISTINCT name, mail FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere);
-		$result = $db->query($query);
+		$result = $db->execute($query);
 		$users = array();
-		$count = $db->num_rows($result);
-		while ($row = $db->fetch_assoc($result)) {
+		$count = $result->getResultCount();
+		while ($row = $result->fetch()) {
 			$users[] = "{$row['name']} <{$row['mail']}>";
 		}
 	}
@@ -389,67 +389,67 @@ elseif ($job == 'merge2') {
 	$old = $gpc->get('name2', str);
 
 	// Step 1: Getting data
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE name = "'.$base.'" LIMIT 1');
-	$result2 = $db->query('SELECT * FROM '.$db->pre.'user WHERE name = "'.$old.'" LIMIT 1');
-	if ($db->num_rows($result) != 1 || $db->num_rows($result2) != 1) {
+	$result = $db->execute('SELECT * FROM '.$db->pre.'user WHERE name = "'.$base.'" LIMIT 1');
+	$result2 = $db->execute('SELECT * FROM '.$db->pre.'user WHERE name = "'.$old.'" LIMIT 1');
+	if ($result->getResultCount() != 1 || $result2->getResultCount() != 1) {
 		error('admin.php?action=members&job=merge', 'At least one of the selected users could not be found.');
 	}
-	$base = $db->fetch_assoc($result);
-	$old = $db->fetch_assoc($result2);
+	$base = $result->fetch();
+	$old = $result2->fetch();
 
 	// Step 2: Update abos
-	$db->query("UPDATE {$db->pre}abos SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'"); // Multiple entries with different type are possible!
+	$db->execute("UPDATE {$db->pre}abos SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'"); // Multiple entries with different type are possible!
 	// Step 3: Delete exactly the same abos
-	$result = $db->query("SELECT id FROM {$db->pre}abos WHERE mid = '1' GROUP BY tid, type HAVING COUNT(*) > 1");
-	if ($db->num_rows($result) > 0) {
+	$result = $db->execute("SELECT id FROM {$db->pre}abos WHERE mid = '1' GROUP BY tid, type HAVING COUNT(*) > 1");
+	if ($result->getResultCount() > 0) {
 		$ids = array();
-		while ($row = $db->fetch_assoc($result)) {
+		while ($row = $result->fetch()) {
 			$ids[] = $row['id'];
 		}
 		$ids = implode(',', $ids);
-		$db->query("DELETE FROM {$db->pre}abos WHERE id IN ({$ids})");
+		$db->execute("DELETE FROM {$db->pre}abos WHERE id IN ({$ids})");
 	}
 	// Step 4: Update mods (keep the settings from base member)
-	$result = $db->query("SELECT bid FROM {$db->pre}moderators WHERE mid = '{$base['id']}'");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT bid FROM {$db->pre}moderators WHERE mid = '{$base['id']}'");
+	while ($row = $result->fetch()) {
 		// Delete settings from old member when there is data for the base member
-		$db->query("DELETE FROM {$db->pre}moderators WHERE mid = '{$old['id']}' AND bid = '{$row['bid']}'");
+		$db->execute("DELETE FROM {$db->pre}moderators WHERE mid = '{$old['id']}' AND bid = '{$row['bid']}'");
 	}
 	// All the other mod data move to new account
-	$db->query("UPDATE {$db->pre}moderators SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}moderators SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
 	// Step 5: Update pms
-	$db->query("UPDATE {$db->pre}pm SET pm_to = '{$base['id']}' WHERE pm_to = '{$old['id']}'");
-	$db->query("UPDATE {$db->pre}pm SET pm_from = '{$base['id']}' WHERE pm_from = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}pm SET pm_to = '{$base['id']}' WHERE pm_to = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}pm SET pm_from = '{$base['id']}' WHERE pm_from = '{$old['id']}'");
 	// Step 6: Update posts
-	$db->query("UPDATE {$db->pre}replies SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}replies SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
 	// Step 7: Update topics
-	$db->query("UPDATE {$db->pre}topics SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
-	$db->query("UPDATE {$db->pre}topics SET last_name = '{$base['id']}' WHERE last_name = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}topics SET name = '{$base['id']}' WHERE name = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}topics SET last_name = '{$base['id']}' WHERE last_name = '{$old['id']}'");
 	// Step 8: Update uploads
-	$db->query("UPDATE {$db->pre}uploads SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}uploads SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
 	// Step 9: Delete pic
 	removeOldImages('uploads/pics/', $old['id']);
 	// Step 10: Update votes (@TODO Optimze this)
 	// Get topics the base member has voted for
-	$result = $db->query("
+	$result = $db->execute("
 		SELECT p.tid, v.id
 		FROM {$db->pre}votes AS v
 			LEFT JOIN {$db->pre}vote AS p ON p.id = v.aid
 		WHERE v.mid = '{$base['id']}'
 	");
 	$ids_base = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$ids_base[] = $row['tid'];
 	}
 	// Get topics the old member has voted for
-	$result = $db->query("
+	$result = $db->execute("
 		SELECT p.tid, v.id
 		FROM {$db->pre}votes AS v
 			LEFT JOIN {$db->pre}vote AS p ON p.id = v.aid
 		WHERE v.mid = '{$old['id']}'
 	");
 	$ids_old = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$ids_old[$row['id']] = $row['tid'];
 	}
 	// Get the topics where both users have voted, keep the vote id from the old user
@@ -457,10 +457,10 @@ elseif ($job == 'merge2') {
 	// Delete multiple votes if existant
 	if (count($delete) > 0) {
 		$delete = implode(',', array_keys($delete));
-		$db->query("DELETE FROM {$db->pre}votes WHERE id IN ({$delete})");
+		$db->execute("DELETE FROM {$db->pre}votes WHERE id IN ({$delete})");
 	}
 	// Update all votes that hasn't been double
-	$db->query("UPDATE {$db->pre}votes SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
+	$db->execute("UPDATE {$db->pre}votes SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'");
 
 	// Setp 11: Update User data
 	$newdata = array();
@@ -506,10 +506,10 @@ elseif ($job == 'merge2') {
 		$newdata[] ="groups = '{$groups}'";
 	}
 	if (count($newdata) > 0) {
-		$db->query("UPDATE {$db->pre}user SET ".implode(', ', $newdata)." WHERE id = '".$base['id']."' LIMIT 1");
+		$db->execute("UPDATE {$db->pre}user SET ".implode(', ', $newdata)." WHERE id = '".$base['id']."' LIMIT 1");
 	}
 	// Step 12: Delete old user
-	$db->query("DELETE FROM {$db->pre}user WHERE id = '".$old['id']."'");
+	$db->execute("DELETE FROM {$db->pre}user WHERE id = '".$old['id']."'");
 
 	// Step 13: Recount User Post Count
 	UpdateMemberStats($base['id']);
@@ -524,7 +524,7 @@ elseif ($job == 'manage') {
 	$letter = $gpc->get('letter', str);
 	$page = $gpc->get('page', int, 1);
 
-	$count = $db->fetch_one($db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL'));
+	$count = $db->fetchOne('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
 	$temp = pages($count, "admin.php?action=members&job=manage&sort=".$sort."&amp;letter=".$letter."&amp;order=".$order."&amp;", 25);
 
 	if ($order == '1') $order = 'desc';
@@ -538,7 +538,7 @@ elseif ($job == 'manage') {
 
 	$start = ($page - 1) * 25;
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
+	$result = $db->execute('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
 	 <tr>
@@ -578,7 +578,7 @@ elseif ($job == 'manage') {
 		  <a href="admin.php?action=members&amp;job=manage&amp;sort=regdate&amp;letter=<?php echo $letter; ?>&amp;order=1&amp;page=<?php echo $page; ?>"><img src="admin/html/images/desc.gif" border=0 alt="<?php echo $lang->phrase('admin_member_desc'); ?>"></a></td>
 		</tr>
 	<?php
-	while ($row = $db->fetch_object($result)) {
+	while ($row = $result->fetchObject()) {
 		$row = $gpc->prepare($row); // ToDo: This encodes to much data, replace with something different
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
@@ -612,12 +612,12 @@ elseif ($job == 'recount') {
 	echo head();
 	$id = $gpc->get('id', int);
 	if (is_id($id)) {
-		$result = $db->query("SELECT id, posts FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
-		if ($db->num_rows($result) != 1) {
+		$result = $db->execute("SELECT id, posts FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
+		if ($result->getResultCount() != 1) {
 			error('admin.php?action=members&job=manage', $lang->phrase('admin_member_user_not_found'));
 		}
 		else {
-			$user = $db->fetch_assoc($result);
+			$user = $result->fetch();
 			$posts = UpdateMemberStats($id);
 			$diff = $posts - $user['posts'];
 			ok('admin.php?action=members&job=manage', $lang->phrase('admin_member_posts_recounted'));
@@ -636,7 +636,7 @@ elseif ($job == 'recount') {
 				}
 			}
 
-			$result = $db->query("
+			$result = $db->execute("
 				SELECT COUNT(*) AS new, u.posts, u.id
 				FROM {$db->pre}replies AS r
 					LEFT JOIN {$db->pre}user AS u ON u.id = r.name
@@ -647,10 +647,10 @@ elseif ($job == 'recount') {
 
 
 			$i = 0;
-			while ($row = $db->fetch_assoc($result)) {
+			while ($row = $result->fetch()) {
 				if ($row['new'] != $row['posts']) {
 					$i++;
-					$db->query("UPDATE {$db->pre}user SET posts = '{$row['new']}' WHERE id = '{$row['id']}'");
+					$db->execute("UPDATE {$db->pre}user SET posts = '{$row['new']}' WHERE id = '{$row['id']}'");
 				}
 			}
 
@@ -790,8 +790,8 @@ elseif ($job == 'register2') {
 	else {
 		$reg = time();
 
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$name}', '".hash_pw($pw)."', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '')");
-		$redirect = $db->insert_id();
+		$db->execute("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$name}', '".hash_pw($pw)."', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '')");
+		$redirect = $db->getInsertId();
 
 		addprofile_customsave($custom['data'], $redirect);
 
@@ -805,11 +805,11 @@ elseif ($job == 'edit') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute("SELECT * FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
+	if ($result->getResultCount() != 1) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
-	$user = $gpc->prepare($db->fetch_assoc($result));
+	$user = $gpc->prepare($result->fetch());
 
 	$chars = $config['maxaboutlength'];
 
@@ -825,7 +825,7 @@ elseif ($job == 'edit') {
 	$year = gmdate('Y');
 	$maxy = $year-6;
 	$miny = $year-100;
-	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC , guest ASC , core ASC");
+	$result = $db->execute("SELECT id, title, name, core FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC , guest ASC , core ASC");
 	$random = generate_uid();
 
 	$customfields = admin_customfields($user['id']);
@@ -850,7 +850,7 @@ elseif ($job == 'edit') {
 <th><?php echo $lang->phrase('admin_member_internal_group_name'); ?></th>
 <th><?php echo $lang->phrase('admin_member_public_group_title'); ?></th>
 </tr>
-<?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
+<?php while ($row = $gpc->prepare($result->fetch())) { ?>
 <tr>
 <td><?php echo $row['id']; ?></td>
 <td><?php echo $row['name']; ?></td>
@@ -1037,11 +1037,11 @@ elseif ($job == 'edit2') {
 		$query[$val] = $gpc->get($val, db_esc);
 	}
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND id = '.$query['id']);
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND id = '.$query['id']);
+	if ($result->getResultCount() != 1) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
-	$user = $gpc->prepare($db->fetch_assoc($result));
+	$user = $gpc->prepare($result->fetch());
 
 	$random = $gpc->get('random', none);
 	$name = $gpc->get('name_'.$random, str);
@@ -1177,7 +1177,7 @@ elseif ($job == 'edit2') {
 
 		admin_customsave($query['id']);
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_pmnotify = '{$query['opt_1']}', opt_hidemail = '{$query['opt_3']}', theme = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+		$db->execute("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_pmnotify = '{$query['opt_1']}', opt_hidemail = '{$query['opt_3']}', theme = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		ok("admin.php?action=members&job=manage", $lang->phrase('admin_member_data_saved'));
 	}
@@ -1196,23 +1196,23 @@ elseif ($job == 'delete') {
 			removeOldImages('uploads/pics/', $uid);
 		}
 		// Step 2: Delete all pms
-		$db->query("DELETE FROM {$db->pre}pm WHERE pm_to IN ({$did})");
+		$db->execute("DELETE FROM {$db->pre}pm WHERE pm_to IN ({$did})");
 		// Step 3: Delete all abos
-		$db->query("DELETE FROM {$db->pre}abos WHERE mid IN ({$did})");
+		$db->execute("DELETE FROM {$db->pre}abos WHERE mid IN ({$did})");
 		// Step 4: Delete as mod
-		$db->query("DELETE FROM {$db->pre}moderators WHERE mid IN ({$did})");
+		$db->execute("DELETE FROM {$db->pre}moderators WHERE mid IN ({$did})");
 		$delete = $gpc->get('delete', arr_int);
 		// Step 5: Soft-delete user himself
-		$db->query("UPDATE {$db->pre}user SET 
+		$db->execute("UPDATE {$db->pre}user SET 
 			pw = DEFAULT, mail = DEFAULT, regdate = DEFAULT, posts = DEFAULT, fullname = DEFAULT,
 			hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
 			birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
 			opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
 			theme = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
 			WHERE id IN ({$did})");
-		$anz = $db->affected_rows();
+		$anz = $db->getAffectedRows();
 		// Step 6: Delete user's custom profile fields
-		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
+		$db->execute("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
 		ok('javascript:history.back(-1);', $lang->phrase('admin_member_members_deleted'));
 	}
@@ -1226,8 +1226,8 @@ elseif ($job == 'banned') {
 	$bannedip = file('data/bannedip.php');
 
 	$memberdata = array();
-	$result = $db->query("SELECT id, name FROM {$db->pre}user");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT id, name FROM {$db->pre}user");
+	while ($row = $result->fetch()) {
 		$memberdata[$row['id']] = $row['name'];
 	}
 	?>
@@ -1397,12 +1397,12 @@ elseif ($job == 'ban_add2') {
 	}
 	elseif ($type == 'user') {
 		$data = $gpc->save_str($data);
-		$result = $db->query("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$data}' LIMIT 1");
-		if ($db->num_rows($result) == 0) {
+		$result = $db->execute("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$data}' LIMIT 1");
+		if ($result->getResultCount() == 0) {
 			$error[] = $lang->phrase('admin_member_no_user_found');
 		}
 		else {
-			$user = $db->fetch_assoc($result);
+			$user = $result->fetch();
 			if ($user['id'] == $my->id) {
 				$error[] = $lang->phrase('admin_member_cannot_ban_yourself');
 			}
@@ -1591,8 +1591,8 @@ elseif ($job == 'inactive2') {
 
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT id, '.implode(',', $keys).' FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode(' AND ', $sqlwhere).' ORDER BY name';
-		$result = $db->query($query);
-		$count = $db->num_rows($result);
+		$result = $db->execute($query);
+		$count = $result->getResultCount();
 	}
 	else {
 		$count = 0;
@@ -1624,7 +1624,7 @@ elseif ($job == 'inactive2') {
 			  <?php } ?>
 			</tr>
 			<?php
-			while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+			while ($row = $gpc->prepare($result->fetch())) {
 				if (empty($row['lastvisit'])) {
 					$row['lastvisit'] = $lang->phrase('admin_member_never');
 				}
@@ -1672,7 +1672,7 @@ elseif ($job == 'search') {
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$language = $loadlanguage_obj->get();
 
-	$result = $db->query("SELECT id, title, name FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC , guest ASC , core ASC");
+	$result = $db->execute("SELECT id, title, name FROM {$db->pre}groups WHERE guest = '0' ORDER BY admin DESC , guest ASC , core ASC");
 	?>
 <form name="form" method="post" action="admin.php?action=members&job=search2">
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1848,7 +1848,7 @@ elseif ($job == 'search') {
    <td class="mbox">
 	<select size="3" name="groups[]" multiple="multiple">
 	  <option selected="selected" value=""><?php echo $lang->phrase('admin_member_whatever'); ?></option>
-	  <?php while ($row = $gpc->prepare($db->fetch_assoc($result))) { ?>
+	  <?php while ($row = $gpc->prepare($result->fetch())) { ?>
 		<option value="<?php echo $row['id']; ?>"><?php echo $row['name']; ?></option>
 	  <?php } ?>
 	</select>
@@ -2080,8 +2080,8 @@ elseif ($job == 'search2') {
 
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT '.implode(',',$sqlkeys).' FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere).' ORDER BY name';
-		$result = $db->query($query);
-		$count = $db->num_rows($result);
+		$result = $db->execute($query);
+		$count = $result->getResultCount();
 	}
 	else {
 		$count = 0;
@@ -2107,7 +2107,7 @@ elseif ($job == 'search2') {
 			  <?php } ?>
 			</tr>
 			<?php
-			while ($row = $gpc->prepare($db->fetch_assoc($result))) {
+			while ($row = $gpc->prepare($result->fetch())) {
 				if (isset($row['lastvisit'])) {
 					$row['lastvisit'] = gmdate('d.m.Y H:i', times($row['lastvisit']));
 				}
@@ -2174,9 +2174,9 @@ elseif ($job == 'disallow') {
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
 		$did = implode(',', $delete);
-		$db->query("DELETE FROM {$db->pre}user WHERE id IN ({$did}) AND confirm != '11'");
-		$anz = $db->affected_rows();
-		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
+		$db->execute("DELETE FROM {$db->pre}user WHERE id IN ({$did}) AND confirm != '11'");
+		$anz = $db->getAffectedRows();
+		$db->execute("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
 		ok('admin.php?action=members&job=activate', $lang->phrase('admin_member_members_deleted'));
 	}
@@ -2187,7 +2187,7 @@ elseif ($job == 'disallow') {
 elseif ($job == 'activate') {
 	echo head();
 
-	$result = $db->query('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND confirm != "11" ORDER BY regdate DESC');
+	$result = $db->execute('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND confirm != "11" ORDER BY regdate DESC');
 	?>
 	<form name="form" action="admin.php?action=members&job=disallow" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -2201,7 +2201,7 @@ elseif ($job == 'activate') {
 		  <td class="ubox" width="45%"><?php echo $lang->phrase('admin_member_status'); ?> (<input type="checkbox" onchange="check_all(this)" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?>`)</td>
 		</tr>
 	<?php
-	while ($row = $gpc->prepare($db->fetch_object($result))) {
+	while ($row = $gpc->prepare($result->fetchObject())) {
 		$row->regdate = gmdate('d.m.Y', times($row->regdate));
 		if ($row->lastvisit == 0) {
 			$row->lastvisit = $lang->phrase('admin_member_never');
@@ -2238,8 +2238,8 @@ elseif ($job == 'confirm') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, name, confirm, mail FROM '.$db->pre.'user WHERE id = "'.$id.'" LIMIT 1');
-	$row = $db->fetch_assoc($result);
+	$result = $db->execute('SELECT id, name, confirm, mail FROM '.$db->pre.'user WHERE id = "'.$id.'" LIMIT 1');
+	$row = $result->fetch();
 
 	if ($row['confirm'] == '00') {
 		$confirm = '10';
@@ -2248,7 +2248,7 @@ elseif ($job == 'confirm') {
 		$confirm = '11';
 	}
 
-	$db->query('UPDATE '.$db->pre.'user SET confirm = "'.$confirm.'" WHERE id = "'.$row['id'].'" LIMIT 1');
+	$db->execute('UPDATE '.$db->pre.'user SET confirm = "'.$confirm.'" WHERE id = "'.$row['id'].'" LIMIT 1');
 
 	// Send Mail
 	$content = $lang->get_mail('admin_confirmed');
@@ -2260,10 +2260,10 @@ elseif ($job == 'confirm2') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query('SELECT id, name, mail FROM '.$db->pre.'user WHERE id = "'.$id.'" LIMIT 1');
-	$row = $db->fetch_assoc($result);
+	$result = $db->execute('SELECT id, name, mail FROM '.$db->pre.'user WHERE id = "'.$id.'" LIMIT 1');
+	$row = $result->fetch();
 
-	$db->query("UPDATE {$db->pre}user SET confirm = '11' WHERE id = '{$id}' LIMIT 1");
+	$db->execute("UPDATE {$db->pre}user SET confirm = '11' WHERE id = '{$id}' LIMIT 1");
 
 	$content = $lang->get_mail('admin_confirmed');
 	xmail(array('0' => array('mail' => $row['mail'])), array(), $content['title'], $content['comment']);
@@ -2277,8 +2277,8 @@ elseif ($job == 'ips') {
 
 	echo head();
 	if (!empty($username)) {
-		$result = $db->query("SELECT id, name FROM {$db->pre}user WHERE name = '{$username}' LIMIT 1");
-		$userinfo = $db->fetch_assoc($result);
+		$result = $db->execute("SELECT id, name FROM {$db->pre}user WHERE name = '{$username}' LIMIT 1");
+		$userinfo = $result->fetch();
 		$userid = $userinfo['id'];
 		if (!is_id($userid)) {
 			error('admin.php?action=members&job=ip', $lang->phrase('admin_member_invalid_user'));
@@ -2293,7 +2293,7 @@ elseif ($job == 'ips') {
 			if (empty($hostname) || $hostname == $ipaddress) {
 				$hostname = $lang->phrase('admin_member_could_not_resolve_hostname');
 			}
-			$users = $db->query("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
+			$users = $db->execute("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
 			?>
 			<table align="center" class="border">
 			<tr>
@@ -2307,7 +2307,7 @@ elseif ($job == 'ips') {
 			<tr>
 				<td class="mbox">
 				<ul>
-				<?php while ($user = $db->fetch_assoc($users)) { ?>
+				<?php while ($user = $users->fetch()) { ?>
 					<li style="padding: 3px;">
 					<a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $user['id']; ?>"><b><?php echo $user['name']; ?></b></a> &nbsp;&nbsp;&nbsp;
 					<a href="admin.php?action=members&amp;job=iphost&amp;ip=<?php echo $user['ip']; ?>" title="<?php echo $lang->phrase('admin_member_resolve_address'); ?>"><?php echo $user['ip']; ?></a> &nbsp;&nbsp;&nbsp;
@@ -2315,7 +2315,7 @@ elseif ($job == 'ips') {
 					</li>
 					<?php
 				}
-				if ($db->num_rows($users) == 0) {
+				if ($users->getResultCount() == 0) {
 					?>
 					<li><?php echo $lang->phrase('admin_member_no_matches'); ?></li>
 					<?php
@@ -2335,8 +2335,8 @@ elseif ($job == 'ips') {
 				<td class="mbox">
 				<ul>
 				<?php
-				$ips = $db->query("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip");
-				while ($ip = $db->fetch_assoc($ips)) {
+				$ips = $db->execute("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip");
+				while ($ip = $ips->fetch()) {
 					?>
 					<li style="padding: 3px;">
 					<a href="admin.php?action=members&job=iphost&amp;ip=<?php echo $ip['ip']; ?>" title="<?php echo $lang->phrase('admin_member_resolve_address'); ?>"><?php echo $ip['ip']; ?></a> &nbsp;&nbsp;&nbsp;
@@ -2344,7 +2344,7 @@ elseif ($job == 'ips') {
 					</li>
 					<?php
 				}
-				if ($db->num_rows($ips) == 0) {
+				if ($ips->getResultCount() == 0) {
 					?>
 					<li><?php echo $lang->phrase('admin_member_no_matches'); ?></li>
 					<?php

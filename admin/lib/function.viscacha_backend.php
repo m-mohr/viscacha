@@ -23,9 +23,10 @@ define('IMPTYPE_SMILEYPACK', 3);
 define('IMPTYPE_LANGUAGE', 4);
 define('IMPTYPE_BBCODE', 5);
 
-// Database functions
-require_once('classes/database/'.$config['dbsystem'].'.inc.php');
-$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
+// Database
+$db = new Viscacha\Database\Database($config['dbsystem'], $config['dbuser'], $config['dbpw'], $config['host'], $config['database'], $config['dbprefix'], 'utf8mb4', 'utf8mb4_general_ci');
+$db->populateGlobal('DB');
+
 // Variables
 require_once ("classes/function.gpc.php");
 $action = $gpc->get('action', none);

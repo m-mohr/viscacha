@@ -137,11 +137,11 @@ class MysqlQuery extends Query {
 	
 
 	protected function buildListTables() {
-		return $this->makeQueryObject('SHOW TABLES FROM ' . $this->escapeDatabase($this->connection->getDatabase()) . ';'));
+		return $this->makeQueryObject('SHOW TABLES FROM ' . $this->escapeDatabase($this->connection->getDatabase()) . ';');
 	}
 
 	protected function buildListColumns() {
-		return $this->makeQueryObject('SHOW COLUMNS FROM ' . $this->formatTable($this->table) . ';'));
+		return $this->makeQueryObject('SHOW COLUMNS FROM ' . $this->formatTable($this->table) . ';');
 	}
 
 	public function buildSchemaStructure() {
@@ -156,8 +156,8 @@ class MysqlQuery extends Query {
 		$sql .= PHP_EOL . static::comment('Create: ' . $table)->build() . PHP_EOL;
 
 		// Activate Quotes in sql names
-		$this->connection->query('SET SQL_QUOTE_SHOW_CREATE = 1');
-		$create = $this->connection->fetch_one($this->query('SHOW CREATE TABLE ' . $table), 2);
+		$this->connection->execute('SET SQL_QUOTE_SHOW_CREATE = 1');
+		$create = $this->connection->fetchOne($this->query('SHOW CREATE TABLE ' . $table), 2);
 		if (empty($create)) {
 			return null;
 		}
@@ -170,8 +170,8 @@ class MysqlQuery extends Query {
 		$table = $this->formatTable($this->table);
 		$table_data = PHP_EOL . static::comment('Data: ' . $table . ($this->offset !== null && $this->limit !== null ? ' {' . $this->offset . ', ' . ($this->offset + $this->limit) . '}' : '')) . PHP_EOL;
 		$query = static::select($this->table)->limit($this->limit)->offset($this->offset)->build();
-		$result = $this->connection->query($query);
-		while ($row = $this->connection->fetch_assoc($result)) {
+		$result = $this->connection->execute($query);
+		while ($row = $this->connection->fetch($result)) {
 			$table_data .= static::insert($table, $row)->build() . PHP_EOL;
 		}
 		return $this->makeQueryObject(trim($table_data));

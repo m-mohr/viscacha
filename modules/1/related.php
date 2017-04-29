@@ -23,7 +23,7 @@ if (count($sqltopic) > 0) {
 	$slog->GlobalPermissions();
 	$boardsql = $slog->sqlinboards('board', 1);
 
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT id, board, topic, MATCH (topic) AGAINST ('{$matchsql}') AS af
 	FROM {$db->pre}topics
 	WHERE {$boardsql} id != '{$_GET['id']}' AND status != '2' AND MATCH (topic) AGAINST ('$matchsql') > 0.5
@@ -31,7 +31,7 @@ if (count($sqltopic) > 0) {
 	LIMIT {$config['viscacha_related_topics']['relatednum']}"
 	);
 
-	while ($line = $db->fetch_assoc($result)) {
+	while ($line = $result->fetch()) {
 		$rows[] = $line;
 	}
 }

@@ -10,13 +10,13 @@ class cache_forumtree extends CacheItem {
 			$parent = array();
 			$sub = array();
 			$empty = array();
-			$result = $db->query("
+			$result = $db->execute("
 			SELECT f.id, c.parent AS bid, f.parent AS cid, c.id AS cat_id
 			FROM {$db->pre}categories AS c 
 				LEFT JOIN {$db->pre}forums AS f ON c.id = f.parent 
 			ORDER BY c.position, f.position
 			");
-			while($row = $db->fetch_assoc($result)) {
+			while($row = $result->fetch()) {
 				if (!empty($row['id'])) {
 					if ($row['bid'] == 0) {
 						$parent[$row['cid']][$row['id']] = array();

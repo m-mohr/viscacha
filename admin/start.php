@@ -32,8 +32,8 @@ elseif (empty($job) || $job == 'start') {
 	}
 
 	// Count the inactive members
-	$result = $db->query('SELECT COUNT(*) as activate FROM '.$db->pre.'user WHERE deleted_at IS NULL AND (confirm = "00" OR confirm = "01")');
-	$user = $db->fetch_assoc($result);
+	$result = $db->execute('SELECT COUNT(*) as activate FROM '.$db->pre.'user WHERE deleted_at IS NULL AND (confirm = "00" OR confirm = "01")');
+	$user = $result->fetch();
 	if ($user['activate'] > 0) {
 		$tasks[] = '<a href="admin.php?action=members&job=activate">'.$lang->phrase('admin_task_moderate_members').'</a>';
 	}
@@ -122,7 +122,7 @@ elseif (empty($job) || $job == 'start') {
 		<td class="mmbox" width="25%"><?php echo $lang->phrase('admin_php_version'); ?></td>
 		<td class="mbox"  width="25%"><?php echo PHP_VERSION; ?></td>
 		<td class="mmbox" width="25%"><?php echo $lang->phrase('admin_database_version'); ?></td>
-		<td class="mbox"  width="25%"><?php echo $db->version(); ?></td>
+		<td class="mbox"  width="25%"><?php echo $db->getVersion(); ?></td>
 	  </tr>
 	  <tr>
 		<td class="mmbox" width="25%"><?php echo $lang->phrase('admin_webserver'); ?></td>

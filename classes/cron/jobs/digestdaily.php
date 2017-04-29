@@ -4,7 +4,7 @@ global $scache, $db, $lang, $config;
 $lastdate = mktime(0, 0); // midnight today
 $lastdate -= 24 * 60 * 60; // yesterday midnight
 
-$result = $db->query("
+$result = $db->execute("
 SELECT t.id, t.board, t.topic, u.mail, u.name, u.language, l.name AS last_name
 FROM {$db->pre}abos AS a
 	LEFT JOIN {$db->pre}user AS u ON u.id = a.mid
@@ -15,7 +15,7 @@ WHERE a.type = 'd' AND t.last > '{$lastdate}' AND t.last_name != u.id
 
 $lang_dir = $lang->getdir(true);
 
-while ($row = $db->fetch_assoc($result)) {
+while ($row = $result->fetch()) {
 	$lang->setdir($row['language']);
 	$lang->assign('row', $row);
 	$data = $lang->get_mail('digest_d');

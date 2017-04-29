@@ -35,10 +35,10 @@ include ("classes/function.viscacha_frontend.php");
 $id = $gpc->get('id', int);
 $fid = $gpc->get('fid', str);
 
-$result = $db->query("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'");
+$result = $db->execute("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'");
 
-$info = $db->fetch_assoc($result);
-if ($db->num_rows($result) == 0) {
+$info = $result->fetch();
+if ($result->getResultCount() == 0) {
 	error($lang->phrase('query_string_error'));
 }
 $my->p = $slog->Permissions($info['board']);
@@ -125,20 +125,20 @@ if ($_GET['action'] == "save") {
 
 		($code = $plugins->load('addreply_save_queries')) ? eval($code) : null;
 
-		$db->query("
+		$db->execute("
 		UPDATE {$db->pre}topics
 		SET last_name = '{$my->id}', last = '{$date}', posts = posts+1
 		WHERE id = '{$id}'
 		");
 
-		$db->query("
+		$db->execute("
 		INSERT INTO {$db->pre}replies (topic_id,name,comment,dosmileys,date,ip,edit,report)
 		VALUES ('{$id}','{$my->id}','{$_POST['comment']}','{$_POST['dosmileys']}','{$date}','{$my->ip}','','')
 		");
-		$redirect = $db->insert_id();
+		$redirect = $db->getInsertId();
 
 		// Set uploads to correct reply
-		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$my->id}' AND topic_id = '{$id}' AND tid = '0'");
+		$db->execute("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$my->id}' AND topic_id = '{$id}' AND tid = '0'");
 
 		// Update, insert, delete notifications
 		if (in_array($digest, $validDigest)) {
@@ -150,24 +150,24 @@ if ($_GET['action'] == "save") {
 				case -1: $type = null; break;
 			}
 			
-			$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
-			$row = $db->fetch_assoc($result);
+			$result = $db->execute("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
+			$row = $result->fetch();
 			if ($row && $type === null) { // Lösche Abo
-				$db->query("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'");
+				$db->execute("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'");
 			}
 			else if ($row && $type != $row['type']) { // Aktualisiere Abo, wenn veränderter Typ
-				$db->query("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'");
+				$db->execute("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'");
 			}
 			else if (!$row && $type !== null) { // Füge Abo hinzu
-				$db->query("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')");
+				$db->execute("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')");
 			}
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-			$db->query ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'");
+			$db->execute ("UPDATE {$db->pre}user SET posts = posts+1 WHERE id = '{$my->id}'");
 		}
 
-		$db->query ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$id}' WHERE id = '{$info['board']}'");
+		$db->execute ("UPDATE {$db->pre}forums SET replies = replies+1, last_topic = '{$id}' WHERE id = '{$info['board']}'");
 
 		$lang_dir = $lang->getdir(true);
 		// ToDo: Send only one notification on more than one answer
@@ -191,8 +191,8 @@ if ($_GET['action'] == "save") {
 				GROUP BY t.id HAVING num = 1
 			";
 		}
-		$result = $db->query($notification_query);
-		while ($row = $db->fetch_assoc($result)) {
+		$result = $db->execute($notification_query);
+		while ($row = $result->fetch()) {
 			$lang->setdir($row['language']);
 			$data = $lang->get_mail('digest_s');
 			$to = array('0' => array('name' => $row['name'], 'mail' => $row['mail']));
@@ -213,7 +213,7 @@ if ($_GET['action'] == "save") {
 
 		$close = $gpc->get('close', int);
 		if ($close == 1 && $my->mp[0] == 1) {
-			$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$info['id']}'");
+			$db->execute("UPDATE {$db->pre}topics SET status = '1' WHERE id = '{$info['id']}'");
 		}
 
 		// Set topic read
@@ -261,7 +261,7 @@ else {
 
 		if (count($qids) > 0) {
 
-			$result = $db->query('
+			$result = $db->execute('
 				SELECT u.name, r.comment
 				FROM '.$db->pre.'replies AS r
 					LEFT JOIN '.$db->pre.'user AS u ON u.id = r.name
@@ -269,7 +269,7 @@ else {
 				LIMIT '.$config['maxmultiquote']
 			);
 
-			while($row = $db->fetch_assoc($result)) {
+			while($row = $result->fetch()) {
 				($code = $plugins->load('addreply_form_quotes')) ? eval($code) : null;
 				$row['comment'] = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $row['comment']);
 				$row['comment'] = $bbcode->censor(trim($row['comment']));
@@ -281,9 +281,9 @@ else {
 	}
 
 	if (!in_array($data['digest'], $validDigest)) {
-		$result = $db->query("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
-		if ($db->num_rows($result) > 0) {
-			$temp = $db->fetch_assoc($result);
+		$result = $db->execute("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
+		if ($result->getResultCount() > 0) {
+			$temp = $result->fetch();
 			switch ($temp['type']) {
 				case '':	$data['digest'] = 1; break;
 				case 'd':	$data['digest'] = 2; break;

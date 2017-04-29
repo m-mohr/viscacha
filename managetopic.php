@@ -32,16 +32,16 @@ include ("classes/function.viscacha_frontend.php");
 
 $action = $gpc->get('action', none);
 
-$result = $db->query('
+$result = $db->execute('
 SELECT board, id, last_name, prefix, topic
 FROM '.$db->pre.'topics
 WHERE id = "'.$_GET['id'].'"
 LIMIT 1
 ');
-if ($db->num_rows($result) != 1) {
+if ($result->getResultCount() != 1) {
 	error($lang->phrase('query_string_error'));
 }
-$info = $db->fetch_assoc($result);
+$info = $result->fetch();
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
@@ -86,38 +86,38 @@ elseif ($action == "delete2") {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' GROUP BY name");
-		while ($row = $db->fetch_assoc($result)) {
-			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
+		$result = $db->execute("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' GROUP BY name");
+		while ($row = $result->fetch()) {
+			$db->execute("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
-	$anz = $db->affected_rows();
-	$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
-	while ($urow = $db->fetch_assoc($uresult)) {
+	$db->execute ("DELETE FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
+	$anz = $db->getAffectedRows();
+	$uresult = $db->execute ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
+	while ($urow = $uresult->fetch()) {
 		$filesystem->unlink('uploads/topics/'.$urow['source']);
 		$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
 		if (file_exists($thumb)) {
 			$filesystem->unlink($thumb);
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
-	$anz += $db->affected_rows();
-	$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
-	$anz += $db->affected_rows();
-	$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
-	$anz += $db->affected_rows();
-	$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+	$db->execute ("DELETE FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
+	$anz += $db->getAffectedRows();
+	$db->execute ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
+	$anz += $db->getAffectedRows();
+	$db->execute ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
+	$anz += $db->getAffectedRows();
+	$votes = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 	$voteaids = array();
-	while ($row = $db->fetch_assoc($votes)) {
+	while ($row = $votes->fetch()) {
 		$voteaids[] = $row['id'];
 	}
 	if (count($voteaids) > 0) {
-		$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
-		$anz += $db->affected_rows();
+		$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+		$anz += $db->getAffectedRows();
 	}
-	$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-	$anz += $db->affected_rows();
+	$db->execute ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+	$anz += $db->getAffectedRows();
 
 	($code = $plugins->load('managetopic_delete2_end')) ? eval($code) : null;
 
@@ -142,24 +142,24 @@ elseif ($action == "move2") {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 
-	$result = $db->query("
+	$result = $db->execute("
 		SELECT r.date, r.name, u.name, u.mail, u.deleted_at
 		FROM {$db->pre}replies AS r
 			LEFT JOIN {$db->pre}user AS u ON u.id = r.name
 		WHERE topic_id = '{$info['id']}' AND tstart = '1'
 	");
-	$old = $db->fetch_assoc($result);
+	$old = $result->fetch();
 
 	$board = $gpc->get('board', int);
 
-	$db->query("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1");
-	$anz = $db->affected_rows();
+	$db->execute("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1");
+	$anz = $db->getAffectedRows();
 
 	// TODO: Prefix und Editierungen werden nicht übernommen
 	if ($_POST['temp'] == 1) {
-		$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_int($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}', vquestion = ''");
-		$tid = $db->insert_id();
-		$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
+		$db->execute("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$info['board']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_int($info['last_name'])."', prefix = '{$info['prefix']}', last = '{$old['date']}', vquestion = ''");
+		$tid = $db->getInsertId();
+		$db->execute("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$info['id']}', name = '".$gpc->save_int($old['name'])."', date = '{$old['date']}', edit = '', report = ''");
 	}
 	if ($_POST['temp2'] == 1) {
 		$data = $lang->get_mail('topic_moved');
@@ -180,9 +180,9 @@ elseif ($action == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showtopic.php?id='.$info['id']);
 }
 elseif ($action == "reports") {
-	$result = $db->query("SELECT id, report, topic_id, tstart FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
-	$data = $db->fetch_assoc($result);
-	if ($db->num_rows($result) == 0) {
+	$result = $db->execute("SELECT id, report, topic_id, tstart FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
+	$data = $result->fetch();
+	if ($result->getResultCount() == 0) {
 		error($lang->phrase('query_string_error'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if (empty($data['report'])) {
@@ -193,7 +193,7 @@ elseif ($action == "reports") {
 }
 elseif ($action == "reports2") {
 	if ($_POST['temp'] == 1) {
-		$db->query("UPDATE {$db->pre}replies SET report = '' WHERE id = '{$_GET['topic_id']}' LIMIT 1");
+		$db->execute("UPDATE {$db->pre}replies SET report = '' WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 		ok($lang->phrase('admin_report_reset_success'), "showtopic.php?action=jumpto&topic_id={$_GET['topic_id']}".SID2URL_x);
 	}
 	else {
@@ -201,8 +201,8 @@ elseif ($action == "reports2") {
 	}
 }
 elseif ($action == "pin") {
-	$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '".$info['id']."'");
-	if ($db->affected_rows() == 1) {
+	$db->execute("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '".$info['id']."'");
+	if ($db->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -210,8 +210,8 @@ elseif ($action == "pin") {
 	}
 }
 elseif ($action == "unpin") {
-	$db->query("UPDATE {$db->pre}topics SET sticky = '0' WHERE id = '".$info['id']."'");
-	if ($db->affected_rows() == 1) {
+	$db->execute("UPDATE {$db->pre}topics SET sticky = '0' WHERE id = '".$info['id']."'");
+	if ($db->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -219,8 +219,8 @@ elseif ($action == "unpin") {
 	}
 }
 elseif ($action == "close") {
-	$db->query("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'");
-	if ($db->affected_rows() == 1) {
+	$db->execute("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'");
+	if ($db->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -228,8 +228,8 @@ elseif ($action == "close") {
 	}
 }
 elseif ($action == "open") {
-	$db->query("UPDATE {$db->pre}topics SET status = '0' WHERE id = '".$info['id']."'");
-	if ($db->affected_rows() == 1) {
+	$db->execute("UPDATE {$db->pre}topics SET status = '0' WHERE id = '".$info['id']."'");
+	if ($db->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -252,24 +252,24 @@ elseif ($action == "vote_export") {
 elseif ($action == "vote_edit") {
 	$error = array();
 
-	$result = $db->query('SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM '.$db->pre.'topics WHERE id = '.$_GET['id'].' LIMIT 1');
-	$info = $db->fetch_assoc($result);
+	$result = $db->execute('SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM '.$db->pre.'topics WHERE id = '.$_GET['id'].' LIMIT 1');
+	$info = $result->fetch();
 
 	$fid = $gpc->get('fid', str);
 	if (is_hash($fid)) {
 		$data = $gpc->unescape(import_error_data($fid));
 		$data[0] = $data['answer'][0];
 		unset($data['answer'][0]);
-		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
-		while ($row = $db->fetch_assoc($result)) {
+		$result = $db->execute("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
+		while ($row = $result->fetch()) {
 			$data['original'][$row['id']] = $row['answer'];
 		}
 	}
 	else {
 		$data = $data['answer'] = array();
 		$data['question'] = $info['vquestion'];
-		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
-		while ($row = $db->fetch_assoc($result)) {
+		$result = $db->execute("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
+		while ($row = $result->fetch()) {
 			$data['answer'][$row['id']] = $row['answer'];
 			$data['original'][$row['id']] = $row['answer'];
 		}
@@ -310,21 +310,21 @@ elseif ($action == "vote_edit2") {
 		error($error,'managetopic.php?action=vote_edit&amp;id='.$_GET['id'].'&amp;fid='.$fid.SID2URL_x);
 	}
 	else {
-		$db->query("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$_GET['id']}' LIMIT 1");
-		$result = $db->query("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
-		while($row = $db->fetch_assoc($result)) {
+		$db->execute("UPDATE {$db->pre}topics SET vquestion = '{$_POST['question']}' WHERE id = '{$_GET['id']}' LIMIT 1");
+		$result = $db->execute("SELECT id, answer FROM {$db->pre}vote WHERE tid = '{$info['id']}' ORDER BY id");
+		while($row = $result->fetch()) {
 			if ($notices[$row['id']] != $row['answer']) {
 				if (mb_strlen($notices[$row['id']]) > 0) {
-					$db->query("UPDATE {$db->pre}vote SET answer = '{$notices[$row['id']]}' WHERE id = '{$row['id']}'");
+					$db->execute("UPDATE {$db->pre}vote SET answer = '{$notices[$row['id']]}' WHERE id = '{$row['id']}'");
 				}
 				else {
-					$db->query("DELETE FROM {$db->pre}vote WHERE id = '{$row['id']}'");
-					$db->query("DELETE FROM {$db->pre}votes WHERE aid = '{$row['id']}'");
+					$db->execute("DELETE FROM {$db->pre}vote WHERE id = '{$row['id']}'");
+					$db->execute("DELETE FROM {$db->pre}votes WHERE aid = '{$row['id']}'");
 				}
 			}
 		}
 		if (strlen($notices[0]) > 0) {
-			$db->query("INSERT INTO {$db->pre}vote (tid, answer) VALUES ('{$_GET['id']}','{$notices[0]}')");
+			$db->execute("INSERT INTO {$db->pre}vote (tid, answer) VALUES ('{$_GET['id']}','{$notices[0]}')");
 		}
 		ok($lang->phrase('data_success'),"showtopic.php?id={$_GET['id']}");
 	}
@@ -342,18 +342,14 @@ elseif ($action == "vote_delete2") {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$anz = 0;
-	$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-	$voteaids = array();
-	while ($row = $db->fetch_assic($votes)) {
-		$voteaids[] = $row['id'];
-	}
+	$voteaids = $db->fetchList("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 	if (count($voteaids) > 0) {
-		$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
-		$anz += $db->affected_rows();
+		$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+		$anz += $db->getAffectedRows();
 	}
-	$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-	$anz += $db->affected_rows();
-	$db->query("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$info['id']}'");
+	$db->execute("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+	$anz += $db->getAffectedRows();
+	$db->execute("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$info['id']}'");
 
 	ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
 }
@@ -369,37 +365,37 @@ elseif ($action == "pdelete") {
 	$iid = implode(',', $ids);
 
 	if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
-		$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE id IN ({$iid}) GROUP BY name");
-		while ($row = $db->fetch_assoc($result)) {
-			$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
+		$result = $db->execute("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE id IN ({$iid}) GROUP BY name");
+		while ($row = $result->fetch()) {
+			$db->execute("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
 		}
 	}
 
-	$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iid})");
-	$anz = $db->affected_rows();
-	$uresult = $db->query ("SELECT id, source FROM {$db->pre}uploads WHERE tid IN ({$iid})");
-	while ($urow = $db->fetch_assoc($uresult)) {
+	$db->execute ("DELETE FROM {$db->pre}replies WHERE id IN ({$iid})");
+	$anz = $db->getAffectedRows();
+	$uresult = $db->execute ("SELECT id, source FROM {$db->pre}uploads WHERE tid IN ({$iid})");
+	while ($urow = $uresult->fetch()) {
 		$filesystem->unlink('uploads/topics/'.$urow['source']);
 		$thumb = 'uploads/topics/thumbnails/'.$urow['id'].get_extension($urow['source'], true);
 		if (file_exists($thumb)) {
 			$filesystem->unlink($thumb);
 		}
 	}
-	$db->query ("DELETE FROM {$db->pre}uploads WHERE tid IN ({$iid})");
+	$db->execute ("DELETE FROM {$db->pre}uploads WHERE tid IN ({$iid})");
 
-	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
-	if ($db->num_rows($result) == 0) {
-		$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
-		$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
-		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+	$result = $db->execute("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
+	if ($result->getResultCount() == 0) {
+		$db->execute ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
+		$db->execute ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
+		$votes = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 		$voteaids = array();
-		while ($row = $db->fetch_assoc($votes)) {
+		while ($row = $votes->fetch()) {
 			$voteaids[] = $row['id'];
 		}
 		if (count($voteaids) > 0) {
-			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+			$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
 		}
-		$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+		$db->execute ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 		$redirect = "showforum.php?id=".$info['board'].SID2URL_x;
 	}
 	else {
@@ -426,11 +422,11 @@ elseif ($action == "pmerge") {
 	}
 	$iid = implode(',', $ids);
 
-	$result = $db->query("SELECT r.*, u.name, u.id AS uid, u.mail, u.deleted_at FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iid}) ORDER BY date ASC");
+	$result = $db->execute("SELECT r.*, u.name, u.id AS uid, u.mail, u.deleted_at FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iid}) ORDER BY date ASC");
 	$author = array();
 	$comment = array();
 	$posts = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$posts[$row['id']] = $row;
 		$author[$row['id']] = $row['name'];
 		$comment[$row['id']] = $row['comment'];
@@ -462,8 +458,8 @@ elseif ($action == "pmerge2") {
 	else {
 		$cache = array();
 		$base = array('date' => time());
-		$result = $db->query("SELECT r.*, u.name, u.deleted_at FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iids})");
-		while ($row = $db->fetch_assoc($result)) {
+		$result = $db->execute("SELECT r.*, u.name, u.deleted_at FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}user AS u ON r.name = u.id WHERE r.id IN ({$iids})");
+		while ($row = $result->fetch()) {
 			$cache[$row['id']] = $row;
 			if ($row['date'] < $base['date']) {
 				$base = $row;
@@ -522,11 +518,11 @@ elseif ($action == "pmerge2") {
 		}
 		$edit = trim($edit, "\n");
 
-		$db->query ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
-		$db->query ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
+		$db->execute ("UPDATE {$db->pre}uploads SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
+		$db->execute ("UPDATE {$db->pre}vote SET tid = '{$base['id']}' WHERE tid IN ({$iold})");
 
-		$db->query ("UPDATE {$db->pre}replies SET name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', ip = '{$ip}', edit = '{$edit}' WHERE id = '{$base['id']}'");
-		$db->query ("DELETE FROM {$db->pre}replies WHERE id IN ({$iold})");
+		$db->execute ("UPDATE {$db->pre}replies SET name = '{$name}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', ip = '{$ip}', edit = '{$edit}' WHERE id = '{$base['id']}'");
+		$db->execute ("DELETE FROM {$db->pre}replies WHERE id IN ({$iold})");
 
 		($code = $plugins->load('managetopic_pmerge_end')) ? eval($code) : null;
 

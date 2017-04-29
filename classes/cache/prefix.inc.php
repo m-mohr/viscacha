@@ -7,9 +7,9 @@ class cache_prefix extends CacheItem {
 			$this->import();
 		}
 		else {
-			$result = $db->query("SELECT * FROM {$db->pre}prefix");
+			$result = $db->execute("SELECT * FROM {$db->pre}prefix");
 			$this->data = array();
-			while ($row = $db->fetch_assoc($result)) {
+			while ($row = $result->fetch()) {
 				if (!isset($this->data[$row['bid']])) {
 					$this->data[$row['bid']] = array();
 				}

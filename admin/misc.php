@@ -201,7 +201,7 @@ elseif ($job == "credits") {
 	else {
 		$phpv = '<span style="color: red">'.$lang->phrase('admin_misc_no').'</span>';
 	}
-	if (version_compare($db->version(), '5.5.3', '>=')) {
+	if (version_compare($db->getVersion(), '5.5.3', '>=')) {
 		$sqlv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
@@ -242,7 +242,7 @@ elseif ($job == "credits") {
 		<strong><?php echo $lang->phrase('admin_misc_my_server'); ?></strong>:
 		<ul>
 		<li><?php echo $lang->phrase('admin_misc_php_version').' '.PHP_VERSION.', '.$lang->phrase('admin_misc_compatible').' '.$phpv; ?></li>
-		<li><?php echo $lang->phrase('admin_misc_mysql_version').' '.$db->version().', '.$lang->phrase('admin_misc_compatible').' '.$sqlv; ?></li>
+		<li><?php echo $lang->phrase('admin_misc_mysql_version').' '.$db->getVersion().', '.$lang->phrase('admin_misc_compatible').' '.$sqlv; ?></li>
 		<li><?php echo $lang->phrase('admin_misc_server_software').' '.$webserver; ?></li>
 		</ul>
 		<br class="minibr" />

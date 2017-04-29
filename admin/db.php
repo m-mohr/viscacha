@@ -8,7 +8,7 @@ $lang->group("admin/db");
 
 function exec_query_form ($query = '') {
 	global $db, $lang;
-	$tables = $db->list_tables();
+	$tables = $db->getTables();
 	$lang->assign('maxfilesize', formatFilesize(ini_maxupload()));
 ?>
 <script type="text/javascript" src="admin/html/editor/bbcode.js"></script>
@@ -63,7 +63,7 @@ function exec_query_form ($query = '') {
 
 if ($job == 'backup') {
 	echo head();
-	$result = $db->list_tables();
+	$result = $db->getTables();
 	$counts = array(100, 500, 1000, 2000, 3000, 5000, 10000, 20000, 50000);
 	?>
 <form name="form" method="post" action="admin.php?action=db&job=backup2">
@@ -116,7 +116,7 @@ elseif ($job == 'backup2') {
 	echo head();
 	$intervall = $gpc->get('intervall', int);
 	if ($intervall > 10 && $intervall < 1000000) {
-		$db->std_limit = $intervall;
+		$db->std_limit = $intervall; // ToDo: Use Query::limit()
 	}
 	$tables = $gpc->get('backup', arr_str);
 	if (count($tables) == 0) {
@@ -133,8 +133,8 @@ elseif ($job == 'backup2') {
 
 	$temp = array('zip' => $zip, 'drop' => $drop, 'steps' => 0);
 	foreach ($tables as $table) {
-		$result = $db->query("SELECT COUNT(*) FROM `{$table}`");
-		$count = $db->fetch_one($result);
+		$result = $db->execute("SELECT COUNT(*) FROM `{$table}`");
+		$count = $result->fetchOne();
 		$offset = iif($data == 1, 0, -1);
 		while ($offset < $count) {
 			$temp[] = array(
@@ -497,7 +497,8 @@ elseif ($job == 'restore2') {
 			$lines = file_get_contents($dir.$file);
 		}
 		if (isset($lines)) {
-			$q = $db->multi_query($lines);
+			$statements = $db->executeMultiple($lines);
+			$count = count($statements);
 
 			// Clear Cache
 			if ($dh = @opendir("./data/cache/")) {
@@ -609,46 +610,56 @@ elseif ($job == 'query2') {
 	@exec_query_form($lines);
 
 	if (!empty($lines)) {
-
-		ob_start();
-		$q = $db->multiQuery($sql, false);
-		$error = ob_get_contents();
-		$error = trim($error);
-		ob_end_clean();
-		if (!empty($error)) {
+		$statements = false;
+		try {
+			$statements = $db->executeMultiple($sql);
+		} catch(PDOException $e) {
 			?>
 			 <table class="border" align="center">
 			  <tr><td class="obox"><?php echo $lang->phrase('admin_db_sql_error'); ?></td></tr>
-			  <tr><td class="mbox"><?php echo strip_tags($error); ?></td></tr>
+			  <tr><td class="mbox"><pre><?php echo $e->getMessage(); ?></pre><pre><?php echo $e->getTraceAsString(); ?></pre></td></tr>
 			 </table>
 			<?php
 		}
-		else {
-			echo '<table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr><td class="obox">'.$lang->phrase('admin_db_queries_extd');
-			echo iif($q['affected'] > 0, ' - '.$lang->phrase('admin_db_rows_affected'));
-			echo '</td></tr>';
-			echo iif(!empty($sql), '<tr><td class="mbox"><pre>'.$sql.'</pre></td></tr>');
-			echo '</table>';
-			foreach ($q['queries'] as $num) {
-				if (count($num) > 0) {
-					$keys = array_keys($num[0]);
-					echo '<br><table class="border" border="0" cellspacing="0" cellpadding="4" align="center"><tr>';
-					foreach ($keys as $field) {
-						echo '<td class="obox">'.$field.'</td>';
-					}
-					echo "</tr>";
-					foreach ($num as $row) {
-						echo "<tr>";
-						foreach ($keys as $field) {
-							echo '<td class="mbox">'.nl2br(viscacha_htmlentities($row[$field])).'</td>';
+		if (!empty($statements)) {
+			$count = count($statements);
+			?>
+			<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+				<tr><td class="obox"><?php echo $lang->phrase('admin_db_queries_extd'); ?></td></tr>
+			</table>
+			<?php
+			foreach ($statements as $statement) {
+				$affected = $statement->getAffectedRows();
+				$headerPrinted = false;
+				?>
+				<br>
+				<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
+				<tr><td class="obox" colspan="100"><?php echo $lang->phrase('admin_db_rows_affected'); ?></td></tr>
+				<?php if($statement->getQuery() !== null) { ?>
+				<tr><td class="mbox" colspan="100"><pre><?php echo $statement->getQuery(); ?></pre></td></tr>
+				<?php } ?>
+				<?php
+				$results = $statement->getCache();
+				if (!empty($results)) {
+					foreach ($results as $row) {
+						if(!$headerPrinted) {
+							$headerPrinted = true;
+							echo '<tr>';
+							foreach (array_keys($row) as $field) {
+								echo '<td class="ubox">'. viscacha_htmlspecialchars($field) . '</td>';
+							}
+							echo '</tr>';
 						}
+						echo "<tr>";
+						foreach ($row as $cell) {
+							echo '<td class="mbox"><pre>' . viscacha_htmlspecialchars($cell) . '</pre></td>';
+						}
+						echo '</tr>';
 					}
-					echo '</table>';
 				}
+				echo '</table>';
 			}
 		}
-
 	}
 	echo foot();
 }
-?>

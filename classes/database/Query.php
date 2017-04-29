@@ -45,9 +45,12 @@ abstract class Query {
 	const LEFT_JOIN = 102;
 	const RIGHT_JOIN = 103;
 	const FULL_JOIN = 104;
-	
+
 	const ASC = 201;
 	const DESC = 202;
+	
+	const _OR = 205;
+	const _AND = 206;
 	
 	const IS = 211;
 	const IS_NOT = 212;
@@ -57,9 +60,6 @@ abstract class Query {
 	
 	const IN = 231;
 	const NOT_IN = 232;
-	
-	const _OR = 231;
-	const _AND = 232;
 	
 	protected $connection = null;
 	protected $type;
@@ -423,6 +423,66 @@ abstract class Query {
 		}
 	}
 	
+	public function fetch() {
+		$stmt = $this->execute();
+		if ($stmt) {
+			return $stmt->fetch();
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public function fetchObject() {
+		$stmt = $this->execute();
+		if ($stmt) {
+			return $stmt->fetchObject();
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public function fetchOne($colum = 1) {
+		$stmt = $this->execute();
+		if ($stmt) {
+			return $stmt->fetchOne($column);
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public function fetchMatrix() {
+		$stmt = $this->execute();
+		if ($stmt) {
+			return $stmt->fetchMatrix();
+		}
+		else {
+			return false;
+		}
+	}
+	
+	function fetchObjectMatrix() {
+		$stmt = $this->execute();
+		if ($stmt) {
+			return $stmt->fetchObjectMatrix();
+		}
+		else {
+			return false;
+		}
+	}
+	
+	function fetchList($column = 1) {
+		$stmt = $this->execute();
+		if ($stmt) {
+			return $stmt->fetchList($column);
+		}
+		else {
+			return false;
+		}
+	}
+	
 	public function execute() {
 		if ($this->connection === null) {
 			return false;
@@ -432,8 +492,7 @@ abstract class Query {
 			return false;
 		}
 		
-		$stmt = $this->connection->query($query->query, $query->values);
-		
+		return $this->connection->execute($query->query, $query->values);
 	}
 
 	protected function formatNames(array $names) {
@@ -472,9 +531,9 @@ abstract class Query {
 	protected abstract function buildJoins();
 	protected abstract function buildListTables();
 	protected abstract function buildListColumns();
-	protected abstract function buildSchemeStructure();
-	protected abstract function buildSchemeData();
-	protected abstract function buildComment();
+	protected abstract function buildSchemaStructure();
+	protected abstract function buildSchemaData();
+	protected abstract function buildComment($comment);
 	protected abstract function translateKeyword($index);
 	
 	public function __toString() {

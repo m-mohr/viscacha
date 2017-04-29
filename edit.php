@@ -32,16 +32,16 @@ include ("classes/function.viscacha_frontend.php");
 
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
-$result = $db->query("
+$result = $db->execute("
 SELECT t.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
 WHERE r.id = '{$_GET['id']}' LIMIT 1");
 
-if ($db->num_rows($result) != 1) {
+if ($result->getResultCount() != 1) {
 	error(array($lang->phrase('query_string_error')));
 }
-$info = $db->fetch_assoc($result);
+$info = $result->fetch();
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
@@ -95,33 +95,33 @@ if ($allowed == true) {
 
 			if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
 				if ($info['tstart'] == 1) {
-					$result = $db->query("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' GROUP BY name");
-					while ($row = $db->fetch_assoc($result)) {
-						$db->query("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
+					$result = $db->execute("SELECT COUNT(*) AS posts, name FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' GROUP BY name");
+					while ($row = $result->fetch()) {
+						$db->execute("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}' AND deleted_at IS NULL");
 					}
 				}
 				else {
-					$db->query("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}' AND deleted_at IS NULL");
+					$db->execute("UPDATE {$db->pre}user SET posts = posts-1 WHERE id = '{$info['name']}' AND deleted_at IS NULL");
 				}
 			}
-			$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
-			$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
-			while ($urow = $db->fetch_assoc($uresult)) {
+			$db->execute ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
+			$uresult = $db->execute ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
+			while ($urow = $uresult->fetch()) {
 				$filesystem->unlink('uploads/topics/'.$urow['source']);
 			}
-			$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
+			$db->execute ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
 			if ($info['tstart'] == 1) {
-				$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
-				$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
-				$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+				$db->execute ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
+				$db->execute ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
+				$votes = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 				$voteaids = array();
-				while ($row = $db->fetch_assoc($votes)) {
+				while ($row = $votes->fetch()) {
 					$voteaids[] = $row['id'];
 				}
 				if (count($voteaids) > 0) {
-					$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+					$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
 				}
-				$db->query ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+				$db->execute ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 			}
 			($code = $plugins->load('edit_save_delete')) ? eval($code) : null;
 			if ($config['updateboardstats'] == 1) {
@@ -188,14 +188,14 @@ if ($allowed == true) {
 				$info['edit'] .= $my->name."\t".time()."\t".$_POST['about']."\t".$my->ip."\n";
 				($code = $plugins->load('edit_save_queries')) ? eval($code) : null;
 
-				$db->query ("
+				$db->execute ("
 				UPDATE {$db->pre}replies
 				SET edit = '{$info['edit']}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}'
 				WHERE id = '{$_GET['id']}'
 				");
 
 				if ($info['tstart']) {
-					$db->query ("
+					$db->execute ("
 					UPDATE {$db->pre}topics
 					SET prefix = '{$_POST['opt_0']}', topic = '{$_POST['topic']}'
 					WHERE id = '{$info['topic_id']}'

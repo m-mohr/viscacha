@@ -56,13 +56,13 @@ if ($_GET['action'] == 'team') {
 	$gmods = array();
 	$mods = array();
 
-	$result = $db->query('
+	$result = $db->execute('
 		SELECT id, name, mail, hp, location, fullname, groups
 		FROM '.$db->pre.'user
 		WHERE deleted_at IS NULL AND '.implode(' OR ', $sqlConditions).'
 		ORDER BY name ASC
 	');
-	while($row = $db->fetch_object($result)) {
+	while($row = $result->fetchObject()) {
 		$gids = explode(',', $row->groups);
 		foreach ($gids as $gid) {
 			if (in_array($gid, $team['admin'])) {
@@ -74,7 +74,7 @@ if ($_GET['action'] == 'team') {
 		}
 	}
 
-	$result = $db->query('
+	$result = $db->execute('
 		SELECT u.id, u.name, u.mail, u.hp, u.location, u.fullname, f.id AS forum_id, f.name as forum_name, f.invisible AS forum_invisible
 		FROM '.$db->pre.'moderators AS m
 			INNER JOIN '.$db->pre.'user AS u ON u.id = m.mid
@@ -83,7 +83,7 @@ if ($_GET['action'] == 'team') {
 		ORDER BY u.name ASC
 	');
 
-	while($row = $db->fetch_object($result)) {
+	while($row = $result->fetchObject()) {
 		if ($row->forum_invisible == 1 && empty($my->pb[$row->forum_id]['forum'])) {
 			continue;
 		}
@@ -190,8 +190,8 @@ else {
 
 	($code = $plugins->load('members_queries')) ? eval($code) : null;
 
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE {$sqlwhere}");
-	$count = $db->fetch_one($result);
+	$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}user WHERE {$sqlwhere}");
+	$count = $result->fetchOne();
 
 	$temp = pages($count, $config['mlistenzahl'], "members.php?{$query_page}&amp;", $_GET['page']);
 	$start = ($_GET['page'] - 1) * $config['mlistenzahl'];
@@ -227,7 +227,7 @@ else {
 		$sqlselect .= ", IF (s.mid > 0, 1, 0) AS online";
 	}
 
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT {$sqlselect}
 	FROM {$db->pre}user AS u
 	{$sqljoin}
@@ -236,12 +236,12 @@ else {
 	LIMIT {$start},{$config['mlistenzahl']}
 	");
 
-	if ($count > 0 && $db->num_rows($result) == 0) {
+	if ($count > 0 && $result->getResultCount() == 0) {
 		error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
 	}
 
 	$members = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		if (isset($row['location'])) {
 			$row['location'] = iif(!empty($row['location']), $row['location'], $lang->phrase('location_no_data'));
 		}
@@ -267,8 +267,8 @@ else {
 	$letters = array(
 		'' => array('url' => '', 'html' => $lang->phrase('members_all')),
 	);
-	$result = $db->query("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user WHERE deleted_at IS NULL ORDER BY letter");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT DISTINCT UPPER(LEFT(name,1)) AS letter FROM {$db->pre}user WHERE deleted_at IS NULL ORDER BY letter");
+	while ($row = $result->fetch()) {
 		$letters[$row['letter']] = array('url' => rawurlencode($row['letter']), 'html' => $row['letter']);
 	}
 	ksort($letters);

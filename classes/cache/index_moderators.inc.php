@@ -12,13 +12,13 @@ class cache_index_moderators extends CacheItem {
 		    $this->import();
 		}
 		else {
-			$result = $db->query("
+			$result = $db->execute("
 				SELECT u.id AS mid, u.name, m.bid
 				FROM {$db->pre}moderators AS m
 					LEFT JOIN {$db->pre}user AS u ON u.id = m.mid
 			");
 		    $this->data = array();
-		    while($row = $db->fetch_assoc($result)) {
+		    while($row = $result->fetch()) {
 		    	$this->data[$row['bid']][] = $row;
 		    }
 			$this->export();

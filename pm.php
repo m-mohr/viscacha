@@ -43,7 +43,7 @@ if ($_GET['action'] == 'show') {
 	BBProfile($bbcode);
 
 	($code = $plugins->load('pm_show_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT
 		   p.dir, p.status, p.id, p.topic, p.comment, p.date, p.pm_from as mid,
 		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.posts, u.deleted_at,
@@ -55,14 +55,14 @@ if ($_GET['action'] == 'show') {
 	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}'
 	ORDER BY p.date ASC
 	");
-	if ($db->num_rows($result) != 1) {
+	if ($result->getResultCount() != 1) {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
 
-	$row = $db->fetch_assoc($result);
+	$row = $result->fetch();
 
 	if ($row['status'] == '0') {
-		$db->query("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
+		$db->execute("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
 	}
 
 	$bbcode->setSmileys(1);
@@ -123,8 +123,8 @@ elseif ($_GET['action'] == "massdelete") {
 	if (count($deleteids) > 0) {
 		($code = $plugins->load('pm_massdelete_query')) ? eval($code) : null;
 		$ids = implode(',', $deleteids);
-		$db->query("DELETE FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id IN ({$ids})");
-		$anz = $db->affected_rows();
+		$db->execute("DELETE FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id IN ({$ids})");
+		$anz = $db->getAffectedRows();
 		ok($lang->phrase('x_entries_deleted'), 'pm.php'.SID2URL_1);
 	}
 	else {
@@ -144,8 +144,8 @@ elseif ($_GET['action'] == "massmove") {
 	if (count($deleteids) > 0) {
 		($code = $plugins->load('pm_massmove_query')) ? eval($code) : null;
 		$ids = implode(',', $deleteids);
-		$db->query("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})");
-		$anz = $db->affected_rows();
+		$db->execute("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})");
+		$anz = $db->getAffectedRows();
 		ok($lang->phrase('x_entries_moved'), 'pm.php?action=browse&amp;id='.$_GET['id'].SID2URL_x);
 	}
 	else {
@@ -153,11 +153,11 @@ elseif ($_GET['action'] == "massmove") {
 	}
 }
 elseif ($_GET['action'] == "delete") {
-	$result = $db->query ("SELECT id FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}' LIMIT 1");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute ("SELECT id FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}' LIMIT 1");
+	if ($result->getResultCount() != 1) {
 		error($lang->phrase('pm_not_found'));
 	}
-	$info = $db->fetch_assoc($result);
+	$info = $result->fetch();
 	Breadcrumb::universal()->add($lang->phrase('pm_manage'));
 	echo $tpl->parse("header");
 	$data = $info['id'];
@@ -170,8 +170,8 @@ elseif ($_GET['action'] == "delete2") {
 		error($lang->phrase('query_string_error'));
 	}
 	($code = $plugins->load('pm_delete2_query')) ? eval($code) : null;
-	$db->query ("DELETE FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}'");
-	$anz = $db->affected_rows();
+	$db->execute ("DELETE FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}'");
+	$anz = $db->getAffectedRows();
 	ok($lang->phrase('x_entries_deleted'),'pm.php'.SID2URL_1);
 }
 elseif ($_GET['action'] == "save") {
@@ -194,8 +194,8 @@ elseif ($_GET['action'] == "save") {
 
 	$name_id = 0;
 	if (mb_strlen($_POST['name']) > 0) {
-		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name = "'.$_POST['name'].'" LIMIT 1');
-		$user = $db->fetch_one($result);
+		$result = $db->execute('SELECT id FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name = "'.$_POST['name'].'" LIMIT 1');
+		$user = $result->fetchOne();
 		if (!empty($user)) {
 			$name_id = $user;
 		}
@@ -232,21 +232,21 @@ elseif ($_GET['action'] == "save") {
 		$date = time();
 
 		($code = $plugins->load('pm_save_queries')) ? eval($code) : null;
-		$db->query("
+		$db->execute("
 		INSERT INTO {$db->pre}pm (topic,pm_from,pm_to,comment,date,dir)
 		VALUES ('{$_POST['topic']}','{$my->id}','{$name_id}','{$_POST['comment']}','{$date}','1')
 		");
 
 		if ($_POST['temp'] == 1) {
-			$db->query("
+			$db->execute("
 			INSERT INTO {$db->pre}pm (topic,pm_from,pm_to,comment,date,dir,status)
 			VALUES ('{$_POST['topic']}','{$name_id}','{$my->id}','{$_POST['comment']}','{$date}','2','1')
 			");
 		}
 
 		$lang_dir = $lang->getdir(true);
-		$result = $db->query("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$name_id}'");
-		$row = $db->fetch_assoc($result);
+		$result = $db->execute("SELECT name, mail, opt_pmnotify, language FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$name_id}'");
+		$row = $result->fetch();
 		if ($row['opt_pmnotify'] == 1) {
 			$lang->setdir($row['language']);
 			$maildata = $lang->get_mail('newpm');
@@ -276,17 +276,17 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		}
 	}
 	elseif ($_GET['action'] == 'quote' || $_GET['action'] == 'reply') {
-		$result = $db->query("
+		$result = $db->execute("
 			SELECT p.topic, p.comment, u.name, p.pm_from AS uid
 			FROM {$db->pre}pm AS p
 				LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
 			WHERE p.id = '{$_GET['id']}' AND p.dir != '2' AND p.pm_to = '{$my->id}'
 			LIMIT 1
 		");
-		if ($db->num_rows($result) != 1) {
+		if ($result->getResultCount() != 1) {
 			error($lang->phrase('pm_not_found'), 'pm.php'.SID2URL_1);
 		}
-		$info = $db->fetch_assoc($result);
+		$info = $result->fetch();
 		$data = array(
 			'name' => $info['name'],
 			'name_id' => $info['uid'],
@@ -326,12 +326,12 @@ elseif ($_GET['action'] == "browse") {
 
 	($code = $plugins->load('pm_browse_start')) ? eval($code) : null;
 
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT COUNT(*)
 	FROM {$db->pre}pm
 	WHERE pm_to = '{$my->id}' AND dir = '{$_GET['id']}'
 	");
-	$count = $db->fetch_one($result);
+	$count = $result->fetchOne();
 
 	$temp = pages($count, $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
 	$start = ($_GET['page'] - 1) * $config['pmzahl'];
@@ -339,7 +339,7 @@ elseif ($_GET['action'] == "browse") {
 	$messages = array();
 
 	($code = $plugins->load('pm_browse_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT p.id, p.topic, p.date, p.status, p.pm_to, u.id AS pm_from, u.name
 	FROM {$db->pre}pm AS p
 		LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
@@ -348,7 +348,7 @@ elseif ($_GET['action'] == "browse") {
 	LIMIT {$start}, {$config['pmzahl']}
 	");
 
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		if (empty($row['name'])) {
 			$row['name'] = $lang->phrase('fallback_no_username');
 		}

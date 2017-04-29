@@ -103,7 +103,7 @@ class GPC {
 			elseif ($type == db_esc) {
 				global $db;
 				$var = $this->secure_null($value);
-				$var = $db->escape_string($var);
+				$var = $db->escape($var);
 			}
 			elseif ($type == html_enc) {
 				$var = $this->save_str($value, false);
@@ -193,7 +193,7 @@ class GPC {
 			$var = $this->secure_null($var);
 			$var = viscacha_htmlentities($var, ENT_QUOTES, false); // TODO: UTF8 - Check this
 			if ($db_esc == true && is_object($db)) {
-				$var = $db->escape_string($var);
+				$var = $db->escape($var);
 			}
 			elseif ($db_esc == true) {
 				$var = addslashes($var);

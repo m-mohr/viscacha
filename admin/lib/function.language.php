@@ -74,8 +74,8 @@ function createParentDir($parentfile, $path) {
 function getLangCodes() {
 	global $db;
 	$l = array();
-	$result = $db->query('SELECT id FROM '.$db->pre.'language ORDER BY language');
-	while($row = $db->fetch_assoc($result)) {
+	$result = $db->execute('SELECT id FROM '.$db->pre.'language ORDER BY language');
+	while($row = $result->fetch()) {
 		$settings = return_array('settings', $row['id']);
 		if (!isset($l[$settings['spellcheck_dict']])) {
 			$l[$settings['spellcheck_dict']] = array();

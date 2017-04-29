@@ -41,8 +41,8 @@ class cache_custombb extends CacheItem {
 		}
 		else {
 			$this->data = array();
-			$result = $db->query("SELECT * FROM {$db->pre}bbcode ORDER BY id");
-			while ($bb = $db->fetch_assoc($result)) {
+			$result = $db->execute("SELECT * FROM {$db->pre}bbcode ORDER BY id");
+			while ($bb = $result->fetch()) {
 				preg_match('~\{param(?::((?:\\\}|[^\}])+))?\}~iu', $bb['bbcodereplacement'], $type); // Old: \{param(:(\\\}|[^\}]+))?\}
 				if (empty($type[1])) {
 					$type[1] = null;

@@ -8,10 +8,10 @@ $lang->group("admin/groups");
 
 if ($job == 'manage') {
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	$result = $db->execute("SELECT * FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
 	$cache = array();
 	$delete = 0;
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		if ($row['core'] == 0) {
 			$delete = 1;
 		}
@@ -89,22 +89,22 @@ elseif ($job == 'ajax_changeperm') {
 	if(!is_id($id) || !isset($gls[$key])) {
 		die($lang->phrase('admin_groups_id_or_key_invalid'));
 	}
-	$result = $db->query("SELECT g.{$key}, g.core FROM {$db->pre}groups AS g WHERE id = '{$id}' LIMIT 1");
-	$perm = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT g.{$key}, g.core FROM {$db->pre}groups AS g WHERE id = '{$id}' LIMIT 1");
+	$perm = $result->fetch();
 	if (($key == 'admin' || $key == 'guest') && $perm['core'] == 1) {
 		die($lang->phrase('not_allowed'));
 	}
 	$perm = invert($perm[$key]);
-	$db->query("UPDATE {$db->pre}groups AS g SET g.{$key} = '{$perm}' WHERE id = '{$id}' LIMIT 1");
+	$db->execute("UPDATE {$db->pre}groups AS g SET g.{$key} = '{$perm}' WHERE id = '{$id}' LIMIT 1");
 	$delobj = $scache->load('groups');
 	$delobj->delete();
 	die(strval($perm));
 }
 elseif ($job == 'add') {
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
+	$result = $db->execute("SELECT * FROM {$db->pre}groups ORDER BY admin DESC , guest ASC , core ASC");
 	$cache = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$cache[] = $row;
 	}
 	?>
@@ -213,29 +213,29 @@ elseif ($job == 'add2') {
 		}
 	}
 	else {
-		$result = $db->query("SELECT ".implode(', ', $glk)." FROM {$db->pre}groups WHERE id = '{$copy}' LIMIT 1");
-		$row = $db->fetch_assoc($result);
+		$result = $db->execute("SELECT ".implode(', ', $glk)." FROM {$db->pre}groups WHERE id = '{$copy}' LIMIT 1");
+		$row = $result->fetch();
 		foreach ($glk as $key) {
 			$sql_values .= '"'.$row[$key].'",';
 		}
 	}
 
-	$db->query('INSERT INTO '.$db->pre.'groups ('.implode(',', $glk).',flood,title,name) VALUES ('.$sql_values.'"'.$gpc->get('flood', int).'","'.$gpc->get('title', str).'","'.$gpc->get('name', str).'")');
-	$gid = $db->insert_id();
+	$db->execute('INSERT INTO '.$db->pre.'groups ('.implode(',', $glk).',flood,title,name) VALUES ('.$sql_values.'"'.$gpc->get('flood', int).'","'.$gpc->get('title', str).'","'.$gpc->get('name', str).'")');
+	$gid = $db->getInsertId();
 
 	$copyf = $gpc->get('copyf', int);
 	if ($copy > 0 && $copyf == 1) {
 		$fields = array('f_downloadfiles', 'f_forum', 'f_posttopics', 'f_postreplies', 'f_addvotes', 'f_attachments', 'f_edit', 'f_voting');
-		$result = $db->query("SELECT * FROM {$db->pre}fgroups WHERE gid = '{$gid}'");
-		$fgnum = $db->num_rows($result);
+		$result = $db->execute("SELECT * FROM {$db->pre}fgroups WHERE gid = '{$gid}'");
+		$fgnum = $result->getResultCount();
 		$fgnum2 = 0;
-		while ($row = $db->fetch_assoc($result)) {
+		while ($row = $result->fetch()) {
 			$sql_fvalues = '';
 			foreach ($glk as $key) {
 				$sql_fvalues .= '"'.$gpc->get($key, int).'",';
 			}
-			$db->query("INSERT INTO {$db->pre}fgroups (gid,".implode(',', $fields).",bid) VALUES ('{$gid}',{$sql_fvalues},'{$row['bid']}')");
-			$fgnum2 += $db->affected_rows();
+			$db->execute("INSERT INTO {$db->pre}fgroups (gid,".implode(',', $fields).",bid) VALUES ('{$gid}',{$sql_fvalues},'{$row['bid']}')");
+			$fgnum2 += $db->getAffectedRows();
 		}
 	}
 
@@ -259,9 +259,9 @@ elseif ($job == 'delete') {
 	$del = $gpc->get('delete', arr_int);
 	$edit = $gpc->get('edit', int);
 	if (isset($_POST['submit_delete']) && count($del) > 0) {
-		$db->query("DELETE FROM {$db->pre}groups WHERE id IN (".implode(',',$del).")");
-		$anz = $db->affected_rows();
-		$db->query("DELETE FROM {$db->pre}fgroups WHERE gid IN (".implode(',',$del).")");
+		$db->execute("DELETE FROM {$db->pre}groups WHERE id IN (".implode(',',$del).")");
+		$anz = $db->getAffectedRows();
+		$db->execute("DELETE FROM {$db->pre}fgroups WHERE gid IN (".implode(',',$del).")");
 		$delobj = $scache->load('groups');
 		$delobj->delete();
 		$delobj = $scache->load('fgroups');
@@ -279,11 +279,11 @@ elseif ($job == 'delete') {
 elseif ($job == 'edit') {
 	$id = $gpc->get('id', int);
 	echo head();
-	$result = $db->query("SELECT * FROM {$db->pre}groups WHERE id = '{$id}' LIMIT 1");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute("SELECT * FROM {$db->pre}groups WHERE id = '{$id}' LIMIT 1");
+	if ($result->getResultCount() != 1) {
 		error('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_no_valid_id_given'));
 	}
-	$data = $db->fetch_assoc($result);
+	$data = $result->fetch();
 	?>
 <form name="form" method="post" action="admin.php?action=groups&amp;job=edit2&amp;id=<?php echo $id; ?>">
  <table class="border">
@@ -330,11 +330,11 @@ elseif ($job == 'edit2') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT * FROM {$db->pre}groups WHERE id = {$id} LIMIT 1");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute("SELECT * FROM {$db->pre}groups WHERE id = {$id} LIMIT 1");
+	if ($result->getResultCount() != 1) {
 		error('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_no_valid_id_given'));
 	}
-	$data = $db->fetch_assoc($result); // FIXME
+	$data = $result->fetch(); // FIXME
 
 	$sql_values = '';
 	foreach ($glk as $key) {
@@ -345,12 +345,12 @@ elseif ($job == 'edit2') {
 		}
 	}
 
-	$db->query('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1');
+	$db->execute('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1');
 
 	$delobj = $scache->load('groups');
 	$delobj->delete();
 
-	if ($db->affected_rows()) {
+	if ($db->getAffectedRows()) {
 		ok('admin.php?action=groups&job=manage');
 	}
 	else {

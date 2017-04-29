@@ -27,7 +27,6 @@ namespace Viscacha\Database;
 
 class Database {
 
-	private static $instance = null;
 	protected $system;
 	protected $host;
 	protected $user;
@@ -37,7 +36,6 @@ class Database {
 	protected $collate;
 	public $pre; // TODO: Make protected
 	protected $connection;
-	protected $lastStatament;
 
 	/**
 	 * Initializes a connection
@@ -51,7 +49,6 @@ class Database {
 	 * @throws PDOException
 	 */
 	function __construct($system, $user, $password, $host = "localhost", $database = null, $prefix = 'v_', $charset = '', $collate = '') {
-		$this->lastStatament = null;
 		$this->system = $system;
 		$this->host = $host;
 		$this->user = $user;
@@ -62,10 +59,6 @@ class Database {
 		$this->collate = $collate;
 		$this->connect();
 	}
-
-	public static function getInstance() {
-		return self::$instance;
-	}
 	
 	protected function connect() {
 		$settings = array(
@@ -74,14 +67,15 @@ class Database {
 		);
 		if ($this->system == 'mysql') {
 			$settings[\PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES {$this->charset} COLLATE {$this->collate};";
-		} // ;charset={$this->charset}
-		$this->connection = new \PDO("{$this->system}:host={$this->host};dbname={$this->database}", $this->user, $this->password, $settings);
+			$settings[\PDO::MYSQL_ATTR_MULTI_STATEMENTS] = false;
+		} 
+		$this->connection = new \PDO("{$this->system}:host={$this->host};dbname={$this->database};charset={$this->charset}", $this->user, $this->password, $settings);
 	}
 
-	public function makeGlobal($alias = null) {
-		self::$instance = $this;
+	public function populateGlobal($alias = null) {
+		DB::setInstance($this);
 		if ($alias !== null) {
-			class_alias(get_class($this), $alias);
+			class_alias(DB::class, $alias);
 		}
 	}
 	
@@ -138,198 +132,129 @@ class Database {
 		return $this->connection->commit();
 	}
 
-	function rollback() {
+	public function rollback() {
 		return $this->connection->rollBack();
 	}
 
-
-	function error($errcomment) {
-		// Try to get better results for line and file.
-		if (function_exists('debug_backtrace') == true) {
-			$backtraceInfo = debug_backtrace();
-			// 0 is class.mysqli.php, 1 is the calling code...
-			if (isset($backtraceInfo[1]) == true) {
-				$errline = $backtraceInfo[1]['line'];
-				$errfile = $backtraceInfo[1]['file'];
-			}
-		}
-
-		$cols = array(
-			$this->errno(),
-			makeOneLine($this->errstr()),
-			$errfile,
-			$errline,
-			makeOneLine($_SERVER['REQUEST_URI']),
-			time(),
-			makeOneLine($errcomment)
-		);
-		$line = implode("\t", $cols);
-		\Debug::error($line);
-
-		$errcomment = nl2br($errcomment);
-		return "DB ERROR " . $this->errno() . ": " . $this->errstr() . "<br />File: {$errfile} on line {$errline}<br />Query: <code>{$errcomment}</code>";
+	public function getTables() {
+		return $this->builder()->listTables()->fetchList();
 	}
 
-	function list_tables() {
-		$result = $this->builder()->listTables()->execute();
-		// ToDo: FetchColumn
-		$tables = array();
-		while ($row = $result->fetch_num()) {
-			$tables[] = $row[0];
-		}
-		return $tables;
+	public function getColumns($table) {
+		$result = $this->builder()->listColumns()->fetchList('Field'); // ToDo: Field is proprietary for MySQL => generalize
 	}
 
-	function list_fields($table) {
-		$result = $this->builder()->listColumns()->execute();
-		$columns = array();
-		while ($row = $this->fetch_assoc($result)) {
-			$columns[] = $row['Field'];
-		}
-		return $columns;
-	}
-
-	function version() {
+	public function getVersion() {
 		return $this->connection->getAttribute(\PDO::ATTR_SERVER_VERSION);
 	}
 
-	function errno() {
+	public function getErrorNumber() {
 		return $this->connection->errorCode();
 	}
 
-	function errstr() {
+	public function getErrorMessage() {
 		$error = $this->connection->errorInfo();
 		return $error[2];
 	}
+	
+	public function fetch($sql, $values = array()) {
+		$stmt = $this->execute($sql, $values);
+		return $stmt->fetch($colum);
+	}
+	
+	public function fetchObject($sql, $values = array()) {
+		$stmt = $this->execute($sql, $values);
+		return $stmt->fetchObject($colum);
+	}
+	
+	public function fetchOne($sql, $values = array(), $colum = 1) {
+		$stmt = $this->execute($sql, $values);
+		if ($stmt) {
+			return $stmt->fetchOne($colum);
+		}
+		else {
+			return false;
+		}
+	}
+	
+	public function fetchMatrix($sql, $values = array()) {
+		$stmt = $this->execute($sql, $values);
+		return $stmt->fetchMatrix($colum);
+	}
+	
+	public function fetchObjectMatrix($sql, $values = array()) {
+		$stmt = $this->execute($sql, $values);
+		return $stmt->fetchObject($colum);
+	}
+	
+	public function fetchList($sql, $values = array(), $column = 1) {
+		$stmt = $this->execute($sql, $values);
+		return $stmt->fetchList($colum);
+	}
 
-	function query($sql, $values = array()) {
+	public function execute($sql, $values = array()) {
 		\Debug::startMeasurement("Database::query()");
-		$stmt = $this->connection->prepare($sql);
-		$stmt->execute($values);
-		\Debug::stopMeasurement("Database::query()", array('query' => $sql, 'type' => 'db'));
+		try {
+			$stmt = $this->connection->prepare($sql);
+			$stmt->execute($values);
+		} catch(PDOException $e) {
+			throw $e;
+		} finally {
+			\Debug::stopMeasurement("Database::query()", array('query' => $sql, 'type' => 'db'));
+		}
 		
 		if ($stmt instanceof \PDOStatement) {
-			$stmt = new Result($stmt);
+			return new Result($stmt, $sql, $values);
 		}
-		$this->lastStatament = $stmt;
-
 		return $stmt;
 	}
 
-	function multi_query($queries) { // ToDo: Implement
-		throw new NotImplementedException();
-/*		$s = array('queries' => array(), 'ok' => 0, 'affected' => 0);
-		$lines = preg_split("\r", "\n", $lines, PREG_SPLIT_NO_EMPTY);
-		$lines = explode("\n", $lines);
-		$lines = array_map("trim", $lines);
-		$line = '';
+	public function executeMultiple($sql) { // ToDo: Implement
+		$statements = array();
+		$lines = preg_split('~\s*(\r\n|\r|\n)\s*~u', $sql, -1, PREG_SPLIT_NO_EMPTY);
+		$sqlWithoutComments = '';
 		foreach ($lines as $h) {
 			$comment = mb_substr($h, 0, 2);
+			// ToDo: Comment chars are for MySQL => generalize
 			if ($comment == '--' || $comment == '//' || empty($h)) {
 				continue;
 			}
-			$line .= $h . "\n";
+			$sqlWithoutComments .= $h . PHP_EOL;
 		}
-		$lines = array_map('trim', explode(";\n", $line));
-		foreach ($lines as $h) {
-			if (!empty($h)) {
-				unset($result);
-				$result = $this->query($h, $die);
-				if ($this->isResultSet($result)) {
-					if ($this->num_rows($result) > 0) {
-						$x = array();
-						while ($row = $this->fetch_assoc($result)) {
-							$x[] = $row;
-						}
-						$s['queries'][] = $x;
-					}
-				}
-				if ($result == true) {
-					$s['affected'] = $this->affected_rows();
-				}
-				if ($result) {
-					$s['ok'] ++;
-				}
-			}
+		// ToDo: Query separation char (;) might be MySQL only => generalize
+		$queries = preg_split('~\s*;\s*(\r\n|\r|\n)\s*~u', $sqlWithoutComments, -1, PREG_SPLIT_NO_EMPTY);
+		foreach ($queries as $query) {
+			$stmt = $this->execute($query);
+			$stmt->cache();
+			$statements[] = $stmt;
 		}
-		return $s; */
+		return $statements;
 	}
 
-	function insert_id() {
+	public function getInsertId() {
 		return $this->connection->lastInsertId();
 	}
 
-	function escape_string($value) {
+	public function escape($value) {
 		return trim($this->connection->quote($value), "'"); // Remove the trim stuff
 	}
 	
-	public function __call($name, $arguments) {
-		$statement = $this->lastStatament;
-		if (isset($arguments[0]) && $arguments[0] instanceof Result) {
-			$statement = $arguments[0];
-		}
-		if (!($statement instanceof Result)) {
-			trigger_error("Invalid result specified", E_USER_NOTICE);
-		}
-		$callable = array($statement, $name);
-		if (is_callable($callable)) {
-			return call_user_func_array($callable, $arguments);
-		}
-		
-		trigger_error("Inaccessible method '{$name}'", E_USER_NOTICE);
-	}
 }
 
-class Result {
-
-	private $statement;
+class DB {
 	
-	public function __construct(\PDOStatement $pdoStatement) {
-		$this->statement = $pdoStatement;
+	private static $instance = null;
+
+	public static function getInstance() {
+		return self::$instance;
 	}
 
-	public function num_rows() {
-		return $this->affected_rows(); // ToDo: Remove from code
+	public static function setInstance(Database $instance) {
+		self::$instance = $instance;
 	}
 
-	public function num_fields() {
-		return $this->statement->columnCount();
+	public static function __callStatic($name, $arguments) {
+		return call_user_func_array(array(self::$instance, $name), $arguments);
 	}
-
-	public function fetch_all_assoc() {
-		return $this->statement->fetchAll(\PDO::FETCH_ASSOC);
-	}
-
-	public function fetch_all_object() {
-		return $this->statement->fetchAll(\PDO::FETCH_OBJ);
-	}
-
-	public function fetch_assoc() {
-		return $this->statement->fetch(\PDO::FETCH_ASSOC);
-	}
-
-	public function fetch_object() {
-		return $this->statement->fetch(\PDO::FETCH_OBJ);
-	}
-
-	public function fetch_one($column = 1) {
-		if (is_string($column)) {
-			$row = $this->fetch_assoc();
-		}
-		else {
-			$row = $this->fetch_num();
-			$column--;
-		}
-		return isset($row[$column]) ? $row[$column] : null;
-	}
-
-	public function fetch_column($column = 1) {
-		$row = $this->fetch_num($result);
-		return isset($row[$column - 1]) ? $row[$column - 1] : null;
-	}
-
-	public function affected_rows() {
-		return $this->statement->rowCount();
-	}
-
+	
 }

@@ -10,9 +10,9 @@ class cache_smileys extends CacheItem {
 		}
 		else {
 			$this->data = array();
-			$result = $db->query("SELECT s.search, s.replace, s.desc, s.show FROM {$db->pre}smileys AS s");
+			$result = $db->execute("SELECT s.search, s.replace, s.desc, s.show FROM {$db->pre}smileys AS s");
 			$this->data = array();
-			while ($smiley = $db->fetch_assoc($result)) {
+			while ($smiley = $result->fetch()) {
 				$smiley['jssearch'] = addslashes($smiley['search']);
 				$smiley['desc'] = viscacha_htmlspecialchars($smiley['desc']);
 				$smiley['search'] = viscacha_htmlentities($smiley['search']);

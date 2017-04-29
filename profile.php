@@ -40,8 +40,8 @@ if ($my->p['profile'] != 1) {
 Breadcrumb::universal()->add($lang->phrase('members'), 'members.php'.SID2URL_1);
 
 if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail')) {
-	$result = $db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$_GET['id']}'");
-	$row = $db->fetch_object($result);
+	$result = $db->execute("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$_GET['id']}'");
+	$row = $result->fetchObject();
 	$username = $row->name;
 	Breadcrumb::universal()->add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].SID2URL_x);
 	Breadcrumb::universal()->add($lang->phrase('profile_mail_2'));
@@ -106,10 +106,10 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail')) {
 else {
 	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.deleted_at IS NULL AND u.id = {$_GET['id']}");
+	$result = $db->execute("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.deleted_at IS NULL AND u.id = {$_GET['id']}");
 
-	if ($db->num_rows($result) == 1) {
-		$row = $db->fetch_object($result);
+	if ($result->getResultCount() == 1) {
+		$row = $result->fetchObject();
 
 		$username = $row->name;
 		Breadcrumb::universal()->add($lang->phrase('profile_title'));
@@ -162,8 +162,8 @@ else {
 			$bday[1] = $lang->phrase('months_'.intval($bday[1]));
 		}
 
-		$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
-		$wwo = $db->fetch_assoc($result);
+		$result = $db->execute('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
+		$wwo = $result->fetch();
 		$osi = ($wwo['mid'] > 0);
 
 		// Custom Profile Fields

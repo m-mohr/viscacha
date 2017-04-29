@@ -67,7 +67,7 @@ function check_pw($password, $hash) {
 		$var = mb_convert_encoding($password, "ISO-8859-15");
 		$var = preg_replace('~(script|about|applet|activex|chrome|mocha):~isu', "\\1&#058;", $var);
 		$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-15', false);
-		$var = $db->escape_string($var);
+		$var = $db->escape($var);
 		return (md5($var) == $hash);
 	}
 	else {
@@ -265,8 +265,8 @@ function array_empty_trim($array) {
 
 function double_udata ($opt,$val) {
 	global $db;
-	$result = $db->query("SELECT id FROM {$db->pre}user WHERE {$opt} = '{$val}' LIMIT 1");
-	return ($db->num_rows($result) == 0);
+	$result = $db->execute("SELECT id FROM {$db->pre}user WHERE {$opt} = '{$val}' LIMIT 1");
+	return ($result->getResultCount() == 0);
 }
 
 function getDocLangID($data) {
@@ -559,21 +559,21 @@ function get_extension($url, $include_dot = false) {
 
 function UpdateBoardStats($board) {
 	global $db, $scache;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id WHERE t.board = '{$board}'");
-	$count = $db->fetch_one($result);
+	$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id WHERE t.board = '{$board}'");
+	$count = $result->fetchOne();
 
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}'");
-	$count2 = $db->fetch_one($result);
+	$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}'");
+	$count2 = $result->fetchOne();
 
 	$replies = $count-$count2;
 	$topics = $count2;
 
-	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
-	$last = $db->fetch_one($result);
+	$result = $db->execute("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
+	$last = $result->fetchOne();
 	if (empty($last)) {
 		$last = 0;
 	}
-	$db->query("
+	$db->execute("
 	UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last}'
 	WHERE id = '{$board}'
 	");
@@ -583,19 +583,19 @@ function UpdateBoardStats($board) {
 
 function UpdateBoardLastStats($board) {
 	global $db;
-	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
-	$last = $db->fetch_one($result);
+	$result = $db->execute("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
+	$last = $result->fetchOne();
 	if (empty($last)) {
 		$last = 0;
 	}
-	$db->query("UPDATE {$db->pre}forums SET last_topic = '{$last}' WHERE id = '{$board}'");
+	$db->execute("UPDATE {$db->pre}forums SET last_topic = '{$last}' WHERE id = '{$board}'");
 }
 
 function UpdateMemberStats($id) {
 	global $db;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}'");
-	$count = $db->fetch_one ($result);
-	$db->query("UPDATE {$db->pre}user SET posts = '{$count}' WHERE id = '{$id}' AND deleted_at IS NULL");
+	$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}'");
+	$count = $result->fetchOne();
+	$db->execute("UPDATE {$db->pre}user SET posts = '{$count}' WHERE id = '{$id}' AND deleted_at IS NULL");
 	return $count;
 }
 

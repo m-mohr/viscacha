@@ -64,7 +64,7 @@ if ($_GET['action'] == "pw2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_pw2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '{$my->id}' LIMIT 1");
+		$db->execute("UPDATE {$db->pre}user SET pw = MD5('{$_POST['pwx']}') WHERE id = '{$my->id}' LIMIT 1");
 		$slog->sid_logout();
 		ok($lang->phrase('editprofile_pw_success'), "log.php".SID2URL_1);
 	}
@@ -73,12 +73,12 @@ if ($_GET['action'] == "pw2") {
 elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 	if (count($_POST['delete']) > 0) {
 		($code = $plugins->load('editprofile_attachments2_start')) ? eval($code) : null;
-		$result = $db->query ("SELECT source FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")");
-		while ($row = $db->fetch_assoc($result)) {
+		$result = $db->execute ("SELECT source FROM {$db->pre}uploads WHERE mid = '$my->id' AND id IN(".implode(',', $_POST['delete']).")");
+		while ($row = $result->fetch()) {
 			$filesystem->unlink('uploads/topics/'.$row['source']);
 		}
-		$db->query ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")");
-		$anz = $db->affected_rows();
+		$db->execute ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")");
+		$anz = $db->getAffectedRows();
 		ok($lang->phrase('editprofile_attachments_deleted'), "editprofile.php?action=attachments".SID2URL_x);
 	}
 	else {
@@ -90,7 +90,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	Breadcrumb::universal()->add($lang->phrase('editprofile_attachments'));
 
 	($code = $plugins->load('editprofile_attachments_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT t.board, t.topic, u.id, u.tid, u.file, u.source
 	FROM {$db->pre}uploads AS u
 		LEFT JOIN {$db->pre}replies AS r ON r.id = u.tid
@@ -101,7 +101,7 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 
 	$all = array(0,0,0);
 	$cache = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$uppath = 'uploads/topics/'.$row['source'];
 		$fsize = filesize($uppath);
 		$all[0]++;
@@ -132,7 +132,7 @@ elseif ($_GET['action'] == "abos") {
 	}
 
 	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.board, t.posts, t.status, l.id AS luid, l.name AS luname
 	FROM {$db->pre}abos AS a
 		LEFT JOIN {$db->pre}topics AS t ON a.tid = t.id
@@ -148,7 +148,7 @@ elseif ($_GET['action'] == "abos") {
 	$fc = $catbid->get();
 
 	$cache = array();
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$info = $fc[$row['board']];
 		if ($info['topiczahl'] < 1) {
 			$info['topiczahl'] = $config['topiczahl'];
@@ -196,8 +196,8 @@ elseif ($_GET['action'] == "abos2") {
 	$anz = 0;
 	if (count($_POST['delete']) > 0) {
 		$delete = implode(',', $_POST['delete']);
-		$db->query ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})");
-		$anz = $db->affected_rows();
+		$db->execute ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})");
+		$anz = $db->getAffectedRows();
 	}
 
 	$anz2 = 0;
@@ -209,8 +209,8 @@ elseif ($_GET['action'] == "abos2") {
 		foreach ($update as $type => $ids) {
 			if (count($ids) > 0) {
 				$ids = implode(',', $ids);
-				$db->query("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})");
-				$anz2 += $db->affected_rows();
+				$db->execute("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})");
+				$anz2 += $db->getAffectedRows();
 			}
 		}
 	}
@@ -238,7 +238,7 @@ elseif ($_GET['action'] == "signature") {
 			error($error, "editprofile.php?action=signature".SID2URL_x);
 		}
 		else {
-			$db->query("UPDATE {$db->pre}user SET signature = '{$_POST['signature']}' WHERE id = '{$my->id}' LIMIT 1");
+			$db->execute("UPDATE {$db->pre}user SET signature = '{$_POST['signature']}' WHERE id = '{$my->id}' LIMIT 1");
 			ok($lang->phrase('data_success'), "editprofile.php?action=signature".SID2URL_x);
 		}
 	}
@@ -282,7 +282,7 @@ elseif ($_GET['action'] == "about2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_about2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET about = '{$_POST['about']}' WHERE id = '{$my->id}'");
+		$db->execute("UPDATE {$db->pre}user SET about = '{$_POST['about']}' WHERE id = '{$my->id}'");
 		ok($lang->phrase('data_success'), "editprofile.php?action=about".SID2URL_x);
 	}
 
@@ -325,7 +325,7 @@ elseif ($_GET['action'] == "pic3") {
 		errorLogin($lang->phrase('not_allowed'), "editprofile.php");
 	}
 	removeOldImages('uploads/pics/', $my->id);
-	$db->query("UPDATE {$db->pre}user SET pic = '' WHERE id = '{$my->id}' LIMIT 1");
+	$db->execute("UPDATE {$db->pre}user SET pic = '' WHERE id = '{$my->id}' LIMIT 1");
 	($code = $plugins->load('editprofile_pic3_end')) ? eval($code) : null;
 	ok($lang->phrase('editprofile_pic_success'), "editprofile.php?action=pic".SID2URL_x);
 
@@ -393,7 +393,7 @@ elseif ($_GET['action'] == "pic2") {
 	}
 	else {
 		($code = $plugins->load('editprofile_pic2_query')) ? eval($code) : null;
-		$db->query("UPDATE {$db->pre}user SET pic = '{$my->pic}' WHERE id = '{$my->id}' LIMIT 1");
+		$db->execute("UPDATE {$db->pre}user SET pic = '{$my->pic}' WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('editprofile_pic_success'), "editprofile.php?action=pic".SID2URL_x);
 	}
 }
@@ -518,7 +518,7 @@ elseif ($_GET['action'] == "profile2") {
 
 		($code = $plugins->load('editprofile_profile2_query')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
+		$db->execute("UPDATE {$db->pre}user SET birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('data_success'), "editprofile.php?action=profile".SID2URL_x);
 	}
 
@@ -528,8 +528,8 @@ elseif ($_GET['action'] == "settings") {
 
 	Breadcrumb::universal()->add($lang->phrase('editprofile_settings'));
 
-	$result = $db->query("SELECT language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
-	$update = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT language FROM {$db->pre}user WHERE id = '{$my->id}' LIMIT 1");
+	$update = $result->fetch();
 
 	$loaddesign_obj = $scache->load('loaddesign');
 	$design = $loaddesign_obj->get();
@@ -601,7 +601,7 @@ elseif ($_GET['action'] == "settings2") {
 			unset($my->settings['q_lng']);
 		}
 
-		$db->query("
+		$db->execute("
 		UPDATE {$db->pre}user
 		SET ".
 			iif(($config['hidedesign'] == 0 && !empty($_POST['opt_4'])), "theme = '{$_POST['opt_4']}',").
@@ -624,13 +624,13 @@ elseif ($_GET['action'] == "mylast") {
 	$cache = array();
 
 	($code = $plugins->load('editprofile_mylast_query')) ? eval($code) : null;
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT COUNT(*)
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE r.name = '{$my->id}' AND f.invisible != '2'");
-	$counter = $db->fetch_one($result);
+	$counter = $result->fetchOne();
 	$entry_count = $counter;
 	
 	if (ceil($entry_count/$config['mylastzahl']) < $_GET['page']) {
@@ -638,7 +638,7 @@ elseif ($_GET['action'] == "mylast") {
 	}
 	$start = ($_GET['page'] - 1) * $config['mylastzahl'];
 	
-	$result = $db->query("
+	$result = $db->execute("
 	SELECT t.last, t.posts, t.id, t.board, t.topic, r.date, r.name, t.prefix, t.status, r.id AS pid
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
@@ -654,7 +654,7 @@ elseif ($_GET['action'] == "mylast") {
 	$catbid = $scache->load('cat_bid');
 	$fc = $catbid->get();
 
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		$info = $fc[$row['board']];
 		if ($info['topiczahl'] < 1) {
 			$info['topiczahl'] = $config['topiczahl'];
@@ -678,11 +678,11 @@ elseif ($_GET['action'] == "mylast") {
 	($code = $plugins->load('editprofile_mylast_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "addabo") {
-	$result = $db->query("SELECT id, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute("SELECT id, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
+	if ($result->getResultCount() != 1) {
 		error($lang->phrase('no_id_given'));
 	}
-	$info = $db->fetch_assoc($result);
+	$info = $result->fetch();
 	$my->p = $slog->Permissions($info['board']);
 
 	$catbid = $scache->load('cat_bid');
@@ -712,22 +712,22 @@ elseif ($_GET['action'] == "addabo") {
 	}
 
 	($code = $plugins->load('editprofile_addabo_prepared')) ? eval($code) : null;
-	$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE tid = '{$info['id']}' AND mid = '{$my->id}'");
-	if ($db->num_rows($result) > 0) {
+	$result = $db->execute("SELECT id, type FROM {$db->pre}abos WHERE tid = '{$info['id']}' AND mid = '{$my->id}'");
+	if ($result->getResultCount() > 0) {
 		error($lang->phrase('addabo_error'));
 	}
 	else {
-		$db->query("INSERT INTO {$db->pre}abos (tid, mid, type) VALUES ('{$_GET['id']}', '{$my->id}', '{$type}')");
+		$db->execute("INSERT INTO {$db->pre}abos (tid, mid, type) VALUES ('{$_GET['id']}', '{$my->id}', '{$type}')");
 		ok($lang->phrase('subscribed_successfully'));
 	}
 }
 elseif ($_GET['action'] == "removeabo") {
 	($code = $plugins->load('editprofile_removeabo_start')) ? eval($code) : null;
-	$result = $db->query('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
+	if ($result->getResultCount() != 1) {
 		error($lang->phrase('no_id_given'));
 	}
-	$info = $db->fetch_assoc($result);
+	$info = $result->fetch();
 	$my->p = $slog->Permissions($info['board']);
 
 	$catbid = $scache->load('cat_bid');
@@ -736,7 +736,7 @@ elseif ($_GET['action'] == "removeabo") {
 	forum_opt($last);
 
 	($code = $plugins->load('editprofile_removeabo_prepared')) ? eval($code) : null;
-	$db->query("DELETE FROM {$db->pre}abos WHERE tid = '{$_GET['id']}' AND mid = '{$my->id}' LIMIT 1");
+	$db->execute("DELETE FROM {$db->pre}abos WHERE tid = '{$_GET['id']}' AND mid = '{$my->id}' LIMIT 1");
 	ok($lang->phrase('unsubscribed_successfully'));
 }
 else {

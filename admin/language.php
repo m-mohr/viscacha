@@ -39,7 +39,7 @@ $mailbase = array(
 
 if ($job == 'manage') {
 	echo head();
-	$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
+	$result = $db->execute('SELECT * FROM '.$db->pre.'language ORDER BY language');
 	?>
  <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
   <tr>
@@ -59,7 +59,7 @@ if ($job == 'manage') {
    <td class="ubox" width="34%"><?php echo $lang->phrase('admin_lang_action'); ?></td>
   </tr>
   <?php
-  while ($row = $db->fetch_assoc($result)) {
+  while ($row = $result->fetch()) {
   	$settings = $gpc->prepare(return_array('settings', $row['id']));
   ?>
   <tr>
@@ -85,19 +85,19 @@ if ($job == 'manage') {
 }
 elseif ($job == 'ajax_publicuse') {
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$use = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$use = $result->fetch();
 	if ($use['publicuse'] == 1) {
 		if ($id == $config['langdir']) {
 			die($lang->phrase('admin_lang_cannot_unpublish_until_defined_other_lang'));
 		}
-		$result = $db->query("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
-		if ($db->num_rows($result) == 1) {
+		$result = $db->execute("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
+		if ($result->getResultCount() == 1) {
 			die($lang->phrase('admin_lang_cannot_unpublish_because_no_other_lang'));
 		}
 	}
 	$use = invert($use['publicuse']);
-	$db->query("UPDATE {$db->pre}language SET publicuse = '{$use}' WHERE id = '{$id}' LIMIT 1");
+	$db->execute("UPDATE {$db->pre}language SET publicuse = '{$use}' WHERE id = '{$id}' LIMIT 1");
 	$delobj = $scache->load('loadlanguage');
 	$delobj->delete();
 	die(strval($use));
@@ -105,7 +105,7 @@ elseif ($job == 'ajax_publicuse') {
 elseif ($job == 'import') {
 	echo head();
 	$file = $gpc->get('file', path);
-	$result = $db->query('SELECT id, language FROM '.$db->pre.'language ORDER BY language');
+	$result = $db->execute('SELECT id, language FROM '.$db->pre.'language ORDER BY language');
 	?>
 <form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=language&job=import2">
  <table class="border" cellpadding="4" cellspacing="0" border="0">
@@ -117,7 +117,7 @@ elseif ($job == 'import') {
   <tr><td class="mbox"><?php echo $lang->phrase('admin_lang_overwrite_lang'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_lang_leave_blank_create_new_lang'); ?></span></td>
   <td class="mbox"><select name="overwrite">
 	<option value="0"><?php echo $lang->phrase('admin_lang_create_new_lang'); ?></option>
-   <?php while ($row = $db->fetch_assoc($result)) { ?>
+   <?php while ($row = $result->fetch()) { ?>
 	<option value="<?php echo $row['id']; ?>"><?php echo $row['language']; ?></option>
    <?php } ?>
   </select></td></tr>
@@ -194,11 +194,11 @@ elseif ($job == 'import2') {
 	$inserted = false;
 	if ($overwrite == 0) {
 		// We insert some error data and overwrite it later on successful creation
-		$langTitle = $db->escape_string($lang->phrase('admin_lang_new_langpack'));
-		$langDetails = $db->escape_string($lang->phrase('admin_lang_langpack_import_error'));
-		$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES ('{$langTitle}', '{$langDetails}')");
+		$langTitle = $db->escape($lang->phrase('admin_lang_new_langpack'));
+		$langDetails = $db->escape($lang->phrase('admin_lang_langpack_import_error'));
+		$db->execute("INSERT INTO {$db->pre}language (language, detail) VALUES ('{$langTitle}', '{$langDetails}')");
 		$inserted = true;
-		$overwrite = $db->insert_id();
+		$overwrite = $db->getInsertId();
 	}
 	$newdir = "language/{$overwrite}/";
 
@@ -209,7 +209,7 @@ elseif ($job == 'import2') {
 
 	$info = return_array('settings', $overwrite);
 	if (isset($info['lang_name'])) {
-		$db->query("UPDATE {$db->pre}language SET language = '{$info['lang_name']}', detail = '{$info['lang_description']}' WHERE id = '{$overwrite}' LIMIT 1");
+		$db->execute("UPDATE {$db->pre}language SET language = '{$info['lang_name']}', detail = '{$info['lang_description']}' WHERE id = '{$overwrite}' LIMIT 1");
 		unset($archive);
 		if ($del == 1) {
 			$filesystem->unlink($file);
@@ -220,7 +220,7 @@ elseif ($job == 'import2') {
 	}
 	else {
 		if ($inserted) {
-			$db->query("DELETE FROM {$db->pre}language WHERE id = '{$overwrite}' LIMIT 1");
+			$db->execute("DELETE FROM {$db->pre}language WHERE id = '{$overwrite}' LIMIT 1");
 		}
 		unset($archive);
 		if ($del == 1) {
@@ -232,8 +232,8 @@ elseif ($job == 'import2') {
 elseif ($job == 'export') {
 	$id = $gpc->get('id', int);
 
-	$result = $db->query('SELECT language, detail FROM '.$db->pre.'language WHERE id = "'.$id.'" LIMIT 1');
-	$row = $db->fetch_assoc($result);
+	$result = $db->execute('SELECT language, detail FROM '.$db->pre.'language WHERE id = "'.$id.'" LIMIT 1');
+	$row = $result->fetch();
 
 	$file = convert2adress($row['language'].'-v'.str_replace(' ', '', $config['version'])).'.zip';
 	$dir = "language/{$id}/";
@@ -287,8 +287,8 @@ elseif ($job == 'lang_copy2') {
 	$id = $gpc->get('id', int);
 	$name = $gpc->get('name', str);
 	$desc = $gpc->get('desc', str);
-	$db->query("INSERT INTO {$db->pre}language (language, detail) VALUES ('{$name}', '{$desc}')");
-	$newid = $db->insert_id();
+	$db->execute("INSERT INTO {$db->pre}language (language, detail) VALUES ('{$name}', '{$desc}')");
+	$newid = $db->getInsertId();
 	$filesystem->mkdir("language/{$newid}/", 0777);
 	$filesystem->copyr("language/{$id}/", "language/{$newid}/");
 	$delobj = $scache->load('loadlanguage');
@@ -317,21 +317,21 @@ elseif ($job == 'lang_delete2') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$result = $db->query("SELECT id FROM {$db->pre}language WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute("SELECT id FROM {$db->pre}language WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
+	if ($result->getResultCount() != 1) {
 		error('admin.php?action=language&job=manage', $lang->phrase('admin_lang_cannot_delete_last_installed_lang'));
 	}
 
-	$result = $db->query("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$info = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$info = $result->fetch();
 
 	if ($info['publicuse'] == 1) {
 		error('admin.php?action=language&job=manage', $lang->phrase('admin_lang_cannot_unpublish_lang_until_unpublish'));
 	}
 
-	$db->query("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$db->execute("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
 
-	if ($db->affected_rows() == 1) {
+	if ($db->getAffectedRows() == 1) {
 		$filesystem->rmdirr("language/{$id}/");
 		$delobj = $scache->load('loadlanguage');
 		$delobj->delete();
@@ -344,8 +344,8 @@ elseif ($job == 'lang_delete2') {
 elseif ($job == 'lang_settings') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->query("SELECT language, detail, publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$data = $gpc->prepare($db->fetch_assoc($result));
+	$result = $db->execute("SELECT language, detail, publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$data = $gpc->prepare($result->fetch());
 	$settings = $gpc->prepare(return_array('settings', $id));
 	if (empty($settings['html_read_direction'])) {
 		$settings['html_read_direction'] = 'ltr';
@@ -471,15 +471,15 @@ elseif ($job == 'lang_settings2') {
 	$language = $gpc->get('language', str);
 	$error = '';
 
-	$result = $db->query("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$puse = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$puse = $result->fetch();
 	if ($puse['publicuse'] == 1 && $use == 0) {
 		if ($id == $config['langdir']) {
 			$error .= $lang->phrase('admin_lang_but_cannot_unpublish_until_defined_another_lang');
 			$use = 1;
 		}
-		$result = $db->query("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
-		if ($db->num_rows($result) == 1) {
+		$result = $db->execute("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
+		if ($result->getResultCount() == 1) {
 			$error .= $lang->phrase('admin_lang_but_cannot_unpublish_because_no_other_lang_published');
 			$use = 1;
 		}
@@ -494,7 +494,7 @@ elseif ($job == 'lang_settings2') {
 		$scd = $lc;
 	}
 
-	$db->query("UPDATE {$db->pre}language SET publicuse = '{$use}', language = '{$language}', detail = '{$detail}' WHERE id = '{$id}' LIMIT 1");
+	$db->execute("UPDATE {$db->pre}language SET publicuse = '{$use}', language = '{$language}', detail = '{$detail}' WHERE id = '{$id}' LIMIT 1");
 
 	$c = new manageconfig();
 	$c->getdata("language/{$id}/settings.lng.php", 'lang');
@@ -738,8 +738,8 @@ elseif ($job == 'lang_array') {
 	<a class="button" href="#" id="menu_acp_switchlang" onmouseover="RegisterMenu('acp_switchlang');"><?php echo $lang->phrase('admin_lang_switch_to_lang'); ?> &#8628;</a>
 	<div class="popup" id="popup_acp_switchlang"><ul>
 	<?php
-	$result = $db->query('SELECT id, language FROM '.$db->pre.'language ORDER BY language');
-	while($row = $db->fetch_assoc($result)) {
+	$result = $db->execute('SELECT id, language FROM '.$db->pre.'language ORDER BY language');
+	while($row = $result->fetch()) {
 		if ($row['id'] == $id) {
 			continue;
 		}
@@ -814,8 +814,8 @@ elseif ($job == 'lang_array2') {
 
 	// Delete phrases from all languages
 	if (count($delete) > 0) {
-		$result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-		while($row = $db->fetch_assoc($result)) {
+		$result = $db->execute('SELECT * FROM '.$db->pre.'language ORDER BY language');
+		while($row = $result->fetch()) {
 			$path = "language/{$row['id']}/{$file}.lng.php";
 			if (file_exists($path)) {
 				$c->getdata($path, 'lang');
@@ -993,8 +993,8 @@ elseif ($job == 'phrase_add') {
    </ul></td>
   </tr>
   <?php
-  $result = $db->query('SELECT * FROM '.$db->pre.'language ORDER BY language');
-  while($row = $db->fetch_assoc($result)) {
+  $result = $db->execute('SELECT * FROM '.$db->pre.'language ORDER BY language');
+  while($row = $result->fetch()) {
     if (file_exists("language/{$row['id']}/{$file}.lng.php")) {
     ?>
   <tr>

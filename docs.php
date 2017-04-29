@@ -36,20 +36,20 @@ $id = $gpc->get('id', int);
 
 ($code = $plugins->load('docs_start')) ? eval($code) : null;
 
-$result = $db->query("
+$result = $db->execute("
 	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.date AS date2, d.update AS update2, d.parser, d.template, d.groups
 	FROM {$db->pre}documents AS d
 		LEFT JOIN {$db->pre}user AS u ON u.id = d.author
 	WHERE d.id = '{$id}'
 ");
-if ($db->num_rows($result) == 0) {
+if ($result->getResultCount() == 0) {
 	error($lang->phrase('docs_not_found'));
 }
-$info = $db->fetch_assoc($result);
+$info = $result->fetch();
 
-$result2 = $db->query("SELECT * FROM  {$db->pre}documents_content WHERE did = '{$id}'");
+$result2 = $db->execute("SELECT * FROM  {$db->pre}documents_content WHERE did = '{$id}'");
 $data = array();
-while ($row = $db->fetch_assoc($result2)) {
+while ($row = $result2->fetch()) {
 	$data[$row['lid']] = $row;
 }
 

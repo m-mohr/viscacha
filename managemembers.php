@@ -43,11 +43,11 @@ if (!$my->vlogin || $my->p['admin'] == 0) {
 	errorLogin($lang->phrase('not_allowed'));
 }
 
-$result = $db->query("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
-if ($db->num_rows($result) != 1) {
+$result = $db->execute("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
+if ($result->getResultCount() != 1) {
 	error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 }
-$user = $db->fetch_assoc($result);
+$user = $result->fetch();
 
 ($code = $plugins->load('managemembers_prepare')) ? eval($code) : null;
 
@@ -69,15 +69,15 @@ elseif ($_GET['action'] == 'delete2') {
 		error($lang->phrase('member_delete_yourself_error'));
 	}
 	// Step 1: Delete all abos
-	$db->query("DELETE FROM {$db->pre}abos WHERE mid = '{$user['id']}'");
+	$db->execute("DELETE FROM {$db->pre}abos WHERE mid = '{$user['id']}'");
 	// Step 2: Delete as mod
-	$db->query("DELETE FROM {$db->pre}moderators WHERE mid = '{$user['id']}'");
+	$db->execute("DELETE FROM {$db->pre}moderators WHERE mid = '{$user['id']}'");
 	// Step 3: Delete all pms
-	$db->query("DELETE FROM {$db->pre}pm WHERE pm_to = '{$user['id']}'");
+	$db->execute("DELETE FROM {$db->pre}pm WHERE pm_to = '{$user['id']}'");
 	// Step 4: Delete pic
 	removeOldImages('uploads/pics/', $user['id']);
 	// Step 5: Soft-delete user himself
-	$db->query("UPDATE {$db->pre}user SET 
+	$db->execute("UPDATE {$db->pre}user SET 
 		pw = DEFAULT, mail = DEFAULT, regdate = DEFAULT, posts = DEFAULT, fullname = DEFAULT,
 		hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
 		birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
@@ -85,7 +85,7 @@ elseif ($_GET['action'] == 'delete2') {
 		theme = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
 		WHERE id = '{$user['id']}'");
 	// Step 6: Delete user's custom profilefields
-	$db->query("DELETE FROM {$db->pre}userfields WHERE ufid = '{$user['id']}'");
+	$db->execute("DELETE FROM {$db->pre}userfields WHERE ufid = '{$user['id']}'");
 
 	($code = $plugins->load('managemembers_delete_end')) ? eval($code) : null;
 
@@ -118,8 +118,8 @@ elseif ($_GET['action'] == 'edit') {
 	$miny = $year-100;
 	
 	$groups = array();
-	$result = $db->query("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC, guest ASC, core ASC");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT id, title, name, core FROM {$db->pre}groups ORDER BY admin DESC, guest ASC, core ASC");
+	while ($row = $result->fetch()) {
 		$groups[] = $row;
 	}
 
@@ -279,7 +279,7 @@ elseif ($_GET['action'] == 'edit2') {
 
 		($code = $plugins->load('managemembers_edit2_savedata')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', theme = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+		$db->execute("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($gpc->get('groups', db_esc))."', timezone = '{$_POST['temp']}', opt_pmnotify = '{$_POST['opt_1']}', opt_hidemail = '{$_POST['opt_3']}', theme = '{$_POST['opt_4']}', language = '{$_POST['opt_5']}', pic = '{$_POST['pic']}', about = '{$_POST['comment']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', signature = '{$_POST['signature']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}', name = '{$_POST['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		ok($lang->phrase('data_success'), "profile.php?id=".$user['id']);
 	}

@@ -47,7 +47,7 @@ $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 
 // Database functions
 $db = new Viscacha\Database\Database($config['dbsystem'], $config['dbuser'], $config['dbpw'], $config['host'], $config['database'], $config['dbprefix'], 'utf8mb4', 'utf8mb4_general_ci');
-$db->makeGlobal('DB');
+$db->populateGlobal('DB');
 
 /* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
  	_ENV, _SERVER: Won't be checked, but null-byte is deleted

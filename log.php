@@ -105,13 +105,13 @@ elseif ($_GET['action'] == "pwremind2") {
 
 	($code = $plugins->load('log_pwremind2_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' AND deleted_at IS NULL LIMIT 1");
+	$result = $db->execute("SELECT id, name, mail, pw FROM {$db->pre}user WHERE mail = '{$_POST['email']}' AND deleted_at IS NULL LIMIT 1");
 
-	if ($db->num_rows($result) != 1) {
+	if ($result->getResultCount() != 1) {
 		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
 	}
 	else {
-		$user = $db->fetch_assoc($result);
+		$user = $result->fetch();
 
 		$confirmcode = md5($config['cryptkey'].$user['pw']);
 
@@ -135,17 +135,17 @@ elseif ($_GET['action'] == "pwremind3") {
 
 	($code = $plugins->load('log_pwremind3_start')) ? eval($code) : null;
 
-	$result = $db->query("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL LIMIT 1");
-	if ($db->num_rows($result) != 1) {
+	$result = $db->execute("SELECT id, pw, mail, name FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL LIMIT 1");
+	if ($result->getResultCount() != 1) {
 		error($lang->phrase('log_pwremind_failed'), "log.php?action=pwremind".SID2URL_x);
 	}
 	else {
-		$user = $db->fetch_assoc($result);
+		$user = $result->fetch();
 		$confirmcode = md5($config['cryptkey'].$user['pw']);
 		if ($confirmcode == $gpc->get('fid')) {
 			$pw = random_word();
 			$hashed_pw = hash_pw($pw);
-			$db->query("UPDATE {$db->pre}user SET pw = '{$hashed_pw}' WHERE id = '{$user['id']}' LIMIT 1");
+			$db->execute("UPDATE {$db->pre}user SET pw = '{$hashed_pw}' WHERE id = '{$user['id']}' LIMIT 1");
 
 			$data = $lang->get_mail('pwremind2');
 			$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));

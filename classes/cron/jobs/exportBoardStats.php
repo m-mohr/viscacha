@@ -1,14 +1,14 @@
 <?php
 global $db, $config;
 
-$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics");
-$topics = $db->fetch_one($result);
+$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}topics");
+$topics = $result->fetchOne();
 
-$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies");
-$posts = $db->fetch_one($result);
+$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}replies");
+$posts = $result->fetchOne();
 
-$result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE deleted_at IS NULL AND confirm = '11'");
-$members = $db->fetch_one($result);
+$result = $db->execute("SELECT COUNT(*) FROM {$db->pre}user WHERE deleted_at IS NULL AND confirm = '11'");
+$members = $result->fetchOne();
 
 include("language/{$config['langdir']}/settings.lng.php");
 $lngc = $lang['lang_code'];

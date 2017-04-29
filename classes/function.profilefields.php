@@ -25,8 +25,8 @@
 function admin_customsave($uid) {
 	global $db, $gpc;
 	$upquery = array();
-	$query = $db->query("SELECT * FROM {$db->pre}profilefields");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM {$db->pre}profilefields");
+	while($profilefield = $query->fetch()) {
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
@@ -44,14 +44,14 @@ function admin_customsave($uid) {
 	}
 
 	if (count($upquery) > 0) {
-		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
+		$query = $db->execute("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
 		$upquery['ufid'] = "ufid = '{$uid}'";
 		$sqldata = implode(', ', $upquery);
-		if($db->num_rows($query) == 0) {
-			$db->query("INSERT INTO {$db->pre}userfields SET {$sqldata}");
+		if($query->getResultCount() == 0) {
+			$db->execute("INSERT INTO {$db->pre}userfields SET {$sqldata}");
 		}
 		else {
-			$db->query("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1");
+			$db->execute("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1");
 		}
 	}
 }
@@ -59,10 +59,10 @@ function admin_customsave($uid) {
 function admin_customfields($uid) {
 	global $db, $gpc;
 	$customfields = array('0' => array(), '1' => array(), '2' => array());
-	$query = $db->query("SELECT * FROM ".$db->pre."userfields WHERE ufid = '{$uid}' LIMIT 1");
-	$saved = $db->fetch_assoc($query);
-	$query = $db->query("SELECT * FROM ".$db->pre."profilefields ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM ".$db->pre."userfields WHERE ufid = '{$uid}' LIMIT 1");
+	$saved = $query->fetch();
+	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields ORDER BY disporder");
+	while($profilefield = $query->fetch()) {
 		$select = '';
 		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
@@ -154,8 +154,8 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 	global $db, $gpc, $lang;
 	$error = array();
 	$upquery = array();
-	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
+	while($profilefield = $query->fetch()) {
 		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
@@ -192,7 +192,7 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 function addprofile_customsave($data, $uid) {
 	global $db;
 	if (count($data) > 0) {
-		$fields = $db->list_fields("{$db->pre}userfields");
+		$fields = $db->getColumns("{$db->pre}userfields");
 		$sqldata = array();
 		foreach ($fields as $field) {
 			if (isset($data[$field])) {
@@ -205,15 +205,15 @@ function addprofile_customsave($data, $uid) {
 		$sqldata['ufid'] = "'{$uid}'";
 		$fields = implode(', ', $fields);
 		$sqldata = implode(', ', $sqldata);
-		$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
+		$db->execute("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
 	}
 }
 
 function addprofile_customfields($data = array()) {
 	global $db, $gpc;
 	$customfields = array();
-	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE required = '1' AND editable != '0' ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM {$db->pre}profilefields WHERE required = '1' AND editable != '0' ORDER BY disporder");
+	while($profilefield = $query->fetch()) {
 		$select = '';
 		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
@@ -325,8 +325,8 @@ function editprofile_customsave($editable, $uid, $save = true) {
 	global $db, $lang, $gpc;
 	$error = array();
 	$upquery = array();
-	$query = $db->query("SELECT * FROM {$db->pre}profilefields WHERE editable = '{$editable}' ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM {$db->pre}profilefields WHERE editable = '{$editable}' ORDER BY disporder");
+	while($profilefield = $query->fetch()) {
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
@@ -355,9 +355,9 @@ function editprofile_customsave($editable, $uid, $save = true) {
 	}
 
 	if (count($error) == 0 && count($upquery) > 0 && $save == true) {
-		$query = $db->query("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
-		if($db->num_rows($query) == 0) {
-			$fields = $db->list_fields("{$db->pre}userfields");
+		$query = $db->execute("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
+		if($query->getResultCount() == 0) {
+			$fields = $db->getColumns("{$db->pre}userfields");
 			$sqldata = array();
 			foreach ($fields as $field) {
 				if (isset($upquery[$field])) {
@@ -370,7 +370,7 @@ function editprofile_customsave($editable, $uid, $save = true) {
 			$sqldata['ufid'] = "'{$uid}'";
 			$fields = implode(', ', $fields);
 			$sqldata = implode(', ', $sqldata);
-			$db->query("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
+			$db->execute("INSERT INTO {$db->pre}userfields ({$fields}) VALUES ({$sqldata})");
 		}
 		else {
 			$sqldata = array();
@@ -378,7 +378,7 @@ function editprofile_customsave($editable, $uid, $save = true) {
 				$sqldata[] = "{$field} = '{$value}'";
 			}
 			$sqldata = implode(', ', $sqldata);
-			$db->query("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1");
+			$db->execute("UPDATE {$db->pre}userfields SET {$sqldata} WHERE ufid = '{$uid}' LIMIT 1");
 		}
 	}
 
@@ -388,10 +388,10 @@ function editprofile_customsave($editable, $uid, $save = true) {
 function editprofile_customfields($editable, $uid) {
 	global $db, $gpc;
 	$customfields = array();
-	$query = $db->query("SELECT * FROM ".$db->pre."userfields WHERE ufid = '{$uid}' LIMIT 1");
-	$saved = $db->fetch_assoc($query);
-	$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE editable = '{$editable}' ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM ".$db->pre."userfields WHERE ufid = '{$uid}' LIMIT 1");
+	$saved = $query->fetch();
+	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields WHERE editable = '{$editable}' ORDER BY disporder");
+	while($profilefield = $query->fetch()) {
 		$select = '';
 		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);

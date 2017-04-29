@@ -14,7 +14,7 @@ if ($config['updatepostcounter'] == 0) {
 		}
 	}
 
-	$result = $db->query("
+	$result = $db->execute("
 		SELECT r.name
 		FROM {$db->pre}replies AS r
 			LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
@@ -22,7 +22,7 @@ if ($config['updatepostcounter'] == 0) {
 		GROUP BY r.name
 	");
 
-	while ($row = $db->fetch_assoc($result)) {
+	while ($row = $result->fetch()) {
 		UpdateMemberStats($row['name']);
 	}
 }

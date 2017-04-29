@@ -51,18 +51,18 @@ if ($_GET['action'] == "thumbnail") {
 	}
 	else {
 		($code = $plugins->load('attachments_thumbnail_queries')) ? eval($code) : null;
-		$result = $db->query("
+		$result = $db->execute("
 			SELECT u.id, u.source, t.board
 			FROM {$db->pre}uploads AS u
 				LEFT JOIN {$db->pre}topics AS t ON t.id = u.topic_id
 			WHERE u.id = '{$_GET['id']}'
 		");
-		$row = $db->fetch_assoc($result);
+		$row = $result->fetch();
 
 		$my->p = $slog->Permissions($row['board']);
 		$uppath = 'uploads/topics/'.$row['source'];
 
-		if ($db->num_rows($result) != 1) {
+		if ($result->getResultCount() != 1) {
 			$thumb->create_error('#2 '.$lang->phrase('thumb_error'));
 		}
 		if ($my->p['forum'] == 0 || $my->p['downloadfiles'] == 0) {
@@ -91,19 +91,19 @@ elseif ($_GET['action'] == "attachment") {
 	}
 	else {
 		($code = $plugins->load('attachments_attachment_queries')) ? eval($code) : null;
-		$result = $db->query("
+		$result = $db->execute("
 			SELECT u.file, u.source, t.board
 			FROM {$db->pre}uploads AS u
 				LEFT JOIN {$db->pre}topics AS t ON t.id = u.topic_id
 			WHERE u.id = '{$_GET['id']}'
 			LIMIT 1
 		");
-		$row = $db->fetch_assoc($result);
+		$row = $result->fetch();
 
 		$my->p = $slog->Permissions($row['board']);
 
 		$file = NULL;
-		if ($db->num_rows($result) != 1) {
+		if ($result->getResultCount() != 1) {
 			error($lang->phrase('no_upload_found'));
 		}
 		if ($my->p['forum'] == 0 || $my->p['downloadfiles'] == 0) {
@@ -134,11 +134,11 @@ else {
 
 	($code = $plugins->load('attachments_upload_start')) ? eval($code) : null;
 	if ($_GET['type'] == 'addreply' && is_id($_GET['id'])) {
-		$result = $db->query("SELECT id, board, name, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
-		if ($db->num_rows($result) != 1) {
+		$result = $db->execute("SELECT id, board, name, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
+		if ($result->getResultCount() != 1) {
 			$error = true;
 		}
-		$upinfo = $db->fetch_assoc($result);
+		$upinfo = $result->fetch();
 		$upinfo['name'] = $my->id;
 		if ($upinfo['status'] != 0) {
 			$error = true;
@@ -154,17 +154,17 @@ else {
 		);
 	}
 	elseif ($_GET['type'] == 'edit' && $_GET['id'] > 0) {
-		$result = $db->query("
+		$result = $db->execute("
 				SELECT r.id, t.board, r.name, r.topic_id
 				FROM {$db->pre}replies AS r 
 					LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
 				WHERE r.id = '{$_GET['id']}'
 				LIMIT 1
 		");
-		if ($db->num_rows($result) != 1) {
+		if ($result->getResultCount() != 1) {
 			$error = true;
 		}
-		$upinfo = $db->fetch_assoc($result);
+		$upinfo = $result->fetch();
 	}
 	else {
 		$error = true;
@@ -192,24 +192,24 @@ else {
 					}
 				}
 
-				$result = $db->query('
+				$result = $db->execute('
 				SELECT source
 				FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				');
 
-				while ($row = $db->fetch_assoc($result)) {
+				while ($row = $result->fetch()) {
 					if (file_exists('uploads/topics/'.$row['source'])) {
 						$filesystem->unlink('uploads/topics/'.$row['source']);
 					}
 				}
 
-				$db->query('
+				$db->execute('
 				DELETE FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				');
 
-				$anz = $db->affected_rows();
+				$anz = $db->getAffectedRows();
 				ok($lang->phrase('editprofile_attachments_deleted'), $url);
 			}
 		}
@@ -255,9 +255,9 @@ else {
 			($code = $plugins->load('attachments_upload_save_add_queries')) ? eval($code) : null;
 			if (count($insertuploads) > 0 && count($insertuploads) <= $config['tpcmaxuploads']) {
 				foreach ($insertuploads as $uploaddata) {
-					$uploaddata['file'] = $db->escape_string($uploaddata['file']);
-					$uploaddata['source'] = $db->escape_string($uploaddata['source']);
-					$db->query("INSERT INTO {$db->pre}uploads (file,source,tid,mid,topic_id) VALUES ('{$uploaddata['file']}','{$uploaddata['source']}','{$tid}','{$upper}','{$upinfo['topic_id']}')");
+					$uploaddata['file'] = $db->escape($uploaddata['file']);
+					$uploaddata['source'] = $db->escape($uploaddata['source']);
+					$db->execute("INSERT INTO {$db->pre}uploads (file,source,tid,mid,topic_id) VALUES ('{$uploaddata['file']}','{$uploaddata['source']}','{$tid}','{$upper}','{$upinfo['topic_id']}')");
 				}
 			}
 
@@ -276,16 +276,16 @@ else {
 		$filesize = formatFilesize($config['tpcfilesize']);
 
 		if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
-			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"');
+			$result = $db->execute('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"');
 		}
 		elseif ($_GET['type'] == 'newtopic' || $_GET['type'] == 'addreply') {
-			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"');
+			$result = $db->execute('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"');
 		}
 		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
 
 		$uploads = array_fill(1, $config['tpcmaxuploads'], null);
 		$i = 1;
-		while ($row = $db->fetch_assoc($result)) {
+		while ($row = $result->fetch()) {
 			$fsize = filesize('uploads/topics/'.$row['source']);
 			$fsize = formatFilesize($fsize);
 			($code = $plugins->load('attachments_upload_form_upload')) ? eval($code) : null;

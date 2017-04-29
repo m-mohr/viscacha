@@ -10,8 +10,8 @@ class cache_bbcode extends CacheItem {
 				'censor' => array(),
 				'bb' => array()
 			);
-			$result = $db->query("SELECT * FROM {$db->pre}textparser");
-			while ($bb = $db->fetch_assoc($result)) {
+			$result = $db->execute("SELECT * FROM {$db->pre}textparser");
+			while ($bb = $result->fetch()) {
 				$this->data['censor'][] = $bb;
 			}
 			$this->export();

@@ -3,7 +3,7 @@ $cutat = "[".$config['viscacha_news_boxes']['cutat']."]";
 $board = intval($config['viscacha_news_boxes']['board']);
 $limit = intval($config['viscacha_news_boxes']['items']);
 
-$result = $db->query("
+$result = $db->execute("
 SELECT r.dosmileys, t.posts, t.prefix, t.status, t.sticky, t.id, t.board, f.name as forumname, t.topic, r.comment, r.date, u.name, u.deleted_at
 FROM {$db->pre}topics AS t
 	LEFT JOIN {$db->pre}replies AS r ON t.id = r.topic_id
@@ -14,7 +14,7 @@ ORDER BY r.date DESC
 LIMIT 0,{$limit}"
 );
 BBProfile($bbcode);
-while ($row = $db->fetch_assoc($result)) {
+while ($row = $result->fetch()) {
 	$row['pre'] = '';
 	if ($row['prefix'] > 0) {
 		$prefix_obj = $scache->load('prefix');

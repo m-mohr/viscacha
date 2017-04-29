@@ -9,9 +9,9 @@ class cache_fgroups extends CacheItem {
 		else {
 			$fields = unserialize(file_get_contents('data/group_fields.php'));
 			$keys = array_combine($fields['fFields'], range(1, count($fields['fFields'])));
-			$result = $db->query('SELECT bid, gid, '.implode(', ', $fields['fFields']).' FROM '.$db->pre.'fgroups');
+			$result = $db->execute('SELECT bid, gid, '.implode(', ', $fields['fFields']).' FROM '.$db->pre.'fgroups');
 			$this->data = array();
-			while ($row = $db->fetch_assoc($result)) {
+			while ($row = $result->fetch()) {
 				$this->data[$row['gid']][$row['bid']] = array_intersect_key($row, $keys);
 			}
 			$this->export();

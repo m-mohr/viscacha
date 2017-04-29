@@ -56,17 +56,17 @@ if($job == "add2") {
 		"editable" => $gpc->get('editable', int),
 		"viewable" => $gpc->get('viewable', int)
 	);
-	$db->query('INSERT INTO '.$db->pre.'profilefields SET '.array2sqlsetlist($insert));
-	$fid = $db->insert_id();
-	$db->query("ALTER TABLE {$db->pre}userfields ADD fid{$fid} TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL");
+	$db->execute('INSERT INTO '.$db->pre.'profilefields SET '.array2sqlsetlist($insert));
+	$fid = $db->getInsertId();
+	$db->execute("ALTER TABLE {$db->pre}userfields ADD fid{$fid} TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL");
 	echo head();
 	ok("admin.php?action=profilefield&job=edit&fid=".$fid, $lang->phrase('admin_profilefield_successfully_added'));
 }
 elseif($job == "delete2") {
 	$fid = $gpc->get('fid', int);
-	$db->query("DELETE FROM {$db->pre}profilefields WHERE fid = '{$fid}' LIMIt 1");
-	$db->query("ALTER TABLE {$db->pre}userfields DROP fid{$fid}");
-	$db->query("OPTIMIZE TABLE {$db->pre}userfields");
+	$db->execute("DELETE FROM {$db->pre}profilefields WHERE fid = '{$fid}' LIMIt 1");
+	$db->execute("ALTER TABLE {$db->pre}userfields DROP fid{$fid}");
+	$db->execute("OPTIMIZE TABLE {$db->pre}userfields");
 	echo head();
 	ok("admin.php?action=profilefield&job=manage", $lang->phrase('admin_profilefield_successfully_deleted'));
 }
@@ -108,7 +108,7 @@ elseif($job == "edit2") {
 		"editable" => $gpc->get('editable', int),
 		"viewable" => $gpc->get('viewable', int)
 	);
-	$db->query('UPDATE '.$db->pre.'profilefields SET '.array2sqlsetlist($update).' WHERE fid="'.$fid.'" LIMIT 1');
+	$db->execute('UPDATE '.$db->pre.'profilefields SET '.array2sqlsetlist($update).' WHERE fid="'.$fid.'" LIMIT 1');
 	echo head();
 	ok("admin.php?action=profilefield&job=manage", $lang->phrase('admin_profilefield_successfully_updated'));
 }
@@ -189,8 +189,8 @@ elseif($job == "add") {
 }
 elseif($job == "delete") {
 	$fid = $gpc->get('fid', int);
-	$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE fid='{$fid}'");
-	$profilefield = $db->fetch_assoc($query);
+	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields WHERE fid='{$fid}'");
+	$profilefield = $query->fetch();
 	echo head();
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4">
@@ -208,8 +208,8 @@ elseif($job == "delete") {
 }
 elseif($job == "edit") {
 	$fid = $gpc->get('fid', int);
-	$query = $db->query("SELECT * FROM ".$db->pre."profilefields WHERE fid = '{$fid}' LIMIT 1");
-	$profilefield = $gpc->prepare($db->fetch_assoc($query));
+	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields WHERE fid = '{$fid}' LIMIT 1");
+	$profilefield = $gpc->prepare($query->fetch());
 
 	$type = explode("\n", $profilefield['type'], 2);
 	if (!isset($type[1])) {
@@ -309,8 +309,8 @@ elseif ($job == "manage") {
 		<td><?php echo $lang->phrase('admin_head_action'); ?></td>
 	  </tr>
 	<?php
-	$query = $db->query("SELECT * FROM ".$db->pre."profilefields ORDER BY disporder");
-	while($profilefield = $db->fetch_assoc($query)) {
+	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields ORDER BY disporder");
+	while($profilefield = $query->fetch()) {
 		$profilefield['required'] = ($profilefield['required'] == 1) ? $lang->phrase('admin_yes') : $lang->phrase('admin_no');
 		$profilefield['editable'] = (isset($editable[$profilefield['editable']])) ? $editable[$profilefield['editable']] : $lang->phrase('admin_editable_fallback');
 		$profilefield['viewable'] = (isset($viewable[$profilefield['viewable']])) ? $viewable[$profilefield['viewable']] : $lang->phrase('admin_viewable_fallback');

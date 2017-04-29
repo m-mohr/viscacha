@@ -52,8 +52,8 @@ if ($action == 'markforumread') {
 }
 elseif ($action == 'marktopicread') {
 	$topic = $gpc->get('id', int);
-	$result = $db->query("SELECT board FROM {$db->pre}topics WHERE id = '{$topic}'");
-	$board = $db->fetch_one($result);
+	$result = $db->execute("SELECT board FROM {$db->pre}topics WHERE id = '{$topic}'");
+	$board = $result->fetchOne();
 	
 	$my->p = $slog->Permissions($board);
 	// ToDo: Make this permission check better, more like in showtopic.php
@@ -88,9 +88,9 @@ elseif ($action == 'doubleudata') {
 elseif ($action == 'searchmember') {
 	$request = 1;
 	if (mb_strlen($_GET['name']) > 2) {
-		$result = $db->query('SELECT name FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
+		$result = $db->execute('SELECT name FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
 		$user = array();
-		while ($row = $db->fetch_assoc($result)) {
+		while ($row = $result->fetch()) {
 			$user[] = $row['name'];
 		}
 		$request = implode(',', viscacha_htmlspecialchars($user));

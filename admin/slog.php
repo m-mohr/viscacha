@@ -187,8 +187,8 @@ elseif ($job == 's_general_image') {
 
 	$max = 0;
 	$cache = array();
-	$result = $db->query("SELECT COUNT(*) AS nr, DATE_FORMAT(FROM_UNIXTIME($datefield),'$sqlformat') AS timeorder, MAX($datefield) AS statdate FROM $table WHERE $datefield > '$from' AND $datefield < '$to' $sql GROUP BY timeorder ORDER BY $datefield $sort");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT COUNT(*) AS nr, DATE_FORMAT(FROM_UNIXTIME($datefield),'$sqlformat') AS timeorder, MAX($datefield) AS statdate FROM $table WHERE $datefield > '$from' AND $datefield < '$to' $sql GROUP BY timeorder ORDER BY $datefield $sort");
+	while ($row = $result->fetch()) {
 		$statdate = date($phpformat, $row['statdate']);
 
 		if ($timeorder == 1) {
@@ -200,7 +200,7 @@ elseif ($job == 's_general_image') {
 		if ($timeorder == 2) {
 			$week = ceil((date('z', $row['statdate']) - daynumber($row['statdate'])) / 7) + ((daynumber(mktime(0, 0, 0, 1, 1, date('Y', $row['statdate']))) <= 3) ? (1) : (0));
 			if ($week == 53 && daynumber(mktime(0, 0, 0, 12, 31, date('Y', $row['statdate']))) < 3) {
-				$tempRow = $db->fetch_one($result);
+				$tempRow = $result->fetchOne();
 				$row['nr'] += $tempRow;
 				$week = 1;
 			}
@@ -233,8 +233,8 @@ elseif ($job == 's_general_image') {
 elseif ($job == 's_general') {
 	echo head();
 
-	$result = $db->query('SELECT MIN(regdate) as date FROM '.$db->pre.'user LIMIT 1');
-	$install = $db->fetch_assoc($result);
+	$result = $db->execute('SELECT MIN(regdate) as date FROM '.$db->pre.'user LIMIT 1');
+	$install = $result->fetch();
 
 	$show = $gpc->get('show', int);
 	require_once("classes/class.charts.php");
@@ -384,26 +384,26 @@ if ($show == 1) {
 <?php
 	}
 	else {
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'replies');
-	$posts = $db->fetch_one($result);
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics');
-	$topics = $db->fetch_one($result);
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'replies');
+	$posts = $result->fetchOne();
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'topics');
+	$topics = $result->fetchOne();
 	$replies = $posts-$topics;
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""');
-	$vote = $db->fetch_one($result);
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""');
+	$vote = $result->fetchOne();
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
-	$members = $db->fetch_one($result);
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
+	$members = $result->fetchOne();
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos');
-	$abos = $db->fetch_one($result);
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'abos');
+	$abos = $result->fetchOne();
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'uploads');
-	$uploads = $db->fetch_one($result);
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'uploads');
+	$uploads = $result->fetchOne();
 
-	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'votes');
-	$votes = $db->fetch_one($result);
+	$result = $db->execute('SELECT COUNT(*) FROM '.$db->pre.'votes');
+	$votes = $result->fetchOne();
 ?>
  <table class="border">
   <tr>

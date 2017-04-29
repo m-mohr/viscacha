@@ -39,8 +39,8 @@ function ImageHexColorAllocate(&$image, $string) {
 ($code = $plugins->load('images_start')) ? eval($code) : null;
 
 if ($_GET['action'] == 'vote') {
-	$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-	$info = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
+	$info = $result->fetch();
 
 	require_once('classes/class.charts.php');
 	$PG = new PowerGraphic();
@@ -57,8 +57,8 @@ if ($_GET['action'] == 'vote') {
 
 	$votes = 0;
 	$i = 0;
-	$result = $db->query("SELECT COUNT(r.id) as votes, v.id, v.answer FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id");
-	while ($row = $db->fetch_assoc($result)) {
+	$result = $db->execute("SELECT COUNT(r.id) as votes, v.id, v.answer FROM {$db->pre}vote AS v LEFT JOIN {$db->pre}votes AS r ON r.aid=v.id WHERE v.tid = '{$info['id']}' GROUP BY v.id ORDER BY v.id");
+	while ($row = $result->fetch()) {
 		$votes += $row['votes'];
 
 		$PG->x[$i] = $gpc->plain_str($row['answer']);
@@ -114,9 +114,9 @@ elseif ($_GET['action'] == 'textimage') {
 elseif ($_GET['action'] == 'm_email') {
 	$email = $lang->phrase('profile_mail_1');
 	
-	$result = $db->query("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
-	if ($db->num_rows($result) == 1) {
-		$row = $db->fetch_assoc($result);
+	$result = $db->execute("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
+	if ($result->getResultCount() == 1) {
+		$row = $result->fetch();
 		if ($row['opt_hidemail'] == 0) {
 			$email = $row['mail'];
 		}
