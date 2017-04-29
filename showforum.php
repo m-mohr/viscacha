@@ -79,8 +79,8 @@ if ($prefix_filter >= 0) {
 
 if (!empty($marksql)) {
 	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}' {$marksql}");
-	$vlasttopics = $db->fetch_num($result);
-	$info['topics'] = $vlasttopics[0];
+	$vlasttopics = $db->fetch_one($result);
+	$info['topics'] = $vlasttopics;
 }
 
 if ($info['forumzahl'] < 1) {

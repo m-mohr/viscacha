@@ -524,8 +524,8 @@ elseif ($job == 'manage') {
 	$letter = $gpc->get('letter', str);
 	$page = $gpc->get('page', int, 1);
 
-	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL'));
-	$temp = pages($count[0], "admin.php?action=members&job=manage&sort=".$sort."&amp;letter=".$letter."&amp;order=".$order."&amp;", 25);
+	$count = $db->fetch_one($db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL'));
+	$temp = pages($count, "admin.php?action=members&job=manage&sort=".$sort."&amp;letter=".$letter."&amp;order=".$order."&amp;", 25);
 
 	if ($order == '1') $order = 'desc';
 	else $order = 'asc';
@@ -556,7 +556,7 @@ elseif ($job == 'manage') {
 		  <td class="obox" colspan="8"><?php echo $lang->phrase('admin_member_member_list'); ?></td>
 		</tr>
 		<tr>
-		  <td class="ubox" colspan="8"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> <?php echo $lang->phrase('admin_member_members'); ?></td>
+		  <td class="ubox" colspan="8"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count; ?> <?php echo $lang->phrase('admin_member_members'); ?></td>
 		</tr>
 		<tr>
 		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>

@@ -88,10 +88,10 @@ function set_failed_login() {
 	$time = time();
 	$limit = $time - $config['login_attempts_time']*60;
 	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}flood WHERE ip = '{$ip}' AND time > '{$limit}' AND type = '".FLOOD_TYPE_LOGIN."'");
-	$data = $db->fetch_num($result);
-	$data[0]++;
+	$data = $db->fetch_one($result);
+	$data++;
 
-	if ($data[0] >= $config['login_attempts_max']) {
+	if ($data >= $config['login_attempts_max']) {
 		// Bann setzen
 		$until = $time + $config['login_attempts_time']*60;
 		$lang->assign('ip', $ip);
@@ -110,7 +110,7 @@ function set_failed_login() {
 	else {
 		// Add one login attempt
 		$db->query("INSERT INTO {$db->pre}flood SET time = '{$time}', ip = '{$ip}', type = '".FLOOD_TYPE_LOGIN."'");
-		return $data[0];
+		return $data;
 	}
 }
 

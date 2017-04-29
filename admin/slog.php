@@ -200,8 +200,8 @@ elseif ($job == 's_general_image') {
 		if ($timeorder == 2) {
 			$week = ceil((date('z', $row['statdate']) - daynumber($row['statdate'])) / 7) + ((daynumber(mktime(0, 0, 0, 1, 1, date('Y', $row['statdate']))) <= 3) ? (1) : (0));
 			if ($week == 53 && daynumber(mktime(0, 0, 0, 12, 31, date('Y', $row['statdate']))) < 3) {
-				$tempRow = $db->fetch_num($result);
-				$row['nr'] += $tempRow[0];
+				$tempRow = $db->fetch_one($result);
+				$row['nr'] += $tempRow;
 				$week = 1;
 			}
 			$statdate = str_replace("#", "#".$week, $statdate);
@@ -385,25 +385,25 @@ if ($show == 1) {
 	}
 	else {
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'replies');
-	$posts = $db->fetch_num($result);
+	$posts = $db->fetch_one($result);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics');
-	$topics = $db->fetch_num($result);
-	$replies = $posts[0]-$topics[0];
+	$topics = $db->fetch_one($result);
+	$replies = $posts-$topics;
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'topics WHERE vquestion != ""');
-	$vote = $db->fetch_num($result);
+	$vote = $db->fetch_one($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'user WHERE deleted_at IS NULL');
-	$members = $db->fetch_num($result);
+	$members = $db->fetch_one($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'abos');
-	$abos = $db->fetch_num($result);
+	$abos = $db->fetch_one($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'uploads');
-	$uploads = $db->fetch_num($result);
+	$uploads = $db->fetch_one($result);
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'votes');
-	$votes = $db->fetch_num($result);
+	$votes = $db->fetch_one($result);
 ?>
  <table class="border">
   <tr>
@@ -412,14 +412,14 @@ if ($show == 1) {
   <tr>
    <td class="mbox">
 	<ul>
-	  <li><?php echo $lang->phrase('admin_slog_members'); ?> <?php echo $members[0];?></li>
-	  <li><?php echo $lang->phrase('admin_slog_posts2'); ?> <?php echo $posts[0];?></li>
-	  <li><?php echo $lang->phrase('admin_slog_threads'); ?> <?php echo $topics[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_members'); ?> <?php echo $members; ?></li>
+	  <li><?php echo $lang->phrase('admin_slog_posts2'); ?> <?php echo $posts; ?></li>
+	  <li><?php echo $lang->phrase('admin_slog_threads'); ?> <?php echo $topics; ?></li>
 	  <li><?php echo $lang->phrase('admin_slog_replies'); ?> <?php echo $replies;?></li>
-	  <li><?php echo $lang->phrase('admin_slog_attachments'); ?> <?php echo $uploads[0];?></li>
-	  <li><?php echo $lang->phrase('admin_slog_subscriptions'); ?> <?php echo $abos[0];?></li>
-	  <li><?php echo $lang->phrase('admin_slog_votes'); ?> <?php echo $vote[0];?></li>
-	  <li><?php echo $lang->phrase('admin_slog_participants'); ?> <?php echo $votes[0];?></li>
+	  <li><?php echo $lang->phrase('admin_slog_attachments'); ?> <?php echo $uploads; ?></li>
+	  <li><?php echo $lang->phrase('admin_slog_subscriptions'); ?> <?php echo $abos; ?></li>
+	  <li><?php echo $lang->phrase('admin_slog_votes'); ?> <?php echo $vote; ?></li>
+	  <li><?php echo $lang->phrase('admin_slog_participants'); ?> <?php echo $votes; ?></li>
 	</ul>
    </td>
   </tr>

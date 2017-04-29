@@ -77,40 +77,40 @@ elseif ($_GET['action'] == 'last') {
 	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
 	// For post_order = 1: Query could be saved, we can just jump to the first page, first post is the post we are looking for...
 	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' ORDER BY date DESC LIMIT 1");
-	$new = $db->fetch_num($result);
+	$new = $db->fetch_one($result);
 	if ($last['post_order'] == 1) {
 		$pgs = 1;
 	}
 	else {
 		$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
 	}
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new[0]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new);
 }
 elseif ($_GET['action'] == 'mylast') {
 	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND name = '{$my->id}' ORDER BY date DESC LIMIT 1");
-	$mylast = $db->fetch_num($result);
+	$mylast = $db->fetch_assoc($result);
 	$sql_order = iif($last['post_order'] == 1, '>=', '<');
-	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} {$mylast[0]}");
+	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} {$mylast['date']}");
 	$new = $db->fetch_assoc($result);
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast['id']);
 }
 elseif ($_GET['action'] == 'jumpto') {
 	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND id = '{$_GET['topic_id']}'");
-	$mylast = $db->fetch_num($result);
+	$mylast = $db->fetch_assoc($result);
 	$sql_order = iif($last['post_order'] == 1, '<', '>');
-	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$mylast[0]}'");
+	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$mylast['date']}'");
 	$new = $db->fetch_assoc($result);
 	$tp = ($info['posts']+1) - $new['count'];
 	$pgs = ceil($tp/$last['topiczahl']);
 	if ($pgs < 1) {
 		$pgs = 1;
 	}
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast['id']);
 }
 
 ($code = $plugins->load('showtopic_redirect')) ? eval($code) : null;
@@ -266,7 +266,7 @@ ORDER BY date {$sql_order}
 ");
 
 if ($last['post_order'] == 1) {
-	list($firstnew_id) = $db->fetch_num($db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date > '{$my->clv}'"));
+	$firstnew_id = $db->fetch_one($db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date > '{$my->clv}'"));
 }
 $firstnew = 0;
 $firstnew_url = null;

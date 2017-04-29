@@ -364,7 +364,7 @@ elseif ($_GET['action'] == "vote") {
 		WHERE v.tid = '{$_GET['id']}' AND r.mid = '{$my->id}'
 	");
 	if ($db->num_rows($result) > 0) {
-		list($voted) = $db->fetch_num($result);
+		$voted = $db->fetch_one($result);
 	}
 
 	$error = array();

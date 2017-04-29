@@ -266,8 +266,8 @@ elseif ($_GET['action'] == "delete") {
 	$anz += $db->affected_rows();
 	$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");
 	$voteaids = array();
-	while ($row = $db->fetch_num($votes)) {
-		$voteaids[] = $row[0];
+	while ($row = $db->fetch_assoc($votes)) {
+		$voteaids[] = $row['id'];
 	}
 	if (count($voteaids) > 0) {
 		$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");

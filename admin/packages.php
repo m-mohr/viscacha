@@ -244,7 +244,7 @@ elseif ($job == 'package_update2') {
 		if ($db->num_rows($result) == 0) {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_package_with_name_not_installed'));
 		}
-		list($packageid) = $db->fetch_num($result);
+		$packageid = $db->fetch_one($result);
 		if (is_id($id) == true && $packageid != $id) {
 			error('admin.php?action=packages&job=package_update', $lang->phrase('admin_packages_packache_id_doesnt_match'));
 		}
@@ -283,7 +283,7 @@ elseif ($job == 'package_update2') {
 			$result = $db->query("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$package['info']['internal']}'");
 			if ($db->num_rows($result) > 0) {
 				$db->query("UPDATE {$db->pre}settings_groups SET title = '{$package['config']['title']}', description = '{$package['config']['description']}' WHERE name = '{$package['info']['internal']}'");
-				list($sg) = $db->fetch_num($result);
+				$sg = $db->fetch_one($result);
 			}
 			else {
 				$db->query("INSERT INTO {$db->pre}settings_groups (title, name, description) VALUES ('{$package['config']['title']}', '{$package['info']['internal']}', '{$package['config']['description']}')");
@@ -293,7 +293,7 @@ elseif ($job == 'package_update2') {
 		elseif (!empty($old['config']['title'])) {
 			$result = $db->query("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$package['info']['internal']}'");
 			if ($db->num_rows($result) > 0) {
-				list($sg) = $db->fetch_num($result);
+				$sg = $db->fetch_one($result);
 				$db->query("DELETE FROM {$db->pre}settings_groups WHERE id = '{$sg}'");
 			}
 			$sg = null;

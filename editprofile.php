@@ -630,8 +630,8 @@ elseif ($_GET['action'] == "mylast") {
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE r.name = '{$my->id}' AND f.invisible != '2'");
-	$counter = $db->fetch_num($result);
-	$entry_count = $counter[0];
+	$counter = $db->fetch_one($result);
+	$entry_count = $counter;
 	
 	if (ceil($entry_count/$config['mylastzahl']) < $_GET['page']) {
 		$_GET['page'] = 1;

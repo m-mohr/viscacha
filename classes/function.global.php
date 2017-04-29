@@ -560,21 +560,21 @@ function get_extension($url, $include_dot = false) {
 function UpdateBoardStats($board) {
 	global $db, $scache;
 	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id WHERE t.board = '{$board}'");
-	$count = $db->fetch_num ($result);
+	$count = $db->fetch_one($result);
 
 	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}'");
-	$count2 = $db->fetch_num($result);
+	$count2 = $db->fetch_one($result);
 
-	$replies = $count[0]-$count2[0];
-	$topics = $count2[0];
+	$replies = $count-$count2;
+	$topics = $count2;
 
 	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
-	$last = $db->fetch_num($result);
-	if (empty($last[0])) {
-		$last[0] = 0;
+	$last = $db->fetch_one($result);
+	if (empty($last)) {
+		$last = 0;
 	}
 	$db->query("
-	UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last[0]}'
+	UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last}'
 	WHERE id = '{$board}'
 	");
 	$delobj = $scache->load('cat_bid');
@@ -584,19 +584,19 @@ function UpdateBoardStats($board) {
 function UpdateBoardLastStats($board) {
 	global $db;
 	$result = $db->query("SELECT id FROM {$db->pre}topics WHERE board = '{$board}' ORDER BY last DESC LIMIT 1");
-	$last = $db->fetch_num($result);
-	if (empty($last[0])) {
-		$last[0] = 0;
+	$last = $db->fetch_one($result);
+	if (empty($last)) {
+		$last = 0;
 	}
-	$db->query("UPDATE {$db->pre}forums SET last_topic = '{$last[0]}' WHERE id = '{$board}'");
+	$db->query("UPDATE {$db->pre}forums SET last_topic = '{$last}' WHERE id = '{$board}'");
 }
 
 function UpdateMemberStats($id) {
 	global $db;
 	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE name = '{$id}'");
-	$count = $db->fetch_num ($result);
-	$db->query("UPDATE {$db->pre}user SET posts = '{$count[0]}' WHERE id = '{$id}' AND deleted_at IS NULL");
-	return $count[0];
+	$count = $db->fetch_one ($result);
+	$db->query("UPDATE {$db->pre}user SET posts = '{$count}' WHERE id = '{$id}' AND deleted_at IS NULL");
+	return $count;
 }
 
 function check_ip($ip, $allow_private = false) {

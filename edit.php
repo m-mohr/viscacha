@@ -106,8 +106,8 @@ if ($allowed == true) {
 			}
 			$db->query ("DELETE FROM {$db->pre}replies WHERE id = '{$info['id']}'");
 			$uresult = $db->query ("SELECT source FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
-			while ($urow = $db->fetch_num($uresult)) {
-				$filesystem->unlink('uploads/topics/'.$urow[0]);
+			while ($urow = $db->fetch_assoc($uresult)) {
+				$filesystem->unlink('uploads/topics/'.$urow['source']);
 			}
 			$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
 			if ($info['tstart'] == 1) {
@@ -115,8 +115,8 @@ if ($allowed == true) {
 				$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
 				$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 				$voteaids = array();
-				while ($row = $db->fetch_num($votes)) {
-					$voteaids[] = $row[0];
+				while ($row = $db->fetch_assoc($votes)) {
+					$voteaids[] = $row['id'];
 				}
 				if (count($voteaids) > 0) {
 					$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");

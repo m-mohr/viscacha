@@ -10,10 +10,10 @@ if ($_GET['job'] == 'reports') {
 	echo head();
 	$page = $gpc->get('page', int, 1);
 
-	$count = $db->fetch_num($db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE report != ''"));
+	$count = $db->fetch_one($db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE report != ''"));
 
     $perpage = 10;
-	$pages = pages($count[0], 'admin.php?action=posts&amp;job=reports&amp;', $perpage);
+	$pages = pages($count, 'admin.php?action=posts&amp;job=reports&amp;', $perpage);
 	$start = ($page-1)*$perpage;
 
 	$result = $db->query("

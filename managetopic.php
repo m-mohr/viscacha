@@ -109,8 +109,8 @@ elseif ($action == "delete2") {
 	$anz += $db->affected_rows();
 	$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 	$voteaids = array();
-	while ($row = $db->fetch_num($votes)) {
-		$voteaids[] = $row[0];
+	while ($row = $db->fetch_assoc($votes)) {
+		$voteaids[] = $row['id'];
 	}
 	if (count($voteaids) > 0) {
 		$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
@@ -344,8 +344,8 @@ elseif ($action == "vote_delete2") {
 	$anz = 0;
 	$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 	$voteaids = array();
-	while ($row = $db->fetch_num($votes)) {
-		$voteaids[] = $row[0];
+	while ($row = $db->fetch_assic($votes)) {
+		$voteaids[] = $row['id'];
 	}
 	if (count($voteaids) > 0) {
 		$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
@@ -393,8 +393,8 @@ elseif ($action == "pdelete") {
 		$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
 		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 		$voteaids = array();
-		while ($row = $db->fetch_num($votes)) {
-			$voteaids[] = $row[0];
+		while ($row = $db->fetch_assoc($votes)) {
+			$voteaids[] = $row['id'];
 		}
 		if (count($voteaids) > 0) {
 			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");

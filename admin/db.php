@@ -134,9 +134,9 @@ elseif ($job == 'backup2') {
 	$temp = array('zip' => $zip, 'drop' => $drop, 'steps' => 0);
 	foreach ($tables as $table) {
 		$result = $db->query("SELECT COUNT(*) FROM `{$table}`");
-		$count = $db->fetch_num($result);
+		$count = $db->fetch_one($result);
 		$offset = iif($data == 1, 0, -1);
-		while ($offset < $count[0]) {
+		while ($offset < $count) {
 			$temp[] = array(
 				'table' => $table,
 				'offset' => $offset,
@@ -611,7 +611,7 @@ elseif ($job == 'query2') {
 	if (!empty($lines)) {
 
 		ob_start();
-		$q = $db->multi_query($sql, false);
+		$q = $db->multiQuery($sql, false);
 		$error = ob_get_contents();
 		$error = trim($error);
 		ob_end_clean();

@@ -77,7 +77,7 @@ if ($_GET['action'] == "search") {
 	if (mb_strlen($name) >= $config['searchminlength']) {
 		$result = $db->query("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
 		if ($db->num_rows($result) == 1) {
-			list($rname) = $db->fetch_num($result);
+			$rname = $db->fetch_one($result);
 		}
 		else {
 			$rname = $name;
@@ -377,7 +377,7 @@ elseif ($_GET['action'] == "active") {
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')
     	);
-    	list($count) = $db->fetch_num($result);
+    	$count = $db->fetch_one($result);
 
     	$result = $db->query("
     	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,

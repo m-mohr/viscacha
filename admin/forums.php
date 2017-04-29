@@ -239,8 +239,8 @@ elseif ($job == 'mods_add2') {
 	if (!is_id($id)) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
-	$uid = $db->fetch_num($db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$temp1.'" LIMIT 1'));
-	if ($uid[0] < 1) {
+	$uid = $db->fetch_one($db->query('SELECT id FROM '.$db->pre.'user WHERE name = "'.$temp1.'" LIMIT 1'));
+	if ($uid < 1) {
 		error('admin.php?action=forums&job=mods_add'.iif($bid > 0, '&id='.$id), $lang->phrase('admin_forum_member_not_found'));
 	}
 
@@ -249,7 +249,7 @@ elseif ($job == 'mods_add2') {
 
 	$db->query("
 	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc)
-	VALUES ('{$uid[0]}', '{$id}', '{$delete}', '{$move}')
+	VALUES ('{$uid}', '{$id}', '{$delete}', '{$move}')
 	");
 
 	if ($db->affected_rows() == 1) {
@@ -348,8 +348,8 @@ elseif ($job == 'forum_delete2') {
 		$db->query ("DELETE FROM {$db->pre}topics WHERE board = '{$_GET['id']}'");
 		$votes = $db->query("SELECT id FROM {$db->pre}vote WHERE tid IN({$ids})");
 		$voteaids = array();
-		while ($row = $db->fetch_num($votes)) {
-			$voteaids[] = $row[0];
+		while ($row = $db->fetch_assoc($votes)) {
+			$voteaids[] = $row['id'];
 		}
 		if (count($voteaids) > 0) {
 			$db->query ("DELETE FROM {$db->pre}votes WHERE id IN(".implode(',', $voteaids).")");
@@ -1103,8 +1103,8 @@ elseif ($job == 'rights_add') {
 	$result2 = $db->query("SELECT gid FROM {$db->pre}fgroups WHERE bid = '{$id}'");
 	$cache = array();
 	$cache2 = array();
-	while ($row = $db->fetch_num($result2)) {
-		$cache2[] = $row[0];
+	while ($row = $db->fetch_assoc($result2)) {
+		$cache2[] = $row['gid'];
 	}
 	while ($row = $db->fetch_assoc($result)) {
 		if (in_array($row['id'],$cache2) == FALSE) {

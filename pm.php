@@ -195,9 +195,9 @@ elseif ($_GET['action'] == "save") {
 	$name_id = 0;
 	if (mb_strlen($_POST['name']) > 0) {
 		$result = $db->query('SELECT id FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name = "'.$_POST['name'].'" LIMIT 1');
-		$user = $db->fetch_num($result);
-		if (!empty($user[0])) {
-			$name_id = $user[0];
+		$user = $db->fetch_one($result);
+		if (!empty($user)) {
+			$name_id = $user;
 		}
 	}
 	if (!is_id($name_id) || empty($_POST['name'])) {

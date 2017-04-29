@@ -1196,8 +1196,8 @@ function setTopicRead($tid, $parents) {
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");
-		$row = $db->fetch_num($result);
-		if ($row[0] == 0) {
+		$row = $db->fetch_one($result);
+		if ($row == 0) {
 			$my->mark['f'][$tf] = time();
 		}
 	}

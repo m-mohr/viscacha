@@ -507,8 +507,8 @@ elseif ($job == 'nav_edit2') {
 	$active = $gpc->get('active', int);
 	$groups = $gpc->get('groups', arr_int);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
-	$count = $db->fetch_num($result);
-	if (count($groups) == $count[0]) {
+	$count = $db->fetch_one($result);
+	if (count($groups) == $count) {
 		$groups = 0;
 	}
 	else {
@@ -739,8 +739,8 @@ elseif ($job == 'nav_addplugin2') {
 	}
 	$groups = $gpc->get('groups', arr_int);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
-	$count = $db->fetch_num($result);
-	if (count($groups) == $count[0]) {
+	$count = $db->fetch_one($result);
+	if (count($groups) == $count) {
 		$groups = 0;
 	}
 	else {
@@ -848,26 +848,26 @@ elseif ($job == 'nav_add2') {
 		error('admin.php?action=cms&job=nav_addbox', $lang->phrase('admin_cms_err_no_title'));
 	}
 
-	$pos = $db->fetch_num($db->query("SELECT position FROM {$db->pre}menu WHERE id = '{$sub}' LIMIT 1"));
-	if (empty($pos[0])) {
+	$pos = $db->fetch_one($db->query("SELECT position FROM {$db->pre}menu WHERE id = '{$sub}' LIMIT 1"));
+	if (empty($pos)) {
 		$pos = array('left');
 	}
 
 	if ($sort == 1) {
-		$sort = $db->fetch_num($db->query("SELECT MAX(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1"));
-		$sort = $sort[0]+1;
+		$sort = $db->fetch_one($db->query("SELECT MAX(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1"));
+		$sort = $sort+1;
 	}
 	elseif ($sort == 0) {
-		$sort = $db->fetch_num($db->query("SELECT MIN(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1"));
-		$sort = $sort[0]-1;
+		$sort = $db->fetch_one($db->query("SELECT MIN(ordering) FROM {$db->pre}menu WHERE sub = '{$sub}' LIMIT 1"));
+		$sort = $sort-1;
 	}
 	else {
 		$sort = 0;
 	}
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
-	$count = $db->fetch_num($result);
-	if (count($groups) == $count[0]) {
+	$count = $db->fetch_one($result);
+	if (count($groups) == $count) {
 		$groups = 0;
 	}
 	else {
@@ -963,8 +963,8 @@ elseif ($job == 'nav_addbox2') {
 
 	$groups = $gpc->get('groups', arr_int);
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
-	$count = $db->fetch_num($result);
-	if (count($groups) == $count[0]) {
+	$count = $db->fetch_one($result);
+	if (count($groups) == $count) {
 		$groups = 0;
 	}
 	else {
@@ -1710,8 +1710,8 @@ elseif ($job == 'doc_add3') {
 	}
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
-	$count = $db->fetch_num($result);
-	if (count($groups) == $count[0]) {
+	$count = $db->fetch_one($result);
+	if (count($groups) == $count) {
 		$groups = 0;
 	}
 	else {
@@ -1913,8 +1913,8 @@ elseif ($job == 'doc_edit2') {
 	}
 
 	$result = $db->query('SELECT COUNT(*) FROM '.$db->pre.'groups');
-	$count = $db->fetch_num($result);
-	if (count($groups) == $count[0]) {
+	$count = $db->fetch_one($result);
+	if (count($groups) == $count) {
 		$groups = 0;
 	}
 	else {

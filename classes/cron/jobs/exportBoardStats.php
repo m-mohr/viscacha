@@ -2,13 +2,13 @@
 global $db, $config;
 
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics");
-list($topics) = $db->fetch_num($result);
+$topics = $db->fetch_one($result);
 
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies");
-list($posts) = $db->fetch_num($result);
+$posts = $db->fetch_one($result);
 
 $result = $db->query("SELECT COUNT(*) FROM {$db->pre}user WHERE deleted_at IS NULL AND confirm = '11'");
-list($members) = $db->fetch_num($result);
+$members = $db->fetch_one($result);
 
 include("language/{$config['langdir']}/settings.lng.php");
 $lngc = $lang['lang_code'];
