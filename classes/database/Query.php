@@ -52,6 +52,8 @@ abstract class Query {
 	const _OR = 205;
 	const _AND = 206;
 	
+	const ALIAS = 209;
+	
 	const IS = 211;
 	const IS_NOT = 212;
 
@@ -202,32 +204,36 @@ abstract class Query {
 		return $this;
 	}
 	
-	protected function join($type, $table, $tableKey, $otherTableKey) {
+	protected function join($type, $table, $tableKey, $otherTableKey, $alias = null) {
 		$join = new QueryJoin();
 		$join->type = $type;
+		
 		$join->table = $table;
+		$join->alias = $alias === null ? $table : $alias;
 		$join->tableKey = $tableKey;
+
 		$join->otherTableKey = $otherTableKey;
+
 		$this->joins[] = $join;
 	}
 	
-	public function innerJoin($table, $tableKey, $otherTableKey) {
-		$this->join(self::INNER_JOIN, $table, $tableKey, $otherTableKey);
+	public function innerJoin($table, $tableKey, $otherTableKey, $alias = null) {
+		$this->join(self::INNER_JOIN, $table, $tableKey, $otherTableKey, $alias);
 		return $this;
 	}
 	
-	public function leftJoin($table, $tableKey, $otherTableKey) {
-		$this->join(self::LEFT_JOIN, $table, $tableKey, $otherTableKey);
+	public function leftJoin($table, $tableKey, $otherTableKey, $alias = null) {
+		$this->join(self::LEFT_JOIN, $table, $tableKey, $otherTableKey, $alias);
 		return $this;
 	}
 	
-	public function rightJoin($table, $tableKey, $otherTableKey) {
-		$this->join(self::RIGHT_JOIN, $table, $tableKey, $otherTableKey);
+	public function rightJoin($table, $tableKey, $otherTableKey, $alias = null) {
+		$this->join(self::RIGHT_JOIN, $table, $tableKey, $otherTableKey, $alias);
 		return $this;
 	}
 	
-	public function fullJoin($table, $tableKey, $otherTableKey) {
-		$this->join(self::FULL_JOIN, $table, $tableKey, $otherTableKey);
+	public function fullJoin($table, $tableKey, $otherTableKey, $alias = null) {
+		$this->join(self::FULL_JOIN, $table, $tableKey, $otherTableKey, $alias);
 		return $this;
 	}
 	
@@ -496,9 +502,14 @@ abstract class Query {
 	}
 
 	protected function formatNames(array $names) {
+		$alias = !empty($this->joins);
+		$as = $this->translateKeyword(self::ALIAS);
 		foreach($names as $key => $value) {
 			if (is_string($value)) {
-				$names[$key] = $this->escapeName($value);
+				$names[$key] = $this->formatColumn($value);
+				if ($alias) {
+					$names[$key] .= " {$as} " . $this->formatColumn($value, true);
+				}
 			}
 		}
 		return implode(', ', $names);
@@ -508,12 +519,17 @@ abstract class Query {
 		return $this->escapeTable($this->addPrefix($table));
 	}
 	
-	protected function formatColumn($column) {
+	protected function formatColumn($column, $alias = false) {
 		// In case we have joins the columns might not be unique, therefore we need to prepend the alias name
 		if (!empty($this->joins) && strpos($column, '.') === false) {
 			$column = "{$this->table}.{$column}";
 		}
-		return $this->escapeColumn($column);
+		if ($alias) {
+			return str_replace('.', '__', $column);
+		}
+		else {
+			return $this->escapeColumn($column);
+		}
 	}
 
 	protected abstract function escapeDatabase($database);
@@ -560,6 +576,7 @@ class QueryJoin {
 	
 	public $type;
 	public $table;
+	public $alias;
 	public $tableKey;
 	public $otherTableKey;
 	

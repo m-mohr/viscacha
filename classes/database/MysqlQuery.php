@@ -117,9 +117,9 @@ class MysqlQuery extends Query {
 		$joins = array();
 		foreach ($this->joins as $join) {
 			$table = $this->formatTable($join->table);
-			$tableKey = $this->formatColumn($join->table . '.' . $join->tableKey);
+			$tableKey = $this->formatColumn($join->alias . '.' . $join->tableKey);
 			$otherTableKey = $this->formatColumn($join->otherTableKey);
-			$joins[] = $this->translateKeyword($join->type) . " {$table} AS {$join->table} ON {$tableKey} = {$otherTableKey}";
+			$joins[] = $this->translateKeyword($join->type) . " {$table} AS {$join->alias} ON {$tableKey} = {$otherTableKey}";
 		}
 		return implode(' ', $joins);
 	}
@@ -237,7 +237,7 @@ class MysqlQuery extends Query {
 			$parts[] = $limitOffset;
 		}
 
-		return $this->makeQueryObject(implode(' ', $parts) . ';', $values);
+		return $this->makeQueryObject(implode("\n", $parts) . ';', $values);
 	}
 
 	protected function buildUpdate() {
@@ -301,6 +301,8 @@ class MysqlQuery extends Query {
 				return 'OR';
 			case self::_AND:
 				return 'AND';
+			case self::ALIAS:
+				return 'AS';
 			default:
 				return '';
 		}

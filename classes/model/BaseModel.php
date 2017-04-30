@@ -94,6 +94,7 @@ class BaseModel {
 	
 	protected $relationData = array();
 	protected $query = null;
+	protected $mapping = array();
 
 	public function __construct() {
 		$this->data = array_fill_keys($this->columns, null);
@@ -106,6 +107,17 @@ class BaseModel {
 	
 	public function getTableName() {
 		return $this->table;
+	}
+	
+	public function getForeignKeyClass($key) {
+		if (isset($this->foreignKeys[$key])) {
+			return $this->foreignKeys[$key];
+		}
+		return null;
+	}
+	
+	public function getForeignKeys($key) {
+		return $this->foreignKeys;
 	}
 	
 	public function getColumns() {
@@ -178,36 +190,56 @@ class BaseModel {
 		}
 		return $this;
 	}
+	
+	private function addJoin(BaseModel $model, $column) {
+		$foreignTable = $model->getTableName();
+		$alias = $foreignTable;
+		$foreignPk = $model->getPrimaryKey();
+		while(isset($this->mapping[$alias])) {
+			$alias .= "x";
+		}
+		$this->mapping[$alias] = get_class($model);
+		$this->discreteSelect($model, $alias);
+		$this->query->leftJoin($foreignTable, $foreignPk, $column, $alias);
+	}
+	
+	public function injectData($data) {
+		// ToDo: ...
+	}
 
 	public function expand($columns) {
+		$addedColumns = array();
 		foreach ($columns as $column) {
-			if (isset($this->foreignKeys[$column])) {
-				$foreignClass = new $this->foreignKeys[$column]();
-				$ft = $foreignClass->getTableName();
-				$fid = $foreignClass->getPrimaryKey();
-				$this->discreteSelect($foreignClass);
-				$this->query->leftJoin(array($ft, $ft), "{$ft}.{$fid}", '=', "{$this->table}.{$column}");
+			$path = explode('.', $column);
+			$model = $this;
+			foreach ($path as $k) {
+				$table = $model->getTableName();
+				$class = $model->getForeignKeyClass($k);
+				if ($class) {
+					$model = new $class();
+					if (!in_array($k, $addedColumns)) {
+						$this->addJoin($model, $table . '.' . $k);
+						$addedColumns[] = $k;
+					}
+				}
 			}
 		}
-		$this->discreteSelect();
 		return $this;
 	}
 	
-	protected function discreteSelect(BaseModel $model = null) {
+	protected function discreteSelect(BaseModel $model = null, $alias = null) {
 		if ($model === null) {
 			$model = $this;
 		}
-		$table = $model->getTableName();
-		$select = array();
+		$alias = $alias === null ? $model->getTableName() : $alias;
 		foreach ($model->getColumns() as $column) {
-			$select["{$table}.{$column}"] = "{$table}__{$column}";
+			$this->query->col("{$alias}.{$column}");
 		}
-		$this->query->select($select);
 		return $this;
 	}
 
 	protected function query() {
-		$this->query = new \Viscacha\Database\MysqlQuery();
+		$this->query = \DB::builder();
 		return $this;
 	}
 

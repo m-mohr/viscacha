@@ -88,8 +88,14 @@ class Result {
 		return $this->statement->fetchAll(\PDO::FETCH_ASSOC);
 	}
 
-	public function fetchObjectMatrix() {
-		return $this->statement->fetchAll(\PDO::FETCH_OBJ);
+	public function fetchObjectMatrix($object = null) {
+		$data = $this->statement->fetchAll(\PDO::FETCH_OBJ);
+		foreach ($data as $key => $value) {
+			$newObject = clone $object;
+			$this->fillObject($newObject, $value);
+			$data[$key] = $newObject;
+		}
+		return $data;
 	}
 
 	public function fetchList($column = 1) {
@@ -103,9 +109,22 @@ class Result {
 	public function fetch() {
 		return $this->statement->fetch(\PDO::FETCH_ASSOC);
 	}
+	
+	private function fillObject($object, $data) {
+		if ($object instanceof \Viscacha\Model\BaseModel) {
+			$object->injectData($data);
+		}
+		else if (is_object($object)) {
+			foreach ($data as $key => $value) {
+				$object->{$key} = $value;
+			}
+		}
+	}
 
-	public function fetchObject() {
-		return $this->statement->fetch(\PDO::FETCH_OBJ);
+	public function fetchObject($object = null) {
+		$data = $this->statement->fetch(\PDO::FETCH_OBJ);
+		$this->fillObject($object, $data);
+		return $data;
 	}
 
 	public function fetchOne($column = 1) {
