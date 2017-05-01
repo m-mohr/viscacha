@@ -63,6 +63,8 @@ abstract class Query {
 	const IN = 231;
 	const NOT_IN = 232;
 	
+	const ALIAS_SEP = '__';
+	
 	protected $connection = null;
 	protected $type;
 	protected $table;
@@ -81,45 +83,12 @@ abstract class Query {
 		$this->connection = $connection instanceof Database ? $connection : Database::getInstance();
 	}
 	
-	public function getPrefix() {
-		return 'v_'; // ToDo: get from config or connection
-	}
-	public function getType() {
-		return $this->type;
-	}
 	public function getTable() {
 		return $this->table;
 	}
-	public function getValues() {
-		return $this->values;
-	}
-	public function getOrderBy() {
-		return $this->orderBy;
-	}
-	public function getGroupBy() {
-		return $this->groupBy;
-	}
-	public function getLimit() {
-		return $this->limit;
-	}
-	public function getOffset() {
-		return $this->offset;
-	}
-	public function getJoins() {
-		return $this->joins;
-	}
-	public function getDistinct() {
-		return $this->distinct;
-	}
-	public function getWhere() {
-		return $this->where;
-	}
-	public function getHaving() {
-		return $this->having;
-	}
 	
-	public function addPrefix($table) {
-		return $this->getPrefix() . $table;
+	protected function addPrefix($table) {
+		return $this->connection->getPrefix() . $table;
 	}
 	
 	public function insert($table, array $data) {
@@ -136,7 +105,7 @@ abstract class Query {
 		return $this;
 	}
 	
-	public function select($table, $columns = array()) {
+	public function select($table, array $columns = array()) {
 		$this->type = self::SELECT;
 		$this->table = $table;
 		$this->values = $columns;
@@ -286,7 +255,14 @@ abstract class Query {
 	 */
 	protected function condition() {
 		$op = '=';
-		if (func_num_args() == 3) {
+		if (func_num_args() == 2) {
+			list($type, $data) = func_get_args();
+			foreach ($data as $column => $value) {
+				$this->condition($type, $column, $value);
+			}
+			return $this;
+		}
+		else if (func_num_args() == 3) {
 			list($type, $column, $value) = func_get_args();
 		}
 		else if (func_num_args() == 4) {
@@ -439,10 +415,10 @@ abstract class Query {
 		}
 	}
 	
-	public function fetchObject() {
+	public function fetchObject($class = null) {
 		$stmt = $this->execute();
 		if ($stmt) {
-			return $stmt->fetchObject();
+			return $stmt->fetchObject($class);
 		}
 		else {
 			return false;
@@ -469,10 +445,10 @@ abstract class Query {
 		}
 	}
 	
-	function fetchObjectMatrix() {
+	function fetchObjectMatrix($class = null) {
 		$stmt = $this->execute();
 		if ($stmt) {
-			return $stmt->fetchObjectMatrix();
+			return $stmt->fetchObjectMatrix($class);
 		}
 		else {
 			return false;
@@ -525,7 +501,7 @@ abstract class Query {
 			$column = "{$this->table}.{$column}";
 		}
 		if ($alias) {
-			return str_replace('.', '__', $column);
+			return str_replace('.', self::ALIAS_SEP, $column);
 		}
 		else {
 			return $this->escapeColumn($column);

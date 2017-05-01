@@ -76,11 +76,11 @@ class MysqlQuery extends Query {
 	}
 
 	protected function buildDrop() {
-		return $this->makeQueryObject('DROP TABLE '($this->safeAction ? 'IF EXISTS ' : '') . $this->formatTable($this->getTable()) . ';');
+		return $this->makeQueryObject('DROP TABLE ' . ($this->safeAction ? 'IF EXISTS ' : '') . $this->formatTable($this->getTable()) . ';');
 	}
 
 	protected function buildCreate() {
-		$sql = 'CREATE TABLE '($this->safeAction ? 'IF NOT EXISTS ' : '') . $this->formatTable($this->getTable()) . ' (...);';
+		$sql = 'CREATE TABLE ' . ($this->safeAction ? 'IF NOT EXISTS ' : '') . $this->formatTable($this->getTable()) . ' (...);';
 		throw new NotImplementedException(); // ToDo: Implement
 	}
 
@@ -119,7 +119,8 @@ class MysqlQuery extends Query {
 			$table = $this->formatTable($join->table);
 			$tableKey = $this->formatColumn($join->alias . '.' . $join->tableKey);
 			$otherTableKey = $this->formatColumn($join->otherTableKey);
-			$joins[] = $this->translateKeyword($join->type) . " {$table} AS {$join->alias} ON {$tableKey} = {$otherTableKey}";
+			$alias = $this->escapeColumn($join->alias);
+			$joins[] = $this->translateKeyword($join->type) . " {$table} AS {$alias} ON {$tableKey} = {$otherTableKey}";
 		}
 		return implode(' ', $joins);
 	}
@@ -237,7 +238,7 @@ class MysqlQuery extends Query {
 			$parts[] = $limitOffset;
 		}
 
-		return $this->makeQueryObject(implode("\n", $parts) . ';', $values);
+		return $this->makeQueryObject(implode(" ", $parts) . ';', $values);
 	}
 
 	protected function buildUpdate() {

@@ -159,12 +159,12 @@ class Database {
 	
 	public function fetch($sql, $values = array()) {
 		$stmt = $this->execute($sql, $values);
-		return $stmt->fetch($colum);
+		return $stmt->fetch();
 	}
 	
-	public function fetchObject($sql, $values = array()) {
+	public function fetchObject($sql, $values = array(), $class = null) {
 		$stmt = $this->execute($sql, $values);
-		return $stmt->fetchObject($colum);
+		return $stmt->fetchObject($class);
 	}
 	
 	public function fetchOne($sql, $values = array(), $colum = 1) {
@@ -179,12 +179,12 @@ class Database {
 	
 	public function fetchMatrix($sql, $values = array()) {
 		$stmt = $this->execute($sql, $values);
-		return $stmt->fetchMatrix($colum);
+		return $stmt->fetchMatrix();
 	}
 	
-	public function fetchObjectMatrix($sql, $values = array()) {
+	public function fetchObjectMatrix($sql, $values = array(), $class = null) {
 		$stmt = $this->execute($sql, $values);
-		return $stmt->fetchObject($colum);
+		return $stmt->fetchObject($class);
 	}
 	
 	public function fetchList($sql, $values = array(), $column = 1) {
