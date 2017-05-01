@@ -167,10 +167,10 @@ class Database {
 		return $stmt->fetchObject($class);
 	}
 	
-	public function fetchOne($sql, $values = array(), $colum = 1) {
+	public function fetchOne($sql, $values = array(), $column = 1) {
 		$stmt = $this->execute($sql, $values);
 		if ($stmt) {
-			return $stmt->fetchOne($colum);
+			return $stmt->fetchOne($column);
 		}
 		else {
 			return false;
@@ -189,7 +189,7 @@ class Database {
 	
 	public function fetchList($sql, $values = array(), $column = 1) {
 		$stmt = $this->execute($sql, $values);
-		return $stmt->fetchList($colum);
+		return $stmt->fetchList($column);
 	}
 
 	public function execute($sql, $values = array()) {

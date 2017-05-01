@@ -114,14 +114,22 @@ abstract class Query {
 	
 	public function distinct() {
 		$this->distinct = true;
+		return $this;
 	}
 	
 	public function col($column) {
 		$this->values[] = $column;
+		return $this;
+	}
+	
+	public function colCount() {
+		$this->values[] = new QueryRaw('COUNT(*)');
+		return $this;
 	}
 	
 	public function colRaw($column) {
 		$this->values[] = new QueryRaw($column);
+		return $this;
 	}
 	
 	public function delete($table) {
@@ -245,6 +253,12 @@ abstract class Query {
 		return $this;
 	}
 	
+	public function pagination($page, $perPage = 10) {
+		$this->limit($perPage);
+		$this->offset(($page - 1) * $perPage);
+		return $this;
+	}
+
 	/**
 	 * 
 	 * @param $type
@@ -253,6 +267,98 @@ abstract class Query {
 	 * @param $value Optional
 	 * @return $this
 	 */
+	public function where() {
+		$arguments = func_get_args();
+		array_unshift($arguments, 'where');
+		return call_user_func_array(array($this, 'condition'), $arguments);
+	}
+	
+	public function whereIn($column, $values) {
+		return $this->conditionIn('where', $column, $values);
+	}
+	
+	public function whereNotIn($column, $values) {
+		return $this->conditionNotIn('where', $column, $values);
+	}
+	
+	public function whereUnlike($column, $value) {
+		return $this->conditionUnlike('where', $column, $value);
+	}
+	
+	public function whereLike($column, $value) {
+		return $this->conditionLike('where', $column, $value);
+	}
+	
+	public function whereNotNull($column) {
+		return $this->conditionNotNull('where', $column);
+	}
+	
+	public function whereNull($column) {
+		return $this->conditionNull('where', $column);
+	}
+	
+	public function whereAnd($callback) {
+		return $this->conditionAnd('where', $callback);
+	}
+
+	public function whereOr($callback) {
+		return $this->conditionOr('where', $callback);
+	}
+	
+	public function whereGroup($op, $callback) {
+		return $this->conditionGroup('where', $op, $callback);
+	}
+
+	/**
+	 * 
+	 * @param $type
+	 * @param $column
+	 * @param $op If no $value is specified, $op can be the value and the $op is assumed to be '='.
+	 * @param $value Optional
+	 * @return $this
+	 */
+	public function having() {
+		$arguments = func_get_args();
+		array_unshift($arguments, 'where');
+		return call_user_func_array(array($this, 'condition'), $arguments);
+	}
+	
+	public function havingIn($column, $values) {
+		return $this->conditionIn('having', $column, $values);
+	}
+	
+	public function havingNotIn($column, $values) {
+		return $this->conditionNotIn('having', $column, $values);
+	}
+	
+	public function havingUnlike($column, $value) {
+		return $this->conditionUnlike('having', $column, $value);
+	}
+	
+	public function havingLike($column, $value) {
+		return $this->conditionLike('having', $column, $value);
+	}
+	
+	public function havingNotNull($column) {
+		return $this->conditionNotNull('having', $column);
+	}
+	
+	public function havingNull($column) {
+		return $this->conditionNull('having', $column);
+	}
+	
+	public function havingAnd($callback) {
+		return $this->conditionAnd('having', $callback);
+	}
+
+	public function havingOr($callback) {
+		return $this->conditionOr('having', $callback);
+	}
+	
+	public function havingGroup($op, $callback) {
+		return $this->conditionGroup('having', $op, $callback);
+	}
+
 	protected function condition() {
 		$op = '=';
 		if (func_num_args() == 2) {
@@ -304,11 +410,11 @@ abstract class Query {
 	}
 	
 	protected function conditionAnd($type, $callback) {
-		return $this->conditionGroup ($type, self::_AND, $callback);
+		return $this->conditionGroup($type, self::_AND, $callback);
 	}
 
 	protected function conditionOr($type, $callback) {
-		return $this->conditionGroup ($type, self::_OR, $callback);
+		return $this->conditionGroup($type, self::_OR, $callback);
 	}
 	
 	protected function conditionGroup($type, $op, $callback) {
@@ -339,33 +445,6 @@ abstract class Query {
 		$obj->query = $query;
 		$obj->values = $values;
 		return $obj;
-	}
-
-	public function __call($name, $arguments) {
-		$type = null;
-		$method = '';
-		if (strpos($name, 'where') === 0) {
-			$type = 'where';
-			if (strlen($name) > 5) {
-				$method = lcfirst(substr($name, 5));
-			}
-		}
-		else if (strpos($name, 'having') === 0) {
-			$type = 'having';
-			if (strlen($name) > 6) {
-				$method = lcfirst(substr($name, 6));
-			}
-		}
-		
-		if ($type !== null) {
-			$callable = array($this, 'condition' . $method);
-			if (is_callable($callable)) {
-				array_unshift($arguments, $type);
-				return call_user_func_array($callable, $arguments);
-			}
-		}
-
-		trigger_error("Inaccessible method '{$name}'", E_USER_NOTICE);
 	}
 
 	public static function __callStatic($name, $arguments) {
@@ -425,7 +504,7 @@ abstract class Query {
 		}
 	}
 	
-	public function fetchOne($colum = 1) {
+	public function fetchOne($column = 1) {
 		$stmt = $this->execute();
 		if ($stmt) {
 			return $stmt->fetchOne($column);
@@ -501,7 +580,7 @@ abstract class Query {
 			$column = "{$this->table}.{$column}";
 		}
 		if ($alias) {
-			return str_replace('.', self::ALIAS_SEP, $column);
+			return $this->escapeColumn(str_replace('.', self::ALIAS_SEP, $column));
 		}
 		else {
 			return $this->escapeColumn($column);

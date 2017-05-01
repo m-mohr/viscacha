@@ -194,7 +194,7 @@ class MysqlQuery extends Query {
 
 		// FROM
 		$table = $this->formatTable($this->getTable());
-		$alias = $this->getTable();
+		$alias = $this->escapeColumn($this->getTable());
 		$parts[] = "FROM {$table} AS {$alias}";
 
 		// JOINS
