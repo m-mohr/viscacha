@@ -135,8 +135,6 @@ class Model implements \ArrayAccess {
 				$this->data[$pk] = $primaryKey[$pk];
 			}
 		}
-
-		throw new NoPrimaryKeyException();
 	}
 
 	public function getPrimaryKeyData() {

@@ -24,6 +24,7 @@
 
 namespace Viscacha\Model;
 
+use Viscacha\Database\Query;
 use Viscacha\Database\Result;
 
 class BaseModel extends Model {
@@ -121,11 +122,18 @@ class BaseModel extends Model {
 			}
 		}
 
+		// Allow short syntax for scopes
+		$method = 'scope' . ucfirst($name);
+		if (method_exists($this, $method)) {
+			array_unshift($arguments, $this->query);
+			return call_user_func_array(array($this, $method), $arguments);
+		}
+
 		// Redirect to Query Builder
 		$callable = array($this->query, $name);
 		if (is_callable($callable)) {
 			$result = call_user_func_array($callable, $arguments);
-			if ($result === $this->query) {
+			if ($result instanceof Query) {
 				return $this;
 			} else {
 				return $result;

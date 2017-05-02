@@ -523,7 +523,7 @@ abstract class Query {
 		}
 	}
 	
-	function fetchObjectMatrix($class = null) {
+	function fetchObjectMatrix($class = "stdClass") {
 		$stmt = $this->execute();
 		if ($stmt) {
 			return $stmt->fetchObjectMatrix($class);
