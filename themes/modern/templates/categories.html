@@ -1,6 +1,6 @@
 @if($error_state)
 <div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">@lang('re_error_title')</h3></div>
+	<div class="panel-heading"><h2>@lang('re_error_title')</h2></div>
 	<div class="panel-body">
 		@if($hidden == 0)
 		@lang('error_no_forums_found')
@@ -14,17 +14,17 @@
 	
 	@else
 	@foreach ($cats as $cat)
+	<h2>
+		{{ $cat['name'] }}
+		@if(!empty($cat['description']))
+		<small>{{ $cat['description'] }}</small>
+		@endif
+	</h2>
 	<table class="table forums table-striped">
 		<thead>
 			<tr>
-				<th class="cell-name" colspan="2">
-					<div class="panel-heading"><h3 class="panel-title">
-							{{ $cat['name'] }}
-							@if(!empty($cat['description']))
-							<small>{{ $cat['description'] }}</small>
-							@endif
-						</h3></div>
-				</th>
+				<th class="cell-icon"></th>
+				<th class="cell-name">@lang('board')</th>
 				<th class="cell-stat hidden-xs hidden-sm">@lang('contentcounter')</th>
 				<th class="cell-last hidden-xs">@lang('last_post')</th>
 			</tr>
@@ -36,10 +36,10 @@
 				<td class="cell-icon"><i class="fa fa-arrow-right fa-2x icon-neutral"></i></td>
 				<td class="cell-name">
 
-					<h4>
+					<h3>
 						<a href="{{ $forum['optvalue'] }}">{{ $forum['name'] }}</a>
 						<small>{{ $forum['optvalue'] }}</small>
-					</h4>
+					</h3>
 					@if(!empty($forum['description']))
 					<small>{{ $forum['description'] }}</small>
 					@endif
@@ -59,7 +59,7 @@
 					@endif
 				</td>
 				<td class="cell-name">
-					<h4><a href="showforum.php?id={{ $forum['id'] }}{{ SID2URL_x }}">{{ $forum['name'] }}</a></h4>
+					<h3><a href="showforum.php?id={{ $forum['id'] }}{{ SID2URL_x }}">{{ $forum['name'] }}</a></h3>
 					@if(!empty($forum['description']))
 					<small>{{ $forum['description'] }}</small>
 					@endif

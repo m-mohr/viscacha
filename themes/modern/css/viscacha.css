@@ -295,14 +295,10 @@ li.pagination-separator, li.pagination-label {
 }
 
 /* Forum list table */
-
 .forums h3 {
-	margin-top: 10px;
-	margin-bottom: 0px;
-}
-.forums h4 {
-	margin-top: 5px;
-	margin-bottom: 5px;
+	margin-top: 0px;
+	margin-bottom: 4px;
+	font-size: 1.2em;
 }
 .forums.table > tbody > tr > td {
     vertical-align: middle;
