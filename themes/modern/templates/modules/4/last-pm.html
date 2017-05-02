@@ -1,9 +1,16 @@
-<br />
+<h2>@lang('last_private_message')</h2>
+
 <div class="panel panel-default">
-	<div class="panel-heading"><h3 class="panel-title">@lang('last_private_message')</h3></div>
-	<div class="panel-footer"><strong>{{ $row['name'] }}</strong> (@reldatetime($row['date'])):</div>
+	<div class="panel-heading">
+		<span class="pull-right">
+			<i class="fa fa-clock-o"></i> @reldatetime($row['date'])
+		</span>
+		<h3 class="panel-title">
+			{{ $row['name'] }}
+		</h3>
+	</div>
 	<div class="panel-body">
-		<span class="stext">@lang('subject') <strong>{{ $row['topic'] }}</strong></span>
+		@lang('subject') <strong>{{ $row['topic'] }}</strong>
 		<hr />
 		{!! $row['comment'] !!}
 	</div>

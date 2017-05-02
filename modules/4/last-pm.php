@@ -7,7 +7,7 @@ $row = $db->fetch("
 	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}' AND p.dir != '2'
 	ORDER BY p.date ASC
 ");
-if (!$row) {
+if ($row) {
 	if (empty($row['name'])) {
 		$row['name'] = $lang->phrase('fallback_no_username');
 	}
