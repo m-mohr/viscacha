@@ -375,7 +375,7 @@ abstract class Query {
 			list($type, $column, $op, $value) = func_get_args();
 		}
 		else {
-			trigger_error('Invalid number of arguments specified.', E_USER_WARNING);
+			throw new \BadMethodCallException('Invalid number of arguments specified.');
 		}
 
 		if ($this->{$type} === null) {
@@ -479,8 +479,7 @@ abstract class Query {
 			case self::SCHEMA_INSERT:
 				return $this->buildSchemeData();
 			default:
-				trigger_error('No query type specified', E_USER_WARNING);
-				return null;
+				throw new \InvalidArgumentException('No valid query type specified');
 		}
 	}
 	

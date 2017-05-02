@@ -1,4 +1,26 @@
 <?php
+/*
+  Viscacha - An advanced bulletin board solution to manage your content easily
+  Copyright (C) 2004-2017, Lutana
+  http://www.viscacha.org
+
+  Authors: Matthias Mohr et al.
+  Start Date: May 22, 2004
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 namespace Viscacha\Model;
 
@@ -167,12 +189,12 @@ class Model implements \ArrayAccess {
 
 	public function changedData() {
 		$changes = array();
-		foreach ($this->data as $key => $value) {
+		foreach ($this->columns as $key => $value) {
 			if (!isset($this->originalData[$key])) {
 				continue;
 			}
 
-			if ($this->originalData[$key] !== $value) {
+			if ($this->originalData[$key] !== $this->data[$key]) {
 				$changes[$key] = $value;
 			}
 		}
@@ -257,7 +279,7 @@ class Model implements \ArrayAccess {
 	protected function hasMany($class, $column) {
 		$pkData = $this->getPrimaryKeyData();
 		if (count($pkData) > 1) {
-			trigger_error('Relations with multiple primary keys are not implemented.', E_USER_ERROR);
+			throw new \NotImplementedException('Relations with multiple primary keys are not implemented.');
 		}
 		$model = new $class();
 		return $model->query()->select($model->getTableName())->where($column, reset($pkData))->fetchObjectMatrix($class);
@@ -279,10 +301,10 @@ class Model implements \ArrayAccess {
 		$model = new $class();
 		$pk = $model->getPrimaryKey();
 		if (count($pk) > 1) {
-			trigger_error('Relations with multiple primary keys are not implemented.', E_USER_ERROR);
+			throw new \NotImplementedException('Relations with multiple primary keys are not implemented.');
 		}
 		$object = $model->query()->select($model->getTableName())->where($pk, $this->data[$column])->fetchObject($class);
-		$this->relationData[$column] = $object;
+		$this->injectRelationData($column, $object);
 		return $object;
 	}
 
@@ -295,7 +317,7 @@ class Model implements \ArrayAccess {
 			if ($this->hasColumn($column)) {
 				if ($prefix === 'set') {
 					if (!isset($arguments[0])) {
-						trigger_error("Parameter not specified for method '{$name}'", E_USER_NOTICE);
+						throw new \BadMethodCallException("Parameter not specified for method '{$name}'");
 					}
 					$this->data[$column] = $arguments[0];
 					return;
@@ -305,13 +327,18 @@ class Model implements \ArrayAccess {
 			}
 		}
 
-		trigger_error("Inaccessible method '{$name}'", E_USER_NOTICE);
+		throw new \BadMethodCallException("Inaccessible method '{$name}'");
 	}
 
 	public function __set($name, $value) {
-		if (in_array($name, $this->columns) && !$this->isPrimaryKey($name)) {
-			$setter = 'set' . ucfirst($name);
-			$this->{$setter}($value);
+		if (in_array($name, $this->columns)) {
+			if (!$this->isPrimaryKey($name)) {
+				$setter = 'set' . ucfirst($name);
+				$this->{$setter}($value);
+			}
+		}
+		else {
+			$this->data[$name] = $value;
 		}
 	}
 
@@ -320,11 +347,14 @@ class Model implements \ArrayAccess {
 			$getter = 'get' . ucfirst($name);
 			return $this->{$getter}();
 		}
-		return null;
+		else if (isset($this->data[$name])) {
+			return $this->data[$name];
+		}
+		throw new \OutOfBoundsException("Parameter '{$name}' not set.");
 	}
 
 	public function __isset($name) {
-		return $this->hasColumn($name);
+		return $this->hasColumn($name) || isset($this->data[$name]);
 	}
 
 	public function __unset($name) {
