@@ -398,7 +398,7 @@ elseif ($_GET['action'] == "bbhelp") {
 	$smileys = $bbcode->getSmileys();
 	$cbb = $bbcode->getCustomBB();
 	foreach ($cbb as $key => $bb) {
-		$cbb[$key]['syntax'] = '['.$bb['bbcodetag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['bbcodetag'].']';
+		$cbb[$key]['syntax'] = '['.$bb['tag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['tag'].']';
 	}
 
 	$code1 = '&lt;?php echo phpversion(); ?&gt;';

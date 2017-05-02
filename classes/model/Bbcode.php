@@ -7,16 +7,18 @@ namespace Viscacha\Model;
  */
 class Bbcode extends BaseModel {
 
-	protected $table = 'bbcode';
-	protected $columns = [
-		'id',
-		'bbcodetag',
-		'bbcodereplacement',
-		'bbcodeexample',
-		'bbcodeexplanation',
-		'twoparams',
-		'title',
-		'buttonimage'
-	];
+	public function define() {
+		$this->table = 'bbcode';
+		$this->columns = [
+			'id',
+			'tag',
+			'replacement',
+			'example',
+			'explanation',
+			'twoparams',
+			'title',
+			'buttonimage'
+		];
+	}
 
 }

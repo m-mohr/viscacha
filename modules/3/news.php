@@ -76,7 +76,7 @@ while ($row = $result->fetch()) {
 									// reader, tab, hr, *, br
 			$custom = $bbcode->getCustomBB();
 			foreach ($custom as $re) {
-				$bbcodes[] = mb_strtolower($re['bbcodetag']);
+				$bbcodes[] = mb_strtolower($re['tag']);
 			}
 			while(($top = array_shift($stack)) != null) {
 				$top = preg_replace("/(\w+?)(=[^\/\r\n\[\]]+)?/iu", "\\1", $top);

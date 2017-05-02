@@ -23,10 +23,10 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 		}
 		$cbb[$key]['title'] = viscacha_htmlspecialchars($bb['title']);
 		if ($bb['twoparams']) {
-			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}=]','[/{$bb['bbcodetag']}]');";
+			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['tag']}=]','[/{$bb['tag']}]');";
 		}
 		else {
-			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}]','[/{$bb['bbcodetag']}]');";
+			$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['tag']}]','[/{$bb['tag']}]');";
 		}
 	}
 

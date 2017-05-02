@@ -639,13 +639,13 @@ class BBCode {
 	protected function cbb_helper($matches) {
 		if ($this->currentCBB != null) {
 			$index = $this->currentCBB['twoparams'] ? 2 : 1;
-			$bbcodereplacement = preg_replace('~\{param(:(?:\\\}|[^\}])+)?\}~iu', $matches[$index], $this->currentCBB['bbcodereplacement']);
+			$replacement = preg_replace('~\{param(:(?:\\\}|[^\}])+)?\}~iu', $matches[$index], $this->currentCBB['replacement']);
 			if ($this->currentCBB['twoparams']) {
 				$pid = $this->noparse_id();
 				$this->noparse[$pid] = $matches[1];
-				$bbcodereplacement = preg_replace('~\{option(:(?:\\\}|[^\}])+)?\}~iu', "<!PID:{$pid}>", $bbcodereplacement);
+				$replacement = preg_replace('~\{option(:(?:\\\}|[^\}])+)?\}~iu', "<!PID:{$pid}>", $replacement);
 			}
-			return $bbcodereplacement;
+			return $replacement;
 		} else {
 			return $matches[0];
 		}
@@ -716,9 +716,9 @@ class BBCode {
 			}
 			$cbb[$key]['title'] = viscacha_htmlspecialchars($bb['title']);
 			if ($bb['twoparams']) {
-				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}=]','[/{$bb['bbcodetag']}]');";
+				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['tag']}=]','[/{$bb['tag']}]');";
 			} else {
-				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['bbcodetag']}]','[/{$bb['bbcodetag']}]');";
+				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['tag']}]','[/{$bb['tag']}]');";
 			}
 		}
 

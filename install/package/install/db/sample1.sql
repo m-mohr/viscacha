@@ -1,4 +1,4 @@
-INSERT INTO `{:=DBPREFIX=:}bbcode` (`id`, `bbcodetag`, `bbcodereplacement`, `bbcodeexample`, `bbcodeexplanation`, `twoparams`, `title`, `buttonimage`) VALUES ('1', 's', '&lt;s&gt;{param}&lt;/s&gt;', '&lt;s&gt;Dies gilt nicht mehr&lt;/s&gt;', 'Etwas durchstreichen', '0', 'Strikethrough', '');
+INSERT INTO `{:=DBPREFIX=:}bbcode` (`id`, `tag`, `replacement`, `example`, `explanation`, `twoparams`, `title`, `buttonimage`) VALUES ('1', 's', '&lt;s&gt;{param}&lt;/s&gt;', '&lt;s&gt;Dies gilt nicht mehr&lt;/s&gt;', 'Etwas durchstreichen', '0', 'Strikethrough', '');
 
 INSERT INTO `{:=DBPREFIX=:}categories` (`id`, `name`, `description`, `parent`, `position`) VALUES ('1', 'Viscacha', 'Sample Category', '0', '0');
 

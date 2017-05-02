@@ -25,7 +25,7 @@
 					<li><a href="#bb_{{ $bb['tag'] }}">[{{ $bb['tag'] }}] {{ $bb['title'] }}</a></li>
 					@endforeach
 					@foreach($cbb as $bb)
-					<li><a href="#cbb_{{ $bb['id'] }}">[{{ $bb['bbcodetag'] }}] {{ $bb['title'] }}</a></li>
+					<li><a href="#cbb_{{ $bb['id'] }}">[{{ $bb['tag'] }}] {{ $bb['title'] }}</a></li>
 					@endforeach
 				</ul>
 			</li>
@@ -137,7 +137,7 @@
 		</th>
 	</tr>
 	<tr>
-		<td class="tbody" colspan="2">{{ $bb['bbcodeexplanation'] }}</td>
+		<td class="tbody" colspan="2">{{ $bb['explanation'] }}</td>
 	</tr>
 	<tr>
 		<td class="tbody" width="20%">@lang('bbcodes_help_syntax')</td>
@@ -147,11 +147,11 @@
 	</tr>
 	<tr>
 		<td class="tbody" width="20%">@lang('bbcodes_help_example')</td>
-		<td class="tbody" width="80%"><p><code>{{ $bb['bbcodeexample'] }}</code></p></td>
+		<td class="tbody" width="80%"><p><code>{{ $bb['example'] }}</code></p></td>
 	</tr>
 	<tr>
 		<td class="tbody" width="20%">@lang('bbcodes_help_output')</td>
-		<td class="tbody" width="80%">{{ $bbcode->customBB($bb['bbcodeexample']) }}</td>
+		<td class="tbody" width="80%">{{ $bbcode->customBB($bb['example']) }}</td>
 	</tr>
 </table>
 @endforeach

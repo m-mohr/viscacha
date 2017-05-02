@@ -43,14 +43,14 @@ class cache_custombb extends CacheItem {
 			$this->data = array();
 			$result = $db->execute("SELECT * FROM {$db->pre}bbcode ORDER BY id");
 			while ($bb = $result->fetch()) {
-				preg_match('~\{param(?::((?:\\\}|[^\}])+))?\}~iu', $bb['bbcodereplacement'], $type); // Old: \{param(:(\\\}|[^\}]+))?\}
+				preg_match('~\{param(?::((?:\\\}|[^\}])+))?\}~iu', $bb['replacement'], $type); // Old: \{param(:(\\\}|[^\}]+))?\}
 				if (empty($type[1])) {
 					$type[1] = null;
 				}
 				$param = '('.$this->getRegexp($type[1]).')';
 
 				if ($bb['twoparams']) {
-					preg_match('~\{option(?::((?:\\\}|[^\}])+))?\}~iu', $bb['bbcodereplacement'], $type); // Old: \{option(:(\\\}|[^\}]+))?\}
+					preg_match('~\{option(?::((?:\\\}|[^\}])+))?\}~iu', $bb['replacement'], $type); // Old: \{option(:(\\\}|[^\}]+))?\}
 					// Paramter for Opening Tag
 					if (empty($type[1])) {
 						$type[1] = null;
@@ -60,7 +60,7 @@ class cache_custombb extends CacheItem {
 				else {
 					$option = '';
 				}
-				$bb['bbcodereplacement'] = str_replace(array("\r\n", "\n"), "\r", $bb['bbcodereplacement']);
+				$bb['replacement'] = str_replace(array("\r\n", "\n"), "\r", $bb['replacement']);
 
 				if (!is_url($bb['buttonimage'])) {
 					if (!empty($bb['buttonimage']) && @file_exists(CBBC_BUTTONDIR.$bb['buttonimage'])) {
@@ -71,7 +71,7 @@ class cache_custombb extends CacheItem {
 					}
 				}
 
-				$bb['bbregexp'] = '\['.$bb['bbcodetag'].$option.'\]'.$param.'\[\/'.$bb['bbcodetag'].'\]';
+				$bb['bbregexp'] = '\['.$bb['tag'].$option.'\]'.$param.'\[\/'.$bb['tag'].'\]';
 
 				$this->data[] = $bb;
 			}

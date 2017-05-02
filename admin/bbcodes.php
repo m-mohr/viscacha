@@ -618,7 +618,7 @@ elseif ($job == 'custombb_export') {
 	$id = $gpc->get('id', int);
 
 	$result = $db->execute("
-	SELECT bbcodetag, bbcodereplacement, bbcodeexample, bbcodeexplanation, twoparams, title, buttonimage
+	SELECT tag, replacement, example, explanation, twoparams, title, buttonimage
 	FROM {$db->pre}bbcode
 	WHERE id = '{$id}'
 	LIMIT 1
@@ -654,7 +654,7 @@ elseif ($job == 'custombb_export') {
 
 	viscacha_header('Content-Type: text/plain');
 	viscacha_header('Content-Length: '.mb_strlen($content));
-	viscacha_header('Content-Disposition: attachment; filename="'.$data['bbcodetag'].'.bbc"');
+	viscacha_header('Content-Disposition: attachment; filename="'.$data['tag'].'.bbc"');
 
 	print($content);
 }
@@ -727,15 +727,15 @@ elseif ($job == 'custombb_import2') {
 	$content = file_get_contents($file);
 	$bb = unserialize($content);
 
-	if (empty($bb['bbcodetag']) || empty($bb['bbcodereplacement']) || empty($bb['bbcodeexample'])) {
+	if (empty($bb['tag']) || empty($bb['replacement']) || empty($bb['example'])) {
 		error('admin.php?action=bbcodes&job=custombb_import', $lang->phrase('admin_bbc_bbc_corrupt'));
 	}
 
 	$bb = array_map(array($db, 'escape_string'), $bb);
 
-	$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$bb['bbcodetag']}' AND twoparams = '{$bb['twoparams']}'");
+	$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE tag = '{$bb['tag']}' AND twoparams = '{$bb['twoparams']}'");
 	if ($result->getResultCount() > 0) {
-		$bbcodetag = $bb['bbcodetag'];
+		$bbcodetag = $bb['tag'];
 		error('admin.php?action=bbcodes&job=custombb_import', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
 
@@ -750,8 +750,8 @@ elseif ($job == 'custombb_import2') {
 	}
 
 	$db->execute("
-	INSERT INTO {$db->pre}bbcode (bbcodetag, bbcodereplacement, bbcodeexample, bbcodeexplanation, twoparams, title, buttonimage)
-	VALUES ('{$bb['bbcodetag']}','{$bb['bbcodereplacement']}','{$bb['bbcodeexample']}','{$bb['bbcodeexplanation']}','{$bb['twoparams']}','{$bb['title']}','{$bb['buttonimage']}')
+	INSERT INTO {$db->pre}bbcode (tag, replacement, example, explanation, twoparams, title, buttonimage)
+	VALUES ('{$bb['tag']}','{$bb['replacement']}','{$bb['example']}','{$bb['explanation']}','{$bb['twoparams']}','{$bb['title']}','{$bb['buttonimage']}')
 	");
 
 	if ($del > 0) {
@@ -778,22 +778,22 @@ elseif ($job == 'custombb_add') {
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_tag'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_tag_desc'); ?></span></td>
-		<td class="mbox"><input type="text" name="bbcodetag" value="" size="60" /></td>
+		<td class="mbox"><input type="text" name="tag" value="" size="60" /></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_replacement'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_replacement_desc'); ?></span></td>
-		<td class="mbox"><textarea name="bbcodereplacement" rows="6" cols="60" wrap="virtual"></textarea></td>
+		<td class="mbox"><textarea name="replacement" rows="6" cols="60" wrap="virtual"></textarea></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_example'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_example_desc'); ?></span></td>
-		<td class="mbox"><input type="text" name="bbcodeexample" value="" size="60" /></td>
+		<td class="mbox"><input type="text" name="example" value="" size="60" /></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_description'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_description_desc'); ?></span></td>
-		<td class="mbox"><textarea name="bbcodeexplanation" rows="8" cols="60" wrap="virtual"></textarea></td>
+		<td class="mbox"><textarea name="explanation" rows="8" cols="60" wrap="virtual"></textarea></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_use_option'); ?><br />
@@ -818,10 +818,10 @@ elseif ($job == 'custombb_add') {
 elseif ($job == 'custombb_add2') {
 	$vars = array(
 		'title'				=> str,
-		'bbcodetag'			=> str,
-		'bbcodereplacement' => db_esc,
-		'bbcodeexample'		=> str,
-		'bbcodeexplanation' => db_esc,
+		'tag'			=> str,
+		'replacement' => db_esc,
+		'example'		=> str,
+		'explanation' => db_esc,
 		'twoparams'			=> int,
 		'buttonimage'		=> db_esc
 	);
@@ -832,19 +832,19 @@ elseif ($job == 'custombb_add2') {
 
 	echo head();
 
-	if (!$query['bbcodetag'] OR !$query['bbcodereplacement'] OR !$query['bbcodeexample']) {
+	if (!$query['tag'] OR !$query['replacement'] OR !$query['example']) {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'");
+	$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
 	if ($result->getResultCount() > 0) {
-		$bbcodetag = $query['bbcodetag'];
+		$bbcodetag = $query['tag'];
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
 
 	$db->execute("
-	INSERT INTO {$db->pre}bbcode (bbcodetag, bbcodereplacement, bbcodeexample, bbcodeexplanation, twoparams, title, buttonimage)
-	VALUES ('{$query['bbcodetag']}','{$query['bbcodereplacement']}','{$query['bbcodeexample']}','{$query['bbcodeexplanation']}','{$query['twoparams']}','{$query['title']}','{$query['buttonimage']}')
+	INSERT INTO {$db->pre}bbcode (tag, replacement, example, explanation, twoparams, title, buttonimage)
+	VALUES ('{$query['tag']}','{$query['replacement']}','{$query['example']}','{$query['explanation']}','{$query['twoparams']}','{$query['title']}','{$query['buttonimage']}')
 	");
 
 	$delobj = $scache->load('custombb');
@@ -873,24 +873,24 @@ elseif ($job == 'custombb_edit') {
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_tag'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_tag_desc'); ?></span></td>
 		<td class="mbox">
-		 <input type="text" name="bbcodetag" value="<?php echo $bbcode['bbcodetag']; ?>" size="60" />
-		 <input type="hidden" name="bbcodetag_old" value="<?php echo $bbcode['bbcodetag']; ?>" />
+		 <input type="text" name="tag" value="<?php echo $bbcode['tag']; ?>" size="60" />
+		 <input type="hidden" name="tag_old" value="<?php echo $bbcode['tag']; ?>" />
 		</td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_replacement'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_replacement_desc'); ?></span></td>
-		<td class="mbox"><textarea name="bbcodereplacement" rows="6" cols="60" wrap="virtual"><?php echo $bbcode['bbcodereplacement']; ?></textarea></td>
+		<td class="mbox"><textarea name="replacement" rows="6" cols="60" wrap="virtual"><?php echo $bbcode['replacement']; ?></textarea></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_example'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_example_desc'); ?></span></td>
-		<td class="mbox"><input type="text" name="bbcodeexample" value="<?php echo $bbcode['bbcodeexample']; ?>" size="60" /></td>
+		<td class="mbox"><input type="text" name="example" value="<?php echo $bbcode['example']; ?>" size="60" /></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_description'); ?><br />
 		<span class="stext"><?php echo $lang->phrase('admin_bbc_description_desc'); ?></span></td>
-		<td class="mbox"><textarea name="bbcodeexplanation" rows="8" cols="60" wrap="virtual"><?php echo $bbcode['bbcodeexplanation']; ?></textarea></td>
+		<td class="mbox"><textarea name="explanation" rows="8" cols="60" wrap="virtual"><?php echo $bbcode['explanation']; ?></textarea></td>
 	</tr>
 	<tr>
 		<td class="mbox"><?php echo $lang->phrase('admin_bbc_use_option'); ?><br />
@@ -916,11 +916,11 @@ elseif ($job == 'custombb_edit2') {
 	$vars = array(
 		'id'				=> int,
 		'title'				=> str,
-		'bbcodetag'			=> str,
-		'bbcodetag_old'		=> str,
-		'bbcodereplacement' => db_esc,
-		'bbcodeexample'		=> str,
-		'bbcodeexplanation' => db_esc,
+		'tag'			=> str,
+		'tag_old'		=> str,
+		'replacement' => db_esc,
+		'example'		=> str,
+		'explanation' => db_esc,
 		'twoparams'			=> int,
 		'buttonimage'		=> db_esc
 	);
@@ -931,19 +931,19 @@ elseif ($job == 'custombb_edit2') {
 
 	echo head();
 
-	if (!$query['bbcodetag'] OR !$query['bbcodereplacement'] OR !$query['bbcodeexample']) {
+	if (!$query['tag'] OR !$query['replacement'] OR !$query['example']) {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	if (mb_strtolower($query['bbcodetag']) != mb_strtolower($query['bbcodetag_old'])) {
-		$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE bbcodetag = '{$query['bbcodetag']}' AND twoparams = '{$query['twoparams']}'");
+	if (mb_strtolower($query['tag']) != mb_strtolower($query['tag_old'])) {
+		$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
 		if ($result->getResultCount() > 0) {
-			$bbcodetag = $query['bbcodetag'];
+			$bbcodetag = $query['tag'];
 			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 		}
 	}
 
-	$db->execute("UPDATE {$db->pre}bbcode SET title = '{$query['title']}',bbcodetag = '{$query['bbcodetag']}',bbcodereplacement = '{$query['bbcodereplacement']}',bbcodeexample = '{$query['bbcodeexample']}',bbcodeexplanation = '{$query['bbcodeexplanation']}',twoparams = '{$query['twoparams']}',buttonimage = '{$query['buttonimage']}' WHERE id = '{$query['id']}'");
+	$db->execute("UPDATE {$db->pre}bbcode SET title = '{$query['title']}',tag = '{$query['tag']}',replacement = '{$query['replacement']}',example = '{$query['example']}',explanation = '{$query['explanation']}',twoparams = '{$query['twoparams']}',buttonimage = '{$query['buttonimage']}' WHERE id = '{$query['id']}'");
 
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
@@ -1062,7 +1062,7 @@ elseif ($job == 'custombb') {
 		?>
 		<tr>
 			<td class="mbox"><?php echo $bbcode['title']; ?></td>
-			<td class="mbox"><code>[<?php echo $bbcode['bbcodetag'].iif($bbcode['twoparams'], '={option}'); ?>]{param}[/<?php echo $bbcode['bbcodetag']; ?>]</code></td>
+			<td class="mbox"><code>[<?php echo $bbcode['tag'].iif($bbcode['twoparams'], '={option}'); ?>]{param}[/<?php echo $bbcode['tag']; ?>]</code></td>
 			<td class="mbox" align="center"><?php echo $src; ?></td>
 			<td class="mbox">
 			<a class="button" href="admin.php?action=bbcodes&job=custombb_edit&id=<?php echo $bbcode['id']; ?>"><?php echo $lang->phrase('admin_bbc_edit'); ?></a>
