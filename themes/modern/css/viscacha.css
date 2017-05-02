@@ -35,12 +35,15 @@
 	}
 }
 
-.navbar-nav > li > a.notification-icon {
-	padding-left: 24px;
-	padding-right: 5px;
+.navbar-nav.user-notification-header > li > a {
+	padding-left: 25px;
+	padding-right: 25px;
 }
-
-.navbar-nav > li > a.notification-icon .label {
+.navbar-nav.user-notification-header > li > a.notification-icon {
+	padding-left: 25px;
+	padding-right: 6px;
+}
+.navbar-nav.user-notification-header > li > a.notification-icon .label {
 	position: relative;
 	display: inline-block;
 	font-weight: bold;
@@ -55,8 +58,19 @@
 	min-height: 19px;
 	min-width: 19px;
 }
-.navbar-nav > li > a.notification-icon .label:empty {
+.navbar-nav.user-notification-header > li > a.notification-icon .label:empty {
 	visibility: hidden;
+}
+
+.navbar-nav.user-notification-header > li > a .label-danger {
+	background-color: #bd1550;
+}
+.navbar-nav.user-notification-header > li > a:hover .label-danger {
+	background-color: #373330;
+}
+.navbar-nav.user-notification-header > li.dropdown ul {
+	max-height: 300px;
+	overflow-y: auto;
 }
 
 .nav-condensed > li > a {
@@ -64,15 +78,10 @@
 	padding-bottom: 4px; 
 }
 
-.user-notification-header a .label-danger {
-	background-color: #bd1550;
-}
-.user-notification-header a:hover .label-danger {
-	background-color: #373330;
-}
-
 .user-header img.avatar {
-	height: 1.5em;
+	height: 1.66em;
+	line-height: 0.75em;
+	vertical-align: -50%;
 	width: auto;
 	border-radius: 0.3em;
 }
@@ -312,16 +321,16 @@ li.pagination-separator, li.pagination-label {
 
 /* Forum list table */
 .forums h3 {
-	margin-top: 0px;
-	margin-bottom: 4px;
+	margin: 0px;
 	font-size: 1.2em;
 }
 .forums.table > tbody > tr > td {
     vertical-align: middle;
 }
 .forums .cell-icon {
+    width: 6%;
     text-align: center;
-	padding-left: 16px;
+	padding-right: 0px;
 }
 .forums.table th.cell-stat {
     width: 15%;
@@ -329,11 +338,22 @@ li.pagination-separator, li.pagination-label {
 .forums.table th.cell-last {
     width: 25%;
 }
+.forums .moderators, .forums .subforums, .forums .description {
+	display: block;
+	margin-top: 4px;
+}
+.forums .subforums ul {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
 
 /* Thread list table */
 
 .threads .cell-icon {
+    width: 3%;
     text-align: center;
+	padding-right: 0px;
 }
 .threads.table th.cell-stat {
     width: 10%;

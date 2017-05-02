@@ -61,11 +61,10 @@
 				<td class="cell-name">
 					<h3><a href="showforum.php?id={{ $forum['id'] }}{{ SID2URL_x }}">{{ $forum['name'] }}</a></h3>
 					@if(!empty($forum['description']))
-					<small>{{ $forum['description'] }}</small>
+					<small class="description">{{ $forum['description'] }}</small>
 					@endif
 					@if(!empty($forum['mod']))
-					<br />
-					<small>
+					<small class="moderators">
 						<strong>@lang('forum_mods')</strong>
 						@foreach($forum['mod'] as $m)
 						<a href="profile.php?id={{ $m['mid'] }}{{ SID2URL_x }}">{{ $m['name'] }}</a>{{ $m['sep'] }}
@@ -73,11 +72,10 @@
 					</small>
 					@endif
 					@if(!empty($forum['sub']))
-					<br />
-					<small>
-						<strong>@lang('forum_subforums')</strong>
+					<small class="subforums">
+						<ul>
 						@foreach ($forum['sub'] as $s)
-						<br />
+						<li>
 						@if($forum['state'] == BOARD_STATE_WWW)
 						<i class="fa fa-arrow-right icon-neutral"></i>
 						@elseif($forum['state'] == BOARD_STATE_LOCKED)
@@ -89,11 +87,13 @@
 						@endif
 						@if($s['opt'] != 're')
 						<a href="showforum.php?id={{ $s['id'] }}{{ SID2URL_x }}">
-							@else
-							<a href="{{ $s['optvalue'] }}">
-								@endif
-								{{ $s['name'] }}</a>
-							@endforeach
+						@else
+						<a href="{{ $s['optvalue'] }}">
+						@endif
+						{{ $s['name'] }}</a>
+						@endforeach
+						</li>
+						</ul>
 					</small>
 					@endif
 				</td>

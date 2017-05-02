@@ -32,10 +32,14 @@
 				@if($my->p['pm'])
 				<li class="message-header dropdown pull-left">
 					<a href="pm.php{{ SID2URL_1 }}" id="message-header-dropdown" class="notification-icon" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-envelope-o fa-lg"></i><span class="label label-danger">1 @if(!empty($my->cnpms)){ $my->cnpms }}@endif</span>
+						<i class="fa fa-envelope-o fa-lg"></i><span class="label label-danger">@if(\Viscacha\Model\My::newPmCount() > 0){{ \Viscacha\Model\My::newPmCount() }}@endif</span>
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="message-header-dropdown">
-						<li><a href="pm.php{{ SID2URL_1 }}">@lang('pm_empty')</a></li>
+						@forelse(\Viscacha\Model\My::newPm() as $row)
+						<li><a href="pm.php?action=show&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $row->topic }}<br /><small>@lang('by') {{ $row->author()->name }}</small></a></li>
+						@empty
+						<li><span>@lang('pm_empty')</span></li>
+						@endforelse
 						<li class="divider"></li>
 						<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
 						<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
@@ -47,11 +51,11 @@
 				@if($my->vlogin)
 				<li class="notification-header dropdown pull-left">
 					<a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}" id="notification-header-dropdown" class="notification-icon" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-						<i class="fa fa-bell-o fa-lg"></i><span class="label label-danger">100</span>
+						<i class="fa fa-bell-o fa-lg"></i><span class="label label-danger">@if(!empty($my->notifications)){ $my->notifications }}@endif</span>
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="notification-header-dropdown">
-						<li><a href="#"><i class="fa fa-bell"></i> Notification 1</a></li>
-						<li class="divider"></li>
+<!--					<li><a href="#"><i class="fa fa-bell"></i> Notification 1</a></li>
+						<li class="divider"></li> -->
 						<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}"><i class="fa fa-newspaper-o"></i> @lang('new_posts')</a></li>
 					</ul>
 				</li>
@@ -68,6 +72,7 @@
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="user-header-dropdown">
 						<li><a href="editprofile.php{{ SID2URL_1 }}"><i class="fa fa-user fa-lg"></i> @lang('editprofile_title')</a></li>
+						<li class="divider"></li>
 						<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out fa-lg"></i> @lang('logout')</a></li>
 					</ul>
 				</li>
