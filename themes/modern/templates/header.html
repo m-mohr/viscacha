@@ -30,23 +30,35 @@
 			</div>
 			<ul class="nav navbar-nav navbar-right pull-right user-notification-header">
 				@if($my->p['pm'])
-				<li class="message-header pull-left">
-					<a href="pm.php{{ SID2URL_1 }}" class="notification-icon">
-						<i class="fa fa-envelope-o fa-lg"></i>&nbsp;
-						<span class="label label-danger">4</span>
+				<li class="message-header dropdown pull-left">
+					<a href="pm.php{{ SID2URL_1 }}" id="message-header-dropdown" class="notification-icon" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-envelope-o fa-lg"></i><span class="label label-danger">1 @if(!empty($my->cnpms)){ $my->cnpms }}@endif</span>
 					</a>
+					<ul class="dropdown-menu" aria-labelledby="message-header-dropdown">
+						<li><a href="pm.php{{ SID2URL_1 }}">@lang('pm_empty')</a></li>
+						<li class="divider"></li>
+						<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
+						<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
+						<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
+						<li><a href="pm.php?action=browse&amp;id=3{{ SID2URL_x }}"><i class="fa fa-archive"></i> @lang('pm_dirs_archive')</a></li>
+					</ul>
 				</li>
 				@endif
 				@if($my->vlogin)
-				<li class="notification-header pull-left">
-					<a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}" class="notification-icon">
-						<i class="fa fa-bell-o fa-lg"></i>&nbsp;
-						<span class="label label-danger">10</span>
+				<li class="notification-header dropdown pull-left">
+					<a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}" id="notification-header-dropdown" class="notification-icon" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-bell-o fa-lg"></i><span class="label label-danger">100</span>
 					</a>
+					<ul class="dropdown-menu" aria-labelledby="notification-header-dropdown">
+						<li><a href="#"><i class="fa fa-bell"></i> Notification 1</a></li>
+						<li class="divider"></li>
+						<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}"><i class="fa fa-newspaper-o"></i> @lang('new_posts')</a></li>
+					</ul>
 				</li>
 				@endif
-				<li class="user-header pull-left">
-					<a href="editprofile.php{{ SID2URL_1 }}">
+				@if($my->vlogin)
+				<li class="user-header dropdown pull-left">
+					<a href="editprofile.php{{ SID2URL_1 }}" id="user-header-dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 						@if(!empty($my->pic))
 						<img src="{{ $my->pic }}" alt="{{ $my->name }}" class="avatar">
 						@else
@@ -54,58 +66,28 @@
 						@endif
 						<span class="hidden-xs">&nbsp;{{ $my->name }}</span>
 					</a>
+					<ul class="dropdown-menu" aria-labelledby="user-header-dropdown">
+						<li><a href="editprofile.php{{ SID2URL_1 }}"><i class="fa fa-user fa-lg"></i> @lang('editprofile_title')</a></li>
+						<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out fa-lg"></i> @lang('logout')</a></li>
+					</ul>
 				</li>
+				<li class="nonjs-only"><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}" title="@lang('logout')"><i class="fa fa-sign-out fa-lg"></i></a></li>
+				@else
+				<li class="nonjs-only"><a href="log.php?action=login{{ SID2URL_x }}"><i class="fa fa-sign-in fa-lg"></i> @lang('login')</a></li>
+				<li class="nonjs-only"><a href="register.php{{ SID2URL_x }}"><i class="fa fa-user-plus fa-lg"></i> @lang('register_title')</a></li>
+				@endif
 			</ul>
 		</nav>
 		
 		<div id="wrapper">
 
 			<div id="sidebar-wrapper">
-				<ul class="sidebar-nav nav-pills nav-stacked" id="sidebar">				
-					<li>
-						<a href="#"><i class="fa fa-user"></i> {{ $my->name }}<!-- ToDo: Should be replaced with a generic name, like "Account", "Membership" or so --></a>
-						   <ul class="nav-pills nav-stacked">
-							@if($my->vlogin)
-							<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out"></i> @lang('logout')</a></li>
-							<li><a href="editprofile.php?action=profile{{ SID2URL_x }}" title="@lang('editprofile_profile_desc')"><i class="fa fa-id-card"></i> @lang('editprofile_profile')</a></li>
-							<li><a href="editprofile.php?action=settings{{ SID2URL_x }}" title="@lang('editprofile_settings_desc')"><i class="fa fa-wrench"></i> @lang('editprofile_settings')</a></li>
-							<li><a href="editprofile.php?action=pw{{ SID2URL_x }}" title="@lang('editprofile_pw_desc')"><i class="fa fa-lock"></i> @lang('editprofile_pw')</a></li>
-							@if($my->p['usepic'] == 1)
-							<li><a href="editprofile.php?action=pic{{ SID2URL_x }}" title="@lang('editprofile_pic_desc')"><i class="fa fa-photo"></i> @lang('editprofile_pic')</a></li>
-							@endif
-							<li><a href="editprofile.php?action=signature{{ SID2URL_x }}" title="@lang('editprofile_signature_desc')"><i class="fa fa-pencil"></i> @lang('editprofile_signature')</a></li>
-							@if($my->p['useabout'] == 1)
-							<li><a href="editprofile.php?action=about{{ SID2URL_x }}" title="@lang('editprofile_about_desc')"><i class="fa fa-file-text"></i> @lang('editprofile_about')</a></li>
-							@endif
-							<li><a href="editprofile.php?action=abos{{ SID2URL_x }}" title="@lang('editprofile_abos_desc')"><i class="fa fa-bell"></i> @lang('editprofile_abos')</a></li>
-							<li><a href="editprofile.php?action=mylast{{ SID2URL_x }}" title="@lang('editprofile_mylast_desc')"><i class="fa fa-comments"></i> @lang('editprofile_mylast')</a></li>
-							@if($config['tpcallow'] == 1)
-							<li><a href="editprofile.php?action=attachments{{ SID2URL_x }}" title="@lang('editprofile_attachments_desc')"><i class="fa fa-paperclip"></i> @lang('editprofile_attachments')</a></li>
-							@endif
-							<li><a href="profile.php?id={{ $my->id }}{{ SID2URL_x }}" title="@lang('editprofile_ownprofile_desc')"><i class="fa fa-user"></i> @lang('editprofile_ownprofile')</a></li>
-							@else
-							<li><a href="log.php?action=login{{ SID2URL_x }}"><i class="fa fa-sign-in"></i> @lang('login')</a></li>
-							<li><a href="register.php{{ SID2URL_1 }}"><i class="fa fa-user-plus"></i> @lang('register_title')</a></li>
-							@endif
-							<li><a href="misc.php?action=rules{{ SID2URL_x }}"><i class="fa fa-legal"></i> @lang('rules')</a></li>
-						</ul>
-					</li>
-					@if($my->p['pm'] == 1)
-					<li>
-						<a href="#"><i class="fa fa-envelope"></i> @lang('pm_short')</a>
-						<ul class="nav-pills nav-stacked">
-							<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
-							<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
-							<li><a href="pm.php?action=browse&amp;id=3{{ SID2URL_x }}"><i class="fa fa-archive"></i> @lang('pm_dirs_archive')</a></li>
-							<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
-						</ul>
-					</li>
-					@endif
+				<ul class="sidebar-nav nav-pills nav-stacked" id="sidebar">
 					<li>
 						<a href="#"><i class="fa fa-comments"></i> @lang('forumname')</a>
 						<ul class="nav-pills nav-stacked">
 							<li><a href="forum.php{{ SID2URL_1 }}"><i class="fa fa-list"></i> @lang('n_forum')<!-- ToDo: This is a custom phrase and must be replaced --></a></li>
-							<li><a href="#"><i class="fa fa-newspaper-o"></i> @lang('search_active_topics')</a>
+							<li><a href="#"><i class="fa fa-folder-open"></i> @lang('search_active_topics')</a>
 								<ul class="nav-pills nav-stacked">
 									<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}"><i class="fa fa-newspaper-o"></i> @lang('sat_lastvisit')</a></li>
 									<li><a href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}"><i class="fa fa-clock-o"></i> @lang('sat_24h')</a></li>
@@ -126,6 +108,42 @@
 							<li><a href="misc.php?action=markasread{{ SID2URL_x }}"><i class="fa fa-check"></i> @lang('mark_all_posts_read')</a></li>
 						</ul>
 					</li>
+					@if($my->p['pm'] == 1)
+					<li>
+						<a href="#"><i class="fa fa-envelope"></i> @lang('pm_short')</a>
+						<ul class="nav-pills nav-stacked">
+							<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
+							<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
+							<li><a href="pm.php?action=browse&amp;id=3{{ SID2URL_x }}"><i class="fa fa-archive"></i> @lang('pm_dirs_archive')</a></li>
+							<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
+						</ul>
+					</li>
+					@endif
+					@if($my->vlogin)
+					<li>
+						<a href="#"><i class="fa fa-user"></i> @lang('editprofile_title')</a>
+						<ul class="nav-pills nav-stacked">
+							<li><a href="editprofile.php?action=profile{{ SID2URL_x }}" title="@lang('editprofile_profile_desc')"><i class="fa fa-id-card"></i> @lang('editprofile_profile')</a></li>
+							<li><a href="editprofile.php?action=settings{{ SID2URL_x }}" title="@lang('editprofile_settings_desc')"><i class="fa fa-wrench"></i> @lang('editprofile_settings')</a></li>
+							<li><a href="editprofile.php?action=pw{{ SID2URL_x }}" title="@lang('editprofile_pw_desc')"><i class="fa fa-lock"></i> @lang('editprofile_pw')</a></li>
+							@if($my->p['usepic'] == 1)
+							<li><a href="editprofile.php?action=pic{{ SID2URL_x }}" title="@lang('editprofile_pic_desc')"><i class="fa fa-photo"></i> @lang('editprofile_pic')</a></li>
+							@endif
+							<li><a href="editprofile.php?action=signature{{ SID2URL_x }}" title="@lang('editprofile_signature_desc')"><i class="fa fa-pencil"></i> @lang('editprofile_signature')</a></li>
+							@if($my->p['useabout'] == 1)
+							<li><a href="editprofile.php?action=about{{ SID2URL_x }}" title="@lang('editprofile_about_desc')"><i class="fa fa-file-text"></i> @lang('editprofile_about')</a></li>
+							@endif
+							<li><a href="editprofile.php?action=abos{{ SID2URL_x }}" title="@lang('editprofile_abos_desc')"><i class="fa fa-bell"></i> @lang('editprofile_abos')</a></li>
+							<li><a href="editprofile.php?action=mylast{{ SID2URL_x }}" title="@lang('editprofile_mylast_desc')"><i class="fa fa-comments"></i> @lang('editprofile_mylast')</a></li>
+							@if($config['tpcallow'] == 1)
+							<li><a href="editprofile.php?action=attachments{{ SID2URL_x }}" title="@lang('editprofile_attachments_desc')"><i class="fa fa-paperclip"></i> @lang('editprofile_attachments')</a></li>
+							@endif
+							<li><a href="profile.php?id={{ $my->id }}{{ SID2URL_x }}" title="@lang('editprofile_ownprofile_desc')"><i class="fa fa-user"></i> @lang('editprofile_ownprofile')</a></li>
+							<li><a href="misc.php?action=rules{{ SID2URL_x }}"><i class="fa fa-legal"></i> @lang('rules')</a></li>
+							<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out"></i> @lang('logout')</a></li>
+						</ul>
+					</li>
+					@endif
 					<!--
 					<li>
 						<a href="#"> <i class="fa fa-file-text"></i> Documents</a>

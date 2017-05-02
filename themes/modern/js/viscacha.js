@@ -1,6 +1,7 @@
 $(document).ready(function () {
-	// Remove js only UI elements
+	// Remove js only UI elements and remove the nonjs-only elements
 	$('.js-only').removeClass('js-only');
+	$('.nonjs-only').hide();
 	// Remove js only UI elements
 	$('.pagination-separator').removeClass('disabled');
 	// Initialize MultiQuote
@@ -16,7 +17,14 @@ var Sidebar = {
 		// ToDo: Store sidebar state in Cookie
 		$(".sidebar-toggle").css('display', 'inline-block');
 		$('#sidebar ul').hide();
-		$('#sidebar ul').children('.current').parent().show();
+		// Show current element or expand first element by default
+		var current = $('#sidebar ul').children('.current');
+		if (current.length > 0) {
+			current.parent().show();
+		}
+		else {
+			$('#sidebar ul').first().show();
+		}
 		$('#sidebar li a').click(function () {
 			var checkElement = $(this).next();
 			if (checkElement.is('ul')) {

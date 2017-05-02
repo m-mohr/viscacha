@@ -35,12 +35,28 @@
 	}
 }
 
-.notification-icon .label {
+.navbar-nav > li > a.notification-icon {
+	padding-left: 24px;
+	padding-right: 5px;
+}
+
+.navbar-nav > li > a.notification-icon .label {
+	position: relative;
+	display: inline-block;
+	font-weight: bold;
+    text-align: center;
     border: 1px solid #ffffff;
 	border-radius: 10px;
-    font-weight: 500;
-    padding: 3px 5px;
-    text-align: center;
+    padding: 3px 4px;
+	bottom: -0.5em;
+	left: -6px;
+	font-size: 11px;
+	line-height: 11px;
+	min-height: 19px;
+	min-width: 19px;
+}
+.navbar-nav > li > a.notification-icon .label:empty {
+	visibility: hidden;
 }
 
 .nav-condensed > li > a {
