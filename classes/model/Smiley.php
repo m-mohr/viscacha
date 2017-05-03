@@ -7,13 +7,15 @@ namespace Viscacha\Model;
  */
 class Smiley extends BaseModel {
 
-	protected $table = 'smileys';
-	protected $columns = [
-		'id',
-		'search',
-		'replace',
-		'desc',
-		'show'
-	];
+	public function define() {
+		$this->table = 'smileys';
+		$this->columns = [
+			'id',
+			'search',
+			'replace',
+			'desc',
+			'show'
+		];
+	}
 
 }

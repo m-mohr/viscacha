@@ -7,16 +7,22 @@ namespace Viscacha\Model;
  */
 class Document extends BaseModel {
 
-	protected $table = 'documents';
-	protected $columns = [
-		'id',
-		'author',
-		'date',
-		'update',
-		'parser',
-		'template',
-		'groups',
-		'icomment'
-	];
+	public function define() {
+		$this->table = 'documents';
+		$this->columns = [
+			'id',
+			'author',
+			'date',
+			'update',
+			'parser',
+			'template',
+			'groups', // ToDo: Relation from a set of values
+			'icomment'
+		];
+	}
+
+	public function translations() {
+		return $this->belongsTo('lid');
+	}
 
 }

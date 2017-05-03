@@ -7,7 +7,7 @@ namespace Viscacha\Model;
  */
 class Pm extends BaseModel {
 
-	public function __construct($primaryKey = null) {
+	public function define() {
 		$this->table = 'pm';
 		$this->columns = [
 			'id',
@@ -19,20 +19,23 @@ class Pm extends BaseModel {
 			'status',
 			'dir'
 		];
-		parent::__construct($primaryKey);
+		$this->foreignKeys = [
+			'pm_from' => User::class,
+			'pm_to' => User::class
+		];
 	}
-	
+
 	public function scopeOnlyNew($query) {
 		$query->where('status', 0);
 		return $this;
 	}
-	
+
 	public function author() {
-		return $this->belongsTo(User::class, 'pm_from');
+		return $this->belongsTo('pm_from');
 	}
-	
+
 	public function recipient() {
-		return $this->belongsTo(User::class, 'pm_to');
+		return $this->belongsTo('pm_to');
 	}
 
 }

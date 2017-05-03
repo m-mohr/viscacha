@@ -1,4 +1,5 @@
 <?php
+
 /*
   Viscacha - An advanced bulletin board solution to manage your content easily
   Copyright (C) 2004-2017, Lutana
@@ -27,21 +28,21 @@ namespace Viscacha\Model;
 use Viscacha\Database\Query;
 use Viscacha\Database\Result;
 
-class BaseModel extends Model {
-	
+abstract class BaseModel extends Model {
+
 	protected $query = null;
 	protected $result = null;
-	
+
 	public function __construct($primaryKey = null) {
 		parent::__construct($primaryKey);
 		$this->query();
 	}
-	
+
 	public static function all(array $columns = array()) {
 		$model = new static();
 		return $model->select($model->getTableName(), $columns);
 	}
-	
+
 	public function query() {
 		$this->result = new ModelResult($this);
 		$this->query = parent::query();
@@ -57,7 +58,7 @@ class BaseModel extends Model {
 			$path = explode('.', $column);
 			$model = $this;
 			foreach ($path as $i => $k) {
-				$thisPath = implode('.', array_slice($path, 0, $i+1));
+				$thisPath = implode('.', array_slice($path, 0, $i + 1));
 				$parentPath = implode('.', array_slice($path, 0, $i));
 				$class = $model->getForeignKeyClass($k);
 				if (!$class) {
@@ -78,7 +79,7 @@ class BaseModel extends Model {
 		}
 		return $this;
 	}
-	
+
 	protected function discreteSelect(BaseModel $model = null, $alias = null) {
 		if ($model === null) {
 			$model = $this;
@@ -93,7 +94,7 @@ class BaseModel extends Model {
 	public function filterPrimaryKey() {
 		return $this->filterByPrimaryKey($this->query);
 	}
-	
+
 	public function execute() {
 		$stmt = $this->query->execute();
 		if ($stmt instanceof Result) {

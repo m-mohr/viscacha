@@ -7,16 +7,25 @@ namespace Viscacha\Model;
  */
 class Setting extends BaseModel {
 
-	protected $table = 'settings';
-	protected $columns = [
-		'id',
-		'name',
-		'title',
-		'description',
-		'type',
-		'optionscode',
-		'value',
-		'sgroup'
-	];
+	public function define() {
+		$this->table = 'settings';
+		$this->columns = [
+			'id',
+			'name',
+			'title',
+			'description',
+			'type',
+			'optionscode',
+			'value',
+			'sgroup'
+		];
+		$this->foreignKeys = [
+			'sgroup' => SettingsGroup::class
+		];
+	}
+	
+	public function group() {
+		return $this->belongsTo('sgroup');
+	}
 
 }

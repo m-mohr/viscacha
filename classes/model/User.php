@@ -7,7 +7,7 @@ namespace Viscacha\Model;
  */
 class User extends BaseModel {
 
-	public function __construct($primaryKey = null) {
+	public function define() {
 		$this->table = 'user';
 		$this->softDelete = 'deleted_at';
 		$this->columns = [
@@ -27,7 +27,7 @@ class User extends BaseModel {
 			'pic',
 			'lastvisit',
 			'timezone',
-			'groups',
+			'groups', // ToDo: Relation from a set of values
 			'opt_pmnotify',
 			'opt_hidemail',
 			'opt_newsletter',
@@ -36,35 +36,57 @@ class User extends BaseModel {
 			'language',
 			'confirm'
 		];
-		$this->belongsTo = array(
-			'mid' => User::class,
-			'tid' => Topic::class
-		);
-		parent::__construct($primaryKey);
+		$this->foreignKeys = [
+			'language' => Language::class
+		];
 	}
 	
-	function pm() {
-		return $this->hasMany(Pm::class, 'pm_to');
+	public function language() {
+		return $this->belongsTo('language');
 	}
-	
-	function sentPm() {
-		return $this->hasMany(Pm::class, 'pm_from');
+
+	public function session() {
+		return $this->hasOne(Session::class, 'mid');
 	}
-	
-	function userfields() {
+
+	public function fields() {
 		return $this->hasOne(Userfield::class, 'ufid');
 	}
-	
-	function subscriptions() {
+
+	public function pm() {
+		return $this->hasMany(Pm::class, 'pm_to');
+	}
+
+	public function sentPm() {
+		return $this->hasMany(Pm::class, 'pm_from');
+	}
+
+	public function subscriptions() {
 		return $this->hasMany(Subscription::class, 'tid');
 	}
-	
-	function topics() {
+
+	public function topics() {
 		return $this->hasMany(Topic::class, 'name');
 	}
-	
-	function replies() {
+
+	public function replies() {
 		return $this->hasMany(Reply::class, 'name');
+	}
+
+	public function floods() {
+		return $this->hasMany(Flood::class, 'mid');
+	}
+
+	public function moderator() {
+		return $this->hasMany(Moderator::class, 'mid');
+	}
+
+	public function uploads() {
+		return $this->hasMany(Upload::class, 'mid');
+	}
+	
+	public function moderatingForums() {
+		return $this->moderators()->forum();
 	}
 
 }

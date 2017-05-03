@@ -7,33 +7,39 @@ namespace Viscacha\Model;
  */
 class Group extends BaseModel {
 
-	protected $table = 'groups';
-	protected $columns = [
-		'id',
-		'admin',
-		'gmod',
-		'guest',
-		'members',
-		'profile',
-		'pm',
-		'wwo',
-		'search',
-		'team',
-		'usepic',
-		'useabout',
-		'usesignature',
-		'downloadfiles',
-		'forum',
-		'posttopics',
-		'postreplies',
-		'addvotes',
-		'attachments',
-		'edit',
-		'voting',
-		'flood',
-		'title',
-		'name',
-		'core'
-	];
+	public function define() {
+		$this->table = 'groups';
+		$this->columns = [
+			'id',
+			'admin',
+			'gmod',
+			'guest',
+			'members',
+			'profile',
+			'pm',
+			'wwo',
+			'search',
+			'team',
+			'usepic',
+			'useabout',
+			'usesignature',
+			'downloadfiles',
+			'forum',
+			'posttopics',
+			'postreplies',
+			'addvotes',
+			'attachments',
+			'edit',
+			'voting',
+			'flood',
+			'title',
+			'name',
+			'core'
+		];
+	}
+
+	public function forumPermissions() {
+		return $this->hasMany(Fgroup::class, 'gid');
+	}
 
 }

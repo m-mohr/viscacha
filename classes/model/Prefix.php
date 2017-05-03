@@ -7,10 +7,29 @@ namespace Viscacha\Model;
  */
 class Prefix extends BaseModel {
 
-	protected $table = 'prefix';
-	protected $columns = [
-		'bid',
-		'value',
-		'standard'
-	];
+	public function define() {
+		$this->table = 'prefix';
+		$this->columns = [
+			'id',
+			'bid',
+			'value',
+			'standard'
+		];
+		$this->foreignKeys = [
+			'bid' => Forum::class
+		];
+	}
+
+	public function getFormatted() {
+		return '[' . $this->getValue() . ']';
+	}
+
+	public function topics() {
+		return $this->hasMany(Topic::class, 'prefix');
+	}
+
+	public function forum() {
+		return $this->belongsTo('bid');
+	}
+
 }

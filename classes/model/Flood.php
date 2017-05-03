@@ -7,13 +7,22 @@ namespace Viscacha\Model;
  */
 class Flood extends BaseModel {
 
-	protected $table = 'flood';
-	protected $columns = [
-		'id',
-		'ip',
-		'mid',
-		'time',
-		'type'
-	];
+	public function define() {
+		$this->table = 'flood';
+		$this->columns = [
+			'id',
+			'ip',
+			'mid',
+			'time',
+			'type'
+		];
+		$this->foreignKeys = [
+			'mid' => User::class
+		];
+	}
+	
+	public function user() {
+		return $this->belongsTo('mid');
+	}
 
 }

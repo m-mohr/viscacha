@@ -7,11 +7,13 @@ namespace Viscacha\Model;
  */
 class Textparser extends BaseModel {
 
-	protected $table = 'textparser';
-	protected $columns = [
-		'id',
-		'search',
-		'replace'
-	];
+	public function define() {
+		$this->table = 'textparser';
+		$this->columns = [
+			'id',
+			'search',
+			'replace'
+		];
+	}
 
 }

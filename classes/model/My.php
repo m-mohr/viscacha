@@ -8,7 +8,7 @@ namespace Viscacha\Model;
 class My {
 
 	private static $instance = null;
-	
+
 	public static function __callStatic($name, $arguments) {
 		if (self::$instance == null) {
 			global $my;
@@ -16,5 +16,5 @@ class My {
 		}
 		return call_user_func_array(array(self::$instance, $name), $arguments);
 	}
-	
+
 }

@@ -7,13 +7,27 @@ namespace Viscacha\Model;
  */
 class Moderator extends BaseModel {
 
-	protected $table = 'moderators';
-	protected $columns = [
-		'id',
-		'mid',
-		'bid',
-		'p_delete',
-		'p_mc'
-	];
+	public function define() {
+		$this->table = 'moderators';
+		$this->columns = [
+			'id',
+			'mid',
+			'bid',
+			'p_delete',
+			'p_mc'
+		];
+		$this->foreignKeys = [
+			'mid' => User::class,
+			'bid' => Forum::class
+		];
+	}
+	
+	public function user() {
+		return $this->belongsTo('mid');
+	}
+	
+	public function forum() {
+		return $this->belongsTo('bid');
+	}
 
 }

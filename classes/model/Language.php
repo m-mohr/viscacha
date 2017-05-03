@@ -7,12 +7,22 @@ namespace Viscacha\Model;
  */
 class Language extends BaseModel {
 
-	protected $table = 'language';
-	protected $columns = [
-		'id',
-		'language',
-		'detail',
-		'publicuse'
-	];
+	public function define() {
+		$this->table = 'language';
+		$this->columns = [
+			'id',
+			'language',
+			'detail',
+			'publicuse'
+		];
+	}
+
+	public function documentTranslations() {
+		return $this->hasMany(DocumentTranslation::class, 'lid');
+	}
+
+	public function users() {
+		return $this->hasMany(User::class, 'language');
+	}
 
 }

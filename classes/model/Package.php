@@ -7,14 +7,20 @@ namespace Viscacha\Model;
  */
 class Package extends BaseModel {
 
-	protected $table = 'packages';
-	protected $columns = [
-		'id',
-		'title',
-		'active',
-		'version',
-		'internal',
-		'core'
-	];
+	public function define() {
+		$this->table = 'packages';
+		$this->columns = [
+			'id',
+			'title',
+			'active',
+			'version',
+			'internal',
+			'core'
+		];
+	}
+	
+	public function plugins() {
+		return $this->hasMany(Plugin::class, 'module');
+	}
 
 }

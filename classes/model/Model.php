@@ -1,4 +1,5 @@
 <?php
+
 /*
   Viscacha - An advanced bulletin board solution to manage your content easily
   Copyright (C) 2004-2017, Lutana
@@ -24,7 +25,7 @@
 
 namespace Viscacha\Model;
 
-class Model implements \ArrayAccess {
+abstract class Model implements \ArrayAccess {
 
 	/**
 	 * Name of the table without prefix.
@@ -52,16 +53,6 @@ class Model implements \ArrayAccess {
 	 * @var array 
 	 */
 	protected $foreignKeys = array();
-
-	/**
-	 * Array containing all entities that have foreign keys to this entity.
-	 * 
-	 * The value of the array is the column name and the key is the class name, e.g.
-	 * '\Viscacha\Model\User' => 'user_id'
-	 * 
-	 * @var array 
-	 */
-	protected $belongsTo = array();
 
 	/**
 	 * An array containing all column names.
@@ -93,7 +84,7 @@ class Model implements \ArrayAccess {
 	 * @var array 
 	 */
 	protected $data = array();
-	
+
 	/**
 	 * Cached data from relations (belongsTo, ...)
 	 * 
@@ -102,12 +93,15 @@ class Model implements \ArrayAccess {
 	protected $relationData = array();
 
 	public function __construct($primaryKey = null) {
+		$this->define();
 		$this->data = array_fill_keys($this->columns, null);
 		$this->syncOriginal();
 		if ($primaryKey !== null) {
 			$this->setPrimaryKeyData($primaryKey);
 		}
 	}
+
+	public abstract function define();
 
 	public static function create() {
 		return new static();
@@ -257,7 +251,7 @@ class Model implements \ArrayAccess {
 	public function load() {
 		$this->query()->select($this->table)->where($this->getPrimaryKeyData())->fetchObject($this);
 	}
-	
+
 	public function injectRelationData($column, Model $model) {
 		$this->relationData[$column] = $model;
 	}
@@ -280,7 +274,8 @@ class Model implements \ArrayAccess {
 			throw new \NotImplementedException('Relations with multiple primary keys are not implemented.');
 		}
 		$model = new $class();
-		return $model->query()->select($model->getTableName())->where($column, reset($pkData))->fetchObjectMatrix($class);
+		$list = $model->query()->select($model->getTableName())->where($column, reset($pkData))->fetchObjectMatrix($class);
+		return new ModelCollection($list);
 	}
 
 	protected function hasOne($class, $column) {
@@ -291,11 +286,12 @@ class Model implements \ArrayAccess {
 		return false;
 	}
 
-	protected function belongsTo($class, $column) {
+	protected function belongsTo($column) {
 		if (isset($this->relationData[$column])) {
 			return $this->relationData[$column];
 		}
 
+		$class = $this->foreignKeys[$column];
 		$model = new $class();
 		$pk = $model->getPrimaryKey();
 		if (count($pk) > 1) {
@@ -334,8 +330,7 @@ class Model implements \ArrayAccess {
 				$setter = 'set' . ucfirst($name);
 				$this->{$setter}($value);
 			}
-		}
-		else {
+		} else {
 			$this->data[$name] = $value;
 		}
 	}
@@ -344,8 +339,7 @@ class Model implements \ArrayAccess {
 		if (in_array($name, $this->columns)) {
 			$getter = 'get' . ucfirst($name);
 			return $this->{$getter}();
-		}
-		else if (isset($this->data[$name])) {
+		} else if (isset($this->data[$name])) {
 			return $this->data[$name];
 		}
 		throw new \OutOfBoundsException("Parameter '{$name}' not set.");

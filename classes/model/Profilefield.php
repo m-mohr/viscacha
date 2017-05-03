@@ -7,19 +7,21 @@ namespace Viscacha\Model;
  */
 class Profilefield extends BaseModel {
 
-	protected $table = 'profilefields';
-	protected $primaryKey = 'fid';
-	protected $columns = [
-		'fid',
-		'name',
-		'description',
-		'disporder',
-		'type',
-		'length',
-		'maxlength',
-		'required',
-		'editable',
-		'viewable'
-	];
+	public function define() {
+		$this->table = 'profilefields';
+		$this->primaryKey = 'fid';
+		$this->columns = [
+			'fid',
+			'name',
+			'description',
+			'disporder',
+			'type',
+			'length',
+			'maxlength',
+			'required',
+			'editable',
+			'viewable'
+		];
+	}
 
 }

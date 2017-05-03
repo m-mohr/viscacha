@@ -21,7 +21,6 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `message_active` enum('0','1','2') NOT NULL DEFAULT '0',
   `message_title` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `message_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `lid` smallint(4) unsigned NOT NULL DEFAULT 0,
   `post_order` enum('-1','0','1') NOT NULL DEFAULT '-1',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;

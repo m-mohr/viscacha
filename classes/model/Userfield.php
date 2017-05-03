@@ -7,8 +7,17 @@ namespace Viscacha\Model;
  */
 class Userfield extends BaseModel {
 
-	protected $table = 'userfields';
-	protected $primaryKey = 'ufid';
-	protected $columns = ['ufid'];
+	public function define() {
+		$this->table = 'userfields';
+		$this->primaryKey = 'ufid';
+		$this->columns = ['ufid'];
+		$this->foreignKeys = [
+			'ufid' => User::class
+		];
+	}
+
+	public function user() {
+		return $this->belongsTo('ufid');
+	}
 
 }

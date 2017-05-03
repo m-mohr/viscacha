@@ -7,13 +7,26 @@ namespace Viscacha\Model;
  */
 class Category extends BaseModel {
 
-	protected $table = 'categories';
-	protected $columns = [
-		'id',
-		'name',
-		'description',
-		'parent',
-		'position'
-	];
+	public function define() {
+		$this->table = 'categories';
+		$this->columns = [
+			'id',
+			'name',
+			'description',
+			'parent',
+			'position'
+		];
+		$this->foreignKeys = array(
+			'parent' => Forum::class
+		);
+	}
+
+	public function subforums() {
+		return $this->hasMany(Forum::class, 'parent');
+	}
+
+	public function forum() {
+		return $this->belongsTo('parent');
+	}
 
 }

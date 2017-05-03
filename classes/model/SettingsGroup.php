@@ -7,12 +7,18 @@ namespace Viscacha\Model;
  */
 class SettingsGroup extends BaseModel {
 
-	protected $table = 'settings_groups';
-	protected $columns = [
-		'id',
-		'title',
-		'name',
-		'description'
-	];
+	public function define() {
+		$this->table = 'settings_groups';
+		$this->columns = [
+			'id',
+			'title',
+			'name',
+			'description'
+		];
+	}
+
+	public function settings() {
+		return $this->hasMany(Setting::class, 'sgroup');
+	}
 
 }
