@@ -1,7 +1,7 @@
 @include('header')
 
 <!-- ToDo: Improve whole form -->
-<h2>@lang('editprofile_profile')</h2>
+<h1>@lang('editprofile_profile')</h1>
 <form name="form_{{ $random }}" method="post" action="managemembers.php?action=edit2&amp;random={{ $random }}&amp;id={{ $_GET['id'] }}{{ SID2URL_x }}">
 	<div class="form-group">
 		<label for="name_{{ $random }}">@lang('editprofile_name')</label>

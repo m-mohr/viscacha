@@ -1,28 +1,29 @@
 @include('header')
 
-<table class="table table-striped">
-	<tr> 
-		<th colspan="5"><img src="@theme('images/suchen.gif')" border="0" alt="" /> @lang('search_x_results') <em>{{ implode(', ', $data['used']) }}</em></th>
-	</tr>
-	<tr> 
-		<td class="tfoot" colspan="5">
-			<span class="right">{!! $temp !!}</span>
-			@if(!empty($ignored))
-			@lang('search_ignored_phrases') {{ implode(', ', $ignored) }}
-			@endif
-		</td>
-	</tr>
-	<tr> 
-		<th width="2%">&nbsp;</th>
-		<th width="48%">@lang('forum_topic')</th>
-		<th width="20%">@lang('forum_start')</th>
-		<th width="10%">@lang('forum_replies')</th>
-		<th width="20%">@lang('forum_last')</th>
-	</tr>
-	{!! $inner['index_bit'] !!}
-	<tr> 
-		<td class="tfoot textright" colspan="5">{!! $temp !!}</td>
-	</tr>
+<h1>
+	@lang('search')
+	<span class="badge">{{ $count }}</span>
+</h1>
+<p>@lang('search_x_results') <em>{{ implode(', ', $data['used']) }}</em></p>
+@if(!empty($ignored))
+<p>@lang('search_ignored_phrases') <em>{{ implode(', ', $ignored) }}</em></p>
+@endif
+
+{!! $temp !!}
+<table class="table search-results table-striped">
+	<thead>
+		<tr> 
+			<th class="cell-icon"></th>
+			<th class="cell-name">@lang('forum_topic')</th>
+			<th class="cell-author hidden-xs">@lang('forum_start')</th>
+			<th class="cell-stat hidden-xs hidden-sm">@lang('forum_replies')</th>
+			<th class="cell-last">@lang('forum_last')</th>
+		</tr>
+	</thead>
+	<tbody>
+		{!! $inner['index_bit'] !!}
+	</tbody>
 </table>
+{!! $temp !!}
 
 @include('footer')

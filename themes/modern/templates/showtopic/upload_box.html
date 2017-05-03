@@ -1,19 +1,22 @@
-<div class="attachment" style="max-width: {{ $config['tpcthumbwidth'] }}px;">
-	<strong>
-		@if($my->p['downloadfiles'] == 0)
-		{{ $file['file'] }}
-		@elseif($file['image'])
-		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}" target="_blank" rel="lightbox[{{ $row->id }}]">
+<div class="attachment col-xs-12 col-md-6 col-lg-4">
+	<div class="thumbnail">
+		@if($my->p['downloadfiles'] && $file['image'])
+		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}" target="_blank">
 			<img src="attachments.php?action=thumbnail&amp;id={{ $file['id'] }}{{ SID2URL_x }}" alt="{{ $file['file'] }}" title="{{ $file['file'] }}" />
 		</a>
-		@else
-		<a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}">{{ $file['file'] }}</a>
 		@endif
-	</strong><br />
-	<span class="stext">
-		@lang('uploads_size'){{ $file['size'] }}
-		@if($file['image'])
-		<br />@lang('uploads_imgsize')
-		@endif
-	</span>
+		<div class="caption">
+			@if(!$my->p['downloadfiles'])
+			<h6>{{ $file['file'] }}</h6>
+			@elseif(empty($file['image']))
+			<h5><a href="attachments.php?action=attachment&amp;id={{ $file['id'] }}{{ SID2URL_x }}">{{ $file['file'] }}</a></h5>
+			@endif
+			<p>
+				@lang('uploads_size'){{ $file['size'] }}
+				@if($file['image'])
+				<br />@lang('uploads_imgsize')
+				@endif
+			</p>
+		</div>
+    </div>
 </div>

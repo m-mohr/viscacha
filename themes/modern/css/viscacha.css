@@ -348,17 +348,19 @@ li.pagination-separator, li.pagination-label {
 	padding: 0px;
 }
 
-/* Thread list table */
+/* Thread list table, incl. search results */
 
-.threads .cell-icon {
+.threads .cell-icon, .search-results .cell-icon {
     width: 3%;
     text-align: center;
 	padding-right: 0px;
 }
-.threads.table th.cell-stat {
+.threads.table th.cell-stat, .search-results.table th.cell-stat {
     width: 10%;
+	text-align: center;
 }
-.threads.table th.cell-author, .threads.table th.cell-last {
+.threads.table th.cell-author, .threads.table th.cell-last,
+.search-results.table th.cell-author, .search-results.table th.cell-last {
     width: 20%;
 }
 
@@ -447,6 +449,11 @@ li.pagination-separator, li.pagination-label {
 	height: 2.25em;
 	width: auto;
 	border-radius: 0.5em;
+}
+
+.post .attachments {
+	margin-top: 1em;
+	
 }
 
 /* Member list */

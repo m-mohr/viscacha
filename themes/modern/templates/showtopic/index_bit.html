@@ -31,10 +31,11 @@
 	<div class="panel-body">
 		{!! $row->comment !!}
 		@if(!empty($inner['uploads']))
-		<div class="uploadbox">
-			<strong class="heading">@lang('attachments')</strong>
-			{!! $inner['uploads'] !!}
-			<br class="clear" />
+		<div class="attachments">
+			<h5>@lang('attachments')</h5>
+			<div class="row">
+				{!! $inner['uploads'] !!}
+			</div>
 		</div>
 		@endif
 		@if($bottom)

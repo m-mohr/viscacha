@@ -2,7 +2,7 @@
 
 <h1>@lang('editprofile_signature')</h1>
 @if($preview)
-<h2><img src="@theme('images/signature.gif')" alt="" /> @lang('editprofile_signature_preview')</h2>
+<h2>@lang('editprofile_signature_preview')</h2>
 <div class="well">{!! $parsedPreview !!}</div>
 @endif
 <form method="post" action="editprofile.php?action=signature{{ SID2URL_x }}">
