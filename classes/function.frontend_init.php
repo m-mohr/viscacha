@@ -138,7 +138,7 @@ require_once ("classes/class.permissions.php");
 // A class for Templates
 require_once ("classes/class.template.php");
 // Load Braedcrumb-Module
-include_once ("classes/class.breadcrumb.php");
+class_alias('Viscacha\Util\Breadcrumb', 'Breadcrumb');
 // Global functions
 require_once ("classes/function.global.php");
 // Flash messagesw
@@ -178,7 +178,7 @@ if (!defined('CONSOLE_REQUEST')) {
 	$tpl = new Theme($my->theme, $config['theme']);
 
 	Breadcrumb::universal()->add($config['fname'], 'index.php');
-	if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, ['forum', 'showforum', 'showtopic', 'edit', 'addreply', 'newtopic', 'manageforum', 'managetopic'])) {
+	if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, ['forum', 'showforum', 'showtopic', 'edit', 'addreply', 'newtopic', 'manageforum', 'managetopic', 'search'])) {
 		Breadcrumb::universal()->add($lang->phrase('forumname'), 'forum.php');
 		if (SCRIPTNAME == 'forum') {
 			Breadcrumb::universal()->resetUrl();

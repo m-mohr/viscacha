@@ -77,13 +77,6 @@ class lang {
 		if (isset($slog) && is_object($slog) && method_exists($slog, 'setlang')) {
 			$slog->setlang();
 		}
-		global $config, $breadcrumb;
-		if (isset($breadcrumb)) {
-			$isforum = array('addreply','attachments','edit','forum','manageforum','managetopic','misc','newtopic','search','showforum','showtopic');
-			if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, $isforum)) {
-				Breadcrumb::universal()->add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
-			}
-		}
 	}
 
 	function initAdmin($dir = null) {
