@@ -72,6 +72,9 @@
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="user-header-dropdown">
 						<li><a href="editprofile.php{{ SID2URL_1 }}"><i class="fa fa-user fa-lg"></i> @lang('editprofile_title')</a></li>
+						@if($my->p['admin'])
+						<li><a href="admin.php"><i class="fa fa-cog fa-lg"></i> @lang('admincp')</a></li>
+						@endif
 						<li class="divider"></li>
 						<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out fa-lg"></i> @lang('logout')</a></li>
 					</ul>
