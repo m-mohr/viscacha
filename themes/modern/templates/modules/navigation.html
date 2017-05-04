@@ -1,37 +1,17 @@
-<div class="panel panel-info">
-	<div class="panel-heading"><h3 class="panel-title">{{ $row['name'] }}</h3></div>
-	<ul class="list-group">
-		@foreach ($navigation as $sub)
-		<li class="list-group-item">
-			@if(!empty($sub['link']))
-				@if(!empty($sub['param']))
-				<a href="{{ $sub['link'] }}" target="{{ $sub['param'] }}">
-				@else
-				<a href="{{ $sub['link'] }}">
-				@endif
-				{{ $sub['name'] }}</a>
-			@else
-			<strong>{{ $sub['name'] }}</strong>
-			@endif
-			@if(!empty($sub['navigation']))
+<li><a><i class="fa fa-folder fa-lg"></i> {{ $row['name'] }}</a>
+	@if(!empty($navigation))
+	<ul>
+	@foreach($navigation as $sub)
+		<li><a href="{{ $sub['link'] }}"@if(!empty($sub['param'])) target="{{ $sub['param'] }}"@endif>{{ $sub['name'] }}</a>
+		@if(!empty($sub['navigation']))
 			<ul>
 				@foreach ($sub['navigation'] as $sub2)
-				<li>
-					@if(!empty($sub2['link']))
-						@if(!empty($sub2['param']))
-						<a href="{{ $sub2['link'] }}" target="{{ $sub2['param'] }}">
-						@else
-						<a href="{{ $sub2['link'] }}">
-						@endif
-						{{ $sub2['name'] }}</a>
-					@else
-					<strong>{{ $sub2['name'] }}</strong>
-					@endif
-				</li>
+				<li><a href="{{ $sub2['link'] }}"@if(!empty($sub2['param'])) target="{{ $sub['param'] }}"@endif>{{ $sub2['name'] }}</a></li>
 				@endforeach
 			</ul>
-			@endif
+		@endif
 		</li>
-		@endforeach
+	@endforeach
 	</ul>
-</div>
+	@endif
+</li>

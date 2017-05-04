@@ -1,0 +1,25 @@
+@if($my->vlogin)
+<li>
+	<a><i class="fa fa-user"></i> @lang('editprofile_title')</a>
+	<ul class="nav-pills nav-stacked">
+		<li><a href="editprofile.php?action=profile{{ SID2URL_x }}" title="@lang('editprofile_profile_desc')"><i class="fa fa-id-card"></i> @lang('editprofile_profile')</a></li>
+		<li><a href="editprofile.php?action=settings{{ SID2URL_x }}" title="@lang('editprofile_settings_desc')"><i class="fa fa-wrench"></i> @lang('editprofile_settings')</a></li>
+		<li><a href="editprofile.php?action=pw{{ SID2URL_x }}" title="@lang('editprofile_pw_desc')"><i class="fa fa-lock"></i> @lang('editprofile_pw')</a></li>
+		@if($my->p['usepic'] == 1)
+		<li><a href="editprofile.php?action=pic{{ SID2URL_x }}" title="@lang('editprofile_pic_desc')"><i class="fa fa-photo"></i> @lang('editprofile_pic')</a></li>
+		@endif
+		<li><a href="editprofile.php?action=signature{{ SID2URL_x }}" title="@lang('editprofile_signature_desc')"><i class="fa fa-pencil"></i> @lang('editprofile_signature')</a></li>
+		@if($my->p['useabout'] == 1)
+		<li><a href="editprofile.php?action=about{{ SID2URL_x }}" title="@lang('editprofile_about_desc')"><i class="fa fa-file-text"></i> @lang('editprofile_about')</a></li>
+		@endif
+		<li><a href="editprofile.php?action=abos{{ SID2URL_x }}" title="@lang('editprofile_abos_desc')"><i class="fa fa-bell"></i> @lang('editprofile_abos')</a></li>
+		<li><a href="editprofile.php?action=mylast{{ SID2URL_x }}" title="@lang('editprofile_mylast_desc')"><i class="fa fa-comments"></i> @lang('editprofile_mylast')</a></li>
+		@if($config['tpcallow'] == 1)
+		<li><a href="editprofile.php?action=attachments{{ SID2URL_x }}" title="@lang('editprofile_attachments_desc')"><i class="fa fa-paperclip"></i> @lang('editprofile_attachments')</a></li>
+		@endif
+		<li><a href="profile.php?id={{ $my->id }}{{ SID2URL_x }}" title="@lang('editprofile_ownprofile_desc')"><i class="fa fa-user"></i> @lang('editprofile_ownprofile')</a></li>
+		<li><a href="misc.php?action=rules{{ SID2URL_x }}"><i class="fa fa-legal"></i> @lang('rules')</a></li>
+		<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out"></i> @lang('logout')</a></li>
+	</ul>
+</li>
+@endif

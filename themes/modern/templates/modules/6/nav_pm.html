@@ -1,0 +1,11 @@
+@if($my->p['pm'] == 1)
+<li>
+	<a><i class="fa fa-envelope"></i> @lang('pm_short')</a>
+	<ul class="nav-pills nav-stacked">
+		<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
+		<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
+		<li><a href="pm.php?action=browse&amp;id=3{{ SID2URL_x }}"><i class="fa fa-archive"></i> @lang('pm_dirs_archive')</a></li>
+		<li><a href="pm.php?action=new{{ SID2URL_x }}"><i class="fa fa-plus"></i> @lang('pm_new_title')</a></li>
+	</ul>
+</li>
+@endif

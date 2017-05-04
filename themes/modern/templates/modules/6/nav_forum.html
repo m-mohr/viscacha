@@ -1,0 +1,25 @@
+<li>
+	<a><i class="fa fa-comments"></i> @lang('forumname')</a>
+	<ul class="nav-pills nav-stacked">
+		<li><a href="forum.php{{ SID2URL_1 }}"><i class="fa fa-list"></i> @lang('forumname')</a></li>
+		<li><a><i class="fa fa-folder-open"></i> @lang('search_active_topics')</a>
+			<ul class="nav-pills nav-stacked">
+				<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}"><i class="fa fa-newspaper-o"></i> @lang('sat_lastvisit')</a></li>
+				<li><a href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}"><i class="fa fa-clock-o"></i> @lang('sat_24h')</a></li>
+				@if($my->vlogin)
+				<li><a href="search.php?action=active&amp;type=abo{{ SID2URL_x }}"><i class="fa fa-bell"></i> @lang('sat_abo')</a></li>
+				@endif
+			</ul>
+		</li>
+		@if($my->p['search'] == 1)
+		<li><a href="search.php{{ SID2URL_1 }}"><i class="fa fa-search"></i> @lang('search')</a></li>
+		@endif
+		@if($my->p['members'] == 1)
+		<li><a href="members.php{{ SID2URL_1 }}"><i class="fa fa-users"></i> @lang('members_short')</a></li>
+		@endif
+		@if($my->p['team'] == 1)
+		<li><a href="members.php?action=team{{ SID2URL_x }}"><i class="fa fa-user-md"></i> @lang('team_short')</a></li>
+		@endif
+		<li><a href="misc.php?action=markasread{{ SID2URL_x }}"><i class="fa fa-check"></i> @lang('mark_all_posts_read')</a></li>
+	</ul>
+</li>
