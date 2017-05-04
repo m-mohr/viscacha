@@ -17,7 +17,7 @@
 		<ul class="nav navbar-nav navbar-right">
 			@if($my->mp[0] == 1)
 			<li class="dropdown">
-				<a id="admin_options" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('admin_options')</a>
+				<a id="admin_options" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('admin_options')</a>
 				<ul class="dropdown-menu" aria-labelledby="admin_options">
 					<li><a href="manageforum.php?action=index&amp;type=open&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-unlock"></i> @lang('admin_mass_open')</a></li>
 					<li><a href="manageforum.php?action=index&amp;type=close&amp;page={{ $_GET['page'] }}&amp;id={{ $board }}{{ SID2URL_x }}"><i class="fa fa-lock"></i> @lang('admin_mass_close')</a></li>

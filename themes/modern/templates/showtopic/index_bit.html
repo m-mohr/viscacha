@@ -61,7 +61,7 @@
 		<span class="pull-right">
 			<strong>#<a href="showtopic.php?action=jumpto&amp;topic_id={{ $row->id }}{{ SID2URL_x }}" target="_blank">{{ $row->rel_post_num }}</a></strong>
 			@if($my->mp[0] == 1 && $info['posts'] > 0)
-			<input type="checkbox" name="ids[]" value="{{ $row->id }}" />
+			<input type="checkbox" name="ids[]" value="{{ $row->id }}" onchange="topicSelectedForMod(this, 'mod-marked-posts')" />
 			@endif
 		</span>
 		<ul class="nav nav-pills nav-condensed pull-left">

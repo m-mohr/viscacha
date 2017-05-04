@@ -23,10 +23,13 @@
 		{!! $htmlhead !!}
 	</head>
 
-	<body{!! $htmlbody !!}>
-		<nav class="navbar navbar-inverse navbar-fixed-top" id="header">
+	<body class="no-js">
+		<script type="text/javascript">$(document.body).removeClass('no-js');</script>
+		<div id="loader-wrapper"><div id="loader"></div></div>
+		<nav class="navbar navbar-inverse" id="header">
 			<div class="navbar-header pull-left">
-				<button class="navbar-toggle collapse in sidebar-toggle" data-toggle="collapse"><i class="fa fa-lg fa-bars"></i></button><a class="navbar-brand" href="index.php">{{ $config['fname'] }}</a>
+				<button class="sidebar-toggle"><i class="fa fa-lg fa-bars"></i></button><!--
+			 --><a class="navbar-brand" href="index.php">{{ $config['fname'] }}</a>
 			</div>
 			<ul class="nav navbar-nav navbar-right pull-right user-notification-header">
 				@if($my->p['pm'])
@@ -79,23 +82,22 @@
 						<li><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}"><i class="fa fa-sign-out fa-lg"></i> @lang('logout')</a></li>
 					</ul>
 				</li>
-				<li class="nonjs-only"><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}" title="@lang('logout')"><i class="fa fa-sign-out fa-lg"></i></a></li>
+				<li class="nonjs-only pull-left"><a href="log.php?action=logout&amp;redirect={{ getRequestURI() }}{{ SID2URL_x }}" title="@lang('logout')"><i class="fa fa-sign-out fa-lg"></i></a></li>
 				@else
-				<li class="nonjs-only"><a href="log.php?action=login{{ SID2URL_x }}"><i class="fa fa-sign-in fa-lg"></i> @lang('login')</a></li>
-				<li class="nonjs-only"><a href="register.php{{ SID2URL_x }}"><i class="fa fa-user-plus fa-lg"></i> @lang('register_title')</a></li>
+				<li class="nonjs-only pull-left"><a href="log.php?action=login{{ SID2URL_x }}"><i class="fa fa-sign-in fa-lg"></i><span class="hidden-xs">&nbsp;@lang('login')</span></a></li>
+				<li class="nonjs-only pull-left"><a href="register.php{{ SID2URL_x }}"><i class="fa fa-user-plus fa-lg"></i><span class="hidden-xs">&nbsp;@lang('register_title')</span></a></li>
 				@endif
 			</ul>
 		</nav>
-		
-		<div id="wrapper">
 
+		<div id="content-wrapper">
 			<div id="sidebar-wrapper">
 				<ul class="sidebar-nav nav-pills nav-stacked" id="sidebar">
 					<li>
-						<a href="#"><i class="fa fa-comments"></i> @lang('forumname')</a>
+						<a><i class="fa fa-comments"></i> @lang('forumname')</a>
 						<ul class="nav-pills nav-stacked">
 							<li><a href="forum.php{{ SID2URL_1 }}"><i class="fa fa-list"></i> @lang('n_forum')<!-- ToDo: This is a custom phrase and must be replaced --></a></li>
-							<li><a href="#"><i class="fa fa-folder-open"></i> @lang('search_active_topics')</a>
+							<li><a><i class="fa fa-folder-open"></i> @lang('search_active_topics')</a>
 								<ul class="nav-pills nav-stacked">
 									<li><a href="search.php?action=active&amp;type=lastvisit{{ SID2URL_x }}"><i class="fa fa-newspaper-o"></i> @lang('sat_lastvisit')</a></li>
 									<li><a href="search.php?action=active&amp;type=days-1{{ SID2URL_x }}"><i class="fa fa-clock-o"></i> @lang('sat_24h')</a></li>
@@ -118,7 +120,7 @@
 					</li>
 					@if($my->p['pm'] == 1)
 					<li>
-						<a href="#"><i class="fa fa-envelope"></i> @lang('pm_short')</a>
+						<a><i class="fa fa-envelope"></i> @lang('pm_short')</a>
 						<ul class="nav-pills nav-stacked">
 							<li><a href="pm.php?action=browse&amp;id=1{{ SID2URL_x }}"><i class="fa fa-inbox"></i> @lang('pm_dirs_inbox')</a></li>
 							<li><a href="pm.php?action=browse&amp;id=2{{ SID2URL_x }}"><i class="fa fa-send"></i> @lang('pm_dirs_outbox')</a></li>
@@ -129,7 +131,7 @@
 					@endif
 					@if($my->vlogin)
 					<li>
-						<a href="#"><i class="fa fa-user"></i> @lang('editprofile_title')</a>
+						<a><i class="fa fa-user"></i> @lang('editprofile_title')</a>
 						<ul class="nav-pills nav-stacked">
 							<li><a href="editprofile.php?action=profile{{ SID2URL_x }}" title="@lang('editprofile_profile_desc')"><i class="fa fa-id-card"></i> @lang('editprofile_profile')</a></li>
 							<li><a href="editprofile.php?action=settings{{ SID2URL_x }}" title="@lang('editprofile_settings_desc')"><i class="fa fa-wrench"></i> @lang('editprofile_settings')</a></li>
@@ -154,7 +156,7 @@
 					@endif
 					<!--
 					<li>
-						<a href="#"> <i class="fa fa-file-text"></i> Documents</a>
+						<a><i class="fa fa-file-text"></i> Documents</a>
 						<ul class="nav-pills nav-stacked">
 							<li><a href="#"><i class="fa fa-flag"></i>link1</a></li>
 							<li><a href="#"><i class="fa fa-flag"></i>link2</a></li>
@@ -165,9 +167,8 @@
 					</li>
 					-->
 				</ul>
-				<br clear="all" />
 			</div>
-
+			
 			<div class="container" id="container">
 
 				<ol class="breadcrumb nav-breadcrumb">
@@ -182,5 +183,5 @@
 
 				<div id="content">
 
-					{!! FlashMessage::show() !!}
+					<div id="flash-notifications">{!! FlashMessage::show() !!}</div>
 

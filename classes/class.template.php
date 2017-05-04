@@ -119,7 +119,7 @@ class Theme {
 		}
 
 		if (!empty($vars)) {
-			global $config, $lang, $tpl, $my, $htmlhead, $htmlbody, $plugins;
+			global $config, $lang, $tpl, $my, $htmlhead, $plugins;
 			$vars = array_merge(compact("config", "lang", "tpl", "my", "htmlhead", "htmlbody", "plugins"), $this->vars, $vars);
 		}
 		else {

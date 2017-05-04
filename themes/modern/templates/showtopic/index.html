@@ -17,7 +17,7 @@
 		<ul class="nav navbar-nav navbar-right">
 			@if($my->mp[0] == 1)
 			<li class="dropdown">
-				<a id="admin_options" href="#" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('admin_options')</a>
+				<a id="admin_options" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('admin_options')</a>
 				<ul class="dropdown-menu" aria-labelledby="admin_options">
 					<li><a href="managetopic.php?action=delete&amp;id={{ $info['id'] }}{{ SID2URL_x }}"><i class="fa fa-trash"></i> @lang('admin_topics_delete')</a></li>
 				@if ($info['status'] != 2)
@@ -74,7 +74,7 @@
 	{!! $inner['index_bit'] !!}
 
 	@if($my->mp[0] == 1 && $info['posts'] > 0)
-	<div class="panel panel-danger">
+	<div class="panel panel-danger notification-element nonjs-only" id="mod-marked-posts">
 		<div class="panel-heading"><h3 class="panel-title">@lang('admin_options')</h3></div>
 		<div class="panel-body">
 			@lang('admin_marked_posts')&nbsp;
@@ -82,7 +82,7 @@
 				<option value="pdelete">@lang('admin_topics_delete')</option>
 				<option value="pmerge">@lang('admin_posts_merge')</option>
 			</select>&nbsp;
-			<input type="submit" value="@lang('submit_form')" />
+			<input type="submit" value="@lang('submit_form')" class="btn btn-danger" />
 		</div>
 	</div>
 	@endif

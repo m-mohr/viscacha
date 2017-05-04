@@ -1,6 +1,7 @@
 $(document).ready(function () {
 	// Remove js only UI elements and remove the nonjs-only elements
 	$('.js-only').removeClass('js-only');
+	$('body').removeClass('no-js');
 	$('.nonjs-only').hide();
 	// Remove js only UI elements
 	$('.pagination-separator').removeClass('disabled');
@@ -8,6 +9,8 @@ $(document).ready(function () {
 	MultiQuote.init();
 	// Initalize Menu
 	Sidebar.init();
+	// Remove loading screen
+	$('body').addClass('loaded');
 });
 
 // Sidebar
@@ -15,7 +18,6 @@ var Sidebar = {
 	cookiename: 'sidebar',
 	init: function() {
 		// ToDo: Store sidebar state in Cookie
-		$(".sidebar-toggle").css('display', 'inline-block');
 		$('#sidebar ul').hide();
 		// Show current element or expand first element by default
 		var current = $('#sidebar ul').children('.current');
@@ -43,8 +45,8 @@ var Sidebar = {
 		});
 		$(".sidebar-toggle").click(function (e) {
 			e.preventDefault();
-			$("#wrapper").toggleClass("sidebar-toggled");
-			$('#sidebar ul').hide();
+			$("body").toggleClass("sidebar-toggled");
+//			$('#sidebar ul').hide();
 		});
 	}
 };
@@ -90,7 +92,7 @@ var MultiQuote = {
 				this._toggleBtn(values[i], true);
 			}
 		}
-
+		this.showFlashNotice();
 	},
 	toggle: function (id) {
 		var c = Cookies.get(this.cookieName);
@@ -102,7 +104,7 @@ var MultiQuote = {
 			for (var i = 0; i < values.length; i++) {
 				if (values[i] == id) {
 					add = false;
-				} else {
+				} else if (values[i].length > 0) {
 					newval[newval.length] = values[i];
 				}
 			}
@@ -113,15 +115,32 @@ var MultiQuote = {
 		}
 
 		Cookies.set(this.cookieName, newval.join(','));
+		this.showFlashNotice();
 	},
 	_toggleBtn: function (id, add) {
 		if (add) {
 			$('#mq_' + id).addClass('active');
-			// ToDo: Add language resources
-			//		$('#mq_'+id+'_link').text(lng['js_quote_multi_2']);
+			$('#mq_'+id+'_link').text('Gemerktes Mehrfachzitat entfernen'); // ToDo: I18N
 		} else {
 			$('#mq_' + id).removeClass('active');
-			//		$('#mq_'+id+'_link').text(lng['js_quote_multi']);
+			$('#mq_'+id+'_link').text('Beitrag für Mehrfachzitat merken'); // ToDo: I18N
+		}
+	},
+	showFlashNotice: function() {
+		var c = Cookies.get(this.cookieName);
+		var notice = $('#mq_flashnotice');
+		if (c && c.length > 0) {
+			var num = c.split(',').length;
+			var newNotice = $('<div class="alert alert-info alert-dismissible" id="mq_flashnotice"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><a class="btn btn-default" href="addreply.php?id=...">Jetzt gemerkte Beiträge zitieren <span class="badge">' + num + ' </span></a></div>'); // ToDo: I18N and add ID to link
+			if (notice.length > 0) {
+				notice.replaceWith(newNotice);
+			}
+			else {
+				$('#flash-notifications').append(newNotice);
+			}
+		}
+		else {
+			notice.remove();
 		}
 	}
 };
@@ -146,6 +165,24 @@ function jumptopage(url) {
 	if (page !== null && !isNaN(page) && page > 0) {
 		document.location.href = url.replace(/&amp;/g, '&') + 'page=' + page + sidx;
 	}
+}
+
+// Topic management
+function topicSelectedForMod(element, modElementId) {
+	var modElement = $('#' + modElementId);
+	if (modElement.parent('#flash-notifications').length === 0) {
+		$('#flash-notifications').append(modElement.detach());
+	}
+	var allCheckboxes = document.getElementsByName(element.name);
+	for (var i = 0; i < allCheckboxes.length; i++) {
+		var checkbox = allCheckboxes[i];
+		if (checkbox.checked) {
+			$('#' + modElementId).show();
+			return;
+		}
+	}
+
+	$('#' + modElementId).hide();
 }
 
 // AJAX

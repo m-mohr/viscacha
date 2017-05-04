@@ -122,9 +122,6 @@ unset($http_vars, $http_all);
 $inner = array();
 $htmlhead = '';
 $htmlonload = '';
-if (defined('SCRIPTNAME')) {
-	$htmlbody = ' id="css_'.SCRIPTNAME.'"';
-}
 if ($config['nocache'] == 1) {
 	$htmlhead .= '
 	<meta http-equiv="Pragma" content="no-cache" />

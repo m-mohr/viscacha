@@ -4,7 +4,7 @@
 	<tr class="js-only">
 		<td class="editor_toolbar">
 			<div class="dropdown">
-				<a href="#" id="menu_bbcolor_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_color')</a>
+				<a id="menu_bbcolor_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_color')</a>
 				<div class="dropdown-menu bbcolor" aria-labelledby="menu_bbcolor_{{ $id }}">
 					<li>
 						<script type="text/javascript">
@@ -15,7 +15,7 @@
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<div class="dropdown">
-				<a href="#" id="menu_bbsize_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_size')</a>
+				<a id="menu_bbsize_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_size')</a>
 				<ul class="dropdown-menu bbsize" aria-labelledby="menu_bbsize_{{ $id }}">
 					<li><a onclick="InsertTags('{{ $id }}', '[size = large]','[/size]')" style="font-size: 1.3em;">@lang('bbcodes_size_large')</a></li>
 					<li><a onclick="InsertTags('{{ $id }}', '[size = small]','[/size]')" style="font-size: 0.8em;">@lang('bbcodes_size_small')</a></li>
@@ -24,7 +24,7 @@
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<div class="dropdown">
-				<a id="menu_bbhx_{{ $id }}" href="#" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_header')</a>
+				<a id="menu_bbhx_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_header')</a>
 				<ul class="dropdown-menu bbheading" aria-labelledby="menu_bbhx_{{ $id }}">
 					<li><a onclick="InsertTags('{{ $id }}', '[h = large]','[/h]')"><h4>@lang('bbcodes_header_h1')</h4></a></li>
 					<li><a onclick="InsertTags('{{ $id }}', '[h = middle]','[/h]')"><h5>@lang('bbcodes_header_h2')</h5></a></li>
@@ -33,7 +33,7 @@
 			</div>
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<div class="dropdown">
-				<a id="menu_bbtable_{{ $id }}" href="#" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_table')</a>
+				<a id="menu_bbtable_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="caret"></span> @lang('bbcodes_table')</a>
 				<ul class="dropdown-menu bbtable" aria-labelledby="menu_bbtable_{{ $id }}">
 					<li><input type="checkbox" id="table_head_{{ $id }}" value="1" /> @lang('bbcodes_table_show_head')</li>
 					<li><input type="text" size="4" id="table_rows_{{ $id }}" value="2" /> @lang('bbcodes_table_rows')</li>
@@ -89,7 +89,7 @@
 			@if(!empty($smileys[0]))
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<div class="dropdown">
-				<a id="menu_bbsmileys_{{ $id }}" href="#" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+				<a id="menu_bbsmileys_{{ $id }}" class="editor_toolbar_dropdown" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
 					<span class="caret"></span> @lang('more_smileys')
 				</a>
 				<ul class="dropdown-menu bbsmileys" aria-labelledby="menu_bbsmileys_{{ $id }}">
