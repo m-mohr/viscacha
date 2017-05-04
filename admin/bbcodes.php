@@ -331,7 +331,6 @@ elseif ($job == 'smileys_export') {
 elseif ($job == 'smileys') {
 	echo head();
 	$result = $db->execute("SELECT * FROM {$db->pre}smileys AS s ORDER BY s.show DESC");
-	$res_num_rows = $result->getResultCount();
 ?>
 <form name="form" method="post" action="admin.php?action=bbcodes">
  <table class="border">
@@ -550,11 +549,10 @@ elseif ($job == 'add') {
 elseif ($job == 'edit') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$result = $db->execute("SELECT * FROM {$db->pre}textparser WHERE id = '{$id}'");
-	if ($result->getResultCount() == 0) {
+	$row = $db->fetch("SELECT * FROM {$db->pre}textparser WHERE id = '{$id}'");
+	if (!$row) {
 		error('admin.php?action=bbcodes&job=censor', $lang->phrase('admin_bbc_no_valid_selection'));
 	}
-	$row = $result->fetch();
 	?>
 <form name="form" method="post" action="admin.php?action=bbcodes&amp;job=edit2&amp;id=<?php echo $id; ?>">
  <table class="border">
@@ -733,8 +731,8 @@ elseif ($job == 'custombb_import2') {
 
 	$bb = array_map(array($db, 'escape_string'), $bb);
 
-	$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE tag = '{$bb['tag']}' AND twoparams = '{$bb['twoparams']}'");
-	if ($result->getResultCount() > 0) {
+	$result = $db->fetchOne("SELECT tag FROM {$db->pre}bbcode WHERE tag = '{$bb['tag']}' AND twoparams = '{$bb['twoparams']}'");
+	if ($result) {
 		$bbcodetag = $bb['tag'];
 		error('admin.php?action=bbcodes&job=custombb_import', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
@@ -749,10 +747,7 @@ elseif ($job == 'custombb_import2') {
 		}
 	}
 
-	$db->execute("
-	INSERT INTO {$db->pre}bbcode (tag, replacement, example, explanation, twoparams, title, buttonimage)
-	VALUES ('{$bb['tag']}','{$bb['replacement']}','{$bb['example']}','{$bb['explanation']}','{$bb['twoparams']}','{$bb['title']}','{$bb['buttonimage']}')
-	");
+	\Viscacha\Model\Bbcode::insert($bb);
 
 	if ($del > 0) {
 		$filesystem->unlink($file);
@@ -836,16 +831,12 @@ elseif ($job == 'custombb_add2') {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
-	if ($result->getResultCount() > 0) {
-		$bbcodetag = $query['tag'];
+	$bbcodetag = $db->fetchOne("SELECT tag FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
+	if ($bbcodetag) {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
 
-	$db->execute("
-	INSERT INTO {$db->pre}bbcode (tag, replacement, example, explanation, twoparams, title, buttonimage)
-	VALUES ('{$query['tag']}','{$query['replacement']}','{$query['example']}','{$query['explanation']}','{$query['twoparams']}','{$query['title']}','{$query['buttonimage']}')
-	");
+	\Viscacha\Model\Bbcode::insert($query);
 
 	$delobj = $scache->load('custombb');
 	$delobj->delete();
@@ -936,14 +927,13 @@ elseif ($job == 'custombb_edit2') {
 	}
 
 	if (mb_strtolower($query['tag']) != mb_strtolower($query['tag_old'])) {
-		$result = $db->execute("SELECT * FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
-		if ($result->getResultCount() > 0) {
-			$bbcodetag = $query['tag'];
+		$bbcodetag = $db->execute("SELECT tag FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
+		if ($bbcodetag) {
 			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 		}
 	}
 
-	$db->execute("UPDATE {$db->pre}bbcode SET title = '{$query['title']}',tag = '{$query['tag']}',replacement = '{$query['replacement']}',example = '{$query['example']}',explanation = '{$query['explanation']}',twoparams = '{$query['twoparams']}',buttonimage = '{$query['buttonimage']}' WHERE id = '{$query['id']}'");
+	\Viscacha\Model\Bbcode::update($query)->where('id', $query['id']);
 
 	$delobj = $scache->load('custombb');
 	$delobj->delete();

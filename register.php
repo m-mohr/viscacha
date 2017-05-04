@@ -176,8 +176,8 @@ elseif ($_GET['action'] == 'resend2') {
 	($code = $plugins->load('register_resend2_start')) ? eval($code) : null;
 
 	$error = array();
-	$result = $db->execute("SELECT id, name, mail, regdate, confirm FROM {$db->pre}user WHERE name = '{$_POST['name']}' AND deleted_at IS NULL AND (confirm = '10' OR confirm = '00') LIMIT 1");
-	if ($result->getResultCount() != 1) {
+	$row = $db->fetch("SELECT id, name, mail, regdate, confirm FROM {$db->pre}user WHERE name = '{$_POST['name']}' AND deleted_at IS NULL AND (confirm = '10' OR confirm = '00') LIMIT 1");
+	if (!$row) {
 		$error[] = $lang->phrase('register_resend_no_user');
 	}
 	if (flood_protect() == false) {
@@ -198,7 +198,6 @@ elseif ($_GET['action'] == 'resend2') {
 	}
 	else {
 		set_flood();
-		$row = $result->fetch();
 		$confirmcode = md5($config['cryptkey'].$row['regdate']);
 
 		($code = $plugins->load('register_resend2_check')) ? eval($code) : null;
@@ -218,12 +217,11 @@ elseif ($_GET['action'] == 'confirm') {
 
 	($code = $plugins->load('register_confirm_start')) ? eval($code) : null;
 
-	$result = $db->execute("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL AND confirm != '01' AND confirm != '11' LIMIT 1");
-	if ($result->getResultCount() != 1) {
+	$row = $db->fetch("SELECT id, name, regdate, confirm FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL AND confirm != '01' AND confirm != '11'");
+	if (!$row) {
 		error($lang->phrase('register_code_no_user'), "log.php?action=login".SID2URL_x);
 	}
 
-	$row = $result->fetch();
 	$confirmcode = md5($config['cryptkey'].$row['regdate']);
 
 	($code = $plugins->load('register_confirm_check')) ? eval($code) : null;

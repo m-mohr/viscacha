@@ -265,8 +265,8 @@ function array_empty_trim($array) {
 
 function double_udata ($opt,$val) {
 	global $db;
-	$result = $db->execute("SELECT id FROM {$db->pre}user WHERE {$opt} = '{$val}' LIMIT 1");
-	return ($result->getResultCount() == 0);
+	$result = $db->fetchOne("SELECT id FROM {$db->pre}user WHERE {$opt} = '{$val}' LIMIT 1");
+	return is_id($result);
 }
 
 function getDocLangID($data) {

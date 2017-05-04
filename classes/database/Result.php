@@ -72,10 +72,6 @@ class Result {
 		return $this->results;
 	}
 
-	public function getResultCount() {
-		return $this->getAffectedRows(); // ToDo: Remove from code
-	}
-
 	public function getColumnCount() {
 		return $this->columnCount !== null ? $this->columnCount : $this->statement->columnCount();
 	}

@@ -44,10 +44,10 @@ function admin_customsave($uid) {
 	}
 
 	if (count($upquery) > 0) {
-		$query = $db->execute("SELECT * FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
+		$query = $db->fetchOne("SELECT ufid FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
 		$upquery['ufid'] = "ufid = '{$uid}'";
 		$sqldata = implode(', ', $upquery);
-		if($query->getResultCount() == 0) {
+		if(!$query) {
 			$db->execute("INSERT INTO {$db->pre}userfields SET {$sqldata}");
 		}
 		else {
@@ -355,8 +355,8 @@ function editprofile_customsave($editable, $uid, $save = true) {
 	}
 
 	if (count($error) == 0 && count($upquery) > 0 && $save == true) {
-		$query = $db->execute("SELECT * FROM {$db->pre}userfields WHERE ufid='{$uid}'");
-		if($query->getResultCount() == 0) {
+		$query = $db->fetchOne("SELECT ufid FROM {$db->pre}userfields WHERE ufid = '{$uid}'");
+		if(!$query) {
 			$fields = $db->getColumns("{$db->pre}userfields");
 			$sqldata = array();
 			foreach ($fields as $field) {

@@ -32,16 +32,15 @@ include ("classes/function.viscacha_frontend.php");
 
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
-$result = $db->execute("
+$info = $db->fetch("
 SELECT t.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
-WHERE r.id = '{$_GET['id']}' LIMIT 1");
+WHERE r.id = '{$_GET['id']}'");
 
-if ($result->getResultCount() != 1) {
+if (!$info) {
 	error(array($lang->phrase('query_string_error')));
 }
-$info = $result->fetch();
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);

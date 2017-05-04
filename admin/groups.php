@@ -227,7 +227,7 @@ elseif ($job == 'add2') {
 	if ($copy > 0 && $copyf == 1) {
 		$fields = array('f_downloadfiles', 'f_forum', 'f_posttopics', 'f_postreplies', 'f_addvotes', 'f_attachments', 'f_edit', 'f_voting');
 		$result = $db->execute("SELECT * FROM {$db->pre}fgroups WHERE gid = '{$gid}'");
-		$fgnum = $result->getResultCount();
+		$fgnum = 0;
 		$fgnum2 = 0;
 		while ($row = $result->fetch()) {
 			$sql_fvalues = '';
@@ -235,6 +235,7 @@ elseif ($job == 'add2') {
 				$sql_fvalues .= '"'.$gpc->get($key, int).'",';
 			}
 			$stmt = $db->execute("INSERT INTO {$db->pre}fgroups (gid,".implode(',', $fields).",bid) VALUES ('{$gid}',{$sql_fvalues},'{$row['bid']}')");
+			$fgnum++;
 			$fgnum2 += $stmt->getAffectedRows();
 		}
 	}
@@ -279,11 +280,10 @@ elseif ($job == 'delete') {
 elseif ($job == 'edit') {
 	$id = $gpc->get('id', int);
 	echo head();
-	$result = $db->execute("SELECT * FROM {$db->pre}groups WHERE id = '{$id}' LIMIT 1");
-	if ($result->getResultCount() != 1) {
+	$data = $db->fetch("SELECT * FROM {$db->pre}groups WHERE id = '{$id}' LIMIT 1");
+	if (!$data) {
 		error('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_no_valid_id_given'));
 	}
-	$data = $result->fetch();
 	?>
 <form name="form" method="post" action="admin.php?action=groups&amp;job=edit2&amp;id=<?php echo $id; ?>">
  <table class="border">
@@ -330,11 +330,10 @@ elseif ($job == 'edit2') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->execute("SELECT * FROM {$db->pre}groups WHERE id = {$id} LIMIT 1");
-	if ($result->getResultCount() != 1) {
+	$data = $db->fetch("SELECT * FROM {$db->pre}groups WHERE id = {$id}");
+	if (!$data) {
 		error('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_no_valid_id_given'));
 	}
-	$data = $result->fetch(); // FIXME
 
 	$sql_values = '';
 	foreach ($glk as $key) {

@@ -32,16 +32,10 @@ include ("classes/function.viscacha_frontend.php");
 
 $action = $gpc->get('action', none);
 
-$result = $db->execute('
-SELECT board, id, last_name, prefix, topic
-FROM '.$db->pre.'topics
-WHERE id = "'.$_GET['id'].'"
-LIMIT 1
-');
-if ($result->getResultCount() != 1) {
+$info = $db->fetch('SELECT board, id, last_name, prefix, topic FROM '.$db->pre.'topics WHERE id = "'.$_GET['id'].'"');
+if (!$info) {
 	error($lang->phrase('query_string_error'));
 }
-$info = $result->fetch();
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
@@ -180,9 +174,8 @@ elseif ($action == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showtopic.php?id='.$info['id']);
 }
 elseif ($action == "reports") {
-	$result = $db->execute("SELECT id, report, topic_id, tstart FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
-	$data = $result->fetch();
-	if ($result->getResultCount() == 0) {
+	$data = $db->fetch("SELECT id, report, topic_id, tstart FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}'");
+	if (!$data) {
 		error($lang->phrase('query_string_error'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if (empty($data['report'])) {
@@ -383,8 +376,8 @@ elseif ($action == "pdelete") {
 	}
 	$db->execute ("DELETE FROM {$db->pre}uploads WHERE tid IN ({$iid})");
 
-	$result = $db->execute("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
-	if ($result->getResultCount() == 0) {
+	$result = $db->fetch("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
+	if (!$result) {
 		$db->execute ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
 		$db->execute ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
 		$votes = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");

@@ -1678,7 +1678,7 @@ elseif ($job == 'custom') {
 	echo head();
 	$id = $gpc->get('id', int);
 	$package = $gpc->get('package', int);
-	$result = $db->execute("
+	$settings = $db->fetchMatrix("
 	SELECT s.*, g.name AS groupname, p.id as package
 	FROM {$db->pre}settings AS s
 		LEFT JOIN {$db->pre}settings_groups AS g ON s.sgroup = g.id
@@ -1695,9 +1695,7 @@ elseif ($job == 'custom') {
 	    <?php echo $lang->phrase('admin_custom_settings'); ?>
 	   </td>
 	  </tr>
-	<?php
-	if ($result->getResultCount() > 0) {
-		?>
+	<?php if (!empty($settings)) { ?>
 		  <tr>
 		   <td class="ubox"><?php echo $lang->phrase('admin_custom_setting'); ?></td>
 		   <td class="ubox"><?php echo $lang->phrase('admin_custom_value'); ?></td>
@@ -1705,23 +1703,18 @@ elseif ($job == 'custom') {
 		   <td class="ubox"><?php echo $lang->phrase('admin_custom_variable'); ?></td>
 		  </tr>
 		<?php
-		while ($row = $result->fetch()) {
+		foreach ($settings as $row) {
 			call_user_func('custom_'.$row['type'], $row);
 		}
 		?>
 	  <tr>
 	   <td class="ubox" colspan="4" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
-		<?php
-	}
-	else {
-	?>
+	<?php } else { ?>
 	  <tr>
 	   <td class="mbox" colspan="4" align="center"><?php echo $lang->phrase('admin_custom_settings_info'); ?> <a href="admin.php?action=settings&amp;job=new&amp;package=<?php echo $package; ?>"><?php echo $lang->phrase('admin_custom_settings_info2'); ?></a></td>
 	  </tr>
-	<?php
-	}
-	?>
+	<?php } ?>
 	 </table>
 	</form>
 	<?php
@@ -1810,8 +1803,8 @@ elseif ($job == 'new_group') {
 	echo head();
 	if ($package > 0) {
 		$ini = $myini->read("modules/{$package}/package.ini");
-		$result = $db->execute("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$ini['info']['internal']}' LIMIT 1");
-		if ($result->getResultCount() > 0) {
+		$result = $db->fetchOne("SELECT id FROM {$db->pre}settings_groups WHERE name = '{$ini['info']['internal']}' LIMIT 1");
+		if ($result) {
 			error('admin.php?action=packages&job=package_edit&id='.$package, $lang->phrase('admin_package_has_already_a_group'));
 		}
 	}
@@ -2006,7 +1999,6 @@ elseif ($job == 'new2') {
 }
 else {
 	echo head();
-	$result = $db->execute("SELECT id, title, description, name FROM {$db->pre}settings_groups ORDER BY title");
 	?>
 	<table class="border">
 	  <tr>
@@ -2296,10 +2288,11 @@ else {
 	  </tr>
 	</table>
 <?php
-if ($result->getResultCount() > 0) {
-	$result2 = $db->execute("SELECT id, title, internal FROM {$db->pre}packages");
+$groups = $db->fetchMatrix("SELECT id, title, description, name FROM {$db->pre}settings_groups ORDER BY title");
+if (!empty($groups)) {
+	$result = $db->execute("SELECT id, title, internal FROM {$db->pre}packages");
 	$cache = array();
-	while ($row = $result2->fetch()) {
+	while ($row = $result->fetch()) {
 		$cache[$row['internal']] = $row;
 	}
 	?>
@@ -2319,7 +2312,7 @@ if ($result->getResultCount() > 0) {
 	  <td width="50%"><?php echo $lang->phrase('admin_setting_description'); ?></td>
 	  <td nowrap="nowrap" width="23%"><?php echo $lang->phrase('admin_setting_option'); ?></td>
 	 </tr>
-	 <?php while ($row = $result->fetch()) { ?>
+	 <?php foreach($groups as $row) { ?>
 	 <tr class="mbox">
 	  <td nowrap="nowrap"><a href="admin.php?action=settings&amp;job=custom&amp;id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a></td>
 	  <td class="stext"><?php echo $row['description']; ?><?php echo isset($cache[$row['name']]) ? '<br />'.$lang->phrase('admin_package_x').$cache[$row['name']]['title'] : ''; ?></td>

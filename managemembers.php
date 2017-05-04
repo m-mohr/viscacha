@@ -43,11 +43,10 @@ if (!$my->vlogin || $my->p['admin'] == 0) {
 	errorLogin($lang->phrase('not_allowed'));
 }
 
-$result = $db->execute("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
-if ($result->getResultCount() != 1) {
+$result = $db->fetch("SELECT * FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
+if (!$user) {
 	error($lang->phrase('no_id_given'), 'members.php'.SID2URL_1);
 }
-$user = $result->fetch();
 
 ($code = $plugins->load('managemembers_prepare')) ? eval($code) : null;
 

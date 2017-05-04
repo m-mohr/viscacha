@@ -650,11 +650,10 @@ elseif ($_GET['action'] == "mylast") {
 	($code = $plugins->load('editprofile_mylast_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "addabo") {
-	$result = $db->execute("SELECT id, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-	if ($result->getResultCount() != 1) {
+	$info = $db->fetch("SELECT id, board FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
+	if (!$info) {
 		error($lang->phrase('no_id_given'));
 	}
-	$info = $result->fetch();
 	$my->p = $slog->Permissions($info['board']);
 
 	$catbid = $scache->load('cat_bid');
@@ -684,8 +683,8 @@ elseif ($_GET['action'] == "addabo") {
 	}
 
 	($code = $plugins->load('editprofile_addabo_prepared')) ? eval($code) : null;
-	$result = $db->execute("SELECT id, type FROM {$db->pre}abos WHERE tid = '{$info['id']}' AND mid = '{$my->id}'");
-	if ($result->getResultCount() > 0) {
+	$result = $db->fetchOne("SELECT id, type FROM {$db->pre}abos WHERE tid = '{$info['id']}' AND mid = '{$my->id}'");
+	if ($result) {
 		error($lang->phrase('addabo_error'));
 	}
 	else {
@@ -695,11 +694,10 @@ elseif ($_GET['action'] == "addabo") {
 }
 elseif ($_GET['action'] == "removeabo") {
 	($code = $plugins->load('editprofile_removeabo_start')) ? eval($code) : null;
-	$result = $db->execute('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
-	if ($result->getResultCount() != 1) {
+	$info = $db->fetch('SELECT id, board FROM '.$db->pre.'topics WHERE id = '.$_GET['id']);
+	if (!$info) {
 		error($lang->phrase('no_id_given'));
 	}
-	$info = $result->fetch();
 	$my->p = $slog->Permissions($info['board']);
 
 	$catbid = $scache->load('cat_bid');

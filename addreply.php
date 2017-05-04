@@ -35,10 +35,8 @@ include ("classes/function.viscacha_frontend.php");
 $id = $gpc->get('id', int);
 $fid = $gpc->get('fid', str);
 
-$result = $db->execute("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'");
-
-$info = $result->fetch();
-if ($result->getResultCount() == 0) {
+$info = $db->fetch("SELECT id, prefix, topic, board, posts, status FROM {$db->pre}topics WHERE id = '{$id}'");
+if (!$info) {
 	error($lang->phrase('query_string_error'));
 }
 $my->p = $slog->Permissions($info['board']);
@@ -72,7 +70,7 @@ if ($config['tpcallow'] == 1 && $my->p['attachments'] == 1) {
 	$p_upload = 1;
 }
 
-$validDigest = array(-1, 1, 2, 3, 9);
+$validDigest = array('x', 'f', 's', 'w');
 $standard_data = array(
 	'comment' => '',
 	'dosmileys' => 1,
@@ -83,7 +81,7 @@ $standard_data = array(
 ($code = $plugins->load('addreply_start')) ? eval($code) : null;
 
 if ($_GET['action'] == "save") {
-	$digest = $gpc->get('digest', int);
+	$digest = $gpc->get('digest', str);
 	$error = array();
 	if (is_hash($fid)) {
 		$error_data = import_error_data($fid);
@@ -142,24 +140,15 @@ if ($_GET['action'] == "save") {
 
 		// Update, insert, delete notifications
 		if (in_array($digest, $validDigest)) {
-			switch ($digest) {
-				case 1:  $type = 's';  break;
-				case 2:  $type = 'd'; break;
-				case 3:  $type = 'w'; break;
-				case 9:  $type = 'f'; break;
-				case -1: $type = null; break;
-			}
-			
-			$result = $db->execute("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
-			$row = $result->fetch();
-			if ($row && $type === null) { // Lösche Abo
+			$row = $db->fetch("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}' LIMIT 1");
+			if ($row && $digest == 'x') { // Lösche Abo
 				$db->execute("DELETE FROM {$db->pre}abos WHERE id = '{$row['id']}'");
 			}
-			else if ($row && $type != $row['type']) { // Aktualisiere Abo, wenn veränderter Typ
+			else if ($row && $digest != $row['type']) { // Aktualisiere Abo, wenn veränderter Typ
 				$db->execute("UPDATE {$db->pre}abos SET type = '{$type}' WHERE id = '{$row['id']}'");
 			}
-			else if (!$row && $type !== null) { // Füge Abo hinzu
-				$db->execute("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$type}')");
+			else if (!$row && $digest != 'x') { // Füge Abo hinzu
+				$db->execute("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$id}', '{$digest}')");
 			}
 		}
 
@@ -281,20 +270,7 @@ else {
 	}
 
 	if (!in_array($data['digest'], $validDigest)) {
-		$result = $db->execute("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
-		if ($result->getResultCount() > 0) {
-			$temp = $result->fetch();
-			switch ($temp['type']) {
-				case 's':	$data['digest'] = 1; break;
-				case 'd':	$data['digest'] = 2; break;
-				case 'w':	$data['digest'] = 3; break;
-				case 'f':	$data['digest'] = 9; break;
-				default:	$data['digest'] = -1;
-			}
-		}
-		else {
-			$data['digest'] = -1;
-		}
+		$data['digest'] = $db->fetchOne("SELECT type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$id}'");
 	}
 
 	($code = $plugins->load('addreply_form_prepared')) ? eval($code) : null;

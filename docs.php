@@ -36,16 +36,15 @@ $id = $gpc->get('id', int);
 
 ($code = $plugins->load('docs_start')) ? eval($code) : null;
 
-$result = $db->execute("
+$info = $db->fetch("
 	SELECT d.id, u.id AS author, u.name, d.date, d.update, d.date AS date2, d.update AS update2, d.parser, d.template, d.groups
 	FROM {$db->pre}documents AS d
 		LEFT JOIN {$db->pre}user AS u ON u.id = d.author
 	WHERE d.id = '{$id}'
 ");
-if ($result->getResultCount() == 0) {
+if (!$info) {
 	error($lang->phrase('docs_not_found'));
 }
-$info = $result->fetch();
 
 $result2 = $db->execute("SELECT * FROM  {$db->pre}documents_content WHERE did = '{$id}'");
 $data = array();

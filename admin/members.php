@@ -325,17 +325,14 @@ elseif ($job == 'emailsearch2') {
 		}
 	}
 
+	$count = 0;
 	if (count($sqlwhere) > 0) {
-		$query = 'SELECT DISTINCT name, mail FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere);
-		$result = $db->execute($query);
+		$result = $db->execute('SELECT DISTINCT name, mail FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere));
 		$users = array();
-		$count = $result->getResultCount();
 		while ($row = $result->fetch()) {
+			$count++;
 			$users[] = "{$row['name']} <{$row['mail']}>";
 		}
-	}
-	else {
-		$count = 0;
 	}
 	?>
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -385,27 +382,21 @@ elseif ($job == 'merge') {
 }
 elseif ($job == 'merge2') {
 	echo head();
-	$base = $gpc->get('name1', str);
-	$old = $gpc->get('name2', str);
+	$baseUserName = $gpc->get('name1', str);
+	$oldUserName = $gpc->get('name2', str);
 
 	// Step 1: Getting data
-	$result = $db->execute('SELECT * FROM '.$db->pre.'user WHERE name = "'.$base.'" LIMIT 1');
-	$result2 = $db->execute('SELECT * FROM '.$db->pre.'user WHERE name = "'.$old.'" LIMIT 1');
-	if ($result->getResultCount() != 1 || $result2->getResultCount() != 1) {
+	$base = $db->fetch('SELECT * FROM '.$db->pre.'user WHERE name = "'.$baseUserName.'" LIMIT 1');
+	$old = $db->fetch('SELECT * FROM '.$db->pre.'user WHERE name = "'.$oldUserName.'" LIMIT 1');
+	if (!$base || !$old) {
 		error('admin.php?action=members&job=merge', 'At least one of the selected users could not be found.');
 	}
-	$base = $result->fetch();
-	$old = $result2->fetch();
 
 	// Step 2: Update abos
 	$db->execute("UPDATE {$db->pre}abos SET mid = '{$base['id']}' WHERE mid = '{$old['id']}'"); // Multiple entries with different type are possible!
 	// Step 3: Delete exactly the same abos
-	$result = $db->execute("SELECT id FROM {$db->pre}abos WHERE mid = '1' GROUP BY tid, type HAVING COUNT(*) > 1");
-	if ($result->getResultCount() > 0) {
-		$ids = array();
-		while ($row = $result->fetch()) {
-			$ids[] = $row['id'];
-		}
+	$ids = $db->fetchList("SELECT id FROM {$db->pre}abos WHERE mid = '1' GROUP BY tid, type HAVING COUNT(*) > 1");
+	if (count($ids) > 0) {
 		$ids = implode(',', $ids);
 		$db->execute("DELETE FROM {$db->pre}abos WHERE id IN ({$ids})");
 	}
@@ -612,12 +603,11 @@ elseif ($job == 'recount') {
 	echo head();
 	$id = $gpc->get('id', int);
 	if (is_id($id)) {
-		$result = $db->execute("SELECT id, posts FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
-		if ($result->getResultCount() != 1) {
+		$user = $db->fetch("SELECT id, posts FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
+		if (!$user) {
 			error('admin.php?action=members&job=manage', $lang->phrase('admin_member_user_not_found'));
 		}
 		else {
-			$user = $result->fetch();
 			$posts = UpdateMemberStats($id);
 			$diff = $posts - $user['posts'];
 			ok('admin.php?action=members&job=manage', $lang->phrase('admin_member_posts_recounted'));
@@ -805,11 +795,11 @@ elseif ($job == 'edit') {
 	echo head();
 
 	$id = $gpc->get('id', int);
-	$result = $db->execute("SELECT * FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
-	if ($result->getResultCount() != 1) {
+	$user = $db->fetch("SELECT * FROM {$db->pre}user WHERE deleted_at IS NULL AND id = '{$id}'");
+	if (!$user) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
-	$user = $gpc->prepare($result->fetch());
+	$user = $gpc->prepare($user);
 
 	$chars = $config['maxaboutlength'];
 
@@ -1037,11 +1027,11 @@ elseif ($job == 'edit2') {
 		$query[$val] = $gpc->get($val, db_esc);
 	}
 
-	$result = $db->execute('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND id = '.$query['id']);
-	if ($result->getResultCount() != 1) {
+	$user = $db->fetch('SELECT * FROM '.$db->pre.'user WHERE deleted_at IS NULL AND id = '.$query['id']);
+	if (!$user) {
 		error('admin.php?action=members&job=manage', $lang->phrase('admin_member_no_id'));
 	}
-	$user = $gpc->prepare($result->fetch());
+	$user = $gpc->prepare($user);
 
 	$random = $gpc->get('random', none);
 	$name = $gpc->get('name_'.$random, str);
@@ -1397,17 +1387,16 @@ elseif ($job == 'ban_add2') {
 	}
 	elseif ($type == 'user') {
 		$data = $gpc->save_str($data);
-		$result = $db->execute("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$data}' LIMIT 1");
-		if ($result->getResultCount() == 0) {
+		$userId = $db->fetchOne("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$data}' LIMIT 1");
+		if (!$userId) {
 			$error[] = $lang->phrase('admin_member_no_user_found');
 		}
 		else {
-			$user = $result->fetch();
-			if ($user['id'] == $my->id) {
+			if ($userId == $my->id) {
 				$error[] = $lang->phrase('admin_member_cannot_ban_yourself');
 			}
 			else {
-				$data = $user['id'];
+				$data = $userId;
 			}
 		}
 	}
@@ -1589,14 +1578,12 @@ elseif ($job == 'inactive2') {
 		}
 	}
 
+	$data = array();
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT id, '.implode(',', $keys).' FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode(' AND ', $sqlwhere).' ORDER BY name';
-		$result = $db->execute($query);
-		$count = $result->getResultCount();
+		$data = $db->fetchMatrix($query);
 	}
-	else {
-		$count = 0;
-	}
+	$count = $data ? count($data) : 0;
 	?>
 	<form name="form" action="admin.php?action=members" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -1624,7 +1611,8 @@ elseif ($job == 'inactive2') {
 			  <?php } ?>
 			</tr>
 			<?php
-			while ($row = $gpc->prepare($result->fetch())) {
+			foreach($data as $row) {
+				$row = $gpc->prepare($row);
 				if (empty($row['lastvisit'])) {
 					$row['lastvisit'] = $lang->phrase('admin_member_never');
 				}
@@ -2078,14 +2066,12 @@ elseif ($job == 'search2') {
 
 	$colspan = count($show) + 1;
 
+	$data = array();
 	if (count($sqlwhere) > 0) {
 		$query = 'SELECT '.implode(',',$sqlkeys).' FROM '.$db->pre.'user WHERE deleted_at IS NULL AND '.implode($sep, $sqlwhere).' ORDER BY name';
-		$result = $db->execute($query);
-		$count = $result->getResultCount();
+		$data = $db->fetchMatrix($query);
 	}
-	else {
-		$count = 0;
-	}
+	$count = $data ? count($data) : 0;
 	?>
 	<form name="form" action="admin.php?action=members" method="post">
 	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
@@ -2108,6 +2094,7 @@ elseif ($job == 'search2') {
 			</tr>
 			<?php
 			while ($row = $gpc->prepare($result->fetch())) {
+				$row = $gpc->prepare($row);
 				if (isset($row['lastvisit'])) {
 					$row['lastvisit'] = gmdate('d.m.Y H:i', times($row['lastvisit']));
 				}
@@ -2293,7 +2280,7 @@ elseif ($job == 'ips') {
 			if (empty($hostname) || $hostname == $ipaddress) {
 				$hostname = $lang->phrase('admin_member_could_not_resolve_hostname');
 			}
-			$users = $db->execute("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
+			$users = $db->fetchMatrix("SELECT DISTINCT u.id, u.name, r.ip FROM {$db->pre}replies AS r, {$db->pre}user AS u WHERE u.id = r.name AND r.ip LIKE '{$ipaddress}%' AND r.ip != '' ORDER BY u.name");
 			?>
 			<table align="center" class="border">
 			<tr>
@@ -2307,7 +2294,7 @@ elseif ($job == 'ips') {
 			<tr>
 				<td class="mbox">
 				<ul>
-				<?php while ($user = $users->fetch()) { ?>
+				<?php foreach($users as $user) { ?>
 					<li style="padding: 3px;">
 					<a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $user['id']; ?>"><b><?php echo $user['name']; ?></b></a> &nbsp;&nbsp;&nbsp;
 					<a href="admin.php?action=members&amp;job=iphost&amp;ip=<?php echo $user['ip']; ?>" title="<?php echo $lang->phrase('admin_member_resolve_address'); ?>"><?php echo $user['ip']; ?></a> &nbsp;&nbsp;&nbsp;
@@ -2315,7 +2302,7 @@ elseif ($job == 'ips') {
 					</li>
 					<?php
 				}
-				if ($users->getResultCount() == 0) {
+				if (empty($users)) {
 					?>
 					<li><?php echo $lang->phrase('admin_member_no_matches'); ?></li>
 					<?php
@@ -2335,16 +2322,16 @@ elseif ($job == 'ips') {
 				<td class="mbox">
 				<ul>
 				<?php
-				$ips = $db->execute("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip");
-				while ($ip = $ips->fetch()) {
+				$ips = $db->fetchList("SELECT DISTINCT ip FROM {$db->pre}replies WHERE name = '{$userid}' AND ip != '{$ipaddress}' AND ip != '' ORDER BY ip");
+				foreach($ips as $ip) {
 					?>
 					<li style="padding: 3px;">
-					<a href="admin.php?action=members&job=iphost&amp;ip=<?php echo $ip['ip']; ?>" title="<?php echo $lang->phrase('admin_member_resolve_address'); ?>"><?php echo $ip['ip']; ?></a> &nbsp;&nbsp;&nbsp;
-					<a class="button" href="admin.php?action=members&amp;job=ips&amp;ipaddress=<?php echo $ip['ip']; ?>"><?php echo $lang->phrase('admin_member_find_more_with_this_ip'); ?></a>
+					<a href="admin.php?action=members&job=iphost&amp;ip=<?php echo $ip; ?>" title="<?php echo $lang->phrase('admin_member_resolve_address'); ?>"><?php echo $ip; ?></a> &nbsp;&nbsp;&nbsp;
+					<a class="button" href="admin.php?action=members&amp;job=ips&amp;ipaddress=<?php echo $ip; ?>"><?php echo $lang->phrase('admin_member_find_more_with_this_ip'); ?></a>
 					</li>
 					<?php
 				}
-				if ($ips->getResultCount() == 0) {
+				if (empty($ips)) {
 					?>
 					<li><?php echo $lang->phrase('admin_member_no_matches'); ?></li>
 					<?php

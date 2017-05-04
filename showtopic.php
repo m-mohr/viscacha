@@ -36,14 +36,13 @@ if (!is_id($_GET['id']) && is_id($_GET['topic_id'])) {
 }
 
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-$result = $db->execute("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
-$info = $result->fetch();
+$info = $db->fetch("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
 
 $my->p = $slog->Permissions($info['board']);
 $my->mp = $slog->ModPermissions($info['board']);
 
 $error = array();
-if ($result->getResultCount() < 1) {
+if (!$info) {
 	$error[] = $lang->phrase('query_string_error');
 }
 if ($my->p['forum'] == 0) {
@@ -169,14 +168,13 @@ if (!empty($info['vquestion'])) {
 		GROUP BY v.id
 		ORDER BY v.id
 	");
-	if ($vresult->getResultCount() > 0) {
-		// Collect and cache data for a single query instead of multiple
-		while ($row = $vresult->fetch()) {
-			$vote['entries'][$row['id']] = $row;
-			$vote['voter'][$row['id']] = array();
-			$vote['count'] += $row['votes'];
-		}
-
+	// Collect and cache data for a single query instead of multiple
+	while ($row = $vresult->fetch()) {
+		$vote['entries'][$row['id']] = $row;
+		$vote['voter'][$row['id']] = array();
+		$vote['count'] += $row['votes'];
+	}
+	if (count($vote['entries']) > 0) {
 		// Now get more data (for what the users voted exactly)
 		$sql_aid_in = implode(',', array_keys($vote['entries']));
 		$vresult = $db->execute("

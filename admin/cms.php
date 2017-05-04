@@ -531,8 +531,7 @@ elseif ($job == 'nav_edit2') {
 			);
 		}
 		else {
-			$result = $db->execute("SELECT id, ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
-			$sort = $result->fetch();
+			$sort = $db->fetch("SELECT id, ordering, position FROM {$db->pre}menu WHERE id = '{$sort}'");
 			if ($sort['id'] > $id) {
 				$sort['ordering']++;
 			}
@@ -540,11 +539,10 @@ elseif ($job == 'nav_edit2') {
 		$module_sql = '';
 		if ($data['module'] > 0) {
 			$plug = $gpc->get('plugin', int);
-			$result = $db->execute("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
-			if ($result->getResultCount() > 0) {
+			$position = $db->fetchOne("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
+			if ($position) {
 				$module_sql = ", module = '{$plug}'";
-				$row = $result->fetch();
-				$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
+				$filesystem->unlink('data/cache/modules/'.$plugins->_group($position).'.php');
 				// Do not do that anymore, because it may be required
 				// $db->execute("UPDATE {$db->pre}plugins SET active = '{$active}' WHERE id = '{$plug}' LIMIT 1");
 			}
@@ -628,11 +626,10 @@ elseif ($job == 'nav_active') {
 
 	$plug = $gpc->get('plug', int);
 	if ($plug > 0) {
-		$result = $db->execute("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
-		if ($result->getResultCount() > 0) {
+		$position = $db->fetchOne("SELECT position FROM {$db->pre}plugins WHERE id = '{$plug}'");
+		if ($position) {
 			$module_sql = ", module = '{$plug}'";
-			$row = $result->fetch();
-			$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
+			$filesystem->unlink('data/cache/modules/'.$plugins->_group($position).'.php');
 			// Do not do that anymore, because it may be required
 			// $db->execute("UPDATE {$db->pre}plugins SET active = '{$pos}' WHERE id = '{$plug}' LIMIT 1");
 		}
@@ -1770,16 +1767,15 @@ elseif ($job == 'doc_edit') {
 	$id = $gpc->get('id', int);
 	$types = docparser();
 
-	$result = $db->execute("
+	$row = $db->fetch("
 		SELECT d.*, u.name AS author_name
 		FROM {$db->pre}documents AS d
 			LEFT JOIN {$db->pre}user AS u ON u.id = d.author
 		WHERE d.id = '{$id}'");
-	if ($result->getResultCount() == 0) {
+	if (!$row) {
 		echo head();
 		error('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_invalid_id_given'));
 	}
-	$row = $result->fetch();
 
 	$result = $db->execute("SELECT content, active, title, lid FROM {$db->pre}documents_content WHERE did = '{$id}'");
 	$content = array();
@@ -1949,9 +1945,9 @@ elseif ($job == 'doc_edit2') {
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
 			}
-			$result = $db->execute("SELECT lid FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
+			$result = $db->fetchOne("SELECT lid FROM {$db->pre}documents_content WHERE did = '{$id}' AND lid = '{$lid}'");
 			$content[$lid] = $db->escape($content[$lid]);
-			if ($result->getResultCount() == 1) {
+			if ($result) {
 				$db->execute("UPDATE {$db->pre}documents_content SET `title` = '{$title[$lid]}', `content` = '{$content[$lid]}', `active` = '{$active[$lid]}' WHERE did = '{$id}' AND lid = '{$lid}'");
 			}
 			else {

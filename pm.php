@@ -43,7 +43,7 @@ if ($_GET['action'] == 'show') {
 	BBProfile($bbcode);
 
 	($code = $plugins->load('pm_show_query')) ? eval($code) : null;
-	$result = $db->execute("
+	$row = $db->fetch("
 	SELECT
 		   p.dir, p.status, p.id, p.topic, p.comment, p.date, p.pm_from as mid,
 		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.posts, u.deleted_at,
@@ -55,11 +55,9 @@ if ($_GET['action'] == 'show') {
 	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}'
 	ORDER BY p.date ASC
 	");
-	if ($result->getResultCount() != 1) {
+	if (!$row) {
 		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
 	}
-
-	$row = $result->fetch();
 
 	if ($row['status'] == '0') {
 		$db->execute("UPDATE {$db->pre}pm SET status = '1' WHERE id = '{$row['id']}'");
@@ -153,11 +151,10 @@ elseif ($_GET['action'] == "massmove") {
 	}
 }
 elseif ($_GET['action'] == "delete") {
-	$result = $db->execute ("SELECT id FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}' LIMIT 1");
-	if ($result->getResultCount() != 1) {
+	$info = $db->fetch("SELECT id FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}' LIMIT 1");
+	if (!$info) {
 		error($lang->phrase('pm_not_found'));
 	}
-	$info = $result->fetch();
 	Breadcrumb::universal()->add($lang->phrase('pm_manage'));
 	echo $tpl->parse("header");
 	$data = $info['id'];
@@ -276,17 +273,15 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		}
 	}
 	elseif ($_GET['action'] == 'quote' || $_GET['action'] == 'reply') {
-		$result = $db->execute("
+		$info = $db->fetch("
 			SELECT p.topic, p.comment, u.name, p.pm_from AS uid
 			FROM {$db->pre}pm AS p
 				LEFT JOIN {$db->pre}user AS u ON u.id = p.pm_from
 			WHERE p.id = '{$_GET['id']}' AND p.dir != '2' AND p.pm_to = '{$my->id}'
-			LIMIT 1
 		");
-		if ($result->getResultCount() != 1) {
+		if (!$info) {
 			error($lang->phrase('pm_not_found'), 'pm.php'.SID2URL_1);
 		}
-		$info = $result->fetch();
 		$data = array(
 			'name' => $info['name'],
 			'name_id' => $info['uid'],

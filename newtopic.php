@@ -59,8 +59,7 @@ Breadcrumb::universal()->add($lang->phrase('newtopic_title'));
 
 if ($_GET['action'] == "startvote") {
 
-	$result = $db->execute("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}' LIMIT 1");
-	$info = $result->fetch();
+	$info = $db->fetch("SELECT id, vquestion, name, board FROM {$db->pre}topics WHERE id = '{$_GET['topic_id']}'");
 
 	$temp = $gpc->get('temp', int, 2);
 	if ($temp < 2) {
@@ -73,11 +72,11 @@ if ($_GET['action'] == "startvote") {
 	($code = $plugins->load('newtopic_startvote_start')) ? eval($code) : null;
 
 	$error = array();
+	if (!$info) {
+		$error[] = $lang->phrase('query_string_error');
+	}
 	if ($my->p['addvotes'] == 0 || !empty($info['vquestion']) || ($info['name'] != $my->id && $my->mp[0] == 0)) {
 		$error[] = $lang->phrase('not_allowed');
-	}
-	if ($result->getResultCount() != 1) {
-		$error[] = $lang->phrase('query_string_error');
 	}
 	if (count($error) > 0) {
 		errorLogin($error,"showforum.php?id=".$info['board'].SID2URL_x);
@@ -120,11 +119,10 @@ elseif ($_GET['action'] == "savevote") {
 		errorLogin($lang->phrase('not_allowed'),"showforum.php?id=".$info['board'].SID2URL_x);
 	}
 
-	$result = $db->execute("SELECT id, vquestion, board FROM {$db->pre}topics WHERE id = '{$topic_id}' LIMIT 1");
-	$info = $result->fetch();
+	$info = $db->fetch("SELECT id, vquestion, board FROM {$db->pre}topics WHERE id = '{$topic_id}'");
 
 	$error = array();
-	if ($result->getResultCount() != 1) {
+	if (!$info) {
 		$error[] = $lang->phrase('query_string_error');
 	}
 	if (mb_strlen($_POST['question']) > $config['maxtitlelength']) {
@@ -184,7 +182,7 @@ elseif ($_GET['action'] == "savevote") {
 	}
 }
 elseif ($_GET['action'] == "save") {
-	$digest = $gpc->get('digest', int);
+	$digest = $gpc->get('digest', str);
 
 	BBProfile($bbcode);
 	$_POST['topic'] = $bbcode->parseTitle($_POST['topic']);
@@ -260,14 +258,9 @@ elseif ($_GET['action'] == "save") {
 
 		$db->execute("UPDATE {$db->pre}uploads SET topic_id = '{$tredirect}', tid = '{$rredirect}' WHERE mid = '{$my->id}' AND topic_id = '0' AND tid = '0'");
 
-		// Insert notifications
-		if ($digest != 0) {
-			switch ($digest) {
-				case 2:  $type = 'd'; break;
-				case 3:  $type = 'w'; break;
-				default: $type = '';  break;
-			}
-			$db->execute("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$type}')");
+		// Insert subscription
+		if ($digest == 'w' || $digest == 's' || $digest == 'f') {
+			$db->execute("INSERT INTO {$db->pre}abos (mid, tid, type) VALUES ('{$my->id}', '{$tredirect}', '{$digest}')");
 		}
 
 		if ($gpc->get('close', int) == 1 && $my->mp[0] == 1) {
@@ -325,7 +318,7 @@ else {
 		'comment' => '',
 		'dosmileys' => 1,
 		'topic' => '',
-		'digest' => 0
+		'digest' => 'x'
 	);
 
 	if (is_hash($fid)) {

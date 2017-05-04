@@ -16,7 +16,7 @@ if ($_GET['job'] == 'reports') {
 	$pages = pages($count, 'admin.php?action=posts&amp;job=reports&amp;', $perpage);
 	$start = ($page-1)*$perpage;
 
-	$result = $db->execute("
+	$reports = $db->fetchObjectMatrix("
 	SELECT t.prefix, r.topic_id, r.id, r.report, t.board, t.topic, r.date, u.id as uid, u.name AS uname, f.name AS forumname
 	FROM {$db->pre}replies AS r
 	    LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
@@ -26,7 +26,7 @@ if ($_GET['job'] == 'reports') {
 	ORDER BY r.topic_id DESC, r.date DESC
 	LIMIT {$start}, {$perpage}"
 	);
-	$num = $result->getResultCount();
+	$num = !empty($reports) ? count($reports) : 0;
 	?>
 <form method="post" action="admin.php?action=posts&amp;job=reports2">
 <table class="border">
@@ -49,8 +49,8 @@ if ($_GET['job'] == 'reports') {
   </tr>
 	<?php
 	$prefix_obj = $scache->load('prefix');
-
-	while ($row = $gpc->prepare($result->fetchObject())) {
+	foreach($reports as $row) {
+		$row = $gpc->prepare($row);
 		$prefix_arr = $prefix_obj->get($row->board);
 		$pref = '';
 		if (isset($prefix_arr[$row->prefix]) && $row->prefix > 0) {

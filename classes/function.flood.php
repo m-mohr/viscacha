@@ -44,12 +44,9 @@ function flood_protect($type = FLOOD_TYPE_STANDARD) {
 		$value = $my->id;
 		$field = 'mid';
 	}
-	$result = $db->execute("SELECT time FROM {$db->pre}flood WHERE type = '{$type}' AND {$field} = '{$value}' LIMIT 1");
-	if ($result->getResultCount() == 1) {
-		$data = $result->fetch();
-		if ($data['time'] > (time()-$my->p['flood'])) {
-			return false;
-		}
+	$data = $db->fetch("SELECT time FROM {$db->pre}flood WHERE type = '{$type}' AND {$field} = '{$value}' LIMIT 1");
+	if ($data && $data['time'] > (time()-$my->p['flood'])) {
+		return false;
 	}
 	return true;
 }

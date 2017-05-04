@@ -236,10 +236,6 @@ else {
 	LIMIT {$start},{$config['mlistenzahl']}
 	");
 
-	if ($count > 0 && $result->getResultCount() == 0) {
-		error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
-	}
-
 	$members = array();
 	while ($row = $result->fetch()) {
 		if (isset($row['location'])) {

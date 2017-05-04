@@ -106,11 +106,9 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail')) {
 else {
 	($code = $plugins->load('profile_member_start')) ? eval($code) : null;
 
-	$result = $db->execute("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.deleted_at IS NULL AND u.id = {$_GET['id']}");
+	$row = $db->fetchObject("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.deleted_at IS NULL AND u.id = {$_GET['id']}");
 
-	if ($result->getResultCount() == 1) {
-		$row = $result->fetchObject();
-
+	if ($row) {
 		$username = $row->name;
 		Breadcrumb::universal()->add($lang->phrase('profile_title'));
 

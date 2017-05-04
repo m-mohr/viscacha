@@ -363,10 +363,9 @@ function logged () {
 	}
 
 	if (empty($this->sid) && array_empty($this->cookiedata)) {
-		$result = $db->execute('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1');
-		if ($result->getResultCount() == 1) {
-			$sidrow = $result->fetch();
-			$this->sid = $sidrow['sid'];
+		$sid = $db->fetchOne('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1');
+		if ($sid) {
+			$this->sid = $sid;
 			$this->querysid = true;
 		}
 	}
@@ -533,7 +532,7 @@ function sid_load() {
 		$sql = $sid_checkip;
 	}
 
-	$result = $db->execute('
+	$my = $db->fetchObject('
 	SELECT u.*, f.*, s.lastvisit as clv, s.ip, s.mark, s.pwfaccess, s.sid, s.settings
 	FROM '.$db->pre.'session AS s
 		LEFT JOIN '.$db->pre.'user as u ON s.mid = u.id
@@ -542,8 +541,7 @@ function sid_load() {
 	LIMIT 1
 	');
 
-	if ($result->getResultCount() == 1) {
-		$my = $result->fetchObject();
+	if ($my) {
 		if ($my->id > 0 && $my->confirm == '11') {
 			$my->vlogin = TRUE;
 		}
@@ -571,8 +569,8 @@ function sid_new() {
 	global $config, $db, $gpc;
 
 	if (!$this->sidload && !array_empty($this->cookiedata)) {
-		$load = $db->execute('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1');
-		if ($load->getResultCount() == 1) {
+		$load = $db->fetchOne('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1');
+		if ($load) {
 			$this->sidload = true;
 			$my = $this->sid_load();
 			return $my;
@@ -580,13 +578,11 @@ function sid_new() {
 	}
 
 	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
-		$result = $db->execute('
+		$my = $db->fetchObject('
 			SELECT u.*, f.*
 			FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
-			WHERE u.deleted_at IS NULL AND u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"
-			LIMIT 1');
-		$my = $result->fetchObject();
-		$nodata = ($result->getResultCount() == 1) ? false : true;
+			WHERE u.deleted_at IS NULL AND u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"');
+		$nodata = (boolean) (!$my);
 		if ($nodata == true) { // Loginversuch mit falschen Daten => Versuch protokollieren!
 			makecookie($config['cookie_prefix'].'_vdata', '|', 0);
 			set_failed_login();
@@ -1099,9 +1095,8 @@ function ModPermissions ($bid) {
 			return array(1,1,1);
 		}
 		else {
-			$result = $db->execute("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
-			if ($result->getResultCount() > 0) {
-				$row = $result->fetch();
+			$row = $db->fetch("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
+			if ($row) {
 				return array(1, $row['p_delete'], $row['p_mc']);
 			}
 			else {

@@ -114,12 +114,9 @@ elseif ($_GET['action'] == 'textimage') {
 elseif ($_GET['action'] == 'm_email') {
 	$email = $lang->phrase('profile_mail_1');
 	
-	$result = $db->execute("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
-	if ($result->getResultCount() == 1) {
-		$row = $result->fetch();
-		if ($row['opt_hidemail'] == 0) {
-			$email = $row['mail'];
-		}
+	$row = $db->fetch("SELECT id, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}' AND deleted_at IS NULL");
+	if (isset($row['opt_hidemail']) && $row['opt_hidemail'] == 0) {
+		$email = $row['mail'];
 	}
 
 	include('classes/graphic/class.text2image.php');

@@ -62,12 +62,11 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	$result = $db->execute("SELECT r.id, r.report, r.topic_id, r.tstart, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
 	$info = $result->fetch();
 
-	$my->p = $slog->Permissions($info['board']);
-
 	$error = array();
-	if ($result->getResultCount() < 1) {
+	if (!$info) {
 		$error[] = $lang->phrase('query_string_error');
 	}
+	$my->p = $slog->Permissions($info['board']);
 	if ($my->p['forum'] == 0) {
 		$error[] = $lang->phrase('not_allowed');
 	}
@@ -286,9 +285,8 @@ elseif ($_GET['action'] == "wwo") {
 		case 'showtopic': // Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
 			$id = $row->wiw_id;
 			if (!isset($cache['t'.$id])) {
-				$result2 = $db->execute("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}' LIMIT 1");
-				if ($result2->getResultCount() == 1) {
-					$nfo = $result2->fetch();
+				$nfo = $db->fetch("SELECT topic, board FROM {$db->pre}topics WHERE id = '{$id}'");
+				if ($nfo) {
 					$cache['t'.$id] = $nfo;
 				}
 			}
@@ -340,8 +338,6 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "vote") {
-	$voted = 0;
-
 	($code = $plugins->load('misc_vote_start')) ? eval($code) : null;
 
 	$result = $db->execute("SELECT board, status FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
@@ -357,19 +353,16 @@ elseif ($_GET['action'] == "vote") {
 	}
 
 	$answers = array();
-	$result = $db->execute("
+	$voted = $db->fetchOne("
 		SELECT r.id
 		FROM {$db->pre}vote AS v
 			LEFT JOIN {$db->pre}votes AS r ON v.id = r.aid
 		WHERE v.tid = '{$_GET['id']}' AND r.mid = '{$my->id}'
 	");
-	if ($result->getResultCount() > 0) {
-		$voted = $result->fetchOne();
-	}
 
 	$error = array();
-	$result = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$_GET['id']}' AND id = '{$_POST['temp']}'");
-	if ($result->getResultCount() == 0) {
+	$result = $db->fetchOne("SELECT id FROM {$db->pre}vote WHERE tid = '{$_GET['id']}' AND id = '{$_POST['temp']}'");
+	if (!$result) {
 		$error[] = $lang->phrase('vote_no_value_checked');
 	}
 	if ($voted > 0 && $config['vote_change'] != 1) {
@@ -663,20 +656,17 @@ elseif ($_GET['action'] == "error") {
 }
 elseif ($_GET['action'] == "edithistory") {
 	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
-	$result = $db->execute("
+	$row = $db->fetch("
 	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, t.topic, t.prefix, r.date, u.name, u.id as mid, u.groups, u.deleted_at
 	FROM {$db->pre}replies AS r
 		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
 		LEFT JOIN {$db->pre}user AS u ON r.name = u.id
 	WHERE r.id = '{$_GET['id']}'
-	LIMIT 1
 	");
-	$found = $result->getResultCount();
-	if ($found == 0) {
+	if (!$row) {
 		error($lang->phrase('query_string_error'));
 	}
 
-	$row = $result->fetch();
 	$my->p = $slog->Permissions($row['board']);
 	if ($my->p['forum'] == 0) {
 		errorLogin();

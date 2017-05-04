@@ -162,7 +162,7 @@ class Database {
 		return $stmt->fetch();
 	}
 	
-	public function fetchObject($sql, $values = array(), $class = null) {
+	public function fetchObject($sql, $values = array(), $class = "stdClass") {
 		$stmt = $this->execute($sql, $values);
 		return $stmt->fetchObject($class);
 	}
@@ -182,9 +182,9 @@ class Database {
 		return $stmt->fetchMatrix();
 	}
 	
-	public function fetchObjectMatrix($sql, $values = array(), $class = null) {
+	public function fetchObjectMatrix($sql, $values = array(), $class = "stdClass") {
 		$stmt = $this->execute($sql, $values);
-		return $stmt->fetchObject($class);
+		return $stmt->fetchObjectMatrix($class);
 	}
 	
 	public function fetchList($sql, $values = array(), $column = 1) {

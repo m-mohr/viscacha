@@ -75,9 +75,9 @@ if ($_GET['action'] == "search") {
 
 	$name = $gpc->get('name', str);
 	if (mb_strlen($name) >= $config['searchminlength']) {
-		$result = $db->execute("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
-		if ($result->getResultCount() == 1) {
-			$rname = $result->fetchOne();
+		$id = $db->fetchOne("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
+		if ($id) {
+			$rname = $id;
 		}
 		else {
 			$rname = $name;
@@ -332,10 +332,10 @@ elseif ($_GET['action'] == "active") {
 		$timestamp = $my->clv;
 		$ids = array();
    		$result = $db->execute("SELECT tid FROM {$db->pre}abos WHERE mid = '{$my->id}'");
-   		if ($result->getResultCount() > 0) {
-       		while ($row = $result->fetch()) {
-       			$ids[] = $row['tid'];
-       		}
+		while ($row = $result->fetch()) {
+			$ids[] = $row['tid'];
+		}
+		if (count($ids) > 0) {
        		$sqlwhere .= " id IN (".implode(',', $ids).") AND ";
    		}
    		else {
@@ -371,13 +371,12 @@ elseif ($_GET['action'] == "active") {
     	$start = ($_GET['page']-1)*$config['activezahl'];
 
     	($code = $plugins->load('search_active_query')) ? eval($code) : null;
-    	$result = $db->execute("
+    	$count = $db->fetchOne("
     	SELECT COUNT(*)
     	FROM {$db->pre}topics AS t
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')
     	);
-    	$count = $result->fetchOne();
 
     	$result = $db->execute("
     	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.sticky,

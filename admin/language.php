@@ -85,19 +85,18 @@ if ($job == 'manage') {
 }
 elseif ($job == 'ajax_publicuse') {
 	$id = $gpc->get('id', int);
-	$result = $db->execute("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$use = $result->fetch();
-	if ($use['publicuse'] == 1) {
+	$publicuse = $db->fetchOne("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}'");
+	if ($publicuse == 1) {
 		if ($id == $config['langdir']) {
 			die($lang->phrase('admin_lang_cannot_unpublish_until_defined_other_lang'));
 		}
-		$result = $db->execute("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
-		if ($result->getResultCount() == 1) {
+		$result = $db->fetchOne("SELECT id FROM {$db->pre}language WHERE publicuse = '1'");
+		if ($result) {
 			die($lang->phrase('admin_lang_cannot_unpublish_because_no_other_lang'));
 		}
 	}
-	$use = invert($use['publicuse']);
-	$db->execute("UPDATE {$db->pre}language SET publicuse = '{$use}' WHERE id = '{$id}' LIMIT 1");
+	$publicuse = invert($publicuse);
+	$db->execute("UPDATE {$db->pre}language SET publicuse = '{$publicuse}' WHERE id = '{$id}' LIMIT 1");
 	$delobj = $scache->load('loadlanguage');
 	$delobj->delete();
 	die(strval($use));
@@ -317,20 +316,17 @@ elseif ($job == 'lang_delete2') {
 	echo head();
 	$id = $gpc->get('id', int);
 
-	$result = $db->execute("SELECT id FROM {$db->pre}language WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
-	if ($result->getResultCount() != 1) {
+	$result = $db->fetchOne("SELECT id FROM {$db->pre}language WHERE id != '{$id}' AND publicuse = '1' LIMIT 1");
+	if (!$result) {
 		error('admin.php?action=language&job=manage', $lang->phrase('admin_lang_cannot_delete_last_installed_lang'));
 	}
 
-	$result = $db->execute("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$info = $result->fetch();
-
-	if ($info['publicuse'] == 1) {
+	$publicuse = $db->fetchOne("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}'");
+	if ($publicuse == 1) {
 		error('admin.php?action=language&job=manage', $lang->phrase('admin_lang_cannot_unpublish_lang_until_unpublish'));
 	}
 
 	$stmt = $db->execute("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-
 	if ($stmt->getAffectedRows() == 1) {
 		$filesystem->rmdirr("language/{$id}/");
 		$delobj = $scache->load('loadlanguage');
@@ -471,15 +467,14 @@ elseif ($job == 'lang_settings2') {
 	$language = $gpc->get('language', str);
 	$error = '';
 
-	$result = $db->execute("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
-	$puse = $result->fetch();
-	if ($puse['publicuse'] == 1 && $use == 0) {
+	$publicuse = $db->fetchOne("SELECT publicuse FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	if ($publicuse == 1 && $use == 0) {
 		if ($id == $config['langdir']) {
 			$error .= $lang->phrase('admin_lang_but_cannot_unpublish_until_defined_another_lang');
 			$use = 1;
 		}
-		$result = $db->execute("SELECT * FROM {$db->pre}language WHERE publicuse = '1'");
-		if ($result->getResultCount() == 1) {
+		$result = $db->fetchOne("SELECT id FROM {$db->pre}language WHERE publicuse = '1'");
+		if ($result) {
 			$error .= $lang->phrase('admin_lang_but_cannot_unpublish_because_no_other_lang_published');
 			$use = 1;
 		}
