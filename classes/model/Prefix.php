@@ -21,7 +21,10 @@ class Prefix extends BaseModel {
 	}
 
 	public function getFormatted() {
-		return '[' . $this->getValue() . ']';
+		if ($this->getValue()) {
+			return '[' . $this->getValue() . '] ';
+		}
+		return '';
 	}
 
 	public function topics() {

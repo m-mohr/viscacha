@@ -143,7 +143,7 @@ if ($_GET['action'] == "save") {
 		// Update, insert, delete notifications
 		if (in_array($digest, $validDigest)) {
 			switch ($digest) {
-				case 1:  $type = '';  break;
+				case 1:  $type = 's';  break;
 				case 2:  $type = 'd'; break;
 				case 3:  $type = 'w'; break;
 				case 9:  $type = 'f'; break;
@@ -285,7 +285,7 @@ else {
 		if ($result->getResultCount() > 0) {
 			$temp = $result->fetch();
 			switch ($temp['type']) {
-				case '':	$data['digest'] = 1; break;
+				case 's':	$data['digest'] = 1; break;
 				case 'd':	$data['digest'] = 2; break;
 				case 'w':	$data['digest'] = 3; break;
 				case 'f':	$data['digest'] = 9; break;

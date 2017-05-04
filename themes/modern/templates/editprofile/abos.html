@@ -11,9 +11,9 @@
 			<div class="input-group">
 				<select name="type" class="form-control" id="filter">
 					<option value="">@lang('editprofile_no_filter')</option>
-					<option value="f"@selected($_GET['type'] == 'f')>@lang('editprofile_digest_f')</option>
-					<option value="s"@selected($_GET['type'] == 's')>@lang('editprofile_digest_s')</option>
-					<option value="d"@selected($_GET['type'] == 'd')>@lang('editprofile_digest_d')</option>
+					<option value="f"@selected($_GET['type'] == 'f')>@lang('digest_f')</option>
+					<option value="s"@selected($_GET['type'] == 's')>@lang('digest_s')</option>
+					<option value="d"@selected($_GET['type'] == 'd')>@lang('digest_d')</option>
 				</select>
 				<span class="input-group-btn">
 					<button type="submit" accesskey="s" class="btn btn-primary"><i class="fa fa-filter"></i></button>
@@ -35,24 +35,24 @@
 			</tr>
 		</thead>
 		<tbody>
-			@foreach ($cache[$p] as $row)
+			@foreach ($cache as $row)
 			<tr> 
-				<td class="cell-icon"><input type="checkbox" name="delete[]" value="{{ $row['id'] }}" /></td>
+				<td class="cell-icon"><input type="checkbox" name="delete[]" value="{{ $row->id }}" /></td>
 				<td class="cell-topic">
-					{{ $row['prefix'] }}
-					<a href="showtopic.php?id={{ $row['tid'] }}{{ SID2URL_x }}">{{ $row['topic'] }}</a>
-					{!! $row['topic_pages'] !!}
+					{{ $row->prefix()->getFormatted() }}
+					<a href="showtopic.php?id={{ $row->tid }}{{ SID2URL_x }}">{{ $row->topic()->topic }}</a>
+					{!! $row->topic_pages !!}
 				</td>
 				<td class="cell-last hidden-xs">
-					<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row['tid'] }}{{ SID2URL_x }}">@reldatetime($row['last'])</a><br />
+					<a title="@lang('jump_to_last_post')" href="showtopic.php?action=last&amp;id={{ $row->tid }}{{ SID2URL_x }}">@reldatetime($row->topic()->last)</a><br />
 					@lang('written_by')
-					<a href="profile.php?id={{ $row['luid'] }}{{ SID2URL_x }}">{{ $row['luname'] }}</a>
+					<a href="profile.php?id={{ $row->topic()->lastUser()->id }}{{ SID2URL_x }}">{{ $row->topic()->lastUser()->name }}</a>
 				</td>
 				<td class="cell-type">
-					<select name="digest[{{ $row['id'] }}]">
-						<option value="f"@selected($row['type'] == 'f')>@lang('digest_f')</option>
-						<option value="s"@selected($row['type'] == 's')>@lang('digest_s')</option>
-						<option value="d"@selected($row['type'] == 'd')>@lang('digest_d')</option>
+					<select name="digest[{{ $row->id }}]">
+						<option value="f"@selected($row->type == 'f')>@lang('digest_f')</option>
+						<option value="s"@selected($row->type == 's')>@lang('digest_s')</option>
+						<option value="d"@selected($row->type == 'd')>@lang('digest_d')</option>
 					</select>
 				</td> 
 			</tr>

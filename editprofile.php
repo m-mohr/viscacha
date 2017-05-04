@@ -24,6 +24,8 @@
 
 error_reporting(E_ALL);
 
+use Viscacha\Model\Subscription;
+
 define('SCRIPTNAME', 'editprofile');
 define('VISCACHA_CORE', '1');
 
@@ -77,8 +79,8 @@ elseif ($_GET['action'] == "attachments2" && $config['tpcallow'] == 1) {
 		while ($row = $result->fetch()) {
 			$filesystem->unlink('uploads/topics/'.$row['source']);
 		}
-		$db->execute ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute ("DELETE FROM {$db->pre}uploads WHERE mid = '{$my->id}' AND id IN (".implode(',',$_POST['delete']).")");
+		$anz = $stmt->getAffectedRows();
 		ok($lang->phrase('editprofile_attachments_deleted'), "editprofile.php?action=attachments".SID2URL_x);
 	}
 	else {
@@ -118,65 +120,35 @@ elseif ($_GET['action'] == "attachments" && $config['tpcallow'] == 1) {
 	($code = $plugins->load('editprofile_attachments_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "abos") {
-	$p = $_GET['page']-1;
+	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
+	
+	$subscriptionCount = Subscription::all()->colCount()
+		->expand(['tid' => 'topic', 'tid.board' => 'forum'], false)
+		->where('mid', $my->id)->where('forum.invisible', '!=', 2);
+	
+	$subscriptions = Subscription::all()
+		->expand(['tid' => 'topic', 'tid.prefix' => 'prefix', 'tid.board' => 'forum', 'tid.last_name' => 'last'])
+		->where('mid', $my->id)->where('forum.invisible', '!=', 2)
+		->sortDesc('id')->pagination($_GET['page'], $config['abozahl']);
 
-	$sqlwhere = '';
 	if (!empty($_GET['type'])) {
-		if ($_GET['type'] == 's') {
-			$type = '';
-		}
-		else {
-			$type = $_GET['type'];
-		}
-		$sqlwhere = " AND a.type = '{$type}'";
+		$subscriptions->where('type', $_GET['type']);
+		$subscriptionCount->where('type', $_GET['type']);
 	}
 
-	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
-	$result = $db->execute("
-	SELECT a.id, a.tid, a.type, t.topic, t.prefix, t.last, t.board, t.posts, t.status, l.id AS luid, l.name AS luname
-	FROM {$db->pre}abos AS a
-		LEFT JOIN {$db->pre}topics AS t ON a.tid = t.id
-		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
-		LEFT JOIN {$db->pre}user AS l ON l.id = t.last_name
-	WHERE a.mid = '{$my->id}' AND f.invisible != '2' {$sqlwhere}
-	ORDER BY a.id DESC
-	");
-
-	$prefix_obj = $scache->load('prefix');
-	$prefix_arr = $prefix_obj->get();
-	$catbid = $scache->load('cat_bid');
-	$fc = $catbid->get();
+	$count = $subscriptionCount->fetchOne();
+	$stmt = $subscriptions->execute();
 
 	$cache = array();
-	while ($row = $result->fetch()) {
-		$info = $fc[$row['board']];
-		if ($info['topiczahl'] < 1) {
-			$info['topiczahl'] = $config['topiczahl'];
-		}
-		
-		if (!empty($row['prefix']) && isset($prefix_arr[$row['board']][$row['prefix']])) {
-			$row['prefix'] = '[' . $prefix_arr[$row['board']][$row['prefix']]['value'] . ']';
-		}
-		else {
-			$row['prefix'] = '';
-		}
-		if ($row['type'] != 'd' && $row['type'] != 'w' && $row['type'] != 'f') {
-			$row['type'] = 's';
-		}
-
-		$row['read'] = $slog->isTopicRead($row['tid'], $row['last']);
-		$row['topic_pages'] = pages($row['posts']+1, $info['topiczahl'], "showtopic.php?id=".$row['id']."&amp;", 0, 'pages_small');
+	while ($row = $stmt->fetchObject()) {
+		$row->read = $slog->isTopicRead($row->tid, $row->topic()->last);
+		$row->topic_pages = pages($row->topic()->posts+1, $row->forum()->getPostsPerPage(), "showtopic.php?id={$row->id}&amp;", 0, 'pages_small');
 
 		($code = $plugins->load('editprofile_abos_entry_prepared')) ? eval($code) : null;
 		$cache[] = $row;
 	}
 
-	$count = count($cache);
-	$pages = pages($count, $config['abozahl'], 'editprofile.php?action=abos&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
-	$cache = array_chunk($cache, $config['abozahl']);
-	if (!isset($cache[$p])) {
-		$count = 0;
-	}
+	$pages = pages($count, $config['abozahl'], 'editprofile.php?action=abos&amp;type='.viscacha_htmlspecialchars($_GET['type']).'&amp;', $_GET['page']);
 
 	Breadcrumb::universal()->add($lang->phrase('editprofile_abos'));
 
