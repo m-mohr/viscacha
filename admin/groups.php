@@ -234,8 +234,8 @@ elseif ($job == 'add2') {
 			foreach ($glk as $key) {
 				$sql_fvalues .= '"'.$gpc->get($key, int).'",';
 			}
-			$db->execute("INSERT INTO {$db->pre}fgroups (gid,".implode(',', $fields).",bid) VALUES ('{$gid}',{$sql_fvalues},'{$row['bid']}')");
-			$fgnum2 += $db->getAffectedRows();
+			$stmt = $db->execute("INSERT INTO {$db->pre}fgroups (gid,".implode(',', $fields).",bid) VALUES ('{$gid}',{$sql_fvalues},'{$row['bid']}')");
+			$fgnum2 += $stmt->getAffectedRows();
 		}
 	}
 
@@ -259,8 +259,8 @@ elseif ($job == 'delete') {
 	$del = $gpc->get('delete', arr_int);
 	$edit = $gpc->get('edit', int);
 	if (isset($_POST['submit_delete']) && count($del) > 0) {
-		$db->execute("DELETE FROM {$db->pre}groups WHERE id IN (".implode(',',$del).")");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute("DELETE FROM {$db->pre}groups WHERE id IN (".implode(',',$del).")");
+		$anz = $stmt->getAffectedRows();
 		$db->execute("DELETE FROM {$db->pre}fgroups WHERE gid IN (".implode(',',$del).")");
 		$delobj = $scache->load('groups');
 		$delobj->delete();
@@ -345,12 +345,12 @@ elseif ($job == 'edit2') {
 		}
 	}
 
-	$db->execute('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1');
+	$stmt = $db->execute('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1');
 
 	$delobj = $scache->load('groups');
 	$delobj->delete();
 
-	if ($db->getAffectedRows()) {
+	if ($stmt->getAffectedRows()) {
 		ok('admin.php?action=groups&job=manage');
 	}
 	else {

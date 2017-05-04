@@ -123,8 +123,8 @@ elseif ($_GET['action'] == "massdelete") {
 	if (count($deleteids) > 0) {
 		($code = $plugins->load('pm_massdelete_query')) ? eval($code) : null;
 		$ids = implode(',', $deleteids);
-		$db->execute("DELETE FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id IN ({$ids})");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute("DELETE FROM {$db->pre}pm WHERE pm_to = '{$my->id}' AND id IN ({$ids})");
+		$anz = $stmt->getAffectedRows();
 		ok($lang->phrase('x_entries_deleted'), 'pm.php'.SID2URL_1);
 	}
 	else {
@@ -144,8 +144,8 @@ elseif ($_GET['action'] == "massmove") {
 	if (count($deleteids) > 0) {
 		($code = $plugins->load('pm_massmove_query')) ? eval($code) : null;
 		$ids = implode(',', $deleteids);
-		$db->execute("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})");
+		$anz = $stmt->getAffectedRows();
 		ok($lang->phrase('x_entries_moved'), 'pm.php?action=browse&amp;id='.$_GET['id'].SID2URL_x);
 	}
 	else {
@@ -170,8 +170,8 @@ elseif ($_GET['action'] == "delete2") {
 		error($lang->phrase('query_string_error'));
 	}
 	($code = $plugins->load('pm_delete2_query')) ? eval($code) : null;
-	$db->execute ("DELETE FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}'");
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}pm WHERE id = '{$_GET['id']}' AND pm_to = '{$my->id}'");
+	$anz = $stmt->getAffectedRows();
 	ok($lang->phrase('x_entries_deleted'),'pm.php'.SID2URL_1);
 }
 elseif ($_GET['action'] == "save") {

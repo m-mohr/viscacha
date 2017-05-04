@@ -168,8 +168,8 @@ elseif ($_GET['action'] == "abos2") {
 	$anz = 0;
 	if (count($_POST['delete']) > 0) {
 		$delete = implode(',', $_POST['delete']);
-		$db->execute ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute ("DELETE FROM `{$db->pre}abos` WHERE `mid` = '{$my->id}' AND `id` IN({$delete})");
+		$anz = $stmt->getAffectedRows();
 	}
 
 	$anz2 = 0;
@@ -181,8 +181,8 @@ elseif ($_GET['action'] == "abos2") {
 		foreach ($update as $type => $ids) {
 			if (count($ids) > 0) {
 				$ids = implode(',', $ids);
-				$db->execute("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})");
-				$anz2 += $db->getAffectedRows();
+				$stmt = $db->execute("UPDATE `{$db->pre}abos` SET `type` = '{$type}' WHERE `mid` = '{$my->id}' AND `id` IN ({$id})");
+				$anz2 += $stmt->getAffectedRows();
 			}
 		}
 	}

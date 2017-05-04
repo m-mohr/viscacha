@@ -1222,16 +1222,16 @@ function setForumRead($fid) {
 function setAllRead() {
 	global $my, $db;
 	if ($my->vlogin) {
-		$db->execute ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'");
+		$stmt = $db->execute ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE mid = '$my->id'");
 	}
 	else {
-		$db->execute ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'");
+		$stmt = $db->execute ("UPDATE {$db->pre}session SET lastvisit = '".time()."' WHERE sid = '$this->sid'");
 	}
 	// Todo: Save some queries!
 	// This queries can be saved normally, because it will be saved with updatelogged (in ok/error funcs) later!
 	$my->mark = array();
 	$my->clv = time();
-	if ($db->getAffectedRows() > 0) {
+	if ($stmt->getAffectedRows() > 0) {
 		return true;
 	}
 	else {

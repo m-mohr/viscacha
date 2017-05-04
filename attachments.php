@@ -204,12 +204,12 @@ else {
 					}
 				}
 
-				$db->execute('
+				$stmt = $db->execute('
 				DELETE FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				');
 
-				$anz = $db->getAffectedRows();
+				$anz = $stmt->getAffectedRows();
 				ok($lang->phrase('editprofile_attachments_deleted'), $url);
 			}
 		}

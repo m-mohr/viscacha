@@ -589,8 +589,8 @@ elseif ($job == 'nav_delete2') {
 
 	$count = count($delete);
 	$ids = implode(',', $delete);
-	$db->execute("DELETE FROM {$db->pre}menu WHERE id IN ({$ids}) LIMIT {$count}");
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute("DELETE FROM {$db->pre}menu WHERE id IN ({$ids}) LIMIT {$count}");
+	$anz = $stmt->getAffectedRows();
 
 	$delobj = $scache->load('modules_navigation');
 	$delobj->delete();
@@ -1753,8 +1753,8 @@ elseif ($job == 'doc_delete') {
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
 		$deleteids = implode(',', $delete);
-		$db->execute("DELETE FROM {$db->pre}documents WHERE id IN ({$deleteids})");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute("DELETE FROM {$db->pre}documents WHERE id IN ({$deleteids})");
+		$anz = $stmt->getAffectedRows();
 		$db->execute("DELETE FROM {$db->pre}documents_content WHERE did IN ({$deleteids})");
 
 		$delobj = $scache->load('wraps');

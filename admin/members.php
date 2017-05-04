@@ -1203,14 +1203,14 @@ elseif ($job == 'delete') {
 		$db->execute("DELETE FROM {$db->pre}moderators WHERE mid IN ({$did})");
 		$delete = $gpc->get('delete', arr_int);
 		// Step 5: Soft-delete user himself
-		$db->execute("UPDATE {$db->pre}user SET 
+		$stmt = $db->execute("UPDATE {$db->pre}user SET 
 			pw = DEFAULT, mail = DEFAULT, regdate = DEFAULT, posts = DEFAULT, fullname = DEFAULT,
 			hp = DEFAULT, signature = DEFAULT, about = DEFAULT, location = DEFAULT, gender = DEFAULT, 
 			birthday = DEFAULT, pic = DEFAULT, lastvisit = DEFAULT, timezone = DEFAULT, groups = DEFAULT,
 			opt_pmnotify = DEFAULT, opt_hidemail = DEFAULT, opt_newsletter = DEFAULT, opt_showsig = DEFAULT, 
 			theme = DEFAULT, language = DEFAULT, confirm = DEFAULT, deleted_at = UNIX_TIMESTAMP()
 			WHERE id IN ({$did})");
-		$anz = $db->getAffectedRows();
+		$anz = $stmt->getAffectedRows();
 		// Step 6: Delete user's custom profile fields
 		$db->execute("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
@@ -2174,8 +2174,8 @@ elseif ($job == 'disallow') {
 	$delete = $gpc->get('delete', arr_int);
 	if (count($delete) > 0) {
 		$did = implode(',', $delete);
-		$db->execute("DELETE FROM {$db->pre}user WHERE id IN ({$did}) AND confirm != '11'");
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute("DELETE FROM {$db->pre}user WHERE id IN ({$did}) AND confirm != '11'");
+		$anz = $stmt->getAffectedRows();
 		$db->execute("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
 		ok('admin.php?action=members&job=activate', $lang->phrase('admin_member_members_deleted'));

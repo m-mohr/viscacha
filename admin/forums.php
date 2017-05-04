@@ -166,8 +166,8 @@ elseif ($job == 'mods_delete') {
 		$deleteids[] = " (mid = '{$mid}' AND bid = '{$bid}') ";
 	}
 	if (count($deleteids) > 0) {
-		$db->execute("DELETE FROM {$db->pre}moderators WHERE ".implode(' OR ',$deleteids));
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute("DELETE FROM {$db->pre}moderators WHERE ".implode(' OR ',$deleteids));
+		$anz = $stmt->getAffectedRows();
 		$delobj = $scache->load('index_moderators');
 		$delobj->delete();
 	}
@@ -247,12 +247,12 @@ elseif ($job == 'mods_add2') {
 	$move = $gpc->get('move', int);
 	$delete = $gpc->get('delete', int);
 
-	$db->execute("
+	$stmt = $db->execute("
 	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc)
 	VALUES ('{$uid}', '{$id}', '{$delete}', '{$move}')
 	");
 
-	if ($db->getAffectedRows() == 1) {
+	if ($stmt->getAffectedRows() == 1) {
 		$delobj = $scache->load('index_moderators');
 		$delobj->delete();
 		ok('admin.php?action=forums&job=mods'.iif($bid > 0, '&id='.$id), $lang->phrase('admin_forum_moderator_added'));
@@ -1178,11 +1178,11 @@ elseif ($job == 'rights_add2') {
 	$addvotes = $gpc->get('addvotes', int);
 	$attachments = $gpc->get('attachments', int);
 
-	$db->execute("
+	$stmt = $db->execute("
 	INSERT INTO {$db->pre}fgroups (bid,gid,f_downloadfiles,f_forum,f_posttopics,f_postreplies,f_addvotes,f_attachments,f_edit,f_voting)
 	VALUES ('{$id}','{$group}','{$downloadfiles}','{$forum}','{$posttopics}','{$postreplies}','{$addvotes}','{$attachments}','{$edit}','{$voting}')
 	");
-	if ($db->getAffectedRows() == 1) {
+	if ($stmt->getAffectedRows() == 1) {
 		$delobj = $scache->load('fgroups');
 		$delobj->delete();
 		ok('admin.php?action=forums&job=rights&id='.$id);
@@ -1199,8 +1199,8 @@ elseif ($job == 'rights_delete') {
 	}
 	$did = $gpc->get('delete', arr_int);
 	if (count($did) > 0) {
-		$db->execute('DELETE FROM '.$db->pre.'fgroups WHERE fid IN('.implode(',',$did).') AND bid = "'.$id.'"');
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute('DELETE FROM '.$db->pre.'fgroups WHERE fid IN('.implode(',',$did).') AND bid = "'.$id.'"');
+		$anz = $stmt->getAffectedRows();
 		$delobj = $scache->load('fgroups');
 		$delobj->delete();
 		ok('admin.php?action=forums&job=rights&id='.$id, $lang->phrase('admin_forum_entries_deleted'));
@@ -1544,8 +1544,8 @@ elseif ($job == 'prefix_delete') {
 	$did = implode(',', $did);
 	$delobj = $scache->load('prefix');
 	$delobj->delete();
-	$db->execute('DELETE FROM '.$db->pre.'prefix WHERE id IN('.$did.') AND bid = "'.$id.'"');
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute('DELETE FROM '.$db->pre.'prefix WHERE id IN('.$did.') AND bid = "'.$id.'"');
+	$anz = $stmt->getAffectedRows();
 	ok('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_entries_deleted'));
 }
 elseif ($job == 'prefix_add') {

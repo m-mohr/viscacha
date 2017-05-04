@@ -18,8 +18,8 @@ if ($job == 'smileys_delete') {
 	   			$filesystem->unlink($row['replace']);
 	   		}
 	   	}
-		$db->execute('DELETE FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')');
-		$anz = $db->getAffectedRows();
+		$stmt = $db->execute('DELETE FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')');
+		$anz = $stmt->getAffectedRows();
 	}
 	else {
 		$anz = $lang->phrase('admin_bbc_no');
@@ -261,8 +261,8 @@ elseif ($job == 'smileys_import2') {
 		}
 		$sqlinsert[] = '("'.$gpc->save_str($ini['search']).'", "'.$db->escape($ini['replace']).'", "'.$db->escape($ini['desc']).'")';
 	}
-	$db->execute('INSERT INTO '.$db->pre.'smileys (`search`, `replace`, `desc`) VALUES '.implode(', ', $sqlinsert));
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute('INSERT INTO '.$db->pre.'smileys (`search`, `replace`, `desc`) VALUES '.implode(', ', $sqlinsert));
+	$anz = $stmt->getAffectedRows();
 
 	unset($archive);
 	if ($del > 0) {
@@ -608,8 +608,8 @@ elseif ($job == 'del') {
 	if (count($delete) == 0) {
 		error('admin.php?action=bbcodes&job=censor', $lang->phrase('admin_bbc_no_valid_selection'));
 	}
-	$db->execute('DELETE FROM '.$db->pre.'textparser WHERE id IN ('.implode(',',$delete).')');
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute('DELETE FROM '.$db->pre.'textparser WHERE id IN ('.implode(',',$delete).')');
+	$anz = $stmt->getAffectedRows();
 	$delobj = $scache->load('bbcode');
 	$delobj->delete();
 	ok('admin.php?action=bbcodes&job=censor', $lang->phrase('admin_bbc_entries_successfully_deleted'));

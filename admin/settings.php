@@ -1752,8 +1752,8 @@ elseif ($job == 'delete') {
 	$name = $gpc->get('name', str);
 	$id = $gpc->get('id', int);
 	$package = $gpc->get('package', int);
-	$db->execute("DELETE FROM {$db->pre}settings WHERE name = '{$name}' AND sgroup = '{$id}' LIMIT 1");
-	$upd = $db->getAffectedRows();
+	$stmt = $db->execute("DELETE FROM {$db->pre}settings WHERE name = '{$name}' AND sgroup = '{$id}' LIMIT 1");
+	$upd = $stmt->getAffectedRows();
 	if ($upd == 1) {
 		$result = $db->execute("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$id}'");
 		$row = $result->fetch();

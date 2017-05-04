@@ -91,8 +91,8 @@ elseif ($action == "delete2") {
 			$db->execute("UPDATE {$db->pre}user SET posts = posts-{$row['posts']} WHERE id = '{$row['name']}'");
 		}
 	}
-	$db->execute ("DELETE FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}replies WHERE topic_id = '{$info['id']}'");
+	$anz = $stmt->getAffectedRows();
 	$uresult = $db->execute ("SELECT id, source FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
 	while ($urow = $uresult->fetch()) {
 		$filesystem->unlink('uploads/topics/'.$urow['source']);
@@ -101,23 +101,23 @@ elseif ($action == "delete2") {
 			$filesystem->unlink($thumb);
 		}
 	}
-	$db->execute ("DELETE FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
-	$anz += $db->getAffectedRows();
-	$db->execute ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
-	$anz += $db->getAffectedRows();
-	$db->execute ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
-	$anz += $db->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}uploads WHERE topic_id = '{$info['id']}'");
+	$anz += $stmt->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['id']}'");
+	$anz += $stmt->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}topics WHERE id = '{$info['id']}'");
+	$anz += $stmt->getAffectedRows();
 	$votes = $db->execute("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 	$voteaids = array();
 	while ($row = $votes->fetch()) {
 		$voteaids[] = $row['id'];
 	}
 	if (count($voteaids) > 0) {
-		$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
-		$anz += $db->getAffectedRows();
+		$stmt = $db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+		$anz += $stmt->getAffectedRows();
 	}
-	$db->execute ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-	$anz += $db->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+	$anz += $stmt->getAffectedRows();
 
 	($code = $plugins->load('managetopic_delete2_end')) ? eval($code) : null;
 
@@ -152,8 +152,8 @@ elseif ($action == "move2") {
 
 	$board = $gpc->get('board', int);
 
-	$db->execute("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1");
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute("UPDATE {$db->pre}topics SET board = '{$board}' WHERE id = '{$info['id']}' LIMIT 1");
+	$anz = $stmt->getAffectedRows();
 
 	// TODO: Prefix und Editierungen werden nicht übernommen
 	if ($_POST['temp'] == 1) {
@@ -201,8 +201,8 @@ elseif ($action == "reports2") {
 	}
 }
 elseif ($action == "pin") {
-	$db->execute("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '".$info['id']."'");
-	if ($db->getAffectedRows() == 1) {
+	$stmt = $db->execute("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '".$info['id']."'");
+	if ($stmt->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -210,8 +210,8 @@ elseif ($action == "pin") {
 	}
 }
 elseif ($action == "unpin") {
-	$db->execute("UPDATE {$db->pre}topics SET sticky = '0' WHERE id = '".$info['id']."'");
-	if ($db->getAffectedRows() == 1) {
+	$stmt = $db->execute("UPDATE {$db->pre}topics SET sticky = '0' WHERE id = '".$info['id']."'");
+	if ($stmt->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -219,8 +219,8 @@ elseif ($action == "unpin") {
 	}
 }
 elseif ($action == "close") {
-	$db->execute("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'");
-	if ($db->getAffectedRows() == 1) {
+	$stmt = $db->execute("UPDATE {$db->pre}topics SET status = '1' WHERE id = '".$info['id']."'");
+	if ($stmt->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -228,8 +228,8 @@ elseif ($action == "close") {
 	}
 }
 elseif ($action == "open") {
-	$db->execute("UPDATE {$db->pre}topics SET status = '0' WHERE id = '".$info['id']."'");
-	if ($db->getAffectedRows() == 1) {
+	$stmt = $db->execute("UPDATE {$db->pre}topics SET status = '0' WHERE id = '".$info['id']."'");
+	if ($stmt->getAffectedRows() == 1) {
 		ok($lang->phrase('admin_topicstatus_changed'),'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	else {
@@ -344,11 +344,11 @@ elseif ($action == "vote_delete2") {
 	$anz = 0;
 	$voteaids = $db->fetchList("SELECT id FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
 	if (count($voteaids) > 0) {
-		$db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
-		$anz += $db->getAffectedRows();
+		$stmt = $db->execute ("DELETE FROM {$db->pre}votes WHERE id IN (".implode(',', $voteaids).")");
+		$anz += $stmt->getAffectedRows();
 	}
-	$db->execute("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
-	$anz += $db->getAffectedRows();
+	$stmt = $db->execute("DELETE FROM {$db->pre}vote WHERE tid = '{$info['id']}'");
+	$anz += $stmt->getAffectedRows();
 	$db->execute("UPDATE {$db->pre}topics SET vquestion = '' WHERE id = '{$info['id']}'");
 
 	ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
@@ -371,8 +371,8 @@ elseif ($action == "pdelete") {
 		}
 	}
 
-	$db->execute ("DELETE FROM {$db->pre}replies WHERE id IN ({$iid})");
-	$anz = $db->getAffectedRows();
+	$stmt = $db->execute ("DELETE FROM {$db->pre}replies WHERE id IN ({$iid})");
+	$anz = $stmt->getAffectedRows();
 	$uresult = $db->execute ("SELECT id, source FROM {$db->pre}uploads WHERE tid IN ({$iid})");
 	while ($urow = $uresult->fetch()) {
 		$filesystem->unlink('uploads/topics/'.$urow['source']);

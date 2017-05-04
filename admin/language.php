@@ -329,9 +329,9 @@ elseif ($job == 'lang_delete2') {
 		error('admin.php?action=language&job=manage', $lang->phrase('admin_lang_cannot_unpublish_lang_until_unpublish'));
 	}
 
-	$db->execute("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
+	$stmt = $db->execute("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
 
-	if ($db->getAffectedRows() == 1) {
+	if ($stmt->getAffectedRows() == 1) {
 		$filesystem->rmdirr("language/{$id}/");
 		$delobj = $scache->load('loadlanguage');
 		$delobj->delete();
