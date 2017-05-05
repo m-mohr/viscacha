@@ -651,7 +651,7 @@ class BBCode {
 		}
 	}
 
-	protected function customBB($text) {
+	public function customBB($text) {
 		$this->getCustomBB();
 		foreach ($this->custombb as $re) {
 			$this->currentCBB = $re;

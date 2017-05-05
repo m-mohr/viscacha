@@ -121,7 +121,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 		</td></tr>
 		<tr><td class="editor_toolbar" style="height: auto; overflow: auto;">
 			<?php foreach ($smileys[1] as $bb) { ?>
-			<img src="<?php echo $bb['replace']; ?>" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '');" title="<?php echo $bb['desc']; ?>" alt="<?php echo $bb['desc']; ?>" class="editor_toolbar_smiley" onmouseover="buttonOverSmiley(this)" onmouseout="buttonOutSmiley(this)" /></a>
+				<img src="<?php echo $bb['replace']; ?>" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo addslashes($bb['search']); ?> ', '');" title="<?php echo $bb['desc']; ?>" alt="<?php echo $bb['desc']; ?>" class="editor_toolbar_smiley" /></a>
 			<?php } ?>
 		<img src="admin/html/editor/images/seperator.gif" alt="" />
 			<?php if (count($smileys[0]) > 0) { ?>
@@ -130,7 +130,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<strong><?php echo $lang->phrase('more_smileys'); ?></strong>
 			<ul class="bbsmileys">
 			<?php foreach ($smileys[0] as $bb) { ?>
-			  <li><span class="popup_line stext" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo $bb['jssearch'] ?> ', '')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
+			  <li><span class="popup_line stext" onclick="InsertTags('<?php echo $id; ?>', ' <?php echo addslashes($bb['search']); ?> ', '')"><img src="<?php echo $bb['replace']; ?>" alt="<?php echo $bb['desc']; ?>" /> <?php echo $bb['desc']; ?></span></li>
 			<?php }?>
 			</ul>
 			</div>

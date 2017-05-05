@@ -385,109 +385,42 @@ elseif ($_GET['action'] == "vote") {
 }
 elseif ($_GET['action'] == "bbhelp") {
 	$my->p = $slog->Permissions();
+
 	$lang->group("bbcodes");
 	BBProfile($bbcode);
-
-	$smileys = $bbcode->getSmileys();
-	$cbb = $bbcode->getCustomBB();
-	foreach ($cbb as $key => $bb) {
-		$cbb[$key]['syntax'] = '['.$bb['tag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['tag'].']';
-	}
 
 	$code1 = '&lt;?php echo phpversion(); ?&gt;';
 	$code2 = '&lt;?php'."\n".'echo phpversion();'."\n".'?&gt;';
 
-	$lorem_ipsum = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.';
-
-	$sbb = array(
+	$lorem_ipsum = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit.';
+	$list_elements = array('Berlin', 'Munich', 'Hamburg', 'Cologne');
+	
+	$nativebb = array(
 		array(
 			'tag' => 'b',
 			'params' => 0,
 			'title' => $lang->phrase('bbcodes_bold'),
 			'description' => $lang->phrase('bbcodes_bold_desc'),
+			'example' => array('[b]'.$lorem_ipsum.'[/b]')
 		),
 		array(
 			'tag' => 'i',
 			'params' => 0,
 			'title' => $lang->phrase('bbcodes_italic'),
-			'description' => $lang->phrase('bbcodes_italic_desc')
+			'description' => $lang->phrase('bbcodes_italic_desc'),
+			'example' => array('[i]'.$lorem_ipsum.'[/i]')
 		),
 		array(
 			'tag' => 'u',
 			'params' => 0,
 			'title' => $lang->phrase('bbcodes_underline'),
-			'description' => $lang->phrase('bbcodes_underline_desc')
-		),
-		array(
-			'tag' => 'color',
-			'params' => 1,
-			'example' => array('[color=ff9900]'.$lang->phrase('bbcodes_example_text').'[/color]')
-		),
-		array(
-			'tag' => 'img',
-			'params' => 0,
-			'example' => array('[img]assets/smileys/smile.gif[/img]')
-		),
-		array(
-			'tag' => 'url',
-			'params' => 2,
-			'example' => array(
-				'[url]http://www.viscacha.org[/url]',
-				'[url=http://www.viscacha.org]Viscacha[/url]'
-			)
-		),
-		array(
-			'tag' => 'email',
-			'params' => 0,
-			'example' => array('[email]kristina@mustermann.de[/email]')
-		),
-		array(
-			'tag' => 'ot',
-			'params' => 0
-		),
-		array(
-			'tag' => 'quote',
-			'params' => 2,
-			'example' => array(
-				'[quote]'.$lang->phrase('bbcodes_example_text').'[/quote]',
-				'[quote=Julius Caesar]Veni vidi vici[/quote]',
-				'[quote=http://www.viscacha.org]Viscacha is a free bulletin board system with an integrated content management system.[/quote]'
-			)
-		),
-		array(
-			'tag' => 'list',
-			'params' => 2,
-			'example' => array(
-				'[list]'."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[*]'.$lang->phrase('bbcodes_example_text2')."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[/list]',
-				'[list=ol]'."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[*]'.$lang->phrase('bbcodes_example_text2')."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[/list]',
-				'[list=A]'."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[*]'.$lang->phrase('bbcodes_example_text2')."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[/list]',
-				'[list=I]'."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[*]'.$lang->phrase('bbcodes_example_text2')."\n".'[*]'.$lang->phrase('bbcodes_example_text')."\n".'[/list]',
-			)
-		)
-	);
-	$ebb = array(
-		array(
-			'tag' => 'size',
-			'params' => 1,
-			'example' => array(
-				'[size=large]'.$lang->phrase('bbcodes_example_text').'[/size]',
-				'[size=small]'.$lang->phrase('bbcodes_example_text').'[/size]',
-				'[size=extended]'.$lang->phrase('bbcodes_example_text').'[/size]'
-			)
-		),
-		array(
-			'tag' => 'h',
-			'title' => $lang->phrase('bbcodes_header'),
-			'description' => $lang->phrase('bbcodes_header_desc'),
-			'params' => 1,
-			'example' => array(
-				'[h=large]'.$lang->phrase('bbcodes_example_text').'[/h]',
-				'[h=middle]'.$lang->phrase('bbcodes_example_text').'[/h]',
-				'[h=small]'.$lang->phrase('bbcodes_example_text').'[/h]'
-			)
+			'description' => $lang->phrase('bbcodes_underline_desc'),
+			'example' => array('[u]'.$lorem_ipsum.'[/u]')
 		),
 		array(
 			'tag' => 'align',
+			'title' => $lang->phrase('bbcodes_align'),
+			'description' => $lang->phrase('bbcodes_align_desc'),
 			'params' => 1,
 			'example' => array(
 				'[align=left]'.$lorem_ipsum.'[/align]',
@@ -497,49 +430,83 @@ elseif ($_GET['action'] == "bbhelp") {
 			)
 		),
 		array(
-			'tag' => 'code',
-			'params' => 0,
+			'tag' => 'color',
+			'title' => $lang->phrase('bbcodes_color'),
+			'description' => $lang->phrase('bbcodes_color_desc'),
+			'params' => 1,
+			'example' => array('[color=ff9900]'.$lorem_ipsum.'[/color]')
+		),
+		array(
+			'tag' => 'h',
+			'title' => $lang->phrase('bbcodes_header'),
+			'description' => $lang->phrase('bbcodes_header_desc'),
+			'params' => 1,
 			'example' => array(
-				'[code]'.$code1.'[/code]',
-				'[code]'.$code2.'[/code]'
+				'[h=large]'.$lorem_ipsum.'[/h]',
+				'[h=middle]'.$lorem_ipsum.'[/h]',
+				'[h=small]'.$lorem_ipsum.'[/h]'
 			)
 		),
 		array(
-			'tag' => 'edit',
-			'params' => 2,
+			'tag' => 'size',
+			'title' => $lang->phrase('bbcodes_size'),
+			'description' => $lang->phrase('bbcodes_size_desc'),
+			'params' => 1,
 			'example' => array(
-				'[edit]'.$lang->phrase('bbcodes_example_text').'[/edit]',
-				'[edit=Kristina]'.$lang->phrase('bbcodes_example_text').'[/edit]'
+				'[size=large]'.$lorem_ipsum.'[/size]',
+				'[size=small]'.$lorem_ipsum.'[/size]',
+				'[size=extended]'.$lorem_ipsum.'[/size]'
 			)
-		),
-		array(
-			'tag' => 'hide',
-			'params' => 0
 		),
 		array(
 			'tag' => 'sub',
+			'title' => $lang->phrase('bbcodes_sub'),
+			'description' => $lang->phrase('bbcodes_sub_desc'),
 			'params' => 0,
 			'example' => array('H[sub]2[/sub]O')
 		),
 		array(
 			'tag' => 'sup',
+			'title' => $lang->phrase('bbcodes_sup'),
+			'description' => $lang->phrase('bbcodes_sup_desc'),
 			'params' => 0,
 			'example' => array('cm[sup]2[/sup]')
 		),
 		array(
 			'tag' => 'tt',
-			'params' => 0
+			'title' => $lang->phrase('bbcodes_tt'),
+			'description' => $lang->phrase('bbcodes_tt_desc'),
+			'params' => 0,
+			'example' => array('[tt]'.$lorem_ipsum.'[/tt]')
 		),
 		array(
-			'tag' => 'reader',
-			'params' => -1
+			'tag' => 'img',
+			'title' => $lang->phrase('bbcodes_img'),
+			'description' => $lang->phrase('bbcodes_img_desc'),
+			'params' => 0,
+			'example' => array('[img]'.$config['furl'].'/assets/smileys/smile.gif[/img]')
 		),
 		array(
-			'tag' => 'hr',
-			'params' => -1
+			'tag' => 'url',
+			'title' => $lang->phrase('bbcodes_url'),
+			'description' => $lang->phrase('bbcodes_url_desc'),
+			'params' => 2,
+			'example' => array(
+				'[url]http://www.viscacha.org[/url]',
+				'[url=http://www.viscacha.org]Viscacha[/url]'
+			)
+		),
+		array(
+			'tag' => 'email',
+			'title' => $lang->phrase('bbcodes_email'),
+			'description' => $lang->phrase('bbcodes_email_desc'),
+			'params' => 0,
+			'example' => array('[email]max@mustermann.de[/email]')
 		),
 		array(
 			'tag' => 'table',
+			'title' => $lang->phrase('bbcodes_table'),
+			'description' => $lang->phrase('bbcodes_table_desc'),
 			'params' => 2,
 			'example' => array(
 				'[table=head;50%]'."\n".
@@ -549,36 +516,90 @@ elseif ($_GET['action'] == "bbhelp") {
 				'3.[tab]Matthias[tab]19'."\n".
 				'[/table]'
 			)
+		),
+		array(
+			'tag' => 'list',
+			'title' => $lang->phrase('bbcodes_list'),
+			'description' => $lang->phrase('bbcodes_list_desc'),
+			'params' => 2,
+			'example' => array(
+				'[list]'."\n".'[*]'.$list_elements[0]."\n".'[*]'.$list_elements[1]."\n".'[*]'.$list_elements[2]."\n".'[*]'.$list_elements[3]."\n".'[/list]',
+				'[list=ol]'."\n".'[*]'.$list_elements[0]."\n".'[*]'.$list_elements[1]."\n".'[*]'.$list_elements[2]."\n".'[*]'.$list_elements[3]."\n".'[/list]',
+				'[list=A]'."\n".'[*]'.$list_elements[0]."\n".'[*]'.$list_elements[1]."\n".'[*]'.$list_elements[2]."\n".'[*]'.$list_elements[3]."\n".'[/list]'
+			)
+		),
+		array(
+			'tag' => 'edit',
+			'title' => $lang->phrase('bbcodes_edit'),
+			'description' => $lang->phrase('bbcodes_edit_desc'),
+			'params' => 2,
+			'example' => array(
+				'[edit]'.$lorem_ipsum.'[/edit]',
+				'[edit=Julia]'.$lorem_ipsum.'[/edit]'
+			)
+		),
+		array(
+			'tag' => 'ot',
+			'title' => $lang->phrase('bbcodes_ot'),
+			'description' => $lang->phrase('bbcodes_ot_desc'),
+			'params' => 0,
+			'example' => array('[ot]'.$lorem_ipsum.'[/ot]')
+		),
+		array(
+			'tag' => 'quote',
+			'title' => $lang->phrase('bbcodes_quote'),
+			'description' => $lang->phrase('bbcodes_quote_desc'),
+			'params' => 2,
+			'example' => array(
+				'[quote]'.$lorem_ipsum.'[/quote]',
+				'[quote=Julius Caesar]Veni vidi vici[/quote]',
+				'[quote=http://www.viscacha.org]Viscacha is a free bulletin board system with an integrated content management system.[/quote]'
+			)
+		),
+		array(
+			'tag' => 'code',
+			'title' => $lang->phrase('bbcodes_code'),
+			'description' => $lang->phrase('bbcodes_code_desc'),
+			'params' => 0,
+			'example' => array(
+				'[code]'.$code1.'[/code]',
+				'[code]'.$code2.'[/code]'
+			)
+		),
+		array(
+			'tag' => 'hr',
+			'title' => $lang->phrase('bbcodes_hr'),
+			'description' => $lang->phrase('bbcodes_hr_desc'),
+			'params' => -1,
+			'example' => array('[hr]')
 		)
 	);
-
-	foreach (array('sbb', 'ebb') as $string) {
-		foreach (${$string} as $key => $arr) {
-			if ($arr['params'] == -1) {
-				${$string}[$key]['syntax'] = array('['.$arr['tag'].']');
-			}
-			else {
-				${$string}[$key]['syntax'] = array('['.$arr['tag'].iif($arr['params'], '={option}').']{param}[/'.$arr['tag'].']');
-				if ($arr['params'] == 2) {
-					array_unshift(${$string}[$key]['syntax'], '['.$arr['tag'].']{param}[/'.$arr['tag'].']');
-				}
-			}
-			if (!isset($arr['title'])) {
-				${$string}[$key]['title'] = $lang->phrase('bbcodes_'.$arr['tag']);
-			}
-			if (!isset($arr['description'])) {
-				${$string}[$key]['description'] = $lang->phrase('bbcodes_'.$arr['tag'].'_desc');
-			}
-			if (!isset($arr['example'])) {
-				${$string}[$key]['example'] = array();
-				foreach (${$string}[$key]['syntax'] as $syntax) {
-					${$string}[$key]['example'][] = str_replace('{param}', $lang->phrase('bbcodes_example_text'),
-												str_replace('{option}', $lang->phrase('bbcodes_example_text2'), $syntax)
-											  );
-				}
+	
+	foreach ($nativebb as $key => $arr) {
+		if ($arr['params'] == -1) {
+			$nativebb[$key]['syntax'] = array('['.$arr['tag'].']');
+		}
+		else {
+			$nativebb[$key]['syntax'] = array('['.$arr['tag'].iif($arr['params'], '={option}').']{param}[/'.$arr['tag'].']');
+			if ($arr['params'] == 2) {
+				array_unshift($nativebb[$key]['syntax'], '['.$arr['tag'].']{param}[/'.$arr['tag'].']');
 			}
 		}
 	}
+
+	$custombb = $bbcode->getCustomBB();
+	foreach ($custombb as $key => $bb) {
+		$nativebb[$key] = array(
+			'tag' => $bb['tag'],
+			'title' => $bb['title'],
+			'description' => $bb['explanation'],
+			'params' => null,
+			'example' => array($bb['example']),
+			'syntax' => array('['.$bb['tag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['tag'].']')
+		);
+	}
+
+	$smileys = $bbcode->getSmileys();
 
 	Breadcrumb::universal()->add($lang->phrase('bbhelp_title'));
 	($code = $plugins->load('misc_bbhelp_prepared')) ? eval($code) : null;

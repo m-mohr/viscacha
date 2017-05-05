@@ -84,7 +84,7 @@
 	<tr class="js-only">
 		<td class="editor_toolbar">
 			@foreach ($smileys[1] as $bb)
-			<img src="{{ $bb['replace'] }}" onclick="InsertTags('{{ $id }}', ' {{ $bb['jssearch'] }} ', '');" title="{{ $bb['desc'] }}" alt="{{ $bb['desc'] }}" class="editor_toolbar_smiley" onmouseover="buttonOverSmiley(this)" onmouseout="buttonOutSmiley(this)" /></a>
+			<img src="{{ $bb['replace'] }}" onclick="InsertTags('{{ $id }}', ' {!! addslashes($bb['search']) !!} ', '');" title="{{ $bb['desc'] }}" alt="{{ $bb['desc'] }}" class="editor_toolbar_smiley" /></a>
 			@endforeach
 			@if(!empty($smileys[0]))
 			<img src="admin/html/editor/images/seperator.gif" alt="" />
@@ -94,7 +94,7 @@
 				</a>
 				<ul class="dropdown-menu bbsmileys" aria-labelledby="menu_bbsmileys_{{ $id }}">
 					@foreach ($smileys[0] as $bb)
-					<li><a href="javascript:InsertTags('{{ $id }}', ' {{ $bb['jssearch'] }} ', '')"><img src="{{ $bb['replace'] }}" alt="{{ $bb['desc'] }}" /> {{ $bb['desc'] }}</a></li>
+					<li><a href="javascript:InsertTags('{{ $id }}', ' {!! addslashes($bb['search']) !!} ', '')"><img src="{{ $bb['replace'] }}" alt="{{ $bb['desc'] }}" /> {{ $bb['desc'] }}</a></li>
 					@endforeach
 				</ul>
 			</div>

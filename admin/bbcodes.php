@@ -970,7 +970,6 @@ elseif ($job == 'custombb_delete2'){
 }
 elseif ($job == 'custombb_test') {
 	echo head();
-	// reader-Tag not recognized
 	$file = 'admin/data/bbcode_test.php';
 	$test = $gpc->get('test', none);
 	$parsed_test = null;

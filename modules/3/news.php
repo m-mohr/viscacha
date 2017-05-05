@@ -71,9 +71,7 @@ while ($row = $result->fetch()) {
 				}
 			}
 			$bbcodes =	array(	'hide', 'code', 'list', 'note', 'url', 'img', 'color', 'align', 'email', 'h', 'size',
-								'quote', 'edit', 'ot', 'b', 'i', 'u', 'sub', 'sup', 'tt', 'table'
-									);
-									// reader, tab, hr, *, br
+								'quote', 'edit', 'ot', 'b', 'i', 'u', 'sub', 'sup', 'tt', 'table');
 			$custom = $bbcode->getCustomBB();
 			foreach ($custom as $re) {
 				$bbcodes[] = mb_strtolower($re['tag']);
