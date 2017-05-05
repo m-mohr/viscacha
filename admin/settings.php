@@ -1619,8 +1619,7 @@ elseif ($job == 'textprocessing2') {
 	$c->updateconfig('smileyurl',str);
 	$c->savedata();
 
-	$delobj = $scache->load('smileys');
-	$delobj->delete();
+	$scache->load('smileys')->delete();
 
 	ok('admin.php?action=settings&job=settings');
 }

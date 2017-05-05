@@ -1,3 +1,2 @@
 $db->execute("DELETE FROM {$db->pre}textparser WHERE `search` = '[teaser]' LIMIT 1");
-$delobj = $scache->load('bbcode');
-$delobj->delete();
+$scache->load('bbcode')->delete();

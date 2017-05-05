@@ -96,8 +96,7 @@ elseif ($job == 'ajax_changeperm') {
 	}
 	$perm = invert($perm[$key]);
 	$db->execute("UPDATE {$db->pre}groups AS g SET g.{$key} = '{$perm}' WHERE id = '{$id}' LIMIT 1");
-	$delobj = $scache->load('groups');
-	$delobj->delete();
+	$scache->load('groups')->delete();
 	die(strval($perm));
 }
 elseif ($job == 'add') {
@@ -240,10 +239,8 @@ elseif ($job == 'add2') {
 		}
 	}
 
-	$delobj = $scache->load('groups');
-	$delobj->delete();
-	$delobj = $scache->load('fgroups');
-	$delobj->delete();
+	$scache->load('groups')->delete();
+	$scache->load('fgroups')->delete();
 	if ($gid > 0) {
 		if (isset($fgnum) && isset($fgnum2) && $fgnum != $fgnum2) {
 			ok('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_group_add_successful_with_permission_copy_error'));
@@ -263,10 +260,8 @@ elseif ($job == 'delete') {
 		$stmt = $db->execute("DELETE FROM {$db->pre}groups WHERE id IN (".implode(',',$del).")");
 		$anz = $stmt->getAffectedRows();
 		$db->execute("DELETE FROM {$db->pre}fgroups WHERE gid IN (".implode(',',$del).")");
-		$delobj = $scache->load('groups');
-		$delobj->delete();
-		$delobj = $scache->load('fgroups');
-		$delobj->delete();
+		$scache->load('groups')->delete();
+		$scache->load('fgroups')->delete();
 		echo head();
 		ok('admin.php?action=groups&job=manage', $lang->phrase('admin_groups_x_groups_deleted'));
 	}
@@ -346,8 +341,7 @@ elseif ($job == 'edit2') {
 
 	$stmt = $db->execute('UPDATE '.$db->pre.'groups SET '.$sql_values.'flood = "'.$gpc->get('flood', int).'", title = "'.$gpc->get('title', str).'", name = "'.$gpc->get('name', str).'" WHERE id = "'.$id.'" LIMIT 1');
 
-	$delobj = $scache->load('groups');
-	$delobj->delete();
+	$scache->load('groups')->delete();
 
 	if ($stmt->getAffectedRows()) {
 		ok('admin.php?action=groups&job=manage');

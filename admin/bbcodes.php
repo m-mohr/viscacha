@@ -9,8 +9,7 @@ $lang->group("admin/bbcodes");
 if ($job == 'smileys_delete') {
 	$deleteid = $gpc->get('id', arr_int);
 	if (count($deleteid) > 0) {
-	   	$delobj = $scache->load('smileys');
-	   	$delobj->delete();
+	   	$scache->load('smileys')->delete();
 	   	$result = $db->execute('SELECT * FROM '.$db->pre.'smileys WHERE id IN ('.implode(',', $deleteid).')');
 	   	while ($row = $result->fetch()) {
 	   		$row['replace'] = str_replace('{folder}', $config['smileypath'], $row['replace']);
@@ -84,8 +83,7 @@ elseif ($job == 'smileys_edit2') {
 		$show = $gpc->get('show_'.$i, int);
 		$db->execute("UPDATE {$db->pre}smileys AS s SET s.search = '{$search}', s.replace = '{$replace}', s.desc = '{$desc}', s.show = '{$show}' WHERE s.id = '{$i}' LIMIT 1");
 	}
-	$delobj = $scache->load('smileys');
-	$delobj->delete();
+	$scache->load('smileys')->delete();
 	ok('admin.php?action=bbcodes&job=smileys', count($id).$lang->phrase('admin_bbc_smileys_edited'));
 }
 elseif ($job == 'smileys_import') {
@@ -270,8 +268,7 @@ elseif ($job == 'smileys_import2') {
 	}
 	$filesystem->rmdirr($tempdir);
 
-	$delobj = $scache->load('smileys');
-	$delobj->delete();
+	$scache->load('smileys')->delete();
 
 	ok('admin.php?action=bbcodes&job=smileys', $lang->phrase('admin_bbc_successfully_imported'));
 }
@@ -414,8 +411,7 @@ elseif ($job == 'smileys_ajax_pos') {
 	$use = $result->fetch();
 	$use = invert($use['show']);
 	$db->execute("UPDATE {$db->pre}smileys AS b SET b.show = '{$use}' WHERE id = '{$id}' LIMIT 1");
-	$delobj = $scache->load('smileys');
-	$delobj->delete();
+	$scache->load('smileys')->delete();
 	echo strval($use);
 	exit;
 }
@@ -475,8 +471,7 @@ elseif ($job == 'smileys_add') {
 	}
 	$db->execute("INSERT INTO {$db->pre}smileys (`search`,`replace`,`desc`,`show`) VALUES ('".$gpc->get('code', str)."','".$img."','".$gpc->get('desc', str)."','".$gpc->get('show', int)."')");
 
-	$delobj = $scache->load('smileys');
-	$delobj->delete();
+	$scache->load('smileys')->delete();
 
 	ok('admin.php?action=bbcodes&job=smileys', $lang->phrase('admin_bbc_successfully_added'));
 }
@@ -541,8 +536,7 @@ elseif ($job == 'add') {
 
 	$db->execute("INSERT INTO {$db->pre}textparser (`search`,`replace`) VALUES ('".$gpc->get('temp1', str)."','".$gpc->get('temp2', db_esc)."')");
 
-	$delobj = $scache->load('bbcode');
-	$delobj->delete();
+	$scache->load('bbcode')->delete();
 
 	ok('admin.php?action=bbcodes&job=censor', $lang->phrase('admin_bbc_data_successfully_added'));
 }
@@ -595,8 +589,7 @@ elseif ($job == 'edit2') {
 
 	$db->execute("UPDATE {$db->pre}textparser SET `search` = '".$gpc->get('temp1', str)."', `replace` = '".$gpc->get('temp2', db_esc)."' WHERE id = '{$id}'");
 
-	$delobj = $scache->load('bbcode');
-	$delobj->delete();
+	$scache->load('bbcode')->delete();
 
 	ok('admin.php?action=bbcodes&job=censor', $lang->phrase('admin_bbc_data_successfully_edited'));
 }
@@ -608,8 +601,7 @@ elseif ($job == 'del') {
 	}
 	$stmt = $db->execute('DELETE FROM '.$db->pre.'textparser WHERE id IN ('.implode(',',$delete).')');
 	$anz = $stmt->getAffectedRows();
-	$delobj = $scache->load('bbcode');
-	$delobj->delete();
+	$scache->load('bbcode')->delete();
 	ok('admin.php?action=bbcodes&job=censor', $lang->phrase('admin_bbc_entries_successfully_deleted'));
 }
 elseif ($job == 'custombb_export') {
@@ -753,8 +745,7 @@ elseif ($job == 'custombb_import2') {
 		$filesystem->unlink($file);
 	}
 
-	$delobj = $scache->load('custombb');
-	$delobj->delete();
+	$scache->load('custombb')->delete();
 
 	ok('admin.php?action=bbcodes&job=custombb', $lang->phrase('admin_bbc_bbc_successfully_imported'));
 }
@@ -838,8 +829,7 @@ elseif ($job == 'custombb_add2') {
 
 	\Viscacha\Model\Bbcode::insert($query);
 
-	$delobj = $scache->load('custombb');
-	$delobj->delete();
+	$scache->load('custombb')->delete();
 
 	ok('admin.php?action=bbcodes&job=custombb');
 }
@@ -935,8 +925,7 @@ elseif ($job == 'custombb_edit2') {
 
 	\Viscacha\Model\Bbcode::update($query)->where('id', $query['id']);
 
-	$delobj = $scache->load('custombb');
-	$delobj->delete();
+	$scache->load('custombb')->delete();
 
 	ok('admin.php?action=bbcodes&job=custombb');
 }
@@ -976,8 +965,7 @@ elseif ($job == 'custombb_delete2'){
 		}
 	}
 	$db->execute("DELETE FROM {$db->pre}bbcode WHERE id = '{$id}' LIMIT 1");
-	$delobj = $scache->load('custombb');
-	$delobj->delete();
+	$scache->load('custombb')->delete();
 	ok('admin.php?action=bbcodes&job=custombb', $lang->phrase('admin_bbc_bbc_successfully_deleted'));
 }
 elseif ($job == 'custombb_test') {

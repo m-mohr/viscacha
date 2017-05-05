@@ -74,8 +74,7 @@ elseif ($job == 'design_delete2') {
 	if (isset($themes[$id]) && file_exists($themes[$id]['path'])) {
 		$filesystem->rmdirr($themes[$id]['path']);
 
-		$delobj = $scache->load('loaddesign');
-		$delobj->delete();
+		$scache->load('loaddesign')->delete();
 	}
 
 	ok('admin.php?action=designs&job=design', $lang->phrase('admin_design_design_deleted_successfully'));
@@ -166,8 +165,7 @@ elseif ($job == 'design_import2') {
 		else {
 			$filesystem->mover($tempdir, 'themes/' . $ini['info']['internal']);
 
-			$delobj = $scache->load('loaddesign');
-			$delobj->delete();
+			$scache->load('loaddesign')->delete();
 		}
 	}
 
@@ -223,8 +221,7 @@ elseif ($job == 'ajax_publicuse') {
 
 		$filesystem->mover("themes/{$id}", "themes/{$new}");
 
-		$delobj = $scache->load('loaddesign');
-		$delobj->delete();
+		$scache->load('loaddesign')->delete();
 		
 		$public = invert($public);
 	}	

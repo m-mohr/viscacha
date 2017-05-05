@@ -97,8 +97,7 @@ elseif ($job == 'ajax_publicuse') {
 	}
 	$publicuse = invert($publicuse);
 	$db->execute("UPDATE {$db->pre}language SET publicuse = '{$publicuse}' WHERE id = '{$id}' LIMIT 1");
-	$delobj = $scache->load('loadlanguage');
-	$delobj->delete();
+	$scache->load('loadlanguage')->delete();
 	die(strval($use));
 }
 elseif ($job == 'import') {
@@ -213,8 +212,7 @@ elseif ($job == 'import2') {
 		if ($del == 1) {
 			$filesystem->unlink($file);
 		}
-		$delobj = $scache->load('loadlanguage');
-		$delobj->delete();
+		$scache->load('loadlanguage')->delete();
 		ok('admin.php?action=language&job=manage', $lang->phrase('admin_lang_imported_successfully'));
 	}
 	else {
@@ -290,8 +288,7 @@ elseif ($job == 'lang_copy2') {
 	$newid = $db->getInsertId();
 	$filesystem->mkdir("language/{$newid}/", 0777);
 	$filesystem->copyr("language/{$id}/", "language/{$newid}/");
-	$delobj = $scache->load('loadlanguage');
-	$delobj->delete();
+	$scache->load('loadlanguage')->delete();
 	ok('admin.php?action=language&job=manage', $lang->phrase('admin_lang_langpack_copied'));
 }
 elseif ($job == 'lang_delete') {
@@ -329,8 +326,7 @@ elseif ($job == 'lang_delete2') {
 	$stmt = $db->execute("DELETE FROM {$db->pre}language WHERE id = '{$id}' LIMIT 1");
 	if ($stmt->getAffectedRows() == 1) {
 		$filesystem->rmdirr("language/{$id}/");
-		$delobj = $scache->load('loadlanguage');
-		$delobj->delete();
+		$scache->load('loadlanguage')->delete();
 		ok('admin.php?action=language&job=manage', $lang->phrase('admin_lang_langpack_deleted'));
 	}
 	else {
@@ -508,8 +504,7 @@ elseif ($job == 'lang_settings2') {
 	$c->updateconfig('time_format',str);
 	$c->savedata();
 
-	$delobj = $scache->load('loadlanguage');
-	$delobj->delete();
+	$scache->load('loadlanguage')->delete();
 
 	ok('admin.php?action=language&job=lang_edit&id='.$id, $lang->phrase('admin_lang_changes_successful').$error.'.');
 }
@@ -823,8 +818,7 @@ elseif ($job == 'lang_array2') {
 	}
 
 	if ($file == 'javascript') {
-		$delobj = $scache->load('loadlanguage');
-		$delobj->delete();
+		$scache->load('loadlanguage')->delete();
 	}
 
 	ok('admin.php?action=language&job=lang_array&id='.$id.'&file='.$file.'&page='.$page);
@@ -838,8 +832,7 @@ elseif ($job == 'lang_default') {
 	$c->updateconfig('langdir', int, $id);
 	$c->savedata();
 
-	$delobj = $scache->load('loadlanguage');
-	$delobj->delete();
+	$scache->load('loadlanguage')->delete();
 
 	ok('admin.php?action=language&job=manage');
 }
@@ -1021,8 +1014,7 @@ elseif ($job == 'phrase_add2') {
 	}
 
 	if ($file == 'javascript') {
-		$delobj = $scache->load('loadlanguage');
-		$delobj->delete();
+		$scache->load('loadlanguage')->delete();
 	}
 
 	if (is_id($source_id))

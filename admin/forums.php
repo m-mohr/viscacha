@@ -167,8 +167,7 @@ elseif ($job == 'mods_delete') {
 	if (count($deleteids) > 0) {
 		$stmt = $db->execute("DELETE FROM {$db->pre}moderators WHERE ".implode(' OR ',$deleteids));
 		$anz = $stmt->getAffectedRows();
-		$delobj = $scache->load('index_moderators');
-		$delobj->delete();
+		$scache->load('index_moderators')->delete();
 	}
 	else {
 		$anz = 0;
@@ -252,8 +251,7 @@ elseif ($job == 'mods_add2') {
 	");
 
 	if ($stmt->getAffectedRows() == 1) {
-		$delobj = $scache->load('index_moderators');
-		$delobj->delete();
+		$scache->load('index_moderators')->delete();
 		ok('admin.php?action=forums&job=mods'.iif($bid > 0, '&id='.$id), $lang->phrase('admin_forum_moderator_added'));
 	}
 	else {
@@ -624,12 +622,9 @@ elseif ($job == 'forum_edit2') {
 		WHERE id = '{$id}'
 		");
 
-		$delobj = $scache->load('cat_bid');
-		$delobj->delete();
-		$delobj = $scache->load('forumtree');
-		$delobj->delete();
-		$delobj = $scache->load('parent_forums');
-		$delobj->delete();
+		$scache->load('cat_bid')->delete();
+		$scache->load('forumtree')->delete();
+		$scache->load('parent_forums')->delete();
 
 		ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_successfully_added'));
 	}
@@ -949,16 +944,11 @@ elseif ($job == 'forum_add2') {
 			$db->execute("INSERT INTO {$db->pre}prefix (bid,value) VALUES ".implode(', ', $sql_values));
 		}
 
-		$delobj = $scache->load('cat_bid');
-		$delobj->delete();
-		$delobj = $scache->load('fgroups');
-		$delobj->delete();
-		$delobj = $scache->load('forumtree');
-		$delobj->delete();
-		$delobj = $scache->load('parent_forums');
-		$delobj->delete();
-		$delobj = $scache->load('prefix');
-		$delobj->delete();
+		$scache->load('cat_bid')->delete();
+		$scache->load('fgroups')->delete();
+		$scache->load('forumtree')->delete();
+		$scache->load('parent_forums')->delete();
+		$scache->load('prefix')->delete();
 
 		ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_successfully_added'));
 	}
@@ -988,10 +978,8 @@ elseif ($job == 'cat_move' || $job == 'forum_move') {
 
 	$db->execute("UPDATE {$table} SET position = position{$op}1 WHERE id = '{$id}' LIMIT 1");
 
-	$delobj = $scache->load('forumtree');
-	$delobj->delete();
-	$delobj = $scache->load($cache);
-	$delobj->delete();
+	$scache->load('forumtree')->delete();
+	$scache->load($cache)->delete();
 
 	sendStatusCode(302, $config['furl'].'/admin.php?action=forums&job=manage');
 }
@@ -1075,8 +1063,7 @@ elseif ($job == 'rights_ajax_changeperm') {
 	}
 	$perm = invert($perm[$key]);
 	$db->execute("UPDATE {$db->pre}fgroups SET `f_{$key}` = '{$perm}' WHERE fid = '{$id}' LIMIT 1");
-	$delobj = $scache->load('fgroups');
-	$delobj->delete();
+	$scache->load('fgroups')->delete();
 	die(strval($perm));
 }
 elseif ($job == 'rights_add') {
@@ -1168,8 +1155,7 @@ elseif ($job == 'rights_add2') {
 	VALUES ('{$id}','{$group}','{$downloadfiles}','{$forum}','{$posttopics}','{$postreplies}','{$addvotes}','{$attachments}','{$edit}','{$voting}')
 	");
 	if ($stmt->getAffectedRows() == 1) {
-		$delobj = $scache->load('fgroups');
-		$delobj->delete();
+		$scache->load('fgroups')->delete();
 		ok('admin.php?action=forums&job=rights&id='.$id);
 	}
 	else {
@@ -1186,8 +1172,7 @@ elseif ($job == 'rights_delete') {
 	if (count($did) > 0) {
 		$stmt = $db->execute('DELETE FROM '.$db->pre.'fgroups WHERE fid IN('.implode(',',$did).') AND bid = "'.$id.'"');
 		$anz = $stmt->getAffectedRows();
-		$delobj = $scache->load('fgroups');
-		$delobj->delete();
+		$scache->load('fgroups')->delete();
 		ok('admin.php?action=forums&job=rights&id='.$id, $lang->phrase('admin_forum_entries_deleted'));
 	}
 	else {
@@ -1295,10 +1280,8 @@ elseif ($job == 'cat_add2') {
 	VALUES ('{$name}', '{$description}', '{$position}', '{$parent}')
 	");
 
-	$delobj = $scache->load('categories');
-	$delobj->delete();
-	$delobj = $scache->load('forumtree');
-	$delobj->delete();
+	$scache->load('categories')->delete();
+	$scache->load('forumtree')->delete();
 
 	ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_cat_created'));
 }
@@ -1383,10 +1366,8 @@ elseif ($job == 'cat_edit2') {
 
 	$db->execute("UPDATE {$db->pre}categories SET name = '{$name}', description = '{$description}', parent = '{$parent}' WHERE id = '{$id}' LIMIT 1");
 
-	$delobj = $scache->load('categories');
-	$delobj->delete();
-	$delobj = $scache->load('forumtree');
-	$delobj->delete();
+	$scache->load('categories')->delete();
+	$scache->load('forumtree')->delete();
 
 	if ($parent_notice == false) {
 		ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_cat_edited'));
@@ -1406,10 +1387,8 @@ elseif ($job == 'cat_delete') {
 
 	$db->execute("DELETE FROM {$db->pre}categories WHERE id = '{$id}' LIMIT 1");
 
-	$delobj = $scache->load('categories');
-	$delobj->delete();
-	$delobj = $scache->load('forumtree');
-	$delobj->delete();
+	$scache->load('categories')->delete();
+	$scache->load('forumtree')->delete();
 
 	ok('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_cat_deleted'));
 }
@@ -1516,8 +1495,7 @@ elseif ($job == 'prefix_edit2') {
 			$db->execute("UPDATE {$db->pre}prefix SET standard = '0' WHERE standard = '1' AND bid = '{$row['bid']}' LIMIT 1");
 		}
 		$db->execute("UPDATE {$db->pre}prefix SET value = '{$val}', standard = '{$standard}' WHERE id = '{$id}' LIMIT 1");
-		$delobj = $scache->load('prefix');
-		$delobj->delete();
+		$scache->load('prefix')->delete();
 		ok('admin.php?action=forums&job=prefix&id='.$row['bid'], $lang->phrase('admin_forum_prefix_changed'));
 	}
 }
@@ -1526,8 +1504,7 @@ elseif ($job == 'prefix_delete') {
 	$id = $gpc->get('id', int);
 	$did = $gpc->get('delete', arr_int);
 	$did = implode(',', $did);
-	$delobj = $scache->load('prefix');
-	$delobj->delete();
+	$scache->load('prefix')->delete();
 	$stmt = $db->execute('DELETE FROM '.$db->pre.'prefix WHERE id IN('.$did.') AND bid = "'.$id.'"');
 	$anz = $stmt->getAffectedRows();
 	ok('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_entries_deleted'));
@@ -1543,8 +1520,7 @@ elseif ($job == 'prefix_add') {
 	}
 	else {
 		$db->execute("INSERT INTO {$db->pre}prefix (bid, value, standard) VALUES ('{$id}', '{$val}', '{$standard}')");
-		$delobj = $scache->load('prefix');
-		$delobj->delete();
+		$scache->load('prefix')->delete();
 		ok('admin.php?action=forums&job=prefix&id='.$id, $lang->phrase('admin_forum_prefix_added'));
 	}
 }

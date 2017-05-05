@@ -506,8 +506,7 @@ elseif ($job == 'restore2') {
 					if (mb_strpos($file, '.inc.php') !== false) {
 						$fileTrim = str_replace('.inc.php', '', $file);
 						if (file_exists("classes/data/cache/{$fileTrim}")) {
-							$cache = $scache->load($file);
-							$cache->delete();
+							$scache->load($file)->delete();
 						}
 						else {
 							$filesystem->unlink("./data/cache/{$file}");

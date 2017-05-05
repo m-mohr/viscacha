@@ -549,8 +549,7 @@ elseif ($job == 'nav_edit2') {
 		}
 		$db->execute("UPDATE {$db->pre}menu SET name = '{$title}', groups = '{$groups}', active = '{$active}', ordering = '{$sort['ordering']}', position = '{$sort['position']}' {$module_sql} WHERE id = '{$id}'");
 	}
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_data_successfully_changed'));
 }
 elseif ($job == 'nav_delete') {
@@ -590,8 +589,7 @@ elseif ($job == 'nav_delete2') {
 	$stmt = $db->execute("DELETE FROM {$db->pre}menu WHERE id IN ({$ids}) LIMIT {$count}");
 	$anz = $stmt->getAffectedRows();
 
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_entries_deleted'));
 }
@@ -608,8 +606,7 @@ elseif ($job == 'nav_move') {
 		$db->execute('UPDATE '.$db->pre.'menu SET ordering = ordering+1 WHERE id = '.$id);
 	}
 
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 
 	sendStatusCode(302, $config['furl'].'/admin.php?action=cms&job=nav');
 }
@@ -635,8 +632,7 @@ elseif ($job == 'nav_active') {
 		}
 	}
 
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 	sendStatusCode(302, $config['furl'].'/admin.php?action=cms&job=nav');
 }
 elseif ($job == 'nav_addplugin') {
@@ -744,8 +740,7 @@ elseif ($job == 'nav_addplugin2') {
 		$groups = implode(',', $groups);
 	}
 	$db->execute("INSERT INTO {$db->pre}menu (name, groups, ordering, active, module, position) VALUES ('{$title}','{$groups}','{$sort['ordering']}','{$data['active']}','{$data['id']}','{$sort['position']}')");
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_plugins_successfully_added'));
 }
 elseif ($job == 'nav_add') {
@@ -871,8 +866,7 @@ elseif ($job == 'nav_add2') {
 		$groups = implode(',', $groups);
 	}
 	$db->execute("INSERT INTO {$db->pre}menu (name, groups, ordering, link, param, sub, position) VALUES ('{$title}','{$groups}','{$sort}','{$url}','{$target}','{$sub}','{$pos[0]}')");
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_link_successfully_added'));
 }
 elseif ($job == 'nav_addbox') {
@@ -968,8 +962,7 @@ elseif ($job == 'nav_addbox2') {
 		$groups = implode(',', $groups);
 	}
 	$db->execute("INSERT INTO {$db->pre}menu (name, groups, ordering, position) VALUES ('{$title}','{$groups}','{$sort['ordering']}','{$sort['position']}')");
-	$delobj = $scache->load('modules_navigation');
-	$delobj->delete();
+	$scache->load('modules_navigation')->delete();
 	ok('admin.php?action=cms&job=nav', $lang->phrase('admin_cms_box_successfully_added'));
 }
 elseif ($job == 'nav_docslist') {
@@ -1570,8 +1563,7 @@ elseif ($job == 'doc_ajax_active') {
 	$use = $result->fetch();
 	$use = invert($use['active']);
 	$db->execute("UPDATE {$db->pre}documents_content SET active = '{$use}' WHERE did = '{$id}' AND lid = '{$lid}' LIMIT 1");
-	$delobj = $scache->load('wraps');
-	$delobj->delete();
+	$scache->load('wraps')->delete();
 	die(strval($use));
 }
 elseif ($job == 'doc_add') {
@@ -1740,8 +1732,7 @@ elseif ($job == 'doc_add3') {
 		}
 	}
 
-	$delobj = $scache->load('wraps');
-	$delobj->delete();
+	$scache->load('wraps')->delete();
 
 	ok('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_document_successfully_added'));
 }
@@ -1754,8 +1745,7 @@ elseif ($job == 'doc_delete') {
 		$anz = $stmt->getAffectedRows();
 		$db->execute("DELETE FROM {$db->pre}documents_content WHERE did IN ({$deleteids})");
 
-		$delobj = $scache->load('wraps');
-		$delobj->delete();
+		$scache->load('wraps')->delete();
 
 		ok('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_documents_deleted'));
 	}
@@ -1956,8 +1946,7 @@ elseif ($job == 'doc_edit2') {
 		}
 	}
 
-	$delobj = $scache->load('wraps');
-	$delobj->delete();
+	$scache->load('wraps')->delete();
 
 	ok('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_document_successfully_changed'));
 }

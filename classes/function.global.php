@@ -577,8 +577,7 @@ function UpdateBoardStats($board) {
 	UPDATE {$db->pre}forums SET topics = '{$topics}', replies = '{$replies}', last_topic = '{$last}'
 	WHERE id = '{$board}'
 	");
-	$delobj = $scache->load('cat_bid');
-	$delobj->delete();
+	$scache->load('cat_bid')->delete();
 }
 
 function UpdateBoardLastStats($board) {

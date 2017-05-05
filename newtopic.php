@@ -275,8 +275,7 @@ elseif ($_GET['action'] == "save") {
 		}
 
 		$db->execute ("UPDATE {$db->pre}forums SET topics = topics+1, last_topic = '{$tredirect}' WHERE id = '{$board}'");
-		$catobj = $scache->load('cat_bid');
-		$catobj->delete();
+		$scache->load('cat_bid')->delete();
 
 		if (count($last['topic_notification']) > 0) {
 			$to = array();

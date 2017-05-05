@@ -557,8 +557,7 @@ elseif ($job == 'package_update2') {
 					$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
 				}
 			}
-			$delobj = $scache->load('modules_navigation');
-			$delobj->delete();
+			$scache->load('modules_navigation')->delete();
 		}
 		// Plugins End
 
@@ -603,8 +602,7 @@ elseif ($job == 'package_update2') {
 			}
 		}
 
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('components')->delete();
 
 		$tmoddir = $tdir.'modules/';
 		$filesystem->unlink($moddir.'package.ini');
@@ -903,8 +901,7 @@ elseif ($job == 'package_import2') {
 			$filesystem->mover($temptpldir, $tpldir);
 		}
 
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('components')->delete();
 
 
 		addHookToArray('component_'.$package['info']['internal'], 'components.php');
@@ -1182,10 +1179,8 @@ elseif ($job == 'package_delete2') {
 		}
 
 		// Delete Cache
-		$delobj = $scache->load('modules_navigation');
-		$delobj->delete();
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('modules_navigation')->delete();
+		$scache->load('components')->delete();
 		if (isset($plug['php']) && is_array($plug['php'])) {
 			foreach ($plug['php'] as $pos => $file) {
 				$path = 'data/cache/modules/'.$plugins->_group($pos).'.php';
@@ -1739,8 +1734,7 @@ elseif ($job == 'package_active') {
 		while ($row = $result->fetch()) {
 			$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
 		}
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('components')->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=package');
 	}
 }
@@ -1975,8 +1969,7 @@ elseif ($job == 'plugins_move') {
 			$db->execute('UPDATE '.$db->pre.'plugins SET ordering = ordering+1 WHERE id = "'.$id.'"');
 		}
 		$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('components')->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
 	}
 }
@@ -1995,8 +1988,7 @@ elseif ($job == 'plugins_active') {
 		$active = $row['active'] == 1 ? 0 : 1;
 		$db->execute('UPDATE '.$db->pre.'plugins SET active = "'.$active.'" WHERE id = "'.$id.'"');
 		$filesystem->unlink('data/cache/modules/'.$plugins->_group($row['position']).'.php');
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('components')->delete();
 		sendStatusCode(302, $config['furl'].'/admin.php?action=packages&job=plugins');
 	}
 }
@@ -2059,10 +2051,8 @@ elseif ($job == 'plugins_delete2') {
 		// Delete references in navigation aswell
 		$db->execute("DELETE FROM {$db->pre}menu WHERE module = '{$id}'");
 
-		$delobj = $scache->load('modules_navigation');
-		$delobj->delete();
-		$delobj = $scache->load('components');
-		$delobj->delete();
+		$scache->load('modules_navigation')->delete();
+		$scache->load('components')->delete();
 		$path = 'data/cache/modules/'.$plugins->_group($data['position']).'.php';
 		if (!isInvisibleHook($data['position']) && file_exists($path)) {
 			$filesystem->unlink($path);
@@ -2564,8 +2554,7 @@ elseif ($job == 'plugins_add3') {
 	$ini['required'][$hook] = $required;
 	$myini->write($dir."plugin.ini", $ini);
 
-	$delobj = $scache->load('components');
-	$delobj->delete();
+	$scache->load('components')->delete();
 
 	if (!$isInvisibleHook) {
 		$filesystem->unlink('data/cache/modules/'.$plugins->_group($hook).'.php');
