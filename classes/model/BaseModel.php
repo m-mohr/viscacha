@@ -35,21 +35,53 @@ abstract class BaseModel extends Model {
 
 	public function __construct($primaryKey = null) {
 		parent::__construct($primaryKey);
-		$this->query();
+		$this->newQuery();
 	}
-
-	public static function all(array $columns = array()) {
+	
+	public static function select($columns = array(), $primaryKey = null) {
+		$model = new static($primaryKey);
+		$model->getQuery()->select($model->getTableName(), $columns);
+		if ($primaryKey !== null) {
+			$model->wherePrimaryKey();
+		}
+		return $model;
+	}
+	
+	public static function insert(array $data) {
 		$model = new static();
-		return $model->select($model->getTableName(), $columns);
+		$model->getQuery()->insert($model->getTableName(), $model->removeUnknownColumns($data));
+		return $model;
+	}
+	
+	public static function update(array $data, $primaryKey = null) {
+		$model = new static($primaryKey);
+		$model->getQuery()->update($model->getTableName(), $model->removeUnknownColumns($data));
+		if ($primaryKey !== null) {
+			$model->wherePrimaryKey();
+		}
+		return $model;
+	}
+	
+	public static function delete($primaryKey = null) {
+		$model = new static($primaryKey);
+		$model->getQuery()->delete($model->getTableName());
+		if ($primaryKey !== null) {
+			$model->wherePrimaryKey();
+		}
+		return $model;
+	}
+	
+	public function getQuery() {
+		return $this->query;
 	}
 
-	public function query() {
+	public function newQuery() {
 		$this->result = new ModelResult($this);
 		$this->query = parent::query();
 		return $this->query;
 	}
 
-	public function expand($columns, $selectColumns = true) {
+	public function with($columns, $selectColumns = true) {
 		if ($selectColumns) {
 			$this->discreteSelect($this, $this->getTableName());
 		}
@@ -91,8 +123,8 @@ abstract class BaseModel extends Model {
 		return $this;
 	}
 
-	public function filterPrimaryKey() {
-		return $this->filterByPrimaryKey($this->query);
+	public function wherePrimaryKey() {
+		return $this->where($this->getPrimaryKeyData());
 	}
 
 	public function execute() {

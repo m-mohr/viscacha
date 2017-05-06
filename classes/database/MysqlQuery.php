@@ -91,7 +91,7 @@ class MysqlQuery extends Query {
 
 		$conditions = $this->buildConditions($this->where);
 		if ($conditions !== null) {
-			$query .= ' ' . $conditions->query;
+			$query .= 'WHERE ' . $conditions->query;
 			$values = $conditions->values;
 		}
 
@@ -250,11 +250,11 @@ class MysqlQuery extends Query {
 
 		$table = $this->formatTable($this->getTable());
 		$query = "UPDATE {$table} SET {$setter}";
-		$values = $this->values;
-
+		$values = array_values($this->values);
+		
 		$conditions = $this->buildConditions($this->where);
 		if ($conditions !== null) {
-			$query .= ' ' . $conditions->query;
+			$query .= ' WHERE ' . $conditions->query;
 			$values = array_merge($values, $conditions->values);
 		}
 
@@ -264,8 +264,8 @@ class MysqlQuery extends Query {
 		}
 
 		$query .= ';';
-
-		return $this->makeQueryObject($query, array_values($this->values));
+		
+		return $this->makeQueryObject($query, array_values($values));
 	}
 
 	protected function translateKeyword($index) {

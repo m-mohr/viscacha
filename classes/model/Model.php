@@ -103,7 +103,7 @@ abstract class Model implements \ArrayAccess {
 
 	public abstract function define();
 
-	public static function create() {
+	public static function instance() {
 		return new static();
 	}
 
@@ -136,7 +136,7 @@ abstract class Model implements \ArrayAccess {
 			throw new NoPrimaryKeyValueException();
 		}
 		if (is_string($this->primaryKey)) {
-			return [$this->primaryKey, $this->data[$this->primaryKey]];
+			return [$this->primaryKey => $this->data[$this->primaryKey]];
 		} else if (is_array($this->primaryKey) && count($this->primaryKey) > 0) {
 			$pks = array();
 			foreach ($this->primaryKey as $pk) {
@@ -192,6 +192,10 @@ abstract class Model implements \ArrayAccess {
 		}
 		return $changes;
 	}
+	
+	public function removeUnknownColumns($data) {
+		return array_intersect_key($data, array_flip($this->columns));
+	}
 
 	protected function syncOriginal() {
 		$this->originalData = $this->data;
@@ -210,7 +214,7 @@ abstract class Model implements \ArrayAccess {
 			}
 			return true;
 		} else if (is_string($this->primaryKey)) {
-			return $this->hasData($this->primaryKey);
+			return !$this->hasData($this->primaryKey);
 		}
 		throw new NoPrimaryKeyException();
 	}

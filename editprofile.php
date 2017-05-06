@@ -123,11 +123,11 @@ elseif ($_GET['action'] == "abos") {
 	($code = $plugins->load('editprofile_abos_query')) ? eval($code) : null;
 	
 	$subscriptionCount = Subscription::all()->colCount()
-		->expand(['tid' => 'topic', 'tid.board' => 'forum'], false)
+		->with(['tid' => 'topic', 'tid.board' => 'forum'], false)
 		->where('mid', $my->id)->where('forum.invisible', '!=', 2);
 	
 	$subscriptions = Subscription::all()
-		->expand(['tid' => 'topic', 'tid.prefix' => 'prefix', 'tid.board' => 'forum', 'tid.last_name' => 'last'])
+		->with(['tid' => 'topic', 'tid.prefix' => 'prefix', 'tid.board' => 'forum', 'tid.last_name' => 'last'])
 		->where('mid', $my->id)->where('forum.invisible', '!=', 2)
 		->sortDesc('id')->pagination($_GET['page'], $config['abozahl']);
 
