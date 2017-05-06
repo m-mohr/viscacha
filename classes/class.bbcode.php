@@ -165,34 +165,23 @@ class BBCode {
 	protected function cb_header($matches) {
 		list(, $size, $content) = $matches;
 		if ($size == 'small') {
-			$fontsize = 12;
 			$level = 6;
 		} elseif ($size == 'large') {
-			$fontsize = 14;
 			$level = 4;
 		} else {
-			$fontsize = 13;
 			$level = 5;
 		}
-		$content = $this->wordwrap($content, ceil($this->profile['wordwrap_wordlength'] * (8 / $fontsize)));
-		$o = "<h{$level} class=\"bb_header\" style=\"font-size: {$fontsize}pt;\">{$content}</h{$level}>";
+		$o = "<h{$level} class=\"bb_header\">{$content}</h{$level}>";
 		return $o;
 	}
 
 	protected function cb_size($matches) {
 		list(, $size, $content) = $matches;
-		if ($size != 'extended') {
-			if ($size == 'small') {
-				$fontsize = 0.8;
-			} elseif ($size == 'large') {
-				$fontsize = 1.5;
-				$content = $this->wordwrap($content, ceil($this->profile['wordwrap_wordlength'] * (1 / 1.5)));
-			} else {
-				$fontsize = 1;
-			}
-			$o = "<span style=\"font-size: {$fontsize}em;\">{$content}</span>";
+		if ($size == 'small') {
+			$o = "<small class=\"bb_size_small\">{$content}</small>";
+		} elseif ($size == 'large') {
+			$o = "<large class=\"bb_size_large\">{$content}</large>";
 		} else {
-			$content = $this->wordwrap($content, ceil($this->profile['wordwrap_wordlength'] * 0.75));
 			$o = "<span class=\"bb_size_extended\">{$content}</span>";
 		}
 
@@ -483,7 +472,7 @@ class BBCode {
 		$style = ' style="width:' . floor(100 / $bbcode_table['table']['cols']) . '%;"';
 
 		if ($bbcode_table['head']['enabled'] == true) {
-			$table_head = '<tr><th' . $style . '>' . implode('</th><th' . $style . '>', $table_head) . '</th></tr>';
+			$table_head = '<thead><tr><th' . $style . '>' . implode('</th><th' . $style . '>', $table_head) . '</th></tr></thead>';
 		} else {
 			$table_head = '';
 		}
@@ -494,11 +483,11 @@ class BBCode {
 		}
 
 		$table_rows = implode('', $table_rows);
-		$table_html = '<table class="bb_table"';
+		$table_html = '<table class="table table-condensed table-striped bb_table"';
 		if ($bbcode_table['width'] != null) {
 			$table_html .= ' style="width:' . $bbcode_table['width'] . ';"';
 		}
-		$table_html .= '>' . $table_head . $table_rows . '</table>';
+		$table_html .= '>' . $table_head . '<tbody>' . $table_rows . '</tbody></table>';
 		return $table_html;
 	}
 

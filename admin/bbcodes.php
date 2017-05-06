@@ -4,6 +4,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 // MB: MultiLangAdmin
 $lang->group("admin/bbcodes");
 
+use \Viscacha\Model\Bbcode as CustomBbcode;
+
 ($code = $plugins->load('admin_bbcodes_jobs')) ? eval($code) : null;
 
 if ($job == 'smileys_delete') {
@@ -739,7 +741,7 @@ elseif ($job == 'custombb_import2') {
 		}
 	}
 
-	\Viscacha\Model\Bbcode::insert($bb);
+	CustomBbcode::insert($bb)->execute();
 
 	if ($del > 0) {
 		$filesystem->unlink($file);
@@ -827,7 +829,7 @@ elseif ($job == 'custombb_add2') {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
 	}
 
-	\Viscacha\Model\Bbcode::insert($query);
+	CustomBbcode::insert($query)->execute();
 
 	$scache->load('custombb')->delete();
 
@@ -923,7 +925,7 @@ elseif ($job == 'custombb_edit2') {
 		}
 	}
 
-	\Viscacha\Model\Bbcode::update($query)->where('id', $query['id']);
+	CustomBbcode::update($query, $query['id'])->execute();
 
 	$scache->load('custombb')->delete();
 

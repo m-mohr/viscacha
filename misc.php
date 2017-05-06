@@ -423,10 +423,10 @@ elseif ($_GET['action'] == "bbhelp") {
 			'description' => $lang->phrase('bbcodes_align_desc'),
 			'params' => 1,
 			'example' => array(
-				'[align=left]'.$lorem_ipsum.'[/align]',
-				'[align=center]'.$lorem_ipsum.'[/align]',
-				'[align=right]'.$lorem_ipsum.'[/align]',
-				'[align=justify]'.$lorem_ipsum.'[/align]'
+				'[align=left]'.str_repeat($lorem_ipsum, 8).'[/align]',
+				'[align=center]'.str_repeat($lorem_ipsum, 8).'[/align]',
+				'[align=right]'.str_repeat($lorem_ipsum, 8).'[/align]',
+				'[align=justify]'.str_repeat($lorem_ipsum, 8).'[/align]'
 			)
 		),
 		array(
@@ -589,7 +589,7 @@ elseif ($_GET['action'] == "bbhelp") {
 
 	$custombb = $bbcode->getCustomBB();
 	foreach ($custombb as $key => $bb) {
-		$nativebb[$key] = array(
+		$nativebb[] = array(
 			'tag' => $bb['tag'],
 			'title' => $bb['title'],
 			'description' => $bb['explanation'],

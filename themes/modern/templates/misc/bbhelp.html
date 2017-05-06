@@ -20,25 +20,26 @@
 <a name="standard"></a>
 <h2>@lang('standard_bbcodes')</h2>
 @foreach ($nativebb as $bb)
-	<hr />
 	<a name="bb_{{ $bb['tag'] }}"></a>
 	<h3>
 		{{ $bb['title'] }}
 		<a href="#top" title="@lang('top_of_page')" class="pull-right"><i class="fa fa-chevron-up"></i></a>
 	</h3>
-	<p>{{ $bb['description'] }}</p>
-	<h4>@lang('bbcodes_help_syntax')</h4>
-	<p><code>@foreach($bb['syntax'] as $syntax) {!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)) !!} @endforeach</code></p>
+	<div class="bb-help-explanation">
+		<p>{{ $bb['description'] }}</p>
+		<h4>@lang('bbcodes_help_syntax')</h4>
+		<p><code>@foreach($bb['syntax'] as $syntax) {!! str_replace('{param}', '<em>'.$lang->phrase('bbcodes_param').'</em>', str_replace('{option}', '<em>'.$lang->phrase('bbcodes_option').'</em>', $syntax)) !!} @endforeach</code></p>
 
-	<h4>@lang('bbcodes_help_example')</h4>
-	@foreach($bb['example'] as $example)
-	<p><code>{!! nl2br($example) !!}</code></p>
-	@endforeach
+		<h4>@lang('bbcodes_help_example')</h4>
+		@foreach($bb['example'] as $example)
+		<p><code>{!! nl2br($example) !!}</code></p>
+		@endforeach
 
-	<h4>@lang('bbcodes_help_output')</h4>
-	@foreach($bb['example'] as $example)
-	<div>{!! $bbcode->parse($example) !!}</div>
-	@endforeach
+		<h4>@lang('bbcodes_help_output')</h4>
+		@foreach($bb['example'] as $example)
+		<div>{!! $bbcode->parse($example) !!}</div>
+		@endforeach
+	</div>
 @endforeach
 
 <a name="smileys"></a>
