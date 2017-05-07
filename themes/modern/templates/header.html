@@ -39,7 +39,7 @@
 					</a>
 					<ul class="dropdown-menu" aria-labelledby="message-header-dropdown">
 						@forelse(\Viscacha\Model\My::newPm() as $row)
-						<li><a href="pm.php?action=show&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ $row->topic }}<br /><small>@lang('by') {{ $row->author()->name }}</small></a></li>
+						<li><a href="pm.php?action=show&amp;id={{ $row->id }}{{ SID2URL_x }}">{{ Str::limit($row->topic, 50) }}<br /><small>@lang('by') {{ $row->author()->name }}</small></a></li>
 						@empty
 						<li><span>@lang('pm_empty')</span></li>
 						@endforelse

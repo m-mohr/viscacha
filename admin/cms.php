@@ -1475,7 +1475,7 @@ elseif ($job == 'doc') {
 			$row['update'] = $lang->phrase('admin_cms_unknown');
 		}
 		if (mb_strlen($row['icomment']) > 100) {
-			$row['icomment'] = mb_substr($row['icomment'], 0, 100).'...';
+			$row['icomment'] = Str::limit($row['icomment']);
 		}
 		$newRow = array(
 			'title' => $row['title'],
@@ -1721,7 +1721,7 @@ elseif ($job == 'doc_add3') {
 				continue;
 			}
 			if (empty($title[$lid])) {
-				$title[$lid] = mb_substr(strip_tags($content[$lid]), 0, 50).'...';
+				$title[$lid] = Str::limit(strip_tags($content[$lid]), 50);
 			}
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;
@@ -1930,7 +1930,7 @@ elseif ($job == 'doc_edit2') {
 		}
 		elseif ($usage == 1) {
 			if (empty($title[$lid])) {
-				$title[$lid] = mb_substr(strip_tags($content[$lid]), 0, 50).'...';
+				$title[$lid] = Str::limit(strip_tags($content[$lid]), 50);
 			}
 			if (empty($active[$lid])) {
 				$active[$lid] = 0;

@@ -11,11 +11,9 @@ class UserSelf extends User {
 			return $this->newPm;
 		}
 
-		$result = Pm::select()->with(['pm_from' => 'author'])
+		$this->newPm = Pm::select()->with(['pm_from' => 'author'])
 						->where('pm_to', $this->id)->onlyNew()
-						->sortDesc('pm.date')->execute()->fetchObject();
-
-		$this->newPm = array($result);
+						->sortDesc('pm.date')->execute()->fetchObjectMatrix();
 
 		return $this->newPm;
 	}

@@ -28,6 +28,8 @@ require 'vendor/autoload.php';
 
 use Viscacha\Util\Debug;
 
+class_alias('Viscacha\Util\Str', 'Str');
+
 Debug::init($config['debug'], $config['error_log']);
 
 // Small hack for the new php 5.3 timezone warnings
