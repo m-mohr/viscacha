@@ -1,16 +1,16 @@
 <?php
+
+namespace Viscacha\Graphic;
+
 /*
- Start with:
- new text2image;
- (void) prepare()
- (void) build();
- (str) output(str image_format);
- (str) save(str filename)
- (void) destroy()
+  (void) prepare()
+  (void) build();
+  (str) output(str image_format);
+  (str) save(str filename)
+  (void) destroy()
+ */
 
-*/
-
-class text2image {
+class Text2Image {
 
 	var $text;
 	var $angle;
@@ -24,11 +24,11 @@ class text2image {
 
 	function prepare($text, $angle = 0, $size = 10, $font = null) {
 		if (!file_exists($font)) {
-			$font = './classes/fonts/trebuchet.ttf';
+			$font = './classes/graphic/fonts/trebuchet.ttf';
 		}
 		$this->text = $text; // Line breaks with [nl] or standard html br
-		$this->angle = $angle+0;
-		$this->size = $size+0;
+		$this->angle = $angle + 0;
+		$this->size = $size + 0;
 		$this->font = $font;
 	}
 
@@ -39,14 +39,14 @@ class text2image {
 			return $bbox;
 		}
 		// Rotate the boundingbox
-	    $angle = pi() * 2 - $angle * pi() * 2 / 360;
-	    for ($i=0; $i<4; $i++) {
-	        $x = $bbox[$i * 2];
-	        $y = $bbox[$i * 2 + 1];
-	        $bbox[$i * 2] = cos($angle) * $x - sin($angle) * $y;
-	        $bbox[$i * 2 + 1] = sin($angle) * $x + cos($angle) * $y;
-	    }
-	    return $bbox;
+		$angle = pi() * 2 - $angle * pi() * 2 / 360;
+		for ($i = 0; $i < 4; $i++) {
+			$x = $bbox[$i * 2];
+			$y = $bbox[$i * 2 + 1];
+			$bbox[$i * 2] = cos($angle) * $x - sin($angle) * $y;
+			$bbox[$i * 2 + 1] = sin($angle) * $x + cos($angle) * $y;
+		}
+		return $bbox;
 	}
 
 	function imagecolorallocate($hex) {
@@ -57,8 +57,7 @@ class text2image {
 				'g' => str_repeat(hexdec(mb_substr($color, 1, 1)), 2),
 				'b' => str_repeat(hexdec(mb_substr($color, 2, 1)), 2)
 			);
-		}
-		else {
+		} else {
 			$ret = array(
 				'r' => hexdec(mb_substr($color, 0, 2)),
 				'g' => hexdec(mb_substr($color, 2, 2)),
@@ -69,7 +68,7 @@ class text2image {
 		return $gd;
 	}
 
-	function build ($margin = 2, $bg = 'ffffff', $fg = '000000') {
+	function build($margin = 2, $bg = 'ffffff', $fg = '000000') {
 		$TextBoxSize = $this->imagettfbbox($this->size, $this->angle, $this->font, preg_replace("/(\[nl\]|<br(\s?\/)?>)/isu", "\r\n", $this->text));
 
 		$TxtBx_Lwr_L_x = $TextBoxSize[0];
@@ -80,37 +79,34 @@ class text2image {
 		$TxtBx_Upr_R_y = $TextBoxSize[5];
 		$TxtBx_Upr_L_x = $TextBoxSize[6];
 		$TxtBx_Upr_L_y = $TextBoxSize[7];
-		if($this->angle <= 90 || $this->angle >= 270 ){
+		if ($this->angle <= 90 || $this->angle >= 270) {
 			$width = max($TxtBx_Lwr_R_x, $TxtBx_Upr_R_x) - min($TxtBx_Lwr_L_x, $TxtBx_Upr_L_x);
 			$height = max($TxtBx_Lwr_L_y, $TxtBx_Lwr_R_y) - min($TxtBx_Upr_R_y, $TxtBx_Upr_L_y);
 			$x = -(min($TxtBx_Upr_L_x, $TxtBx_Lwr_L_x));
 			$y = -(min($TxtBx_Upr_R_y, $TxtBx_Upr_L_y));
-		}
-		else{
+		} else {
 			$width = max($TxtBx_Lwr_L_x, $TxtBx_Upr_L_x) - min($TxtBx_Lwr_R_x, $TxtBx_Upr_R_x);
 			$height = max($TxtBx_Upr_R_y, $TxtBx_Upr_L_y) - min($TxtBx_Lwr_L_y, $TxtBx_Lwr_R_y);
-			$x = -(min($TxtBx_Lwr_R_x,$TxtBx_Upr_R_x));
+			$x = -(min($TxtBx_Lwr_R_x, $TxtBx_Upr_R_x));
 			$y = -(min($TxtBx_Lwr_L_y, $TxtBx_Lwr_R_y));
 		}
-		$this->img = imagecreate($width+$margin,$height+$margin);
+		$this->img = imagecreate($width + $margin, $height + $margin);
 		imageantialias($this->img, true);
 		$bgc = $this->imagecolorallocate($bg);
 		$fgc = $this->imagecolorallocate($fg);
 		imagefill($this->img, 0, 0, $bgc);
 		imagecolortransparent($this->img, $bgc);
-		imagettftext($this->img, $this->size, $this->angle, $x+ceil($margin/2), $y+ceil($margin/2), $fgc, $this->font, preg_replace("/\[nl\]/isu", "\r\n", $this->text));
+		imagettftext($this->img, $this->size, $this->angle, $x + ceil($margin / 2), $y + ceil($margin / 2), $fgc, $this->font, preg_replace("/\[nl\]/isu", "\r\n", $this->text));
 	}
 
 	function output($format = 'png') {
 		if (($format == 'jpeg' || $format == 'jpeg') && function_exists('imagejpeg')) {
 			header("Content-Type: image/jpeg");
 			imagejpeg($this->img, '', 90);
-		}
-		elseif ($format == 'gif' && function_exists('imagegif')) {
+		} elseif ($format == 'gif' && function_exists('imagegif')) {
 			header("Content-Type: image/gif");
 			imagegif($this->img);
-		}
-		else {
+		} else {
 			header("Content-Type: image/png");
 			imagepng($this->img);
 		}
@@ -127,4 +123,5 @@ class text2image {
 	}
 
 }
+
 ?>

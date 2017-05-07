@@ -160,7 +160,7 @@ elseif ($job == 'add2') {
 		require("classes/class.upload.php");
 
 		$dir = realpath('./classes/cron/jobs/');
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize(100*1024);
 		$my_uploader->file_types(array('php'));
 		$my_uploader->set_path($dir.DIRECTORY_SEPARATOR);

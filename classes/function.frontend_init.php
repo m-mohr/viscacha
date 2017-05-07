@@ -132,8 +132,6 @@ if ($config['nocache'] == 1) {
 
 // Permission and Logging Class
 require_once ("classes/class.permissions.php");
-// A class for Templates
-require_once ("classes/class.template.php");
 // Load Braedcrumb-Module
 class_alias('Viscacha\Util\Breadcrumb', 'Breadcrumb');
 // Global functions
@@ -172,7 +170,7 @@ if (!defined('CONSOLE_REQUEST')) {
 	$slog = new slog();
 	$my = $slog->logged();
 	$lang->init($my->language);
-	$tpl = new Theme($my->theme, $config['theme']);
+	$tpl = new Viscacha\View\Theme($my->theme, $config['theme']);
 
 	Breadcrumb::universal()->add($config['fname'], 'index.php');
 	if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, ['forum', 'showforum', 'showtopic', 'edit', 'addreply', 'newtopic', 'manageforum', 'managetopic', 'search'])) {

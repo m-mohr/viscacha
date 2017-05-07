@@ -24,14 +24,10 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 		$config['ftp_path'] = DIRECTORY_SEPARATOR;
 	}
 
-	require_once("install/classes/ftp/class.ftp.php");
-	$pemftp_class = pemftp_class_module();
-	if ($pemftp_class !== null) {
-		require_once("install/classes/ftp/class.ftp_{$pemftp_class}.php");
-
+	$ftp = Viscacha\FTP\FTP::create(true, true);
+	if ($ftp) {
 		echo '<div class="bbody" style="display: none;"><strong>FTP-Command-Log:</strong>:<br /><pre>';
 
-		$ftp = new ftp(true, true);
 		if(!$ftp->SetServer($config['ftp_server'], $config['ftp_port'])) {
 			$ftp->quit();
 		}

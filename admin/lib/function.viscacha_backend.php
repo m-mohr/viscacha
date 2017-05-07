@@ -35,8 +35,6 @@ if (empty($_GET['page']) || $_REQUEST['page'] < 1) {
 }
 // Permission and Logging Class
 require_once ("classes/class.permissions.php");
-// A class for Templates
-include_once ("classes/class.template.php");
 // A class for Languages
 include_once ("classes/class.language.php");
 // Global functions
@@ -45,7 +43,7 @@ require_once ("classes/function.global.php");
 $slog = new slog();
 $my = $slog->logged();
 $lang->initAdmin($my->language);
-$tpl = new Theme($my->theme, $config['theme']);
+$tpl = new Viscacha\View\Theme($my->theme, $config['theme']);
 $banned = $slog->checkBan();
 if ($banned !== false) {
 	sendStatusCode(403);

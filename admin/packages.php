@@ -180,7 +180,7 @@ elseif ($job == 'package_update2') {
 	if (!empty($_FILES['upload']['name'])) {
 		require("classes/class.upload.php");
 		$dir = 'temp/';
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->file_types(array('zip'));
 		$my_uploader->set_path($dir);
 		$my_uploader->max_filesize(ini_maxupload());
@@ -688,7 +688,7 @@ elseif ($job == 'package_import2') {
 	if (!empty($_FILES['upload']['name'])) {
 		require("classes/class.upload.php");
 		$dir = 'temp/';
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->file_types(array('zip'));
 		$my_uploader->set_path($dir);
 		$my_uploader->max_filesize(ini_maxupload());
@@ -1140,7 +1140,7 @@ elseif ($job == 'package_delete2') {
 			$filesystem->unlink('data/cache/modules/'.$plugins->_group($data['position']).'.php');
 		}
 
-		$themes = Theme::all();
+		$themes = Viscacha\View\Theme::all();
 		// Delete templates
 		foreach ($themes as $row) {
 			$tpldir = "{$row['path']}/templates/modules/{$package['id']}/";

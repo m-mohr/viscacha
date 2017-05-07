@@ -26,7 +26,8 @@ error_reporting($config['debug'] ? E_ALL : E_ERROR);
 
 require 'vendor/autoload.php';
 
-include('classes/class.debug.php');
+use Viscacha\Util\Debug;
+
 Debug::init($config['debug'], $config['error_log']);
 
 // Small hack for the new php 5.3 timezone warnings

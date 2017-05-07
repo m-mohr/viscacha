@@ -31,8 +31,7 @@ include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
 if ($config['tpcallow'] == 0 && $_GET['action'] == "thumbnail") {
-	include('classes/graphic/class.thumbnail.php');
-	$thumb = new thumbnail();
+	$thumb = new Viscacha\Graphic\Thumbnail();
 	$thumb->create_error('#0 '.$lang->phrase('thumb_error'));
 }
 elseif ($config['tpcallow'] == 0) {
@@ -42,9 +41,7 @@ elseif ($config['tpcallow'] == 0) {
 ($code = $plugins->load('attachments_start')) ? eval($code) : null;
 
 if ($_GET['action'] == "thumbnail") {
-
-	include('classes/graphic/class.thumbnail.php');
-	$thumb = new thumbnail();
+	$thumb = new Viscacha\Graphic\Thumbnail();
 
 	if (!is_id($_GET['id'])) {
 		$thumb->create_error('#1 '.$lang->phrase('thumb_error'));
@@ -220,7 +217,7 @@ else {
 					continue;
 				}
 
-				$my_uploader = new uploader();
+				$my_uploader = new Viscacha\IO\Upload();
 				$my_uploader->max_filesize($config['tpcfilesize']);
 				$my_uploader->max_image_size($config['tpcwidth'], $config['tpcheight']);
 				$my_uploader->file_types(explode(',', $config['tpcfiletypes']));

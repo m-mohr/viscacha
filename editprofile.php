@@ -313,7 +313,7 @@ elseif ($_GET['action'] == "pic2") {
 	$error = array();
 	if (isset($_FILES) && is_array($_FILES['upload']) && !empty($_FILES['upload']['name'])) {
 		require("classes/class.upload.php");
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize($config['avfilesize']);
 		$my_uploader->max_image_size($config['avwidth'], $config['avheight']);
 		$my_uploader->file_types(explode(',', $config['avfiletypes']));

@@ -123,9 +123,7 @@ elseif ($job == 'errorlogs') {
 	echo foot();
 }
 elseif ($job == 's_general_image') {
-
-	require_once('classes/class.charts.php');
-	$PG = new PowerGraphic();
+	$PG = new Viscacha\Graphic\Charts();
 
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);
@@ -237,8 +235,7 @@ elseif ($job == 's_general') {
 	$install = $result->fetch();
 
 	$show = $gpc->get('show', int);
-	require_once("classes/class.charts.php");
-	$PG = new PowerGraphic();
+	$PG = new Viscacha\Graphic\Charts();
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 2);
 	$type = $gpc->get('dtype', int, 3);

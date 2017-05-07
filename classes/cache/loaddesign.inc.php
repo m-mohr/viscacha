@@ -6,7 +6,7 @@ class cache_loaddesign extends CacheItem {
 			$this->import();
 		}
 		else {
-			$this->data = Theme::all(false);
+			$this->data = Viscacha\View\Theme::all(false);
 			$this->export();
 		}
 	}

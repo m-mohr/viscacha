@@ -25,6 +25,8 @@
 
 namespace Viscacha\Database;
 
+use Viscacha\Util\Debug;
+
 class Database {
 
 	protected $system;
@@ -193,14 +195,14 @@ class Database {
 	}
 
 	public function execute($sql, $values = array()) {
-		\Debug::startMeasurement("Database::query()");
+		Debug::startMeasurement("Database::query()");
 		try {
 			$stmt = $this->connection->prepare($sql);
 			$stmt->execute($values);
 		} catch(PDOException $e) {
 			throw $e;
 		} finally {
-			\Debug::stopMeasurement("Database::query()", array('query' => $sql, 'type' => 'db'));
+			Debug::stopMeasurement("Database::query()", array('query' => $sql, 'type' => 'db'));
 		}
 		
 		if ($stmt instanceof \PDOStatement) {

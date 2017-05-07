@@ -3,6 +3,8 @@ if (defined('VISCACHA_CORE') == false) {
 	die('Error: Hacking Attempt');
 }
 
+use Viscacha\View\Theme;
+
 // FS: MultiLangAdmin
 $lang->group("admin/designs");
 
@@ -111,7 +113,7 @@ elseif ($job == 'design_import2') {
 
 		require("classes/class.upload.php");
 		$inserterrors = array();
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
 		$my_uploader->set_path($dir);

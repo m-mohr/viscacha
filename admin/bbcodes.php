@@ -130,7 +130,7 @@ elseif ($job == 'smileys_import2') {
 		$insertuploads = array();
 		require("classes/class.upload.php");
 
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
 		$my_uploader->set_path($dir);
@@ -433,7 +433,7 @@ elseif ($job == 'smileys_add') {
 	$has_upload = false;
 
 	if (!empty($_FILES['upload']['name'])) {
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize(200*1024);
 		$my_uploader->file_types($imagetype_extension);
 		$my_uploader->set_path($dir);
@@ -683,7 +683,7 @@ elseif ($job == 'custombb_import2') {
 		$insertuploads = array();
 		require("classes/class.upload.php");
 
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize(1024*250);
 		$my_uploader->file_types(array('bbc'));
 		$my_uploader->set_path($dir);

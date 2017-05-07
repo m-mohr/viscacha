@@ -22,15 +22,6 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-if (!class_exists('ftp')) {
-	$classpath = __DIR__;
-	require_once("{$classpath}/ftp/class.ftp.php");
-	$pemftp_class = pemftp_class_module();
-	if ($pemftp_class !== null) {
-		require_once("{$classpath}/ftp/class.ftp_{$pemftp_class}.php");
-	}
-}
-
 class filesystem {
 
 	var $server;
@@ -42,13 +33,13 @@ class filesystem {
 	var $installed_path;
 	var $root_path;
 
-	function __construct($server, $user, $pw, $port = 21) {
-		if (class_exists('ftp', false) == true) {
-			$this->server = $server;
-			$this->port = $port;
-			$this->user = $user;
-			$this->pw = $pw;
+	function __construct($server = null, $user = null, $pw = null, $port = 21) {
+		if ($server !== null) {
+			$this->server = idna($server);
 		}
+		$this->port = $port;
+		$this->user = $user;
+		$this->pw = $pw;
 		$this->installed_path = DIRECTORY_SEPARATOR;
 		$this->connected = false;
 		$this->root_path = DIRECTORY_SEPARATOR;
@@ -69,8 +60,8 @@ class filesystem {
 			return true;
 		}
 		elseif (!empty($this->server)) {
-			$this->ftp = new ftp(false, false);
-			if(!$this->ftp->SetServer($this->server, $this->port)) {
+			$this->ftp = Viscacha\FTP\FTP::create();
+			if(!$this->ftp || !$this->ftp->SetServer($this->server, $this->port)) {
 				$this->ftp->quit();
 				return false;
 			}

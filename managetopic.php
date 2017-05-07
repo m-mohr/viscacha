@@ -234,8 +234,7 @@ elseif ($action == "stat") {
 	ok($lang->phrase('data_success'),'showtopic.php?id='.$info['id'].SID2URL_x);
 }
 elseif ($action == "vote_export") {
-	require_once("classes/class.charts.php");
-	$PG = new PowerGraphic();
+	$PG = new Viscacha\Graphic\Charts();
 
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);

@@ -2,21 +2,16 @@
 $dataGiven = false;
 include('data/config.inc.php');
 if (!empty($config['ftp_server'])) {
-	require_once("install/classes/ftp/class.ftp.php");
-	$pemftp_class = pemftp_class_module();
-	if ($pemftp_class !== null) {
-		require_once("install/classes/ftp/class.ftp_{$pemftp_class}.php");
-		$ftp = new ftp(false, false);
-		if($ftp->SetServer($config['ftp_server'], $config['ftp_port'])) {
-			if ($ftp->connect()) {
-				if ($ftp->login($config['ftp_user'], $config['ftp_pw'])) {
-					if ($ftp->chdir($config['ftp_path']) && $ftp->file_exists('data/config.inc.php')) {
-						$dataGiven = true;
-					}
+	$ftp = Viscacha\FTP\FTP::create();
+	if($ftp && $ftp->SetServer($config['ftp_server'], $config['ftp_port'])) {
+		if ($ftp->connect()) {
+			if ($ftp->login($config['ftp_user'], $config['ftp_pw'])) {
+				if ($ftp->chdir($config['ftp_path']) && $ftp->file_exists('data/config.inc.php')) {
+					$dataGiven = true;
 				}
 			}
-			$ftp->quit();
 		}
+		$ftp->quit();
 	}
 }
 ?>

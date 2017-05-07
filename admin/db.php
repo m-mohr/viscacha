@@ -564,7 +564,7 @@ elseif ($job == 'query2') {
 			$inserterrors[] = $lang->phrase('admin_db_no_file_specified');
 		}
 
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize(ini_maxupload());
 		$my_uploader->file_types($filetypes);
 		$my_uploader->set_path($dir);

@@ -142,7 +142,7 @@ elseif ($job == 'import2') {
 		$insertuploads = array();
 		require("classes/class.upload.php");
 
-		$my_uploader = new uploader();
+		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize($filesize);
 		$my_uploader->file_types($filetypes);
 		$my_uploader->set_path($dir);

@@ -37,7 +37,7 @@ define('REMOTE_IMAGE_ERROR', 700);
 define('CAPTCHA_FAILURE', 0);
 define('CAPTCHA_OK', 1);
 define('CAPTCHA_MISTAKE', 2);
-define('CAPTCHA_TYPE_2', 'ReCaptcha');
+define('CAPTCHA_TYPE_2', 'Viscacha\Graphic\ReCaptcha');
 
 // Caching-Class
 require_once('classes/class.cache.php');

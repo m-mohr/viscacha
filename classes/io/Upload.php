@@ -22,6 +22,8 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+namespace Viscacha\IO;
+
 define('UPLOAD_ERR_FILE_INDEX', 1);
 define('UPLOAD_ERR_FILE_SIZE', 2);
 define('UPLOAD_ERR_IMAGE_WIDTH', 3);
@@ -30,7 +32,7 @@ define('UPLOAD_ERR_FILE_TYPE', 5);
 define('UPLOAD_ERR_COPY', 6);
 define('UPLOAD_ERR_FILE_EXISTS', 7);
 
-class uploader {
+class Upload {
 
 	var $file;
 	var $path;

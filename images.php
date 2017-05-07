@@ -42,8 +42,7 @@ if ($_GET['action'] == 'vote') {
 	$result = $db->execute("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
 	$info = $result->fetch();
 
-	require_once('classes/class.charts.php');
-	$PG = new PowerGraphic();
+	$PG = new Viscacha\Graphic\Charts();
 
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);
@@ -72,9 +71,7 @@ if ($_GET['action'] == 'vote') {
 	$PG->start();
 }
 elseif ($_GET['action'] == 'textimage') {
-	require('classes/graphic/class.text2image.php');
-
-	$img = new text2image();
+	$img = new Viscacha\Graphic\Text2Image();
 	$text = $gpc->get('text', none);
 	$angle = $gpc->get('angle', int);
 	$size = $gpc->get('size', int);
@@ -119,8 +116,7 @@ elseif ($_GET['action'] == 'm_email') {
 		$email = $row['mail'];
 	}
 
-	include('classes/graphic/class.text2image.php');
-	$img = new text2image();
+	$img = new Viscacha\Graphic\Text2Image();
 	$img->prepare($email, 0, 10);
 	$img->build();
 	$img->output();

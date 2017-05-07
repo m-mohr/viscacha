@@ -1333,7 +1333,7 @@ elseif ($job == 'doc_insert_image') {
 
 		if ($error === null) {
 			require("classes/class.upload.php");
-			$my_uploader = new uploader();
+			$my_uploader = new Viscacha\IO\Upload();
 			$my_uploader->max_filesize(ini_maxupload());
 			$my_uploader->file_types($supportedextentions);
 			$my_uploader->set_path($path);

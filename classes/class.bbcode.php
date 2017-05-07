@@ -23,6 +23,8 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+use Viscacha\Util\Debug;
+
 define('SP_CHANGE', 1);
 define('SP_COPY', 2);
 define('SP_NEW', 4);

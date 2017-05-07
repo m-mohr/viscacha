@@ -152,19 +152,15 @@ elseif ($job == 'ftp2') {
 		'ftp_path' => $gpc->get('ftp_path', none, DIRECTORY_SEPARATOR)
 	);
 
-	require_once("classes/ftp/class.ftp.php");
-	$pemftp_class = pemftp_class_module();
-	if ($pemftp_class !== null) {
-		require_once("classes/ftp/class.ftp_{$pemftp_class}.php");
-	}
-	elseif (empty($temp['ftp_server'])) {
+
+	$ftp = Viscacha\FTP\FTP::create(true, true);
+	if (!$ftp && !empty($temp['ftp_server'])) {
 		$error = 'admin_ftp_php_extension_error';
 	}
 
 	$dataGiven = (!empty($temp['ftp_server']) && !empty($temp['ftp_port']) && !empty($temp['ftp_user']) && !empty($temp['ftp_pw']) && !empty($temp['ftp_path']) && $error === false);
 	if ($dataGiven) {
 		ob_start();
-		$ftp = new ftp(true, true);
 		if(!$ftp->SetServer($temp['ftp_server'], $temp['ftp_port'])) {
 			$error = 'admin_server_port_invalid';
 		}
