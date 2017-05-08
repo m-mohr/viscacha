@@ -24,7 +24,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 		$config['ftp_path'] = DIRECTORY_SEPARATOR;
 	}
 
-	$ftp = Viscacha\FTP\FTP::create(true, true);
+	$ftp = Viscacha\Net\FTP\FTP::create(true, true);
 	if ($ftp) {
 		echo '<div class="bbody" style="display: none;"><strong>FTP-Command-Log:</strong>:<br /><pre>';
 
@@ -64,8 +64,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1 && !empty($_REQUEST['ftp_
 					else {
 						$ftp->quit();
 						$dataGiven = true;
-						require_once('install/classes/class.filesystem.php');
-						$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+						$filesystem = new Viscacha\IO\Filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 						$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 						$filesystem->chmod('data/config.inc.php', 0666);
 						include('install/classes/class.phpconfig.php');
@@ -98,8 +97,7 @@ else {
 if ($dataGiven) {
 	if (!isset($filesystem)) {
 		include('data/config.inc.php');
-		require_once('install/classes/class.filesystem.php');
-		$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+		$filesystem = new Viscacha\IO\Filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 		$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 	}
 

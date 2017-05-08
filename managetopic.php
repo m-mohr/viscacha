@@ -534,4 +534,4 @@ elseif ($action == "pmerge2") {
 ($code = $plugins->load('managetopic_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

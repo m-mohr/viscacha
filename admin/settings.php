@@ -153,7 +153,7 @@ elseif ($job == 'ftp2') {
 	);
 
 
-	$ftp = Viscacha\FTP\FTP::create(true, true);
+	$ftp = Viscacha\Net\FTP\FTP::create(true, true);
 	if (!$ftp && !empty($temp['ftp_server'])) {
 		$error = 'admin_ftp_php_extension_error';
 	}
@@ -1284,7 +1284,7 @@ elseif ($job == 'general') {
 
 	// HTTP_HOST is having the correct browser url in most cases...
 	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
-	$https = ini_isSecureHttp() ? 'https://' : 'http://';
+	$https = Sys::isHttps() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
 	if (!$source) {

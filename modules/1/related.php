@@ -1,7 +1,7 @@
 $ignorewords = $lang->get_words();
 $ignorewords = array_map("mb_strtolower", $ignorewords);
 
-$searchtopic = splitWords(mb_strtolower($info['topic']));
+$searchtopic = Str::splitWords(mb_strtolower($info['topic']));
 
 $sqltopic = array();
 foreach ($searchtopic as $val) {

@@ -51,4 +51,4 @@ else {
 }
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

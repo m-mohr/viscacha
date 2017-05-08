@@ -9,7 +9,7 @@ $lang->group("admin/db");
 function exec_query_form ($query = '') {
 	global $db, $lang;
 	$tables = $db->getTables();
-	$lang->assign('maxfilesize', formatFilesize(ini_maxupload()));
+	$lang->assign('maxfilesize', formatFilesize(Sys::getMaxUploadSize()));
 ?>
 <script type="text/javascript" src="admin/html/editor/bbcode.js"></script>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
@@ -314,7 +314,7 @@ elseif ($job == 'backup4') {
 	echo foot();
 }
 elseif ($job == 'restore_info') {
-	$mem_limit = ini_getSize('memory_limit');
+	$mem_limit = Sys::fromIniAsSize('memory_limit');
 	$ziplimit = $mem_limit / 3;
 	$sqllimit = $mem_limit / 1.5;
 
@@ -405,7 +405,7 @@ elseif ($job == 'restore') {
 		}
 	}
 
-	$maxfilesize = formatFilesize(ini_maxupload());
+	$maxfilesize = formatFilesize(Sys::getMaxUploadSize());
 ?>
 <form name="form" method="post" action="admin.php?action=db&job=restore2">
  <table class="border">
@@ -565,7 +565,7 @@ elseif ($job == 'query2') {
 		}
 
 		$my_uploader = new Viscacha\IO\Upload();
-		$my_uploader->max_filesize(ini_maxupload());
+		$my_uploader->max_filesize(Sys::getMaxUploadSize());
 		$my_uploader->file_types($filetypes);
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {

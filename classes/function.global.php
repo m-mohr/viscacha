@@ -45,8 +45,6 @@ require_once('classes/class.cache.php');
 include_once("classes/class.ini.php");
 // Gets modules
 require_once("classes/class.plugins.php");
-// Gets a file with Output-functions
-require_once("classes/class.docoutput.php");
 // BB-Code Class
 include_once ("classes/class.bbcode.php");
 
@@ -89,15 +87,6 @@ function newCAPTCHA($place = null) {
 	require_once("classes/graphic/class.{$filename}.php");
 	$obj = new $type();
 	return $obj;
-}
-
-function splitWords($text) { // TODO: UTF8 - This is not valid anymore
-	$word_seperator = "\\.\\,;:\\+!\\?\\_\\|\s\"'\\#\\[\\]\\%\\{\\}\\(\\)\\/\\\\";
-	return preg_split('/['.$word_seperator.']+?/u', $text, -1, PREG_SPLIT_NO_EMPTY);
-}
-
-function makeOneLine($str) {
-	return str_replace(array("\r\n","\n","\r","\t","\0"), ' ', $str);
 }
 
 function checkmx_idna($host) {
@@ -346,7 +335,7 @@ function serverload($int = false) {
 	else {
 		$unknown = -1;
 	}
-	if(isWindows() == true) {
+	if(Sys::isWindows() == true) {
 		return $unknown;
 	}
 	if(@file_exists("/proc/loadavg")) {
@@ -375,7 +364,7 @@ function serverload($int = false) {
 
 function convert2path($path, $returnEmptyOnInvalid = false) {
 	$invalidChars = array('<', '>', '?', '*', '"', "\0", "\r", "\n", "\t");
-	if (!isWindows()) {
+	if (!Sys::isWindows()) {
 		$invalidChars[] = ':';
 	}
 	$newPath = str_replace ('\\', '/', $path);
@@ -428,31 +417,6 @@ function removeOldImages ($dir, $name) {
 		}
 	}
 	closedir($dir_open);
-}
-
-function secure_path($path) {
-	global $gpc;
-	$path = $gpc->secure_null($path);
-	$sd = realpath($path);
-	$dr = realpath($_SERVER['DOCUMENT_ROOT']);
-	if (!file_exists($sd)) {
-		trigger_error('File '.$sd.' does not exist!', E_USER_WARNING);
-	}
-	if (mb_strpos($path, '://') !== FALSE) {
-		trigger_error('Hacking attemp (Path: Protocol)', E_USER_ERROR);
-	}
-	if (mb_strpos($sd, $dr) === FALSE && file_exists($sd)) {
-		trigger_error('Hacking attemp (Path: Not in Document_Root)', E_USER_ERROR);
-	}
-	$sd = str_replace($dr, '', $sd);
-	if (DIRECTORY_SEPARATOR != '/') {
-		$sd = str_replace(DIRECTORY_SEPARATOR, '/', $sd);
-	}
-	$char = mb_substr($sd, mb_strlen($sd)-1, 1);
-	if (!is_file($sd) && $char != '/') {
-		$sd .= '/';
-	}
-	return $sd;
 }
 
 function is_url($url) {
@@ -906,7 +870,7 @@ function makecookie($name, $value = '', $expire = 31536000) {
 	else {
 		$expire = 0;
 	}
-	setcookie($name, $value, $expire, null, null, ini_isSecureHttp());
+	setcookie($name, $value, $expire, null, null, Sys::isHttps());
 }
 
 function numbers ($nvar,$deci=null) {

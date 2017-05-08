@@ -402,4 +402,4 @@ $slog->setTopicRead($info['id'], $topforums);
 
 echo $tpl->parse("footer");
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

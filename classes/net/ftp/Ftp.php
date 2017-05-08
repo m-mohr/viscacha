@@ -1,6 +1,6 @@
 <?php
 
-namespace Viscacha\FTP;
+namespace Viscacha\Net\FTP;
 
 if (!defined('CRLF'))
 	define('CRLF', "\r\n");
@@ -84,9 +84,9 @@ class Ftp {
 		$this->OS_local = FTP_OS_Unix;
 		$this->OS_remote = FTP_OS_Unix;
 		$this->features = array();
-		if (isWindows() == true)
+		if (Sys::isWindows())
 			$this->OS_local = FTP_OS_Windows;
-		elseif (isMac() == true)
+		elseif (Sys::isMac())
 			$this->OS_local = FTP_OS_Mac;
 	}
 
@@ -758,7 +758,7 @@ class Ftp {
 
 	function glob($pattern, $handle = NULL) {
 		$path = $output = null;
-		if (isWindows() == true)
+		if (Sys::isWindows() == true)
 			$slash = '\\';
 		else
 			$slash = '/';
@@ -813,10 +813,10 @@ class Ftp {
 	}
 
 	function glob_regexp($pattern, $probe) {
-		return (isWindows() != true ?
-				preg_match("~{$pattern}~u", $probe) :
-				preg_match("~{$pattern}~iu", $probe)
-				);
+		return (!Sys::isWindows() ?
+			preg_match("~{$pattern}~u", $probe) :
+			preg_match("~{$pattern}~iu", $probe)
+		);
 	}
 
 // <!-- --------------------------------------------------------------------------------------- -->

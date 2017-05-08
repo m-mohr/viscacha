@@ -677,7 +677,7 @@ elseif ($job == 'custombb_import2') {
 	$inserterrors = array();
 
 	if (!empty($_FILES['upload']['name'])) {
-		$filesize = ini_maxupload();
+		$filesize = Sys::getMaxUploadSize();
 		$dir = 'temp/';
 
 		$insertuploads = array();

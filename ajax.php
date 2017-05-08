@@ -107,7 +107,7 @@ elseif ($action == 'search') {
 		$search = preg_replace("/(\s){1,}/isu"," ",$search);
 	    $search = preg_replace("/\*{1,}/isu",'*',$search);
 		$ignorewords = $lang->get_words();
-		$searchwords = splitWords($search);
+		$searchwords = Str::splitWords($search);
 		$ignored = array();
 		foreach ($searchwords as $sw) {
 			$sw = trim($sw);
@@ -136,4 +136,4 @@ elseif ($action == 'search') {
 
 ($code = $plugins->load('ajax_end')) ? eval($code) : null;
 
-$phpdoc->Out();
+$response->send();

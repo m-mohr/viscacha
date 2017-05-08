@@ -53,7 +53,7 @@ class Upload {
 		$this->file_types = array();
 		$this->new_filename = null;
 		$this->error = null;
-		$this->max_filesize = ini_maxupload();
+		$this->max_filesize = Sys::getMaxUploadSize();
 		$this->max_image_width = null;
 		$this->max_image_height = null;
 		$this->copy_func = 'move_uploaded_file';

@@ -49,4 +49,4 @@ BoardSelect();
 
 echo $tpl->parse("footer");
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

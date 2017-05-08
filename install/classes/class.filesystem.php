@@ -60,7 +60,7 @@ class filesystem {
 			return true;
 		}
 		elseif (!empty($this->server)) {
-			$this->ftp = Viscacha\FTP\FTP::create();
+			$this->ftp = Viscacha\Net\FTP\FTP::create();
 			if(!$this->ftp || !$this->ftp->SetServer($this->server, $this->port)) {
 				$this->ftp->quit();
 				return false;

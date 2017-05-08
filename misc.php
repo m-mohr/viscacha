@@ -737,4 +737,4 @@ elseif ($_GET['action'] == "edithistory") {
 ($code = $plugins->load('misc_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

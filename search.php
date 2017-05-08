@@ -52,7 +52,7 @@ if ($_GET['action'] == "search") {
 	$boards = $gpc->get('boards', arr_int);
 	$search = preg_replace("/(\s){1,}/isu", " ", $gpc->get('search', str));
     $search = preg_replace("/\*{1,}/isu", '*', $search);
-    $searchwords = splitWords($search);
+    $searchwords = Str::splitWords($search);
 	$ignorewords = $lang->get_words();
 
 	$ignored = array();
@@ -443,4 +443,4 @@ else {
 ($code = $plugins->load('search_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

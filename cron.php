@@ -39,36 +39,20 @@ define('CONSOLE_REQUEST', 1);
 require_once("data/config.inc.php");
 include("classes/function.viscacha_frontend.php");
 
-require_once("classes/cron/class.parser.php");
-require_once("classes/cron/function.cron.php");
-
-if ($config['foffline']) {
-	PixelImage();
-}
-
-$cronTab = "data/cron/crontab.inc.php";
-$writeDir = "data/cron/";
-$jobdir = "classes/cron/jobs/";
-
-if ($config['pccron_uselog'] == 1) {
-	$useLog = true;
-}
-else {
-	$useLog = false;
-}
-if ($config['pccron_sendlog'] == 1) {
-	$sendLogToEmail = $config['pccron_sendlog_email'];
-}
-else {
-	$sendLogToEmail = '';
-}
-$maxJobs = $config['pccron_maxjobs'];
-
-$resultsSummary = "";
+$cron = new \Viscacha\System\Cron\Executor();
+$cron->sendPixelImage();
 
 ($code = $plugins->load('cron_start')) ? eval($code) : null;
 
-PixelImage();
-InitCron();
+if (!$config['foffline']) {
+	@ignore_user_abort(true);
+	@set_time_limit(60);
+
+	$cron->setLogPath("data/cron/");
+	$cron->setClassPath("classes/system/cron/jobs/");
+	$cron->enableFileLogging($config['pccron_uselog'] == 1);
+	$cron->enableMailLogging($config['pccron_sendlog'] == 1, $config['pccron_sendlog_email']);
+	$cron->execute("data/cron/crontab.inc.php", $config['pccron_maxjobs']);
+}
 
 ($code = $plugins->load('cron_end')) ? eval($code) : null;

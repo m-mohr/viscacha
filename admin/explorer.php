@@ -34,14 +34,14 @@ if ($job == 'upload') {
 	}
 	elseif ($cfg == 'dbrestore') {
 		$ups = 1;
-		$filesize = ini_maxupload();
+		$filesize = Sys::getMaxUploadSize();
 		$filetypes = 'sql|zip';
 		$dir = realpath('./admin/backup/');
 		$url = 'admin.php?action=db&job=restore';
 	}
 	else {
 		$ups = $uploadfields;
-		$filesize = ini_maxupload();
+		$filesize = Sys::getMaxUploadSize();
 		$filetypes = '';
 		$path = $gpc->get('path');
 		$dir = realpath($path);

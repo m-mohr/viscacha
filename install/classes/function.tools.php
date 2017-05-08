@@ -2,7 +2,7 @@
 function getFUrl() {
 	// HTTP_HOST is having the correct browser url in most cases...
 	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
-	$https = ini_isSecureHttp() ? 'https://' : 'http://';
+	$https = Sys::isHttps() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
 	if (!$source) {
@@ -14,9 +14,6 @@ function getFUrl() {
 
 	$furl = rtrim($https.$server_name.'/'.$source, '/');
 	return $furl;
-}
-function makeOneLine($str) {
-	return str_replace(array("\r\n","\n","\r","\t","\0"), ' ', $str);
 }
 function getFilePath($package, $step) {
 	$package2 = explode('_', $package, 2);

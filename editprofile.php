@@ -719,4 +719,4 @@ else {
 ($code = $plugins->load('editprofile_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

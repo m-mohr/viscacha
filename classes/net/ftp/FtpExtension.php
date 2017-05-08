@@ -1,6 +1,6 @@
 <?php
 
-namespace Viscacha\FTP;
+namespace Viscacha\Net\FTP;
 
 class FtpExtension extends Ftp {
 

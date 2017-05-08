@@ -17,9 +17,8 @@ function loadSettingArray($path) {
 
 echo "- Source files loaded<br />";
 
-if (!class_exists('filesystem')) {
-	require_once('install/classes/class.filesystem.php');
-	$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+if (!class_exists('Viscacha\IO\Filesystem')) {
+	$filesystem = new Viscacha\IO\Filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 	$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 }
 

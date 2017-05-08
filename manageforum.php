@@ -294,4 +294,4 @@ elseif ($_GET['action'] == "stat") {
 ($code = $plugins->load('manageforum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

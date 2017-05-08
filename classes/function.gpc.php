@@ -61,13 +61,6 @@ foreach ($http_svars as $http_var) {
 }
 unset($ref);
 
-if (empty($_SERVER['DOCUMENT_ROOT'])) {
-	$_SERVER['DOCUMENT_ROOT'] = getDocumentRoot();
-	if (empty($_SERVER['DOCUMENT_ROOT'])) {
-		$_SERVER['DOCUMENT_ROOT'] = $config['fpath'];
-	}
-}
-
 $_SERVER = $gpc->secure_null($_SERVER);
 $_ENV = $gpc->secure_null($_ENV);
 ?>

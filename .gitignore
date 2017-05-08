@@ -5,6 +5,7 @@
 /assets/cache/
 /classes/vendor/
 /data/cache/
+/data/cron/*.log
 /data/cron/*.job
 /data/logs/
 /feeds/

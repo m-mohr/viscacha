@@ -148,4 +148,4 @@ echo $tpl->parse("showforum", compact("info", "pages", "topics", "subforums", "f
 ($code = $plugins->load('showforum_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

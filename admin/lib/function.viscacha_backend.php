@@ -7,8 +7,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 require_once("classes/class.language.php");
 $lang = new lang();
 // Filesystem
-require_once("classes/class.filesystem.php");
-$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+$filesystem = new Viscacha\IO\Filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 
 // Colours

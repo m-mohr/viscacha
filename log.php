@@ -177,4 +177,4 @@ else {
 ($code = $plugins->load('log_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

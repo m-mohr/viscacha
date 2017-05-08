@@ -76,7 +76,7 @@ function getRequestURI() {
 		$request_uri = '';
 		$var = parse_url($config['furl']);
 		$request_uri = sprintf('http%s://%s%s',
-			(ini_isSecureHttp() ? 's': ''),
+			(Sys::isHttps() ? 's': ''),
 			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $var['host']),
 			$_SERVER['REQUEST_URI']
 		);
@@ -599,7 +599,7 @@ function GoBoardPW ($bpw, $bid) {
 		$tpl->assignVars(compact("bid"));
 		echo $tpl->parse("main/boardpw");
 		$slog->updatelogged();
-		$phpdoc->Out();
+		$phpdoc->send();
 		exit;
 	}
 }
@@ -642,7 +642,7 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 		echo $tpl->parse('footer');
 	}
 	$slog->updatelogged();
-	$phpdoc->Out();
+	$phpdoc->send();
 	exit;
 }
 
@@ -672,7 +672,7 @@ function error($errormsg = null, $errorurl = null, $EOS = null) {
 	}
 	
 	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
-		FlashMessage::addError($errormsg);
+		Viscacha\View\FlashMessage::addError($errormsg);
 		global $slog;
 		$slog->updatelogged();
 		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
@@ -688,7 +688,7 @@ function ok($errormsg = null, $errorurl = null, $EOS = null) {
 	}
 	
 	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
-		FlashMessage::addConfirmation($errormsg);
+		Viscacha\View\FlashMessage::addConfirmation($errormsg);
 		global $slog;
 		$slog->updatelogged();
 		sendStatusCode(302, viscacha_html_entity_decode($errorurl));

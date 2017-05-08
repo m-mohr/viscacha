@@ -284,4 +284,4 @@ else {
 ($code = $plugins->load('addreply_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

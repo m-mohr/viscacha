@@ -22,7 +22,9 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-class filesystem {
+namespace Viscacha\IO;
+
+class Filesystem {
 
 	var $server;
 	var $port;
@@ -60,7 +62,7 @@ class filesystem {
 			return true;
 		}
 		elseif (!empty($this->server)) {
-			$this->ftp = Viscacha\FTP\FTP::create();
+			$this->ftp = Viscacha\Net\FTP\FTP::create();
 			if(!$this->ftp || !$this->ftp->SetServer($this->server, $this->port)) {
 				$this->ftp->quit();
 				return false;

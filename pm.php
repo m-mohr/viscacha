@@ -360,4 +360,4 @@ else {
 ($code = $plugins->load('pm_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

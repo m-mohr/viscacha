@@ -182,4 +182,4 @@ else {
 ($code = $plugins->load('profile_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

@@ -61,7 +61,7 @@ if (!GroupCheck($info['groups'])) {
 $lid = getDocLangID($data);
 $document = $data[$lid];
 if ($lid != $my->language) { // We don't use the correct language... Let's print a notice
-	FlashMessage::addNotice($lang->phrase('doc_wrong_language_shown'));
+	Viscacha\View\FlashMessage::addNotice($lang->phrase('doc_wrong_language_shown'));
 }
 
 if(empty($info['name'])) {
@@ -95,4 +95,4 @@ echo $tpl->parse("footer");
 ($code = $plugins->load('docs_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();

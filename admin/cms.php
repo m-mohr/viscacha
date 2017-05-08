@@ -1334,7 +1334,7 @@ elseif ($job == 'doc_insert_image') {
 		if ($error === null) {
 			require("classes/class.upload.php");
 			$my_uploader = new Viscacha\IO\Upload();
-			$my_uploader->max_filesize(ini_maxupload());
+			$my_uploader->max_filesize(Sys::getMaxUploadSize());
 			$my_uploader->file_types($supportedextentions);
 			$my_uploader->set_path($path);
 			if ($my_uploader->upload('file')) {
@@ -1352,7 +1352,7 @@ elseif ($job == 'doc_insert_image') {
 		}
 	}
 
-	$filesize = formatFilesize(ini_maxupload());
+	$filesize = formatFilesize(Sys::getMaxUploadSize());
 
 	$htmlhead .= '<script type="text/javascript" src="admin/html/editor/wysiwyg-popup.js"></script>';
 	echo head(' onLoad="loadImage();"');

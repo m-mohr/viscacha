@@ -24,25 +24,27 @@
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-class OutputDoc {
+namespace Viscacha\Net\HTTP;
 
-	var $sid;
+class Response {
 
-	function __construct() {
+	protected $sid;
+
+	public function __construct() {
 		ob_start();
 		ob_implicit_flush(0);
 	}
 
-	function AddSid($content) {
+	protected function addSid($content) {
 		if (!empty($this->sid)) {
-			$own_url = ini_isSecureHttp() ? 'https://' : 'http://';
+			$own_url = Sys::isHttps() ? 'https://' : 'http://';
 			$own_url = preg_quote($own_url . $_SERVER['HTTP_HOST'], '~');
-			$content = preg_replace_callback('~<a([^>]+?)href=("|\')(' . $own_url . '(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~iu', array(&$this, 'ConstructLink'), $content);
+			$content = preg_replace_callback('~<a([^>]+?)href=("|\')(' . $own_url . '(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~iu', array(&$this, 'buildurl'), $content);
 		}
 		return $content;
 	}
 
-	function ConstructLink($matches) {
+	protected function buildUrl($matches) {
 		list(, $prehref,, $url) = $matches;
 		if (mb_substr($url, -1) == '?') {
 			$url = mb_substr($url, 0, mb_strlen($url) - 1);
@@ -63,12 +65,12 @@ class OutputDoc {
 		return '<a' . $prehref . 'href="' . $url . '"';
 	}
 
-	function Out() {
+	public function send() {
 		global $breadcrumb, $config, $plugins;
 		$this->sid = SID2URL;
 		$Contents = ob_get_contents();
 		ob_end_clean();
-		$Contents = $this->AddSid($Contents);
+		$Contents = $this->addSid($Contents);
 
 		($code = $plugins->load('docout_parse')) ? eval($code) : null;
 
@@ -76,5 +78,3 @@ class OutputDoc {
 	}
 
 }
-
-?>

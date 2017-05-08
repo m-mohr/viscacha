@@ -2,7 +2,7 @@
 $dataGiven = false;
 include('data/config.inc.php');
 if (!empty($config['ftp_server'])) {
-	$ftp = Viscacha\FTP\FTP::create();
+	$ftp = Viscacha\Net\FTP\FTP::create();
 	if($ftp && $ftp->SetServer($config['ftp_server'], $config['ftp_port'])) {
 		if ($ftp->connect()) {
 			if ($ftp->login($config['ftp_user'], $config['ftp_pw'])) {

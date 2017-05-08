@@ -1,5 +1,7 @@
 <?php
 
+namespace Viscacha\View;
+
 class FlashMessage {
 	
 	public static function addError($messages) {

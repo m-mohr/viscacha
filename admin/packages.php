@@ -130,7 +130,7 @@ elseif ($job == 'package_update') {
   <tr>
    <td class="mbox" width="50%">
    	<?php
-   		$max_filesize = formatFilesize(ini_maxupload());
+   		$max_filesize = formatFilesize(Sys::getMaxUploadSize());
    		echo $lang->phrase('admin_packages_import_upload_file');
    		echo '<br />';
    		echo '<span class="stext">'.$lang->phrase('admin_packages_import_text_upload_file_desc').'</span>';
@@ -183,7 +183,7 @@ elseif ($job == 'package_update2') {
 		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->file_types(array('zip'));
 		$my_uploader->set_path($dir);
-		$my_uploader->max_filesize(ini_maxupload());
+		$my_uploader->max_filesize(Sys::getMaxUploadSize());
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {
 				$sourcefile = $dir.$my_uploader->fileinfo('filename');
@@ -642,7 +642,7 @@ elseif ($job == 'package_import') {
   <tr>
    <td class="mbox" width="50%">
    	<?php
-   		$max_filesize = formatFilesize(ini_maxupload());
+   		$max_filesize = formatFilesize(Sys::getMaxUploadSize());
    		echo $lang->phrase('admin_packages_import_upload_file');
    		echo '<br />';
    		echo '<span class="stext">'.$lang->phrase('admin_packages_import_text_upload_file_desc').'</span>';
@@ -691,7 +691,7 @@ elseif ($job == 'package_import2') {
 		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->file_types(array('zip'));
 		$my_uploader->set_path($dir);
-		$my_uploader->max_filesize(ini_maxupload());
+		$my_uploader->max_filesize(Sys::getMaxUploadSize());
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {
 				$sourcefile = $dir.$my_uploader->fileinfo('filename');

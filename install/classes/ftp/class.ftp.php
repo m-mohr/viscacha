@@ -76,8 +76,8 @@ class ftp_base {
 		$this->OS_local=FTP_OS_Unix;
 		$this->OS_remote=FTP_OS_Unix;
 		$this->features=array();
-		if(isWindows() == true) $this->OS_local=FTP_OS_Windows;
-		elseif(isMac() == true) $this->OS_local=FTP_OS_Mac;
+		if(Sys::isWindows() == true) $this->OS_local=FTP_OS_Windows;
+		elseif(Sys::isMac() == true) $this->OS_local=FTP_OS_Mac;
 	}
 
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -620,7 +620,7 @@ class ftp_base {
 
 	function glob($pattern, $handle=NULL) {
 		$path=$output=null;
-		if(isWindows() == true) $slash='\\';
+		if(Sys::isWindows() == true) $slash='\\';
 		else $slash='/';
 		$lastpos=strrpos($pattern,$slash);
 		if(!($lastpos===false)) {
@@ -671,7 +671,7 @@ class ftp_base {
 	}
 
 	function glob_regexp($pattern,$probe) {
-		return (isWindows() != true ?
+		return (Sys::isWindows() != true ?
 			preg_match("~{$pattern}~", $probe) :
 			preg_match("~{$pattern}~i", $probe)
 		);

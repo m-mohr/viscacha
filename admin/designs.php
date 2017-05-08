@@ -88,7 +88,7 @@ elseif ($job == 'design_import') {
 	<form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=designs&job=design_import2">
 		<table class="border" cellpadding="4" cellspacing="0" border="0">
 			<tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_design_import_new_design'); ?></td></tr>
-			<tr><td class="mbox"><?php echo $lang->phrase('admin_design_either_upload_a_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_allowed_file_types_and_max_file_size'); ?><?php echo formatFilesize(ini_maxupload()); ?></span></td>
+			<tr><td class="mbox"><?php echo $lang->phrase('admin_design_either_upload_a_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_allowed_file_types_and_max_file_size'); ?><?php echo formatFilesize(Sys::getMaxUploadSize()); ?></span></td>
 				<td class="mbox"><input type="file" name="upload" size="40" /></td></tr>
 			<tr><td class="mbox"><?php echo $lang->phrase('admin_design_or_select_file_from_server'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_design_path_starting_from_root'); ?></span></td>
 				<td class="mbox"><input type="text" name="server" size="50" value="<?php echo $file; ?>" /></td></tr>
@@ -107,7 +107,7 @@ elseif ($job == 'design_import2') {
 	$inserterrors = array();
 
 	if (!empty($_FILES['upload']['name'])) {
-		$filesize = ini_maxupload();
+		$filesize = Sys::getMaxUploadSize();
 		$filetypes = array('zip');
 		$dir = realpath('temp') . DIRECTORY_SEPARATOR;
 

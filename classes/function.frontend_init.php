@@ -41,8 +41,7 @@ require_once("classes/class.language.php");
 $lang = new lang();
 
 // Filesystem
-require_once("classes/class.filesystem.php");
-$filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
+$filesystem = new Viscacha\IO\Filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 
 // Database functions
@@ -136,8 +135,6 @@ require_once ("classes/class.permissions.php");
 class_alias('Viscacha\Util\Breadcrumb', 'Breadcrumb');
 // Global functions
 require_once ("classes/function.global.php");
-// Flash messagesw
-require_once ("classes/class.flashmessage.php");
 
 if (!file_exists('.htaccess')) {
 	$htaccess = array();
@@ -161,7 +158,7 @@ if (!file_exists('.htaccess')) {
 	$filesystem->file_put_contents('.htaccess', implode("\r\n", $htaccess));
 }
 
-$phpdoc = new OutputDoc();
+$response = new Viscacha\Net\HTTP\Response();
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
@@ -189,7 +186,7 @@ if (!defined('CONSOLE_REQUEST')) {
 		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
 		if (!defined('NON_HTML_RESPONSE')) {
 			echo $tpl->parse("banned");
-			$phpdoc->Out();
+			$response->send();
 		}
 		else {
 			sendStatusCode(403);
@@ -206,7 +203,7 @@ if ($config['foffline']) {
 		($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
 		if (!defined('NON_HTML_RESPONSE')) {
 			echo $tpl->parse("offline");
-			$phpdoc->Out();
+			$response->send();
 		}
 		exit;
 	}

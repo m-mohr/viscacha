@@ -258,4 +258,4 @@ else {
 ($code = $plugins->load('edit_end')) ? eval($code) : null;
 
 $slog->updatelogged();
-$phpdoc->Out();
+$response->send();
