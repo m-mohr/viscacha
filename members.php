@@ -116,11 +116,11 @@ else {
 	$colspan = 1+count($fields);
 	if (in_array('fullname', $fields)) {$colspan--; }
 
-	$_GET['order'] = mb_strtolower($_GET['order']);
+	$_GET['order'] = \Str::lower($_GET['order']);
 	if ($_GET['order'] != 'desc') {
 		$_GET['order'] = 'asc';
 	}
-	$_GET['sort'] = mb_strtolower($_GET['sort']);
+	$_GET['sort'] = \Str::lower($_GET['sort']);
 	if ($_GET['sort'] != 'hp' && $_GET['sort'] != 'online' && $_GET['sort'] != 'posts' && $_GET['sort'] != 'regdate' && $_GET['sort'] != 'location' && $_GET['sort'] != 'gender' && $_GET['sort'] != 'birthday' && $_GET['sort'] != 'lastvisit') {
 		$sqlorderby = "name {$_GET['order']}";
 	}
@@ -130,7 +130,7 @@ else {
 
 	$sqlwhere = array('deleted_at IS NULL');
 	$letter = $gpc->get('letter', db_esc);
-	if (mb_strlen($letter) == 1) {
+	if (\Str::length($letter) == 1) {
 		$sqlwhere[] = "LEFT(name, 1) = '{$letter}'";
 	}
 	if ($config['mlist_showinactive'] == 0) {

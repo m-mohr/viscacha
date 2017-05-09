@@ -131,7 +131,7 @@ while (false !== ($entry = $dir->read())) {
 		}
 		if (empty($css)) {
 			echo "<br />!!! <strong>Warning:</strong> Updating {$path} failed. Plase add the following CSS code to your main css file in designs/{$entry}:<br /><code>";
-			echo viscacha_htmlentities($newCss);
+			echo \Str::toHtml($newCss);
 			echo "</code><br /><br />";
 		}
 	}
@@ -147,7 +147,7 @@ $dirs = array('data/cache/', 'data/cache/modules/');
 foreach ($dirs as $dir) {
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (mb_strpos($file, '.php') !== false) {
+			if (\Str::endsWith($file, '.php')) {
 				$filesystem->unlink($dir.$file);
 			}
 	    }

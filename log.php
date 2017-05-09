@@ -162,7 +162,7 @@ else {
 	if (empty($loc)) {
 		$loc = getRefererURL();
 	}
-	$loc = viscacha_htmlspecialchars($loc);
+	$loc = \Str::toHtml($loc);
 	if ($my->vlogin) {
 		error($lang->phrase('log_already_logged'), $loc);
 	}

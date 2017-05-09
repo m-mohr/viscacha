@@ -150,7 +150,7 @@ class ReCaptcha {
 		}
 		fclose($fs);
 		
-        if (0 !== mb_strpos($response, 'HTTP/1.1 200 OK')) {
+        if (0 !== \Str::indexOf($response, 'HTTP/1.1 200 OK')) {
             return null;
         }
 

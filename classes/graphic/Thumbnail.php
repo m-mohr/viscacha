@@ -97,11 +97,11 @@ class Thumbnail {
 	}
 
 	function create_thumbnail($attachment) {
-		global $config, $imagetype_extension;
+		global $config;
 		$thumbnail = NULL;
 
 		$ext = get_extension($attachment);
-		if (in_array($ext, $imagetype_extension)) {
+		if (in_array($ext, Viscacha\IO\Mime::getWebImageExtensions())) {
 			$imageinfo = getimagesize($attachment);
 			$new_width = $width = $imageinfo[0];
 			$new_height = $height = $imageinfo[1];

@@ -29,16 +29,16 @@ require 'vendor/autoload.php';
 use Viscacha\Util\Debug;
 
 class_alias('Viscacha\Util\Str', 'Str');
-class_alias('Viscacha\System\PHP', 'Sys');
 
 Debug::init($config['debug'], $config['error_log']);
 
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 
-$imagetype_extension = array('gif', 'jpg', 'jpeg', 'png');
+/* Some useful PHP functions */
 
-/* Fixed php functions */
+define('URL_REGEXP', 'https?://[\p{L}\p{Nd}\-\.@]+(?:\.\p{L}{2,7})?(?::\d+)?/?(?:[\p{L}\p{Nd}\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*[\p{L}\p{Nd}\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('EMAIL_REGEXP', "[\p{L}\p{Nd}!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[\p{L}\p{Nd}!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[\p{L}\p{Nd}](?:[\p{L}\p{Nd}\-]*[\p{L}\p{Nd}])?\.)+[\p{L}\p{Nd}](?:[\p{L}\p{Nd}\-]*[\p{L}\p{Nd}])?");
 
 function idna($host) {
 	$idna = new \Mso\IdnaConvert\IdnaConvert();
@@ -47,6 +47,18 @@ function idna($host) {
 
 function is_id ($x) {
 	return (is_numeric($x) && $x >= 1 ? intval($x) == $x : false);
+}
+
+function is_email($email) {
+	return (bool) preg_match("~^".EMAIL_REGEXP."$~iu", $email);
+}
+
+function is_url($url) {
+	return (bool) preg_match("~^".URL_REGEXP."$~iu", $url);
+}
+
+function is_hash($string, $len = 32) {
+	return (bool) preg_match("/^[a-f\d]{{$len}}$/iu", $string);
 }
 
 // Generates an alpha-numeric 32 char unique ID
@@ -77,100 +89,47 @@ function viscacha_header($header, $replace = true, $code = 0) {
 	}
 }
 
-function viscacha_htmlentities($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = TRUE) {
-	return htmlentities($text, $quote, 'UTF-8', $double_encode);
+/**
+ * orders a multidimentional array on the base of a label-key
+ *
+ * @param $arr, the array to be ordered
+ * @param $l the "label" identifing the field
+ * @param $f the ordering function to be used, \Str::compareNatural() by default
+ * @return  TRUE on success, FALSE on failure.
+ */
+function array_columnsort(&$arr, $l , $f = array('Str', 'compareNatural')) {
+	return uasort($arr, function($a, $b) {
+		return call_user_func($f, $a[$l], $b[$l]);
+	});
 }
 
-function viscacha_html_entity_decode($text, $quote = ENT_QUOTES | ENT_HTML5) {
-	return html_entity_decode($text, $quote, 'UTF-8');
-}
-
-function viscacha_htmlspecialchars($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = TRUE) {
-	return htmlspecialchars($text, $quote, 'UTF-8', $double_encode);
-}
-
-function viscacha_htmlspecialchars_decode($text, $quote = ENT_QUOTES | ENT_HTML5) {
-	return htmlspecialchars_decode($text, $quote);
-}
-
-if (!function_exists('mb_strcasecmp')) {
-	function mb_strcasecmp($str1, $str2, $encoding = 'UTF-8') {
-	  return strcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+function is_array_empty(array $array) {
+	if (empty($array)) {
+		return true;
+	}
+	$array = array_unique($array);
+	if (count($array) == 1) {
+		$current = reset($array);
+		return empty($current);
+	}
+	else {
+		foreach ($array as $val) {
+			if (!empty($val)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 
-if (!function_exists('mb_strnatcasecmp')) {
-	function mb_strnatcasecmp($str1, $str2, $encoding = 'UTF-8') {
-	  return strnatcmp(mb_strtoupper($str1, $encoding), mb_strtoupper($str2, $encoding));
+function array_trim_empty(array $array) {
+	foreach($array as $key => $value) {
+		$value = trim($value);
+		if (empty($value)) {
+			unset($array[$key]);
+		}
 	}
-}
-
-// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
-if (!function_exists('mb_ucwords')) {
-    /**
-     * @param string $str
-     * @param string $encoding
-     * @return string Uc Words
-     */
-    function mb_ucwords($str, $encoding = 'UTF-8')
-    {
-        $upper = true;
-        $res = '';
-        for ($i = 0; $i < mb_strlen($str, $encoding); $i++) {
-            $c = mb_substr($str, $i, 1, $encoding);
-            if ($upper) {
-                $c = mb_convert_case($c, MB_CASE_UPPER, $encoding);
-                $upper = false;
-            }
-            if ($c == ' ') {
-                $upper = true;
-            }
-            $res .= $c;
-        }
-        return $res;
-    }
-}
-
-// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
-if (!function_exists('mb_ucfirst')) {
-    /**
-     * @param string $str
-     * @param string $encoding
-     * @return string Uc first
-     */
-    function mb_ucfirst($str, $encoding = 'UTF-8')
-    {
-        $firstLetter = mb_substr($str, 0, 1, $encoding);
-        $rest = mb_substr($str, 1, mb_strlen($str, $encoding), $encoding);
-        return mb_strtoupper($firstLetter, $encoding) . $rest;
-    }
-}
-
-// Source for this implementation is: https://github.com/martinlindhe/php-mb-helpers
-if (!function_exists('mb_str_split')) {
-    /**
-     * @param string $string
-     * @param int $split_length
-     * @param string $encoding
-     * @return array
-     * @throws Exception
-     */
-    function mb_str_split($string, $split_length = 1, $encoding = 'UTF-8')
-    {
-        if ($split_length == 0) {
-            throw new \Exception('The length of each segment must be greater than zero');
-        }
-        $ret = array();
-        $len = mb_strlen($string, $encoding);
-        for ($i = 0; $i < $len; $i += $split_length) {
-            $ret[] = mb_substr($string, $i, $split_length, $encoding);
-        }
-        if (!$ret) {
-            // behave like str_split() on empty input
-            return array("");
-        }
-        return $ret;
-    }
+	return $array;
 }
 
 /**
@@ -279,12 +238,12 @@ function extract_dir($source, $realpath = true) {
 	else {
 		$source = rtrim($source, '/\\');
 	}
-	$pos = mb_strrpos($source, '/');
+	$pos = \Str::lastIndexOf($source, '/');
 	if ($pos === false) {
-		$pos = mb_strrpos($source, '\\');
+		$pos = \Str::lastIndexOf($source, '\\');
 	}
 	if ($pos > 0) {
-		$dest = mb_substr($source, 0, $pos+1);
+		$dest = \Str::substr($source, 0, $pos+1);
 	}
 	else {
 		$dest = '';

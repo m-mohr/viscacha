@@ -42,7 +42,7 @@ class ServerNavigator
 		if (empty($this->path)) {
 			$this->path = './';
 		}
-		if (mb_substr($this->path, mb_strlen($this->path)-1, mb_strlen($this->path) ) != DIRECTORY_SEPARATOR) {
+		if (\Str::substr($this->path, \Str::length($this->path)-1, \Str::length($this->path) ) != DIRECTORY_SEPARATOR) {
 			$this->path .= DIRECTORY_SEPARATOR;
 		}
 

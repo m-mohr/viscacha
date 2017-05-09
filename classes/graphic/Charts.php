@@ -287,7 +287,7 @@ class Charts {
 
 				imageline($this->img, ($this->graphic_area_x1 + $dec_x), $this->graphic_area_y1, ($this->graphic_area_x1 + $dec_x), $this->graphic_area_y2, $this->color['bg_lines']);
 				if ($i % 2 == 0) {
-					$alt = (mb_strlen($this->biggest_y) > 4 && $alt != 15) ? 15 : 2;
+					$alt = (\Str::length($this->biggest_y) > 4 && $alt != 15) ? 15 : 2;
 					$value = $this->number_formated($this->higher_value * $i / 10);
 					$this->imagestring($this->img, 3, (($this->graphic_area_x1 + $dec_x) - ($this->string_width($value, 3) / 2)), ($this->graphic_area_y2 + $alt), $value, $this->color['axis_values']);
 				}
@@ -588,7 +588,7 @@ class Charts {
 			case 2:
 				$this->legend_box_width = ($this->legend_exists == true) ? ($this->string_width($this->biggest_graphic_name, 3) + 25) : 0;
 				$this->graphic_area_width = ($this->string_width($this->higher_value_str, 3) > 50) ? (5 * ($this->string_width($this->higher_value_str, 3)) * 0.85) : 200;
-				$this->graphic_area_x1 += 7 * mb_strlen($this->biggest_x);
+				$this->graphic_area_x1 += 7 * \Str::length($this->biggest_x);
 				$this->width += ($this->legend_exists == true) ? 60 : (($this->string_width($this->axis_y, 3)) + 30);
 				$this->width += $this->graphic_area_x1;
 				break;
@@ -834,7 +834,7 @@ class Charts {
 	}
 
 	function calculate_higher_value() {
-		$digits = mb_strlen(round($this->biggest_y));
+		$digits = \Str::length(round($this->biggest_y));
 		$interval = pow(10, ($digits - 1));
 		$this->higher_value = round(($this->biggest_y - ($this->biggest_y % $interval) + $interval), 1);
 		$this->higher_value_str = $this->number_formated($this->higher_value);

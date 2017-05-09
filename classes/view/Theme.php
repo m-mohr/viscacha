@@ -84,7 +84,7 @@ class Theme {
 			if (!$fileinfo->isDir() || $fileinfo->isDot()) {
 				continue;
 			}
-			$hidden = (mb_substr($fileinfo->getFilename(), 0, 1) == '.');
+			$hidden = (\Str::substr($fileinfo->getFilename(), 0, 1) == '.');
 			if ($includeHidden || !$hidden) {
 				$themeFolder = $path . $fileinfo->getFilename();
 				$themeData = $ini->read($themeFolder.'/theme.ini');

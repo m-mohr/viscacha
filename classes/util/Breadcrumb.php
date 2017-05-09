@@ -68,7 +68,7 @@ class Breadcrumb {
 	public function build($divider = ' > ', $linked = false) {
 		$parts = array();
 		foreach ($this->content as $key => $row) {
-			$row['title'] = viscacha_htmlspecialchars($row['title']);
+			$row['title'] = Str::toHtml($row['title']);
 			if (!empty($row['url']) && $linked) {
 				$parts[$key] = '<a href="' . $row['url'] . '">' . $row['title'] . '</a>';
 			}

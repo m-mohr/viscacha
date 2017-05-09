@@ -64,7 +64,7 @@ function admin_customfields($uid) {
 	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields ORDER BY disporder");
 	while($profilefield = $query->fetch()) {
 		$select = '';
-		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
+		$profilefield['type'] = \Str::toHtml($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		if (!isset($thing[1])) {
@@ -131,11 +131,11 @@ function admin_customfields($uid) {
 			}
 		}
 		elseif($type == "textarea") {
-			$value = viscacha_htmlspecialchars($saved[$field]);
+			$value = \Str::toHtml($saved[$field]);
 			$code = "<textarea id=\"{$field}\" class=\"form-control\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
 		}
 		else {
-			$value = viscacha_htmlspecialchars($saved[$field]);
+			$value = \Str::toHtml($saved[$field]);
 			$code = "<input id=\"{$field}\" class=\"form-control\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
 		}
 		$customfields[$profilefield['editable']][] = array(
@@ -156,7 +156,7 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 	$upquery = array();
 	$query = $db->execute("SELECT * FROM {$db->pre}profilefields WHERE editable != '0' AND required = '1' ORDER BY disporder");
 	while($profilefield = $query->fetch()) {
-		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
+		$profilefield['type'] = \Str::toHtml($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		$field = "fid{$profilefield['fid']}";
@@ -167,7 +167,7 @@ function addprofile_customprepare($e1 = 'error_missingrequiredfield', $e2 = 'err
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase($e1);
 		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && mb_strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && \Str::length($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase($e2);
 		}
 
@@ -215,7 +215,7 @@ function addprofile_customfields($data = array()) {
 	$query = $db->execute("SELECT * FROM {$db->pre}profilefields WHERE required = '1' AND editable != '0' ORDER BY disporder");
 	while($profilefield = $query->fetch()) {
 		$select = '';
-		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
+		$profilefield['type'] = \Str::toHtml($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		if (!isset($thing[1])) {
@@ -299,7 +299,7 @@ function addprofile_customfields($data = array()) {
 		}
 		elseif($type == "textarea") {
 			if (!empty($data[$field])) {
-				$content = viscacha_htmlspecialchars($data[$field]);
+				$content = \Str::toHtml($data[$field]);
 			}
 			else {
 				$content = '';
@@ -337,7 +337,7 @@ function editprofile_customsave($editable, $uid, $save = true) {
 		if($profilefield['required'] == 1 && (empty($value) || (is_array($value) && count($value) == 0))) {
 			$error[] = $lang->phrase('error_missingrequiredfield');
 		}
-		if($profilefield['maxlength'] > 0 && ((is_string($value) && mb_strlen($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
+		if($profilefield['maxlength'] > 0 && ((is_string($value) && \Str::length($value) > $profilefield['maxlength']) || (is_array($value) && count($value) > $profilefield['maxlength']))) {
 			$error[] = $lang->phrase('error_customfieldtoolong');
 		}
 
@@ -393,7 +393,7 @@ function editprofile_customfields($editable, $uid) {
 	$query = $db->execute("SELECT * FROM ".$db->pre."profilefields WHERE editable = '{$editable}' ORDER BY disporder");
 	while($profilefield = $query->fetch()) {
 		$select = '';
-		$profilefield['type'] = viscacha_htmlspecialchars($profilefield['type']);
+		$profilefield['type'] = \Str::toHtml($profilefield['type']);
 		$thing = explode("\n", $profilefield['type'], 2);
 		$type = $thing[0];
 		if (!isset($thing[1])) {
@@ -460,11 +460,11 @@ function editprofile_customfields($editable, $uid) {
 			}
 		}
 		elseif($type == "textarea") {
-			$value = viscacha_htmlspecialchars($saved[$field]);
+			$value = \Str::toHtml($saved[$field]);
 			$code = "<textarea id=\"{$field}\" class=\"form-control\" name=\"{$field}\" rows=\"5\" cols=\"40\">{$value}</textarea>";
 		}
 		else {
-			$value = viscacha_htmlspecialchars($saved[$field]);
+			$value = \Str::toHtml($saved[$field]);
 			$code = "<input id=\"{$field}\" class=\"form-control\" type=\"text\" name=\"{$field}\" size=\"{$profilefield['length']}\"".iif($profilefield['maxlength'] > 0, "maxlength=\"{$profilefield['maxlength']}\"")." value=\"{$value}\" />";
 		}
 		$customfields[] = array(

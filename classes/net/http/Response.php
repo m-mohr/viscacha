@@ -26,6 +26,8 @@
 
 namespace Viscacha\Net\HTTP;
 
+use Viscacha\System\PhpSys;
+
 class Response {
 
 	protected $sid;
@@ -37,7 +39,7 @@ class Response {
 
 	protected function addSid($content) {
 		if (!empty($this->sid)) {
-			$own_url = Sys::isHttps() ? 'https://' : 'http://';
+			$own_url = PhpSys::isHttps() ? 'https://' : 'http://';
 			$own_url = preg_quote($own_url . $_SERVER['HTTP_HOST'], '~');
 			$content = preg_replace_callback('~<a([^>]+?)href=("|\')(' . $own_url . '(:\d*)?/?([a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?|([a-zA-Z0-9\-\._/\~]*)?[\w-]+?\.\w+?(\?[a-zA-Z0-9\-\.:;_\?\,/\\\+&%\$#\=\~\[\]]*)?)("|\')~iu', array(&$this, 'buildurl'), $content);
 		}
@@ -46,8 +48,8 @@ class Response {
 
 	protected function buildUrl($matches) {
 		list(, $prehref,, $url) = $matches;
-		if (mb_substr($url, -1) == '?') {
-			$url = mb_substr($url, 0, mb_strlen($url) - 1);
+		if (\Str::substr($url, -1) == '?') {
+			$url = \Str::substr($url, 0, \Str::length($url) - 1);
 		}
 		$info = parse_url($url);
 		if (isset($info['query'])) {

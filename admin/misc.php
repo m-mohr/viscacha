@@ -60,7 +60,7 @@ elseif ($job == 'cache') {
 	$dir = 'data/cache/modules/';
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (mb_strpos($file, '.php') !== false) {
+			if (\Str::endsWith($file, '.php')) {
 				$files++;
 				$pluginsize += filesize($dir.$file);
 			}
@@ -154,7 +154,7 @@ elseif ($job == 'cache_delete_all' || $job == 'cache_refresh_all') {
 	$dir = iif ($job == 'cache_refresh_all', $classesdir, $cachedir);
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (mb_strpos($file, '.inc.php') !== false) {
+			if (\Str::endsWith($file, '.inc.php')) {
 				$fileTrim = str_replace('.inc.php', '', $file);
 				if (file_exists($classesdir.$file)) {
 					$cache = $scache->load($fileTrim);
@@ -177,7 +177,7 @@ elseif ($job == 'cache_delete_plugins') {
 	$dir = 'data/cache/modules/';
 	if ($dh = @opendir($dir)) {
 		while (($file = readdir($dh)) !== false) {
-			if (mb_strpos($file, '.php') !== false) {
+			if (\Str::endsWith($file, '.php')) {
 				$filesystem->unlink($dir.$file);
 			}
 		}
@@ -188,11 +188,11 @@ elseif ($job == 'cache_delete_plugins') {
 elseif ($job == "credits") {
 	echo head();
 
-	$loaded_extensions = array_map('mb_strtolower', get_loaded_extensions());
+	$loaded_extensions = array_map('\Str::lower', get_loaded_extensions());
 	$needed_extensions = array('mysqli', 'sockets', 'ftp', 'pcre', 'gd', 'zlib', 'xml', 'mbstring');
 	$extensions = array();
 	foreach ($needed_extensions as $needed) {
-		$extensions[$needed] = in_array(mb_strtolower($needed), $loaded_extensions);
+		$extensions[$needed] = in_array(\Str::lower($needed), $loaded_extensions);
 	}
 
 	if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
@@ -288,8 +288,8 @@ elseif ($job == 'license') {
 	echo head();
 	?>
 <table class="border">
-<tr><td class="obox"><?php echo $lang->phrase('admin_misc_license'); ?> <?php echo mb_strtoupper($license); ?></td></tr>
-<tr><td class="mbox"><pre><?php echo viscacha_htmlspecialchars($content); ?></pre></td></tr>
+<tr><td class="obox"><?php echo $lang->phrase('admin_misc_license'); ?> <?php echo \Str::upper($license); ?></td></tr>
+<tr><td class="mbox"><pre><?php echo \Str::toHtml($content); ?></pre></td></tr>
 </table>
 	<?php
 	echo foot();

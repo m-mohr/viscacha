@@ -103,7 +103,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 		if (flood_protect() == false) {
 			$error[] = $lang->phrase('flood_control');
 		}
-		if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
+		if (\Str::length($_POST['comment']) < $config['minpostlength']) {
 			$error[] = $lang->phrase('comment_too_short');
 		}
 		if (count($error) > 0) {
@@ -192,7 +192,7 @@ elseif ($_GET['action'] == "wwo") {
 	while ($row = $result->fetchObject()) {
 		$wwo['i']++;
 
-		switch (mb_strtolower($row->wiw_script)) {
+		switch (\Str::lower($row->wiw_script)) {
 		case 'managetopic':
 		case 'managemembers':
 		case 'manageforum':
@@ -237,14 +237,14 @@ elseif ($_GET['action'] == "wwo") {
 			$loc = $lang->phrase('wwo_docs');
 			if (isset($wrap_cache[$id]) && GroupCheck($wrap_cache[$id]['groups'])) {
 				$lid = getDocLangID($wrap_cache[$id]['titles']);
-				$loc .= '<br /><a href="docs.php?id='.$id.'">'.viscacha_htmlspecialchars($wrap_cache[$id]['titles'][$lid]).'</a>';
+				$loc .= '<br /><a href="docs.php?id='.$id.'">'.\Str::toHtml($wrap_cache[$id]['titles'][$lid]).'</a>';
 			}
 			break;
 		case 'showforum':
 			$id = $row->wiw_id;
 			$loc = $lang->phrase('wwo_showforum');
 			if (isset($cat_cache[$id]['name']) && !(($cat_cache[$id]['opt'] == 'pw' && (!isset($my->pwfaccess[$id]) || $my->pwfaccess[$id] != $cat_cache[$id]['optvalue'])) || $my->pb[$id]['forum'] == 0)) {
-				$loc .= '<br /><a href="showforum.php?id='.$id.'">'.viscacha_htmlspecialchars($cat_cache[$id]['name']).'</a>';
+				$loc .= '<br /><a href="showforum.php?id='.$id.'">'.\Str::toHtml($cat_cache[$id]['name']).'</a>';
 			}
 			break;
 		case 'newtopic':
@@ -253,7 +253,7 @@ elseif ($_GET['action'] == "wwo") {
 				$loc = $lang->phrase('wwo_newtopic');
 			}
 			else {
-				$loc = $lang->phrase('wwo_newtopic_forum').' <a href="showforum.php?id='.$id.'">'.viscacha_htmlspecialchars($cat_cache[$id]['name']).'</a>';
+				$loc = $lang->phrase('wwo_newtopic_forum').' <a href="showforum.php?id='.$id.'">'.\Str::toHtml($cat_cache[$id]['name']).'</a>';
 			}
 			break;
 		case 'profile':
@@ -292,7 +292,7 @@ elseif ($_GET['action'] == "wwo") {
 			}
 			$loc = $lang->phrase('wwo_'.$row->wiw_script);
 			if (isset($cache['t'.$id]) && !(($cat_cache[$cache['t'.$id]['board']]['opt'] == 'pw' && (!isset($my->pwfaccess[$cache['t'.$id]['board']]) || $my->pwfaccess[$cache['t'.$id]['board']] != $cat_cache[$cache['t'.$id]['board']]['optvalue'])) || $my->pb[$cache['t'.$id]['board']]['forum'] == 0)) {
-				$loc .= '<br /><a href="showtopic.php?id='.$id.'">'. viscacha_htmlspecialchars($cache['t'.$id]['topic']).'</a>';
+				$loc .= '<br /><a href="showtopic.php?id='.$id.'">'. \Str::toHtml($cache['t'.$id]['topic']).'</a>';
 			}
 			break;
 		case 'misc':
@@ -610,8 +610,8 @@ elseif ($_GET['action'] == "markasread") {
 	$my->p = $slog->Permissions();
 	if (is_url($_SERVER['HTTP_REFERER'])) {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
-		if (mb_strpos($config['furl'], $url['host']) !== FALSE) {
-			$loc = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);
+		if (\Str::contains($config['furl'], $url['host'])) {
+			$loc = \Str::toHtml($_SERVER['HTTP_REFERER']);
 		}
 	}
 	if (empty($loc)) {

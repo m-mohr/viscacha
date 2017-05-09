@@ -12,7 +12,7 @@ if ($job == 'add') {
 	$files = array();
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
-		if ($entry != '..' && $entry != '.' && get_extension(mb_strtolower($entry)) == 'php') {
+		if ($entry != '..' && $entry != '.' && get_extension($entry) == 'php') {
 			$files[] = $entry;
 		}
 	}
@@ -269,16 +269,16 @@ elseif ($job == 'manage') {
 			if ($row[$i] == '*') {
 				$row[$i] = $lang->phrase('admin_every');
 			}
-			elseif (mb_substr($row[$i], 0, 2) == '*/') {
-				$what = mb_substr($row[$i], 2);
+			elseif (\Str::substr($row[$i], 0, 2) == '*/') {
+				$what = \Str::substr($row[$i], 2);
 				$row[$i] = $lang->phrase('admin_every_x');
 			}
 			else {
 				$row[$i] = intval($row[$i]);
 			}
 		}
-		if (!empty($row[6]) && mb_substr($row[6], 0, 1) == '#') {
-			$row[6] = mb_substr($row[6], 1);
+		if (!empty($row[6]) && \Str::substr($row[6], 0, 1) == '#') {
+			$row[6] = \Str::substr($row[6], 1);
 		}
 		?>
 		<tr>

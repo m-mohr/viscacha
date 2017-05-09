@@ -216,7 +216,7 @@ class Database {
 		$lines = preg_split('~\s*(\r\n|\r|\n)\s*~u', $sql, -1, PREG_SPLIT_NO_EMPTY);
 		$sqlWithoutComments = '';
 		foreach ($lines as $h) {
-			$comment = mb_substr($h, 0, 2);
+			$comment = \Str::substr($h, 0, 2);
 			// ToDo: Comment chars are for MySQL => generalize
 			if ($comment == '--' || $comment == '//' || empty($h)) {
 				continue;

@@ -75,16 +75,16 @@ if ($_GET['action'] == "save") {
 	if (double_udata('mail',$_POST['email']) == false) {
 		$error[] = $lang->phrase('email_already_used');
 	}
-	if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
+	if (\Str::length($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (mb_strlen($_POST['name']) < $config['minnamelength']) {
+	if (\Str::length($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
-	if (mb_strlen($_POST['pw']) > $config['maxpwlength']) {
+	if (\Str::length($_POST['pw']) > $config['maxpwlength']) {
 		$error[] = $lang->phrase('pw_too_long');
 	}
-	if (mb_strlen($_POST['pw']) < $config['minpwlength']) {
+	if (\Str::length($_POST['pw']) < $config['minpwlength']) {
 		$error[] = $lang->phrase('pw_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {

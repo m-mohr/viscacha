@@ -182,7 +182,7 @@ class lang {
 		$this->massAssign($vars);
 		if ($this->exists($phrase)) {
 			$pphrase = $this->lngarray[$phrase];
-			if (mb_strpos($pphrase, '{') !== false) {
+			if (\Str::contains($pphrase, '{')) {
         		$pphrase = $this->parse_pvar($pphrase);
 			}
 			return $pphrase;
@@ -220,9 +220,9 @@ class lang {
 
 			if (count($keys) == 2 && isset($var) && is_object($var)) {
 				$methodKeys = explode('(', $keys[1], 2);
-				if (count($methodKeys) > 1 && mb_substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
+				if (count($methodKeys) > 1 && \Str::substr($methodKeys[1], -1) == ')' && method_exists($var, $methodKeys[0])) { // Object method
 					$args = array();
-					$arg = mb_substr($methodKeys[1], 0, -1);
+					$arg = \Str::substr($methodKeys[1], 0, -1);
 					if (!empty($arg)) {
 						$args = array($arg);
 					}

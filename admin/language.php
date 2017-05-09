@@ -545,7 +545,7 @@ elseif ($job == 'lang_ignore2') {
 	$ignore = $gpc->get('ignore', none);
 	$lines = preg_split('/[\n\r]+/u', trim($ignore)) ;
 	$lines = array_map('trim', $lines);
-	$lines = array_map('mb_strtolower', $lines);
+	$lines = array_map('\Str::lower', $lines);
 	$lines = array_unique($lines);
 	sort($lines);
 	if (!is_dir("language/{$id}/words/")) {
@@ -703,7 +703,7 @@ elseif ($job == 'lang_array') {
 	$lng = return_array($file, $id);
 	$pages = 1;
 	if (count($lng) > 0) {
-		$lng = array_map('viscacha_htmlspecialchars', $lng);
+		$lng = array_map('\Str::toHtml', $lng);
 		$lng = array_map('nl2whitespace', $lng);
 		ksort($lng);
 		$lng = array_chunk($lng, 50, true);
@@ -745,7 +745,7 @@ elseif ($job == 'lang_array') {
 	?>
 	</ul></div>
    </span>
-	<?php echo $lang->phrase('admin_lang_edit_langfile'); ?> &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : mb_ucfirst($file); ?>
+	<?php echo $lang->phrase('admin_lang_edit_langfile'); ?> &raquo; <?php echo isset($langbase[$file]) ? $langbase[$file] : \Str::ucfirst($file); ?>
    </td>
   </tr>
   <tr>
@@ -789,8 +789,8 @@ elseif ($job == 'lang_array2') {
 	$keys = array_keys($_REQUEST);
 	$sent = array();
 	foreach ($keys as $key) {
-		if (mb_substr($key, 0, 5) == 'lang_') {
-			$sent[$key] = mb_substr($key, 5, mb_strlen($key));
+		if (\Str::substr($key, 0, 5) == 'lang_') {
+			$sent[$key] = \Str::substr($key, 5, \Str::length($key));
 		}
 	}
 
@@ -853,7 +853,7 @@ elseif ($job == 'lang_edit') {
 	while (($file = readdir($result)) !== false) {
 		$info = pathinfo($mailpath.$file);
 		if ($info['extension'] == 'php') {
-			$name = mb_substr($info['basename'], 0, -(mb_strlen($info['extension']) + ($info['extension'] == '' ? 0 : 1)));
+			$name = \Str::substr($info['basename'], 0, -(\Str::length($info['extension']) + ($info['extension'] == '' ? 0 : 1)));
 			$mailfiles[$name] = $info;
 		}
 	}
@@ -883,11 +883,11 @@ elseif ($job == 'lang_edit') {
 	$files = array();
 	$d = dir($dir);
 	while (FALSE !== ($entry = $d->read())) {
-		if (mb_substr($entry, -8, 8) == '.lng.php') {
-			$basename = mb_substr($entry, 0, mb_strlen($entry)-8);
+		if (\Str::substr($entry, -8, 8) == '.lng.php') {
+			$basename = \Str::substr($entry, 0, \Str::length($entry)-8);
 			if ($basename != 'settings' && $basename != 'modules') {
 				$name = preg_replace("/[^\w\d]/iu", " ", $basename);
-				$name = mb_ucfirst($name);
+				$name = \Str::ucfirst($name);
 			?>
 			<li>
 				<a href="admin.php?action=language&job=lang_array&id=<?php echo $id; ?>&file=<?php echo $basename; ?>"><?php echo $name; ?></a>
@@ -910,10 +910,10 @@ elseif ($job == 'lang_edit') {
 	$files = array();
 	$d = dir($dir);
 	while (FALSE !== ($entry = $d->read())) {
-		if (mb_substr($entry, -8, 8) == '.lng.php') {
-			$basename = mb_substr($entry, 0, mb_strlen($entry)-8);
+		if (\Str::substr($entry, -8, 8) == '.lng.php') {
+			$basename = \Str::substr($entry, 0, \Str::length($entry)-8);
 			$name = preg_replace("/[^\w\d]/iu", " ", $basename);
-			$name = mb_ucfirst($name);
+			$name = \Str::ucfirst($name);
 			?>
 			<li>
 				<a href="admin.php?action=language&job=lang_array&id=<?php echo $id; ?>&file=admin%2F<?php echo $basename; ?>"><?php echo $name; ?></a>

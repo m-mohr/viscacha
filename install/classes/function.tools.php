@@ -1,8 +1,11 @@
 <?php
+
+use Viscacha\System\PhpSys;
+
 function getFUrl() {
 	// HTTP_HOST is having the correct browser url in most cases...
-	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
-	$https = Sys::isHttps() ? 'https://' : 'http://';
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? \Str::lower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$https = PhpSys::isHttps() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
 	if (!$source) {
@@ -183,7 +186,7 @@ function setPackagesInactive() {
 }
 function removeHook(&$array, $value) {
 	foreach($array as $key => $val) {
-		if(mb_strpos($val, $value) !== false) {
+		if(\Str::contains($val, $value)) {
 			unset($array[$key]);
 		}
 	}
@@ -202,7 +205,7 @@ function insertHookAfter(&$array, $value, $after) {
     if (is_array($array)) {
 		$offset = 0;
 		foreach($array as $key => $val) {
-			if(mb_strpos($val, $after) !== false) {
+			if(\Str::contains($val, $after)) {
 				break;
 			}
     		$offset++;
@@ -245,7 +248,7 @@ function GPC_escape($var, $type = GPC_HTML){
 		$var = str_replace("\0", '', $var);
 		if ($type == GPC_HTML) {
 			$var = str_replace("\0", '', $var);
-			$var = viscacha_htmlentities($var, ENT_QUOTES, false);
+//			$var = \Str::toHtmlEntities($var, ENT_QUOTES, false); // TODO: UTF8- Check this
 		}
 		if ($type == GPC_DB && isset($db) && is_object($db)) {
 			$var = $db->escape_string($var);

@@ -1,6 +1,8 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+use Viscacha\System\PhpSys;
+
 // MM/AM: MultiLangAdmin
 $lang->group("admin/settings");
 $lang->group("timezones");
@@ -759,7 +761,7 @@ elseif ($job == 'user2') {
 	echo head();
 
 	$arraylist = $gpc->get('mlistfields', arr_str);
-	$arraylist = array_map('mb_strtolower', $arraylist);
+	$arraylist = array_map('\Str::lower', $arraylist);
 	$arraylist = array_map('trim', $arraylist);
 	$list = implode(',',$arraylist);
 
@@ -1156,7 +1158,7 @@ elseif ($job == 'attupload2') {
 
 	$list = $gpc->get('tpcfiletypes', none);
 	$arraylist = explode(',', $list);
-	$arraylist = array_map('mb_strtolower', $arraylist);
+	$arraylist = array_map('\Str::lower', $arraylist);
 	$arraylist = array_map('trim', $arraylist);
 	$list = implode(',',$arraylist);
 
@@ -1184,7 +1186,7 @@ elseif ($job == 'avupload') {
 	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_profil_avatar_edit'); ?></b></td>
 	  </tr>
 	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_allowed_file_format_ava'); ?><br /><span class="stext"><?php echo implode(', ', $imagetype_extension); ?><?php echo $lang->phrase('admin_allowed_file_format_ava_info'); ?> </span></td>
+	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_allowed_file_format_ava'); ?><br /><span class="stext"><?php echo implode(', ', Viscacha\IO\Mime::getWebImageExtensions()); ?><?php echo $lang->phrase('admin_allowed_file_format_ava_info'); ?> </span></td>
 	   <td class="mbox" width="50%"><input type="text" name="avfiletypes" value="<?php echo $config['avfiletypes']; ?>" size="50"></td>
 	  </tr>
 	  <tr>
@@ -1214,9 +1216,9 @@ elseif ($job == 'avupload2') {
 
 	$list = $gpc->get('avfiletypes', none);
 	$arraylist = explode(',', $list);
-	$arraylist = array_map('mb_strtolower', $arraylist);
+	$arraylist = array_map('\Str::lower', $arraylist);
 	$arraylist = array_map('trim', $arraylist);
-	$arraylist = array_intersect($imagetype_extension, $arraylist);
+	$arraylist = array_intersect(Viscacha\IO\Mime::getWebImageExtensions(), $arraylist);
 	$list = implode(',',$arraylist);
 
 	$c->updateconfig('avfiletypes',str,$list);
@@ -1283,8 +1285,8 @@ elseif ($job == 'general') {
 	echo head();
 
 	// HTTP_HOST is having the correct browser url in most cases...
-	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? mb_strtolower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
-	$https = Sys::isHttps() ? 'https://' : 'http://';
+	$server_name = (!empty($_SERVER['HTTP_HOST'])) ? \Str::lower($_SERVER['HTTP_HOST']) : ((!empty($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME'));
+	$https = PhpSys::isHttps() ? 'https://' : 'http://';
 
 	$source = (!empty($_SERVER['PHP_SELF'])) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
 	if (!$source) {
@@ -1367,7 +1369,7 @@ elseif ($job == 'sitestatus') {
 	  </tr>
 	  <tr>
 	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_offline_msg'); ?><br><span class="stext"><?php echo $lang->phrase('admin_offline_msg_info'); ?></span></td>
-	   <td class="mbox" width="50%"><textarea class="texteditor" name="foffline_message" rows="5" cols="60"><?php echo viscacha_htmlspecialchars($config['foffline_message']); ?></textarea></td>
+	   <td class="mbox" width="50%"><textarea class="texteditor" name="foffline_message" rows="5" cols="60"><?php echo \Str::toHtml($config['foffline_message']); ?></textarea></td>
 	  </tr>
 	   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
@@ -1841,10 +1843,10 @@ elseif ($job == 'new_group2') {
 	$desc = $gpc->get('description', str);
 	$package = $gpc->get('package', int);
 
-	if (mb_strlen($title) < 3 || strlen($title) > 120) {
+	if (\Str::length($title) < 3 || strlen($title) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_title_short_long'));
 	}
-	if (mb_strlen($name) < 3 || strlen($name) > 120) {
+	if (\Str::length($name) < 3 || strlen($name) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_group_name_short_long'));
 	}
 
@@ -1946,7 +1948,7 @@ elseif ($job == 'new2') {
 	$result = $db->execute("SELECT name FROM {$db->pre}settings_groups WHERE id = '{$group}'");
 	$row = $result->fetch();
 
-	if (isset($config[$row['name']][$name]) || mb_strlen($name) < 3 || strlen($name) > 120) {
+	if (isset($config[$row['name']][$name]) || \Str::length($name) < 3 || strlen($name) > 120) {
 		error('admin.php?action=settings&job=custom', $lang->phrase('admin_name_exists'));
 	}
 	if ($type != 'checkbox' && $type != 'text' && $type != 'textarea' && $type != 'select') {

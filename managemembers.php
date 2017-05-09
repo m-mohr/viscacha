@@ -143,7 +143,7 @@ elseif ($_GET['action'] == 'edit2') {
 	$languages = $loadlanguage_obj->get();
 
 	$_POST['hp'] = trim($_POST['hp']);
-	if (mb_strtolower(mb_substr($_POST['hp'], 0, 4)) == 'www.') {
+	if (\Str::startsWith($_POST['hp'], 'www.', false)) {
 		$_POST['hp'] = "http://{$_POST['hp']}";
 	}
 
@@ -158,7 +158,7 @@ elseif ($_GET['action'] == 'edit2') {
 	$_POST['pw'] = $gpc->get('pw_'.$random, str);
 
 	$error = array();
-	if (mb_strlen($_POST['comment']) > $config['maxaboutlength']) {
+	if (\Str::length($_POST['comment']) > $config['maxaboutlength']) {
 		$error[] = $lang->phrase('about_too_long');
 	}
 	if (check_mail($_POST['email']) == false) {
@@ -167,16 +167,16 @@ elseif ($_GET['action'] == 'edit2') {
 	if ($user['mail'] != $_POST['email'] && double_udata('mail', $_POST['email']) == false) {
 		 $error[] = $lang->phrase('email_already_used');
 	}
-	if (mb_strlen($_POST['name']) > $config['maxnamelength']) {
+	if (\Str::length($_POST['name']) > $config['maxnamelength']) {
 		$error[] = $lang->phrase('name_too_long');
 	}
-	if (mb_strlen($_POST['name']) < $config['minnamelength']) {
+	if (\Str::length($_POST['name']) < $config['minnamelength']) {
 		$error[] = $lang->phrase('name_too_short');
 	}
 	if (strlen($_POST['email']) > 200) {
 		$error[] = $lang->phrase('email_too_long');
 	}
-	if (mb_strlen($_POST['signature']) > $config['maxsiglength']) {
+	if (\Str::length($_POST['signature']) > $config['maxsiglength']) {
 		$error[] = $lang->phrase('editprofile_signature_too_long');
 	}
 	if (strlen($_POST['hp']) > 255) {
@@ -266,7 +266,7 @@ elseif ($_GET['action'] == 'edit2') {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		if (!empty($_POST['pw']) && mb_strlen($_POST['pw']) >= $config['minpwlength']) {
+		if (!empty($_POST['pw']) && \Str::length($_POST['pw']) >= $config['minpwlength']) {
 			$hashed_pw = hash_pw($_POST['pw']);
 			$update_sql = ", pw = '{$hashed_pw}' ";
 		}

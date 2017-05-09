@@ -110,8 +110,8 @@ if ($my->p['admin'] == 1) {
 		}
 		else {
 			echo head();
-			if (!empty($_SERVER['HTTP_REFERER']) && mb_strpos($_SERVER['HTTP_REFERER'], 'action=locate') === false) {
-				$url = viscacha_htmlspecialchars($_SERVER['HTTP_REFERER']);
+			if (!empty($_SERVER['HTTP_REFERER']) && !\Str::contains($_SERVER['HTTP_REFERER'], 'action=locate')) {
+				$url = \Str::toHtml($_SERVER['HTTP_REFERER']);
 			}
 			else {
 				$url = 'javascript:history.back(-1);';

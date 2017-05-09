@@ -11,6 +11,8 @@
 
 namespace Viscacha\System\Cron;
 
+use Viscacha\System\PhpSys;
+
 class Executor {
 
 	const PC_MINUTE = 1;
@@ -57,7 +59,7 @@ class Executor {
 	}
 
 	protected function logMessage($msg) {
-		if ($msg[mb_strlen($msg) - 1] != "\n") {
+		if ($msg[\Str::length($msg) - 1] != "\n") {
 			$msg .= "\n";
 		}
 		$this->resultsSummary .= $msg;
@@ -137,7 +139,7 @@ class Executor {
 			$success = false;
 			if (file_exists($jobPath)) {
 				include($jobPath);
-				$name = Sys::getClassNameFromFile($jobPath);
+				$name = PhpSys::getClassNameFromFile($jobPath);
 				if ($name !== null) {
 					$jobObject = new $name();
 					$success = $jobObject->run($jobData);
@@ -189,7 +191,7 @@ class Executor {
 						);
 					}
 					$jobs[$jobNumber][self::PC_CMD] = trim($job[self::PC_CMD]);
-					$jobs[$jobNumber][self::PC_COMMENT] = trim(mb_substr($job[self::PC_COMMENT], 1));
+					$jobs[$jobNumber][self::PC_COMMENT] = trim(\Str::substr($job[self::PC_COMMENT], 1));
 					$jobs[$jobNumber][self::PC_ARGS] = array();
 					if (preg_match_all('~(("([^"]*)")|(\S+))\s*~iu', $jobs[$jobNumber][self::PC_CMD], $jobArgs, PREG_PATTERN_ORDER)) {
 						for ($ii = 0; $ii < count($jobArgs[1]); $ii++) {

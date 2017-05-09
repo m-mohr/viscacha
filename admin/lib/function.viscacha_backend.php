@@ -24,7 +24,7 @@ define('IMPTYPE_BBCODE', 5);
 
 // Database
 $db = new Viscacha\Database\Database($config['dbsystem'], $config['dbuser'], $config['dbpw'], $config['host'], $config['database'], $config['dbprefix'], 'utf8mb4', 'utf8mb4_general_ci');
-$db->populateGlobal('DB');
+$db->populateGlobal('\DB');
 
 // Variables
 require_once ("classes/function.gpc.php");
@@ -205,7 +205,7 @@ function getHookArray() {
 			continue;
 		}
 		if ($group != null && $line{0} == '-') {
-			$hooks[$group][] = mb_substr($line, 1);
+			$hooks[$group][] = \Str::substr($line, 1);
 		}
 	}
 	return $hooks;
@@ -288,7 +288,7 @@ function get_webserver() {
 	elseif (preg_match('~Zeus/([0-9\.]+)~siUu', $_SERVER['SERVER_SOFTWARE'], $wsregs)) {
 		$webserver = "Zeus v$wsregs[1]";
 	}
-	elseif (mb_strtoupper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {
+	elseif (\Str::upper($_SERVER['SERVER_SOFTWARE']) == 'APACHE') {
 		$webserver = 'Apache';
 	}
 	elseif (defined('SAPI_NAME')) {

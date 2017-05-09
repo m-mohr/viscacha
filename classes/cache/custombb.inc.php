@@ -1,7 +1,7 @@
 <?php
 class cache_custombb extends CacheItem {
 	function getRegexp($type, $param = true) {
-		switch (mb_strtolower($type)) {
+		switch (\Str::lower($type)) {
 			case 'hexcolor':
 				return '#?[\da-f]{3,6}';
 			case 'int':
@@ -22,7 +22,7 @@ class cache_custombb extends CacheItem {
 				return '[a-z]';
 			default:
 				$parts = explode(':', $type, 2);
-				if (count($parts) == 2 && mb_strtolower($parts[0]) == 'regexp') {
+				if (count($parts) == 2 && \Str::lower($parts[0]) == 'regexp') {
 					return $parts[1];
 				}
 				else if ($param) {

@@ -22,6 +22,8 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+use Viscacha\System\PhpSys;
+
 require_once("classes/function.frontend_init.php");
 
 define('BOARD_STATE_OLD', 0);
@@ -40,12 +42,12 @@ function getRedirectURL($standard = true) {
 	else {
 		$file = basename($loc);
 	}
-	if (mb_strpos($file, '?') !== false) {
+	if (\Str::contains($file, '?')) {
 		$parts = explode('?', $file, 2);
 		$file = $parts[0];
 		if (!empty($parts[1])) {
 			parse_str($parts[1], $q);
-			if (!empty($q['action']) && mb_substr($q['action'], -1) == '2') {
+			if (!empty($q['action']) && \Str::substr($q['action'], -1) == '2') {
 				$loc = ''; // When the last char of the value of action is 2 we have in most cases a "POST" form
 			}
 		}
@@ -59,7 +61,7 @@ function getRedirectURL($standard = true) {
  		}
 	}
 	if (!empty($loc)) {
-		if (mb_strpos($loc, '?') === false) {
+		if (!\Str::contains($loc, '?')) {
 			$loc .= SID2URL_1;
 		}
 		else {
@@ -71,12 +73,12 @@ function getRedirectURL($standard = true) {
 
 function getRequestURI() {
 	global $config;
-	$method = (isset($_SERVER['REQUEST_METHOD']) && mb_strtoupper($_SERVER['REQUEST_METHOD']) == 'GET');
+	$method = (isset($_SERVER['REQUEST_METHOD']) && \Str::upper($_SERVER['REQUEST_METHOD']) == 'GET');
 	if (empty($_SERVER['REQUEST_URI']) == false && $method == true) {
 		$request_uri = '';
 		$var = parse_url($config['furl']);
 		$request_uri = sprintf('http%s://%s%s',
-			(Sys::isHttps() ? 's': ''),
+			(PhpSys::isHttps() ? 's': ''),
 			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $var['host']),
 			$_SERVER['REQUEST_URI']
 		);
@@ -88,7 +90,7 @@ function getRequestURI() {
 			}
 			$file = basename($url['path']);
 			if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
-				if (mb_strpos($loc, '?') === false) {
+				if (!\Str::contains($loc, '?')) {
 					$request_uri .= SID2URL_1;
 				}
 				else {
@@ -108,11 +110,11 @@ function getRefererURL() {
 		$url = parse_url($_SERVER['HTTP_REFERER']);
 		if (!empty($url['query'])) {
 			parse_str($url['query'], $q);
-			if (!empty($q['action']) && mb_substr($q['action'], -1) == '2') {
+			if (!empty($q['action']) && \Str::substr($q['action'], -1) == '2') {
 				return ''; // When the last char of the value of action is 2 we have in most cases a "POST" form
 			}
 		}
-		if (!empty($url['host']) && mb_strpos($config['furl'], $url['host']) !== FALSE) {
+		if (!empty($url['host']) && \Str::contains($config['furl'], $url['host'])) {
 			$request_uri = $_SERVER['HTTP_REFERER'];
 		}
 		$request_uri = preg_replace('~(\?|&)s=[A-Za-z0-9]*~iu', '', $request_uri);
@@ -121,7 +123,7 @@ function getRefererURL() {
 		}
 		$file = basename($url['path']);
 		if (!empty($loc) && file_exists($file) && $file != 'log.php' && $file != 'register.php') {
-			if (mb_strpos($loc, '?') === false) {
+			if (!\Str::contains($loc, '?')) {
 				$request_uri .= SID2URL_1;
 			}
 			else {
@@ -148,7 +150,7 @@ function cmp_edit_date($a, $b) {
 }
 
 function DocCodePagination($cc) {
-	$pos1 = mb_stripos($cc, '{pagebreak}');
+	$pos1 = \Str::indexOf($cc, '{pagebreak}', false);
 	if ($pos1 === false) {
 		return array($cc, '');
 	}
@@ -159,7 +161,7 @@ function DocCodePagination($cc) {
 			$page = 0;
 			$_GET['page'] = 1;
 		}
-		$id = viscacha_htmlspecialchars($_GET['id']);
+		$id = \Str::toHtml($_GET['id']);
 		$pages = pages(count($pgc), 1, "docs.php?id={$id}&amp;", $_GET['page']);
 		return array($pgc[$page], $pages);
 	}
@@ -506,9 +508,9 @@ function BoardSelect($board = 0) {
 							$forum['l_prefix'] = '';
 						}
 
-						if (mb_strlen($forum['l_topic']) > $config['lasttopic_chars']) {
+						if (\Str::length($forum['l_topic']) > $config['lasttopic_chars']) {
 							$forum['l_topic_full'] = $forum['l_prefix'].$forum['l_topic'];
-							$forum['l_topic'] = Str::limit($forum['l_topic'], $config['lasttopic_chars']);
+							$forum['l_topic'] = \Str::limit($forum['l_topic'], $config['lasttopic_chars']);
 						}
 						else {
 							$forum['l_topic_full'] = '';
@@ -612,7 +614,7 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	}
 
 	if (!empty($errorurl)) {
-		$js_errorurl = viscacha_html_entity_decode($errorurl, ENT_NOQUOTES);
+		$js_errorurl = \Str::fromHtml($errorurl, ENT_NOQUOTES);
 		$errorurl = preg_replace('~&(?!amp;)~iu', '&amp;', $errorurl);
 	}
 	else {
@@ -675,7 +677,7 @@ function error($errormsg = null, $errorurl = null, $EOS = null) {
 		Viscacha\View\FlashMessage::addError($errormsg);
 		global $slog;
 		$slog->updatelogged();
-		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
+		sendStatusCode(302, \Str::fromHtml($errorurl));
 	}
 
 	general_message('error', 'error', $errormsg, $errorurl, $EOS);
@@ -691,7 +693,7 @@ function ok($errormsg = null, $errorurl = null, $EOS = null) {
 		Viscacha\View\FlashMessage::addConfirmation($errormsg);
 		global $slog;
 		$slog->updatelogged();
-		sendStatusCode(302, viscacha_html_entity_decode($errorurl));
+		sendStatusCode(302, \Str::fromHtml($errorurl));
 	}
 
 	general_message('ok', 'ok', $errormsg, $errorurl, $EOS);

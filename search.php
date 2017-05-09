@@ -52,20 +52,20 @@ if ($_GET['action'] == "search") {
 	$boards = $gpc->get('boards', arr_int);
 	$search = preg_replace("/(\s){1,}/isu", " ", $gpc->get('search', str));
     $search = preg_replace("/\*{1,}/isu", '*', $search);
-    $searchwords = Str::splitWords($search);
+    $searchwords = \Str::splitWords($search);
 	$ignorewords = $lang->get_words();
 
 	$ignored = array();
 	$used = array();
 	foreach ($searchwords as $sw) {
 		if ($sw{0} == '-') {
-			$sw2 = mb_substr($sw, 1);
+			$sw2 = \Str::substr($sw, 1);
 		}
 		else {
 			$sw2 = $sw;
 		}
 		$sw2 = str_replace('*', '', $sw2);
-		if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strlen($sw2) < $config['searchminlength']) {
+		if (in_array(\Str::lower($sw2), $ignorewords) || \Str::length($sw2) < $config['searchminlength']) {
 			$ignored[] = $sw2;
 		}
 		else {
@@ -74,7 +74,7 @@ if ($_GET['action'] == "search") {
 	}
 
 	$name = $gpc->get('name', str);
-	if (mb_strlen($name) >= $config['searchminlength']) {
+	if (\Str::length($name) >= $config['searchminlength']) {
 		$id = $db->fetchOne("SELECT id FROM {$db->pre}user WHERE deleted_at IS NULL AND name = '{$name}' LIMIT 1");
 		if ($id) {
 			$rname = $id;
@@ -108,7 +108,7 @@ if ($_GET['action'] == "search") {
 		$str = $used[$i];
 		if ($str{0} == '-') {
 			$not = 'NOT ';
-			$str = mb_substr($str, 1);
+			$str = \Str::substr($str, 1);
 		}
 		else {
 			$not = '';
@@ -124,7 +124,7 @@ if ($_GET['action'] == "search") {
 		}
 	}
 
-	if (array_empty($boards)) {
+	if (is_array_empty($boards)) {
 		$boards = $slog->getBoards();
 	}
 	$sql_where = $slog->sqlinboards('t.board', 1, $boards)." ";
@@ -140,7 +140,7 @@ if ($_GET['action'] == "search") {
 		$sql_where .= "r.name = '{$rname}' ";
 	}
 
-	if (mb_strlen($name) >= $config['searchminlength']) {
+	if (\Str::length($name) >= $config['searchminlength']) {
 		$used[] = $name;
 	}
 	else {
@@ -344,7 +344,7 @@ elseif ($_GET['action'] == "active") {
    		}
 	}
 	elseif (preg_match("/(days|hours)-(\d{1,2})/iu", $_GET['type'], $type)) {
-		$type[1] = mb_strtolower($type[1]);
+		$type[1] = \Str::lower($type[1]);
 		if (empty($type[1])) {
 			$type[1] = 'days';
 		}

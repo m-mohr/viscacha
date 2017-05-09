@@ -123,7 +123,7 @@ class PluginSystem {
 			$this->docs = $cache->get();
 		}
 		@list($prefix, $suffix) = explode('->', $gpc->plain_str($key), 2);
-		$prefix = mb_strtolower($prefix);
+		$prefix = \Str::lower($prefix);
 		if ($prefix == 'lang' && $suffix != null) {
 			return $lang->phrase($suffix).iif($show_key, " [{$key}]");
 		}
@@ -253,12 +253,12 @@ class PluginSystem {
 	}
 
 	function _group($pos) {
-		$offset = mb_strpos ($pos, '_');
+		$offset = \Str::indexOf($pos, '_');
 		if ($offset === false) {
 			return $pos;
 		}
 		else {
-			return mb_substr($pos, 0, $offset);
+			return \Str::substr($pos, 0, $offset);
 		}
 	}
 

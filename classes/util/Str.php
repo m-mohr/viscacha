@@ -69,39 +69,48 @@ class Str {
 
 		return static::$camelCache[$value] = lcfirst(static::studly($value));
 	}
+	
+	/**
+	 * @see strcmp()
+	 * @param string $string
+	 * @param string $string2
+	 * @return string
+	 */
+	public static function compare($string, $string2) {
+		return strcmp(static::upper($string), static::upper($string2));
+	}
+	
+	/**
+	 * @see strnatcmp()
+	 * @param string $string
+	 * @param string $string2
+	 * @return string
+	 */
+	public static function compareNatural($string, $string2) {
+		return strnatcmp(static::upper($string), static::upper($string2));
+	}
 
 	/**
 	 * Determine if a given string contains a given substring.
 	 *
 	 * @param  string  $haystack
-	 * @param  string|array  $needles
+	 * @param  string  $needle
 	 * @return bool
 	 */
-	public static function contains($haystack, $needles) {
-		foreach ((array) $needles as $needle) {
-			if ($needle != '' && mb_strpos($haystack, $needle) !== false) {
-				return true;
-			}
-		}
-
-		return false;
+	public static function contains($haystack, $needle, $caseSensitive = true, $offset = 0) {
+		return (static::indexOf($haystack, $needle, $caseSensitive, $offset) !== false);
 	}
 
 	/**
 	 * Determine if a given string ends with a given substring.
 	 *
 	 * @param  string  $haystack
-	 * @param  string|array  $needles
+	 * @param  string  $needle
+	 * @param  bool    $caseSensitive
 	 * @return bool
 	 */
-	public static function endsWith($haystack, $needles) {
-		foreach ((array) $needles as $needle) {
-			if (substr($haystack, -strlen($needle)) === (string) $needle) {
-				return true;
-			}
-		}
-
-		return false;
+	public static function endsWith($haystack, $needle, $caseSensitive = true) {
+		return (self::lastIndexOf($haystack, $needle, $caseSensitive) === self::length($haystack)-self::length($needle));
 	}
 
 	/**
@@ -115,6 +124,82 @@ class Str {
 		$quoted = preg_quote($cap, '/');
 
 		return preg_replace('/(?:' . $quoted . ')+$/u', '', $value) . $cap;
+	}
+	
+	/**
+	 * @see htmlentities()
+	 * @param string $text
+	 * @param int $quote
+	 * @param boolean $double_encode
+	 * @return string
+	 */
+	public static function toHtmlEntities($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = true) {
+		return htmlentities($text, $quote, 'UTF-8', $double_encode);
+	}
+	
+	/**
+	 * @see html_entity_decode()
+	 * @param stromg $text
+	 * @param int $quote
+	 * @return string
+	 */
+	public static function fromHtmlEntities($text, $quote = ENT_QUOTES | ENT_HTML5) {
+		return html_entity_decode($text, $quote, 'UTF-8');
+	}
+	
+	/**
+	 * @see htmlspecialchars()
+	 * @param string $text
+	 * @param int $quote
+	 * @param boolean $double_encode
+	 * @return string
+	 */
+	public static function toHtml($text, $quote = ENT_QUOTES | ENT_HTML5, $double_encode = true) {
+		return htmlspecialchars($text, $quote, 'UTF-8', $double_encode);
+	}
+	
+	/**
+	 * @see htmlspecialchars_decode()
+	 * @param stromg $text
+	 * @param int $quote
+	 * @return string
+	 */
+	public static function fromHtml($text, $quote = ENT_QUOTES | ENT_HTML5) {
+		return htmlspecialchars_decode($text, $quote, 'UTF-8');
+	}
+
+	/**
+	 * Determine where a given string contains a given substring.
+	 *
+	 * @param  string  $haystack
+	 * @param  string  $needle
+	 * @param  bool    $caseSensitive
+	 * @return bool
+	 */
+	public static function indexOf($haystack, $needle, $caseSensitive = true, $offset = 0) {
+		if ($caseSensitive) {
+			return mb_strpos($haystack, $needle, $offset, 'UTF-8');
+		}
+		else {
+			return mb_stripos($haystack, $needle, $offset, 'UTF-8');
+		}
+	}
+
+	/**
+	 * Determine where a given string contains a given substring, starting from the right.
+	 *
+	 * @param  string  $haystack
+	 * @param  string  $needle
+	 * @param  bool    $caseSensitive
+	 * @return bool
+	 */
+	public static function lastIndexOf($haystack, $needle, $caseSensitive = true, $offset = 0) {
+		if ($caseSensitive) {
+			return mb_strrpos($haystack, $needle, $offset, 'UTF-8');
+		}
+		else {
+			return mb_strripos($haystack, $needle, $offset, 'UTF-8');
+		}
 	}
 
 	/**
@@ -156,7 +241,7 @@ class Str {
 	 * @return int
 	 */
 	public static function length($value) {
-		return mb_strlen($value);
+		return mb_strlen($value, 'UTF-8');
 	}
 
 	/**
@@ -337,7 +422,7 @@ class Str {
 		$title = str_replace('@', $separator . 'at' . $separator, $title);
 
 		// Remove all characters that are not the separator, letters, numbers, or whitespace.
-		$title = preg_replace('![^' . preg_quote($separator) . '\pL\pN\s]+!u', '', mb_strtolower($title));
+		$title = preg_replace('![^' . preg_quote($separator) . '\pL\pN\s]+!u', '', static::lower($title));
 
 		// Replace all separator characters and whitespace by a single separator
 		$title = preg_replace('![' . preg_quote($separator) . '\s]+!u', $separator, $title);
@@ -372,17 +457,12 @@ class Str {
 	 * Determine if a given string starts with a given substring.
 	 *
 	 * @param  string  $haystack
-	 * @param  string|array  $needles
+	 * @param  string  $needle
+	 * @param  bool    $caseSensitive
 	 * @return bool
 	 */
-	public static function startsWith($haystack, $needles) {
-		foreach ((array) $needles as $needle) {
-			if ($needle != '' && substr($haystack, 0, strlen($needle)) === (string) $needle) {
-				return true;
-			}
-		}
-
-		return false;
+	public static function startsWith($haystack, $needle, $caseSensitive = true) {
+		return ($needle != '' && self::indexOf($haystack, $needle, $caseSensitive) === 0);
 	}
 
 	/**
@@ -426,6 +506,30 @@ class Str {
 	}
 
 	/**
+	 * Make each word's first character uppercase.
+	 *
+	 * @see https://github.com/martinlindhe/php-mb-helpers
+	 * @param  string  $string
+	 * @return string
+	 */
+	public static function ucwords($string) {
+        $upper = true;
+        $res = '';
+        for ($i = 0; $i < static::length($string); $i++) {
+            $c = static::substr($string, $i, 1);
+            if ($upper) {
+                $c = mb_convert_case($c, MB_CASE_UPPER, 'UTF-8');
+                $upper = false;
+            }
+            if ($c == ' ') { // ToDo: Is this separator enough?
+                $upper = true;
+            }
+            $res .= $c;
+        }
+        return $res;
+	}
+
+	/**
 	 * Splits a string to an array containing it's words.
 	 * 
 	 * @param  string  $string
@@ -433,6 +537,26 @@ class Str {
 	 */
 	public static function splitWords($string) {
 		return preg_split('/[^\p{L}\p{M}\p{N}\p{Pc}\p{Pd}]+/u', $string, -1, PREG_SPLIT_NO_EMPTY);
+	}
+	
+    /**
+	 * @see https://github.com/martinlindhe/php-mb-helpers
+     * @param string $string
+     * @param int $split_length
+     * @param string $encoding
+     * @return array
+     * @throws \InvalidArgumentException
+     */
+	public static function splitChunks($string, $split_length = 1) {
+        if ($split_length == 0) {
+            throw new \InvalidArgumentException('The length of each segment must be greater than zero');
+        }
+        $ret = array();
+        $len = static::length($string);
+        for ($i = 0; $i < $len; $i += $split_length) {
+            $ret[] = self::substr($string, $i, $split_length);
+        }
+        return $ret;
 	}
 
 	/**

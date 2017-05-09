@@ -1,6 +1,8 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+use Viscacha\System\PhpSys;
+
 define('ADMIN_IMPORT_PATH', 'admin/lib/import/');
 
 // BF: MultiLangAdmin
@@ -9,7 +11,7 @@ $lang->group("admin/db");
 function exec_query_form ($query = '') {
 	global $db, $lang;
 	$tables = $db->getTables();
-	$lang->assign('maxfilesize', formatFilesize(Sys::getMaxUploadSize()));
+	$lang->assign('maxfilesize', formatFilesize(PhpSys::getMaxUploadSize()));
 ?>
 <script type="text/javascript" src="admin/html/editor/bbcode.js"></script>
 <form name="form" method="post" action="admin.php?action=db&job=query2">
@@ -314,7 +316,7 @@ elseif ($job == 'backup4') {
 	echo foot();
 }
 elseif ($job == 'restore_info') {
-	$mem_limit = Sys::fromIniAsSize('memory_limit');
+	$mem_limit = PhpSys::fromIniAsSize('memory_limit');
 	$ziplimit = $mem_limit / 3;
 	$sqllimit = $mem_limit / 1.5;
 
@@ -322,7 +324,7 @@ elseif ($job == 'restore_info') {
 	$file = $gpc->get('file', path);
 
 	$nfo = pathinfo($dir.$file);
-    if (mb_strtolower($nfo['extension']) == 'zip') {
+    if (\Str::lower($nfo['extension']) == 'zip') {
 		$archive = new PclZip($dir.$file);
 		if (($list = $archive->listContent()) != 0) {
 			if ($list[0]['size'] < $ziplimit) {
@@ -331,9 +333,9 @@ elseif ($job == 'restore_info') {
 				if (count($data[0]['content']) > 0) {
 					$header = array();
 		            foreach ($data[0]['content'] as $h) {
-		            	$comment = mb_substr($h, 0, 2);
+		            	$comment = \Str::substr($h, 0, 2);
 		            	if ($comment == '--' || $comment == '//') {
-		            		$header[] = mb_substr($h, 2);
+		            		$header[] = \Str::substr($h, 2);
 		            	}
 		            	elseif (count($header) > 0) {
 		            		break;
@@ -352,15 +354,15 @@ elseif ($job == 'restore_info') {
     		$header = $lang->phrase('admin_db_file_damaged');
     	}
     }
-    elseif (mb_strtolower($nfo['extension']) == 'sql') {
+    elseif (\Str::lower($nfo['extension']) == 'sql') {
     	if (filesize($dir.$file) < $sqllimit) {
 			$fd = fopen($dir.$file, "r");
 			$header = array();
 			while (!feof($fd)) {
 				$str = fgets($fd);
-				$comment = mb_substr($str, 0, 2);
+				$comment = \Str::substr($str, 0, 2);
 				if ($comment == '--' || $comment == '//') {
-					$header[] = mb_substr($str, 2);
+					$header[] = \Str::substr($str, 2);
 				}
 				elseif (count($header) > 0) {
 					break;
@@ -379,7 +381,7 @@ elseif ($job == 'restore_info') {
 		$header = array_map('trim', $header);
 		$header = implode("<br />\n", $header);
     }
-    if (empty($header) || array_empty($header) == true) {
+    if (empty($header) || is_array_empty($header) == true) {
     	$header = $lang->phrase('admin_db_file_no_comments');
     }
     echo $header;
@@ -405,7 +407,7 @@ elseif ($job == 'restore') {
 		}
 	}
 
-	$maxfilesize = formatFilesize(Sys::getMaxUploadSize());
+	$maxfilesize = formatFilesize(PhpSys::getMaxUploadSize());
 ?>
 <form name="form" method="post" action="admin.php?action=db&job=restore2">
  <table class="border">
@@ -503,7 +505,7 @@ elseif ($job == 'restore2') {
 			// Clear Cache
 			if ($dh = @opendir("./data/cache/")) {
 				while (($file = readdir($dh)) !== false) {
-					if (mb_strpos($file, '.inc.php') !== false) {
+					if (\Str::endsWith($file, '.inc.php')) {
 						$fileTrim = str_replace('.inc.php', '', $file);
 						if (file_exists("classes/data/cache/{$fileTrim}")) {
 							$scache->load($file)->delete();
@@ -565,7 +567,7 @@ elseif ($job == 'query2') {
 		}
 
 		$my_uploader = new Viscacha\IO\Upload();
-		$my_uploader->max_filesize(Sys::getMaxUploadSize());
+		$my_uploader->max_filesize(PhpSys::getMaxUploadSize());
 		$my_uploader->file_types($filetypes);
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
@@ -645,13 +647,13 @@ elseif ($job == 'query2') {
 							$headerPrinted = true;
 							echo '<tr>';
 							foreach (array_keys($row) as $field) {
-								echo '<td class="ubox">'. viscacha_htmlspecialchars($field) . '</td>';
+								echo '<td class="ubox">'. \Str::toHtml($field) . '</td>';
 							}
 							echo '</tr>';
 						}
 						echo "<tr>";
 						foreach ($row as $cell) {
-							echo '<td class="mbox"><pre>' . viscacha_htmlspecialchars($cell) . '</pre></td>';
+							echo '<td class="mbox"><pre>' . \Str::toHtml($cell) . '</pre></td>';
 						}
 						echo '</tr>';
 					}

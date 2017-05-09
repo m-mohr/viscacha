@@ -362,7 +362,7 @@ function logged () {
 		$this->sid = '';
 	}
 
-	if (empty($this->sid) && array_empty($this->cookiedata)) {
+	if (empty($this->sid) && is_array_empty($this->cookiedata)) {
 		$sid = $db->fetchOne('SELECT sid FROM '.$db->pre.'session WHERE ip = "'.$this->ip.'" AND mid = "0" LIMIT 1');
 		if ($sid) {
 			$this->sid = $sid;
@@ -474,7 +474,7 @@ function checkBan() {
 		$row = explode("\t", $row, 6);
 		if ($row[0] == 'ip') {
 			$row[2] = intval($row[2]);
-			if (mb_strpos(' '.$this->ip, ' '.trim($row[1])) !== false && ($row[2] > time() || $row[2] == 0)) {
+			if (\Str::contains(' '.$this->ip, ' '.trim($row[1])) && ($row[2] > time() || $row[2] == 0)) {
 				$ban = true;
 				break;
 			}
@@ -525,7 +525,7 @@ function sid_load() {
 		$sid_checkip = "s.sid = '{$this->sid}'";
 	}
 
-	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
+	if (!is_array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
 		$sql = 'u.id = "'.$this->cookiedata[0].'" AND u.pw = "'.$this->cookiedata[1].'"';
 	}
 	else {
@@ -568,7 +568,7 @@ function sid_load() {
 function sid_new() {
 	global $config, $db, $gpc;
 
-	if (!$this->sidload && !array_empty($this->cookiedata)) {
+	if (!$this->sidload && !is_array_empty($this->cookiedata)) {
 		$load = $db->fetchOne('SELECT mid FROM '.$db->pre.'session WHERE mid = "'.$this->cookiedata[0].'" LIMIT 1');
 		if ($load) {
 			$this->sidload = true;
@@ -577,7 +577,7 @@ function sid_new() {
 		}
 	}
 
-	if (!array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
+	if (!is_array_empty($this->cookiedata) && count($this->cookiedata) == 2) {
 		$my = $db->fetchObject('
 			SELECT u.*, f.*
 			FROM '.$db->pre.'user AS u LEFT JOIN '.$db->pre.'userfields as f ON f.ufid = u.id
@@ -948,7 +948,7 @@ function Permissions ($board = 0, $groups = null, $defaultToMemberPerms = null) 
 
 		$permissions3 = array();
 		foreach ($this->fFields as $key) {
-			$orig_key = mb_substr($key, 2, mb_strlen($key));
+			$orig_key = \Str::substr($key, 2, \Str::length($key));
 			foreach ($permissions2 as $bid => $arr) {
 				if (isset($permissions2[$bid][$key]) && $permissions2[$bid][$key] != -1 && !isset($permissions3[$orig_key])) {
 					$permissions3[$orig_key] = $arr[$key];
@@ -1016,7 +1016,7 @@ function GlobalPermissions() {
 
 	$fFieldValues = array();
 	foreach ($this->fFields as $key) {
-		$key = mb_substr($key, 2, mb_strlen($key));
+		$key = \Str::substr($key, 2, \Str::length($key));
 		$fFieldValues[$key] = $this->permissions[$key];
 	}
 	if (count($boardid) > 0) {
@@ -1052,7 +1052,7 @@ function GlobalPermissions() {
 
 		$permissions3 = array();
 		foreach ($this->fFields as $key) {
-			$orig_key = mb_substr($key, 2, mb_strlen($key));
+			$orig_key = \Str::substr($key, 2, \Str::length($key));
 			foreach ($permissions2 as $bid => $arr) {
 				if (isset($permissions2[$bid][$key]) && $permissions2[$bid][$key] != -1 && !isset($permissions3[$orig_key])) {
 					$permissions3[$orig_key] = $arr[$key];

@@ -191,7 +191,7 @@ class GPC {
 		elseif (is_string($var)){
 			global $db, $lang;
 			$var = $this->secure_null($var);
-			$var = viscacha_htmlentities($var, ENT_QUOTES, false); // TODO: UTF8 - Check this
+//			$var = \Str::toHtmlEntities($var, ENT_QUOTES, false); // TODO: UTF8 - Check this
 			if ($db_esc == true && is_object($db)) {
 				$var = $db->escape($var);
 			}
@@ -300,7 +300,7 @@ class GPC {
 			}
 		}
 		elseif (is_string($var)){
-			$var = viscacha_html_entity_decode($var);
+//			$var = \Str::fromHtmlEntities($var);
 		}
 		return $var;
 	}

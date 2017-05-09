@@ -1,4 +1,7 @@
 <?php
+
+use Viscacha\System\PhpSys;
+
 if(!defined('CRLF')) define('CRLF',"\r\n");
 if(!defined("FTP_AUTOASCII")) define("FTP_AUTOASCII", -1);
 if(!defined("FTP_BINARY")) define("FTP_BINARY", 1);
@@ -76,8 +79,8 @@ class ftp_base {
 		$this->OS_local=FTP_OS_Unix;
 		$this->OS_remote=FTP_OS_Unix;
 		$this->features=array();
-		if(Sys::isWindows() == true) $this->OS_local=FTP_OS_Windows;
-		elseif(Sys::isMac() == true) $this->OS_local=FTP_OS_Mac;
+		if(PhpSys::isWindows() == true) $this->OS_local=FTP_OS_Windows;
+		elseif(PhpSys::isMac() == true) $this->OS_local=FTP_OS_Mac;
 	}
 
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -620,7 +623,7 @@ class ftp_base {
 
 	function glob($pattern, $handle=NULL) {
 		$path=$output=null;
-		if(Sys::isWindows() == true) $slash='\\';
+		if(PhpSys::isWindows() == true) $slash='\\';
 		else $slash='/';
 		$lastpos=strrpos($pattern,$slash);
 		if(!($lastpos===false)) {
@@ -671,7 +674,7 @@ class ftp_base {
 	}
 
 	function glob_regexp($pattern,$probe) {
-		return (Sys::isWindows() != true ?
+		return (PhpSys::isWindows() != true ?
 			preg_match("~{$pattern}~", $probe) :
 			preg_match("~{$pattern}~i", $probe)
 		);

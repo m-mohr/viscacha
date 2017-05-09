@@ -117,7 +117,7 @@ abstract class DB_Driver {
 		$lines = array_map("trim", $lines);
 		$line = '';
 		foreach ($lines as $h) {
-			$comment = mb_substr($h, 0, 2);
+			$comment = \Str::substr($h, 0, 2);
 			if ($comment == '--' || $comment == '//' || empty($h)) {
 				continue;
 			}

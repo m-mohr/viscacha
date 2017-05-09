@@ -4,7 +4,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 // MB: MultiLangAdmin
 $lang->group("admin/bbcodes");
 
-use \Viscacha\Model\Bbcode as CustomBbcode;
+use Viscacha\Model\Bbcode as CustomBbcode;
+use Viscacha\System\PhpSys;
 
 ($code = $plugins->load('admin_bbcodes_jobs')) ? eval($code) : null;
 
@@ -240,14 +241,14 @@ elseif ($job == 'smileys_import2') {
 		// Get existing smiley codes from database
 		$result = $db->execute('SELECT search FROM '.$db->pre.'smileys');
 		while ($row = $result->fetch()) {
-			$codes[] = mb_strtolower($row['search']);
+			$codes[] = \Str::lower($row['search']);
 		}
 	}
 
 	// Copy files and prepare for inserting smileys
 	$sqlinsert = array();
 	foreach ($package as $ini) {
-		if (mb_strpos($ini['replace'], '{folder}') !== false) {
+		if (\Str::contains($ini['replace'], '{folder}')) {
 			$ini['replace_temp'] = str_replace('{folder}', $tempdir, $ini['replace']);
 			$ini['replace_new'] = str_replace('{folder}', $config['smileypath'], $ini['replace']);
 			$ini['replace_new'] = $filesystem->new_filename($ini['replace_new']);
@@ -435,7 +436,7 @@ elseif ($job == 'smileys_add') {
 	if (!empty($_FILES['upload']['name'])) {
 		$my_uploader = new Viscacha\IO\Upload();
 		$my_uploader->max_filesize(200*1024);
-		$my_uploader->file_types($imagetype_extension);
+		$my_uploader->file_types(Viscacha\IO\Mime::getWebImageExtensions());
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {
@@ -447,13 +448,13 @@ elseif ($job == 'smileys_add') {
 		}
 	}
 
-	if (mb_strlen($gpc->get('code', str)) < 2) {
+	if (\Str::length($gpc->get('code', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_code_too_short');
 	}
 	if (empty($has_upload) && empty($img)) {
 		$error[] = $lang->phrase('admin_bbc_path_too_short');
 	}
-	if (mb_strlen($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
+	if (\Str::length($gpc->get('show', int)) != 1 && $gpc->get('show', int) != 0) {
 		$error[] = $lang->phrase('admin_bbc_wrong_spec');
 	}
 	if (count($error) > 0) {
@@ -464,7 +465,7 @@ elseif ($job == 'smileys_add') {
 		$img = '{folder}/'.$has_upload;
 	}
 	else {
-		if (mb_stripos(realpath($img), realpath($config['fpath'])) !== false) {
+		if (\Str::contains(realpath($img), realpath($config['fpath'], false))) {
 			$img = str_replace(realpath($config['fpath']), '{folder}', realpath($img));
 		}
 		else {
@@ -529,7 +530,7 @@ elseif ($job == 'add') {
 	echo head();
 
 	$error = array();
-	if (mb_strlen($gpc->get('temp1', str)) < 2) {
+	if (\Str::length($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
 	if (count($error) > 0) {
@@ -576,13 +577,13 @@ elseif ($job == 'edit2') {
 	$id = $gpc->get('id', int);
 
 	$error = array();
-	if (mb_strlen($gpc->get('temp1', str)) < 2) {
+	if (\Str::length($gpc->get('temp1', str)) < 2) {
 		$error[] = $lang->phrase('admin_bbc_word_too_short');
 	}
-	if (mb_strlen($gpc->get('temp1', str)) > 200) {
+	if (\Str::length($gpc->get('temp1', str)) > 200) {
 		$error[] = $lang->phrase('admin_bbc_word_too_long');
 	}
-	if (mb_strlen($gpc->get('temp2', none)) > 255) {
+	if (\Str::length($gpc->get('temp2', none)) > 255) {
 		$error[] = $lang->phrase('admin_bbc_something_else_too_long');
 	}
 	if (count($error) > 0) {
@@ -645,7 +646,7 @@ elseif ($job == 'custombb_export') {
 	$content = serialize($data);
 
 	viscacha_header('Content-Type: text/plain');
-	viscacha_header('Content-Length: '.mb_strlen($content));
+	viscacha_header('Content-Length: '.\Str::length($content));
 	viscacha_header('Content-Disposition: attachment; filename="'.$data['tag'].'.bbc"');
 
 	print($content);
@@ -677,7 +678,7 @@ elseif ($job == 'custombb_import2') {
 	$inserterrors = array();
 
 	if (!empty($_FILES['upload']['name'])) {
-		$filesize = Sys::getMaxUploadSize();
+		$filesize = PhpSys::getMaxUploadSize();
 		$dir = 'temp/';
 
 		$insertuploads = array();
@@ -918,7 +919,7 @@ elseif ($job == 'custombb_edit2') {
 		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
 	}
 
-	if (mb_strtolower($query['tag']) != mb_strtolower($query['tag_old'])) {
+	if (\Str::compare($query['tag'], $query['tag_old']) != 0) {
 		$bbcodetag = $db->execute("SELECT tag FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
 		if ($bbcodetag) {
 			error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));

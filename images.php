@@ -84,7 +84,7 @@ elseif ($_GET['action'] == 'textimage') {
 		$text = '-';
 	}
 	else {
-		$text = mb_substr($text, 0, 256);
+		$text = \Str::substr($text, 0, 256);
 	}
 	if ($size < 6 || $size > 50) {
 		$size = 10;

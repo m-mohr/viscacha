@@ -22,9 +22,7 @@
 	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜß');
-define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
-define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
+use Viscacha\System\PhpSys;
 
 define('REMOTE_INVALID_URL', 100);
 define('REMOTE_CLIENT_ERROR', 200);
@@ -59,7 +57,7 @@ function hash_pw($password) {
 }
 
 function check_pw($password, $hash) {
-	if (mb_strlen($hash) == 32) {
+	if (\Str::length($hash) == 32) {
 		// Old MD5 way to check passwords
 		global $db;
 		$var = mb_convert_encoding($password, "ISO-8859-15");
@@ -74,16 +72,12 @@ function check_pw($password, $hash) {
 	}
 }
 
-function is_hash($string, $len = 32) {
-	return (bool) preg_match("/^[a-f\d]{{$len}}$/iu", $string);
-}
-
 function newCAPTCHA($place = null) {
 	global $config;
 	$place = 'botgfxtest'.iif(!empty($place), '_'.$place);
 	$cfg = $config[$place];
 	$type = constant('CAPTCHA_TYPE_'.$cfg);
-	$filename = mb_strtolower($type);
+	$filename = \Str::lower($type);
 	require_once("classes/graphic/class.{$filename}.php");
 	$obj = new $type();
 	return $obj;
@@ -166,7 +160,7 @@ function checkRemotePic($pic, $id) {
 	if ($height > $config['avheight']) {
 		return REMOTE_IMAGE_HEIGHT_ERROR;
 	}
-	$types = explode(',', mb_strtolower($config['avfiletypes']));
+	$types = explode(',', \Str::lower($config['avfiletypes']));
 	$ext = image_type_to_extension($type, false);
 	if (!in_array($ext, $types)) {
 		return REMOTE_EXTENSION_ERROR;
@@ -183,7 +177,7 @@ function checkRemotePic($pic, $id) {
 function saveCommaSeparated($list) {
 	$list = preg_replace('~[^\d,]+~iu', '', $list);
 	$list = explode(',', $list);
-	$list = array_empty_trim($list);
+	$list = array_trim_empty($list);
 	$list = implode(',', $list);
 	return $list;
 }
@@ -196,60 +190,6 @@ function JS_URL($url) {
 		$url = 'location.href="'.$url.'"';
 	}
 	return $url;
-}
-
-/**
- * orders a multidimentional array on the base of a label-key
- *
- * @param $arr, the array to be ordered
- * @param $l the "label" identifing the field
- * @param $f the ordering function to be used, mb_strnatcasecmp() by default
- * @return  TRUE on success, FALSE on failure.
- */
-function array_columnsort(&$arr, $l , $f='mb_strnatcasecmp') {
-	return uasort($arr, create_function('$a, $b', "return $f(\$a['$l'], \$b['$l']);"));
-}
-
-function array_empty($array) {
-	if (!is_array($array)) {
-		return null;
-	}
-	$array = array_unique($array);
-	if (count($array) == 0) {
-		return true;
-	}
-	elseif (count($array) == 1) {
-		$current = current($array);
-		if (empty($current)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	else {
-		foreach ($array as $val) {
-			if (!empty($val)) {
-				return false;
-			}
-		}
-		return true;
-	}
-}
-
-function array_empty_trim($array) {
-	if (!is_array($array)) {
-		trigger_error('array_empty_trim() expected argument to be an array!', E_USER_NOTICE);
-	}
-	else {
-		foreach($array as $key => $value) {
-			$value = trim($value);
-			if (empty($value)) {
-				unset($array[$key]);
-			}
-		}
-	}
-	return $array;
 }
 
 function double_udata ($opt,$val) {
@@ -276,7 +216,7 @@ function getDocLangID($data) {
 }
 
 function send_nocache_header() {
-	if (!empty($_SERVER['SERVER_SOFTWARE']) && mb_strstr($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
+	if (!empty($_SERVER['SERVER_SOFTWARE']) && \Str::contains($_SERVER['SERVER_SOFTWARE'], 'Apache/2')) {
 		header ('Cache-Control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0');
 	}
 	else {
@@ -335,7 +275,7 @@ function serverload($int = false) {
 	else {
 		$unknown = -1;
 	}
-	if(Sys::isWindows() == true) {
+	if(PhpSys::isWindows() == true) {
 		return $unknown;
 	}
 	if(@file_exists("/proc/loadavg")) {
@@ -364,7 +304,7 @@ function serverload($int = false) {
 
 function convert2path($path, $returnEmptyOnInvalid = false) {
 	$invalidChars = array('<', '>', '?', '*', '"', "\0", "\r", "\n", "\t");
-	if (!Sys::isWindows()) {
+	if (!PhpSys::isWindows()) {
 		$invalidChars[] = ':';
 	}
 	$newPath = str_replace ('\\', '/', $path);
@@ -378,7 +318,7 @@ function convert2path($path, $returnEmptyOnInvalid = false) {
 
 function convert2adress($url, $toLower = true, $spacer = '-') {
 	if ($toLower == true) {
-		$url = mb_strtolower($url);
+		$url = \Str::lower($url);
 	}
 
 	// International umlauts
@@ -419,15 +359,11 @@ function removeOldImages ($dir, $name) {
 	closedir($dir_open);
 }
 
-function is_url($url) {
-	return (preg_match("~^".URL_REGEXP."$~iu", $url) == 1);
-}
-
 function check_mail($email, $simple = false) {
 	global $config;
-	if(preg_match("~^".EMAIL_REGEXP."$~iu", $email)) {
+	if(is_email($email)) {
 	 	list(, $domain) = explode('@', $email);
-	 	$domain = mb_strtolower($domain);
+	 	$domain = \Str::lower($domain);
 		// Check MX record.
 	 	// The idea for this is from UseBB/phpBB
 	 	if ($config['email_check_mx'] == 1 && !$simple) {
@@ -447,7 +383,7 @@ function random_word($laenge=8) {
 	$string="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-_?!.";
 
 	for ($i=1; $i <= $laenge; $i++) {
-		$newpass .= mb_substr($string, mt_rand(0,mb_strlen($string)-1), 1);
+		$newpass .= \Str::substr($string, mt_rand(0,\Str::length($string)-1), 1);
 	}
 
 	return $newpass;
@@ -514,10 +450,10 @@ function get_extension($url, $include_dot = false) {
 		$path_parts["extension"] = '';
 	}
 	if ($include_dot == false) {
-		return mb_strtolower($path_parts["extension"]);
+		return \Str::lower($path_parts["extension"]);
 	}
 	else {
-		return '.'.mb_strtolower($path_parts["extension"]);
+		return '.'.\Str::lower($path_parts["extension"]);
 	}
 }
 
@@ -563,7 +499,6 @@ function UpdateMemberStats($id) {
 }
 
 function check_ip($ip, $allow_private = false) {
-
    	$private_ips = array("/^0\..+$/u", "/^127\.0\.0\..+$/u", "/^192\.168\..+$/u", "/^172\.16\..+$/u", "/^10..+$/u", "/^224..+$/u", "/^240..+$/u");
 
 	$ok = true;
@@ -620,7 +555,7 @@ function _EnvValToInt($x) {
 			$y = 7;
 		}
 	}
-	$length = mb_strlen($y)-1;
+	$length = \Str::length($y)-1;
 	if ($length > 0) {
 		$i = ord($y{$length});
 	}
@@ -870,7 +805,7 @@ function makecookie($name, $value = '', $expire = 31536000) {
 	else {
 		$expire = 0;
 	}
-	setcookie($name, $value, $expire, null, null, Sys::isHttps());
+	setcookie($name, $value, $expire, null, null, PhpSys::isHttps());
 }
 
 function numbers ($nvar,$deci=null) {
@@ -883,7 +818,7 @@ function numbers ($nvar,$deci=null) {
 	if ($deci == null) {
 		$deci = $config['decimals'];
 	}
-	if (mb_strpos($nvar, '.') === false) {
+	if (!\Str::contains($nvar, '.')) {
 		$deci = 0;
 	}
 

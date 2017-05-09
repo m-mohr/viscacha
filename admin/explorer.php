@@ -1,6 +1,8 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
+use Viscacha\System\PhpSys;
+
 $uploadfields = 5;
 require_once("classes/function.chmod.php");
 require_once("admin/lib/class.servernavigator.php");
@@ -34,14 +36,14 @@ if ($job == 'upload') {
 	}
 	elseif ($cfg == 'dbrestore') {
 		$ups = 1;
-		$filesize = Sys::getMaxUploadSize();
+		$filesize = PhpSys::getMaxUploadSize();
 		$filetypes = 'sql|zip';
 		$dir = realpath('./admin/backup/');
 		$url = 'admin.php?action=db&job=restore';
 	}
 	else {
 		$ups = $uploadfields;
-		$filesize = Sys::getMaxUploadSize();
+		$filesize = PhpSys::getMaxUploadSize();
 		$filetypes = '';
 		$path = $gpc->get('path');
 		$dir = realpath($path);
@@ -276,7 +278,7 @@ elseif ($job == "delete") {
 	$name = iif($type == 'dir', $lang->phrase('admin_explorer_switch_dir'), $lang->phrase('admin_explorer_switch_file'));
 	echo head();
 	if (!file_exists($path)) {
-		$name = mb_ucfirst($name);
+		$name = \Str::ucfirst($name);
 		error('admin.php?action=explorer&path='.urlencode(extract_dir($path, false)), $lang->phrase('admin_explorer_x_does_not_exist'));
 	}
 	?>
@@ -302,7 +304,7 @@ elseif ($job == "delete2") {
 
 	$repath = urlencode(extract_dir($path, false));
 	if (@$filesystem->rmdirr($path)) {
-		$name = mb_ucfirst($name);
+		$name = \Str::ucfirst($name);
 		ok('admin.php?action=explorer&path='.$repath, $lang->phrase('admin_explorer_x_successfully_deleted'));
 	}
 	else {
@@ -328,7 +330,7 @@ elseif ($job == "edit") {
   </tr>
   <tr>
    <td class="mbox" width="15%"><?php echo $lang->phrase('admin_explorer_edit_content'); ?></td>
-   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo viscacha_htmlspecialchars($content); ?></textarea></td>
+   <td class="mbox" width="85%"><textarea name="content" rows="20" cols="110" class="texteditor"><?php echo \Str::toHtml($content); ?></textarea></td>
   </tr>
   <tr>
    <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_explorer_form_save'); ?>" /></td>

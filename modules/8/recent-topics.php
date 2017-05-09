@@ -20,9 +20,9 @@ while ($row = $result->fetch()) {
 		$row['prefix'] = '';
 	}
 
-	if (mb_strlen($row['topic']) >= 75) {
+	if (\Str::length($row['topic']) >= 75) {
 		$row['topic_full'] = $row['prefix'].$row['topic'];
-		$row['topic'] = mb_substr($row['topic'], 0, 75);
+		$row['topic'] = \Str::substr($row['topic'], 0, 75);
 		$row['topic'] .= $lang->phrase('dot_more');
 	}
 	else {

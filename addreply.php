@@ -89,10 +89,10 @@ if ($_GET['action'] == "save") {
 	if (flood_protect(FLOOD_TYPE_POSTING) == false) {
 		$error[] = $lang->phrase('flood_control');
 	}
-	if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
+	if (\Str::length($_POST['comment']) > $config['maxpostlength']) {
 		$error[] = $lang->phrase('comment_too_long');
 	}
-	if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
+	if (\Str::length($_POST['comment']) < $config['minpostlength']) {
 		$error[] = $lang->phrase('comment_too_short');
 	}
 	($code = $plugins->load('addreply_save_errorhandling')) ? eval($code) : null;

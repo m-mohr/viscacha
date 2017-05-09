@@ -205,9 +205,7 @@ if (!empty($info['vquestion'])) {
 			foreach ($vote['entries'] as $key => $row) {
 				if ($row['votes'] > 0) {
 					$row['percent'] = $row['votes'] / $vote['count'] * 100;
-					if (mb_strstr($row['percent'], '.') > 0) {
-						$row['percent'] = numbers($row['percent'], 1);
-					}
+					$row['percent'] = numbers($row['percent'], 1);
 				}
 				else {
 					$row['percent'] = 0;
@@ -292,7 +290,7 @@ while ($row = $result->fetchObject()) {
 			$file['imgheight'] = null;
 
 			$ext = get_extension($file['path']);
-			if (in_array($ext, $imagetype_extension)) {
+			if (in_array($ext, Viscacha\IO\Mime::getWebImageExtensions())) {
 				$imagesize = getimagesize($file['path']);
 				if ($imagesize !== false) {
 					$file['image'] = true;

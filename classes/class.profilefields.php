@@ -115,8 +115,8 @@ class ProfileFieldViewer {
 			$this->data[$this->uid] = array();
 			if (is_array($data)) {
 				foreach ($data as $key => $value) {
-					if (mb_substr($key, 0, 3) == 'fid') {
-						$key = mb_substr($key, 3);
+					if (\Str::substr($key, 0, 3) == 'fid') {
+						$key = \Str::substr($key, 3);
 						$this->data[$this->uid][$key] = $value;
 					}
 				}
@@ -124,8 +124,8 @@ class ProfileFieldViewer {
 			elseif (is_object($data)) {
 				$ovar = get_object_vars($data);
 				foreach ($ovar as $key => $value) {
-					if (mb_substr($key, 0, 3) == 'fid') {
-						$key = mb_substr($key, 3);
+					if (\Str::substr($key, 0, 3) == 'fid') {
+						$key = \Str::substr($key, 3);
 						$this->data[$this->uid][$key] = $value;
 					}
 				}

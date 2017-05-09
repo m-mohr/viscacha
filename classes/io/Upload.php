@@ -53,7 +53,7 @@ class Upload {
 		$this->file_types = array();
 		$this->new_filename = null;
 		$this->error = null;
-		$this->max_filesize = Sys::getMaxUploadSize();
+		$this->max_filesize = PhpSys::getMaxUploadSize();
 		$this->max_image_width = null;
 		$this->max_image_height = null;
 		$this->copy_func = 'move_uploaded_file';
@@ -103,7 +103,7 @@ class Upload {
 	 */
 	function file_types($accept_type = null){
 		if (is_array($accept_type) == true) {
-		    $this->file_types = array_map('mb_strtolower', $accept_type);
+		    $this->file_types = array_map('\Str::lower', $accept_type);
 		}
 		else {
 		    $this->file_types = array('zip','rar','doc','pdf','txt','gif','png','jpg');
@@ -117,7 +117,7 @@ class Upload {
 	 */
 	function set_path($path) {
 		$this->path = $path;
-		if ($path[mb_strlen($path)-1] != '/' && $path[mb_strlen($path)-1] != '\\') {
+		if ($path[\Str::length($path)-1] != '/' && $path[\Str::length($path)-1] != '\\') {
 			$this->path .= '/';
 		}
 	}
@@ -142,8 +142,6 @@ class Upload {
 	 * @return	boolean
 	 */
 	function upload($index) {
-		global $imagetype_extension;
-
 		if (!isset($_FILES[$index]) || !is_array($_FILES[$index])) {
 			$this->error = UPLOAD_ERR_FILE_INDEX;
 			return false;
@@ -160,7 +158,7 @@ class Upload {
 		// Set input field name
 		$this->file['form'] = $index;
 		// Get extension
-		$this->file['extension'] = mb_strtolower(get_extension($this->file['name']));
+		$this->file['extension'] = \Str::lower(get_extension($this->file['name']));
 		// Get file size
 		if (empty($this->file['size']) == true) {
 			$this->file['size'] = filesize($this->file['tmp_name']);
@@ -172,7 +170,7 @@ class Upload {
 			}
 		}
 		// Check image data (height, width, image)
-		if(in_array($this->file['extension'], $imagetype_extension) == true) {
+		if(in_array($this->file['extension'], Viscacha\IO\Mime::getWebImageExtensions()) == true) {
 			$this->file['image'] = true;
 			$properties = @getimagesize($this->file['tmp_name']);
 			if (is_array($properties) == false) {
@@ -190,7 +188,7 @@ class Upload {
 			$this->file['image'] = false;
 		}
 		// Set raw_name
-		$this->file['raw_name'] = mb_substr($this->file['name'], 0, -(mb_strlen($this->file['extension'])+1) );
+		$this->file['raw_name'] = \Str::substr($this->file['name'], 0, -(\Str::length($this->file['extension'])+1) );
 		$this->file['filename'] = $this->file['name'];
 
 		// test max file size
@@ -243,9 +241,9 @@ class Upload {
 			return false;
 		}
 
-		if ($path != null && mb_strlen($path) > 0) {
+		if ($path != null && \Str::length($path) > 0) {
 			$this->path = $path;
-			if ($path[mb_strlen($path)-1] != '/' && $path[mb_strlen($path)-1] != '\\') {
+			if ($path[\Str::length($path)-1] != '/' && $path[\Str::length($path)-1] != '\\') {
 				$this->path .= '/';
 			}
 		}
@@ -303,7 +301,7 @@ class Upload {
 		$this->file['filename'] = $this->file['raw_name'].'.'.$this->file['extension'];
 
 		// Clean up text file line breaks
-		if(mb_substr($this->file['type'], 0, 4) == 'text') {
+		if(\Str::substr($this->file['type'], 0, 4) == 'text') {
 			$this->cleanup_text_file();
 		}
 

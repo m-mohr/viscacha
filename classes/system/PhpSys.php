@@ -2,7 +2,7 @@
 
 namespace Viscacha\System;
 
-class PHP {
+class PhpSys {
 
 	public static function getClassNameFromFile($file, $includeNamespace = true) {
 		$content = file_get_contents($file);
@@ -53,7 +53,7 @@ class PHP {
 	}
 
 	private static function isIniValueTrue() {
-		return ($value === true || $value === 1 || $value === 'true' || $value === '1' || mb_strtolower($value) === 'on');
+		return ($value === true || $value === 1 || $value === 'true' || $value === '1' || \Str::lower($value) === 'on');
 	}
 
 	public static function getMaxUploadSize() {
@@ -70,7 +70,7 @@ class PHP {
 	public static function fromIniAsSize($name) {
 		$value = ini_get($name);
 		$size = trim($value);
-		$last = mb_strtolower(substr($size, -1));
+		$last = \Str::lower(substr($size, -1));
 		$size = intval($size);
 
 		switch ($last) {
@@ -85,11 +85,11 @@ class PHP {
 	}
 
 	public static function isWindows() {
-		if (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows') !== false) {
+		if (function_exists('php_uname') && \Str::contains(@php_uname(), 'windows', false)) {
 			return true;
-		} else if (isset($_SERVER['OS']) && mb_stristr($_SERVER['OS'], 'Windows') !== false) {
+		} else if (isset($_SERVER['OS']) && \Str::contains($_SERVER['OS'], 'Windows', false)) {
 			return true;
-		} else if (defined(PHP_OS) && mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
+		} else if (defined(PHP_OS) && \Str::upper(\Str::substr(PHP_OS, 0, 3)) == 'WIN') {
 			return true;
 		} else {
 			return false;
@@ -97,7 +97,7 @@ class PHP {
 	}
 
 	public static function isMac() {
-		$mac = mb_strtoupper(mb_substr(PHP_OS, 0, 3));
+		$mac = \Str::upper(\Str::substr(PHP_OS, 0, 3));
 		return ($mac == 'MAC' || $mac == 'DAR');
 	}
 

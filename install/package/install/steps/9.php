@@ -46,22 +46,22 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 				$_REQUEST['pwx'] = GPC_escape($_REQUEST['pwx']);
 			}
 
-			if (mb_strlen($_REQUEST['name']) > 50) {
+			if (\Str::length($_REQUEST['name']) > 50) {
 				$error[] = 'Name is too long (max. 50 chars)';
 			}
-			if (mb_strlen($_REQUEST['name']) < 3) {
+			if (\Str::length($_REQUEST['name']) < 3) {
 				$error[] = 'Name is too short (min. 3 chars)';
 			}
-			if (mb_strlen($_REQUEST['pw']) > 64) {
+			if (\Str::length($_REQUEST['pw']) > 64) {
 				$error[] = 'Password is too long (max. 64 chars)';
 			}
-			if (mb_strlen($_REQUEST['pw']) < 4) {
+			if (\Str::length($_REQUEST['pw']) < 4) {
 				$error[] = 'Passwort is too short (min. 4 chars)';
 			}
 			if (strlen($_REQUEST['email']) > 200) {
 				$error[] = 'Email address is too long (max. 200 chars)';
 			}
-			if (mb_strlen($_REQUEST['email']) < 7 || mb_strpos($_REQUEST['email'], '@') === false) {
+			if (\Str::length($_REQUEST['email']) < 7 || !\Str::contains($_REQUEST['email'], '@')) {
 				$error[] = 'The specified email address is not valid';
 			}
 			if ($_REQUEST['pw'] != $_REQUEST['pwx']) {
@@ -96,7 +96,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 $cachedir = 'data/cache/';
 if ($dh = @opendir($dir)) {
 	while (($file = readdir($dh)) !== false) {
-		if (mb_strpos($file, '.inc.php') !== false) {
+		if (\Str::endsWith($file, '.inc.php')) {
 			$fileTrim = str_replace('.inc.php', '', $file);
 			$filesystem->unlink($cachedir.$file);
 		}

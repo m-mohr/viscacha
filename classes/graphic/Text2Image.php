@@ -51,17 +51,17 @@ class Text2Image {
 
 	function imagecolorallocate($hex) {
 		$color = str_replace('#', '', $hex);
-		if (mb_strlen($color) == 3) {
+		if (\Str::length($color) == 3) {
 			$ret = array(
-				'r' => str_repeat(hexdec(mb_substr($color, 0, 1)), 2),
-				'g' => str_repeat(hexdec(mb_substr($color, 1, 1)), 2),
-				'b' => str_repeat(hexdec(mb_substr($color, 2, 1)), 2)
+				'r' => str_repeat(hexdec(\Str::substr($color, 0, 1)), 2),
+				'g' => str_repeat(hexdec(\Str::substr($color, 1, 1)), 2),
+				'b' => str_repeat(hexdec(\Str::substr($color, 2, 1)), 2)
 			);
 		} else {
 			$ret = array(
-				'r' => hexdec(mb_substr($color, 0, 2)),
-				'g' => hexdec(mb_substr($color, 2, 2)),
-				'b' => hexdec(mb_substr($color, 4, 2))
+				'r' => hexdec(\Str::substr($color, 0, 2)),
+				'g' => hexdec(\Str::substr($color, 2, 2)),
+				'b' => hexdec(\Str::substr($color, 4, 2))
 			);
 		}
 		$gd = imagecolorallocate($this->img, $ret['r'], $ret['g'], $ret['b']);

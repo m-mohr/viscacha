@@ -69,7 +69,7 @@ elseif ($action == 'marktopicread') {
 	sendStatusCode(200);
 }
 elseif ($action == 'doubleudata') {
-	if (mb_strlen($_GET['name']) > 3) {
+	if (\Str::length($_GET['name']) > 3) {
 		$request = 1;
 		if (!$my->vlogin) {
 			if (double_udata('name',$_GET['name']) == false) {
@@ -87,13 +87,13 @@ elseif ($action == 'doubleudata') {
 }
 elseif ($action == 'searchmember') {
 	$request = 1;
-	if (mb_strlen($_GET['name']) > 2) {
+	if (\Str::length($_GET['name']) > 2) {
 		$result = $db->execute('SELECT name FROM '.$db->pre.'user WHERE deleted_at IS NULL AND name LIKE "%'.$_GET['name'].'%" ORDER BY name ASC LIMIT 50');
 		$user = array();
 		while ($row = $result->fetch()) {
 			$user[] = $row['name'];
 		}
-		$request = implode(',', viscacha_htmlspecialchars($user));
+		$request = implode(',', \Str::toHtml($user));
 		echo $request;
 	}
 	else {
@@ -102,23 +102,23 @@ elseif ($action == 'searchmember') {
 }
 elseif ($action == 'search') {
 	$search = $gpc->get('search', str);
-	if (mb_strlen($search) > 2) {
+	if (\Str::length($search) > 2) {
 		$search = urldecode($search);
 		$search = preg_replace("/(\s){1,}/isu"," ",$search);
 	    $search = preg_replace("/\*{1,}/isu",'*',$search);
 		$ignorewords = $lang->get_words();
-		$searchwords = Str::splitWords($search);
+		$searchwords = \Str::splitWords($search);
 		$ignored = array();
 		foreach ($searchwords as $sw) {
 			$sw = trim($sw);
 			if ($sw{0} == '-') {
-				$sw2 = mb_substr($sw, 1);
+				$sw2 = \Str::substr($sw, 1);
 			}
 			else {
 				$sw2 = $sw;
 			}
 			$sw2 = str_replace('*','',$sw2);
-			if (in_array(mb_strtolower($sw2), $ignorewords) || mb_strlen($sw2) < $config['searchminlength']) {
+			if (in_array(\Str::lower($sw2), $ignorewords) || \Str::length($sw2) < $config['searchminlength']) {
 				$ignored[] = $sw2;
 			}
 		}

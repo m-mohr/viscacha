@@ -36,11 +36,9 @@ abstract class Model implements \ArrayAccess {
 	/**
 	 * Name of the column which holds the primary key / unique identifier.
 	 * 
-	 * Can be also a combination of multiple primary keys in an array.
-	 * 
 	 * Default: id
 	 * 
-	 * @var string|array
+	 * @var string
 	 */
 	protected $primaryKey = 'id';
 
@@ -91,6 +89,21 @@ abstract class Model implements \ArrayAccess {
 	 * @var array
 	 */
 	protected $relationData = array();
+	
+	/**
+	 * Rules used for validation.
+	 * 
+	 * @see \Viscacha\IO\Validate
+	 * @var array
+	 */
+	protected $validationRules = array();
+	
+	/**
+	 * Rules used to pre-process / filter the data.
+	 * 
+	 * @var array
+	 */
+	protected $filterRules = array();
 
 	public function __construct($primaryKey = null) {
 		$this->define();
@@ -118,16 +131,12 @@ abstract class Model implements \ArrayAccess {
 	}
 
 	public function isPrimaryKey($column) {
-		return (is_string($this->primaryKey) && $this->primaryKey == $column) || (is_array($this->primaryKey) && in_array($column, $this->primaryKey));
+		return is_string($this->primaryKey) && $this->primaryKey == $column;
 	}
 
 	private function setPrimaryKeyData($primaryKey) {
 		if (is_string($this->primaryKey)) {
 			$this->data[$this->primaryKey] = $primaryKey;
-		} else if (is_array($this->primaryKey) && count($this->primaryKey) > 0) {
-			foreach ($this->primaryKey as $pk) {
-				$this->data[$pk] = $primaryKey[$pk];
-			}
 		}
 	}
 
@@ -137,12 +146,6 @@ abstract class Model implements \ArrayAccess {
 		}
 		if (is_string($this->primaryKey)) {
 			return [$this->primaryKey => $this->data[$this->primaryKey]];
-		} else if (is_array($this->primaryKey) && count($this->primaryKey) > 0) {
-			$pks = array();
-			foreach ($this->primaryKey as $pk) {
-				$pks[$pk] = $this->data[$pk];
-			}
-			return $pks;
 		}
 
 		throw new NoPrimaryKeyException();
@@ -206,14 +209,7 @@ abstract class Model implements \ArrayAccess {
 	}
 
 	public function isNew() {
-		if (is_array($this->primaryKey) && count($this->primaryKey) > 0) {
-			foreach ($this->primaryKey as $pk) {
-				if (!$this->hasData($pk)) {
-					return false;
-				}
-			}
-			return true;
-		} else if (is_string($this->primaryKey)) {
+		if (is_string($this->primaryKey)) {
 			return !$this->hasData($this->primaryKey);
 		}
 		throw new NoPrimaryKeyException();
@@ -226,12 +222,18 @@ abstract class Model implements \ArrayAccess {
 		}
 
 		if ($this->isNew()) {
-			$this->query()->insert($this->table, $changed)->where($this->getPrimaryKeyData())->execute();
+			$stmt = $this->query()->insert($this->table, $changed)->where($this->getPrimaryKeyData())->execute();
+			if ($stmt) {
+				$this->setPrimaryKeyData(\DB::getInsertId());
+			}
 		} else {
-			$this->query()->update($this->table, $changed)->where($this->getPrimaryKeyData())->execute();
+			$stmt = $this->query()->update($this->table, $changed)->where($this->getPrimaryKeyData())->execute();
 		}
-
-		$this->syncOriginal();
+		if ($stmt) {
+			$this->syncOriginal();
+			return true;
+		}
+		return false;
 	}
 
 	public function recover() {
@@ -254,6 +256,24 @@ abstract class Model implements \ArrayAccess {
 
 	public function load() {
 		$this->query()->select($this->table)->where($this->getPrimaryKeyData())->fetchObject($this);
+	}
+	
+	public function fillFromPost() {
+		return $this->fill($_POST);
+	}
+	
+	public function fill(array $data) {
+		$filter = new \Viscacha\IO\Validate\FilterPreProcessor();
+		$data = $filter->process($this->filterRules, $data);
+
+		$validator = new \Viscacha\IO\Validate\Validator();
+		if ($validator->validate($this->validationRules, $data)) {
+			$this->data = array_merge($this->data, $data);
+		}
+		else {
+			throw new InvalidMassDataException($validator->getGroupedErrors());
+		}
+		return $this;
 	}
 
 	public function injectRelationData($column, Model $model) {

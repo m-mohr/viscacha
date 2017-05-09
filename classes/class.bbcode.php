@@ -62,15 +62,14 @@ class BBCode {
 
 		// See: http://en.wikipedia.org/wiki/URI_scheme
 		$url_protocol = "([a-z]{3,9}://|www\.)";
-		$url_word = URL_SPECIALCHARS;
-		$url_auth = "(?:(?:[{$url_word}_\d\-\.]{1,}\:)?[{$url_word}\d\-\._]{1,}@)?"; // Authorisation information
-		$url_host = "(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[{$url_word}\d\.\-]{2,}\.[a-z]{2,7})(?:\:\d+)?"; // Host (domain, tld, ip, port)
-		$url_path = "(?:\/[{$url_word}\d\/;\-%@\~,\.\+\!=_]*)?"; // Path
-		$url_query = "(?:\?[{$url_word}\d=\&;\.:,\_\-\/%@\+\~\[\]]*)?"; // Query String
-		$url_fragment = "(?:#[\w\d\-]*)?"; // Fragment
+		$url_auth = "(?:(?:[\p{L}\p{Nd}_\-\.]{1,}\:)?[\p{L}\p{Nd}\-\._]{1,}@)?"; // Authorisation information
+		$url_host = "(?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[\p{L}\p{Nd}\.\-]{2,}\.\p{L}{2,7})(?:\:\d+)?"; // Host (domain, tld, ip, port)
+		$url_path = "(?:\/[\p{L}\p{Nd}\/;\-%@\~,\.\+\!=_]*)?"; // Path
+		$url_query = "(?:\?[\p{L}\p{Nd}=\&;\.:,\_\-\/%@\+\~\[\]]*)?"; // Query String
+		$url_fragment = "(?:#[\p{L}\p{Nd}\-]*)?"; // Fragment
 		// URL RegExp - Two matches predefined: First is whole url, second is URI scheme
 		$this->url_regex = "({$url_protocol}{$url_auth}{$url_host}{$url_path}{$url_query}{$url_fragment})";
-		$this->url_regex2 = "({$url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[{$url_word}\d=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
+		$this->url_regex2 = "({$url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[\p{L}\p{Nd}=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
 
 		$this->setProfile($profile, SP_NEW);
 	}
@@ -217,7 +216,7 @@ class BBCode {
 	protected function cb_url($url, $title = false, $prefix = '', $suffix = '') {
 		global $config;
 
-		if (mb_strtolower(mb_substr($url, 0, 4)) == 'www.') {
+		if (\Str::startsWith($url, 'www.', false)) {
 			$url = "http://{$url}";
 		}
 
@@ -227,13 +226,13 @@ class BBCode {
 		if ($title != false) { // Ein Titel wurde angegeben
 			$ahref = '<a href="<!PID:' . $pid . '>" target="_blank">' . $title . '</a>';
 			return $ahref;
-		} elseif ($this->profile['reduceUrl'] == 1 && mb_strlen($url) >= $this->profile['reducelength']) { // Die URL wird als Titel genommen und gekürzt
+		} elseif ($this->profile['reduceUrl'] == 1 && \Str::length($url) >= $this->profile['reducelength']) { // Die URL wird als Titel genommen und gekürzt
 			$before = ceil($this->profile['reducelength'] / 5);
-			$after = mb_strpos($url, '/', 8);
+			$after = \Str::indexOf($url, '/', true, 8);
 			if ($after === false) {
 				$after = ceil($this->profile['reducelength'] / 3);
 			}
-			$newurl = mb_substr($url, 0, $after + 1) . $this->profile['reducesep'] . mb_substr($url, -$before);
+			$newurl = \Str::substr($url, 0, $after + 1) . $this->profile['reducesep'] . \Str::substr($url, -$before);
 			$pid2 = $this->noparse_id();
 			$this->noparse[$pid2] = $newurl;
 			$ahref = '<a href="<!PID:' . $pid . '>" target="_blank"><!PID:' . $pid2 . '></a>';
@@ -276,7 +275,7 @@ class BBCode {
 		$this->noparse = array();
 
 		$text = preg_replace("/(\r\n|\r|\n)/u", "\n", $rawText);
-		$text = viscacha_htmlspecialchars($text, ENT_NOQUOTES, false);
+		$text = \Str::toHtml($text, ENT_NOQUOTES, false);
 
 		$text = preg_replace('/\[hide\](.+?)\[\/hide\]/isu', '', $text); // Deprecated
 		$text = str_ireplace('[reader]', '', $text); // Deprecated
@@ -397,8 +396,8 @@ class BBCode {
 	public function parseTitle($topic) {
 		$topic = str_replace("\t", ' ', $topic);
 		$topic = $this->censor($topic);
-		if ($this->profile['topicuppercase'] == 1 && $topic == mb_strtoupper($topic)) {
-			return mb_ucwords(strtolower($topic));
+		if ($this->profile['topicuppercase'] == 1 && $topic == \Str::upper($topic)) {
+			return \Str::ucwords(strtolower($topic));
 		} else {
 			return $topic;
 		}
@@ -420,7 +419,7 @@ class BBCode {
 				$bbcode_table['width'] = $matches[1];
 			}
 		}
-		$args = explode(';', mb_strtolower($args));
+		$args = explode(';', \Str::lower($args));
 		if (array_search('head', $args) === false) {
 			$bbcode_table['head']['enabled'] = false;
 		} else {
@@ -433,7 +432,7 @@ class BBCode {
 		$bbcode_table['table']['rows'] = count($table_content);
 		for ($i = 0; $i < $bbcode_table['table']['rows']; $i++) {
 			// Testing for old style behaviour
-			if (mb_stripos($table_content[$i], '[tab]') === false) {
+			if (!\Str::contains($table_content[$i], '[tab]', false)) {
 				$table_content[$i] = explode('|', $table_content[$i]);
 			} else {
 				$table_content[$i] = preg_split('~\[tab\]~iu', $table_content[$i]);
@@ -496,7 +495,7 @@ class BBCode {
 	public function parseSmileys($text) {
 		$this->cache_smileys();
 		foreach ($this->smileys as $smiley) {
-			if (mb_strpos($text, $smiley['search']) !== false) {
+			if (\Str::contains($text, $smiley['search'])) {
 				$pattern = '~(\r|\n|\t|\s|\>|\<|^)' . preg_quote($smiley['search'], '~') . '(\r|\n|\t|\s|\>|\<|$)~su';
 				while (preg_match($pattern, $text)) {
 					$text = preg_replace(
@@ -611,7 +610,7 @@ class BBCode {
 		$this->cache_bbcode();
 		if ($this->profile['useCensor'] == 2) {
 			foreach ($this->bbcodes['censor'] as $word) {
-				$letters = mb_str_split($word['search']);
+				$letters = \Str::splitChunks($word['search']);
 				$word['search'] = array();
 				foreach ($letters as $letter) {
 					$word['search'][] = preg_quote($letter, '~');
@@ -705,7 +704,7 @@ class BBCode {
 				unset($cbb[$key]);
 				continue;
 			}
-			$cbb[$key]['title'] = viscacha_htmlspecialchars($bb['title']);
+			$cbb[$key]['title'] = \Str::toHtml($bb['title']);
 			if ($bb['twoparams']) {
 				$cbb[$key]['href'] = "InsertTags('{$id}', '[{$bb['tag']}=]','[/{$bb['tag']}]');";
 			} else {

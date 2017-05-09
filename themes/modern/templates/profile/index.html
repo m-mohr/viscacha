@@ -108,14 +108,14 @@
 		</td>
 	</tr>
 </table>
-@if(mb_strlen($row->signature) > 3 && $row->p['usesignature'])
+@if(\Str::length($row->signature) > 3 && $row->p['usesignature'])
 
 <div class="panel panel-default">
 	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/signature.gif')" alt="" /> @lang('profile_signature')</h3></div>
 	<div class="panel-body">{!! $row->signature !!}</div>
 </div>
 @endif
-@if(mb_strlen($row->about) > 3 && $row->p['useabout'])
+@if(\Str::length($row->about) > 3 && $row->p['useabout'])
 
 <div class="panel panel-default">
 	<div class="panel-heading"><h3 class="panel-title"><img src="@theme('images/about.gif')" alt="" /> @lang('profile_about')</h3></div>

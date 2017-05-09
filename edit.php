@@ -140,22 +140,22 @@ if ($allowed == true) {
 			}
 
 			$error = array();
-			if (mb_strlen($_POST['comment']) > $config['maxpostlength']) {
+			if (\Str::length($_POST['comment']) > $config['maxpostlength']) {
 				$error[] = $lang->phrase('comment_too_long');
 			}
-			if (mb_strlen($_POST['comment']) < $config['minpostlength']) {
+			if (\Str::length($_POST['comment']) < $config['minpostlength']) {
 				$error[] = $lang->phrase('comment_too_short');
 			}
-			if ($info['tstart'] && mb_strlen($_POST['topic']) > $config['maxtitlelength']) {
+			if ($info['tstart'] && \Str::length($_POST['topic']) > $config['maxtitlelength']) {
 				$error[] = $lang->phrase('title_too_long');
 			}
-			if ($info['tstart'] && mb_strlen($_POST['topic']) < $config['mintitlelength']) {
+			if ($info['tstart'] && \Str::length($_POST['topic']) < $config['mintitlelength']) {
 				$error[] = $lang->phrase('title_too_short');
 			}
-			if (mb_strlen($_POST['about']) > $config['maxeditlength']) {
+			if (\Str::length($_POST['about']) > $config['maxeditlength']) {
 				$error[] = $lang->phrase('edit_reason_too_long');
 			}
-			if (mb_strlen($_POST['about']) < $config['mineditlength']) {
+			if (\Str::length($_POST['about']) < $config['mineditlength']) {
 				$error[] = $lang->phrase('edit_reason_too_short');
 			}
 			if (!isset($prefix[$_POST['opt_0']]) && $last['prefix'] == 1) {
