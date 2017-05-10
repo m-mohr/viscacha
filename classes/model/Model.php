@@ -99,11 +99,24 @@ abstract class Model implements \ArrayAccess {
 	protected $validationRules = array();
 	
 	/**
+	 * Validator based on the $validationRules
+	 * 
+	 * @var \Viscacha\IO\Validate\Validator
+	 */
+	private $validationProcessor = null;
+	
+	/**
 	 * Rules used to pre-process / filter the data.
 	 * 
 	 * @var array
 	 */
 	protected $filterRules = array();
+	
+	/**
+	 *
+	 * @var type 
+	 */
+	private $filterProcessor = null;
 
 	public function __construct($primaryKey = null) {
 		$this->define();
@@ -184,13 +197,13 @@ abstract class Model implements \ArrayAccess {
 
 	public function changedData() {
 		$changes = array();
-		foreach ($this->columns as $key => $value) {
-			if (!isset($this->originalData[$key])) {
+		foreach ($this->columns as $column) {
+			if (!array_key_exists($column, $this->originalData)) {
 				continue;
 			}
 
-			if ($this->originalData[$key] !== $this->data[$key]) {
-				$changes[$key] = $value;
+			if ($this->originalData[$column] !== $this->data[$column]) {
+				$changes[$column] = $this->data[$column];
 			}
 		}
 		return $changes;
@@ -222,7 +235,7 @@ abstract class Model implements \ArrayAccess {
 		}
 
 		if ($this->isNew()) {
-			$stmt = $this->query()->insert($this->table, $changed)->where($this->getPrimaryKeyData())->execute();
+			$stmt = $this->query()->insert($this->table, $changed)->execute();
 			if ($stmt) {
 				$this->setPrimaryKeyData(\DB::getInsertId());
 			}
@@ -258,16 +271,46 @@ abstract class Model implements \ArrayAccess {
 		$this->query()->select($this->table)->where($this->getPrimaryKeyData())->fetchObject($this);
 	}
 	
+	public function getValidator() {
+		// Lazy loading to avoid unneccessary parsing of validation rules
+		if ($this->validationProcessor === null) {
+			$this->validationProcessor = new \Viscacha\IO\Validate\Validator($this->validationRules);
+			$this->defineCustomValidators();
+		}
+		return $this->validationProcessor;
+	}
+	
+	public function defineCustomValidators() {
+		
+	}
+	
+	public function getFilter() {
+		// Lazy loading to avoid unneccessary parsing of filter rules
+		if ($this->filterProcessor === null) {
+			$this->filterProcessor = new \Viscacha\IO\Validate\FilterProcessor($this->filterRules);
+			$this->defineCustomFilters();
+		}
+		return $this->filterProcessor;
+	}
+	
+	public function defineCustomFilters() {
+		
+	}
+	
 	public function fillFromPost() {
 		return $this->fill($_POST);
 	}
 	
+	/**
+	 * 
+	 * @param array $data
+	 * @return $this
+	 * @throws InvalidMassDataException
+	 */
 	public function fill(array $data) {
-		$filter = new \Viscacha\IO\Validate\FilterPreProcessor();
-		$data = $filter->process($this->filterRules, $data);
-
-		$validator = new \Viscacha\IO\Validate\Validator();
-		if ($validator->validate($this->validationRules, $data)) {
+		$data = $this->getFilter()->process($data);
+		$validator = $this->getValidator();
+		if ($validator->validate($data)) {
 			$this->data = array_merge($this->data, $data);
 		}
 		else {

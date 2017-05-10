@@ -4,32 +4,117 @@ namespace Viscacha\IO\Validate;
 
 interface Rules {}
 
-abstract class RuleProcessor {
-	
-	private $ruleObject;
+class RuleProcessor {
+
+	protected $processors;
 	protected $rules;
+	private $rulesCache;
+	protected $data;
 	
-	public function __construct(Rules $ruleObject) {
-		$this->ruleObject = $ruleObject;
-
-		$methods = get_class_methods($this->ruleObject);
-		foreach ($methods as $method) {
-			$this->rules[$method] = array($this->ruleObject, $method);
+	/**
+	 * 
+	 * @param \Viscacha\IO\Validate\Rules $object
+	 * @param array $rules
+	 */
+	public function __construct(Rules $object, array $rules) {
+		$this->addProcessorsFromObject($object);
+		$this->setRules($rules);
+	}
+	
+	/**
+	 * Processes the data according to the specified rules using the processors.
+	 * 
+	 * @see Validator::parseRules()
+	 * @param array $allRules
+	 * @param array $data
+	 * @return type
+	 * @throws \InvalidArgumentException
+	 */
+	public function process(array $data) {
+		$this->setData($data);
+		foreach ($this->getRules() as $field => $rules) {
+			foreach($rules as $meta) {
+				if ($this->processRule($field, $meta) !== true) {
+					break;
+				}
+			}
 		}
+		return $this->data;
 	}
 	
-	public function addRule($name, $validationCallback) {
-		$this->rules[$name] = $validationCallback;
+	protected function setData(array $data) {
+		$this->data = array_merge($this->data, $data);
 	}
-
-	protected function callRule($callable, $data, $args) {
-		if (is_array($args)) {
-			array_unshift($args, $data);
-			return call_user_func_array($callable, $args);
+	
+	public function getData($field = null) {
+		if ($field !== null) {
+			return $this->data[$field];
 		}
 		else {
-			return call_user_func($callable, $data);
+			return $this->data;
 		}
+	}
+	
+	public function addProcessorsFromObject(Rules $object) {
+		$methods = get_class_methods($object);
+		foreach ($methods as $method) {
+			$this->processors[$method] = array($object, $method);
+		}
+	}
+	
+	public function addProcessor($name, $callback) {
+		$this->processors[$name] = $callback;
+	}
+	
+	public function getProcessors() {
+		return $this->processors;
+	}
+
+	protected function processRule($field, RuleMeta $meta) {
+		try {
+			$this->data[$field] = $this->callProcess($meta, $this->data[$field]);
+			if ($meta->stopOnSuccess) {
+				return null;
+			}
+		} catch(\Exception $e) {
+			if ($meta->stopOnError) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	protected function callProcess(RuleMeta $meta, $data) {
+		$args = $meta->arguments;
+		// Add the data to the arguments
+		array_unshift($args, $data);
+		// Add the context to the arguments
+		array_push($args, $this);
+
+		return call_user_func_array($this->processors[$meta->name], $args);
+	}
+	
+	/**
+	 * 
+	 * @param array $rules
+	 */
+	protected function setRules(array $rules) {
+		$this->rules = $rules;
+		$this->data = array_fill_keys(array_keys($this->rules), null);
+	}
+	
+	/**
+	 * 
+	 * @return type
+	 * @throws \InvalidArgumentException
+	 */
+	protected function getRules() {
+		if (empty($this->rulesCache)) {
+			foreach ($this->rules as $field => $rulesLine) {
+				$this->rulesCache[$field] = $this->parseRules($rulesLine);
+			}
+		}
+		return $this->rulesCache;
 	}
 	
 	/**
@@ -44,6 +129,7 @@ abstract class RuleProcessor {
 	 * 
 	 * Example: "!nullable|required|§max:1|regexp::/,\|;/u"
 	 * 
+	 * @throws \InvalidArgumentException
 	 * @param type $lineWithRules
 	 * @return array
 	 */
@@ -66,6 +152,9 @@ abstract class RuleProcessor {
 				$args[0] = \Str::substr($args[0], 1);
 			}
 			$meta->name = $args[0];
+			if (!isset($this->processors[$meta->name])) {
+				throw new \InvalidArgumentException("Non-existing processor name specified: '{$meta->name}'");
+			}
 			if (isset($args[1])) {
 				$args[1] = str_replace('\|', '|', $args[1]); // Remove escape char from escaped pipes
 				if (\Str::startsWith($args[1], ':')) {

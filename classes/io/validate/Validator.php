@@ -6,8 +6,13 @@ class Validator extends RuleProcessor {
 
 	protected $errors;
 	
-	public function __construct() {
-		parent::__construct(new ValidatorRules());
+	/**
+	 * 
+	 * @param array $rules
+	 * @throws \InvalidArgumentException
+	 */
+	public function __construct(array $rules) {
+		parent::__construct(new ValidatorRules(), $rules);
 	}
 	
 	public function getGroupedErrors() {
@@ -33,28 +38,31 @@ class Validator extends RuleProcessor {
 	 * @return type
 	 * @throws \InvalidArgumentException
 	 */
-	public function validate(array $allRules, array $data) {
+	public function process(array $data) {
 		$this->errors = array();
-		foreach ($allRules as $field => $lineWithRules) {
-			if (!isset($data[$field])) {
-				$data[$field] = null;
+		return parent::process($data);
+	}
+
+	protected function processRule($field, RuleMeta $meta) {
+		try {
+			$result = $this->callProcess($meta, $this->data[$field]);
+			if (!$result) {
+				throw new InvalidDataException($field, $meta->name, $meta->arguments);
 			}
-			$rules = $this->parseRules($lineWithRules);
-			foreach($rules as $meta) {
-				if (!isset($this->rules[$meta->name])) {
-					throw new \InvalidArgumentException('Non-existing rule name specified.');
-				}
-				if (!$this->callRule($this->rules[$meta->name], $data[$field], $meta->arguments)) {
-					$this->errors[$field][] = $e->getMessage();
-					if ($meta->stopOnError) {
-						break;
-					}
-				}
-				else if ($meta->stopOnSuccess) {
-					break;
-				}
+			else if ($result && $meta->stopOnSuccess) {
+				return null;
+			}
+		} catch(\Exception $e) {
+			$this->errors[$field][] = $e->getMessage();
+			if ($meta->stopOnError) {
+				return false;
 			}
 		}
+		return true;
+	}
+	
+	public function validate(array $data) {
+		$this->process($data);
 		return empty($this->errors);
 	}
 	

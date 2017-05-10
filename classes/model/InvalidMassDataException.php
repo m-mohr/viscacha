@@ -2,7 +2,7 @@
 
 namespace Viscacha\Model;
 
-class InvalidMassDataException extends Exception {
+class InvalidMassDataException extends \Exception {
 	
 	public $errors;
 	
@@ -12,7 +12,7 @@ class InvalidMassDataException extends Exception {
 		$this->errors = $errors;
 	}
 	
-	public function getErrors($field = null) {
+	public function getErrorMessages($field = null) {
 		if ($field !== null) {
 			return isset($this->errors[$field]) ? $this->errors[$field] : false;
 		}
