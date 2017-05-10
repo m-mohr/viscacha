@@ -805,32 +805,14 @@ elseif ($job == 'custombb_add') {
 	echo foot();
 }
 elseif ($job == 'custombb_add2') {
-	$vars = array(
-		'title'				=> str,
-		'tag'			=> str,
-		'replacement' => db_esc,
-		'example'		=> str,
-		'explanation' => db_esc,
-		'twoparams'			=> int,
-		'buttonimage'		=> db_esc
-	);
-	$query = array();
-	foreach ($vars as $key => $type) {
-		$query[$key] = $gpc->get($key, $type);
-	}
-
 	echo head();
 
-	if (!$query['tag'] OR !$query['replacement'] OR !$query['example']) {
-		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_please_complete'));
+	try {
+		$bbcode = new CustomBbcode();
+		$bbcode->fillFromPost()->save();
+	} catch(\Viscacha\Model\InvalidMassDataException $e) {
+		error('admin.php?action=bbcodes&job=custombb_add', $e->getErrorMessages());
 	}
-
-	$bbcodetag = $db->fetchOne("SELECT tag FROM {$db->pre}bbcode WHERE tag = '{$query['tag']}' AND twoparams = '{$query['twoparams']}'");
-	if ($bbcodetag) {
-		error('admin.php?action=bbcodes&job=custombb_add', $lang->phrase('admin_bbc_bbcode_already_exists'));
-	}
-
-	CustomBbcode::insert($query)->execute();
 
 	$scache->load('custombb')->delete();
 
