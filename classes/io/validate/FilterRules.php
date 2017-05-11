@@ -8,10 +8,10 @@ class FilterRules implements Rules {
 	 * Strings (trimmed).
 	 * 
 	 * @param mixed $data
-	 * @param \Viscacha\IO\Validate\RuleProcessor $context
+	 * @param \Viscacha\IO\Validate\RuleContext $context
 	 * @return string
 	 */
-	public function str($data, RuleProcessor $context = null) {
+	public function str($data, RuleContext $context = null) {
 		return trim($data);
 	}
 	
@@ -19,10 +19,10 @@ class FilterRules implements Rules {
 	 * Integers (...,-3,-2,-1,0,1,2,3,...)
 	 * 
 	 * @param mixed $data
-	 * @param \Viscacha\IO\Validate\RuleProcessor $context
+	 * @param \Viscacha\IO\Validate\RuleContext $context
 	 * @return int
 	 */
-	public function int($data, RuleProcessor $context = null) {
+	public function int($data, RuleContext $context = null) {
 		return intval($data);
 	}
 	
@@ -30,10 +30,10 @@ class FilterRules implements Rules {
 	 * Natural numbers (1,2,3,4,...), excluding 0.
 	 * 
 	 * @param mixed $data
-	 * @param \Viscacha\IO\Validate\RuleProcessor $context
+	 * @param \Viscacha\IO\Validate\RuleContext $context
 	 * @return int 
 	 */
-	public function natural($data, RuleProcessor $context = null) {
+	public function natural($data, RuleContext $context = null) {
 		$data = $this->int($data);
 		return $data > 0 ? $data : 1;
 	}
@@ -43,10 +43,10 @@ class FilterRules implements Rules {
 	 * 
 	 * @param type $data
 	 * @param type $maxPage
-	 * @param \Viscacha\IO\Validate\RuleProcessor $context
+	 * @param \Viscacha\IO\Validate\RuleContext $context
 	 * @return type
 	 */
-	public function pageNo($data, $maxPage, RuleProcessor $context = null) {
+	public function pageNo($data, $maxPage, RuleContext $context = null) {
 		$data = $this->natural($data);
 		return $data <= $maxPage ? $data : $maxPage;
 	}
@@ -57,10 +57,10 @@ class FilterRules implements Rules {
 	 * @see empty()
 	 * @param mixed $data
 	 * @param mixed $defaultValue
-	 * @param \Viscacha\IO\Validate\RuleProcessor $context
+	 * @param \Viscacha\IO\Validate\RuleContext $context
 	 * @return mixed
 	 */
-	public function preset($data, $defaultValue, RuleProcessor $context = null) {
+	public function preset($data, $defaultValue, RuleContext $context = null) {
 		return !empty($data) ? $data : $defaultValue;
 	}
 	
@@ -68,10 +68,10 @@ class FilterRules implements Rules {
 	 * Sets null for empty values.
 	 * 
 	 * @param mixed $data
-	 * @param \Viscacha\IO\Validate\RuleProcessor $context
+	 * @param \Viscacha\IO\Validate\RuleContext $context
 	 * @return mixed
 	 */
-	public function nullable($data, RuleProcessor $context = null) {
+	public function nullable($data, RuleContext $context = null) {
 		return !empty($data) ? $data : null;
 	}
 		

@@ -45,7 +45,7 @@ class Validator extends RuleProcessor {
 
 	protected function processRule($field, RuleMeta $meta) {
 		try {
-			$result = $this->callProcess($meta, $this->data[$field]);
+			$result = $this->callProcess($meta, $field, $this->data[$field]);
 			if (!$result) {
 				throw new InvalidDataException($field, $meta->name, $meta->arguments);
 			}

@@ -72,7 +72,7 @@ class RuleProcessor {
 
 	protected function processRule($field, RuleMeta $meta) {
 		try {
-			$this->data[$field] = $this->callProcess($meta, $this->data[$field]);
+			$this->data[$field] = $this->callProcess($meta, $field, $this->data[$field]);
 			if ($meta->stopOnSuccess) {
 				return null;
 			}
@@ -84,12 +84,12 @@ class RuleProcessor {
 		return true;
 	}
 	
-	protected function callProcess(RuleMeta $meta, $data) {
+	protected function callProcess(RuleMeta $meta, $field, $data) {
 		$args = $meta->arguments;
-		// Add the data to the arguments
+		// Add the specific data to the arguments
 		array_unshift($args, $data);
-		// Add the context to the arguments
-		array_push($args, $this);
+		// Add the context to the arguments, incl. field name and all data
+		array_push($args, new RuleContext($this, $field, $this->data));
 
 		return call_user_func_array($this->processors[$meta->name], $args);
 	}
@@ -165,6 +165,20 @@ class RuleProcessor {
 			$parsedRules[] = $meta;
 		}
 		return $parsedRules;
+	}
+	
+}
+
+class RuleContext {
+	
+	public $origin;
+	public $field;
+	public $data;
+	
+	public function __construct(RuleProcessor $origin, $field, array $data) {
+		$this->origin = $origin;
+		$this->field = $field;
+		$this->data = $data;
 	}
 	
 }

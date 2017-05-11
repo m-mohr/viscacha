@@ -121,10 +121,10 @@ abstract class Model implements \ArrayAccess {
 	public function __construct($primaryKey = null) {
 		$this->define();
 		$this->data = array_fill_keys($this->columns, null);
-		$this->syncOriginal();
 		if ($primaryKey !== null) {
 			$this->setPrimaryKeyData($primaryKey);
 		}
+		$this->syncOriginal();
 	}
 
 	public abstract function define();
@@ -275,14 +275,24 @@ abstract class Model implements \ArrayAccess {
 		// Lazy loading to avoid unneccessary parsing of validation rules
 		if ($this->validationProcessor === null) {
 			$this->validationProcessor = new \Viscacha\IO\Validate\Validator($this->validationRules);
+			$this->addModelValidators();
 			$this->defineCustomValidators();
 		}
 		return $this->validationProcessor;
 	}
-	
-	public function defineCustomValidators() {
-		
+
+	protected function addModelValidators() {
+		$methods = get_class_methods($this);
+		$prefix = 'validate';
+		foreach ($methods as $method) {
+			if (\Str::startsWith($method, $prefix)) {
+				$name = \Str::lcfirst(\Str::substr($method, \Str::length($prefix)));
+				$this->validationProcessor->addProcessor($name, array($this, $method));
+			}
+		}
 	}
+	
+	public function defineCustomValidators() {}
 	
 	public function getFilter() {
 		// Lazy loading to avoid unneccessary parsing of filter rules
@@ -293,9 +303,7 @@ abstract class Model implements \ArrayAccess {
 		return $this->filterProcessor;
 	}
 	
-	public function defineCustomFilters() {
-		
-	}
+	public function defineCustomFilters() {}
 	
 	public function fillFromPost() {
 		return $this->fill($_POST);

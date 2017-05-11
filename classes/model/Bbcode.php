@@ -20,7 +20,7 @@ class Bbcode extends BaseModel {
 			'buttonimage'
 		];
 		$this->validationRules = [
-			'tag' => '§required|maxLength:120|uniqueBbcode',
+			'tag' => '§required|maxLength:120|unique2',
 			'replacement' => 'required',
 			'example' => 'required',
 			'explanation' => '',
@@ -39,13 +39,8 @@ class Bbcode extends BaseModel {
 		];
 	}
 	
-	public function defineCustomValidators() {
-		global $lang;
-		$this->getValidator()->addProcessor('uniqueBbcode', array($this, 'validateUniqueness'));
-	}
-	
-	public function validateUniqueness($data, \Viscacha\IO\Validate\RuleProcessor $context = null) {
-		$query = self::select()->where('tag', $data)->where('twoparams', $context->getData('twoparams'))->limit(1);
+	public function validateUnique2($data, \Viscacha\IO\Validate\RuleContext $context) {
+		$query = self::select()->where('tag', $data)->where('twoparams', $context->data['twoparams'])->limit(1);
 		if ($this->id > 0) {
 			$query->where('id', '!=', $this->id);
 		}
@@ -54,7 +49,7 @@ class Bbcode extends BaseModel {
 			global $lang;
 			// ToDo: Make this phrase globally available
 			$lang->assign('bbcodetag', $data);
-			throw new \Exception($lang->phrase('admin_bbc_bbcode_already_exists')); 
+			throw new \Viscacha\IO\Validate\InvalidDataException($context->field, 'unique2', array(), $lang->phrase('admin_bbc_bbcode_already_exists'));
 		}
 		return true;
 	}

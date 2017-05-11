@@ -27,6 +27,7 @@ namespace Viscacha\Model;
 
 use Viscacha\Database\Query;
 use Viscacha\Database\Result;
+use \Viscacha\IO\Validate\InvalidDataException;
 
 abstract class BaseModel extends Model {
 
@@ -125,6 +126,19 @@ abstract class BaseModel extends Model {
 
 	public function wherePrimaryKey() {
 		return $this->where($this->getPrimaryKeyData());
+	}
+	
+	public function validateUnique($data, \Viscacha\IO\Validate\RuleContext $context) {
+		$query = self::select()->where($context->field, $data)->limit(1);
+		try {
+			$id = $this->getPrimaryKeyData();
+			$query->where('id', '!=', $id);
+		} catch (\Exception $e) {}
+		$result = $query->fetch();
+		if ($result !== false) {
+			throw new InvalidDataException($context->field, 'unique');
+		}
+		return true;
 	}
 
 	public function execute() {
