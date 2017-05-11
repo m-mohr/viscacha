@@ -45,7 +45,11 @@ class Bbcode extends BaseModel {
 	}
 	
 	public function validateUniqueness($data, \Viscacha\IO\Validate\RuleProcessor $context = null) {
-		$result = self::select()->where('tag', $data)->where('twoparams', $context->getData('twoparams'))->limit(1)->fetch();
+		$query = self::select()->where('tag', $data)->where('twoparams', $context->getData('twoparams'))->limit(1);
+		if ($this->id > 0) {
+			$query->where('id', '!=', $this->id);
+		}
+		$result = $query->fetch();
 		if ($result !== false) {
 			global $lang;
 			// ToDo: Make this phrase globally available
