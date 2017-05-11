@@ -103,6 +103,10 @@ function array_columnsort(&$arr, $l , $f = array('Str', 'compareNatural')) {
 	});
 }
 
+function array_only(array $array, array $keys) {
+	return array_intersect_key($array, array_keys($keys));
+}
+
 function is_array_empty(array $array) {
 	if (empty($array)) {
 		return true;

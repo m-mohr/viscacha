@@ -122,7 +122,7 @@ abstract class Model implements \ArrayAccess {
 		$this->define();
 		$this->data = array_fill_keys($this->columns, null);
 		if ($primaryKey !== null) {
-			$this->setPrimaryKeyData($primaryKey);
+			$this->setPrimaryKeyValue($primaryKey);
 		}
 		$this->syncOriginal();
 	}
@@ -147,18 +147,18 @@ abstract class Model implements \ArrayAccess {
 		return is_string($this->primaryKey) && $this->primaryKey == $column;
 	}
 
-	private function setPrimaryKeyData($primaryKey) {
+	private function setPrimaryKeyValue($primaryKey) {
 		if (is_string($this->primaryKey)) {
 			$this->data[$this->primaryKey] = $primaryKey;
 		}
 	}
 
-	public function getPrimaryKeyData() {
+	public function getPrimaryKeyValue() {
 		if ($this->isNew()) {
-			throw new NoPrimaryKeyValueException();
+			return null;
 		}
 		if (is_string($this->primaryKey)) {
-			return [$this->primaryKey => $this->data[$this->primaryKey]];
+			return $this->data[$this->primaryKey];
 		}
 
 		throw new NoPrimaryKeyException();
@@ -225,7 +225,7 @@ abstract class Model implements \ArrayAccess {
 		if (is_string($this->primaryKey)) {
 			return !$this->hasData($this->primaryKey);
 		}
-		throw new NoPrimaryKeyException();
+		return true;
 	}
 
 	public function save() {
@@ -237,10 +237,10 @@ abstract class Model implements \ArrayAccess {
 		if ($this->isNew()) {
 			$stmt = $this->query()->insert($this->table, $changed)->execute();
 			if ($stmt) {
-				$this->setPrimaryKeyData(\DB::getInsertId());
+				$this->setPrimaryKeyValue(\DB::getInsertId());
 			}
 		} else {
-			$stmt = $this->query()->update($this->table, $changed)->where($this->getPrimaryKeyData())->execute();
+			$stmt = $this->query()->update($this->table, $changed)->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->execute();
 		}
 		if ($stmt) {
 			$this->syncOriginal();
@@ -251,7 +251,7 @@ abstract class Model implements \ArrayAccess {
 
 	public function recover() {
 		if ($this->softDelete) {
-			$this->query()->update($this->table, [$this->softDelete => null])->where($this->getPrimaryKeyData())->execute();
+			$this->query()->update($this->table, [$this->softDelete => null])->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->execute();
 			$this->originalData[$this->softDelete] = null;
 		}
 	}
@@ -259,16 +259,16 @@ abstract class Model implements \ArrayAccess {
 	public function remove($force = false) {
 		if ($this->softDelete && !$force) {
 			$time = times();
-			$this->query()->update($this->table, [$this->softDelete => $time])->where($this->getPrimaryKeyData())->execute();
+			$this->query()->update($this->table, [$this->softDelete => $time])->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->execute();
 			$this->originalData[$this->softDelete] = $time;
 		} else {
-			$this->query()->delete($this->table)->where($this->getPrimaryKeyData())->execute();
+			$this->query()->delete($this->table)->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->execute();
 			$this->originalData = array();
 		}
 	}
 
 	public function load() {
-		$this->query()->select($this->table)->where($this->getPrimaryKeyData())->fetchObject($this);
+		$this->query()->select($this->table)->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->fetchObject($this);
 	}
 	
 	public function getValidator() {
@@ -344,12 +344,8 @@ abstract class Model implements \ArrayAccess {
 	}
 
 	protected function hasMany($class, $column) {
-		$pkData = $this->getPrimaryKeyData();
-		if (count($pkData) > 1) {
-			throw new \NotImplementedException('Relations with multiple primary keys are not implemented.');
-		}
 		$model = new $class();
-		$list = $model->query()->select($model->getTableName())->where($column, reset($pkData))->fetchObjectMatrix($class);
+		$list = $model->query()->select($model->getTableName())->where($column, $this->getPrimaryKeyValue())->fetchObjectMatrix($class);
 		return new ModelCollection($list);
 	}
 
@@ -368,11 +364,7 @@ abstract class Model implements \ArrayAccess {
 
 		$class = $this->foreignKeys[$column];
 		$model = new $class();
-		$pk = $model->getPrimaryKey();
-		if (count($pk) > 1) {
-			throw new \NotImplementedException('Relations with multiple primary keys are not implemented.');
-		}
-		$object = $model->query()->select($model->getTableName())->where($pk, $this->data[$column])->fetchObject($class);
+		$object = $model->query()->select($model->getTableName())->where($model->getPrimaryKey(), $this->data[$column])->fetchObject($class);
 		$this->injectRelationData($column, $object);
 		return $object;
 	}
@@ -446,10 +438,6 @@ abstract class Model implements \ArrayAccess {
 
 }
 
-class NoPrimaryKeyValueException extends \Exception {
-	
-}
-
-class NoPrimaryKeyException extends NoPrimaryKeyValueException {
+class NoPrimaryKeyException {
 	
 }
