@@ -97,8 +97,8 @@ function viscacha_header($header, $replace = true, $code = 0) {
  * @param $f the ordering function to be used, \Str::compareNatural() by default
  * @return  TRUE on success, FALSE on failure.
  */
-function array_columnsort(&$arr, $l , $f = array('Str', 'compareNatural')) {
-	return uasort($arr, function($a, $b) {
+function array_columnsort(&$arr, $l, $f = array('Str', 'compareNatural')) {
+	return uasort($arr, function($a, $b) use($f, $l) {
 		return call_user_func($f, $a[$l], $b[$l]);
 	});
 }
