@@ -7,7 +7,7 @@ namespace Viscacha\Model;
  */
 class Smiley extends BaseModel {
 
-	public function define() {
+	protected function define() {
 		$this->table = 'smileys';
 		$this->columns = [
 			'id',
@@ -15,6 +15,20 @@ class Smiley extends BaseModel {
 			'replace',
 			'desc',
 			'show'
+		];
+		$this->validationRules = [
+			'id' => '',
+			'search' => '§required|§maxLength:120|unique',
+			'replace' => 'required',
+			'desc' => '',
+			'show' => 'in:0,1'
+		];
+		$this->filterRules = [
+			'id' => 'id',
+			'search' => 'str',
+			'replace' => 'str',
+			'desc' => 'str',
+			'show' => 'str|preset:0'
 		];
 	}
 

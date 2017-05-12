@@ -7,7 +7,7 @@ namespace Viscacha\Model;
  */
 class Bbcode extends BaseModel {
 
-	public function define() {
+	protected function define() {
 		$this->table = 'bbcode';
 		$this->columns = [
 			'id',
@@ -20,6 +20,7 @@ class Bbcode extends BaseModel {
 			'buttonimage'
 		];
 		$this->validationRules = [
+			'id' => '',
 			'tag' => '§required|maxLength:120|unique2',
 			'replacement' => 'required',
 			'example' => 'required',
@@ -29,6 +30,7 @@ class Bbcode extends BaseModel {
 			'buttonimage' => '!nullable|maxLength:255|url'
 		];
 		$this->filterRules = [
+			'id' => 'id',
 			'tag' => 'str',
 			'replacement' => 'str',
 			'example' => 'str',

@@ -127,7 +127,7 @@ abstract class Model implements \ArrayAccess {
 		$this->syncOriginal();
 	}
 
-	public abstract function define();
+	protected abstract function define();
 
 	public static function instance() {
 		return new static();
@@ -137,6 +137,23 @@ abstract class Model implements \ArrayAccess {
 		$model = new static($primaryKey);
 		$model->load();
 		return $model;
+	}
+	
+	public static function fromRequest(array $ids) {
+		$collection = new ModelCollection();
+		$errorCollection = new InvalidMassDataExceptionCollection();
+		foreach ($ids as $i) {
+			$collection[$i] = new static($i);
+			try {
+				$collection[$i]->fillFromRequest($i);
+			} catch(\Viscacha\Model\InvalidMassDataException $e) {
+				$errorCollection->add($i, $e);
+			}
+		}
+		if ($errorCollection->count() > 0) {
+			throw $errorCollection;
+		}
+		return $collection;
 	}
 
 	public function getPrimaryKey() {
@@ -209,7 +226,7 @@ abstract class Model implements \ArrayAccess {
 		return $changes;
 	}
 	
-	public function removeUnknownColumns($data) {
+	protected function removeUnknownColumns($data) {
 		return array_intersect_key($data, array_flip($this->columns));
 	}
 
@@ -268,7 +285,8 @@ abstract class Model implements \ArrayAccess {
 	}
 
 	public function load() {
-		$this->query()->select($this->table)->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->fetchObject($this);
+		$result = $this->query()->select($this->table)->where($this->getPrimaryKey(), $this->getPrimaryKeyValue())->fetchObject($this);
+		return ($result !== false);
 	}
 	
 	public function getValidator() {
@@ -305,8 +323,13 @@ abstract class Model implements \ArrayAccess {
 	
 	public function defineCustomFilters() {}
 	
-	public function fillFromPost() {
-		return $this->fill($_POST);
+	public function fillFromRequest($index = null) {
+		if ($index !== null) {
+			return $this->fill(array_column_assoc($_REQUEST, $index));
+		}
+		else {
+			return $this->fill($_REQUEST);
+		}
 	}
 	
 	/**

@@ -7,7 +7,7 @@ namespace Viscacha\Model;
  */
 class Subscription extends BaseModel {
 
-	public function define() {
+	protected function define() {
 		$this->table = 'abos';
 		$this->columns = [
 			'id',
@@ -18,6 +18,12 @@ class Subscription extends BaseModel {
 		$this->foreignKeys = [
 			'mid' => User::class,
 			'tid' => Topic::class
+		];
+		$this->validationRules = [
+			
+		];
+		$this->filterRules = [
+			
 		];
 	}
 

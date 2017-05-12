@@ -107,6 +107,18 @@ function array_only(array $array, array $keys) {
 	return array_intersect_key($array, array_keys($keys));
 }
 
+function array_column_assoc(array $array, $column) {
+	$result = array();
+	foreach ($array as $key => $subArray) {
+		if (!is_array($subArray)) {
+			continue;
+		} elseif (array_key_exists($column, $subArray)) {
+			$result[$key] = $subArray[$column];
+		}
+	}
+	return $result;	
+}
+
 function is_array_empty(array $array) {
 	if (empty($array)) {
 		return true;

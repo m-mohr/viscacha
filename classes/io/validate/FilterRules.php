@@ -39,6 +39,18 @@ class FilterRules implements Rules {
 	}
 	
 	/**
+	 * Checks for potential IDs (0,1,2,3,...) with 0 being no ID given.
+	 * 
+	 * @param mixed $data
+	 * @param \Viscacha\IO\Validate\RuleContext $context
+	 * @return int 
+	 */
+	public function id($data, RuleContext $context = null) {
+		$data = $this->int($data);
+		return $data >= 0 ? $data : 0;
+	}
+	
+	/**
 	 * Page number, similar to natural, but with an upper limit.
 	 * 
 	 * @param type $data

@@ -5,6 +5,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang->group("admin/bbcodes");
 
 use Viscacha\Model\Bbcode as CustomBbcode;
+use Viscacha\Model\Smiley;
 use Viscacha\System\PhpSys;
 
 ($code = $plugins->load('admin_bbcodes_jobs')) ? eval($code) : null;
@@ -48,23 +49,23 @@ elseif ($job == 'smileys_edit') {
   </tr>
  </table><br />
  <?php while($row = $result->fetch()) { ?>
- <input type="hidden" name="id[]" value="<?php echo $row['id']; ?>">
+ <input type="hidden" name="id[<?php echo $row['id']; ?>]" value="<?php echo $row['id']; ?>">
  <table class="border">
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_code'); ?></td>
-   <td class="mbox" width="50%"><input type="text" name="search_<?php echo $row['id']; ?>" size="50" value="<?php echo $row['search']; ?>"></td>
+   <td class="mbox" width="50%"><input type="text" name="search[<?php echo $row['id']; ?>]" size="50" value="<?php echo $row['search']; ?>"></td>
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_image'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_image_desc'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="replace_<?php echo $row['id']; ?>" size="50" value="<?php echo $row['replace']; ?>"></td>
+   <td class="mbox" width="50%"><input type="text" name="replace[<?php echo $row['id']; ?>]" size="50" value="<?php echo $row['replace']; ?>"></td>
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_description'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_optional'); ?></span></td>
-   <td class="mbox" width="50%"><input type="text" name="desc_<?php echo $row['id']; ?>" size="50" value="<?php echo $row['desc']; ?>"></td>
+   <td class="mbox" width="50%"><input type="text" name="desc[<?php echo $row['id']; ?>]" size="50" value="<?php echo $row['desc']; ?>"></td>
   </tr>
   <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_bbc_show_directly'); ?><br><span class="stext"><?php echo $lang->phrase('admin_bbc_show_directly_desc'); ?></span></td>
-   <td class="mbox" width="50%"><input type="checkbox" name="show_<?php echo $row['id']; ?>" value="1"<?php echo iif($row['show'] == 1, ' checked="checked"'); ?>></td>
+   <td class="mbox" width="50%"><input type="checkbox" name="show[<?php echo $row['id']; ?>]" value="1"<?php echo iif($row['show'] == 1, ' checked="checked"'); ?>></td>
   </tr>
  </table><br />
  <?php } ?>
@@ -78,16 +79,16 @@ elseif ($job == 'smileys_edit') {
 }
 elseif ($job == 'smileys_edit2') {
 	echo head();
-	$id = $gpc->get('id', arr_int);
-	foreach ($id as $i) {
-		$search = $gpc->get('search_'.$i, str);
-		$replace = $gpc->get('replace_'.$i, db_esc);
-		$desc = $gpc->get('desc_'.$i, db_esc);
-		$show = $gpc->get('show_'.$i, int);
-		$db->execute("UPDATE {$db->pre}smileys AS s SET s.search = '{$search}', s.replace = '{$replace}', s.desc = '{$desc}', s.show = '{$show}' WHERE s.id = '{$i}' LIMIT 1");
+
+	$ids = $gpc->get('id', arr_int);
+	try {
+		$collection = Smiley::fromRequest($ids);
+		$count = $collection->save();
+		$scache->load('smileys')->delete();
+		ok('admin.php?action=bbcodes&job=smileys', $count.$lang->phrase('admin_bbc_smileys_edited'));
+	} catch(\Viscacha\Model\InvalidMassDataExceptionCollection $e) {
+		error('admin.php?action=bbcodes&job=smileys', $e->toArray());
 	}
-	$scache->load('smileys')->delete();
-	ok('admin.php?action=bbcodes&job=smileys', count($id).$lang->phrase('admin_bbc_smileys_edited'));
 }
 elseif ($job == 'smileys_import') {
 	echo head();
@@ -809,7 +810,7 @@ elseif ($job == 'custombb_add2') {
 
 	try {
 		$bbcode = new CustomBbcode();
-		$bbcode->fillFromPost()->save();
+		$bbcode->fillFromRequest()->save();
 	} catch(\Viscacha\Model\InvalidMassDataException $e) {
 		error('admin.php?action=bbcodes&job=custombb_add', $e->getErrorMessages());
 	}
@@ -883,7 +884,7 @@ elseif ($job == 'custombb_edit2') {
 
 	try {
 		$bbcode = new CustomBbcode($gpc->get('id', int));
-		$bbcode->fillFromPost()->save();
+		$bbcode->fillFromRequest()->save();
 	} catch(\Viscacha\Model\InvalidMassDataException $e) {
 		error('admin.php?action=bbcodes&job=custombb_add', $e->getErrorMessages());
 	}
