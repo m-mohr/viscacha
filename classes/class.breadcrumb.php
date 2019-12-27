@@ -80,21 +80,6 @@ class breadcrumb {
         return implode($seperator, $cache);
     }
 
-    function OutputPRINT($seperator = ' > ') {
-    	global $config, $gpc;
-        $cache = array();
-        foreach ($this->content as $key => $row) {
-        	$row['title'] = $gpc->prepare($row['title']);
-        	if (!empty($row['url'])) {
-            	$cache[$key] = "{$row['title']} (<a href=\"{$config['furl']}/{$row['url']}\">{$config['furl']}/{$row['url']}</a>)";
-            }
-            else {
-            	$cache[$key] = $row['title'];
-            }
-        }
-        return implode($seperator, $cache);
-    }
-
     function getArray() {
         return $this->content;
     }
