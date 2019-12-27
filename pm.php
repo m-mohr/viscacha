@@ -408,7 +408,7 @@ elseif ($_GET['action'] == "browse") {
 	($code = $plugins->load('pm_browse_end')) ? eval($code) : null;
 }
 else {
-	$breadcrumb->resetUrl();
+	$breadcrumb->ResetUrl();
 	echo $tpl->parse("header");
 	echo $tpl->parse("pm/menu");
 

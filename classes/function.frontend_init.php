@@ -164,7 +164,7 @@ if (!file_exists('.htaccess')) {
 	if ($config['hterrordocs'] == 1) {
 		$htaccess[] = "ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400";
 		// 401 ErrorDocument entfernt wegen Fehlermeldung (Bug #293): "Cannot use a full URL in a 401 ErrorDocument directive"
-		// Grund: Relative Angaben beschädigen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
+		// Grund: Relative Angaben beschï¿½digen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
 		$htaccess[] = "ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403";
 		$htaccess[] = "ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404";
 		$htaccess[] = "ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500";
@@ -195,7 +195,31 @@ if (defined('TEMPNOFUNCINIT') == false || ($config['foffline'] && defined('TEMPS
 	$my = $slog->logged();
 	$lang->init($my->language);
 	$tpl = new tpl();
-	$slog->checkBan();
+
+	$breadcrumb->Add($config['fname'], 'index.php');
+	if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, ['forum', 'showforum', 'showtopic', 'edit', 'addreply', 'newtopic', 'manageforum', 'managetopic'])) {
+		$breadcrumb->Add($lang->phrase('forumname'), 'forum.php');
+		if (SCRIPTNAME == 'forum') {
+			$breadcrumb->ResetUrl();
+		}
+	}
+
+	$banned = $slog->checkBan();
+	if ($banned !== false) {
+		if (empty($banned['reason'])) {
+			$banned['reason'] = $lang->phrase('banned_no_reason');
+		}
+
+		($code = $plugins->load('permissions_banish')) ? eval($code) : null;
+		if (!defined('NON_HTML_RESPONSE')) {
+			echo $tpl->parse("banned");
+			$phpdoc->Out();
+		}
+		else {
+			sendStatusCode(403);
+		}
+		exit();
+	}
 }
 
 if ($config['foffline'] && defined('TEMPSHOWLOG') == false) {

@@ -66,11 +66,12 @@ if (isset($memberdata[$_GET['id']])) {
 ($code = $plugins->load('profile_start')) ? eval($code) : null;
 
 $breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
-$breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
 
 if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
 	$result=$db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
 	$row = $slog->cleanUserData($db->fetch_object($result));
+	$username = $row['name'];
+	$breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
 	$breadcrumb->Add($lang->phrase('profile_mail_2'));
 
 	if ($my->vlogin && $row->opt_hidemail != 1) {
@@ -134,7 +135,7 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 	}
 }
 elseif ($is_guest) {
-	$breadcrumb->resetUrl();
+	$breadcrumb->ResetUrl();
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
 	$group = 'fallback_no_username';
@@ -146,11 +147,12 @@ elseif ($is_member) {
 
 	$result = $db->query("SELECT * FROM {$db->pre}user AS u LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid WHERE u.id = {$_GET['id']}");
 
-	$breadcrumb->resetUrl();
-	echo $tpl->parse("header");
-
 	if ($db->num_rows($result) == 1) {
 		$row = $slog->cleanUserData($db->fetch_object($result));
+
+		$username = $row->name;
+		$breadcrumb->add($lang->phrase('profile_title'));
+		echo $tpl->parse("header");
 
 		$days2 = null;
 		if ($config['showpostcounter'] == 1) {
