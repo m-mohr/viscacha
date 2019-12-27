@@ -33,8 +33,8 @@ $data = array(
 	)
 );
 
-mkdir('feeds/');
+if (!file_exists('feeds/')) {
+	mkdir('feeds/');
+}
 $myini = new INI();
 $myini->write('feeds/board_data.ini', $data);
-
-?>
