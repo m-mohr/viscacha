@@ -103,7 +103,7 @@ function set_cacheuri($path) {
 }
 
 function create_thumbnail($attachment) {
-	global $config;
+	global $config, $imagetype_extension;
 	$thumbnail = NULL;
 
 	$ext = get_extension($attachment);
