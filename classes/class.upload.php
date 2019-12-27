@@ -54,8 +54,8 @@ class uploader {
 		$this->new_filename = null;
 		$this->error = null;
 		$this->max_filesize = ini_maxupload();
-		$this->max_image_width = 0;
-		$this->max_image_height = 0;
+		$this->max_image_width = null;
+		$this->max_image_height = null;
 		$this->copy_func = 'move_uploaded_file';
 	}
 
@@ -200,11 +200,11 @@ class uploader {
 		}
 		// test max image size
 		if($this->file['image'] == true) {
-			if($this->max_image_width > 0 && $this->file['width'] > $this->max_image_width) {
+			if($this->max_image_width !== null && $this->file['width'] > $this->max_image_width) {
 				$this->error = UPLOAD_ERR_IMAGE_WIDTH;
 				return false;
 			}
-			if($this->max_image_height > 0 && $this->file['height'] > $this->max_image_height) {
+			if($this->max_image_height !== null && $this->file['height'] > $this->max_image_height) {
 				$this->error = UPLOAD_ERR_IMAGE_HEIGHT;
 				return false;
 			}
@@ -370,8 +370,8 @@ class uploader {
 			break;
 			case UPLOAD_ERR_IMAGE_WIDTH:
 			case UPLOAD_ERR_IMAGE_HEIGHT:
-				$lang->assign('mih', $this->max_image_height > 0 ? numbers($this->max_image_height) : $lang->phrase('upload_unspecified'));
-				$lang->assign('miw', $this->max_image_width > 0 ? numbers($this->max_image_width) : $lang->phrase('upload_unspecified'));
+				$lang->assign('mih', $this->max_image_height !== null ? numbers($this->max_image_height) : $lang->phrase('upload_unspecified'));
+				$lang->assign('miw', $this->max_image_width !== null ? numbers($this->max_image_width) : $lang->phrase('upload_unspecified'));
 				$message = $lang->phrase('upload_error_maximagesize');
 			break;
 			case UPLOAD_ERR_FILE_TYPE:
