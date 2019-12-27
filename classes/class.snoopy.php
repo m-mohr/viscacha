@@ -910,7 +910,7 @@ class Snoopy
 		$results = '';
 		do {
     		$_data = fread($fp, $this->maxlength);
-    		if (strlen($_data) == 0) {
+    		if (empty($_data)) {
         		break;
     		}
     		$results .= $_data;

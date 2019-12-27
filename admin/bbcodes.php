@@ -252,15 +252,7 @@ elseif ($job == 'smileys_import2') {
 		if (strpos($ini['replace'], '{folder}') !== false) {
 			$ini['replace_temp'] = str_replace('{folder}', $tempdir, $ini['replace']);
 			$ini['replace_new'] = str_replace('{folder}', $config['smileypath'], $ini['replace']);
-			$n = 0;
-			while(file_exists($ini['replace_new'])) {
-				$ext = get_extension($ini['replace_new'], true);
-				$length = strlen($ext);
-				$base = substr($ini['replace_new'], $length*(-1), $length);
-				$n++;
-				$base .= '_'.$n;
-				$ini['replace_new'] = $base.$ext;
-			}
+			$ini['replace_new'] = $filesystem->new_filename($ini['replace_new']);
 			$n = 0;
 			while(in_array($ini['search'], $codes)) {
 				$n++;

@@ -310,7 +310,7 @@ class lang {
 		if (@is_dir($dir) == false) {
 			$dir = "{$config['fpath']}/language/{$dirId}";
 			if (@is_dir($dir) == false) {
-				$dir = extract_dir(dirname(__FILE__));
+				$dir = extract_dir(__DIR__);
 				$dir = "{$dir}/language/{$dirId}";
 			}
 		}

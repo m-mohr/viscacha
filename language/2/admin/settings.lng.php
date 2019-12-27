@@ -437,7 +437,6 @@ $lang['admin_sync_forumstatistic'] = 'Syncronize Forumstatistics on change:';
 $lang['admin_sync_forumstatistic_info'] = 'Not recommended for big Forums! If this option is activated, the number of posts, topics etc. will be equalized with data assets by every change, otherwise it will be adapted manually.';
 $lang['admin_task_log_file'] = 'Use Task-Log-File:';
 $lang['admin_task_log_file_info'] = 'The log file can be viewed <a href="admin.php?action=slog&job=l_cron" target="_blank">here</a>.';
-$lang['admin_teamlist_edit'] = 'Teamlist';
 $lang['admin_test_ftp_connection'] = 'Save data and if so test FTP connection';
 $lang['admin_thread_upload_edit'] = 'Post Uploads';
 $lang['admin_timelimit_post_delete'] = 'Time Limit on Deleting of Posts:';

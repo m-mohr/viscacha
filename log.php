@@ -148,8 +148,8 @@ elseif ($_GET['action'] == "pwremind3") {
 	$confirmcode = md5($config['cryptkey'].$user['pw']);
 	if ($confirmcode == $gpc->get('fid')) {
 		$pw = random_word();
-		$md5 = md5($pw);
-		$db->query("UPDATE {$db->pre}user SET pw = '{$md5}' WHERE id = '{$user['id']}' LIMIT 1");
+		$hashed_pw = hash_pw($pw);
+		$db->query("UPDATE {$db->pre}user SET pw = '{$hashed_pw}' WHERE id = '{$user['id']}' LIMIT 1");
 
 		$data = $lang->get_mail('pwremind2');
 		$to = array('0' => array('name' => $user['name'], 'mail' => $user['mail']));

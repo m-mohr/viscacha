@@ -45,8 +45,7 @@ $config['fdesc'] = '';
 $config['floodsearch'] = 1;
 $config['fname'] = '';
 $config['foffline'] = 0;
-$config['foffline_message'] = '<p>Sorry, the board is unavailable at the moment while we are doing some maintenance work.</p>
-<p>We will be back soon...</p>';
+$config['foffline_message'] = '<p>Sorry, the board is unavailable at the moment while we are doing some maintenance work.</p>'."\r\n".'<p>We will be back soon...</p>';
 $config['forenmail'] = '';
 $config['forumzahl'] = 15;
 $config['fpath'] = '';
@@ -131,7 +130,6 @@ $config['smtp_auth'] = 0;
 $config['smtp_host'] = '';
 $config['smtp_password'] = '';
 $config['smtp_username'] = '';
-$config['team_mod_dateuntil'] = 1;
 $config['templatedir'] = 1;
 $config['timezone'] = '+1';
 $config['topicuppercase'] = 1;

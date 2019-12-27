@@ -25,7 +25,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 if (!class_exists('ftp')) {
-	$classpath = dirname(__FILE__);
+	$classpath = __DIR__;
 	require_once("{$classpath}/ftp/class.ftp.php");
 	$pemftp_class = pemftp_class_module();
 	if ($pemftp_class !== null) {
@@ -202,6 +202,19 @@ class filesystem {
 			$this->chmod($file, $chmod);
 			return true;
 		}
+	}
+	
+	function new_filename($path, $sep = '_') {
+		$dir = dirname($path);
+		$dir = (empty($dir) || $dir == '.') ? '' : $dir . DIRECTORY_SEPARATOR;
+		$ext = get_extension($path, true);
+		$basename = basename($path, $ext);
+		$n = 1;
+		while(file_exists($path)) {
+			$path = $dir . $basename . $sep . $n . $ext;
+			$n++;
+		} 
+		return $path;
 	}
 
 	function rename($old, $new) {

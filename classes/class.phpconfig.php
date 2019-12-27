@@ -25,7 +25,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 if (!class_exists('GPC')) {
-	include(dirname(__FILE__).'/class.gpc.php');
+	include(__DIR__.'/class.gpc.php');
 }
 
 /* This is the version only for the real application, with GPC class and html_enc-mode */

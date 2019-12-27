@@ -275,4 +275,9 @@ function GPC_escape($var, $type = GPC_HTML){
 	}
 	return $var;
 }
+
+function hash_pw($password) {
+	return password_hash($password, PASSWORD_DEFAULT);
+}
+
 ?>

@@ -2472,12 +2472,7 @@ elseif ($job == 'plugins_add2') {
 
 	$filetitle = convert2adress($title);
 	$dir = "modules/{$package['id']}/";
-	$codefile = "{$filetitle}.php";
-	$i = 1;
-	while (file_exists($dir.$codefile)) {
-		$codefile = "{$filetitle}_{$i}.php";
-		$i++;
-	}
+	$codefile = basename($filesystem->new_filename($dir.$codefile));
 
 	$last = null;
 	?>
@@ -2657,11 +2652,7 @@ elseif ($job == 'plugins_template') {
 	// ToDo: Prüfen ob .html variabel sein sollte (class.template.php => Endung der Templates ist variabel, nur standardmäßig html)
 	$filetitle = convert2adress($data['title']);
 	$codefile = "{$filetitle}.html";
-	$i = 1;
-	while (file_exists($tpldir.$codefile)) {
-		$codefile = "{$filetitle}_{$i}.html";
-		$i++;
-	}
+	$codefile = basename($filesystem->new_filename($tpldir.$codefile));
 
 	echo head();
 	?>

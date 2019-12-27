@@ -25,7 +25,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 if (!class_exists('ftp')) {
-	$classpath = dirname(__FILE__);
+	$classpath = __DIR__;
 	require_once("{$classpath}/ftp/class.ftp.php");
 	$pemftp_class = pemftp_class_module();
 	if ($pemftp_class !== null) {

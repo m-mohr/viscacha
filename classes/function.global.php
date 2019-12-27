@@ -24,7 +24,7 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-define('URL_SPECIALCHARS', 'a-zA-Z������������������������������������������');
+define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
 define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'�\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'�\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
 define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
 
@@ -59,8 +59,28 @@ $plugins = new PluginSystem();
 // Construct base bb-code object
 $bbcode = new BBCode();
 
-function is_hash($string) {
-	return (bool) preg_match("/^[a-f\d]{32}$/i", $string);
+function hash_pw($password) {
+	return password_hash($password, PASSWORD_DEFAULT);
+}
+
+function check_pw($password, $hash) {
+	if (mb_strlen($hash) == 32) {
+		// Old MD5 way to check passwords
+		global $db;
+		$var = utf8_decode($password);
+		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
+		$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-15', false);
+		$var = $db->escape_string($var);
+		return (md5($var) == $hash);
+	}
+	else {
+		// New way to check passwords
+		return password_verify($password, $hash);
+	}
+}
+
+function is_hash($string, $len = 32) {
+	return (bool) preg_match("/^[a-f\d]{{$len}}$/i", $string);
 }
 
 function newCAPTCHA($place = null) {
@@ -148,7 +168,7 @@ function checkRemotePic($pic, $id) {
 		return REMOTE_FILESIZE_ERROR;
 	}
 
-	$filename = md5(uniqid($id));
+	$filename = generate_uid();
 	$origfile = 'temp/'.$filename;
 	$filesystem->file_put_contents($origfile, $avatar_data);
 
@@ -740,9 +760,9 @@ function getip($dots = 4) {
 
 	$ips = array_unique($ips);
 
+	// Try to get a public IP
 	foreach ($ips as $ip) {
-		$found = !(check_ip($ip));
-		if ($found == false) {
+		if (check_ip($ip)) {
 			return ext_iptrim(trim($ip), $dots);
 		}
 	}

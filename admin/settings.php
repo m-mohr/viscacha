@@ -780,18 +780,6 @@ elseif ($job == 'user') {
 	  <tr>
 	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>"></td>
 	  </tr>
-	 </table><br />
-	 <table class="border" border="0" cellspacing="0" cellpadding="4">
-	  <tr>
-	   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_teamlist_edit'); ?></b></td>
-	  </tr>
-	  <tr>
-	   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_show_mod_rights'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_show_mod_rights_info'); ?></span></td>
-	   <td class="mbox" width="50%"><input type="checkbox" name="team_mod_dateuntil" value="1"<?php echo iif($config['team_mod_dateuntil'] == 1,' checked="checked"'); ?> /></td>
-	  </tr>
-	  <tr>
-	   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_form_submit'); ?>" /></td>
-	  </tr>
 	 </table>
 	</form>
 	<?php
@@ -810,7 +798,6 @@ elseif ($job == 'user2') {
 	$c->updateconfig('mlist_showinactive', int);
 	$c->updateconfig('mlist_filtergroups', int);
 	$c->updateconfig('mlist_fields', str, $list);
-	$c->updateconfig('team_mod_dateuntil', int);
 	$c->savedata();
 
 	ok('admin.php?action=settings&job=settings');

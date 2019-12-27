@@ -33,8 +33,6 @@ $lang['wwo_pm_manage'] = 'is managing their private messages';
 $lang['wwo_pm_view'] = 'is reading a private message';
 $lang['wwo_pm_write'] = 'is writing a <a href="pm.php?action=new">private message</a>';
 $lang['wwo_portal'] = 'is viewing the <a href="index.php">portal</a>';
-$lang['wwo_print'] = 'is printing the following topic: <a href="print.php?id={$id}">{$title}</a>';
-$lang['wwo_print_fallback'] = 'is printing a topic';
 $lang['wwo_profile'] = 'is viewing a profile';
 $lang['wwo_profile_send'] = 'is sending a message to a member';
 $lang['wwo_register'] = 'is registering';

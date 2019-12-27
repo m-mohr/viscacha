@@ -1,7 +1,7 @@
 CREATE TABLE `{:=DBPREFIX=:}user` (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
   `name` varchar(255) NOT NULL default '',
-  `pw` varchar(32) NOT NULL default '',
+  `pw` varchar(255) NOT NULL default '',
   `mail` varchar(200) NOT NULL default '',
   `regdate` int(10) unsigned NOT NULL default '0',
   `posts` mediumint(7) unsigned NOT NULL default '0',

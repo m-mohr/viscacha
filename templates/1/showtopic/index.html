@@ -25,10 +25,6 @@
     <?php } ?>
      </ul>
 <?php }} ?>
-	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>
-	 <ul>
-	 <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('print'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_print'); ?></a></li>
-	 </ul>
 	</div>
 <?php if($my->p['postreplies'] == 1 && $info['status'] == 0 && $last['readonly'] == '0') { ?>
 	<a class="sep" href="addreply.php?id=<?php echo $info['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('addreply'); ?>" alt="" /> <?php echo $lang->phrase('box_reply'); ?></a>
@@ -72,10 +68,6 @@
      <?php } ?>
      </ul>
 <?php }} ?>
-	 <strong><?php echo $lang->phrase('showtopic_options_export'); ?></strong>
-	 <ul>
-	 <li><a href="print.php?id=<?php echo $info['id']; ?>&amp;page=<?php echo $_GET['page'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('print'); ?>" alt="" /> <?php echo $lang->phrase('showtopic_options_print'); ?></a></li>
-	 </ul>
 	</div>
 </noscript>
 <?php if ($my->mp[0] == 1) { ?>

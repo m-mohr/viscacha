@@ -49,7 +49,7 @@ if ($_GET['action'] == "pw2") {
 	if ($_POST['type'] != $_POST['pwx']) {
 		$error[] = $lang->phrase('pw_comparison_failed');
 	}
-	if ($my->pw != md5($_POST['pw'])) {
+	if (!check_pw($_POST['pw'], $my->pw)) {
 		$error[] = $lang->phrase('old_pw_incorrect');
 	}
 	if (strlen($_POST['pwx']) > 200) {

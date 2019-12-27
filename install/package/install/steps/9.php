@@ -88,7 +88,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			}
 			else {
 			    $reg = time();
-			    $_REQUEST['pwx'] = md5($_REQUEST['pwx']);
+			    $_REQUEST['pwx'] = hash_pw($_REQUEST['pwx']);
 				$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$_REQUEST['name']}', '{$_REQUEST['pwx']}', '{$_REQUEST['email']}', '{$reg}', '11', '1', '', '')");
 				?>
 		<div class="bfoot">Your account (<em><?php echo $_REQUEST['name']; ?></em>) has been created!</div>

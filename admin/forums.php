@@ -124,7 +124,6 @@ elseif ($job == 'mods') {
 	  <?php if ($bid == 0) { ?>
 	  <td width="30%" rowspan="2"><a<?php echo iif($orderby != 'member', ' style="font-weight: bold;"'); ?> href="admin.php?action=forums&job=mods&order=board"><?php echo $lang->phrase('admin_forum_order_by_forum'); ?></a> </td>
 	  <?php } ?>
-	  <td width="20%" rowspan="2"><?php echo $lang->phrase('admin_forum_period'); ?></td>
 	  <td width="14%" colspan="2" align="center"><?php echo $lang->phrase('admin_forum_topic'); ?></td>
 	</tr>
 	<tr class="ubox">
@@ -133,22 +132,15 @@ elseif ($job == 'mods') {
 	</tr>
 	<?php
 	while ($row = $db->fetch_assoc($result)) {
-	if ($row['time'] > -1) {
-		$row['time'] = $lang->phrase('admin_forum_until').gmdate('M d, Y',times($row['time']));
-	}
-	else {
-		$row['time'] = '<em>'.$lang->phrase('admin_forum_no_restriction').'</em>';
-	}
-	$p1 = ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=mods_ajax_changeperm&mid='.$row['mid'].'&bid='.$row['bid'].'&key=';
-	$p2 = '\')"';
-?>
+		$p1 = ' onmouseover="HandCursor(this)" onclick="ajax_noki(this, \'action=forums&job=mods_ajax_changeperm&mid='.$row['mid'].'&bid='.$row['bid'].'&key=';
+		$p2 = '\')"';
+		?>
 	<tr>
 	  <td class="mbox" width="5%" align="center"><input type="checkbox" value="<?php echo $row['mid'].'_'.$row['bid']; ?>" name="delete[]"></td>
 	  <td class="mbox" width="30%"><a href="admin.php?action=members&amp;job=edit&amp;id=<?php echo $row['mid']; ?>"><?php echo $row['user']; ?></a></td>
 	  <?php if ($bid == 0) { ?>
 	  <td class="mbox" width="30%"><a href="admin.php?action=forums&amp;job=mods&id=<?php echo $row['cat_id']; ?>"><?php echo $row['cat']; ?></a></td>
 	  <?php } ?>
-	  <td class="mbox" width="20%"><?php echo $row['time']; ?></td>
 	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_mc'], $p1.'p_mc'.$p2); ?></td>
 	  <td class="mbox" width="7%" align="center"><?php echo noki($row['p_delete'], $p1.'p_delete'.$p2); ?></td>
 	</tr>
@@ -223,15 +215,6 @@ elseif ($job == 'mods_add') {
    </td>
   </tr>
   <tr>
-   <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_period'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_forum_valid_until'); ?></span></td>
-   <td class="mbox" width="50%">
-   	<?php echo $lang->phrase('admin_forum_day'); ?> <input type="text" name="day" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;
-   	<?php echo $lang->phrase('admin_forum_month'); ?> <input type="text" name="month" size="4" />&nbsp;&nbsp;&nbsp;&nbsp;
-   	<?php echo $lang->phrase('admin_forum_year'); ?> <input type="text" name="weekday" size="6" />
-   </td>
-  </tr>
-  <tr>
    <td class="mbox" width="50%"><?php echo $lang->phrase('admin_forum_manage_posts'); ?></td>
    <td class="mbox" width="50%">
    <input type="checkbox" name="delete" value="1" checked="checked" /> <?php echo $lang->phrase('admin_forum_delete_topics'); ?><br />
@@ -253,9 +236,6 @@ elseif ($job == 'mods_add2') {
 	$id = $gpc->get('id', int);
 	$bid = $gpc->get('bid', int);
 	$temp1 = $gpc->get('name', str);
-	$month = $gpc->get('month', int);
-	$day = $gpc->get('day', int);
-	$weekday = $gpc->get('weekday', int);
 	if (!is_id($id)) {
 		error('admin.php?action=forums&job=manage', $lang->phrase('admin_forum_not_found_id'));
 	}
@@ -263,19 +243,13 @@ elseif ($job == 'mods_add2') {
 	if ($uid[0] < 1) {
 		error('admin.php?action=forums&job=mods_add'.iif($bid > 0, '&id='.$id), $lang->phrase('admin_forum_member_not_found'));
 	}
-	if ($month > 0 && $day > 0 && $weekday > 0) {
-		$timestamp = "'".times(gmmktime(0, 0, 0, $month, $day, $weekday, -1))."'";
-	}
-	else {
-		$timestamp = 'NULL';
-	}
 
 	$move = $gpc->get('move', int);
 	$delete = $gpc->get('delete', int);
 
 	$db->query("
-	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc, time)
-	VALUES ('{$uid[0]}', '{$id}', '{$delete}', '{$move}', {$timestamp})
+	INSERT INTO {$db->pre}moderators (mid, bid, p_delete, p_mc)
+	VALUES ('{$uid[0]}', '{$id}', '{$delete}', '{$move}')
 	");
 
 	if ($db->affected_rows() == 1) {

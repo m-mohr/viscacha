@@ -126,16 +126,16 @@ class DB_Driver { // abstract class
 		$lines = explode("\n", $lines);
 		$lines = array_map("trim", $lines);
 		$line = '';
-		foreach ($lines as $h) {
+		foreach ($lines as $h) 
 			$comment = substr($h, 0, 2);
-			if ($comment == '--' || $comment == '//' || strlen($h) <= 10) {
+			if ($comment == '--' || $comment == '//' || empty($h)) {
 				continue;
 			}
 			$line .= $h."\n";
 		}
-		$lines = explode(";\n", $line);
+		$lines = array_map('trim', explode(";\n", $line));
 		foreach ($lines as $h) {
-			if (strlen($h) > 10) {
+			if (!empty($h)) {
 				unset($result);
 				$result = $this->query($h, $die);
 				if ($this->isResultSet($result)) {
