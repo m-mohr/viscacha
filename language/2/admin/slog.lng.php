@@ -7,7 +7,6 @@ $lang['admin_slog_backtrace'] = 'Runtime information';
 $lang['admin_slog_daily'] = 'Daily';
 $lang['admin_slog_date'] = 'Date';
 $lang['admin_slog_day'] = 'Day';
-$lang['admin_slog_delete_log_now'] = 'Clear log file';
 $lang['admin_slog_descending'] = 'Descending';
 $lang['admin_slog_error_num'] = 'No.';
 $lang['admin_slog_error_report'] = 'Error report';

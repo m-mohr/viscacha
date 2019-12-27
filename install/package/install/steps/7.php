@@ -73,7 +73,7 @@ else {
 	$selectDb = $db->select_db();
 	if (!$selectDb) {
 		// Create new database
-		$db->query("CREATE DATABASE `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+		$db->query("CREATE DATABASE `{$config['database']}`");
 		$selectDb = $db->select_db();
 	}
 	if (!$selectDb) {

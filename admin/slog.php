@@ -68,7 +68,6 @@ elseif ($job == 'errorlogs') {
   <tr>
    <td class="obox" colspan="5">
     <span class="right">
-	<a class="button" href="admin.php?action=slog&amp;job=errorlogs_clear&amp;type=<?php echo $type; ?>"><?php echo $lang->phrase('admin_slog_delete_log_now'); ?></a>
 	<a class="button" href="#" id="menu_acp_switchlog" onmouseover="RegisterMenu('acp_switchlog');"><?php echo $lang->phrase('admin_slog_switch_log'); ?> &#8628;</a>
 	<div class="popup" id="popup_acp_switchlog"><ul>
 	<?php foreach($logfiles as $t => $file) { if ($t != $type) { ?>
