@@ -1,4 +1,4 @@
-# Readme for Viscacha 0.8.1.3
+# Readme for Viscacha 0.8.2
 
 ## Installation
 

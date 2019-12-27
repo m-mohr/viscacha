@@ -252,7 +252,9 @@ if ($allowed == true) {
 		}
 
 		if (count($prefix_arr) > 0 && $info['tstart'] == 1) {
-			array_columnsort($prefix_arr, "value");
+			uasort($prefix_arr, function($a, $b) {
+				return strnatcasecmp($a['value'], $b['value']);
+			});
 			if ($last['prefix'] == 0) {
 				$prefix_obj->addEmptyPrefix($prefix_arr);
 			}

@@ -248,7 +248,7 @@ elseif ($job == 's_general_image') {
 	$PG->ds 	   = $lang->phrase('thousandssep');
 
 	if (count($cache)) {
-		while (list($key, $row) = each($cache)) {
+		foreach($cache as $key => $row) {
 			$PG->x[] = $row[1];
 			$PG->y[] = $row[0];
 		}

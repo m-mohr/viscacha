@@ -320,11 +320,15 @@ class GPC {
 				
 				static $cb1;
 				if (!isset($cb1)) {
-					$cb1 = create_function('$m', 'return chr(hexdec($m[1]));');
+					$cb1 = function($m) {
+						return chr(hexdec($m[1]));
+					};
 				}
 				static $cb2;
 				if (!isset($cb2)) {
-					$cb2 = create_function('$m', 'return chr($m[1]);');
+					$cb2 = function($m) {
+						return chr($m[1]);
+					};
 				}
 				
 				$var = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $var); // ToDo: Convert to correct charset

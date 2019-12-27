@@ -24,8 +24,8 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
-define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('URL_SPECIALCHARS', 'a-zA-Zï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½');
+define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ï¿½\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ï¿½\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
 define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
 
 define('REMOTE_INVALID_URL', 100);
@@ -95,7 +95,7 @@ function checkmx_idna($host) {
 	}
 	else {
 	   @exec("nslookup -querytype=MX {$host_idna}", $output);
-	   while(list($k, $line) = each($output)) {
+	   foreach($output as $k => $line) {
 		   # Valid records begin with host name
 		   if(preg_match("~^(".preg_quote($host, '~')."|".preg_quote($host_idna, '~').")~i", $line)) {
 			   return true;
@@ -198,19 +198,6 @@ function JS_URL($url) {
 		$url = 'location.href="'.$url.'"';
 	}
 	return $url;
-}
-
-/**
- * orders a multidimentional array on the base of a label-key
- *
- * @param $arr, the array to be ordered
- * @param $l the "label" identifing the field
- * @param $f the ordering function to be used,
- *	strnatcasecmp() by default
- * @return  TRUE on success, FALSE on failure.
- */
-function array_columnsort(&$arr, $l , $f='strnatcasecmp') {
-	return uasort($arr, create_function('$a, $b', "return $f(\$a['$l'], \$b['$l']);"));
 }
 
 function array_empty($array) {
@@ -404,17 +391,17 @@ function convert2adress($url, $toLower = true, $spacer = '-') {
 	}
 
 	// International umlauts
-	$url = str_replace (array('á', 'à', 'â', 'Á', 'À', 'Â'),			'a', $url);
-	$url = str_replace (array('ç', 'Ç'), 								'c', $url);
-	$url = str_replace (array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ë', 'Ê'),	'e', $url);
-	$url = str_replace (array('í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï'),	'i', $url);
-	$url = str_replace (array('ó', 'ò', 'ô', 'Ó', 'Ò', 'Ô'), 			'o', $url);
-	$url = str_replace (array('ú', 'ù', 'û', 'Ú', 'Ù', 'Û'), 			'u', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½'),			'a', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½'), 								'c', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½'),	'e', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½'),	'i', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½'), 			'o', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½', 'ï¿½'), 			'u', $url);
 	// German umlauts
-	$url = str_replace (array('ä', 'Ä'), 'ae', $url);
-	$url = str_replace (array('ö', 'Ö'), 'oe', $url);
-	$url = str_replace (array('ü', 'Ü'), 'ue', $url);
-	$url = str_replace (array('ß'), 'ss', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½'), 'ae', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½'), 'oe', $url);
+	$url = str_replace (array('ï¿½', 'ï¿½'), 'ue', $url);
+	$url = str_replace (array('ï¿½'), 'ss', $url);
 	// Replace some special chars with delimiter
 	$url = preg_replace('/[\+\s\r\n\t]+/', $spacer, $url);
 	// Replace multiple delimiter chars with only one char

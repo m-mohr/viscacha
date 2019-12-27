@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 
 chdir('../');
 
-define('VISCACHA_VERSION', '0.8.1.3');
+define('VISCACHA_VERSION', '0.8.2');
 define('VISCACHA_CORE', '1');
 define('SCRIPTNAME', 'install');
 define('SCRIPT_LOCKED', file_exists('./locked.txt'));
