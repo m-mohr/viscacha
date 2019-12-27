@@ -197,23 +197,6 @@ function GroupCheck($groups) {
 	}
 }
 
-function numbers ($nvar,$deci=null) {
-	global $config, $lang;
-
-	if (!is_numeric($nvar)) {
-		return $nvar;
-	}
-
-	if ($deci == null) {
-		$deci = $config['decimals'];
-	}
-	if (strpos($nvar, '.') === false) {
-		$deci = 0;
-	}
-
-	return number_format($nvar, $deci, $lang->phrase('decpoint'), $lang->phrase('thousandssep'));
-}
-
 function formatFilesize($byte) {
 	global $lang;
 	$string = $lang->phrase('fs_byte');
@@ -867,4 +850,3 @@ function get_pmdir ($dir) {
 	}
 	return $dir_name;
 }
-?>
