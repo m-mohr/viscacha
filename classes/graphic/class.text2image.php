@@ -26,8 +26,9 @@ class text2image {
 	}
 
 	function prepare($text, $angle = 0, $size = 10, $font = null) {
+		global $config;
 		if (!file_exists($font)) {
-			$font = './classes/fonts/trebuchet.ttf';
+			$font = realpath('./classes/fonts/trebuchet.ttf');
 		}
 		$this->text = $text; // Line breaks with [nl] or standard html br
 		$this->angle = $angle+0;

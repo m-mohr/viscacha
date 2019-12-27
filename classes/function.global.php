@@ -25,7 +25,7 @@
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
 define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
-define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'�\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'�\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
 define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
 
 define('REMOTE_INVALID_URL', 100);
@@ -411,18 +411,17 @@ function convert2adress($url, $toLower = true, $spacer = '-') {
 		$url = strtolower($url);
 	}
 
-	// International umlauts
-	$url = str_replace (array('�', '�', '�', '�', '�', '�'),			'a', $url);
-	$url = str_replace (array('�', '�'), 								'c', $url);
-	$url = str_replace (array('�', '�', '�', '�', '�', '�', '�', '�'),	'e', $url);
-	$url = str_replace (array('�', '�', '�', '�', '�', '�', '�', '�'),	'i', $url);
-	$url = str_replace (array('�', '�', '�', '�', '�', '�'), 			'o', $url);
-	$url = str_replace (array('�', '�', '�', '�', '�', '�'), 			'u', $url);
+	$url = str_replace (array('á', 'à', 'â', 'Á', 'À', 'Â'),			'a', $url);
+	$url = str_replace (array('ç', 'Ç'), 								'c', $url);
+	$url = str_replace (array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ë', 'Ê'),	'e', $url);
+	$url = str_replace (array('í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï'),	'i', $url);
+	$url = str_replace (array('ó', 'ò', 'ô', 'Ó', 'Ò', 'Ô'), 			'o', $url);
+	$url = str_replace (array('ú', 'ù', 'û', 'Ú', 'Ù', 'Û'), 			'u', $url);
 	// German umlauts
-	$url = str_replace (array('�', '�'), 'ae', $url);
-	$url = str_replace (array('�', '�'), 'oe', $url);
-	$url = str_replace (array('�', '�'), 'ue', $url);
-	$url = str_replace (array('�'), 'ss', $url);
+	$url = str_replace (array('ä', 'Ä'), 'ae', $url);
+	$url = str_replace (array('ö', 'Ö'), 'oe', $url);
+	$url = str_replace (array('ü', 'Ü'), 'ue', $url);
+	$url = str_replace (array('ß'), 'ss', $url);
 	// Replace some special chars with delimiter
 	$url = preg_replace('/[\+\s\r\n\t]+/', $spacer, $url);
 	// Replace multiple delimiter chars with only one char

@@ -70,7 +70,7 @@ $breadcrumb->Add($lang->phrase('members'), 'members.php'.SID2URL_1);
 if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) {
 	$result=$db->query("SELECT id, name, opt_hidemail, mail FROM {$db->pre}user WHERE id = '{$_GET['id']}'");
 	$row = $slog->cleanUserData($db->fetch_object($result));
-	$username = $row['name'];
+	$username = $row->name;
 	$breadcrumb->Add($lang->phrase('profile_title'), 'profile.php?id='.$_GET['id'].$url_ext.SID2URL_x);
 	$breadcrumb->Add($lang->phrase('profile_mail_2'));
 
@@ -137,7 +137,6 @@ if (($_GET['action'] == 'mail' || $_GET['action'] == 'sendmail') && $is_member) 
 elseif ($is_guest) {
 	$breadcrumb->ResetUrl();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	$group = 'fallback_no_username';
 	($code = $plugins->load('profile_guest_prepared')) ? eval($code) : null;
 	echo $tpl->parse("profile/guest");

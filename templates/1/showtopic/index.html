@@ -48,28 +48,6 @@
 </span>
 <?php } echo $temp; ?>
 </div></div>
-<noscript>
-	<br class="minibr" />
-	<div class="popup_noscript"><a name="threadtools"></a>
-<?php if($my->vlogin) { ?>
-	 <strong><?php echo $lang->phrase('showtopic_options_manage'); ?></strong>
-	 <ul>
-	 <li><a href="editprofile.php?action=addabo&amp;type=9&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_favs'); ?></a></li>
-	 </ul>
-	 <?php if ($info['status'] == 0) { ?>
-	 <strong><?php echo $lang->phrase('showtopic_options_abo'); ?></strong>
-	 <ul>
-	 <?php if ($abox['id'] > 0) { ?>
-     <li><a href="editprofile.php?action=removeabo&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo_remove'); ?></a></li>
-	 <?php } else { ?>
-     <li><a href="editprofile.php?action=addabo&amp;type=0&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo0'); ?></a></li>
-     <li><a href="editprofile.php?action=addabo&amp;type=1&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo1'); ?></a></li>
-     <li><a href="editprofile.php?action=addabo&amp;type=7&amp;id=<?php echo $info['id'].SID2URL_x; ?>"><?php echo $lang->phrase('showtopic_options_abo7'); ?></a></li>
-     <?php } ?>
-     </ul>
-<?php }} ?>
-	</div>
-</noscript>
 <?php if ($my->mp[0] == 1) { ?>
 <br />
 <div class="border">

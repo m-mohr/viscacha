@@ -90,7 +90,7 @@ class PowerGraphic {
 	function __construct() {
 		$this->x = $this->y = $this->z = array();
 
-		$this->fontFile = './classes/fonts/trebuchet.ttf';
+		$this->fontFile = realpath('./classes/fonts/trebuchet.ttf');
 
 		$this->biggest_x		= NULL;
 		$this->biggest_y		= NULL;

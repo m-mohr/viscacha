@@ -35,7 +35,7 @@ class lang {
 	var $cache;
 	var $js;
 
-	// ToDo: Alternatives Verzeichnis für den Fall, dass eine ID übergeben wurde, die nichtmehr aktiv ist...
+	// ToDo: Alternatives Verzeichnis fï¿½r den Fall, dass eine ID ï¿½bergeben wurde, die nichtmehr aktiv ist...
 	function __construct($js = false, $level = E_USER_ERROR) {
 		$this->file = '';
 		$this->vars = array();
@@ -77,13 +77,6 @@ class lang {
 		global $slog;
 		if (isset($slog) && is_object($slog) && method_exists($slog, 'setlang')) {
 			$slog->setlang();
-		}
-		global $config, $breadcrumb;
-		if (isset($breadcrumb)) {
-			$isforum = array('addreply','attachments','edit','forum','manageforum','managetopic','misc','newtopic','search','showforum','showtopic');
-			if ($config['indexpage'] != 'forum' && in_array(SCRIPTNAME, $isforum)) {
-				$breadcrumb->Add($this->phrase('forumname'), iif(SCRIPTNAME != 'forum', 'forum.php'));
-			}
 		}
 	}
 

@@ -74,7 +74,7 @@
 		<a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_mail_2'); ?></a>
 		<?php } else { echo $lang->phrase('profile_mail_1'); } ?>
 		<br />
-		<strong><?php echo $lang->phrase('profile_pm'); ?>:</strong> <a href="pm.php?action=new&amp;name=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_pm_send'); ?></a>
+		<strong><?php echo $lang->phrase('profile_pm'); ?>:</strong> <a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_pm_send'); ?></a>
 	  <?php foreach ($customfields['3'] as $field) { ?>
 	  <br /><strong><?php echo $field['name']; ?>:</strong> <?php echo $field['value']; } ?>
       </td>

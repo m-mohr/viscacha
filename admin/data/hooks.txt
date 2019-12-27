@@ -428,5 +428,5 @@ classes/function.viscacha_frontend.php
 -frontend_error
 -frontend_ok
 
-templates/*/menu.html
+templates/*/header.html
 -template_forum_menu

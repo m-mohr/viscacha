@@ -162,7 +162,6 @@ elseif ($job == "chmod") {
   </tr>
   <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_explorer_chmod_helper'); ?>
-   <noscript><br /><span class="stext"><?php echo $lang->phrase('admin_explorer_helper_requires_js'); ?></span></noscript>
    </td>
    <td class="mbox">
 	<table class="inlinetable">
