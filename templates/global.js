@@ -8,26 +8,10 @@ var LightBoxCallback = null;
 
 ///////////////////////// Global /////////////////////////
 function FetchElement(id) {
-	if (document.getElementById) {
-		return document.getElementById(id);
-	}
-	else if (document.all) {
-		return document.all[id];
-	}
-	else if (document.layers) {
-		return document.layers[id];
-	}
+	return document.getElementById(id);
 }
 function OpenerFetchElement(id) {
-	if (window.opener.document.getElementById) {
-		return window.opener.document.getElementById(id);
-	}
-	else if (window.opener.document.all) {
-		return window.opener.document.all[id];
-	}
-	else if (window.opener.document.layers) {
-		return window.opener.document.layers[id];
-	}
+	return window.opener.document.getElementById(id);
 }
 
 ///////////////////////// General / Misc. /////////////////////////
@@ -54,7 +38,6 @@ function HandCursor(element) {
 	}
 }
 function key(event) { // Returns the pressed key
-	event = (window.event) ? window.event : event; // windows.event for IE
 	return (event.which ? event.which : event.keyCode);
 }
 
@@ -189,30 +172,12 @@ function ieRand() {
 	}
 }
 
-/*
-XHConn - Simple XMLHTTP interface - bfults@gmail.com - 2005-04-08
-Code licensed under Creative Commons Attribution-ShareAlike License
-http://creativecommons.org/licenses/by-sa/2.0/
-*/
 function ajax() {
-	var xmlhttp, bComplete = false;
+	var xmlhttp;
 	try {
-		xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
+		xmlhttp = new XMLHttpRequest();
 	}
 	catch (e) {
-		try {
-			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		}
-		catch (e) {
-			try {
-				xmlhttp = new XMLHttpRequest();
-			}
-			catch (e) {
-				xmlhttp = false;
-			}
-		}
-	}
-	if (!xmlhttp) {
 		return null;
 	}
 
@@ -220,7 +185,7 @@ function ajax() {
 		if (!xmlhttp) {
 			return false;
 		}
-		bComplete = false;
+		var bComplete = false;
 		sMethod = sMethod.toUpperCase();
 
 		try {

@@ -54,10 +54,7 @@ function empty(val) {
 function getSelection(id) {
 	var elem = FetchElement(id);
 	var selection = '';
-	if(typeof document.selection != 'undefined') {
-		selection = document.selection.createRange().duplicate().text;
-	}
-	else if(typeof elem.selectionStart != 'undefined') {
+	if(typeof elem.selectionStart != 'undefined') {
 		selection = elem.value.substring(elem.selectionStart, elem.selectionEnd);
 	}
 	if (empty(selection)) {
@@ -69,28 +66,7 @@ function getSelection(id) {
 }
 function InsertTags(id, aTag, eTag, param2) {
 	var input = FetchElement(id);
-	if(document.all && !window.opera && document.selection) { // IE
-		var range = document.selection.createRange();
-		var insText = range.duplicate().text;
-		if (param2 > 0) {
-			insText = '';
-		}
-
-		if (insText.length == 0) {
-			input.focus();
-		}
-		document.selection.createRange().duplicate().text = aTag + insText + eTag;
-
-		range = document.selection.createRange();
-		if (insText.length == 0 && param2 != 2) {
-			range.moveEnd('character', -eTag.length);
-		}
-		else {
-			range.moveStart('character', aTag.length + insText.length + eTag.length);
-		}
-		range.select();
-	}
-	else if (input.selectionEnd) {
+	if (input.selectionEnd) {
 		var start_selection = input.selectionStart;
 		var end_selection = input.selectionEnd;
 		var new_endsel = end_selection + aTag.length + eTag.length;
