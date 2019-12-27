@@ -66,7 +66,7 @@ function check_pw($password, $hash) {
 	if (mb_strlen($hash) == 32) {
 		// Old MD5 way to check passwords
 		global $db;
-		$var = utf8_decode($password);
+		$var = mb_convert_encoding($password, "ISO-8859-15");
 		$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 		$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-15', false);
 		$var = $db->escape_string($var);
