@@ -156,7 +156,6 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	}
 	else {
 		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
 		echo $tpl->parse("misc/report_post");
 	}
 }
@@ -170,7 +169,6 @@ elseif ($_GET['action'] == "wwo") {
 
 	$breadcrumb->Add($lang->phrase('wwo_detail_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$wwo = array(
 		'i' => 0,
@@ -614,7 +612,6 @@ elseif ($_GET['action'] == "bbhelp") {
 
 	$breadcrumb->Add($lang->phrase('bbhelp_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('misc_bbhelp_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/bbhelp");
 	($code = $plugins->load('misc_bbhelp_end')) ? eval($code) : null;
@@ -648,7 +645,6 @@ elseif ($_GET['action'] == "rules") {
 	$my->p = $slog->Permissions();
 	$breadcrumb->Add($lang->phrase('rules_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	$rules = $lang->get_words('rules');
 	($code = $plugins->load('misc_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/rules");
@@ -676,7 +672,6 @@ elseif ($_GET['action'] == "board_rules") {
 	forum_opt($info);
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('misc_board_rules_prepared')) ? eval($code) : null;
 	echo $tpl->parse("misc/board_rules");

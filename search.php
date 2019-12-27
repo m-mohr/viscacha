@@ -357,7 +357,6 @@ elseif ($_GET['action'] == "result") {
 	}
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('search_result_prepared')) ? eval($code) : null;
 	echo $tpl->parse("search/result");
 	($code = $plugins->load('search_result_end')) ? eval($code) : null;
@@ -387,7 +386,6 @@ elseif ($_GET['action'] == "active") {
    		else {
 		    $count = 0;
 			echo $tpl->parse("header");
-			echo $tpl->parse("menu");
 	        echo $tpl->parse("search/active");
    		}
 	}
@@ -520,7 +518,6 @@ elseif ($_GET['action'] == "active") {
     	}
 
 		echo $tpl->parse("header");
-		echo $tpl->parse("menu");
     	($code = $plugins->load('search_active_prepared')) ? eval($code) : null;
     	echo $tpl->parse("search/active");
     	($code = $plugins->load('search_active_end')) ? eval($code) : null;
@@ -529,7 +526,6 @@ elseif ($_GET['action'] == "active") {
 else {
 	$forums = BoardSubs();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('search_form_start')) ? eval($code) : null;
 	echo $tpl->parse("search/index");
 	($code = $plugins->load('search_form_end')) ? eval($code) : null;

@@ -93,7 +93,7 @@ class DB_Driver { // abstract class
     }
 
     // offset = -1 => Alle Zeilen
-    // offset >= 0 => Ab offset die nächsten $this->std_limit Zeilen
+    // offset >= 0 => Ab offset die nï¿½chsten $this->std_limit Zeilen
     function getData($table, $offset = -1) {
 	    $table_data = $this->new_line. $this->commentdel.' Data: ' .$table . iif ($offset != -1, ' {'.$offset.', '.($offset+$this->std_limit).'}' ). $this->new_line;
      	// Datensaetze vorhanden?
@@ -126,7 +126,7 @@ class DB_Driver { // abstract class
 		$lines = explode("\n", $lines);
 		$lines = array_map("trim", $lines);
 		$line = '';
-		foreach ($lines as $h) 
+		foreach ($lines as $h) {
 			$comment = substr($h, 0, 2);
 			if ($comment == '--' || $comment == '//' || empty($h)) {
 				continue;

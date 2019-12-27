@@ -156,6 +156,8 @@ require_once ("classes/class.template.php");
 include_once ("classes/class.breadcrumb.php");
 // Global functions
 require_once ("classes/function.global.php");
+// Flash messagesw
+require_once ("classes/class.flashmessage.php");
 
 if (!file_exists('.htaccess')) {
 	$htaccess = array();

@@ -161,7 +161,6 @@ elseif ($_GET['action'] == 'resend') {
 	$breadcrumb->Add($lang->phrase('register_title'), "register.php".SID2URL_1);
 	$breadcrumb->Add($lang->phrase('register_resend_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	if ($config['botgfxtest'] > 0) {
 		$captcha = newCAPTCHA();
@@ -281,7 +280,6 @@ else {
 
 	$breadcrumb->Add($lang->phrase('register_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	$rules = $lang->get_words('rules');
 

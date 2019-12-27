@@ -737,7 +737,7 @@ function general_message($errortpl, $errorhook, $errormsg, $errorurl, $EOS) {
 	exit;
 }
 
-function errorLogin($errormsg = null, $errorurl = null, $EOS = null) {
+function errorLogin($errormsg = null, $errorurl = null) {
 	if ($errormsg == null) {
 		global $lang;
 		$errormsg = array($lang->phrase('not_allowed'));
@@ -747,10 +747,10 @@ function errorLogin($errormsg = null, $errorurl = null, $EOS = null) {
 	}
 
 	if ($errorurl == null) {
-		$errorurl = htmlspecialchars(getRequestURI());
+		$errorurl = 'index.php' . SID2URL_1;
 	}
 
-	general_message('not_allowed', 'errorlogin', $errormsg, $errorurl, $EOS);
+	general_message('not_allowed', 'errorlogin', $errormsg, $errorurl, null);
 }
 
 function error($errormsg = null, $errorurl = null, $EOS = null) {
@@ -761,6 +761,14 @@ function error($errormsg = null, $errorurl = null, $EOS = null) {
 	elseif (!is_array($errormsg)) {
 		$errormsg = array($errormsg);
 	}
+	
+	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
+		FlashMessage::addError($errormsg);
+		global $slog, $db;
+		$slog->updatelogged();
+		$db->close();
+		sendStatusCode(302, html_entity_decode($errorurl));
+	}
 
 	general_message('error', 'error', $errormsg, $errorurl, $EOS);
 }
@@ -769,6 +777,14 @@ function ok($errormsg = null, $errorurl = null, $EOS = null) {
 	if ($errormsg == null) {
 		global $lang;
 		$errormsg = $lang->phrase('unknown_ok');
+	}
+	
+	if (!empty($errorurl) && stripos($errorurl, 'javascript:') === false) {
+		FlashMessage::addConfirmation($errormsg);
+		global $slog, $db;
+		$slog->updatelogged();
+		$db->close();
+		sendStatusCode(302, html_entity_decode($errorurl));
 	}
 
 	general_message('ok', 'ok', $errormsg, $errorurl, $EOS);
@@ -783,9 +799,6 @@ function forum_opt($array, $check = 'forum') {
 	if ($f_opt == 'pw' && (!isset($my->pwfaccess[$f_id]) || $my->pwfaccess[$f_id] != $f_optvalue)) {
 		if (!$tpl->tplsent('header')) {
 			echo $tpl->parse('header');
-		}
-		if (!$tpl->tplsent('menu')) {
-			echo $tpl->parse('menu');
 		}
 		GoBoardPW($f_optvalue, $f_id);
 	}

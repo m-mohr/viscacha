@@ -71,21 +71,20 @@ echo $tpl->parse("header");
 
 forum_opt($last);
 
-if (!$my->vlogin || $my->mp[0] == 0) {
-	errorLogin($lang->phrase('not_allowed'));
+if (!$my->vlogin || $my->mp[0] != 1) {
+	errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 }
 
 ($code = $plugins->load('managetopic_start')) ? eval($code) : null;
 
 if ($action == "delete") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/delete");
 }
 elseif ($action == "delete2") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
@@ -134,15 +133,14 @@ elseif ($action == "delete2") {
 }
 elseif ($action == "move") {
 	$my->pb = $slog->GlobalPermissions();
-	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
+	if ($my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$forums = BoardSubs();
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/move");
 }
 elseif ($action == "move2") {
-	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
+	if ($my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 
@@ -187,8 +185,6 @@ elseif ($action == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showtopic.php?id='.$info['id']);
 }
 elseif ($action == "reports") {
-	echo $tpl->parse("menu");
-
 	$result = $db->query("SELECT id, report, topic_id, tstart, topic FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}' LIMIT 1");
 	$data = $gpc->prepare($db->fetch_assoc($result));
 	if ($db->num_rows($result) == 0) {
@@ -256,7 +252,6 @@ elseif ($action == "vote_export") {
 	$skin = $gpc->get('skin', int, 1);
 	$modus = $gpc->get('modus', int, 1);
 
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_export");
 }
 elseif ($action == "vote_edit") {
@@ -287,7 +282,6 @@ elseif ($action == "vote_edit") {
 	}
 
 	$i = 0;
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_edit");
 }
 elseif ($action == "vote_edit2") {
@@ -341,14 +335,13 @@ elseif ($action == "vote_edit2") {
 	}
 }
 elseif ($action == "vote_delete") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
-	echo $tpl->parse("menu");
 	echo $tpl->parse("admin/topic/vote_delete");
 }
 elseif ($action == "vote_delete2") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$anz = 0;
@@ -368,7 +361,7 @@ elseif ($action == "vote_delete2") {
 	ok($lang->phrase('x_entries_deleted'),"showforum.php?id=".$info['board'].SID2URL_x);
 }
 elseif ($action == "pdelete") {
-	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
+	if ($my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showtopic.php?id='.$info['id'].SID2URL_x);
 	}
 	$ids = $gpc->get('ids', arr_int);

@@ -97,7 +97,6 @@ elseif ($_GET['action'] == "pwremind") {
 	}
 	$breadcrumb->Add($lang->phrase('log_pwremind_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	($code = $plugins->load('log_pwremind_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/pwremind");
 	($code = $plugins->load('log_pwremind_form_end')) ? eval($code) : null;
@@ -176,7 +175,6 @@ else {
 
 	$breadcrumb->Add($lang->phrase('log_title'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 
 	($code = $plugins->load('log_login_form_start')) ? eval($code) : null;
 	echo $tpl->parse("log/login");

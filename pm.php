@@ -117,7 +117,6 @@ if ($_GET['action'] == 'show') {
 	$breadcrumb->Add($lang->phrase('pm_show'));
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 	echo $tpl->parse("pm/show");
 	($code = $plugins->load('pm_show_end')) ? eval($code) : null;
@@ -125,7 +124,6 @@ if ($_GET['action'] == 'show') {
 elseif ($_GET['action'] == "massmanage") {
 	$breadcrumb->Add($lang->phrase('pm_massmanage'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 	$data = implode(',', $_POST['delete']);
 	if (!empty($_POST['move2'])) {
@@ -187,7 +185,6 @@ elseif ($_GET['action'] == "delete") {
 	$info = $db->fetch_assoc($result);
 	$breadcrumb->Add($lang->phrase('pm_manage'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 	$data = $info['id'];
 	echo $tpl->parse("pm/delete");
@@ -345,7 +342,6 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 	}
 	($code = $plugins->load('pm_compose_data')) ? eval($code) : null;
 
-	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 	($code = $plugins->load('pm_compose_prepared')) ? eval($code) : null;
 	echo $tpl->parse("pm/new");
@@ -387,7 +383,6 @@ elseif ($_GET['action'] == "browse") {
 	");
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 
 	while ($row = $db->fetch_assoc($result)) {
@@ -416,7 +411,6 @@ elseif ($_GET['action'] == "browse") {
 else {
 	$breadcrumb->resetUrl();
 	echo $tpl->parse("header");
-	echo $tpl->parse("menu");
 	echo $tpl->parse("pm/menu");
 
 	$memberdata_obj = $scache->load('memberdata');

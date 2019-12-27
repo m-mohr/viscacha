@@ -184,7 +184,7 @@ else {
 
 	if ($my->p['attachments'] != 1) {
 		echo $tpl->parse("popup/header");
-		errorLogin($lang->phrase('not_allowed'), 'javascript:self.close();');
+		error($lang->phrase('not_allowed'), 'javascript:self.close();');
 	}
 
 	if ($_GET['action'] == "save") {

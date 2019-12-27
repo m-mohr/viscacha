@@ -118,10 +118,8 @@ if (GroupCheck($info['groups'])) {
 	$lid = getDocLangID($data);
 	$info = array_merge($info, $data[$lid]);
 
-	$notice_box = '';
 	if ($lid != $my->language) { // We don't use the correct language... Let's print a notice
-		$notice = $lang->phrase('doc_wrong_language_shown');
-		$notice_box = $tpl->parse("main/notice_box");
+		FlashMessage::addNotice($lang->phrase('doc_wrong_language_shown'));
 	}
 
 	if ($typedata['inline'] == 0) {
@@ -134,7 +132,6 @@ if (GroupCheck($info['groups'])) {
 		$breadcrumb->Add($info['title']);
 		echo $tpl->parse("header");
 		($code = $plugins->load('docs_body_start')) ? eval($code) : null;
-		echo $notice_box;
 		if (empty($typedata['template'])) {
 			echo $info['content'];
 		}
@@ -166,7 +163,6 @@ if (GroupCheck($info['groups'])) {
 			}
 			echo $tpl->parse("header");
 			($code = $plugins->load('docs_html_parser_prepared')) ? eval($code) : null;
-			echo $notice_box;
 			echo DocCodeParser($info['content'], $typedata['parser']);
 		}
 		else {
@@ -174,7 +170,6 @@ if (GroupCheck($info['groups'])) {
 			$info['content'] = DocCodeParser($info['content'], $typedata['parser']);
 			echo $tpl->parse("header");
 			($code = $plugins->load('docs_html_template_prepared')) ? eval($code) : null;
-			echo $notice_box;
 			echo $tpl->parse("docs/{$typedata['template']}");
 		}
 

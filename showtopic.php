@@ -145,7 +145,6 @@ $start = ($_GET['page'] - 1) * $last['topiczahl'];
 $temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id']."&amp;", $_GET['page']);
 
 echo $tpl->parse("header");
-echo $tpl->parse("menu");
 
 ($code = $plugins->load('showtopic_start')) ? eval($code) : null;
 

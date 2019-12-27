@@ -1,3 +1,4 @@
+<?php if(SCRIPTNAME != 'docs' && SCRIPTNAME != 'portal' && SCRIPTNAME != 'components') { ?>
 <div class="border">
 <h3>
 <span class="right"><?php echo $lang->phrase('hello_user'); ?>
@@ -46,3 +47,4 @@
 </div>
 <br />
 <?php ($code = $plugins->load('template_forum_menu')) ? eval($code) : null; ?>
+<?php } ?>

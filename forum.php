@@ -41,7 +41,6 @@ $my->p = $slog->Permissions();
 $my->pb = $slog->GlobalPermissions();
 
 echo $tpl->parse("header");
-echo $tpl->parse("menu");
 
 $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
