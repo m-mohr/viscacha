@@ -187,7 +187,6 @@ if ($_GET['action'] == "save") {
 			$slog->updatelogged();
 			$db->close();
 			sendStatusCode(302, $config['furl']."/addreply.php?action=preview&id={$id}&fid=".$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error,"addreply.php?id={$id}&amp;fid=".$fid.SID2URL_x);

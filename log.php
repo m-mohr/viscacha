@@ -80,7 +80,6 @@ elseif ($_GET['action'] == "logout") {
 		$slog->updatelogged();
 		$db->close();
 		sendStatusCode(302, $config['furl'].'/log.php');
-		exit;
 	}
 	else {
 		$loc = getRedirectURL();

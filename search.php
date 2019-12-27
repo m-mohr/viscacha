@@ -199,7 +199,6 @@ if ($_GET['action'] == "search") {
 		$slog->updatelogged();
 		$db->close();
 		sendStatusCode(302, $config['furl'].'/search.php?action=result&fid='.$fid.SID2URL_JS_x);
-		exit;
 	}
 	else {
 		error($lang->phrase('search_nothingfound'), 'search.php'.SID2URL_1);

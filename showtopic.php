@@ -73,7 +73,6 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	}
 	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#firstnew');
-	exit;
 }
 elseif ($_GET['action'] == 'last') {
 	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
@@ -88,7 +87,6 @@ elseif ($_GET['action'] == 'last') {
 	}
 	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new[0]);
-	exit;
 }
 elseif ($_GET['action'] == 'mylast') {
 	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND name = '{$my->id}' ORDER BY date DESC LIMIT 1");
@@ -103,7 +101,6 @@ elseif ($_GET['action'] == 'mylast') {
 	}
 	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
-	exit;
 }
 elseif ($_GET['action'] == 'jumpto') {
 	$result = $db->query("SELECT date, id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND id = '{$_GET['topic_id']}'");
@@ -118,7 +115,6 @@ elseif ($_GET['action'] == 'jumpto') {
 	}
 	$db->close();
 	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
-	exit;
 }
 
 ($code = $plugins->load('showtopic_redirect')) ? eval($code) : null;

@@ -111,7 +111,6 @@ if ($my->p['admin'] == 1) {
 		if (!empty($url)) {
 			$db->close();
 			sendStatusCode(302, $url);
-			exit;
 		}
 		else {
 			echo head();

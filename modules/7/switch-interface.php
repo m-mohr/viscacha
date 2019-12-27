@@ -11,6 +11,6 @@ if (!empty($_POST['Extended']) && $my->vlogin) {
 		'email' => null
 	);
 	$fid = save_error_data($data);
+	$slog->updatelogged();
 	sendStatusCode(302, $config['furl']."/addreply.php?id={$_POST['id']}&fid=".$fid.SID2URL_JS_x);
-	exit;
 }

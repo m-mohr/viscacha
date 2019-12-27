@@ -248,7 +248,6 @@ elseif ($_GET['action'] == "save") {
 			$slog->updatelogged();
 			$db->close();
 			sendStatusCode(302, $config['furl'].'/pm.php?action=preview&fid='.$fid.SID2URL_JS_x);
-			exit;
 		}
 		else {
 			error($error,"pm.php?action=new&amp;fid=".$fid.SID2URL_x);
