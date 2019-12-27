@@ -35,7 +35,7 @@
 	
 // Database
 	
-	$db->query("ALTER TABLE v_user CHANGE `birthday` `birthday` char(10) NOT NULL default '0000-00-00'");
+	$db->query("ALTER TABLE {$db->pre}user CHANGE `birthday` `birthday` char(10) NOT NULL default '0000-00-00'");
 
 	echo "- Database structure updated.<br />";
 
@@ -62,7 +62,7 @@
 		array(
 			'language_de' => array(
 				'pm_addressee_edit' => null,
-				'register_resend_title' => 'Bestätigungslink erneut anfordern'
+				'register_resend_title' => 'BestÃ¤tigungslink erneut anfordern'
 			),
 			'language' => array(
 				'pm_addressee_edit' => null
