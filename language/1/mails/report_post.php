@@ -8,7 +8,7 @@ der Beitrag mit dem Titel {@info->title} wurde von {%my->name} gemeldet. Die fol
 ----------------------------------------------------------------------
 
 Sie k&ouml;nnen den Beitrag hier finden:
-{@config->furl}/showtopic.php?action=jumpto&id={@info->topic_id}&topic_id={@info->id}
+{@config->furl}/showtopic.php?action=jumpto&topic_id={@info->id}
 
 Mit freundlichen Gr&uuml;&szlig;en,
 Ihr {@config->fname} Team

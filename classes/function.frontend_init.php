@@ -56,12 +56,11 @@ $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 // Database functions
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 
 /* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
  	_ENV, _SERVER: Won't be checked, but null-byte is deleted
  	_COOKIE: You can check them in the script ( getcookie() ), won't be checked
- 	_REQUEST: Won't be checked - array has the original values (but without magic_quotes)
+ 	_REQUEST: Won't be checked - array has the original values
  	_POST, _GET with keys specified in http_vars are checked and save
 */
 $http_vars = array(
@@ -81,16 +80,10 @@ $http_vars = array(
 	'location' => str,
 	'signature' => str,
 	'hp' => str,
-	'icq' => str,
 	'pic' => db_esc,
 	'question' => str,
 	'type' => str,
 	'gender' => str,
-	'aol' => db_esc,
-	'msn' => db_esc,
-	'skype' => db_esc,
-	'yahoo' => db_esc,
-	'jabber' => db_esc,
 	'board' => int,
 	'topic_id' => int,
 	'id' => int,
@@ -98,7 +91,6 @@ $http_vars = array(
 	'temp' => int,
 	'temp2' => int,
 	'dosmileys' => int,
-	'dowords' => int,
 	'birthday' => int,
 	'birthmonth' => int,
 	'birthyear' => int,
@@ -110,7 +102,6 @@ $http_vars = array(
 	'opt_5' => int,
 	'opt_6' => int,
 	'opt_7' => int,
-	'notice' => arr_str,
 	'delete' => arr_int
 );
 
@@ -191,13 +182,11 @@ if (!file_exists('.htaccess')) {
 $breadcrumb = new breadcrumb();
 $breadcrumb->Add($config['fname'], 'index.php');
 
-$phpdoc = new OutputDoc($config['gzip']);
-$phpdoc->Start($config['gzcompression']);
-define('PAGE_IS_GZIPPED', ($config['gzip'] == 1 && $phpdoc->Encoding()));
+$phpdoc = new OutputDoc();
 
 ($code = $plugins->load('frontend_init')) ? eval($code) : null;
 
-// Global and important functions (not for cron and external)
+// Global and important functions (not for cron)
 if (defined('TEMPNOFUNCINIT') == false || ($config['foffline'] && defined('TEMPSHOWLOG') == false)) {
 	define('SCRIPT_START_TIME', benchmarktime());
 	$slog = new slog();
@@ -211,7 +200,6 @@ if ($config['foffline'] && defined('TEMPSHOWLOG') == false) {
 	$my->p = $slog->Permissions();
 
 	if ($my->p['admin'] != 1) {
-		$offline = file_get_contents('data/offline.php');
 		sendStatusCode(503, 3600);
 		($code = $plugins->load('frontend_init_offline')) ? eval($code) : null;
 		echo $tpl->parse("offline");

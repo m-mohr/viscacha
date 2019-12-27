@@ -20,12 +20,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	if (isset($_REQUEST['database'])) {
 		$config['database'] = $_REQUEST['database'];
 	}
-	if (isset($_REQUEST['pconnect']) && isset($_REQUEST['dbsystem']) && $_REQUEST['dbsystem'] == 'mysql') {
-		$config['pconnect'] = $_REQUEST['pconnect'];
-	}
-	else {
-		$config['pconnect'] = 0;
-	}
 	if (isset($_REQUEST['dbprefix'])) {
 		$config['dbprefix'] = $_REQUEST['dbprefix'];
 	}
@@ -44,7 +38,6 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbuser',str);
 	$c->updateconfig('dbpw',str);
 	$c->updateconfig('database',str);
-	$c->updateconfig('pconnect',int);
 	$c->updateconfig('dbprefix',str);
 	$c->updateconfig('dbsystem',str);
 	$c->savedata();
@@ -69,7 +62,6 @@ if ($prefix != $config['dbprefix']) {
 else {
 require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 $db->connect(false);
 if (!$db->hasConnection()) {
 	?>
@@ -78,10 +70,22 @@ if (!$db->hasConnection()) {
 	<?php
 }
 else {
-	if (!$db->select_db()) {
+	$selectDb = $db->select_db();
+	if (!$selectDb) {
+		// Create new database
+		$db->query("CREATE DATABASE `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+		$selectDb = $db->select_db();
+	}
+	if (!$selectDb) {
 		?>
-<div class="bbody">Could not find database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
+<div class="bbody">Could not find or create a database <em><?php echo $db->database; ?></em>! Please create a new database with this name or choose another database!</div>
 <div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a> <a class="submit" href="index.php?package=install&amp;step=<?php echo $step; ?>">Refresh</a></div>
+		<?php
+	}
+	else if (version_compare($db->version(), '5.5.3', '<')) {
+		?>
+<div class="bbody">MySQL (or MariaDB) version 5.5.3 or newer is needed to run Viscacha.</div>
+<div class="bfoot center"><a class="submit" href="index.php?package=install&amp;step=<?php echo $step-1; ?>">Go back</a></div>
 		<?php
 	}
 	else {
@@ -150,7 +154,7 @@ else {
 	<br class="newinput" /><hr class="formsep" />
 	<label for="sample_d2">Documents and Navigation:</label>
 	<input class="label" id="sample_d2" name="sample_d2" type="checkbox" value="1" />
-	<br class="newinput" /><br class="iefix_br" />
+	<br class="newinput" />
 </div>
 <div class="bfoot center"><input type="submit" value="Continue" /></div>
 	<?php

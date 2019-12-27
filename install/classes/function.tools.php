@@ -261,13 +261,7 @@ function GPC_escape($var, $type = GPC_HTML){
 		if ($type == GPC_HTML) {
 			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 			$var = str_replace("\0", '', $var);
-			if (version_compare(PHP_VERSION, '5.2.3', '>=')) {
-				$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
-			}
-			else {
-				$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1');
-				$var = str_replace('&amp;#', '&#', $var);
-			}
+			$var = htmlentities($var, ENT_QUOTES, 'ISO-8859-1', false);
 		}
 		if ($type == GPC_DB && isset($db) && is_object($db)) {
 			$var = $db->escape_string($var);
@@ -280,13 +274,5 @@ function GPC_escape($var, $type = GPC_HTML){
 		}
 	}
 	return $var;
-}
-
-// Variables
-if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-	trigger_error("Hacking attempt (Globals)", E_USER_ERROR);
-}
-if (isset($_SESSION) && !is_array($_SESSION)) {
-	trigger_error("Hacking attempt (Session Variable)", E_USER_ERROR);
 }
 ?>

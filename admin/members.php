@@ -983,38 +983,11 @@ elseif ($job == 'merge2') {
 	if (empty($base['about']) && !empty($old['about'])) {
 		$newdata[] ="about = '{$old['about']}'";
 	}
-	if (!empty($old['notice'])) {
-		if (empty($base['notice'])) {
-			$notice = $old['notice'];
-		}
-		else {
-			$notice = $base['notice'].'[VSEP]'.$old['notice'];
-		}
-		$newdata[] ="notice = '{$notice}'";
-	}
 	if (empty($base['location']) && !empty($old['location'])) {
 		$newdata[] ="location = '{$old['location']}'";
 	}
 	if (empty($base['pic']) && !empty($old['pic'])) {
 		$newdata[] ="pic = '{$old['pic']}'";
-	}
-	if (empty($base['yahoo']) && !empty($old['yahoo'])) {
-		$newdata[] ="yahoo = '{$old['yahoo']}'";
-	}
-	if (empty($base['msn']) && !empty($old['msn'])) {
-		$newdata[] ="msn = '{$old['msn']}'";
-	}
-	if (empty($base['skype']) && !empty($old['skype'])) {
-		$newdata[] ="skype = '{$old['skype']}'";
-	}
-	if (empty($base['jabber']) && !empty($old['jabber'])) {
-		$newdata[] ="jabber = '{$old['jabber']}'";
-	}
-	if (empty($base['aol']) && !empty($old['aol'])) {
-		$newdata[] ="aol = '{$old['aol']}'";
-	}
-	if (empty($base['icq']) && !empty($old['icq'])) {
-		$newdata[] ="icq = '{$old['icq']}'";
 	}
 	if (($base['birthday'] == '0000-00-00' || $base['birthday'] == '1000-00-00') && $old['birthday'] != '0000-00-00' && $old['birthday'] != '1000-00-00') {
 		$newdata[] ="birthday = '{$old['birthday']}'";
@@ -1068,8 +1041,7 @@ elseif ($job == 'manage') {
 	elseif ($sort == 'lastvisit') $sort = 'lastvisit';
 	else $sort = 'name';
 
-	$start = $page*25;
-	$start = $start-25;
+	$start = ($page - 1) * 25;
 
 	$result = $db->query('SELECT * FROM '.$db->pre.'user ORDER BY '.$sort.' '.$order.' LIMIT '.$start.',25');
 	?>
@@ -1077,12 +1049,7 @@ elseif ($job == 'manage') {
 	 <tr>
 	  <td class="obox button_multiline">
 	   <a class="button" href="admin.php?action=members&amp;job=register"><?php echo $lang->phrase('admin_member_add_new_member'); ?></a>
-	   <?php if ($my->settings['admin_interface'] == 0) { ?>
-	   <a class="button" href="admin.php?action=members&amp;job=search"><?php echo $lang->phrase('admin_member_search_members'); ?></a>
-	   <a class="button" href="admin.php?action=members&amp;job=inactive"><?php echo $lang->phrase('admin_member_inactive_members'); ?></a>
-	   <?php } ?>
 	   <a class="button" href="admin.php?action=members&amp;job=reserve"><?php echo $lang->phrase('admin_member_reserve_names_title'); ?></a>
-	   <a class="button" href="admin.php?action=members&amp;job=memberrating"><?php echo $lang->phrase('admin_member_memberratings'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=merge"><?php echo $lang->phrase('admin_member_merge_users'); ?></a>
 	   <a class="button" href="admin.php?action=members&amp;job=recount"><?php echo $lang->phrase('admin_member_recount_post_counts'); ?></a>
 	  </td>
@@ -1147,75 +1114,6 @@ elseif ($job == 'manage') {
 	<?php
 	echo foot();
 }
-elseif ($job == 'memberrating') {
-	echo head();
-	$page = $gpc->get('page', int, 1);
-
-	$count = $db->fetch_num($db->query('SELECT COUNT(*) FROM '.$db->pre.'postratings WHERE aid != "0" GROUP BY aid'));
-	$temp = pages($count[0], "admin.php?action=members&job=memberrating&amp;", 25);
-
-	$start = $page*25;
-	$start = $start-25;
-
-	$change = array('m' => 'male', 'w' => 'female', '' => '-');
-
-	$result = $db->query('
-	SELECT u.*, avg(p.rating) AS ravg, count(*) AS rcount
-	FROM '.$db->pre.'postratings AS p
-		LEFT JOIN '.$db->pre.'user AS u ON p.aid = u.id
-	WHERE aid != "0"
-	GROUP BY aid
-	ORDER BY ravg DESC
-	LIMIT '.$start.',25
-	');
-	?>
-	<form name="form" action="admin.php?action=members&job=delete" method="post">
-	<table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-		<tr>
-		  <td class="obox" colspan="6"><?php echo $lang->phrase('admin_member_memberrating'); ?></td>
-		</tr>
-		<tr>
-		  <td class="ubox" colspan="6"><span style="float: right;"><?php echo $temp; ?></span><?php echo $count[0]; ?> <?php echo $lang->phrase('admin_member_rated_members'); ?></td>
-		</tr>
-		<tr>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_member_all'); ?></span></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_username'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_rating_amount'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_mail'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_last_visit'); ?></td>
-		  <td class="obox"><?php echo $lang->phrase('admin_member_reg_date'); ?></td>
-		</tr>
-	<?php
-	while ($row = $db->fetch_object($result)) {
-		$row = $slog->cleanUserData($row);
-		$row->regdate = gmdate('d.m.Y', times($row->regdate));
-		if ($row->lastvisit == 0) {
-			$row->lastvisit = $lang->phrase('admin_member_never');
-		}
-		else {
-			$row->lastvisit = gmdate('d.m.Y H:i', times($row->lastvisit));
-		}
-		$percent = round((($row->ravg*50)+50));
-		?>
-		<tr>
-		  <td class="mbox"><input type="checkbox" name="delete[]" value="<?php echo $row->id; ?>"></td>
-		  <td class="mbox"><a title="<?php echo $lang->phrase('admin_member_edit'); ?>" href="admin.php?action=members&job=edit&id=<?php echo $row->id; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br><i>".$row->fullname."</i>"); ?></td>
-		  <td class="mbox"><img src="images.php?action=memberrating&id=<?php echo $row->id; ?>" alt="<?php echo $percent; ?>%" title="<?php echo $percent; ?>%"  /> <?php echo $percent; ?>% (<?php echo $row->rcount; ?>)</td>
-		  <td class="mbox" align="center"><a href="mailto:<?php echo $row->mail; ?>"><?php echo $lang->phrase('admin_member_mail'); ?></a></td>
-		  <td class="mbox"><?php echo $row->lastvisit; ?></td>
-		  <td class="mbox"><?php echo $row->regdate; ?></td>
-		</tr>
-		<?php
-	}
-	?>
-		<tr>
-		  <td class="ubox" colspan="6"><span style="float: right;"><?php echo $temp; ?></span><input type="submit" name="submit" value="<?php echo $lang->phrase('admin_member_delete'); ?>"></td>
-		</tr>
-	</table>
-	</form>
-	<?php
-	echo foot();
-}
 elseif ($job == 'recount') {
 	echo head();
 	$id = $gpc->get('id', int);
@@ -1248,7 +1146,8 @@ elseif ($job == 'recount') {
 				SELECT COUNT(*) AS new, u.posts, u.id
 				FROM {$db->pre}replies AS r
 					LEFT JOIN {$db->pre}user AS u ON u.id = r.name
-				WHERE r.guest = '0'". iif(count($id) > 0, " AND r.board NOT IN (".implode(',', $id).")") ."
+					LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+				WHERE r.guest = '0'". iif(count($id) > 0, " AND t.board NOT IN (".implode(',', $id).")") ."
 				GROUP BY u.id
 			");
 
@@ -1321,9 +1220,6 @@ elseif ($job == 'register') {
 	</tr><tr>
 		<td class="mbox">
 		<?php echo $lang->phrase('admin_member_mail_address'); ?>
-			<?php if ($config['sessionmails'] == 1) { ?>
-			  <br /><span class="stext"><?php echo $lang->phrase('admin_member_disposable_mail_not_allowed'); ?></span>
-			<?php } ?>
 		</td>
 		<td class="mbox">
 			<input type="text" name="email" size="40" />
@@ -1401,7 +1297,7 @@ elseif ($job == 'register2') {
 		$reg = time();
 		$pw_md5 = md5($pwx);
 
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$name}', '{$pw_md5}', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '', '')");
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$name}', '{$pw_md5}', '{$email}', '{$reg}', '11', '".GROUP_MEMBER."', '', '')");
 		$redirect = $db->insert_id();
 
 		addprofile_customsave($custom['data'], $redirect);
@@ -1525,24 +1421,6 @@ elseif ($job == 'edit') {
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_homepage'); ?></td><td class="mbox">
 <input type="text" name="hp" id="hp" size="40" value="<?php echo $user['hp']; ?>" />
 </td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_icq'); ?></td><td class="mbox">
-<input type="text" name="icq" id="icq" size="40" value="<?php echo iif(!empty($user['icq']), $user['icq']); ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_aol'); ?></td><td class="mbox">
-<input type="text" name="aol" id="aol" size="40" value="<?php echo $user['aol']; ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_yim'); ?></td><td class="mbox">
-<input type="text" name="yahoo" id="yahoo" size="40" value="<?php echo $user['yahoo']; ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_msn'); ?></td><td class="mbox">
-<input type="text" name="msn" id="msn" size="40" value="<?php echo $user['msn']; ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_jabber'); ?></td><td class="mbox">
-<input type="text" name="jabber" id="jabber" size="40" value="<?php echo $user['jabber']; ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_skype'); ?></td><td class="mbox">
-<input type="text" name="skype" id="skype" size="40" value="<?php echo $user['skype']; ?>" />
-</td></tr>
 <?php foreach ($customfields['1'] as $row1) { ?>
 <tr><td class="mbox"><?php echo $row1['name'] . iif(!empty($row1['description']), '<br /><span class="stext">'.$row1['description'].'</span>'); ?></td>
 <td class="mbox"> <?php echo $row1['input']; ?></td></tr>
@@ -1606,17 +1484,8 @@ elseif ($job == 'edit') {
 	<option value="+12"<?php selectTZ($user['timezone'], 12); ?>><?php echo $lang->phrase('timezone_p12'); ?></option>
 </select>
 </td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_contribution_editor'); ?></td><td class="mbox">
-<select id="opt_0" name="opt_0">
-	<option<?php echo iif($user['opt_textarea'] == 0,' selected="selected"'); ?> value="0"><?php echo $lang->phrase('admin_member_simple_editor'); ?></option>
-	<option<?php echo iif($user['opt_textarea'] == 1,' selected="selected"'); ?> value="1"><?php echo $lang->phrase('admin_member_advanced_editor'); ?></option>
-</select>
-</td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_sending_mail_receiving_pn'); ?></td><td class="mbox">
 <input id="opt_1" type="checkbox" name="opt_1" <?php echo iif($user['opt_pmnotify'] == 1,' checked="checked"'); ?> value="1" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_hide_bad_rated_topics'); ?></td><td class="mbox">
-<input id="opt_2" type="checkbox" name="opt_2" <?php echo iif($user['opt_hidebad'] == 1,' checked="checked"'); ?> value="1" />
 </td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_how_should_mail_be_shown'); ?></td><td class="mbox">
 <select id="opt_3" name="opt_3">
@@ -1672,9 +1541,9 @@ elseif ($job == 'edit2') {
 	$loadlanguage_obj = $scache->load('loadlanguage');
 	$cache2 = $loadlanguage_obj->get();
 
-	$keys_int = array('id', 'birthday', 'birthmonth', 'birthyear', 'opt_0', 'opt_1', 'opt_2', 'opt_3', 'opt_4', 'opt_5');
-	$keys_str = array('groups', 'fullname', 'location', 'icq', 'gender', 'hp', 'signature', 'temp', 'comment');
-	$keys_db = array('email', 'aol', 'yahoo', 'msn', 'jabber', 'pic', 'skype');
+	$keys_int = array('id', 'birthday', 'birthmonth', 'birthyear', 'opt_1', 'opt_3', 'opt_4', 'opt_5');
+	$keys_str = array('groups', 'fullname', 'location', 'gender', 'hp', 'signature', 'temp', 'comment');
+	$keys_db = array('email', 'pic');
 	foreach ($keys_int as $val) {
 		$query[$val] = $gpc->get($val, int);
 	}
@@ -1816,11 +1685,6 @@ elseif ($job == 'edit2') {
 		$query['birthyear'] = leading_zero($query['birthyear'], 4);
 		$bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
 
-		$query['icq'] = str_replace('-', '', $query['icq']);
-		if (!is_id($query['icq'])) {
-			$query['icq'] = 0;
-		}
-
 		if (!empty($query['pw']) && strlen($query['pw']) >= $config['minpwlength']) {
 			$md5 = md5($query['pw']);
 			$update_sql = ", pw = '{$md5}' ";
@@ -1831,7 +1695,7 @@ elseif ($job == 'edit2') {
 
 		admin_customsave($query['id']);
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_textarea = '{$query['opt_0']}', opt_pmnotify = '{$query['opt_1']}', opt_hidebad = '{$query['opt_2']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', icq = '{$query['icq']}', yahoo = '{$query['yahoo']}', aol = '{$query['aol']}', msn = '{$query['msn']}', jabber = '{$query['jabber']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', skype = '{$query['skype']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_pmnotify = '{$query['opt_1']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		$cache = $scache->load('memberdata');
 		$cache = $cache->delete();
@@ -1872,14 +1736,10 @@ elseif ($job == 'delete') {
 		$delete = $gpc->get('delete', arr_int);
 		// Step 9: Set uploads from member to guests-group
 		$db->query("UPDATE {$db->pre}uploads SET mid = '0' WHERE mid IN ({$did})");
-		// Step 10: Set post ratings from member to guests-group I
-		$db->query("UPDATE {$db->pre}postratings SET mid = '0' WHERE mid IN ({$did})");
-		// Step 11: Set post ratings from member to guests-group II
-		$db->query("UPDATE {$db->pre}postratings SET aid = '0' WHERE aid IN ({$did})");
-		// Step 12: Delete user himself
+		// Step 10: Delete user himself
 		$db->query("DELETE FROM {$db->pre}user WHERE id IN ({$did})");
 		$anz = $db->affected_rows();
-		// Step 13: Delete user's custom profile fields
+		// Step 11: Delete user's custom profile fields
 		$db->query("DELETE FROM {$db->pre}userfields WHERE ufid IN ({$did})");
 
 		$cache = $scache->load('memberdata');
@@ -2476,46 +2336,6 @@ elseif ($job == 'search') {
    <td class="mbox"><input type="checkbox" name="show[lastvisit]" value="1" checked></td>
   </tr>
   <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_icq_uin'); ?></td>
-   <td class="mbox" align="center"><select size="1" name="compare[icq]">
-	  <option value="-1">&lt;</option>
-	  <option value="0" selected="selected">=</option>
-	  <option value="1">&gt;</option>
-	</select></td>
-   <td class="mbox"><input type="text" name="icq" size="12"></td>
-   <td class="mbox"><input type="checkbox" name="show[icq]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_yahoo_id'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="yahoo" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[yahoo]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_aol_name'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="aol" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[aol]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_msn_address'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="msn" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[msn]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_jabber_address'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="jabber" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[jabber]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_skype_name'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="skype" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[skype]" value="1"></td>
-  </tr>
-  <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_cmp_time_zone'); ?></td>
    <td class="mbox" align="center"><select size="1" name="compare[timezone]">
 	  <option value="0" selected="selected">=</option>
@@ -2642,12 +2462,6 @@ elseif ($job == 'search2') {
 		'gender' => array($lang->phrase('admin_member_gender'), str),
 		'birthday' => array($lang->phrase('admin_member_birthday'), arr_none),
 		'lastvisit' => array($lang->phrase('admin_member_last_visit'), arr_int),
-		'icq' => array($lang->phrase('admin_member_icq'), int),
-		'yahoo' => array($lang->phrase('admin_member_yahoo'), str),
-		'aol' => array($lang->phrase('admin_member_aol'), str),
-		'msn' => array($lang->phrase('admin_member_msn'), str),
-		'skype' => array($lang->phrase('admin_member_skype'), str),
-		'jabber' => array($lang->phrase('admin_member_jabber'), str),
 		'timezone' => array($lang->phrase('admin_member_time_zone'), db_esc),
 		'groups' => array($lang->phrase('admin_member_groups'), arr_int),
 		'template' => array($lang->phrase('admin_member_design'), int),
@@ -2757,7 +2571,7 @@ elseif ($job == 'search2') {
 				$input[$key] = $value;
 			}
 		}
-		elseif ($key == 'id' || $key == 'posts' || $key == 'icq' || $key == 'design' || $key == 'lang') {
+		elseif ($key == 'id' || $key == 'posts' || $key == 'design' || $key == 'lang') {
 			$input[$key] = $value;
 		}
 		else {
@@ -2835,9 +2649,6 @@ elseif ($job == 'search2') {
 				}
 				if (isset($row['regdate'])) {
 					$row['regdate'] = gmdate('d.m.Y', times($row['regdate']));
-				}
-				if (empty($row['icq'])) {
-					$row['icq'] = '-';
 				}
 				if (!isset($row['timezone']) || $row['timezone'] === null || $row['timezone'] === '') {
 					$row['timezone'] = $config['timezone'];

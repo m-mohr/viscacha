@@ -12,7 +12,7 @@
 	</tr>
 <?php foreach ($cache as $row) { ?>
 	<tr class="tbody"> 
-	  <td width="40%"><a href="popup.php?action=showpost&amp;id=<?php echo $row['tid'].SID2URL_x; ?>" target="showpost" onclick="showpost(this)"><?php echo $row['topic']; ?></a></td>
+	  <td width="40%"><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row['tid'].SID2URL_x; ?>" target="_blank"><?php echo $row['topic']; ?></a></td>
 	  <td width="40%"><a href="attachments.php?action=attachment&amp;id=<?php echo $row['id'].SID2URL_x; ?>" target="_blank"><?php echo $row['file']; ?></a></td>
 	  <td width="10%" nowrap="nowrap"><?php echo $row['fsize']; ?></td>
 	  <td class="textright" width="5%"><?php echo $row['hits']; ?></td>

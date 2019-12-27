@@ -103,7 +103,6 @@ editprofile.php
 -editprofile_abos2_end
 -editprofile_pw_start
 -editprofile_pw_end
--editprofile_notice2_query
 -editprofile_prepared
 -editprofile_end
 -editprofile_about2_start
@@ -134,22 +133,12 @@ editprofile.php
 -editprofile_index_end
 -editprofile_end
 
-external.php
--external_start
--external_query
--external_item_prepared
--external_offline
--external_prepared
--external_end
-
 forum.php
 -forum_start
 -forum_end
 
 images.php
 -images_start
--images_rating_error
--images_rating_start
 -images_end
 
 log.php
@@ -227,6 +216,11 @@ misc.php
 -misc_board_rules_prepared
 -misc_board_rules_end
 -misc_error_prepared
+-misc_edithistory_query
+-misc_edithistory_start
+-misc_edithistory_entry_prepared
+-misc_edithistory_prepared
+-misc_edithistory_end
 -misc_end
 
 newtopic.php
@@ -272,26 +266,6 @@ pm.php
 -pm_index_end
 -pm_end
 
-popup.php
--popup_start
--popup_filetypes_query
--popup_filetypes_prepared
--popup_filetypes_end
--popup_showpost_query
--popup_showpost_start
--popup_showpost_attachments_prepared
--popup_showpost_prepared
--popup_showpost_end
--popup_edithistory_query
--popup_edithistory_start
--popup_edithistory_entry_prepared
--popup_edithistory_prepared
--popup_edithistory_end
--popup_postrating_start
--popup_postrating_prepared
--popup_postrating_end
--popup_end
-
 portal.php
 -portal
 
@@ -313,9 +287,6 @@ profile.php
 -profile_mail_errordata
 -profile_mail_prepared
 -profile_mail_end
--profile_ims_start
--profile_ims_prepared
--profile_ims_start
 -profile_guest_prepared
 -profile_member_start
 -profile_member_prepared
@@ -397,16 +368,11 @@ admin/designs.php
 admin/explorer.php
 -admin_explorer_jobs
 
-admin/filetypes.php
--admin_filetypes_jobs
-
 admin/forums.php
 -admin_forums_jobs
 
 admin/frames.php
 -admin_navigation
--admin_navigation_extended
--admin_navigation_simple
 
 admin/groups.php
 -admin_groups_jobs
@@ -445,9 +411,6 @@ admin/settings.php
 
 admin/slog.php
 -admin_slog_jobs
-
-admin/spider.php
--admin_spider_jobs
 
 admin/start.php
 -admin_start_jobs

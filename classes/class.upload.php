@@ -47,13 +47,13 @@ class uploader {
 	/**
 	 * Konstruktor - Initializes the variables.
 	 */
-	function __construct () {
+	function __construct() {
 		$this->file = array();
 		$this->path = dirname(__FILE__).DIRECTORY_SEPARATOR;
 		$this->file_types = array();
 		$this->new_filename = null;
 		$this->error = null;
-		$this->max_filesize = viscacha_function_exists('ini_maxupload') ? ini_maxupload() : 0;
+		$this->max_filesize = ini_maxupload();
 		$this->max_image_width = 0;
 		$this->max_image_height = 0;
 		$this->copy_func = 'move_uploaded_file';
@@ -167,7 +167,7 @@ class uploader {
 		}
 		// Set mime type
 		if (empty($this->file['type']) == true) {
-			if (viscacha_function_exists('mime_content_type') == true) {
+			if (function_exists('mime_content_type') == true) {
 				$this->file['type'] = mime_content_type($this->file['name']);
 			}
 		}

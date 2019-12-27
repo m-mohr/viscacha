@@ -22,60 +22,66 @@ function daynumber($time) {
 
 ($code = $plugins->load('admin_slog_jobs')) ? eval($code) : null;
 
-if ($job == 'empty') {
+$logfiles = array(
+	$db->system => 'data/errlog_'.$db->system.'.inc.php',
+	'php' => 'data/errlog_php.inc.php',
+	'cron' => 'data/cron/cron.log'
+);
+
+if ($job == 'errorlos_clear') {
 	echo head();
-	$file = $gpc->get('file', str);
-	if ($file == 'php') {
-	    $filename = 'data/errlog_php.inc.php';
-	    $url = 'admin.php?action=slog&job=l_mysqlerror&type='.$file;
-	}
-	elseif ($file == $db->system) {
-	    $filename = 'data/errlog_'.$db->system.'.inc.php';
-	    $url = 'admin.php?action=slog&job=l_mysqlerror&type='.$file;
-	}
-	elseif ($file == 'l_cron') {
-	    $filename = 'data/cron/cron.log';
-	    $url = 'admin.php?action=slog&job='.$file;
-	}
-	if (isset($filename) && file_exists($filename)) {
-	    $filesystem->file_put_contents($filename, '');
+	$type = $gpc->get('type', path);
+	$url = 'admin.php?action=slog&job=errorlogs&type='.$type;
+	if (!empty($logfiles[$type]) && file_exists($logfiles[$type])) {
+	    $filesystem->file_put_contents($logfiles[$type], '');
 	    ok($url, $lang->phrase('admin_slog_logfile_deleted'));
 	}
 	else {
         error($url, $lang->phrase('admin_slog_logfile_not_found'));
 	}
 }
-elseif ($job == 'l_mysqlerror') {
+elseif ($job == 'errorlogs') {
     echo head();
-    $type = $gpc->get('type', none);
-    if ($type != 'php') {
+
+    $type = $gpc->get('type', path);
+    if ($type != 'php' && $type != 'cron') {
     	$type = $db->system;
-    }
-	$log = @file('data/errlog_'.$type.'.inc.php');
-	if (!is_array($log) || count($log) < 1) {
+	}
+
+	if (empty($logfiles[$type])) {
+        error($url, $lang->phrase('admin_slog_logfile_not_found'));
+	}
+	$file = $logfiles[$type];
+
+	$log = null;
+	if ($type == 'cron') {
+		$log = @file_get_contents($file);
+	}
+	else {
+		$log = @file($file);
+	}
+	if (empty($log)) {
 		$log = $lang->phrase('admin_slog_logfile_empty');
 	}
 	?>
-
  <table class="border">
   <tr>
    <td class="obox" colspan="5">
     <span class="right">
-    <?php if ($type != 'php') { ?>
-     <a class="button" href="admin.php?action=slog&amp;job=l_mysqlerror&amp;type=php">PHP</a>
-    <?php } else { ?>
-     <a class="button" href="admin.php?action=slog&amp;job=l_mysqlerror&amp;type=<?php echo $db->system; ?>">SQL</a>
-    <?php } ?>
+	<a class="button" href="admin.php?action=slog&amp;job=errorlogs_clear&amp;type=<?php echo $type; ?>"><?php echo $lang->phrase('admin_slog_delete_log_now'); ?></a>
+	<a class="button" href="#" id="menu_acp_switchlog" onmouseover="RegisterMenu('acp_switchlog');"><?php echo $lang->phrase('admin_slog_switch_log'); ?> &#8628;</a>
+	<div class="popup" id="popup_acp_switchlog"><ul>
+	<?php foreach($logfiles as $t => $file) { if ($t != $type) { ?>
+		<li><a href="admin.php?action=slog&amp;job=errorlogs&amp;type=<?php echo $t; ?>"><?php echo strtoupper($t); ?></a></li>
+	<?php }} ?>
+	</ul></div>
     </span>
-    <?php echo $lang->phrase('admin_slog_sql_error_logfile'); ?>: <?php echo iif ($type == 'php', 'PHP', 'SQL'); ?>
+    <?php echo $lang->phrase('admin_slog_sql_error_logfile').' '.strtoupper($type); ?>
    </td>
   </tr>
-   <?php
-	if (!is_array($log)) {
-		echo '<tr class="mbox"><td colspan="5">'.$log.'</td></tr>';
-	}
-	else {
-   ?>
+  <?php if (!is_array($log)) { ?>
+  <tr class="mbox"><td colspan="5"><?php echo $log; ?></td></tr>
+  <?php } else { ?>
    <tr class="ubox">
     <td width="3%"><?php echo $lang->phrase('admin_slog_error_num'); ?></td>
     <td width="23%"><?php echo $lang->phrase('admin_slog_error_report'); ?></td>
@@ -113,40 +119,7 @@ elseif ($job == 'l_mysqlerror') {
     <td><div class="logcolumn"><?php echo $data[6]; ?></div></td>
    </tr>
    <?php } } ?>
-  <tr>
-   <td class="ubox" align="center" colspan="5">
-   	<form name="form" method="post" action="admin.php?action=slog&amp;file=<?php echo $type; ?>&amp;job=empty">
-   	 <input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_slog_delete_log_now'); ?>">
-    </form>
-   </td>
-  </tr>
  </table>
-	<?php
-	echo foot();
-}
-elseif ($job == 'l_cron') {
-	echo head();
-	$log = @file('data/cron/cron.log');
-	if (!is_array($log) || count($log) < 1) {
-		$log = $lang->phrase('admin_slog_logfile_empty');
-	}
-	else {
-		$log = "<pre>".implode("", $log)."</pre>";
-	}
-	?>
-<form name="form" method="post" action="admin.php?action=slog&file=l_cron&job=empty">
- <table class="border">
-  <tr>
-   <td class="obox"><?php echo $lang->phrase('admin_slog_scheduled_tasks'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $log; ?></td>
-  </tr>
-  <tr>
-   <td class="ubox" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_slog_delete_log_now'); ?>"></td>
-  </tr>
- </table>
-</form>
 	<?php
 	echo foot();
 }

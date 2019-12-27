@@ -72,9 +72,6 @@ if ($job == 'package') {
 	  </tr>
 	  <tr>
 	  	<td class="mbox center">
-	  		<?php if ($my->settings['admin_interface'] != 1) { ?>
-			<a class="button" href="admin.php?action=packages&amp;job=plugins" target="Main"><?php echo $lang->phrase('admin_packages_plugin_manager'); ?></a>
-	  		<?php } ?>
 	  		<a class="button" href="admin.php?action=packages&amp;job=browser"><?php echo $lang->phrase('admin_packages_browse_packages'); ?></a>
 	  		<a class="button" href="admin.php?action=packages&amp;job=package_import"><?php echo $lang->phrase('admin_packages_import_package'); ?></a>
 	  		<a class="button" href="admin.php?action=packages&amp;job=package_add"><?php echo $lang->phrase('admin_packages_create_package'); ?></a>

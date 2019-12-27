@@ -16,7 +16,7 @@
 	  <th width="50%"><?php echo $lang->phrase('profile_user_info'); ?></th>
 	</tr>
 	<tr class="tbody profiledata">
-	  <td valign="top">
+	  <td valign="top" rowspan="3">
 	  <h5><?php echo $lang->phrase('profile_registered_since'); ?></h5>
 	  <em><?php echo $row->regdate; ?></em>
 	  <br />
@@ -34,18 +34,12 @@
 	  <h5><?php echo $lang->phrase('profile_lastvisit'); ?></h5>
 	  <em><?php echo $row->lastvisit; ?></em>
 	  <br />
-	  <?php if ($config['memberrating'] == 1 && $ratingcounter >= $config['memberrating_counter']) { ?>
-	  <h5><?php echo $lang->phrase('profile_rating'); ?></h5>
-	  <em><img src="images.php?action=memberrating&amp;id=<?php echo $row->id.SID2URL_x; ?>" alt="<?php echo $lang->phrase('postrating_rating').$row->rating; ?>" /></em>
-	  <br />
-	  <?php } ?>
 	  <h5><?php echo $lang->phrase('profile_posts'); ?></h5>
 	  <em><?php echo $row->posts.iif($config['showpostcounter'], $lang->phrase('profile_posts_perday')); ?></em>
-	  <?php if ($config['osi_profile'] == 1) { ?>
 	  <br />
 	  <h5><?php echo $lang->phrase('profile_osi'); ?></h5>
 	  <?php echo iif($osi, '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online'), '<em>'.$lang->phrase('profile_offline')); ?></em>
-	  <?php } foreach ($customfields['2'] as $field) { ?>
+	  <?php foreach ($customfields['2'] as $field) { ?>
 	  <br />
 	  <h5><?php echo $field['name']; ?>:</h5>
 	  <em><?php echo $field['value']; ?></em>
@@ -72,7 +66,6 @@
 	</tr>
 	<tr>
 	  <th><?php echo $lang->phrase('profile_contact'); ?></th>
-	  <th><?php echo $lang->phrase('profile_instantmessenger'); ?></th>
 	</tr>
 	<tr class="tbody profiledata">
 	  <td valign="top">
@@ -84,21 +77,6 @@
 		<strong><?php echo $lang->phrase('profile_pm'); ?>:</strong> <a href="pm.php?action=new&amp;name=<?php echo $row->id.SID2URL_x; ?>"><?php echo $lang->phrase('profile_pm_send'); ?></a>
 	  <?php foreach ($customfields['3'] as $field) { ?>
 	  <br /><strong><?php echo $field['name']; ?>:</strong> <?php echo $field['value']; } ?>
-      </td>
-	  <td valign="top">
-    <?php
-    if($imanz > 0) {
-    	echo iif($row->icq > 0, '<a style="display: block;" href="profile.php?action=ims&amp;type=icq&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('icq').'" alt="'.$lang->phrase('im_icq').'" /> '.$row->icq.'</a>');
-    	echo iif($row->aol,'<a style="display: block;" href="profile.php?action=ims&amp;type=aol&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('aol').'" alt="'.$lang->phrase('im_aol').'" /> '.$row->aol.'</a>');
-    	echo iif($row->msn,'<a style="display: block;" href="profile.php?action=ims&amp;type=msn&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('msn').'" alt="'.$lang->phrase('im_msn').'" /> '.$row->msn.'</a>');
-    	echo iif($row->yahoo,'<a style="display: block;" href="profile.php?action=ims&amp;type=yahoo&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('yahoo').'" alt="'.$lang->phrase('im_yahoo').'" /> '.$row->yahoo.'</a>');
-    	echo iif($row->jabber,'<a style="display: block;" href="profile.php?action=ims&amp;type=jabber&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('jabber').'" alt="'.$lang->phrase('im_jabber').'" /> '.$row->jabber.'</a>');
-    	echo iif($row->skype,'<a style="display: block;" href="profile.php?action=ims&amp;type=skype&amp;id='.$row->id.SID2URL_x.'"><img src="'.$tpl->img('skype').'" alt="'.$lang->phrase('im_skype').'" /> '.$row->skype.'</a>');
-	}
-    else {
-        echo $lang->phrase('profile_no_im');
-    }
-    ?>
       </td>
 	</tr>
 </table>

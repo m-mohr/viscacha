@@ -30,9 +30,6 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 		}
 	}
 
-	$codelang = $scache->load('syntaxhighlight');
-	$clang = $codelang->get();
-
 	$cache = $scache->load('smileys');
 	$cache->seturl($config['smileyurl']);
 	$smileydata = $cache->get();
@@ -90,19 +87,7 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 				<input type="text" size="4" id="table_cols_<?php echo $id; ?>" value="2" /> <?php echo $lang->phrase('bbcodes_table_cols'); ?>
 				<br class="newinput" /><hr class="formsep" />
 				<div class="center">[ <b><a href="javascript:InsertTable('<?php echo $id; ?>')"><?php echo $lang->phrase('bbcodes_table_insert_table'); ?></a></b> ]</div>
-				<br class="iefix_br" />
 			</div>
-			</div>
-			<img src="templates/editor/images/seperator.gif" alt="" />
-			<a id="menu_bbsourcecode_<?php echo $id; ?>" href="#" onmouseover="RegisterMenu('bbsourcecode_<?php echo $id; ?>');" class="editor_toolbar_dropdown"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('bbcodes_expand'); ?>" /> <?php echo $lang->phrase('bbcodes_code_short'); ?></a>
-			<div class="popup" id="popup_bbsourcecode_<?php echo $id; ?>">
-			<strong><?php echo $lang->phrase('bbcodes_code'); ?></strong>
-			<ul>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[code]','[/code]', 'bbsourcecode_<?php echo $id; ?>')"><?php echo $lang->phrase('geshi_bbcode_nohighlighting'); ?></span></li>
-				<?php foreach ($clang as $row) { ?>
-				<li><span class="popup_line" onclick="InsertTagsMenu('<?php echo $id; ?>', '[code=<?php echo $row['short']; ?>]','[/code]', 'bbsourcecode_<?php echo $id; ?>')"><?php echo $row['name']; ?></span></li>
-				<?php } ?>
-			</ul>
 			</div>
 			<?php
 			echo iif(count($cbb), '<img src="templates/editor/images/seperator.gif" alt="" />');
@@ -127,12 +112,12 @@ function BBCodeToolBox($id, $content = '', $taAttr = '') {
 			<img src="templates/editor/images/quote.gif" onclick="InsertTags('<?php echo $id; ?>', '[quote]','[/quote]');" title="<?php echo $lang->phrase('bbcodes_quote'); ?>" alt="<?php echo $lang->phrase('bbcodes_quote'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/ot.gif" onclick="InsertTags('<?php echo $id; ?>', '[ot]','[/ot]');" title="<?php echo $lang->phrase('bbcodes_ot'); ?>" alt="<?php echo $lang->phrase('bbcodes_ot'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/edit.gif" onclick="InsertTags('<?php echo $id; ?>', '[edit]','[/edit]');" title="<?php echo $lang->phrase('bbcodes_edit'); ?>" alt="<?php echo $lang->phrase('bbcodes_edit'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
+			<img src="templates/editor/images/code.gif" onclick="InsertTags('<?php echo $id; ?>', '[code]','[/code]');" title="<?php echo $lang->phrase('bbcodes_code'); ?>" alt="<?php echo $lang->phrase('bbcodes_code'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/seperator.gif" alt="" />
 			<img src="templates/editor/images/list_unordered.gif" onclick="InsertTagsList('<?php echo $id; ?>');" title="<?php echo $lang->phrase('bbcodes_list'); ?>" alt="<?php echo $lang->phrase('bbcodes_list'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/list_ordered.gif" onclick="InsertTagsList('<?php echo $id; ?>', 'ol');" title="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" alt="<?php echo $lang->phrase('bbcodes_list_ol'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/seperator.gif" alt="" />
 			<img src="templates/editor/images/hr.gif" onclick="InsertTags('<?php echo $id; ?>', '[hr]','');" title="<?php echo $lang->phrase('bbcodes_hr'); ?>" alt="<?php echo $lang->phrase('bbcodes_hr'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
-			<img src="templates/editor/images/note.gif" onclick="InsertTagsNote('<?php echo $id; ?>', '[note={param1}]{param2}','[/note]');" title="<?php echo $lang->phrase('bbcodes_note'); ?>" alt="<?php echo $lang->phrase('bbcodes_note'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/tt.gif" onclick="InsertTags('<?php echo $id; ?>', '[tt]','[/tt]');" title="<?php echo $lang->phrase('bbcodes_tt'); ?>" alt="<?php echo $lang->phrase('bbcodes_tt'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
 			<img src="templates/editor/images/seperator.gif" alt="" />
 			<img src="templates/editor/images/subscript.gif" onclick="InsertTags('<?php echo $id; ?>', '[sub]','[/sub]');" title="<?php echo $lang->phrase('bbcodes_sub'); ?>" alt="<?php echo $lang->phrase('bbcodes_sub'); ?>" class="editor_toolbar_button" onmouseover="buttonOver(this)" onmouseout="buttonOut(this)" />
@@ -1280,9 +1265,6 @@ elseif ($job == 'doc_select_image') {
 	natcasesort($dirs);
 	natcasesort($files);
 
-	$fileicons_obj = $scache->load('fileicons');
-	$fileicons = $fileicons_obj->get();
-
 	echo head('style="background-color: #ffffff;"');
 	?>
 	<script type="text/javascript">
@@ -1303,27 +1285,21 @@ elseif ($job == 'doc_select_image') {
 			  <?php
 				if($dotdotdir) {
 					?>
-					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<em><?php echo $lang->phrase('admin_wysiwyg_prev_dir'); ?></em></a><br>
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo extract_dir($dir); ?>"><em><?php echo $lang->phrase('admin_wysiwyg_prev_dir'); ?></em></a><br>
 					<?php
 				}
 				$i = -1;
 				foreach ($dirs as $i => $dirname) {
 					?>
-					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirname); ?>">
-					<img src="<?php echo $tpl->img('filetypes/folder'); ?>" alt="" border="0" />&nbsp;<?php echo $dirname; ?>
-					</a><br />
+					<a href="admin.php?action=cms&job=doc_select_image&dir=<?php echo urlencode($dirname); ?>"><?php echo $dirname; ?></a><br />
 					<?php
 				}
 				if ($i >= 0 || $dotdotdir) {
 					echo "</td></tr><tr><td>";
 				}
 				foreach ($files as $filename) {
-					$ext = strtolower(get_extension($filename));
-					$icon = isset($fileicons[$ext]) ? $fileicons[$ext] : 'unknown';
 					?>
-					<a href="javascript:selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');">
-					  <img src="<?php echo $tpl->img("filetypes/{$icon}"); ?>" alt="<?php echo strtoupper($ext); ?>" border="0" />&nbsp;<?php echo $filename; ?>
-					</a><br />
+					<a href="javascript:selectImage('<?php echo EDITOR_IMAGEDIR.$filename; ?>');"><?php echo $filename; ?></a><br />
 					<?php
 				}
 				if (count($files) == 0) {
@@ -1705,7 +1681,7 @@ elseif ($job == 'doc_add2') {
 	if($format['remote'] != 1) {
 		if($format['parser'] == 3) {
 			?>
-			<a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a>
+			<strong><a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a></strong>
 			<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
 			<br />
 			<?php
@@ -1919,7 +1895,7 @@ elseif ($job == 'doc_edit') {
 	if($format['remote'] != 1) {
 		if($format['parser'] == 3) {
 			?>
-			<a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a>
+			<strong><a class="right" href="misc.php?action=bbhelp<?php echo SID2URL_x; ?>" target="_blank"><?php echo $lang->phrase('bbcode_help'); ?></a></strong>
 			<?php echo $lang->phrase('admin_cms_doc_sourcecode'); ?>
 			<br />
 			<?php
@@ -2044,211 +2020,5 @@ elseif ($job == 'doc_edit2') {
 	$delobj->delete();
 
 	ok('admin.php?action=cms&job=doc', $lang->phrase('admin_cms_document_successfully_changed'));
-}
-elseif ($job == 'doc_code') {
-	echo head();
-	$codelang = $scache->load('syntaxhighlight');
-	$clang = $codelang->get();
-	?>
-	<script src="templates/editor/bbcode.js" type="text/javascript"></script>
-	<table class="border">
-	<tr><td class="obox"><?php echo $lang->phrase('admin_cms_bb_tag_code'); ?></td></tr>
-	<tr><td class="mbox">
-	<strong><?php echo $lang->phrase('admin_cms_choose_programming_language'); ?></strong><br /><br />
-	<ul>
-	   <li><input type="radio" name="data" onclick="InsertTagsCode('[code]','[/code]')" /> <?php echo $lang->phrase('admin_cms_no_syntax_highlighting'); ?></li>
-	   <?php foreach ($clang as $row) { ?>
-	   <li><input type="radio" name="data" onclick="InsertTagsCode('[code=<?php echo $row['short']; ?>]','[/code]')" /> <?php echo $row['name']; ?></li>
-	   <?php } ?>
-	</ul>
-	</td></tr>
-	</table>
-	<?php
-	echo foot();
-}
-elseif ($job == 'feed') {
-	$result = $db->query("SELECT * FROM {$db->pre}grab ORDER BY title");
-	$num = $db->num_rows($result);
-	echo head();
-?>
-<form name="form" method="post" action="admin.php?action=cms&job=feed_delete">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="5"><span style="float: right;"><a class="button" href="admin.php?action=cms&job=feed_add"><?php echo $lang->phrase('admin_cms_add_newsfeed'); ?></a></span><?php echo $lang->phrase('admin_cms_impor_of_newsfeeds'); ?> (<?php echo $num; ?>)</td>
-  </tr>
-  <tr>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_news_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_cms_news_delete_all'); ?></span></td>
-   <td class="ubox" width="5%"><?php echo $lang->phrase('admin_cms_news_id'); ?></td>
-   <td class="ubox" width="35%"><?php echo $lang->phrase('admin_cms_news_title_head'); ?></td>
-   <td class="ubox" width="45%"><?php echo $lang->phrase('admin_cms_news_file'); ?></td>
-   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_cms_news_entries'); ?></td>
-  </tr>
-<?php
-	while ($row = $db->fetch_assoc($result)) {
-	if ($row['entries'] == 0) {
-		$row['entries'] = $lang->phrase('admin_cms_news_delete_all');
-	}
-?>
-  <tr>
-   <td class="mbox" width="5%"><input type="checkbox" name="delete[]" value="<?php echo $row['id']; ?>"></td>
-   <td class="mbox" width="5%"><?php echo $row['id']; ?></td>
-   <td class="mbox" width="35%"><a href="admin.php?action=cms&job=feed_edit&id=<?php echo $row['id']; ?>"><?php echo $row['title']; ?></a></td>
-   <td class="mbox" width="45%"><a href="<?php echo $row['file']; ?>" target="_blank"><?php echo $row['file']; ?></a></td>
-   <td class="mbox" width="10%"><?php echo $row['entries']; ?></td>
-  </tr>
-<?php } ?>
-  <tr>
-   <td class="ubox" width="100%" colspan="5" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_delete'); ?>"></td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'feed_add') {
-echo head();
-?>
-<form name="form" method="post" action="admin.php?action=cms&job=feed_add2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_cms_add_newsfeed'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_title'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_title_text'); ?></td>
-   <td class="mbox"><input type="text" name="temp1" size="60"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_url'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_url_text'); ?></td>
-   <td class="mbox"><input type="text" name="temp2" size="60"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_number_of_entries'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_number_of_entries_text'); ?></td>
-   <td class="mbox"><input type="text" name="value" size="3"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_max_age'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_max_age_info'); ?></td>
-   <td class="mbox"><input type="text" name="max_age" size="8" value="720"></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="100%" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_add'); ?>"></td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'feed_add2') {
-	echo head();
-
-	$title = $gpc->get('temp1', str);
-	$file = $gpc->get('temp2', db_esc);
-	$entries = $gpc->get('value', int);
-	$max_age = $gpc->get('max_age', int);
-
-	if (empty($title)) {
-		error('admin.php?action=cms&job=feed_add', $lang->phrase('admin_cms_no_title_specified'));
-	}
-	if (empty($file)) {
-		error('admin.php?action=cms&job=feed_add', $lang->phrase('admin_cms_no_url_specified'));
-	}
-	if (empty($entries)) {
-		$entries = 0;
-	}
-	if (empty($max_age)) {
-		$max_age = 60*12;
-	}
-
-	$db->query("INSERT INTO {$db->pre}grab (title, file, entries, max_age) VALUES ('{$title}','{$file}','{$entries}','{$max_age}')");
-
-	$delobj = $scache->load('grabrss');
-	$delobj->delete();
-
-	ok('admin.php?action=cms&job=feed', $lang->phrase('admin_cms_newsfeed_successfully_added'));
-}
-elseif ($job == 'feed_delete') {
-	echo head();
-	$delete = $gpc->get('delete', arr_int);
-	if (count($delete) > 0) {
-		$db->query('DELETE FROM '.$db->pre.'grab WHERE id IN('.implode(',',$delete).')');
-		$anz = $db->affected_rows();
-
-		$delobj = $scache->load('grabrss');
-		$delobj->delete();
-
-		ok('admin.php?action=cms&job=feed', $lang->phrase('admin_cms_newsfeeds_successfully_deleted'));
-	}
-	else {
-		error('admin.php?action=cms&job=feed', $lang->phrase('admin_cms_no_newsfeed_selected'));
-	}
-}
-elseif ($job == 'feed_edit') {
-	echo head();
-	$id = $gpc->get('id', int);
-	if (empty($id)) {
-		error('admin.php?action=cms&job=feed', 'Invalid ID given');
-	}
-	$result = $db->query('SELECT * FROM '.$db->pre.'grab WHERE id = '.$id);
-	$row = $db->fetch_assoc($result);
-?>
-<form name="form" method="post" action="admin.php?action=cms&job=feed_edit2&id=<?php echo $id; ?>">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><?php echo $lang->phrase('admin_cms_news_edit_document'); ?></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_title'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_title_text'); ?></span></td>
-   <td class="mbox"><input type="text" name="temp1" size="60" value="<?php echo $gpc->prepare($row['title']); ?>"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_url'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_url_text'); ?></span></td>
-   <td class="mbox"><input type="text" name="temp2" size="60" value="<?php echo $row['file']; ?>"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_number_of_entries'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_number_of_entries_text'); ?></span></td>
-   <td class="mbox"><input type="text" name="value" size="3" value="<?php echo $row['entries']; ?>"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_cms_news_max_age'); ?><br><span class="stext"><?php echo $lang->phrase('admin_cms_news_max_age_info'); ?></td>
-   <td class="mbox"><input type="text" name="max_age" size="8" value="<?php echo $row['max_age']; ?>"></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="100%" colspan=2 align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_cms_form_edit'); ?>"></td>
-  </tr>
- </table>
-</form>
-<?php
-	echo foot();
-}
-elseif ($job == 'feed_edit2') {
-	echo head();
-
-	$title = $gpc->get('temp1', str);
-	$file = $gpc->get('temp2', db_esc);
-	$entries = $gpc->get('value', int);
-	$id = $gpc->get('id', int);
-	$max_age = $gpc->get('max_age', int);
-
-	if (!is_id($id)) {
-		error('admin.php?action=cms&job=feed', $lang->phrase('admin_cms_invalid_id_given'));
-	}
-	if (empty($title)) {
-		error('admin.php?action=cms&job=feed_edit&id='.$id, $lang->phrase('admin_cms_no_title_specified'));
-	}
-	if (empty($file)) {
-		error('admin.php?action=cms&job=feed_edit&id='.$id, $lang->phrase('admin_cms_no_url_specified'));
-	}
-	if (empty($entries)) {
-		$entries = 0;
-	}
-	if (empty($max_age)) {
-		$max_age = 60*12;
-	}
-
-	$db->query("UPDATE {$db->pre}grab SET file = '{$file}', title = '{$title}', entries = '{$entries}', max_age = '{$max_age}' WHERE id = '{$id}'");
-
-	$delobj = $scache->load('grabrss');
-	$delobj->delete();
-
-	ok('admin.php?action=cms&job=feed', $lang->phrase('admin_cms_newsfeed_successfully_updated'));
 }
 ?>

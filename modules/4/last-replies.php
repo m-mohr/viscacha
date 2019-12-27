@@ -4,7 +4,7 @@ $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
 
 $result = $db->query('
-SELECT board, dosmileys, dowords, id, topic, comment, date, name, email, guest
+SELECT dosmileys, id, topic, comment, date, name, email, guest
 FROM '.$db->pre.'replies
 WHERE topic_id = "'.$info['id'].'"
 ORDER BY date DESC
@@ -19,10 +19,6 @@ while ($row = $gpc->prepare($db->fetch_object($result))) {
     	$row->name = $memberdata[$row->name];
 	}
 	$bbcode->setSmileys($row->dosmileys);
-	if ($config['wordstatus'] == 0) {
-		$row->dowords = 0;
-	}
-	$bbcode->setReplace($row->dowords);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}

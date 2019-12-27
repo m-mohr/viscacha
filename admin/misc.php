@@ -213,216 +213,6 @@ elseif ($job == 'cache_delete_plugins') {
 	}
 	ok('admin.php?action=misc&job=cache', $lang->phrase('admin_misc_cache_deleted_rebuilt_when_needed'));
 }
-elseif ($job == 'onlinestatus') {
-	echo head();
-	$b = file_get_contents('data/imservers.php');
-	?>
-<form name="form" method="post" action="admin.php?action=misc&job=onlinestatus2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_online_status_server'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%">
-   <?php echo $lang->phrase('admin_misc_server'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_misc_per_line_one_user'); ?><br /><a href="http://osi.viscacha.org/" target="_blank"><?php echo $lang->phrase('admin_misc_online_status_server_overview'); ?></a></span>
-   </td>
-   <td class="mbox" width="70%"><textarea name="servers" rows="10" cols="90"><?php echo $b; ?></textarea></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
-  </tr>
- </table>
-</form>
-<br />
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_online_status_server_info'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox">
-   <p><strong><?php echo $lang->phrase('admin_misc_online_status_meaning_title'); ?></strong><br />
-   <?php echo $lang->phrase('admin_misc_online_status_meaning'); ?></p>
-   <p><strong><?php echo $lang->phrase('admin_misc_from_where_data_for_online_status'); ?></strong><br />
-   <?php echo $lang->phrase('admin_misc_from_where_data_for_online_status_info'); ?>
-   </p>
-   </td>
-  </tr>
- </table>
-	<?php
-	echo foot();
-}
-elseif ($job == 'onlinestatus2') {
-	echo head();
-	$filesystem->file_put_contents('data/imservers.php', $gpc->get('servers', none));
-	ok('admin.php?action=misc&job=onlinestatus');
-}
-elseif ($job == 'sessionmails') {
-	echo head();
-	$mails = file_get_contents('data/sessionmails.php');
-	?>
-<form name="form" method="post" action="admin.php?action=misc&job=sessionmails2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_disposable_mail_address_provider'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%">
-   <?php echo $lang->phrase('admin_misc_provider_domain'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_misc_per_line_one_domain'); ?><br /><?php echo $lang->phrase('admin_misc_provider_domain_format'); ?></span>
-   </td>
-   <td class="mbox" width="70%"><textarea name="mails" rows="10" cols="90"><?php echo $mails; ?></textarea></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_misc_submit'); ?>"></td>
-  </tr>
- </table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'sessionmails2') {
-	echo head();
-	$mails = $gpc->get('mails', none);
-	$filesystem->file_put_contents('data/sessionmails.php', $mails);
-	ok('admin.php?action=misc&job=sessionmails', $lang->phrase('admin_misc_data_saved'));
-}
-elseif ($job == 'feedcreator') {
-	echo head();
-	$data = file('data/feedcreator.inc.php');
-?>
-<form name="form" method="post" action="admin.php?action=misc&job=feedcreator_delete">
- <table class="border">
-  <tr>
-   <td class="obox" colspan="5"><?php echo $lang->phrase('admin_misc_creation_export_of_feeds'); ?> (<?php echo count($data); ?>)</b></td>
-  </tr>
-  <tr>
-   <td class="ubox" width="10%"><?php echo $lang->phrase('admin_misc_delete'); ?><br /><span class="stext"><input type="checkbox" onclick="check_all(this);" name="all" value="delete[]" /> <?php echo $lang->phrase('admin_misc_all'); ?></span></td>
-   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_misc_name'); ?></td>
-   <td class="ubox" width="30%"><?php echo $lang->phrase('admin_misc_file_class'); ?></td>
-   <td class="ubox" width="15%"><?php echo $lang->phrase('admin_misc_shown'); ?></td>
-   <td class="ubox" width="15%"><?php echo $lang->phrase('admin_misc_download'); ?></td>
-  </tr>
-<?php
-foreach ($data as $r) {
-	$row = explode('|', $r);
-	$row = array_map('trim', $row);
-?>
-  <tr>
-   <td class="mbox" width="10%"><input type="checkbox" name="delete[]" value="<?php echo $row[0]; ?>"></td>
-   <td class="mbox" width="30%"><a href="external.php?action=<?php echo $row[0]; ?>" target="_blank" title="<?php echo $lang->phrase('admin_misc_show_feed'); ?>"><?php echo $row[2]; ?></a></td>
-   <td class="mbox" width="30%"><?php echo $row[1]; ?> (<?php echo $row[0]; ?>)</td>
-   <td class="mbox" width="15%"><?php echo noki($row[3]); ?> <a class="button" href="admin.php?action=misc&job=feedcreator_active&id=<?php echo $row[0]; ?>&key=3"><?php echo $lang->phrase('admin_misc_change'); ?></a></td>
-   <td class="mbox" width="15%"><?php echo noki($row[4]); ?> <a class="button" href="admin.php?action=misc&job=feedcreator_active&id=<?php echo $row[0]; ?>&key=4"><?php echo $lang->phrase('admin_misc_change'); ?></a></td>
-  </tr>
-<?php } ?>
-  <tr>
-   <td class="ubox" width="100%" colspan="5" align="center"><input type="submit" name="Submit" value="<?php echo $lang->phrase('admin_misc_delete'); ?>"></td>
-  </tr>
- </table>
-</form>
-<br>
-<form name="form2" method="post" enctype="multipart/form-data" action="admin.php?action=misc&job=feedcreator_add">
-<table class="border">
-<tr><td class="obox" colspan="2"><?php echo $lang->phrase('admin_misc_add_new_feed_creator'); ?></td></tr>
-<tr class="mbox"><td><?php echo $lang->phrase('admin_misc_upload_file'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_misc_permitted_file_types_php'); ?></span></td><td><input type="file" name="upload" size="50" /></td></tr>
-<tr class="mbox"><td><?php echo $lang->phrase('admin_misc_upload_name'); ?></td><td><input type="text" name="name" size="50" /></td></tr>
-<tr class="mbox"><td><?php echo $lang->phrase('admin_misc_name_of_class'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_misc_name_of_class_info'); ?></span></td><td><input type="text" name="class" size="50" /></td></tr>
-<tr class="mbox"><td><?php echo $lang->phrase('admin_misc_upload_shown'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_misc_shown_info'); ?></span></td><td><input type="checkbox" name="active" value="1" /></td></tr>
-<tr class="mbox"><td><?php echo $lang->phrase('admin_misc_upload_download'); ?><br /><span class="stext"><?php echo $lang->phrase('admin_misc_download_feed_info'); ?></span></td><td><input type="checkbox" name="dl" value="1" /></td></tr>
-<tr><td class="ubox" colspan="2" align="center"><input accesskey="s" type="submit" value="<?php echo $lang->phrase('admin_misc_upload_add'); ?>" /></td></tr>
-</table>
-</form>
-	<?php
-	echo foot();
-}
-elseif ($job == 'feedcreator_active') {
-	$d = $gpc->get('id', str);
-	$key = $gpc->get('key', int);
-	if ($key == 3 || $key == 4) {
-		$data = file('data/feedcreator.inc.php');
-		$n = array();
-		foreach ($data as $r) {
-			$row = explode('|', $r);
-			$row = array_map('trim', $row);
-			if (strtoupper($row[0]) == strtoupper($d)) {
-				$row[$key] = invert($row[$key]);
-			}
-			$n[] = implode('|', $row);
-		}
-		$filesystem->file_put_contents('data/feedcreator.inc.php', implode("\n", $n));
-	}
-	sendStatusCode(302, $config['furl'].'/admin.php?action=misc&job=feedcreator');
-
-}
-elseif ($job == 'feedcreator_add') {
-	echo head();
-	$name = $gpc->get('name', str);
-	$class = $gpc->get('class', str);
-	$active = $gpc->get('active', str);
-	$dl = $gpc->get('dl', str);
-	$dir = realpath('./classes/feedcreator/').DIRECTORY_SEPARATOR;
-
-	$inserterrors = array();
-	require("classes/class.upload.php");
-	$my_uploader = new uploader();
-	$my_uploader->max_filesize(200*1024);
-	$my_uploader->file_types(array('php'));
-	$my_uploader->set_path($dir);
-	if ($my_uploader->upload('upload')) {
-		if ($my_uploader->save_file()) {
-			$file = $my_uploader->fileinfo('filename');
-		}
-	}
-	if ($my_uploader->upload_failed()) {
-		array_push($inserterrors, $my_uploader->get_error());
-	}
-	if (empty($file)) {
-		array_push($inserterrors, $lang->phrase('admin_misc_file_does_not_exist'));
-	}
-	if (count($inserterrors) > 0) {
-		error('admin.php?action=misc&job=feedcreator', $inserterrors);
-	}
-	else {
-		$data = file('data/feedcreator.inc.php');
-		$data = array_map('trim', $data);
-
-		if (empty($class)) {
-			$source = file_get_contents('classes/feedcreator/'.$file);
-			preg_match('/[\s\t\n\r]+class[\s\t]+([^\s\t\n\r]+)[\s\t]+extends[\s\t]+FeedCreator[\s\t\n\r]+\{/i', $source, $treffer);
-			$class = $treffer[1];
-			if (empty($class)) {
-				error('admin.php?action=misc&job=feedcreator', $lang->phrase('admin_misc_could_not_parse_class_name'));
-			}
-		}
-		$data[] = "{$class}|{$file}|{$name}|{$active}|{$dl}";
-		$filesystem->file_put_contents('data/feedcreator.inc.php', implode("\n", $data));
-		ok('admin.php?action=misc&job=feedcreator');
-	}
-}
-elseif ($job == 'feedcreator_delete') {
-	echo head();
-	$d = $gpc->get('delete', arr_str);
-	$d = array_map('strtoupper', $d);
-	$data = file('data/feedcreator.inc.php');
-	$n = array();
-	foreach ($data as $r) {
-		$row = explode('|', $r);
-		$row = array_map('trim', $row);
-		if (in_array(strtoupper($row[0]), $d)) {
-			$file = 'classes/feedcreator/'.$row[1];
-			if (file_exists($file)) {
-				$filesystem->unlink($file);
-			}
-			continue;
-		}
-		else {
-			$n[] = implode('|', $row);
-		}
-	}
-	$filesystem->file_put_contents('data/feedcreator.inc.php', implode("\n", $n));
-	ok('admin.php?action=misc&job=feedcreator', $lang->phrase('admin_misc_files_deleted'));
-}
 elseif ($job == "captcha") {
 	echo head();
 	$fonts = 0;
@@ -597,19 +387,19 @@ elseif ($job == "credits") {
 	echo head();
 
 	$loaded_extensions = array_map('strtolower', get_loaded_extensions());
-	$needed_extensions = array('MySQL', 'MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
+	$needed_extensions = array('MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
 	$extensions = array();
 	foreach ($needed_extensions as $needed) {
 		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);
 	}
 
-	if (version_compare(PHP_VERSION, '5.0.0', '>=')) {
+	if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
 		$phpv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
 		$phpv = '<span style="color: red">'.$lang->phrase('admin_misc_no').'</span>';
 	}
-	if (version_compare($db->version(), '4.0', '>=')) {
+	if (version_compare($db->version(), '5.5.3', '>=')) {
 		$sqlv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {
@@ -635,15 +425,9 @@ elseif ($job == "credits") {
 	<p>
 		<strong>Used Scripts</strong>:
 		<ul>
-		<li><a href="http://www.phpclasses.org/browse/author/152329.html" target="_blank">Roman Numeral Conversion by Huda M Elmatsani</a> (Roman Numeral Conversion; Freeware)</li>
 		<li><a href="http://www.phpconcept.net" target="_blank">PclZip Library 2.8 by Vincent Blavet</a> (Zip file handling; GNU LPGL)</li>
-		<li><a href="http://qbnz.com/highlighter" target="_blank">GeSHi 1.0.8.11 by Nigel McNie and Benny Baumann</a> (Syntax highlighting; GNU GPL)</li>
-		<li><a href="http://magpierss.sourceforge.net" target="_blank">MagPieRSS 0.72 by kellan</a> (Parsing newsfeeds; GNU GPL)</li>
 		<li><a href="https://github.com/PHPMailer" target="_blank">PHPMailer 5.2.6 by various authors</a> (Sending e-mails; GNU LGPL)</li>
-		<li><a href="http://www.bitfolge.de" target="_blank">FeedCreator v1.7.x by Kai Blankenhorn</a> (Creating newsfeeds; GNU LGPL)</li>
-		<li><a href="http://pear.php.net/package/PHP_Compat" target="_blank">PHP_Compat 1.6.0a2 by Aidan Lister, Stephan Schmidt</a> (PHP core Functions; PHP)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GNU GPL)</li>
-		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR file handling; GNU GPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/98157.html" target="_blank">Advanced FTP client class (Build 2008-09-17) by Alexey Dotsenko</a> (PHP FTP Client; Freely Distributable)</li>
 		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.8.0 by phlyLabs</a> (Punycode converter; GNU LGPL)</li>
 		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG editor; GNU LGPL)</li>

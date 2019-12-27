@@ -30,8 +30,13 @@ define('VISCACHA_CORE', '1');
 include ("data/config.inc.php");
 include ("classes/function.viscacha_frontend.php");
 
+if (!is_id($_GET['id']) && is_id($_GET['topic_id'])) {
+	$result = $db->query("SELECT topic_id FROM {$db->pre}replies WHERE id = '{$_GET['topic_id']}'");
+	$_GET['id'] = $db->fetch_one($result);
+}
+
 ($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
-$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}' LIMIT 1");
+$result = $db->query("SELECT id, topic, posts, sticky, status, last, board, vquestion, prefix FROM {$db->pre}topics WHERE id = '{$_GET['id']}'");
 $info = $gpc->prepare($db->fetch_assoc($result));
 
 $my->p = $slog->Permissions($info['board']);
@@ -55,15 +60,6 @@ if ($last['topiczahl'] < 1) {
 	$last['topiczahl'] = $config['topiczahl'];
 }
 
-$q = urldecode($gpc->get('q', str));
-if (strxlen($q) > 2) {
-	$qUrl = '&q='.urlencode($q);
-	$qUrl2 = '&amp;q='.urlencode($q);
-}
-else {
-	$qUrl = $qUrl2 = '';
-}
-
 if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	$sql_order = iif($last['post_order'] == 1, '>', '<=');
 	$result = $db->query("SELECT COUNT(*) AS count FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' AND date {$sql_order} '{$my->clv}'");
@@ -76,7 +72,7 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#firstnew');
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#firstnew');
 	exit;
 }
 elseif ($_GET['action'] == 'last') {
@@ -91,7 +87,7 @@ elseif ($_GET['action'] == 'last') {
 		$pgs = ceil(($info['posts']+1)/$last['topiczahl']);
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$new[0]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$new[0]);
 	exit;
 }
 elseif ($_GET['action'] == 'mylast') {
@@ -106,7 +102,7 @@ elseif ($_GET['action'] == 'mylast') {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 elseif ($_GET['action'] == 'jumpto') {
@@ -121,7 +117,7 @@ elseif ($_GET['action'] == 'jumpto') {
 		$pgs = 1;
 	}
 	$db->close();
-	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.$qUrl.SID2URL_JS_x.'#p'.$mylast[1]);
+	sendStatusCode(302, 'showtopic.php?id='.$info['id'].'&page='.$pgs.SID2URL_JS_x.'#p'.$mylast[1]);
 	exit;
 }
 
@@ -145,9 +141,8 @@ forum_opt($last);
 
 // Some speed optimisation
 $speeder = $info['posts']+1;
-$start = $_GET['page']*$last['topiczahl'];
-$start = $start-$last['topiczahl'];
-$temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id'].$qUrl2."&amp;", $_GET['page']);
+$start = ($_GET['page'] - 1) * $last['topiczahl'];
+$temp = pages($speeder, $last['topiczahl'], "showtopic.php?id=".$info['id']."&amp;", $_GET['page']);
 
 define('LINK_PRINT_PAGE', "print.php?id={$info['id']}&amp;page={$_GET['page']}".SID2URL_x);
 
@@ -155,8 +150,6 @@ echo $tpl->parse("header");
 echo $tpl->parse("menu");
 
 ($code = $plugins->load('showtopic_start')) ? eval($code) : null;
-
-$q = explode(' ', trim($q));
 
 $memberdata_obj = $scache->load('memberdata');
 $memberdata = $memberdata_obj->get();
@@ -257,21 +250,6 @@ if ($config['tpcallow'] == 1) {
 	while ($row = $db->fetch_assoc($result)) {
 		$uploads[$row['tid']][] = $row;
 	}
-	if (count($uploads) > 0) {
-		$fileicons_obj = $scache->load('fileicons');
-		$fileicons = $fileicons_obj->get();
-	}
-}
-
-if ($config['postrating'] == 1) {
-	$result = $db->query("SELECT pid, mid, rating FROM {$db->pre}postratings WHERE tid = '{$info['id']}'");
-	$ratings = array();
-	while ($row = $db->fetch_assoc($result)) {
-		if (!isset($ratings[$row['pid']])) {
-			$ratings[$row['pid']] = array();
-		}
-		$ratings[$row['pid']][$row['mid']] = $row['rating'];
-	}
 }
 
 // Speed up the first pages with less than 10 posts
@@ -281,19 +259,17 @@ if ($speeder > $last['topiczahl']) {
 else {
 	$sql_limit = " LIMIT {$speeder}";
 }
-$sql_select = iif($config['post_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
-$sql_join = iif($config['post_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
 $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 ($code = $plugins->load('showtopic_query')) ? eval($code) : null;
 $result = $db->query("
 SELECT
-	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
-	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
-	f.* {$sql_select}
+	r.id, r.edit, r.dosmileys, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
+	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups,
+	f.*, IF (s.mid > 0, 1, 0) AS online
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 	LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid AND r.guest = '0'
-	{$sql_join}
+	LEFT JOIN {$db->pre}session AS s ON s.mid = u.id
 WHERE r.topic_id = '{$info['id']}'
 ORDER BY date {$sql_order}
 {$sql_limit}
@@ -305,7 +281,7 @@ if ($last['post_order'] == 1) {
 $firstnew = 0;
 $firstnew_url = null;
 if ($info['last'] >= $my->clv) {
-	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].$qUrl2.SID2URL_x;
+	$firstnew_url = 'showtopic.php?action=firstnew&amp;id='.$info['id'].SID2URL_x;
 }
 
 // Custom Profile Fields
@@ -357,10 +333,6 @@ while ($row = $db->fetch_object($result)) {
 
 	BBProfile($bbcode);
 	$bbcode->setSmileys($row->dosmileys);
-	if ($config['wordstatus'] == 0) {
-		$row->dowords = 0;
-	}
-	$bbcode->setReplace($row->dowords);
 	$bbcode->setAuthor($row->mid);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
@@ -372,9 +344,7 @@ while ($row = $db->fetch_object($result)) {
 		$row->signature = $bbcode->parse($row->signature);
 	}
 
-	if ($config['post_user_status'] == 1) {
-		$row->lang_online = $lang->phrase('profile_'.iif($row->online == 1, 'online', 'offline'));
-	}
+	$row->lang_online = $lang->phrase('profile_'.iif($row->online == 1, 'online', 'offline'));
 	$row->date = str_date($lang->phrase('dformat1'), times($row->date));
 	$row->regdate = gmdate($lang->phrase('dformat2'), times($row->regdate));
 	$row->level = $slog->getStatus($row->groups, ', ');
@@ -393,13 +363,6 @@ while ($row = $db->fetch_object($result)) {
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
 			$imginfo = get_extension($uppath);
-
-			if (!isset($fileicons[$imginfo])) {
-				$icon = 'unknown';
-			}
-			else {
-				$icon = $fileicons[$imginfo];
-			}
 
 			// Dateigroesse
 			$fsize = filesize($uppath);
@@ -438,23 +401,6 @@ while ($row = $db->fetch_object($result)) {
 		$lastdata = end($edit);
 		if ($lastdata != false) {
 			list(, $date, $why, ) = $lastdata;
-		}
-	}
-
-	// Ratings
-	$showrating = false;
-	$row->rating = 50;
-	$ratingcounter = 0;
-	if ($config['postrating'] == 1) {
-		if (!isset($ratings[$row->id])) {
-			$ratings[$row->id] = array();
-		}
-		if ($my->vlogin && $my->id != $row->mid && !isset($ratings[$row->id][$my->id])) {
-			$showrating = true;
-		}
-		$ratingcounter = count($ratings[$row->id]);
-		if (count($ratings[$row->id]) > 0) {
-			$row->rating = round(array_sum($ratings[$row->id])/$ratingcounter*50)+50;
 		}
 	}
 

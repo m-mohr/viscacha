@@ -110,10 +110,11 @@ elseif ($_GET['action'] == "savevote") {
 
 	$temp = $gpc->get('temp', int);
 	$topic_id = $gpc->get('topic_id', int);
+	$notices = $gpc->get('notice', arr_str);
 
 	if (!empty($_POST['Update'])) {
-		$_POST['notice']['question'] = $_POST['question'];
-		$fid = save_error_data($_POST['notice'], $fid);
+		$notices['question'] = $_POST['question'];
+		$fid = save_error_data($notices, $fid);
 		$slog->updatelogged();
 		$db->close();
 		sendStatusCode(302, $config['furl']."/newtopic.php?action=startvote&id={$board}&topic_id={$topic_id}&temp={$temp}&fid=".$fid.SID2URL_x);
@@ -138,37 +139,37 @@ elseif ($_GET['action'] == "savevote") {
 		$error[] = $lang->phrase('question_too_short');
 	}
 	$i = 1;
-	foreach ($_POST['notice'] as $id => $uval) {
+	foreach ($notices as $id => $uval) {
 		$uval = trim($uval);
 		if (strlen($uval) >= 255) {
 			$error[] = $lang->phrase('vote_reply_too_long');
 		}
 		if (strlen($uval) == 0) {
-			unset($_POST['notice'][$id]);
+			unset($notices[$id]);
 		}
 		else {
-			$_POST['notice'][$id] = $uval;
+			$notices[$id] = $uval;
 		}
 		$i++;
 	}
-	if (count_filled($_POST['notice']) < 2) {
+	if (count_filled($notices) < 2) {
 		$error[] = $lang->phrase('min_replies_vote');
 	}
-	if (count_filled($_POST['notice']) > 50) {
+	if (count_filled($notices) > 50) {
 		$error[] = $lang->phrase('max_replies_vote');
 	}
 
 	($code = $plugins->load('newtopic_savevote_errorhandling')) ? eval($code) : null;
 
 	if (count($error) > 0) {
-		$_POST['notice']['question'] = $_POST['question'];
+		$notices['question'] = $_POST['question'];
 		($code = $plugins->load('newtopic_savevote_errordata')) ? eval($code) : null;
-		$fid = save_error_data($_POST['notice'], $fid);
+		$fid = save_error_data($notices, $fid);
 		error($error,"newtopic.php?action=startvote&amp;id={$info['board']}&topic_id={$topic_id}&amp;temp={$temp}&amp;fid=".$fid.SID2URL_x);
 	}
 	else {
 		$sqlwhere = array();
-		foreach ($_POST['notice'] as $uval) {
+		foreach ($notices as $uval) {
 			$sqlwhere[] = "({$topic_id}, '{$uval}')";
 		}
 		$sqlwhere = implode(", ",$sqlwhere);
@@ -269,10 +270,8 @@ elseif ($_GET['action'] == "save") {
 			'comment' => $_POST['comment'],
 			'prefix' => $_POST['opt_0'],
 			'dosmileys' => $_POST['dosmileys'],
-			'dowords' => $_POST['dowords'],
 			'vote' => $_POST['opt_2'],
 			'replies' => $_POST['temp'],
-			'guest' => 1,
 			'human' => $human,
 			'digest' => $digest,
 			'name' => null,
@@ -323,8 +322,8 @@ elseif ($_GET['action'] == "save") {
 		$tredirect = $db->insert_id();
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,tstart,ip,guest,edit,report)
-		VALUES ('{$board}','{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,tstart,ip,guest,edit,report)
+		VALUES ('{$_POST['topic']}','{$tredirect}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','1','{$my->ip}','{$guest}','','')
 		");
 		$rredirect = $db->insert_id();
 
@@ -353,18 +352,6 @@ elseif ($_GET['action'] == "save") {
 			if ($pin == 1 && $my->mp[0] == 1) {
 				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
 			}
-		}
-		if ((($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1) || $stat == 9) && $my->vlogin) { // null (Kein Status) ist standard und muss nicht ge�ndert werden
-			if ($stat == 1) {
-				$input = 'a';
-			}
-			elseif ($stat == 2) {
-				$input = 'n';
-			}
-			elseif ($stat == 9) {
-				$input = '';
-			}
-			$db->query("UPDATE {$db->pre}topics SET mark = '{$input}' WHERE id = '{$tredirect}'");
 		}
 
 		if ($config['updatepostcounter'] == 1 && $last['count_posts'] == 1) {
@@ -421,7 +408,6 @@ else {
 		'email' => '',
 		'comment' => '',
 		'dosmileys' => 1,
-		'dowords' => 1,
 		'topic' => '',
 		'human' => false,
 		'digest' => 0
@@ -432,13 +418,6 @@ else {
 		$info = array($data['topic']);
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
-			if ($config['wordstatus'] == 0) {
-				$dowords = 0;
-			}
-			else {
-				$dowords = $data['dowords'];
-			}
-			$bbcode->setReplace($dowords);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
 			$prefix = '';
 			if (isset($prefix_arr[$data['prefix']])) {
@@ -473,7 +452,7 @@ else {
 				$sel = 0;
 			}
 			unset($prefix_arr_standard, $standard);
-			$prefix_obj->addEmptyPrefix($prefix_arr);
+			$prefix_arr = $prefix_obj->addEmptyPrefix($prefix_arr);
 		}
 		else {
 			$sel = -1;

@@ -85,7 +85,7 @@ function checkmx_idna($host) {
 	}
 	$idna = new idna_convert();
 	$host_idna = $idna->encode($host);
-	if (viscacha_function_exists('checkdnsrr')) {
+	if (function_exists('checkdnsrr')) {
 		if (checkdnsrr($host_idna, 'MX') === false) {
 			return false;
 		}
@@ -354,10 +354,10 @@ function serverload($int = false) {
 		$serverload = explode(" ", $load);
 		$serverload[0] = round($serverload[0], 4);
 	}
-	if (viscacha_function_exists('sys_getloadavg')) {
+	if (function_exists('sys_getloadavg')) {
 		$serverload = @sys_getloadavg();
 	}
-	if (empty($serverload[0]) && viscacha_function_exists('exec') == true) {
+	if (empty($serverload[0]) && function_exists('exec') == true) {
 		$load = @exec("uptime");
 		$load = preg_split("~load averages?: ~i", $load);
 		if (isset($load[1])) {
@@ -474,16 +474,6 @@ function check_mail($email, $simple = false) {
 	 			return false;
 	 		}
 	 	}
-		if ($config['sessionmails'] == 1 && !$simple) {
-			// get the known domains in lower case
-			$sessionmails = file('data/sessionmails.php');
-			$sessionmails = array_map("trim", $sessionmails);
-			$sessionmails = array_map("strtolower", $sessionmails);
-			// compare the data and return the result
-			if (in_array($domain, $sessionmails)) {
-				return false;
-			}
-		}
 		return true;
 	}
 	else {
@@ -676,10 +666,10 @@ function get_extension($url, $include_dot = false) {
 
 function UpdateBoardStats($board) {
 	global $db, $scache;
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies WHERE board='{$board}'");
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id WHERE t.board = '{$board}'");
 	$count = $db->fetch_num ($result);
 
-	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board='{$board}'");
+	$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$board}'");
 	$count2 = $db->fetch_num($result);
 
 	$replies = $count[0]-$count2[0];
@@ -1020,11 +1010,6 @@ function getcookie($name) {
 }
 
 function makecookie($name, $value = '', $expire = 31536000) {
-
-	if (SCRIPTNAME == 'external') {
-		return FALSE;
-	}
-
 	if ($expire != null) {
 		$expire = time() + $expire;
 	}

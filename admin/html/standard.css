@@ -214,24 +214,6 @@ a:hover {
 	font-style: normal;
 	margin-left: 4px;
 }
-.bb_blockcode a {
-	border-bottom: 1px dotted #000000;
-}
-.bb_blockcode a:hover {
-	border-bottom: 1px solid #000000;
-}
-.bb_blockcode_options {
-	float: right;
-	margin: 0px 15% -1px 0px;
-	border: 1px solid #839FBC;
-	border-bottom: 0px;
-	background-color: #F5F8FA;
-	padding: 1px 5px 1px 5px;
-	font-size: 8pt;
-}
-.bb_blockcode_options:hover, .bb_blockcode_options:focus {
-	background-color: #E1E8EF;
-}
 
 .bb_header {
 	margin: 0px;

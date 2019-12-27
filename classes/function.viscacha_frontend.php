@@ -179,7 +179,6 @@ function DocCodeParser($syntax, $parser = 1) {
 	elseif ($parser == 3) {
 		BBProfile($bbcode);
 		$bbcode->setSmileys();
-		$bbcode->setReplace();
 		$syntax = $bbcode->parse($syntax);
 	}
 	elseif ($parser == 0) {
@@ -241,18 +240,6 @@ function formatFilesize($byte) {
 	return $byte." ".$string;
 }
 
-function show_feeds() {
-	$data = file('data/feedcreator.inc.php');
-	$data = array_map('trim', $data);
-	foreach ($data as $feed) {
-		$feed = explode("|", $feed);
-		if ($feed[3] == 1 && file_exists('classes/feedcreator/'.$feed[1])) {
-			$f[$feed[0]] = $feed[2];
-		}
-	}
-	return $f;
-}
-
 function get_headboards($fc, $last, $returnids = FALSE) {
 	global $breadcrumb;
 
@@ -300,24 +287,43 @@ function count_nl($str='',$max=NULL) {
 }
 
 function get_mimetype($file) {
-	global $db, $scache;
-
-	$ext = strtolower(get_extension($file));
-
-	$mimetype_headers = $scache->load('mimetype_headers');
-	$mime = $mimetype_headers->get();
-
-	if (isset($mime[$ext])) {
-		return array(
-		'mime' => $mime[$ext]['mimetype'],
-		'browser' => $mime[$ext]['stream']
-		);
-	}
-	else {
-		return array(
-		'mime' => 'application/octet-stream',
-		'browser' => 'attachment'
-		);
+	$ext = get_extension($file);
+	switch($ext) {
+		case 'gif':
+		case 'png':
+		case 'bmp':
+			return array(
+				'mime' => 'image/'.$ext,
+				'browser' => 'inline'
+			);
+		case 'jpeg':
+		case 'jpe':
+		case 'jpg':
+			return array(
+				'mime' => 'image/jpeg',
+				'browser' => 'inline'
+			);
+		case 'txt':
+			return array(
+				'mime' => 'text/plain',
+				'browser' => 'inline'
+			);
+		case 'html':
+		case 'htm':
+			return array(
+				'mime' => 'text/html',
+				'browser' => 'inline'
+			);
+		case 'pdf':
+			return array(
+				'mime' => 'application/pdf',
+				'browser' => 'inline'
+			);
+		default:
+			return array(
+				'mime' => 'application/octet-stream',
+				'browser' => 'attachment'
+			);
 	}
 }
 

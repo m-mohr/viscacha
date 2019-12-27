@@ -119,7 +119,7 @@ if ($_GET['action'] == "save") {
 	    $pw_md5 = md5($_POST['pwx']);
 
 	    ($code = $plugins->load('register_save_queries')) ? eval($code) : null;
-		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}', '".GROUP_MEMBER."', '', '', '')");
+		$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$_POST['name']}', '{$pw_md5}', '{$_POST['email']}', '{$reg}', '{$config['confirm_registration']}', '".GROUP_MEMBER."', '', '')");
         $redirect = $db->insert_id();
 
 		// Custom profile fields

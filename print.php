@@ -77,8 +77,7 @@ forum_opt($last);
 
 ($code = $plugins->load('print_start')) ? eval($code) : null;
 
-$start = $_GET['page']*$last['topiczahl'];
-$start = $start-$last['topiczahl'];
+$start = ($_GET['page'] - 1) * $last['topiczahl'];
 
 // Some speed optimisation
 $speeder = $info['posts']+1;
@@ -161,7 +160,7 @@ if ($config['tpcallow'] == 1) {
 
 ($code = $plugins->load('print_query')) ? eval($code) : null;
 $result = $db->query("
-SELECT r.edit, r.dosmileys, r.dowords, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, r.email as gmail, r.guest
+SELECT r.edit, r.dosmileys, r.id, r.topic, r.comment, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, u.fullname, r.email as gmail, r.guest
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
 WHERE r.topic_id = '{$_GET['id']}' {$searchsql}
@@ -183,10 +182,6 @@ while ($row = $db->fetch_object($result)) {
 	}
 
 	$bbcode->setSmileys($row->dosmileys);
-	if ($config['wordstatus'] == 0) {
-		$row->dowords = 0;
-	}
-	$bbcode->setReplace($row->dowords);
 	if ($info['status'] == 2) {
 		$row->comment = $bbcode->ReplaceTextOnce($row->comment, 'moved');
 	}
@@ -197,9 +192,7 @@ while ($row = $db->fetch_object($result)) {
 	if (isset($uploads[$row->id]) && $config['tpcallow'] == 1) {
 		foreach ($uploads[$row->id] as $file) {
 			$uppath = 'uploads/topics/'.$file['source'];
-			$info = get_extension($uppath);
 
-			// Dateigroesse
 			$fsize = filesize($uppath);
 			$fsize = formatFilesize($fsize);
 

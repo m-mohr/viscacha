@@ -55,40 +55,26 @@ $breadcrumb->Add($info['name']);
 
 forum_opt($info);
 
+$prefix_obj = $scache->load('prefix');
+$prefix_arr = $prefix_obj->get($board);
+uasort($prefix_arr, function($a, $b) {
+	return strnatcasecmp($a['value'], $b['value']);
+});
+
 $filter = $gpc->get('sort', int);
-if ($filter == 2) {
-	$marksql = ' AND mark = "a" '.iif($info['auto_status'] == 'a', 'AND mark IS NULL ');
-}
-elseif ($filter == 3) {
-	$marksql = ' AND mark = "n" '.iif($info['auto_status'] == 'n', 'AND mark IS NULL ');
-}
-elseif ($filter == 4) {
-	$marksql = ' AND mark = "g" ';
-}
-elseif ($filter == 5) {
-	if (empty($info['auto_status'])) {
-		$marksql = ' AND (mark = "g" OR mark = "n" OR mark = "a") ';
-	}
-	else {
-		$marksql = ' AND mark != "b" ';
-	}
-}
-elseif ($filter == 1) {
-	$marksql = ' AND mark != "b" ';
-}
-elseif ($filter == 6) {
+if ($filter == 6) {
 	$marksql = ' AND posts = 0 ';
 }
 elseif ($filter == 0) {
 	$marksql = '';
 }
 else {
-	if ($my->opt_hidebad == 1) {
-		$marksql = ' AND mark != "b" ';
-	}
-	else {
-		$marksql = '';
-	}
+	$marksql = '';
+}
+
+$prefix_filter = $gpc->get('prefix', int, -1);
+if ($prefix_filter >= 0) {
+	$marksql .= " AND prefix = '{$prefix_filter}' ";
 }
 
 ($code = $plugins->load('showforum_filer_query')) ? eval($code) : null;
@@ -118,20 +104,17 @@ $subforums = BoardSelect($board);
 
 $inner['index_bit'] = '';
 if ($info['topics'] > 0) {
-	$start = $_GET['page']*$info['forumzahl'];
-	$start = $start-$info['forumzahl'];
+	$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
 	($code = $plugins->load('showforum_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
+	SELECT prefix, vquestion, posts, id, board, topic, date, status, last, last_name, sticky, name
 	FROM {$db->pre}topics
 	WHERE board = '{$board}' {$marksql}
 	ORDER BY sticky DESC, last DESC
 	LIMIT {$start}, {$info['forumzahl']}
 	");
 
-	$prefix_obj = $scache->load('prefix');
-	$prefix_arr = $prefix_obj->get($board);
 	$memberdata_obj = $scache->load('memberdata');
 	$memberdata = $memberdata_obj->get();
 
@@ -167,25 +150,8 @@ if ($info['topics'] > 0) {
 		if ($row->status == '2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
-		else {
-			if ($row->mark === null && !empty($info['auto_status'])) {
-				$row->mark = $info['auto_status'];
-			}
-			if ($row->mark == 'n') {
-				$pref .= $lang->phrase('forum_mark_n');
-			}
-			elseif ($row->mark == 'a') {
-				$pref .= $lang->phrase('forum_mark_a');
-			}
-			elseif ($row->mark == 'b') {
-				$pref .= $lang->phrase('forum_mark_b');
-			}
-			elseif ($row->mark == 'g') {
-				$pref .= $lang->phrase('forum_mark_g');
-			}
-			if ($row->sticky == '1') {
-				$pref .= $lang->phrase('forum_announcement');
-			}
+		else if ($row->sticky == '1') {
+			$pref .= $lang->phrase('forum_announcement');
 		}
 
 		if ($slog->isTopicRead($row->id, $row->last)) {

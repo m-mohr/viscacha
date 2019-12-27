@@ -8,13 +8,11 @@ class cache_bbcode extends CacheItem {
 		else {
 			$this->data = array(
 				'censor' => array(),
-				'bb' => array(),
-				'word' => array(),
-				'replace' => array()
+				'bb' => array()
 			);
 			$result = $db->query("SELECT * FROM {$db->pre}textparser");
 			while ($bb = $db->fetch_assoc($result)) {
-				$this->data[$bb['type']][] = $bb;
+				$this->data['censor'][] = $bb;
 			}
 			$this->export();
 		}

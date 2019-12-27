@@ -164,20 +164,8 @@ function KillCookie(n) {
 }
 
 ///////////////////////// PopUps /////////////////////////
-function showpost(Link) {
-	window.open(Link.href, "showpost", "width=640,height=480,resizable=yes,scrollbars=yes,location=yes,status=yes");
-}
-function edithistory(Link) {
-	window.open(Link.href, "edithistory", "width=640,height=380,resizable=yes,scrollbars=yes,location=no,status=no");
-}
 function adduploads(Link) {
 	window.open(Link.href, "adduploads", "width=480,height=480,resizable=yes,scrollbars=yes,location=no,status=yes");
-}
-function filetypeinfo(ftype) {
-	window.open(Link.href, "filetypeinfo", "width=400,height=250,resizable=no,scrollbars=yes,location=no,status=no");
-}
-function postrating(Link) {
-	window.open(Link.href, "postrating", "width=400,height=120,resizable=yes,scrollbars=yes,location=no,status=no");
 }
 function ResizeImg(img, maxwidth) {
 	if(img.width >= maxwidth && maxwidth != 0) {

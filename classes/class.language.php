@@ -164,19 +164,6 @@ class lang {
         );
 	}
 
-	function get_text($file) {
-		$this->benchmark['all']++;
-		$this->file = $this->get_path(array('texts', $file), 'php');
-		if (file_exists($this->file) == false) {
-		    $this->benchmark['error']++;
-			return false;
-		}
-        $this->benchmark['ok']++;
-        $content = file_get_contents($this->file);
-		$content = $this->parse_pvar($content);
-        return $content;
-	}
-
 	function get_words($file = 'search') {
 		$this->file = $this->get_path(array('words', $file), 'inc.php');
 		if (file_exists($this->file) == false) {

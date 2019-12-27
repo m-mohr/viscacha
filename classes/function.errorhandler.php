@@ -100,7 +100,7 @@ function log_handler($errno, $errtext, $errfile, $errline) {
 		$lines = array();
 	}
 
-	if (viscacha_function_exists('debug_backtrace')) {
+	if (function_exists('debug_backtrace')) {
 		$backtrace = debug_backtrace();
 		foreach ($backtrace as $key => $value) {
 			unset($value['args']);
@@ -261,7 +261,7 @@ function msg_handler($errno, $errtext, $errfile, $errline) {
 function get_backtrace($skip) {
 	global $config;
 
-	if (viscacha_function_exists('debug_backtrace')) {
+	if (function_exists('debug_backtrace')) {
 		$backtrace = debug_backtrace();
 	}
 	else {

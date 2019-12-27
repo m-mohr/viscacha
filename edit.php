@@ -33,7 +33,7 @@ include ("classes/function.viscacha_frontend.php");
 ($code = $plugins->load('edit_post_query')) ? eval($code) : null;
 
 $result = $db->query('
-SELECT r.topic, r.board, r.name, r.comment, r.topic_id, r.dosmileys, r.dowords, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status, r.guest
+SELECT r.topic, t.board, r.name, r.comment, r.topic_id, r.dosmileys, t.posts, r.topic_id, r.date, t.prefix, r.id, r.edit, t.vquestion, r.tstart, t.status, r.guest
 FROM '.$db->pre.'replies AS r
 	LEFT JOIN '.$db->pre.'topics AS t ON r.topic_id = t.id
 WHERE r.id = "'.$_GET['id'].'"
@@ -70,16 +70,15 @@ $breadcrumb->Add($lang->phrase('edit'));
 echo $tpl->parse("header");
 
 if ($info['status'] != 0 && $my->mp[0] != 1) {
-	error($lang->phrase('topic_closed'), 'showtopic.php?action=jumpto&id='.$info['topic_id'].'&topic_id='.$info['id'].SID2URL_x);
+	error($lang->phrase('topic_closed'), 'showtopic.php?action=jumpto&topic_id='.$info['id'].SID2URL_x);
 }
 
 $diff = time()-$info['date'];
 $edit_seconds = ($config['edit_edit_time'] == 0) ? $diff : $config['edit_edit_time']*60;
 $delete_seconds = ($config['edit_delete_time'] == 0) ? $diff : $config['edit_delete_time']*60;
 
-
 $del_post = ($info['topic_id'] > 0 || $info['posts'] == 0);
-$del_mod = ($my->mp[4] == 1 && $del_post);
+$del_mod = ($my->mp[1] == 1 && $del_post);
 $del_user = ($delete_seconds >= $diff && $del_post);
 $p_upload = ($config['tpcallow'] == 1 && $my->p['attachments'] == 1);
 
@@ -117,7 +116,6 @@ if ($allowed == true) {
 				$filesystem->unlink('uploads/topics/'.$urow[0]);
 			}
 			$db->query ("DELETE FROM {$db->pre}uploads WHERE tid = '{$info['id']}'");
-			$db->query ("DELETE FROM {$db->pre}postratings WHERE pid = '{$info['id']}'");
 			if ($info['tstart'] == 1) {
 				$db->query ("DELETE FROM {$db->pre}abos WHERE tid = '{$info['topic_id']}'");
 				$db->query ("DELETE FROM {$db->pre}topics WHERE id = '{$info['topic_id']}'");
@@ -176,7 +174,6 @@ if ($allowed == true) {
 					'comment' => $_POST['comment'],
 					'prefix' => $_POST['opt_0'],
 					'dosmileys' => $_POST['dosmileys'],
-					'dowords' => $_POST['dowords'],
 					'about' => $_POST['about']
 				);
 				($code = $plugins->load('edit_save_errordata')) ? eval($code) : null;
@@ -197,7 +194,7 @@ if ($allowed == true) {
 
 				$db->query ("
 				UPDATE {$db->pre}replies
-				SET edit = '{$info['edit']}', topic = '{$_POST['topic']}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}', dowords = '{$_POST['dowords']}'
+				SET edit = '{$info['edit']}', topic = '{$_POST['topic']}', comment = '{$_POST['comment']}', dosmileys = '{$_POST['dosmileys']}'
 				WHERE id = '{$_GET['id']}'
 				");
 
@@ -210,7 +207,7 @@ if ($allowed == true) {
 					");
 
 				}
-				ok($lang->phrase('data_success'),'showtopic.php?action=jumpto&id='.$info['topic_id'].'&topic_id='.$info['id'].SID2URL_x);
+				ok($lang->phrase('data_success'),'showtopic.php?action=jumpto&topic_id='.$info['id'].SID2URL_x);
 			}
 		}
 	}
@@ -226,13 +223,6 @@ if ($allowed == true) {
 			$data = $gpc->unescape(import_error_data($fid));
 			if ($_GET['action'] == 'preview') {
 				$bbcode->setSmileys($data['dosmileys']);
-				if ($config['wordstatus'] == 0) {
-					$dowords = 0;
-				}
-				else {
-					$dowords = $data['dowords'];
-				}
-				$bbcode->setReplace($dowords);
 				$data['formatted_comment'] = $bbcode->parse($data['comment']);
 				$data['formatted_prefix'] = '';
 				if (isset($prefix_arr[$data['prefix']])) {
@@ -246,7 +236,6 @@ if ($allowed == true) {
 				'comment' => $info['comment'],
 				'prefix' => $info['prefix'],
 				'dosmileys' => $info['dosmileys'],
-				'dowords' => $info['dowords'],
 				'about' => ''
 			);
 		}
@@ -256,7 +245,7 @@ if ($allowed == true) {
 				return strnatcasecmp($a['value'], $b['value']);
 			});
 			if ($last['prefix'] == 0) {
-				$prefix_obj->addEmptyPrefix($prefix_arr);
+				$prefix_arr = $prefix_obj->addEmptyPrefix($prefix_arr);
 			}
 			$sel = $data['prefix'];
 			$inner['index_prefix'] = $tpl->parse("edit/prefix");

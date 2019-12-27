@@ -74,9 +74,6 @@ if (!SCRIPT_LOCKED) {
 	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1" />
 	<meta name="generator" content="Viscacha (http://www.viscacha.org)" />
 	<link rel="stylesheet" type="text/css" href="designs/standard.css" />
-	<!--[if IE]>
-	<link rel="stylesheet" type="text/css" href="designs/ie.css" />
-	<![endif]-->
 	<link rel="up" href="javascript:self.scrollTo(0,0);" />
 	<link rel="copyright" href="http://www.viscacha.org" />
 </head>
@@ -134,12 +131,11 @@ if (!SCRIPT_LOCKED) {
 		</div>
 		</form>
 		<?php } elseif (!SCRIPT_LOCKED) { ?>
-		<?php if (version_compare(PHP_VERSION, '5.0.0', '<') && empty($_REQUEST['skip_php'])) { ?>
+		<?php if (version_compare(PHP_VERSION, '5.6.0', '<') && empty($_REQUEST['skip_php'])) { ?>
 		<div class="border">
 			<h3>Error: PHP Version mismatch</h3>
 			<div class="bbody">
-			Support for PHP 4 has been discontinued since Viscacha 0.8 RC7.<br />
-			Please consider upgrading to (the latest version of) PHP 5 or you won't be able to use Viscacha.
+			Please consider upgrading to (the latest version of) PHP 5.6 or PHP 7 or you won't be able to use Viscacha.
 			</div>
 			<div class="bfoot center"><a class="submit" href="index.php?skip_php=1">Continue anyway</a></div>
 		</div>

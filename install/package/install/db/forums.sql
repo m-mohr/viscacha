@@ -15,7 +15,6 @@ CREATE TABLE `{:=DBPREFIX=:}forums` (
   `prefix` enum('0','1') NOT NULL default '0',
   `invisible` enum('0','1','2') NOT NULL default '0',
   `readonly` enum('0','1') NOT NULL default '0',
-  `auto_status` enum('','a','n') NOT NULL default '',
   `reply_notification` text NOT NULL,
   `topic_notification` text NOT NULL,
   `active_topic` enum('0','1') NOT NULL default '1',

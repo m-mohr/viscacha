@@ -127,7 +127,7 @@ if ($_GET['action'] == "search") {
 	if (array_empty($boards)) {
 		$boards = $slog->getBoards();
 	}
-	$sql_where = $slog->sqlinboards('r.board', 1, $boards)." ";
+	$sql_where = $slog->sqlinboards('t.board', 1, $boards)." ";
 
 	if (count($used) > 0) {
 		$sql_where .= "({$sql_where_like}) ";
@@ -147,7 +147,6 @@ if ($_GET['action'] == "search") {
 		$ignored[] = $name;
 	}
 
-	$having = '';
 	$temp = $gpc->get('temp', int);
 	$temp2 = $gpc->get('temp2', int);
 	if ($temp > 0 && $temp < 366) {
@@ -160,15 +159,15 @@ if ($_GET['action'] == "search") {
 		}
 		$timestamp = time()-60*60*24*$temp;
 		$sql_where .= " '{$timestamp}' ";
-		$having = " LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id";
 	}
-	$having .= " LEFT JOIN {$db->pre}forums AS f ON f.id = r.board ";
 	$sql_where .= " AND f.invisible != '2' ";
 
 	($code = $plugins->load('search_search_query')) ? eval($code) : null;
 	$result = $db->query("
 	SELECT r.topic_id
-	FROM {$db->pre}replies AS r {$having}
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
 	WHERE {$sql_where}
 	GROUP BY r.topic_id
 	LIMIT {$config['maxsearchresults']}
@@ -226,8 +225,7 @@ elseif ($_GET['action'] == "result") {
 	    }
 	}
 
-	$start = $_GET['page']*$config['searchzahl'];
-	$start = $start-$config['searchzahl'];
+	$start = ($_GET['page'] - 1) * $config['searchzahl'];
 
 	switch ($data['sort']) {
 		case 'topic':
@@ -254,7 +252,7 @@ elseif ($_GET['action'] == "result") {
 
 	($code = $plugins->load('search_result_query')) ? eval($code) : null;
 	$result = $db->query("
-	SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
+	SELECT prefix, vquestion, posts, id, board, topic, date, status, last, last_name, sticky, name
 	FROM {$db->pre}topics
 	WHERE id IN (".implode(',', $data['ids']).") ".$slog->sqlinboards('board')."
 	ORDER BY {$order}"
@@ -315,25 +313,8 @@ elseif ($_GET['action'] == "result") {
 		if ($row->status == '2') {
 			$pref .= $lang->phrase('forum_moved');
 		}
-		else {
-			if ($row->mark === null && !empty($info['auto_status'])) {
-				$row->mark = $info['auto_status'];
-			}
-			if ($row->mark == 'n') {
-				$pref .= $lang->phrase('forum_mark_n');
-			}
-			elseif ($row->mark == 'a') {
-				$pref .= $lang->phrase('forum_mark_a');
-			}
-			elseif ($row->mark == 'b') {
-				$pref .= $lang->phrase('forum_mark_b');
-			}
-			elseif ($row->mark == 'g') {
-				$pref .= $lang->phrase('forum_mark_g');
-			}
-			if ($row->sticky == '1') {
-				$pref .= $lang->phrase('forum_announcement');
-			}
+		else if ($row->sticky == '1') {
+			$pref .= $lang->phrase('forum_announcement');
 		}
 
 		if ($slog->isTopicRead($row->id, $row->last)) {
@@ -447,7 +428,7 @@ elseif ($_GET['action'] == "active") {
     	list($count) = $db->fetch_num($result);
 
     	$result = $db->query("
-    	SELECT t.prefix, t.vquestion, t.posts, t.mark, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name
+    	SELECT t.prefix, t.vquestion, t.posts, t.id, t.board, t.topic, t.date, t.status, t.last, t.last_name, t.sticky, t.name
     	FROM {$db->pre}topics AS t
     		LEFT JOIN {$db->pre}forums AS f ON f.id = t.board
     	WHERE f.invisible != '2' AND f.active_topic = '1' AND {$sqlwhere} ".$slog->sqlinboards('t.board')."
@@ -495,25 +476,8 @@ elseif ($_GET['action'] == "active") {
 				if ($row->status == '2') {
 					$pref .= $lang->phrase('forum_moved');
 				}
-				else {
-					if ($row->mark === null && !empty($info['auto_status'])) {
-						$row->mark = $info['auto_status'];
-					}
-					if ($row->mark == 'n') {
-						$pref .= $lang->phrase('forum_mark_n');
-					}
-					elseif ($row->mark == 'a') {
-						$pref .= $lang->phrase('forum_mark_a');
-					}
-					elseif ($row->mark == 'b') {
-						$pref .= $lang->phrase('forum_mark_b');
-					}
-					elseif ($row->mark == 'g') {
-						$pref .= $lang->phrase('forum_mark_g');
-					}
-					if ($row->sticky == '1') {
-						$pref .= $lang->phrase('forum_announcement');
-					}
+				else if ($row->sticky == '1') {
+					$pref .= $lang->phrase('forum_announcement');
 				}
 
     			if ($slog->isTopicRead($row->id, $row->last)) {

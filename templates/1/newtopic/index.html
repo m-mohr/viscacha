@@ -37,7 +37,7 @@
 <br class="newinput" /><hr class="formsep" />
 <?php } } else { ?>
 <label><?php echo $lang->phrase('logged_in_as'); ?></label>
-<span class="iefix_left"><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
+<span><?php echo $my->name; ?> [<a href="log.php?action=logout<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('logout'); ?></a>]</span>
 <br class="newinput" /><hr class="formsep" />
 <?php } if ($last['message_active'] == '2') { ?>
 <label><?php echo $lang->phrase('board_rules'); ?>:</label>
@@ -60,8 +60,7 @@
 <hr class="formsep" />
 <label for="dosmileys"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label">
-	<input type="checkbox" tabindex="7" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?><br />
-	<input type="checkbox" tabindex="8" name="dowords" value="1"<?php echo iif($data['dowords'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_words'); ?>
+	<input type="checkbox" tabindex="7" name="dosmileys" value="1"<?php echo iif($data['dosmileys'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('post_settings_smileys'); ?>
 </div>
 <br class="newinput" />
 <?php if ($p_upload == 1) { ?>
@@ -90,9 +89,7 @@
 	<option value="3"<?php echo iif($data['digest'] == 3, ' selected="selected"'); ?>><?php echo $lang->phrase('digest_w'); ?></option>
 </select>
 <br class="newinput" />
-<?php } ?>
-<br class="iefix_br" />
-<?php } ?>
+<?php }} ?>
 </div>
 <div class="bfoot center"><input accesskey="s" tabindex="13" type="submit" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>"> <input tabindex="14" type="submit" name="Preview" value="<?php echo $lang->phrase('preview_form'); ?>" /></div>
 </div>
@@ -107,23 +104,6 @@
 <label for="pin"><?php echo $lang->phrase('admin_addpost_pin'); ?></label>
 <div class="label"><input type="checkbox" tabindex="16" id="pin" name="pin" value="1" /> <?php echo $lang->phrase('admin_addpost_pin_desc'); ?></div>
 <br class="newinput" />
-<?php if ($my->mp[2] == 1 || $my->mp[3] == 1) { ?>
-<hr class="formsep" />
-<label for="close"><?php echo $lang->phrase('admin_addpost_status'); ?></label>
-<select tabindex="17" class="label" size="1" name="status" id="status">
-	<option<?php echo iif(empty($last['auto_status']), ' value="0" selected="selected"', ' value="9"'); ?>><?php echo $lang->phrase('ats_choose'); ?></option>
-	<?php if (!empty($last['auto_status'])) { ?>
-	<option value="0" selected="selected"><?php echo $lang->phrase('ats_choose_standard_'.$last['auto_status']); ?></option>
-	<?php } ?>
-	<?php if ($my->mp[0] == 1 && $my->mp[3] == 1) { ?>
-	<option value="1"><?php echo $lang->phrase('ats_select3'); ?></option>
-	<?php } if ($my->mp[0] == 1 && $my->mp[2] == 1) { ?>
-	<option value="2"><?php echo $lang->phrase('ats_select4'); ?></option>
-	<?php } ?>
-</select>
-<br class="newinput" />
-<?php } ?>
-<br class="iefix_br" />
 </div>
 </div>
 <?php } ?>

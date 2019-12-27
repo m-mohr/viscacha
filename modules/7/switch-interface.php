@@ -3,7 +3,6 @@ if (!empty($_POST['Extended']) && $my->vlogin) {
 		'topic' => $_POST['topic'],
 		'comment' => $_POST['comment'],
 		'dosmileys' => $_POST['dosmileys'],
-		'dowords' => $_POST['dowords'],
 		'id' => $_POST['id'],
 		'digest' => 0,
 		'guest' => 0,

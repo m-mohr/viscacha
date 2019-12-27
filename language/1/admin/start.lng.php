@@ -1,21 +1,14 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 $lang = array();
-$lang['admin_bugtracker_todo'] = 'Bugtracker & ToDo';
-$lang['admin_button_find'] = 'Suchen';
 $lang['admin_button_save'] = 'Speichern';
 $lang['admin_checked_package_updates'] = 'Sie haben Ihre Viscacha-Version aktualisiert. Um auch die aktuellen Pakete zu installieren, sollten Sie die Versionsüberprüfung für Pakete starten! ';
 $lang['admin_checked_package_updates_link'] = 'Klicken Sie hier um nach neuen Paket-Versionen zu suchen!';
 $lang['admin_database_version'] = 'Datenbank-Version:';
-$lang['admin_documentation_homepage'] = 'Webseite';
-$lang['admin_download_latest_version'] = 'Download der aktuellen Version';
-$lang['admin_mysql_lookup'] = 'MySQL Dokumentation';
 $lang['admin_notes'] = 'Administrative Notizen';
 $lang['admin_no_tasks'] = 'Keine anstehenden Aufgaben vorhanden.';
-$lang['admin_php_lookup'] = 'PHP Funktionssuche';
 $lang['admin_php_version'] = 'PHP-Version:';
 $lang['admin_program_stats'] = 'Programm-Statistiken';
-$lang['admin_reference_manual'] = 'Benutzerhandbuch';
 $lang['admin_server_load'] = 'Server-Auslastung:';
 $lang['admin_sign_off'] = 'Abmelden';
 $lang['admin_task_backup_recommended'] = 'Es wird empfohlen eine neue Sicherung der Datenbank anzulegen!';
@@ -28,7 +21,6 @@ $lang['admin_task_remove_installdir1'] = 'Bitte lösche das Installations-Verzeic
 $lang['admin_task_remove_installdir2'] = 'Klicken Sie hier um das Installations-Verzeichnis zu löschen.';
 $lang['admin_task_version_check'] = 'Die letzte <a href="{$vcurl}">Versionsüberprüfung Ihrer Viscacha-Installation</a> war vor über 14 Tagen. Bitte prüfen Sie, ob eine neue Version verfügbar ist.';
 $lang['admin_upcoming_tasks'] = 'Anstehende Aufgaben:';
-$lang['admin_useful_links'] = 'Nützliche Links';
 $lang['admin_viscacha_version'] = 'Viscacha-Version:';
 $lang['admin_webserver'] = 'Webserver:';
 $lang['admin_website_offline'] = 'Offline-Modus aktiviert:';

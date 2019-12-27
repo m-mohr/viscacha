@@ -27,14 +27,6 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 include('classes/class.gpc.php');
 $gpc = new GPC();
 
-// Thanks to phpBB for this 6 lines
-if (isset($_POST['GLOBALS']) || isset($_FILES['GLOBALS']) || isset($_GET['GLOBALS']) || isset($_COOKIE['GLOBALS'])) {
-	trigger_error("Hacking attempt (Globals)", E_USER_ERROR);
-}
-if (isset($_SESSION) && !is_array($_SESSION)) {
-	trigger_error("Hacking attempt (Session Variable)", E_USER_ERROR);
-}
-
 $http_svars = array(
 	'PHP_SELF',
 	'HTTP_USER_AGENT',
@@ -50,7 +42,7 @@ $http_svars = array(
 	'HTTP_ACCEPT_ENCODING',
 	'DOCUMENT_ROOT'
 );
-if (viscacha_function_exists('getallheaders')) {
+if (function_exists('getallheaders')) {
 	$ref = @getallheaders();
 }
 else {

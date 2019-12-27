@@ -65,10 +65,6 @@ class DB extends DB_Driver { // MySQLi
 		$this->freeResult = false;
 	}
 
-	function setPersistence($persistence = false) {
-		$this->persistence = false;
-	}
-
 	function version () {
 		$this->open();
 		return @mysqli_get_server_info($this->conn);

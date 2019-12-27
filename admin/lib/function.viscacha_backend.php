@@ -31,7 +31,6 @@ define('IMPTYPE_BBCODE', 5);
 // Database functions
 require_once('classes/database/'.$config['dbsystem'].'.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 // Variables
 require_once ("classes/function.gpc.php");
 $action = $gpc->get('action', none);
@@ -57,10 +56,6 @@ $slog->checkBan();
 $my->p = $slog->Permissions();
 
 $job = $gpc->get('job', str);
-
-if (!isset($my->settings['admin_interface'])) {
-	$my->settings['admin_interface'] = $admconfig['nav_interface'];
-}
 
 // Arrays for Dates
 $months = array($lang->phrase('admin_months_january'),$lang->phrase('admin_months_february'),$lang->phrase('admin_months_march'),$lang->phrase('admin_months_april'),$lang->phrase('admin_months_may'),$lang->phrase('admin_months_june'),$lang->phrase('admin_months_july'),$lang->phrase('admin_months_august'),$lang->phrase('admin_months_september'),$lang->phrase('admin_months_october'),$lang->phrase('admin_months_november'),$lang->phrase('admin_months_december'));
@@ -268,7 +263,7 @@ function array2sqlsetlist($array, $seperator = ', ') {
 }
 
 function gzAbortNotLoaded() {
-	if (!extension_loaded("zlib") || !viscacha_function_exists('readgzfile')) {
+	if (!extension_loaded("zlib") || !function_exists('readgzfile')) {
 		global $lang;
 		error('javascript:history.back(-1);', $lang->phrase('admin_gzip_not_loaded'));
 	}
@@ -471,7 +466,7 @@ function foot($nocopy = false) {
 		<div class="stext center">[<?php echo $lang->phrase('admin_benchmark_generation_time'); ?>] [<?php echo $lang->phrase('admin_benchmark_queries'); ?>]</div>
 		<div id="copyright">
 			Powered by <strong><a href="http://www.viscacha.org" target="_blank">Viscacha <?php echo $config['version']; ?></a></strong><br />
-			Copyright &copy; 2004-2009, The Viscacha Project
+			Copyright &copy; 2004-2014, The Viscacha Project
 			<?php echo iif($config['pccron'] == 1, '<img src="cron.php" width="0" height="0" alt="" />'); ?>
 		</div>
 	<?php } ?>

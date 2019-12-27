@@ -42,18 +42,16 @@ if ($_GET['action'] == 'show') {
 
 	BBProfile($bbcode);
 
-	$sql_select = iif($config['pm_user_status'] == 1, ", IF (s.mid > 0, 1, 0) AS online");
-	$sql_join = iif($config['pm_user_status'] == 1, "LEFT JOIN {$db->pre}session AS s ON s.mid = u.id");
 	($code = $plugins->load('pm_show_query')) ? eval($code) : null;
 	$result = $db->query("
 	SELECT
 		   p.dir, p.status, p.id, p.topic, p.comment, p.date, p.pm_from as mid,
-		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups, u.posts,
-		   f.* {$sql_select}
+		   p.pm_from as mid, u.name, u.mail, u.regdate, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.groups, u.posts,
+		   f.*, IF (s.mid > 0, 1, 0) AS online
 	FROM {$db->pre}pm AS p
 		LEFT JOIN {$db->pre}user AS u ON p.pm_from = u.id
 		LEFT JOIN {$db->pre}userfields AS f ON u.id = f.ufid
-		{$sql_join}
+		LEFT JOIN {$db->pre}session AS s ON s.mid = u.id
 	WHERE p.pm_to = '{$my->id}' AND p.id = '{$_GET['id']}'
 	ORDER BY p.date ASC
 	");
@@ -87,15 +85,12 @@ if ($_GET['action'] == 'show') {
 		$row['regdate'] = gmdate($lang->phrase('dformat2'), times($row['regdate']));
 	}
 	$bbcode->setSmileys(1);
-	$bbcode->setReplace($config['wordstatus']);
 	$bbcode->setAuthor($row['mid']);
 	$row['comment'] = $bbcode->parse($row['comment']);
 	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
 	$row['read'] = iif($row['status'] == 1,'old','new');
 	$row['level'] = $slog->getStatus($row['groups'], ', ');
-	if ($config['pm_user_status'] == 1) {
-		$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
-	}
+	$row['lang_online'] = $lang->phrase('profile_'.iif($row['online'] == 1, 'online', 'offline'));
 	if ($row['dir'] == 2) {
 		$row['fullname'] = $my->fullname;
 	}
@@ -308,7 +303,6 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 		$data = $gpc->unescape(import_error_data($fid));
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys(1);
-			$bbcode->setReplace($config['wordstatus']);
 	   		$data['formatted_comment'] = $bbcode->parse($data['comment']);
 		}
 	}
@@ -379,8 +373,7 @@ elseif ($_GET['action'] == "browse") {
 	$count = $db->fetch_num($result);
 
 	$temp = pages($count[0], $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
-	$start = $_GET['page']*$config['pmzahl'];
-	$start = $start-$config['pmzahl'];
+	$start = ($_GET['page'] - 1) * $config['pmzahl'];
 
 	$inner['index_bit'] = '';
 

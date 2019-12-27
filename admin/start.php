@@ -1,7 +1,6 @@
 <?php
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-// MM/PK: MultiLangAdmin
 $lang->group("admin/start");
 
 ($code = $plugins->load('admin_start_jobs')) ? eval($code) : null;
@@ -147,58 +146,6 @@ elseif (empty($job) || $job == 'start') {
 	  </tr>
 	 </table>
 	</form>
-	<br />
-	 <table class="border">
-	  <tr>
-	   <td class="obox" align="center" colspan="2"><?php echo $lang->phrase('admin_useful_links'); ?></td>
-	  </tr>
-	  <tr>
-	  	<td class="mbox"><?php echo $lang->phrase('admin_php_lookup'); ?></td>
-		<td class="mbox">
-		<form action="http://www.php.net/manual-lookup.php" method="get">
-		<input type="text" name="function" size="30" />&nbsp;
-		<input type="submit" value="<?php echo $lang->phrase('admin_button_find'); ?>" />
-		</form>
-		</td>
-	  </tr>
-	  <tr>
-	  	<td class="mbox"><?php echo $lang->phrase('admin_mysql_lookup'); ?></td>
-		<td class="mbox">
-		<form action="http://www.mysql.com/search/" method="get">
-		<input type="text" name="q" size="30" />&nbsp;
-		<input type="submit" value="<?php echo $lang->phrase('admin_button_find'); ?>" />
-		<input type="hidden" name="doc" value="1" />
-		<input type="hidden" name="m" value="o" />
-		</form>
-		</td>
-	  </tr>
-	  <tr>
-	  	<td class="mbox"><?php echo $lang->phrase('admin_useful_links'); ?></td>
-		<td class="mbox">
-	<form>
-	<select onchange="if (this.options[this.selectedIndex].value != '') { window.open(this.options[this.selectedIndex].value); } return false;">
-		<option value=""><?php echo $lang->phrase('admin_useful_links'); ?></option>
-		<optgroup label="PHP">
-		<option value="http://www.php.net/"><?php echo $lang->phrase('admin_documentation_homepage'); ?> (PHP.net)</option>
-		<option value="http://www.php.net/manual/"><?php echo $lang->phrase('admin_reference_manual'); ?></option>
-		<option value="http://www.php.net/downloads.php"><?php echo $lang->phrase('admin_download_latest_version'); ?></option>
-		</optgroup>
-		<optgroup label="MySQL">
-		<option value="http://www.mysql.com/"><?php echo $lang->phrase('admin_documentation_homepage'); ?> (MySQL.com)</option>
-		<option value="http://www.mysql.com/documentation/"><?php echo $lang->phrase('admin_reference_manual'); ?></option>
-		<option value="http://www.mysql.com/downloads/"><?php echo $lang->phrase('admin_download_latest_version'); ?></option>
-		</optgroup>
-		<optgroup label="Viscacha">
-		<option value="http://www.viscacha.org/"><?php echo $lang->phrase('admin_documentation_homepage'); ?> (viscacha.org)</option>
-		<option value="http://docs.viscacha.org/"><?php echo $lang->phrase('admin_reference_manual'); ?></option>
-		<option value="http://files.viscacha.org/"><?php echo $lang->phrase('admin_download_latest_version'); ?></option>
-		<option value="http://bugs.viscacha.org/"><?php echo $lang->phrase('admin_bugtracker_todo'); ?></option>
-		</optgroup>
-	</select>
-	</form>
-		</td>
-	  </tr>
-	 </table>
 	<?php
 	echo foot();
 }

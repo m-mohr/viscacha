@@ -11,7 +11,6 @@ CREATE TABLE `{:=DBPREFIX=:}topics` (
   `sticky` enum('0','1') NOT NULL default '0',
   `last_name` varchar(255) NOT NULL default '',
   `vquestion` text NOT NULL,
-  `mark` enum('','b','g','a','n') NULL default NULL,
   PRIMARY KEY  (`id`),
   KEY `last` (`last`),
   KEY `name` (`name`),

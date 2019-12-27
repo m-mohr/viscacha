@@ -14,7 +14,7 @@
 <h3><img src="<?php echo $tpl->img('pm_new'); ?>" alt="" /> <?php echo $lang->phrase('pm_writenew'); ?></h3>
 <div class="bbody">
 <label><?php echo $lang->phrase('pm_sender'); ?>:</label>
-<span class="iefix_left"><?php echo $my->name; ?></span>
+<span><?php echo $my->name; ?></span>
 <br class="newinput" /><hr class="formsep" />
 <label for="membersuggest_name"><?php echo $lang->phrase('pm_addressee'); ?></label>
 <div class="label">
@@ -32,7 +32,7 @@
 <hr class="formsep" />
 <label for="temp"><?php echo $lang->phrase('post_settings'); ?></label>
 <div class="label"><input tabindex="2002" type="checkbox" name="temp" value="1"<?php echo iif($data['outgoing'] == 1, ' checked="checked"'); ?> /> <?php echo $lang->phrase('pm_saveoutgoing'); ?></div>
-<br class="newinput" /><br class="iefix_br" />
+<br class="newinput" />
 </div>
 <div class="bfoot center">
   <input type="submit" tabindex="2003" accesskey="s" name="Submit" value="<?php echo $lang->phrase('submit_form'); ?>" />

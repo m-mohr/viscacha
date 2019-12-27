@@ -83,10 +83,6 @@
    <a href="members.php?sort=lastvisit&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('asc'); ?>" alt="<?php echo $lang->phrase('asc'); ?>" /></a>
    <a href="members.php?sort=lastvisit&amp;order=desc&amp;<?php echo $query_th; ?>"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('desc'); ?>" /></a>
   </td>
-  <?php } if ($im) { ?>
-  <td class="center">
-   <?php echo $lang->phrase('th_im'); ?>
-  </td>
   <?php } ?>
  </tr>
 <?php echo $inner['index_bit']; ?>
@@ -115,7 +111,7 @@
     <option value="<?php echo $id; ?>"<?php echo iif(in_array($id, $g), ' selected="selected"'); ?>><?php echo $title; ?></option>
     <?php } ?>
    </select>
-   <br class="newinput" /><br class="iefix_br" />
+   <br class="newinput" />
   </div>
   <div class="bfoot center"><input type="submit" value="<?php echo $lang->phrase('members_show_form'); ?>" /></div>
   </div>

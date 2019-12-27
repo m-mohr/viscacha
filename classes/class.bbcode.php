@@ -47,7 +47,7 @@ class BBCode {
 	var $url_regex2;
 	var $currentCBB;
 
-	function __construct ($profile = 'viscacha') {
+	function __construct($profile = 'viscacha') {
 		$this->benchmark = array(
 			'smileys' => 0,
 			'bbcode' => 0
@@ -76,10 +76,6 @@ class BBCode {
 		// URL RegExp - Two matches predefined: First is whole url, second is URI scheme
 		$this->url_regex = "({$url_protocol}{$url_auth}{$url_host}{$url_path}{$url_query}{$url_fragment})";
 		$this->url_regex2 = "({$url_protocol}{$url_auth}{$url_host}{$url_path}(?:\?[{$url_word}ß\d=\&;\.:,\_\-\/%\+\~]*)?{$url_fragment})";
-
-		if (!class_exists('ConvertRoman')) {
-			include_once('classes/class.convertroman.php');
-		}
 
 		$this->setProfile($profile, SP_NEW);
 	}
@@ -113,7 +109,7 @@ class BBCode {
 			return '';
 		}
 		if (!empty($type)) {
-			if ($type == 'a' || $type == 'A' || $type == 'i' || $type == 'I') {
+			if ($type == 'a' || $type == 'A') {
 				$list = "<ol type='{$type}'>{$list}</ol>";
 			}
 			else {
@@ -144,25 +140,18 @@ class BBCode {
 	function cb_hlcode ($matches) {
 		global $lang, $scache;
 		$pid = $this->noparse_id();
-		list(,, $sclang, $code, $nl) = $matches;
+		list(,,, $code, $nl) = $matches;
 
 		$code = trim($code, "\r\n");
 		$rows = explode("\n", $code);
 		if (count($rows) > 1 || $this->wordwrap($code) != $code) {
-			$scache->loadClass('UniversalCodeCache');
-			$cache = new UniversalCodeCache();
-			$cache->setData($code, $sclang);
-			$data = $cache->get();
-			if ($cache->hasLanguage()) {
-				$lang->assign('lang_name', $data['language']);
-				$title = $lang->phrase('geshi_hlcode_title');
+			$html = '<div class="highlightcode">';
+			$html .= '<strong>'.$lang->phrase('bb_sourcecode').'</strong>';
+			$html .= '<div class="bb_blockcode"><ol>';
+			foreach ($rows as $row) {
+				$html .= '<li>'.str_replace("\t", "&nbsp;&nbsp;&nbsp;&nbsp;", $row).'</li>';
 			}
-			else {
-				$title = $lang->phrase('bb_sourcecode');
-			}
-			$html = '<div class="highlightcode"><a class="bb_blockcode_options" href="misc.php?action=download_code&amp;fid='.$cache->getHash().'">'.$lang->phrase('geshi_hlcode_txtdownload').'</a>';
-			$html .= '<strong>'.$title.'</strong>';
-			$html .= '<div class="bb_blockcode">'.$data['parsed'].'</div></div>';
+			$html .= '</ol></div></div>';
 			$this->noparse[$pid] = $html;
 		}
 		else {
@@ -222,14 +211,6 @@ class BBCode {
 
 		return $o;
 	}
-	function cb_note ($matches) {
-		list(,$desc,$word) = $matches;
-		$this->index++;
-		$pid = $this->noparse_id();
-		$o = "<acronym title=\"<!PID:{$pid}>\" id=\"menu_tooltip_{$this->index}\" onmouseover=\"RegisterTooltip({$this->index})\">{$word}</acronym><div class=\"tooltip tooltip_body\" id=\"popup_tooltip_{$this->index}\"><!PID:{$pid}></div>";
-		$this->noparse[$pid] = $desc;
-		return $o;
-	}
 	function cb_image ($matches) {
 		list(, $url, $extension) = $matches;
 
@@ -283,6 +264,9 @@ class BBCode {
 
 		return $prefix.$ahref.$suffix;
 	}
+	function convertNumToLetter($a) {
+		return ($a-->26?chr(($a/26+25)%26+ord('A')):'').chr($a%26+ord('A'));
+	}
 	function cb_plain_list ($matches) {
 		list(, $type, $pattern) = $matches;
 		$liarray = preg_split('/(\n\s?-\s|\[\*\])/',$pattern);
@@ -296,17 +280,8 @@ class BBCode {
 			}
 			$i++;
 			if (!empty($type)) {
-				if ($type == 'i' || $type == 'I') {
-					$converter = new ConvertRoman($i);
-					$a = $converter->result();
-					if ($type == 'i') {
-						$a = strtolower($a);
-					}
-					$list .= $pre."{$a}. {$li}\n";
-				}
-				elseif ($type == 'a' || $type == 'A') {
-					$converter = new ConvertRoman($i, TRUE);
-					$a = $converter->result();
+				if ($type == 'a' || $type == 'A') {
+					$a = $this->convertNumToLetter($i);
 					if ($type == 'a') {
 						$a = strtolower($a);
 					}
@@ -376,7 +351,7 @@ class BBCode {
 
 		$text = preg_replace('/\[code(=\w+?)?\](.+?)\[\/code\]\n?/is', '\2', $text);
 
-		while (preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) {
+		while (preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) { // I and i modes are only for backward compatibility and have no effect at all
 			$text = preg_replace('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is', '\2', $text);
 		}
 		$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', "\\2", $text);
@@ -434,7 +409,7 @@ class BBCode {
 
 			$text = empty($this->profile['disallow']['code']) ? preg_replace_callback('/\[code(=\w+?)?\](.+?)\[\/code\]/is', array(&$this, 'cb_plain_code'), $text) : $text;
 
-			while (empty($this->profile['disallow']['list']) && preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) {
+			while (empty($this->profile['disallow']['list']) && preg_match('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is',$text)) { // I and i modes are only for backward compatibility and have no effect at all
 				$text = preg_replace_callback('/\[list(?:=(a|A|I|i|OL|ol))?\](.+?)\[\/list\]/is', array(&$this, 'cb_plain_list'), $text);
 			}
 
@@ -482,7 +457,7 @@ class BBCode {
 
 			$text = $this->ListWorkAround($text);
 
-			$text = preg_replace_callback('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', array(&$this, 'cb_note'), $text);
+			$text = preg_replace('/\[note=([^\]]+?)\](.+?)\[\/note\]/is', '<em>\2</em> (\1)', $text); // For compatibility only
 
 			$text = empty($this->profile['disallow']['img']) ? preg_replace_callback("~\[img\]([^?&=\[\]]+\.(png|gif|bmp|jpg|jpe|jpeg))\[\/img\]~is", array($this, 'cb_image'), $text) : $text;
 			$text = preg_replace_callback("~\[img\]{$this->url_regex2}\[\/img\]~is", array(&$this, 'cb_plain_url'), $text); // Correct invalid image urls
@@ -537,8 +512,6 @@ class BBCode {
 		}
 		$text = str_ireplace('[reader]', $this->reader, $text);
 		$text = $this->parseDoc($text);
-		$text = $this->dict($text, $type);
-		$text = $this->replace($text);
 		$text = $this->nl2br($text, $type);
 		$text = $this->replacePID($text);
 		$text = $this->censor($text);
@@ -552,7 +525,7 @@ class BBCode {
 			$char = chr(5);
 			$text = str_ireplace('[/list]', '[/list]'.$char, $text);
 			$text = str_ireplace('[list', $char.'[list', $text);
-			while (preg_match('/'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'/is',$text, $treffer)) {
+			while (preg_match('/'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'/is',$text, $treffer)) { // I and i modes are only for backward compatibility and have no effect at all
 				$text = preg_replace_callback('/\n?'.$char.'\[list(?:=(a|A|I|i|OL|ol))?\]([^'.$char.']+)\[\/list\]'.$char.'\n?/is', array(&$this, 'cb_list'), $text);
 			}
 		}
@@ -784,8 +757,6 @@ class BBCode {
 				'wordwrap_wordlength' => 70,
 				'useSmileys' => 0,
 				'SmileyUrl' => '',
-				'useDict' => 0,
-				'useReplace' => 1,
 				'useCensor' => 1,
 				'reduceEndChars' => 1,
 				'reduceNL' => 1,
@@ -819,13 +790,9 @@ class BBCode {
 	function setSmileyDir ($url = '') {
 		$this->profile['SmileyUrl'] = $url;
 	}
-	function setMisc ($dict = 1, $censor = 1, $resizeimg = 0) {
-		$this->profile['useDict'] = $dict;
+	function setMisc ($censor = 1, $resizeimg = 0) {
 		$this->profile['useCensor'] = $censor;
 		$this->profile['resizeImg'] = $resizeimg;
-	}
-	function setReplace ($use = 1) {
-		$this->profile['useReplace'] = $use;
 	}
 	function setWordwrap ($use = 1, $wordlength = 70, $char = ' ') {
 		$this->profile['wordwrap'] = $use;
@@ -845,32 +812,6 @@ class BBCode {
 	function ResizeImgSize() {
 		return $this->profile['resizeImg'];
 	}
-	function dict($text, $type = 'html') {
-		if ($this->profile['useDict'] == 1) {
-			$this->cache_bbcode();
-			foreach ($this->bbcodes['word'] as $word) {
-				$this->index++;
-				$word['search'] = trim($word['search']);
-				if ($type != 'plain') {
-					$word['search'] = htmlspecialchars($word['search']);
-					$text = preg_replace_callback(
-						'#(\>(((?>([^><]+|(?R)))*)\<))#s',
-						function($matches) use ($word) {
-							return preg_replace(
-								"#\b({$word['search']})\b#i",
-								"<acronym title=\"{$word['replace']}\" id=\"menu_tooltip_{$this->index}\" onmouseover=\"RegisterTooltip({$this->index})\">\\1</acronym><div class=\"tooltip\" id=\"popup_tooltip_{$this->index}\"><span id=\"header_tooltip_{$this->index}\"></span><div class=\"tooltip_body\">{$word['desc']}</div></div>",
-								$matches[0]
-							);
-						},
-						'>' . $text . '<',
-						1 // Only the first occurance
-					);
-					$text = str_replace('\"', '"', substr($text, 1, -1));
-				}
-			}
-		}
-		return $text;
-	}
 	function censor ($text) {
 		$this->cache_bbcode();
 		if ($this->profile['useCensor'] == 2) {
@@ -886,15 +827,6 @@ class BBCode {
 		}
 		elseif ($this->profile['useCensor'] == 1) {
 			foreach ($this->bbcodes['censor'] as $word) {
-				$text = str_ireplace($word['search'], $word['replace'], $text);
-			}
-		}
-		return $text;
-	}
-	function replace ($text) {
-		$this->cache_bbcode();
-		if (isset($this->profile['useReplace']) && $this->profile['useReplace'] == 1) {
-			foreach ($this->bbcodes['replace'] as $word) {
 				$text = str_ireplace($word['search'], $word['replace'], $text);
 			}
 		}
@@ -987,9 +919,6 @@ class BBCode {
 			}
 		}
 
-		$codelang = $scache->load('syntaxhighlight');
-		$clang = $codelang->get();
-
 		$this->cache_smileys();
 		$smileys = array(0 => array(), 1 => array());
 		foreach ($this->smileys as $bb) {
@@ -1001,14 +930,14 @@ class BBCode {
 			}
 		}
 
-		$tpl->globalvars(compact("id", "content", "taAttr", "cbb", "clang", "smileys", "maxlength", "disable"));
+		$tpl->globalvars(compact("id", "content", "taAttr", "cbb", "smileys", "maxlength", "disable"));
 		return $tpl->parse("main/bbhtml");
 	}
 
-	function replaceTextOnce($original, $newindex) {
+	function ReplaceTextOnce($original, $newindex) {
 		global $lang;
 		$lang->assign('originalid', $original);
-		return $lang->get_text($newindex);
+		return $lang->phrase($newindex);
 	}
 }
 
@@ -1024,7 +953,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 		if ($profile == 'signature') {
 			$bbcode->setProfile('signature', SP_NEW);
 			$bbcode->setProfile($profile, SP_NEW);
-			$bbcode->setMisc($config['dictstatus'], $config['censorstatus'], $config['resizebigimgwidth']);
+			$bbcode->setMisc($config['censorstatus'], $config['resizebigimgwidth']);
 			$bbcode->setWordwrap($config['wordwrap'], $config['maxwordlength'], $config['maxwordlengthchar']);
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);
@@ -1033,7 +962,6 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 			}
 			$bbcode->setSmileyDir($config['smileyurl']);
 			$bbcode->setSmileys(1);
-			$bbcode->setReplace($config['wordstatus']);
 			// Disallow some bb-codes
 			if ($config['sig_bbimg'] == 1) {
 				$bbcode->setFunc('img');
@@ -1056,7 +984,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 		}
 		else {
 			$bbcode->setProfile($profile, SP_NEW);
-			$bbcode->setMisc($config['dictstatus'], $config['censorstatus'], $config['resizebigimgwidth']);
+			$bbcode->setMisc($config['censorstatus'], $config['resizebigimgwidth']);
 			$bbcode->setWordwrap($config['wordwrap'], $config['maxwordlength'], $config['maxwordlengthchar']);
 			$bbcode->setDoc($config['reduce_endchars'], $config['reduce_nl'], $config['topicuppercase']);
 			$bbcode->setURL($config['reduce_url'], $config['maxurllength'], $config['maxurltrenner']);

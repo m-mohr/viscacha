@@ -8,7 +8,7 @@ the post with the title {@info->title} has been reported by {%my->name}. The fol
 ----------------------------------------------------------------------
 
 You can find the post here:
-{@config->furl}/showtopic.php?action=jumpto&id={@info->topic_id}&topic_id={@info->id}
+{@config->furl}/showtopic.php?action=jumpto&topic_id={@info->id}
 
 Yours sincerely,
 Your {@config->fname} Team

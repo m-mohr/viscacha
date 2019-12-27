@@ -6,23 +6,36 @@ if (!class_exists('filesystem')) {
 	$filesystem->set_wd($config['ftp_path'], $config['fpath']);
 }
 
-$tar_packs = array(
-	1 => 'update.classes.tar',
-	2 => 'update.misc.tar'
+$zip_packs = array(
+	1 => 'update.zip'
 );
-if (empty($_REQUEST['sub']) || !isset($tar_packs[$_REQUEST['sub']])) {
+if (empty($_REQUEST['sub']) || !isset($zip_packs[$_REQUEST['sub']])) {
 	$sub = 1;
 }
 else {
 	$sub = intval($_REQUEST['sub']);
 }
 require('install/classes/function.chmod.php');
-require('install/classes/class.tar.php');
-$tar = new tar(realpath('install/files/'), $tar_packs[$sub]);
-$tar->ignore_chmod();
-$error = $tar->extract_files('./');
-
-$files = implode("\n", $tar->list_files());
+require('install/classes/class.zip.php');
+$zip = new PclZip('install/files/' . $zip_packs[$sub]);
+$error = 0;
+$files = array();
+$zcontent = $zip->extract('./', PCLZIP_OPT_REPLACE_NEWER);
+if (is_array($zcontent)) {
+	$error = array();
+	foreach($zcontent as $zc) {
+		switch($zc['status']) {
+			case 'ok':
+				$files[] = $zc['filename'];
+				break;
+			case 'filtered':
+				break;
+			default:
+				$error[] = $zc['filename'];
+		}
+	}
+}
+$files = implode("\n", $files);
 $dirs = array('language' => null, 'templates' => null, 'designs' => null, 'images' => null);
 preg_match_all('~^('.implode('|', array_keys($dirs)).')/(\d+)/([^\n]+)$~m', $files, $replicable, PREG_SET_ORDER);
 foreach ($replicable as $rep) {
@@ -60,12 +73,11 @@ foreach ($replicable as $rep) {
 	}
 }
 ?>
-<div class="bfoot">Source file updater - Step <?php echo $sub; ?> of <?php echo count($tar_packs); ?> - Currently extracting: <?php echo $tar_packs[$sub]; ?></div>
-<?php if ($error === false) { ?>
+<div class="bfoot">Source file updater - Step <?php echo $sub; ?> of <?php echo count($zip_packs); ?> - Currently extracting: <?php echo $zip_packs[$sub]; ?></div>
+<?php if ($error === 0) { ?>
 <div class="bbody">
 	<strong>A critical error occured. Please contact the <a href="http://www.viscacha.org" target="_blank">Viscacha Support Team</a> for assistance!</strong><br />
-	Error message: <?php echo $tar->error; ?>
-</div>
+	Error message: <?php echo $zip->errorInfo(); ?>
 <?php } else { ?>
 <div class="bbody">
 <p>
@@ -79,9 +91,9 @@ All files updated succesfully!
 </p>
 </div>
 <div class="bfoot center">
-<?php if ($sub < count($tar_packs)) { ?>
+<?php if ($sub < count($zip_packs)) { ?>
 <a class="submit" href="index.php?package=<?php echo $package;?>&amp;step=<?php echo $step; ?>&amp;sub=<?php echo $sub+1; ?>">Click here to extract the next file...</a>
-<?php } elseif ($sub == count($tar_packs)) { ?>
+<?php } elseif ($sub == count($zip_packs)) { ?>
 <input type="submit" value="Continue" />
 <?php } } ?>
 </div>

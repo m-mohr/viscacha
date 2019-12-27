@@ -5,6 +5,12 @@ class cache_loadlanguage extends CacheItem {
 		global $db;
 		if ($this->exists() == true) {
 		    $this->import();
+			foreach ($this->data as $id => $row) {
+				if (!file_exists("templates/language_{$id}.js") || !file_exists("admin/html/language_{$id}.js")) {
+					$this->createJavascript();
+					break;
+				}
+			}
 		}
 		else {
 		    $result = $db->query("SELECT id, language, detail FROM {$db->pre}language WHERE publicuse != '0'");
@@ -12,7 +18,7 @@ class cache_loadlanguage extends CacheItem {
 		    while ($row = $db->fetch_assoc($result)) {
 		        $this->data[$row['id']] = $row;
 		    }
-		    $this->createJavascript();
+			$this->createJavascript();
 		    $this->export();
 		}
 	}

@@ -21,9 +21,6 @@
 <br class="newinput" /><hr class="formsep" />
 <label for="email">
     <?php echo $lang->phrase('email'); ?>
-    <?php if ($config['sessionmails'] == 1) { ?>
-	  <br /><span class="stext"><?php echo $lang->phrase('register_tempmails'); ?></span>
-    <?php } ?>
 </label>
 <input class="label" type="text" id="email" name="email" size="40" value="<?php echo $data['email']; ?>" />
 <?php foreach ($customfields as $row) { ?>
@@ -42,7 +39,6 @@
 </div>
 <br class="newinput" />
 <?php } ?>
-<br class="iefix_br" />
 </div>
 <?php if ($config['acceptrules'] == 1) { ?>
 <h3 class="inlineheader"><img src="<?php echo $tpl->img('rules'); ?>" alt="" /> <?php echo $lang->phrase('rules'); ?></h3>
@@ -56,7 +52,6 @@
 <label for="temp" class="textright"><input type="checkbox" id="temp" name="temp" value="1"<?php echo iif($data['temp'] == 1, ' checked="checked"'); ?> /></label>
 <div class="label"><?php echo $lang->phrase('register_accept_rules'); ?></div>
 <br class="newinput" />
-<br class="iefix_br" />
 </div>
 <?php } ?>
 <div class="bfoot center"><input type="submit" accesskey="s" name="Submit1" id="submitregister" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>

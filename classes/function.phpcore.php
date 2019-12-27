@@ -35,7 +35,7 @@ include_once (dirname(__FILE__).'/class.idna.php');
 
 function convert_host_to_idna($host) {
 	$idna = new idna_convert();
-	if (viscacha_function_exists('mb_convert_encoding')) {
+	if (function_exists('mb_convert_encoding')) {
 		$host = mb_convert_encoding($host, 'UTF-8', ENCODING_LIST);
 	}
 	else {
@@ -53,20 +53,6 @@ function fsockopen_idna($host, $port, $timeout) {
 
 function is_id ($x) {
 	return (is_numeric($x) && $x >= 1 ? intval($x) == $x : false);
-}
-
-// Fixes problems with suhosin blacklist
-function viscacha_function_exists($func) {
-	if (extension_loaded('suhosin')) {
-		$suhosin = @ini_get("suhosin.executor.func.blacklist");
-		if (empty($suhosin) == false) {
-			$suhosin = explode(',', $suhosin);
-			$suhosin = array_map('trim', $suhosin);
-			$suhosin = array_map('strtolower', $suhosin);
-			return (function_exists($func) == true && array_search($func, $suhosin) === false);
-		}
-	}
-	return function_exists($func);
 }
 
 // Variable headers are not secure in php (HTTP response Splitting).
@@ -183,7 +169,7 @@ function isWindows() {
 	elseif (isset($_SERVER['OS']) && strpos(strtolower($_SERVER['OS']), 'Windows') !== false) {
 		return true;
 	}
-	elseif (viscacha_function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
+	elseif (function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
 		return true;
 	}
 	else {
@@ -291,6 +277,14 @@ function extract_dir($source, $realpath = true) {
 	return $dest;
 }
 
-/* File constants from PHP-Compat */
-$imagetype_extension = array('gif', 'jpg', 'png', 'swf', 'psd', 'bmp', 'tiff', 'jpc', 'jp2', 'jpf', 'jb2', 'swc', 'aiff', 'wbmp', 'xbm');
+/* Error constants */
+if (!defined('E_RECOVERABLE_ERROR')) {
+	define('E_RECOVERABLE_ERROR', 4096);
+}
+if (!defined('E_DEPRECATED')) {
+	define('E_DEPRECATED', 8192);
+}
+if (!defined('E_USER_DEPRECATED')) {
+	define('E_USER_DEPRECATED', 16384);
+}
 ?>

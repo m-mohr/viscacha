@@ -15,13 +15,5 @@
 			<?php } ?>
 			<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 			</ul>
-			<?php if ($config['syndication'] == 1) { ?>
-			<strong><?php echo $lang->phrase('choose_newsfeed'); ?></strong>
-			<ul>
-			  <?php foreach (show_feeds() as $key => $name) { ?>
-			  	<li><a rel="nofollow" href="external.php?action=<?php echo $key; ?>"><?php echo $name; ?></a></li>
-			<?php  } ?>
-			</ul>
-			<?php } ?>
 		</div>
 	</noscript>

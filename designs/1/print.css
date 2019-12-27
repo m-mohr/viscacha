@@ -52,9 +52,6 @@ body {
 .bb_inlinecode {
 	color: #880000;
 }
-.bb_blockcode_options {
-	display: none;
-}
 .bb_blockcode {
 	border-top: 1px solid #000000;
 	border-bottom: 1px solid #000000;

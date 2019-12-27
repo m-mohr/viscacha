@@ -59,27 +59,6 @@ if ($_GET['action'] == "boardin") {
 	}
 
 }
-elseif ($_GET['action'] == "download_code") {
-	$fid = $gpc->get('fid', str);
-	if (!is_hash($fid)) {
-		error($lang->phrase('query_string_error'));
-	}
-	$scache->loadClass('UniversalCodeCache');
-	$cache = new UniversalCodeCache();
-	if (!$cache->setHash($fid)) {
-		error($lang->phrase('no_upload_found'));
-	}
-	$sourcecode = $cache->get();
-
-	$slog->updatelogged();
-	$db->close();
-
-	viscacha_header('Content-Type: text/plain');
-	viscacha_header('Content-Length: '.strlen($sourcecode['source']));
-	viscacha_header('Content-Disposition: attachment; filename="'.gmdate('d-m-Y_H-i', times()).'.txt"');
-	echo $sourcecode['source'];
-	exit;
-}
 elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	($code = $plugins->load('showtopic_topic_query')) ? eval($code) : null;
 	$result = $db->query("SELECT r.id, r.report, r.topic_id, r.tstart, r.topic AS title, t.topic, t.status, t.board, t.prefix FROM {$db->pre}replies AS r LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id WHERE r.id = '{$_GET['id']}' LIMIT 1");
@@ -116,14 +95,14 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 	$breadcrumb->Add($last['name'], "showforum.php?id=".$info['board'].SID2URL_x);
 	$breadcrumb->Add($prefix.$info['topic'], "showtopic.php?id={$info['topic_id']}".SID2URL_x);
 	if ($info['tstart'] == '0') {
-		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
+		$breadcrumb->Add($info['title'], "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	}
 	$breadcrumb->Add($lang->phrase('report_post'));
 
 	forum_opt($last);
 
 	if (empty($info['report']) == false) {
-		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
+		error($lang->phrase('report_post_locked'), "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 	}
 
 	if ($_GET['action'] == "report_post2") {
@@ -172,7 +151,7 @@ elseif ($_GET['action'] == "report_post" || $_GET['action'] == "report_post2") {
 			}
 			$lang->setdir($lang_dir);
 
-			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&id={$info['topic_id']}&topic_id={$info['id']}".SID2URL_x);
+			ok($lang->phrase('report_post_success'), "showtopic.php?action=jumpto&topic_id={$info['id']}".SID2URL_x);
 		}
 	}
 	else {
@@ -189,9 +168,6 @@ elseif ($_GET['action'] == "wwo") {
 		errorLogin();
 	}
 
-	if ($_GET['type'] == 1) {
-		$htmlonload .= "ReloadCountdown(60);";
-	}
 	$breadcrumb->Add($lang->phrase('wwo_detail_title'));
 	echo $tpl->parse("header");
 	echo $tpl->parse("menu");
@@ -199,10 +175,8 @@ elseif ($_GET['action'] == "wwo") {
 	$wwo = array(
 		'i' => 0,
 		'r' => 0,
-		'g' => 0,
-		'b' => 0
+		'g' => 0
 	);
-	$inner['wwo_bit_bot'] = '';
 	$inner['wwo_bit_member'] = '';
 	$inner['wwo_bit_guest'] = '';
 
@@ -223,7 +197,7 @@ elseif ($_GET['action'] == "wwo") {
     ($code = $plugins->load('misc_wwo_start')) ? eval($code) : null;
 
 	$result=$db->query("
-	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent, is_bot
+	SELECT ip, mid, active, wiw_script, wiw_action, wiw_id, user_agent
 	FROM {$db->pre}session
 	ORDER BY active DESC
 	");
@@ -232,7 +206,6 @@ elseif ($_GET['action'] == "wwo") {
 		$row->user_agent = strip_tags($row->user_agent);
 		$row->wiw_action = $gpc->prepare($row->wiw_action);
 		$wwo['i']++;
-		$bot = 0;
 		$time = gmdate($lang->phrase('dformat3'), times($row->active));
 		if (isset($memberdata[$row->mid])) {
 			$row->name = $memberdata[$row->mid];
@@ -324,38 +297,6 @@ elseif ($_GET['action'] == "wwo") {
 				$loc .= ': <a href="profile.php?id='.$id.'">'.$memberdata[$id].'</a>';
 			}
 			break;
-		case 'popup':
-			if ($row->wiw_action == 'filetypes') {
-				$loc = $lang->phrase('wwo_popup_filetypes');
-			}
-			elseif ($row->wiw_action == 'showpost') {// Todo: Auf eine Query begrenzen (alle IDs auf einmal auslesen am Anfang)
-				$id = $row->wiw_id;
-
-				if (!isset($cache['p'.$id])) {
-					$result2 = $db->query("
-						SELECT t.topic, t.board, r.topic as post
-						FROM {$db->pre}replies AS r
-							LEFT JOIN {$db->pre}topics AS t ON r.topic_id = t.id
-						WHERE r.id = '{$id}'
-						LIMIT 1
-					");
-					if ($db->num_rows($result2) == 1) {
-						$nfo = $db->fetch_assoc($result2);
-						$cache['p'.$id] = $nfo;
-					}
-				}
-				if (!isset($cache['p'.$id]) || (($cat_cache[$cache['p'.$id]['board']]['opt'] == 'pw' && (!isset($my->pwfaccess[$cache['p'.$id]['board']]) || $my->pwfaccess[$cache['p'.$id]['board']] != $cat_cache[$cache['p'.$id]['board']]['optvalue'])) || $my->pb[$cache['p'.$id]['board']]['forum'] == 0)) {
-					$loc = $lang->phrase('wwo_popup_showpost_fallback');
-				}
-				else {
-					$title = $gpc->prepare($cache['p'.$id]['post']);
-					$loc = $lang->phrase('wwo_popup_showpost');
-				}
-			}
-			else {
-				$loc = $lang->phrase('wwo_popup');
-			}
-			break;
 		case 'pm':
 			if ($row->wiw_action == 'show') {
 				$loc = $lang->phrase('wwo_pm_view');
@@ -428,11 +369,6 @@ elseif ($_GET['action'] == "wwo") {
 		if ($row->mid >= 1) {
 			$wwo['r']++;
 			$inner['wwo_bit_member'] .= $tpl->parse("misc/wwo_bit");
-		}
-		elseif ($row->is_bot > 0 && isset($slog->bots[$row->is_bot])) {
-			$wwo['b']++;
-			$bot = $slog->bots[$row->is_bot];
-			$inner['wwo_bit_bot'] .= $tpl->parse("misc/wwo_bit");
 		}
 		else {
 			$wwo['g']++;
@@ -507,16 +443,8 @@ elseif ($_GET['action'] == "bbhelp") {
 		$cbb[$key]['syntax'] = '['.$bb['bbcodetag'].iif($bb['twoparams'], '={option}').']{param}[/'.$bb['bbcodetag'].']';
 	}
 
-	$codelang = $scache->load('syntaxhighlight');
-	$clang = $codelang->get();
-	$code_hl = array();
-	foreach ($clang as $l) {
-		$code_hl[] = "{$l['short']} ({$l['name']})";
-	}
-	$code_hl = implode(', ', $code_hl);
-
-	$code = '&lt;?php phpinfo(); ?&gt;';
-	$phpcode = '&lt;?php'."\n".'echo phpversion();'."\n".'?&gt;';
+	$code1 = '&lt;?php echo phpversion(); ?&gt;';
+	$code2 = '&lt;?php'."\n".'echo phpversion();'."\n".'?&gt;';
 
 	$lorem_ipsum = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.';
 
@@ -547,7 +475,7 @@ elseif ($_GET['action'] == "bbhelp") {
 		array(
 			'tag' => 'img',
 			'params' => 0,
-			'example' => array('[img]'.$config['furl'].'/images/klipfolio_icon.gif[/img]')
+			'example' => array('[img]'.$tpl->img('help').'[/img]')
 		),
 		array(
 			'tag' => 'url',
@@ -619,16 +547,11 @@ elseif ($_GET['action'] == "bbhelp") {
 		),
 		array(
 			'tag' => 'code',
-			'params' => 2,
+			'params' => 0,
 			'example' => array(
-				'[code]'.$code.'[/code]',
-				'[code]'.$phpcode.'[/code]',
-				'[code=php]'.$phpcode.'[/code]'
+				'[code]'.$code1.'[/code]',
+				'[code]'.$code2.'[/code]'
 			)
-		),
-		array(
-			'tag' => 'note',
-			'params' => 1
 		),
 		array(
 			'tag' => 'edit',
@@ -787,6 +710,85 @@ elseif ($_GET['action'] == "error") {
 	$breadcrumb->Add($lang->phrase('htaccess_error_'.$errid));
 	echo $tpl->parse("header");
 	echo $tpl->parse("misc/error");
+}
+elseif ($_GET['action'] == "edithistory") {
+	($code = $plugins->load('misc_edithistory_query')) ? eval($code) : null;
+	$result = $db->query("
+	SELECT r.ip, r.topic_id, t.board, r.edit, r.id, r.tstart, r.topic, t.topic as t_topic, t.prefix, r.date, u.name as uname, r.name as gname, u.id as mid, u.groups, r.email as gmail, r.guest
+	FROM {$db->pre}replies AS r
+		LEFT JOIN {$db->pre}topics AS t ON t.id = r.topic_id
+		LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
+	WHERE r.id = '{$_GET['id']}'
+	LIMIT 1
+	");
+	$found = $db->num_rows($result);
+	if ($found == 0) {
+		error($lang->phrase('query_string_error'));
+	}
+
+	$row = $gpc->prepare($db->fetch_assoc($result));
+	$my->p = $slog->Permissions($row['board']);
+	if ($my->p['forum'] == 0) {
+		errorLogin();
+	}
+	
+	$catbid = $scache->load('cat_bid');
+	$fc = $catbid->get();
+	$last = $fc[$row['board']];
+	
+	$prefix = '';
+	if ($row['prefix'] > 0) {
+		$prefix_obj = $scache->load('prefix');
+		$prefix_arr = $prefix_obj->get($row['board']);
+		if (isset($prefix_arr[$row['prefix']])) {
+			$prefix = $prefix_arr[$row['prefix']]['value'];
+			$prefix = $lang->phrase('showtopic_prefix_title');
+		}
+	}
+	
+	$topforums = get_headboards($fc, $last, TRUE);
+	$breadcrumb->Add($last['name'], "showforum.php?id=".$last['id'].SID2URL_x);
+	$breadcrumb->Add($prefix.$row['t_topic'], "showtopic.php?id=".$row['topic_id'].SID2URL_x);
+	if ($row['tstart'] != 1) {
+		$breadcrumb->Add($row['topic'], "showtopic.php?action=jumpto&topic_id=".$row['id'].SID2URL_x);
+	}
+	$breadcrumb->Add($lang->phrase('edithistory'));
+
+	forum_opt($last);
+
+	($code = $plugins->load('misc_edithistory_start')) ? eval($code) : null;
+
+	if ($row['guest'] == 0) {
+		$row['mail'] = '';
+		$row['name'] = $row['uname'];
+	}
+	else {
+		$row['mail'] = $row['gmail'];
+		$row['name'] = $row['gname'];
+		$row['mid'] = 0;
+		$row['groups'] = GROUP_GUEST;
+	}
+
+	$row['date'] = str_date($lang->phrase('dformat1'), times($row['date']));
+
+	$edit = array();
+	if (!empty($row['edit'])) {
+		preg_match_all('~^([^\t]+)\t(\d+)\t([^\t]*)\t([\d\.]+)$~m', $row['edit'], $edits, PREG_SET_ORDER);
+		foreach ($edits as $e) {
+			$edit[] = array(
+				'date' => str_date($lang->phrase('dformat1'), times($e[2])),
+				'reason' => empty($e[3]) ? $lang->phrase('post_editinfo_na') : $e[3],
+				'name' => $e[1],
+				'ip' => empty($e[4]) ? '-' : $e[4]
+			);
+			($code = $plugins->load('misc_edithistory_entry_prepared')) ? eval($code) : null;
+		}
+	}
+
+	echo $tpl->parse("header");
+	($code = $plugins->load('misc_edithistory_prepared')) ? eval($code) : null;
+	echo $tpl->parse("misc/edithistory");
+	($code = $plugins->load('misc_edithistory_end')) ? eval($code) : null;
 }
 
 ($code = $plugins->load('misc_end')) ? eval($code) : null;

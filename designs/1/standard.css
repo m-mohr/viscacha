@@ -11,9 +11,6 @@ body {
 	width: 767px;
 	margin: auto;
 }
-#window {
-	margin: auto;
-}
 a {
 	text-decoration: none;
 	color: #336699;
@@ -161,7 +158,7 @@ h1 a, h1 a:hover {
 	border: 1px solid #839FBC;
 	background-color: #ffffff;
 }
-#blank h3 img, #content h3 img, #window h3 img, .tables th img, .h3 img {
+#blank h3 img, #content h3 img, .tables th img, .h3 img {
 	vertical-align: middle;
 }
 .topfooter {
@@ -226,7 +223,7 @@ h1 a, h1 a:hover {
 	padding: 4px;
 	margin: 0px;
 }
-.navigation_cat h3, #content h3, #window h3, #blank h3, .h3 {
+.navigation_cat h3, #content h3, #blank h3, .h3 {
 	padding: 4px;
 	margin: 0px;
 	background-color: #BCCADA;
@@ -258,16 +255,16 @@ h1 a, h1 a:hover {
 	border-bottom: 1px solid #839FBC;
 }
 
-#blank h3, #content h3, #window h3, #blank h3, .h3 {
+#blank h3, #content h3, #blank h3, .h3 {
 	border: 1px solid #839FBC;
 }
-#blank .border h3, #content .border h3, #window .border h3, .border .h3 {
+#blank .border h3, #content .border h3, .border .h3 {
 	border-width: 0px;
 }
 .h3 {
 	font-weight: bold;
 }
-.inlineheader, #blank .border .inlineheader, #content .border .inlineheader, #window .border .inlineheader {
+.inlineheader, #blank .border .inlineheader, #content .border .inlineheader {
 	border-top: 1px solid #839FBC;
 }
 
@@ -602,24 +599,6 @@ label, .labeldiv {
 	margin-left: 12px;
 	white-space: pre;
 }
-.bb_blockcode a {
-	border-bottom: 1px dotted #000000;
-}
-.bb_blockcode a:hover {
-	border-bottom: 1px solid #000000;
-}
-.bb_blockcode_options {
-	float: right;
-	margin: 0px 40px -1px 0px;
-	border: 1px solid #839FBC;
-	border-bottom: 0px;
-	background-color: #F5F8FA;
-	padding: 1px 5px 1px 5px;
-	font-size: 8pt;
-}
-.bb_blockcode_options:hover, .bb_blockcode_options:focus {
-	background-color: #E1E8EF;
-}
 
 .bb_header {
 	margin: 0px;
@@ -804,11 +783,6 @@ label, .labeldiv {
 
 .bbsmileys img {
 	margin: 2px 8px 2px 4px;
-}
-
-/* IE Fix */
-.iefix_br {
-	line-height: 0px;
 }
 
 /* Lightbox */

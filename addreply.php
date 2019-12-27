@@ -81,7 +81,6 @@ $standard_data = array(
 	'guest' => iif($my->vlogin, 0, 1),
 	'comment' => '',
 	'dosmileys' => 1,
-	'dowords' => 1,
 	'digest' => 0,
 	'topic' => $lang->phrase('reply_prefix').$info['topic'],
 	'human' => false,
@@ -165,7 +164,6 @@ if ($_GET['action'] == "save") {
 			'topic' => $_POST['topic'],
 			'comment' => $_POST['comment'],
 			'dosmileys' => $_POST['dosmileys'],
-			'dowords' => $_POST['dowords'],
 			'id' => $id,
 			'digest' => $digest,
 			'guest' => 0,
@@ -216,15 +214,15 @@ if ($_GET['action'] == "save") {
 		");
 
 		$db->query("
-		INSERT INTO {$db->pre}replies (board,topic,topic_id,name,comment,dosmileys,dowords,email,date,ip,guest,edit,report)
-		VALUES ('{$info['board']}','{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['dowords']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
+		INSERT INTO {$db->pre}replies (topic,topic_id,name,comment,dosmileys,email,date,ip,guest,edit,report)
+		VALUES ('{$_POST['topic']}','{$id}','{$pnameid}','{$_POST['comment']}','{$_POST['dosmileys']}','{$_POST['email']}','{$date}','{$my->ip}','{$guest}','','')
 		");
 		$redirect = $db->insert_id();
 
 		// Set uploads to correct reply
 		$db->query("UPDATE {$db->pre}uploads SET tid = '{$redirect}' WHERE mid = '{$pid}' AND topic_id = '{$id}' AND tid = '0'");
 
-		// Update, insert notifications
+		// Update, insert, delete notifications
 		if ($my->vlogin && in_array($digest, $validDigest)) {
 			switch ($digest) {
 				case 1:  $type = '';  break;
@@ -328,10 +326,6 @@ else {
 		$info['topic'] = $data['topic'];
 		if ($_GET['action'] == 'preview') {
 			$bbcode->setSmileys($data['dosmileys']);
-			if ($config['wordstatus'] == 0) {
-				$data['dowords'] = 0;
-			}
-			$bbcode->setReplace($data['dowords']);
 			$data['formatted_comment'] = $bbcode->parse($data['comment']);
 		}
 		foreach ($standard_data as $key => $value) {
@@ -357,12 +351,7 @@ else {
 
 		if (count($qids) > 0) {
 
-			$result = $db->query('
-			SELECT name, comment, guest
-			FROM '.$db->pre.'replies
-			WHERE id IN('.implode(',',$qids).')
-			LIMIT '.$config['maxmultiquote']
-			);
+			$result = $db->query('SELECT name, comment, guest FROM '.$db->pre.'replies WHERE id IN('.implode(',',$qids).') LIMIT '.$config['maxmultiquote']);
 
 			while($row = $gpc->prepare($db->fetch_assoc($result))) {
 				if ($row['guest'] == 0) {

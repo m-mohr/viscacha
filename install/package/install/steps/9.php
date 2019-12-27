@@ -7,7 +7,6 @@ $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
 	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-	$db->setPersistence($config['pconnect']);
 	$db->connect(false);
 	if (!$db->hasConnection()) {
 		?>
@@ -90,7 +89,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 			else {
 			    $reg = time();
 			    $_REQUEST['pwx'] = md5($_REQUEST['pwx']);
-				$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about, notice) VALUES ('{$_REQUEST['name']}', '{$_REQUEST['pwx']}', '{$_REQUEST['email']}', '{$reg}', '11', '1', '', '', '')");
+				$db->query("INSERT INTO {$db->pre}user (name, pw, mail, regdate, confirm, groups, signature, about) VALUES ('{$_REQUEST['name']}', '{$_REQUEST['pwx']}', '{$_REQUEST['email']}', '{$reg}', '11', '1', '', '')");
 				?>
 		<div class="bfoot">Your account (<em><?php echo $_REQUEST['name']; ?></em>) has been created!</div>
 				<?php

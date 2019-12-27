@@ -65,7 +65,6 @@ class GPC {
 		}
 		$this->prepare_original = array('"', "'", '<', '>');
 		$this->prepare_entity = array('&quot;', '&#039;', '&lt;', '&gt;');
-		$this->php523 = version_compare(PHP_VERSION, '5.2.3', '>=');
 	}
 
 	function get($index, $type = none, $standard = NULL) {
@@ -194,13 +193,7 @@ class GPC {
 			global $db, $lang;
 			$var = preg_replace('#(script|about|applet|activex|chrome|mocha):#is', "\\1&#058;", $var);
 			$var = $this->secure_null($var);
-			if ($this->php523) {
-				$var = htmlentities($var, ENT_QUOTES, $lang->charset(), false);
-			}
-			else {
-				$var = htmlentities($var, ENT_QUOTES, $lang->charset());
-				$var = str_replace('&amp;#', '&#', $var);
-			}
+			$var = htmlentities($var, ENT_QUOTES, $lang->charset(), false);
 			$var = preg_replace("~\\\\(\r|\n)~", "&#92;\\1", $var); // NL Hack
 			if ($db_esc == true && is_object($db)) {
 				$var = $db->escape_string($var);
@@ -313,7 +306,7 @@ class GPC {
 		}
 		elseif (is_string($var)){
 			if ($utf == true) {
-				$var = html_entity_decode($var, ENT_QUOTES | ENT_HTML401, 'UTF-8');
+				$var = html_entity_decode($var, ENT_QUOTES, 'UTF-8');
 			}
 			else {
 				global $lang;
@@ -333,7 +326,7 @@ class GPC {
 				
 				$var = preg_replace_callback('~&#x([0-9a-f]+);~i', $cb1, $var); // ToDo: Convert to correct charset
 				$var = preg_replace_callback('~&#([0-9]+);~', $cb2, $var);
-				$var = html_entity_decode($var, ENT_QUOTES | ENT_HTML401, $lang->charset());
+				$var = html_entity_decode($var, ENT_QUOTES, $lang->charset());
 			}
 		}
 		return $var;

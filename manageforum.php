@@ -78,12 +78,11 @@ if ($_GET['action'] == "index") {
 	$pages = pages($info['topics'], $info['forumzahl'], 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['type'].'&amp;', $_GET['page']);
 	$inner['index_bit'] = '';
 	if ($info['topics'] > 0) {
-		$start = $_GET['page']*$info['forumzahl'];
-		$start = $start-$info['forumzahl'];
+		$start = ($_GET['page'] - 1) * $info['forumzahl'];
 
 		($code = $plugins->load('manageforum_query')) ? eval($code) : null;
 		$result = $db->query("
-		SELECT prefix, vquestion, posts, mark, id, board, topic, date, status, last, last_name, sticky, name
+		SELECT prefix, vquestion, posts,id, board, topic, date, status, last, last_name, sticky, name
 		FROM {$db->pre}topics
 		WHERE board = '{$board}' {$marksql}
 		ORDER BY sticky DESC, last DESC LIMIT {$start}, {$info['forumzahl']}
@@ -124,25 +123,8 @@ if ($_GET['action'] == "index") {
 			if ($row->status == '2') {
 				$pref .= $lang->phrase('forum_moved');
 			}
-			else {
-				if ($row->mark === null && !empty($info['auto_status'])) {
-					$row->mark = $info['auto_status'];
-				}
-				if ($row->mark == 'n') {
-					$pref .= $lang->phrase('forum_mark_n');
-				}
-				elseif ($row->mark == 'a') {
-					$pref .= $lang->phrase('forum_mark_a');
-				}
-				elseif ($row->mark == 'b') {
-					$pref .= $lang->phrase('forum_mark_b');
-				}
-				elseif ($row->mark == 'g') {
-					$pref .= $lang->phrase('forum_mark_g');
-				}
-				if ($row->sticky == '1') {
-					$pref .= $lang->phrase('forum_announcement');
-				}
+			else if ($row->sticky == '1') {
+				$pref .= $lang->phrase('forum_announcement');
 			}
 
 			($code = $plugins->load('manageforum_entry_prepared')) ? eval($code) : null;
@@ -213,7 +195,7 @@ elseif ($_GET['action'] == "move") {
 		sendStatusCode(302, $config['furl'].'/'.$url);
 	}
 	$my->pb = $slog->GlobalPermissions();
-	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'showforum.php?id='.$board.SID2URL_x);
 	}
 	$forums = BoardSubs();
@@ -222,7 +204,7 @@ elseif ($_GET['action'] == "move") {
 	echo $tpl->parse("admin/forum/move");
 }
 elseif ($_GET['action'] == "move2") {
-	if ($my->mp[0] == 1 && $my->mp[5] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[2] == 0) {
 		errorLogin($lang->phrase('not_allowed'), 'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 	}
 	$anz = 0;
@@ -236,14 +218,12 @@ elseif ($_GET['action'] == "move2") {
 		$old = $db->fetch_assoc($result);
 		$db->query("UPDATE {$db->pre}topics SET board = '{$_POST['opt_0']}' WHERE id = '{$id}' LIMIT 1");
 		$anz += $db->affected_rows();
-		$db->query("UPDATE {$db->pre}replies SET board = '{$_POST['opt_0']}' WHERE topic_id = '{$id}'");
-		$anz += $db->affected_rows();
 
 		if ($_POST['temp'] == 1) {
-			// Prefix wird nicht übernommen!
+			// TODO: Prefix wird nicht übernommen!
 			$db->query("INSERT INTO {$db->pre}topics SET status = '2', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', date = '{$old['date']}', last_name = '".$gpc->save_str($old['name'])."', last = '{$old['date']}', vquestion = ''");
 			$tid = $db->insert_id();
-			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', board='{$board}', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''");
+			$db->query("INSERT INTO {$db->pre}replies SET tstart = '1', topic_id = '{$tid}', comment = '{$id}', topic = '".$gpc->save_str($old['topic'])."', name = '".$gpc->save_str($old['name'])."', email = '{$old['email']}', date = '{$old['date']}', guest = '{$old['guest']}', edit = '', report = ''");
 		}
 		if ($_POST['temp2'] == 1) {
 			if ($old['guest'] == 0) {
@@ -268,7 +248,7 @@ elseif ($_GET['action'] == "move2") {
 	ok($lang->phrase('x_entries_moved'),'showforum.php?id='.$board.SID2URL_x);
 }
 elseif ($_GET['action'] == "delete") {
-	if ($my->mp[0] == 1 && $my->mp[4] == 0) {
+	if ($my->mp[0] == 1 && $my->mp[1] == 0) {
 		errorLogin($lang->phrase('not_allowed'),'manageforum.php?action=index&amp;id='.$board.'&amp;type='.$_GET['action'].SID2URL_x);
 	}
 	if (count($_POST['delete']) == 0) {
@@ -301,8 +281,6 @@ elseif ($_GET['action'] == "delete") {
 		}
 	}
 	$db->query ("DELETE FROM {$db->pre}uploads WHERE topic_id IN({$ids})");
-	$anz += $db->affected_rows();
-	$db->query ("DELETE FROM {$db->pre}postratings WHERE tid IN({$ids})");
 	$anz += $db->affected_rows();
 	$db->query ("DELETE FROM {$db->pre}abos WHERE tid IN({$ids})");
 	$anz += $db->affected_rows();
