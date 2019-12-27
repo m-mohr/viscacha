@@ -383,9 +383,7 @@ class ftp_base {
 		if(!$this->_exec("FEAT", "features")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
 		$f=array_slice(preg_split("/[".CRLF."]+/", $this->_message, -1, PREG_SPLIT_NO_EMPTY), 1, -1);
-		array_walk($f, function(&$a) {
-			$a = preg_replace("/[0-9]{3}[\s-]+/", "", trim($a));
-		});
+		array_walk($f, create_function('&$a', '$a=preg_replace("/[0-9]{3}[\s-]+/", "", trim($a));'));
 		$this->_features=array();
 		foreach($f as $k=>$v) {
 			$v=explode(" ", trim($v));
@@ -398,7 +396,7 @@ class ftp_base {
 		return $this->_list(($arg?" ".$arg:"").($pathname?" ".$pathname:""), "LIST", "rawlist");
 	}
 
-	function nlist($pathname="", $arg="") {
+	function nlist($pathname="") {
 		return $this->_list(($arg?" ".$arg:"").($pathname?" ".$pathname:""), "NLST", "nlist");
 	}
 
@@ -632,16 +630,16 @@ class ftp_base {
 			$pattern=substr($pattern,$lastpos);
 		} else $path=getcwd();
 		if(is_array($handle) and !empty($handle)) {
-			foreach($handle as $dir) {
+			while($dir=each($handle)) {
 				if($this->glob_pattern_match($pattern,$dir))
-					$output[]=$dir;
+				$output[]=$dir;
 			}
 		} else {
 			$handle=@opendir($path);
 			if($handle===false) return false;
 			while($dir=readdir($handle)) {
 				if($this->glob_pattern_match($pattern,$dir))
-					$output[]=$dir;
+				$output[]=$dir;
 			}
 			closedir($handle);
 		}
@@ -669,7 +667,7 @@ class ftp_base {
 		if(count($out)==1) return($this->glob_regexp("^$out[0]$",$string));
 		else {
 			foreach($out as $tester)
-				if($this->glob_regexp("^$tester$",$string)) return true;
+				if($this->my_regexp("^$tester$",$string)) return true;
 		}
 		return false;
 	}

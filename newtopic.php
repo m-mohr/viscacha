@@ -354,7 +354,7 @@ elseif ($_GET['action'] == "save") {
 				$db->query("UPDATE {$db->pre}topics SET sticky = '1' WHERE id = '{$tredirect}'");
 			}
 		}
-		if ((($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1) || $stat == 9) && $my->vlogin) { // null (Kein Status) ist standard und muss nicht geï¿½ndert werden
+		if ((($stat == 1 && $my->mp[3] == 1) || ($stat == 2 && $my->mp[2] == 1) || $stat == 9) && $my->vlogin) { // null (Kein Status) ist standard und muss nicht geändert werden
 			if ($stat == 1) {
 				$input = 'a';
 			}
@@ -457,14 +457,10 @@ else {
 	}
 
 	if (count($prefix_arr) > 0) {
-		uasort($prefix_arr, function($a, $b) {
-			return strnatcasecmp($a['value'], $b['value']);
-		});
+		array_columnsort($prefix_arr, "value");
 		if ($last['prefix'] == 0) {
 			$prefix_arr_standard = $prefix_arr;
-			uasort($prefix_arr_standard, function($a, $b) {
-				return strnatcasecmp($a['standard'], $b['standard']);
-			});
+			array_columnsort($prefix_arr_standard, "standard");
 			$standard = end($prefix_arr_standard);
 			if ($standard['standard'] == 1) {
 				$sel = key($prefix_arr_standard);

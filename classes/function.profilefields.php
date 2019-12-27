@@ -78,12 +78,12 @@ function admin_customfields($uid) {
 		$field = "fid{$profilefield['fid']}";
 		if($type == "multiselect") {
 			$useropts = @explode("\n", $saved[$field]);
-			foreach($useropts as $key => $val) {
+			while(list($key, $val) = each($useropts)) {
 				$seloptions[$val] = $val;
 			}
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$val = str_replace("\n", "\\n", trim($val));
 					$select .= "<option value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' selected="selected"').">{$val}</option>";
@@ -97,7 +97,7 @@ function admin_customfields($uid) {
 		elseif($type == "select") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$val = str_replace("\n", "\\n", trim($val));
 					$select .= "<option value=\"{$key}\"".iif($key == $saved[$field], ' selected="selected"').">{$val}</option>";
@@ -111,7 +111,7 @@ function admin_customfields($uid) {
 		elseif($type == "radio") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br />";
 				}
@@ -120,12 +120,12 @@ function admin_customfields($uid) {
 		}
 		elseif($type == "checkbox") {
 			$useropts = @explode("\n", $saved[$field]);
-			foreach($useropts as $key => $val) {
+			while(list($key, $val) = each($useropts)) {
 				$seloptions[$val] = $val;
 			}
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br />";
 				}
@@ -230,7 +230,7 @@ function addprofile_customfields($data = array()) {
 		if($type == "multiselect") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					if (isset($data[$field]) && $data[$field] == $val) {
 						$selected = ' selected="selected"';
@@ -250,7 +250,7 @@ function addprofile_customfields($data = array()) {
 		elseif($type == "select") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					if (isset($data[$field]) && $data[$field] == $val) {
 						$selected = ' selected="selected"';
@@ -270,7 +270,7 @@ function addprofile_customfields($data = array()) {
 		elseif($type == "radio") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					if (isset($data[$field]) && $data[$field] == $val) {
 						$checked = ' checked="checked"';
@@ -286,7 +286,7 @@ function addprofile_customfields($data = array()) {
 		elseif($type == "checkbox") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					if (isset($data[$field]) && $data[$field] == $val) {
 						$checked = ' checked="checked"';
@@ -407,12 +407,12 @@ function editprofile_customfields($editable, $uid) {
 		$field = "fid{$profilefield['fid']}";
 		if($type == "multiselect") {
 			$useropts = @explode("\n", $saved[$field]);
-			foreach($useropts as $key => $val) {
+			while(list($key, $val) = each($useropts)) {
 				$seloptions[$val] = $val;
 			}
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$val = str_replace("\n", "\\n", trim($val));
 					$select .= "<option value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' selected="selected"').">{$val}</option>";
@@ -426,7 +426,7 @@ function editprofile_customfields($editable, $uid) {
 		elseif($type == "select") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$val = str_replace("\n", "\\n", trim($val));
 					$select .= "<option value=\"{$key}\"".iif($key == $saved[$field], ' selected="selected"').">{$val}</option>";
@@ -440,7 +440,7 @@ function editprofile_customfields($editable, $uid) {
 		elseif($type == "radio") {
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"radio\" name=\"{$field}\" value=\"{$key}\"".iif($key == $saved[$field], ' checked="checked"')." /> {$val}<br />";
 				}
@@ -449,12 +449,12 @@ function editprofile_customfields($editable, $uid) {
 		}
 		elseif($type == "checkbox") {
 			$useropts = @explode("\n", $saved[$field]);
-			foreach($useropts as $key => $val) {
+			while(list($key, $val) = each($useropts)) {
 				$seloptions[$val] = $val;
 			}
 			$expoptions = explode("\n", $options);
 			if(is_array($expoptions)) {
-				foreach($expoptions as $key => $val) {
+				while(list($key, $val) = each($expoptions)) {
 					list($key, $val) = explode('=', $val, 2);
 					$select .= "<input type=\"checkbox\" name=\"{$field}[]\" value=\"{$key}\"".iif(isset($seloptions[$key]) && $key == $seloptions[$key], ' checked="checked"')." /> {$val}<br />";
 				}

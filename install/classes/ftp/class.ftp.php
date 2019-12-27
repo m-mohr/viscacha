@@ -82,42 +82,6 @@ class ftp_base {
 		elseif(isMac() == true) $this->OS_local=FTP_OS_Mac;
 	}
 
-	function _connect($host, $port) {
-		// To be implemented
-	}
-
-	function _settimeout($sock) {
-		// To be implemented
-	}
-
-	function _readmsg($fnction="_readmsg") {
-		// To be implemented
-	}
-
-	function _exec($cmd, $fnction="_exec") {
-		// To be implemented
-	}
-
-	function _data_prepare($mode=FTP_ASCII) {
-		// To be implemented
-	}
-
-	function _data_read($mode=FTP_ASCII, $fp=NULL) {
-		// To be implemented
-	}
-
-	function _data_close() {
-		// To be implemented
-	}
-
-	function _data_write($mode=FTP_ASCII, $fp=NULL) {
-		// To be implemented
-	}
-
-	function _quit($force=FALSE) {
-		// To be implemented
-	}
-
 // <!-- --------------------------------------------------------------------------------------- -->
 // <!--       Public functions                                                                  -->
 // <!-- --------------------------------------------------------------------------------------- -->
@@ -419,9 +383,7 @@ class ftp_base {
 		if(!$this->_exec("FEAT", "features")) return FALSE;
 		if(!$this->_checkCode()) return FALSE;
 		$f=array_slice(preg_split("/[".CRLF."]+/", $this->_message, -1, PREG_SPLIT_NO_EMPTY), 1, -1);
-		array_walk($f, function(&$a) {
-			$a = preg_replace("/[0-9]{3}[\s-]+/", "", trim($a));
-		});
+		array_walk($f, create_function('&$a', '$a=preg_replace("/[0-9]{3}[\s-]+/", "", trim($a));'));
 		$this->_features=array();
 		foreach($f as $k=>$v) {
 			$v=explode(" ", trim($v));
@@ -434,7 +396,7 @@ class ftp_base {
 		return $this->_list(($arg?" ".$arg:"").($pathname?" ".$pathname:""), "LIST", "rawlist");
 	}
 
-	function nlist($pathname="", $arg="") {
+	function nlist($pathname="") {
 		return $this->_list(($arg?" ".$arg:"").($pathname?" ".$pathname:""), "NLST", "nlist");
 	}
 
@@ -668,7 +630,7 @@ class ftp_base {
 			$pattern=substr($pattern,$lastpos);
 		} else $path=getcwd();
 		if(is_array($handle) and !empty($handle)) {
-			foreach($handle as $dir) {
+			while($dir=each($handle)) {
 				if($this->glob_pattern_match($pattern,$dir))
 				$output[]=$dir;
 			}
@@ -705,7 +667,7 @@ class ftp_base {
 		if(count($out)==1) return($this->glob_regexp("^$out[0]$",$string));
 		else {
 			foreach($out as $tester)
-				if($this->glob_regexp("^$tester$",$string)) return true;
+				if($this->my_regexp("^$tester$",$string)) return true;
 		}
 		return false;
 	}
