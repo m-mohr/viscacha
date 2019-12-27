@@ -3,6 +3,8 @@
 * Scripts are taken from: http://www.php.net/manual/function.parse-ini-file.php
 */
 
+namespace Viscacha;
+
 class INI {
 
 	var $commentchar;

@@ -839,7 +839,7 @@ elseif ($job == 'lang_default') {
 elseif ($job == 'lang_edit') {
 	echo head();
 	$id = $gpc->get('id', int);
-	$myini = new INI();
+	$myini = new \Viscacha\INI();
 
 	// Emails
 	$mailcategories = array(

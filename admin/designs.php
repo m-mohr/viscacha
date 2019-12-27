@@ -156,7 +156,7 @@ elseif ($job == 'design_import2') {
 		$error = $lang->phrase('admin_design_zip_archive_missing_design_ini');
 	}
 	else {
-		$myini = new INI();
+		$myini = new \Viscacha\INI();
 		$ini = $myini->read($tempdir . 'theme.ini');
 		if (empty($ini['info']['internal'])) {
 			$ini['info']['internal'] = generate_uid();

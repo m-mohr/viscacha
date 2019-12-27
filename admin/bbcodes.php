@@ -221,7 +221,7 @@ elseif ($job == 'smileys_import2') {
 			if (!file_exists($tempdir.'/smileys.ini')) {
 				error('admin.php?action=bbcodes&job=smileys_import', $lang->phrase('admin_bbc_smileys_ini_missing'));
 			}
-			$myini = new INI();
+			$myini = new \Viscacha\INI();
 			$package = $myini->read($tempdir.'/smileys.ini');
 		break;
 	}
@@ -305,7 +305,7 @@ elseif ($job == 'smileys_export') {
 		}
 	}
 
-	$myini = new INI();
+	$myini = new \Viscacha\INI();
 	$myini->write($smilieconfig, $filedata);
 	$files[] = $smilieconfig;
 	$files = array_unique($files);

@@ -76,9 +76,9 @@ class Theme {
 	}
 	
 	public static function all($includeHidden = true) {
-		$ini = new INI();
+		$ini = new \Viscacha\INI();
 		$path = 'themes/';
-		$dir = new DirectoryIterator($path);
+		$dir = new \DirectoryIterator($path);
 		$data = array();
 		foreach ($dir as $fileinfo) {
 			if (!$fileinfo->isDir() || $fileinfo->isDot()) {
@@ -122,7 +122,7 @@ class Theme {
 		}
 
 		if (!empty($vars)) {
-			global $config, $lang, $tpl, $my, $htmlhead, $plugins;
+			global $config, $lang, $tpl, $my, $htmlhead, $htmlbody, $plugins;
 			$vars = array_merge(compact("config", "lang", "tpl", "my", "htmlhead", "htmlbody", "plugins"), $this->vars, $vars);
 		}
 		else {

@@ -9,7 +9,7 @@ $lang->group("admin/packages");
 require('admin/lib/function.language.php');
 require('classes/class.phpconfig.php');
 include('admin/lib/function.settings.php');
-$myini = new INI();
+$myini = new \Viscacha\INI();
 
 define('DO_UPD_ADD', '+');
 define('DO_UPD_DEL', '-');

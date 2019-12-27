@@ -7,7 +7,7 @@ use Viscacha\System\PhpSys;
 $lang->group("admin/cms");
 
 require('classes/class.phpconfig.php');
-$myini = new INI();
+$myini = new \Viscacha\INI();
 
 function BBCodeToolBox($id, $content = '', $taAttr = '') {
 	global $tpl, $lang, $scache, $config;

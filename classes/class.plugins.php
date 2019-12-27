@@ -141,7 +141,7 @@ class PluginSystem {
 		$source = false;
 		$inifile = $this->plugdir.$id.'/plugin.ini';
 		if (file_exists($inifile) == true) {
-			$myini = new INI();
+			$myini = new \Viscacha\INI();
 			$ini = $myini->read($inifile);
 			if (isset($ini['php'][$hook])) {
 				$file = $ini['php'][$hook];
@@ -220,7 +220,7 @@ class PluginSystem {
 			$this->sqlcache[$group] = array();
 		}
 
-		$myini = new INI();
+		$myini = new \Viscacha\INI();
 		$cfgdata = array();
 		$code = array();
 		foreach ($this->sqlcache[$group] as $position => $mods) {

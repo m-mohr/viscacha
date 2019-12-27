@@ -20,7 +20,7 @@
 		"mso/idna-convert": "1.1.*",
 		"eftec/bladeone": "1.*",
 		"lutana/pclzip": "2.*",
-		"snoopy/snoopy": "2.0.*",
+		"xj/snoopy": "2.0.*",
 		"phpmailer/phpmailer": "5.2.*",
 		"monolog/monolog": "1.*",
 		"maximebf/debugbar": "1.*"

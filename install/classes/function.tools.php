@@ -116,7 +116,7 @@ function getLangCodesByKeys($keys) {
 function setPackagesInactive() {
 	global $db;
 	require_once('install/classes/class.ini.php');
-	$myini = new INI();
+	$myini = new \Viscacha\INI();
 	$result = $db->query("SELECT id, internal FROM {$db->pre}packages");
 	$data = array();
 	$disable = array();

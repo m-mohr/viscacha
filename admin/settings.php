@@ -12,7 +12,7 @@ include('classes/class.phpconfig.php');
 include('admin/lib/function.settings.php');
 
 $c = new manageconfig();
-$myini = new INI();
+$myini = new \Viscacha\INI();
 
 ($code = $plugins->load('admin_settings_jobs')) ? eval($code) : null;
 
