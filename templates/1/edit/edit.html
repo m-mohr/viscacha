@@ -39,7 +39,7 @@
 <hr class="formsep" />
 <label><?php echo $lang->phrase('attachments'); ?></label>
 <div class="label">
-  <a href="attachments.php?type=edit&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>" tabindex="7" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+  <a href="attachments.php?type=edit&amp;id=<?php echo $_GET['id']; ?>&amp;location=comment<?php echo SID2URL_x; ?>" tabindex="7" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
   <span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
 </div>
 <br class="newinput" />

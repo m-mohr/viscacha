@@ -48,17 +48,12 @@
   </span>
   <hr />
   <?php echo $row->comment; ?>
-  <?php if (!empty($inner['image_box'])) { ?>
-  <br /><br />
-  <strong><?php echo $lang->phrase('post_thumbnails'); ?></strong><br />
-  <?php echo $inner['image_box']; ?>
-  <br class="uploadbox_br" />
-  <?php } if (!empty($inner['upload_box'])) { ?>
-  <br class="uploadbox_br" />
-  <br />
-  <strong><?php echo $lang->phrase('post_uploads'); ?></strong><br />
-  <?php echo $inner['upload_box']; ?>
-  <br class="uploadbox_br" />
+  <?php if(!empty($inner['uploads'])) { ?>
+    <div class="uploadbox">
+      <strong class="heading"><?php echo $lang->phrase('attachments'); ?></strong>
+      <?php echo $inner['uploads']; ?>
+      <br class="clear" />
+    </div>
   <?php } if ($bottom) { ?>
       <hr />
       <?php if (!empty($row->fullname) && $config['fullname_posts'] == 1) { ?>

@@ -1,21 +1,32 @@
-<form name="form2" method="post" enctype="multipart/form-data" action="attachments.php?action=save&amp;type=<?php echo $_GET['type']; ?>&amp;id=<?php echo $_GET['id'].SID2URL_x; ?>">
-<div class="border">
-<h3><span class="right">[<a href="javascript:self.close();"><?php echo $lang->phrase('close_window'); ?></a>]</span><?php echo $lang->phrase('manage_uploads'); ?></h3>
-<div class="bbody">
-<?php echo $lang->phrase('upload_intro1'); ?><br />
-<?php echo iif((!empty($config['tpcwidth']) || !empty($config['tpcheight'])), $lang->phrase('upload_intro1b')); ?><br /><br />
-<?php if ($free > 0) { ?>
-<strong><?php echo $lang->phrase('upload_intro2'); ?></strong>
-<?php for ($i = 0; $i < $free; $i++) { ?>
-	<br /><input type="file" name="upload_<?php echo $i; ?>" size="40" />
-<?php } } ?>
-<br /><br />
-<?php if ($free != $config['tpcmaxuploads']) { ?>
-<strong><?php echo $lang->phrase('upload_intro3'); ?></strong>
-	<?php foreach ($uploads as $row) { ?>
-		<br /><input type="submit" name="delete[<?php echo $row['id']; ?>]" value="<?php echo $lang->phrase('delete_form'); ?>" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $row['file']; ?> (<em><?php echo $row['filesize']; ?></em>)
-<?php } } ?>
-</div>
-<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
-</div>
+<script src="templates/editor/bbcode.js" type="text/javascript"></script>
+<form name="form2" method="post" enctype="multipart/form-data" action="attachments.php?action=save&amp;type=<?php echo $_GET['type'] ?>&amp;id=<?php echo $_GET['id'] ?>&amp;location=<?php echo $_GET['location'] ?><?php echo SID2URL_x ?>">
+	<div class="border">
+		<h3><span class="right">[<a href="javascript:self.close();"><?php echo $lang->phrase('close_window'); ?></a>]</span><?php echo $lang->phrase('manage_uploads'); ?></h3>
+		<div class="bbody">
+			<?php echo $lang->phrase('upload_intro'); ?>
+			<br /><br />
+			<strong><?php echo $lang->phrase('upload_restriction'); ?></strong>
+			<ul>
+				<li><?php echo $lang->phrase('upload_restriction_amount'); ?></li>
+				<li><?php echo $lang->phrase('upload_restriction_filesize'); ?> <?php echo $filesize ?></li>
+				<li><?php echo $lang->phrase('upload_restriction_imagesize'); ?></li>
+				<li><?php echo $lang->phrase('upload_restriction_filetype'); ?> <?php echo $filetypes ?></li>
+			</ul>
+			<br />
+			<strong><?php echo $lang->phrase('attachments'); ?></strong>
+			<ol>
+			<?php foreach($uploads as $i => $file) { ?>
+			<?php if($file === null) { ?>
+			<li> <input type="file" name="upload_<?php echo $i ?>" size="40" /> </li>
+			<?php } else { ?>
+			<li>
+				<?php echo $file['file'] ?> (<em><?php echo $file['filesize'] ?></em>)
+				<input type="button" value="<?php echo $lang->phrase('upload_insert'); ?>" onclick="InsertAttachment('<?php echo $_GET['location'] ?>', <?php echo $file['id'] ?>)" />
+				<input type="submit" name="delete[<?php echo $file['id'] ?>]" value="<?php echo $lang->phrase('delete_form'); ?>" />
+			</li>
+			<?php } } ?>
+			</ol>
+		</div>
+		<div class="bfoot center"><input accesskey="s" type="submit" name="Submit1" value="<?php echo $lang->phrase('submit_form'); ?>" /></div>
+	</div>
 </form>

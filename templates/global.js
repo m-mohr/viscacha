@@ -148,7 +148,7 @@ function KillCookie(n) {
 
 ///////////////////////// PopUps /////////////////////////
 function adduploads(Link) {
-	window.open(Link.href, "adduploads", "width=480,height=480,resizable=yes,scrollbars=yes,location=no,status=yes");
+	window.open(Link.href, "adduploads", "width=550,height=450,resizable=yes,scrollbars=yes,location=no,status=yes");
 }
 function ResizeImg(img, maxwidth) {
 	if(img.width >= maxwidth && maxwidth != 0) {

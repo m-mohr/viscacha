@@ -67,7 +67,7 @@
 <hr class="formsep" />
 <label><?php echo $lang->phrase('attachments'); ?>&nbsp;</label>
 <div class="label">
-	<a tabindex="9" href="attachments.php?type=newtopic&amp;id=<?php echo $board.SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
+	<a tabindex="9" href="attachments.php?type=newtopic&amp;id=<?php echo $board; ?>&amp;location=comment<?php echo SID2URL_x; ?>" target="adduploads" onclick="adduploads(this);"><strong><?php echo $lang->phrase('manage_uploads'); ?></strong></a><br />
 	<span class="stext"><?php echo $lang->phrase('max_uploads'); ?></span>
 </div>
 <br class="newinput" />

@@ -130,7 +130,7 @@ elseif ($_GET['action'] == "attachment") {
 		($code = $plugins->load('attachments_attachment_end')) ? eval($code) : null;
 		$slog->updatelogged();
 		$db->close();
-		exit();
+		exit;
 	}
 }
 else {
@@ -151,10 +151,10 @@ else {
 	}
 	elseif ($_GET['type'] == 'newtopic' && is_id($_GET['id'])) {
 		$upinfo = array(
-		'board' => $_GET['id'],
-		'name' => $my->id,
-		'topic_id' => 0,
-		'id' => 0
+			'board' => $_GET['id'],
+			'name' => $my->id,
+			'topic_id' => 0,
+			'id' => 0
 		);
 	}
 	elseif ($_GET['type'] == 'edit' && $_GET['id'] > 0) {
@@ -187,6 +187,7 @@ else {
 		error($lang->phrase('not_allowed'), 'javascript:self.close();');
 	}
 
+	// Upload files
 	if ($_GET['action'] == "save") {
 		($code = $plugins->load('attachments_upload_save_start')) ? eval($code) : null;
 		if (is_array($_POST['delete']) && count($_POST['delete']) > 0) {
@@ -214,11 +215,6 @@ else {
 				DELETE FROM '.$db->pre.'uploads
 				WHERE mid = "'.$upinfo['name'].'" AND id IN ('.implode(',', $ids).')
 				');
-
-				$slog->updatelogged();
-				$db->close();
-				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
-				exit;
 			}
 		}
 		else {
@@ -228,7 +224,7 @@ else {
 
 			($code = $plugins->load('attachments_upload_save_add_start')) ? eval($code) : null;
 
-			for ($i = 0; $i < $config['tpcmaxuploads']; $i++) {
+			for ($i = 1; $i <= $config['tpcmaxuploads']; $i++) {
 
 				$field = "upload_{$i}";
 				if (empty($_FILES[$field]['name'])) {
@@ -272,53 +268,42 @@ else {
 			($code = $plugins->load('attachments_upload_save_add_end')) ? eval($code) : null;
 
 			if (count($inserterrors) > 0) {
-				echo $tpl->parse('popup/header');
-				error($inserterrors, 'attachments.php?type='.$_GET['type'].'&amp;id='.$_GET['id'].SID2URL_x);
-			}
-			else {
-				$slog->updatelogged();
-				$db->close();
-				sendStatusCode(302, $config['furl'].'/attachments.php?type='.$_GET['type'].'&id='.$_GET['id'].SID2URL_JS_x);
-				exit;
+				FlashMessage::addError($inserterrors);
 			}
 		}
 	}
-	else {
-		echo $tpl->parse("popup/header");
 
-		$filetypes = implode($lang->phrase('listspacer'), explode(',',$config['tpcfiletypes']));
-		$filesize = formatFilesize($config['tpcfilesize']);
+	// Show form
+	echo $tpl->parse("popup/header");
 
-		if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
-			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"');
-		}
-		elseif ($_GET['type'] == 'newtopic' || $_GET['type'] == 'addreply') {
-			$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"');
-		}
-		($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
+	$filetypes = implode($lang->phrase('listspacer'), explode(',',$config['tpcfiletypes']));
+	$filesize = formatFilesize($config['tpcfilesize']);
 
-		$free = $config['tpcmaxuploads'] - $db->num_rows($result);
-		if ($free < 1) {
-			$free = 0;
-		}
+	if ($_GET['type'] == 'edit' && ($my->mp[0] == 1 || $upinfo['name'] == $my->id)) {
+		$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$upinfo['name'].'" AND tid = "'.$upinfo['id'].'"');
+	}
+	elseif ($_GET['type'] == 'newtopic' || $_GET['type'] == 'addreply') {
+		$result = $db->query('SELECT id, file, source FROM '.$db->pre.'uploads WHERE mid = "'.$my->id.'" AND topic_id = "'.$upinfo['id'].'" AND tid = "0"');
+	}
+	($code = $plugins->load('attachments_upload_form_start')) ? eval($code) : null;
 
-		$uploads = array();
-		while ($row = $db->fetch_assoc($result)) {
-			$fsize = filesize('uploads/topics/'.$row['source']);
-			$fsize = formatFilesize($fsize);
-			($code = $plugins->load('attachments_upload_form_upload')) ? eval($code) : null;
-			$uploads[] = array(
+	$uploads = array_fill(1, $config['tpcmaxuploads'], null);
+	$i = 1;
+	while ($row = $db->fetch_assoc($result)) {
+		$fsize = filesize('uploads/topics/'.$row['source']);
+		$fsize = formatFilesize($fsize);
+		($code = $plugins->load('attachments_upload_form_upload')) ? eval($code) : null;
+		$uploads[$i++] = array(
 			'file' => $row['file'],
 			'filesize' => $fsize,
 			'id' => $row['id']
-			);
-		}
-
-		($code = $plugins->load('attachments_upload_form_prepared')) ? eval($code) : null;
-		echo $tpl->parse("attachments");
-		($code = $plugins->load('attachments_upload_form_end')) ? eval($code) : null;
-		echo $tpl->parse("popup/footer");
+		);
 	}
+
+	($code = $plugins->load('attachments_upload_form_prepared')) ? eval($code) : null;
+	echo $tpl->parse("attachments");
+	($code = $plugins->load('attachments_upload_form_end')) ? eval($code) : null;
+	echo $tpl->parse("popup/footer");
 }
 
 $slog->updatelogged();

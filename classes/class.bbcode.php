@@ -46,13 +46,15 @@ class BBCode {
 	var $url_regex;
 	var $url_regex2;
 	var $currentCBB;
+	var $attachments;
+	var $attachmentsNotSet;
+	var $attachmentPlaceholder;
 
 	function __construct($profile = 'viscacha') {
 		$this->benchmark = array(
 			'smileys' => 0,
 			'bbcode' => 0
-		);
-		$this->smileys = null;
+		);		$this->smileys = null;
 		$this->bbcodes = null;
 		$this->custombb = null;
 		$this->currentCBB = null;
@@ -63,7 +65,9 @@ class BBCode {
 		$this->pid = 0;
 		$this->author = -1;
 		$this->index = 0;
-
+		$this->attachments = array();
+		$this->attachmentsNotSet = true;
+		$this->attachmentPlaceholder = '';
 		// See: http://en.wikipedia.org/wiki/URI_scheme
 		$url_protocol = "([a-z]{3,9}://|www\.)";
 		$url_word = URL_SPECIALCHARS;
@@ -323,6 +327,32 @@ class BBCode {
 		}
 		return '<!PID:'.$pid.'>';
 	}
+
+	function setAttachmentPlaceholder($placeholder) {
+		$this->attachmentPlaceholder = $placeholder;
+	}
+	
+	function addAttachments(&$replacements) {
+		$this->attachments = &$replacements;
+		$this->attachmentsNotSet = false;
+	}
+	
+	function cb_attachments($matches) {
+		global $tpl, $lang;
+		if ($this->attachmentsNotSet) {
+			return $this->attachmentPlaceholder;
+		}
+		else if(isset($this->attachments[$matches[1]])) {
+			$pid = $this->noparse_id();
+			$this->noparse[$pid] = $this->attachments[$matches[1]];
+			unset($this->attachments[$matches[1]]);
+			return '<!PID:' . $pid . '>';
+		}
+		else {
+			return '';
+		}
+	}
+
 	function strip_bbcodes ($text) {
 		$this->cache_bbcode();
 		$text = preg_replace('/(\r\n|\r|\n)/', "\n", $text);
@@ -481,7 +511,7 @@ class BBCode {
 			while (empty($this->profile['disallow']['ot']) && preg_match('/\[ot\](.+?)\[\/ot\]/is',$text)) {
 				$text = preg_replace('/\[ot\](.+?)\[\/ot\]\n?/is', "<div class='bb_ot'><strong>".$lang->phrase('bb_offtopic')."</strong><br /><span>\\1</span></div>", $text);
 			}
-
+			$text = preg_replace_callback('/\[attachment=(\d+)\]\[\/attachment\]\n?/isu', array(&$this, 'cb_attachments'), $text);
 			$text = preg_replace('/\[b\](.+?)\[\/b\]/is', "<strong>\\1</strong>", $text);
 			$text = preg_replace('/\[i\](.+?)\[\/i\]/is', "<em>\\1</em>", $text);
 			$text = preg_replace('/\[u\](.+?)\[\/u\]/is', "<u>\\1</u>", $text);
@@ -942,7 +972,7 @@ class BBCode {
 }
 
 function BBProfile(&$bbcode, $profile = 'standard') {
-	global $config, $my, $lang;
+	global $config, $my, $lang, $tpl;
 	if (!$bbcode->existsProfile($profile)) {
 		if ($config['resizebigimg'] == 0) {
 			$config['resizebigimgwidth'] = 0;
@@ -992,6 +1022,7 @@ function BBProfile(&$bbcode, $profile = 'standard') {
 				$bbcode->setName($my->name);
 			}
 			$bbcode->setSmileyDir($config['smileyurl']);
+			$bbcode->setAttachmentPlaceholder($tpl->parse('main/attachment_placeholder'));
 		}
 	}
 	else {

@@ -349,22 +349,31 @@ label, .labeldiv {
 }
 
 /* Themen- und PN-Ansicht */
-.uploadbox {
+.attachment {
 	border: 1px solid #839FBC;
 	background-color: #F5F8FA;
-	margin: 2px;
+	margin: 3px;
 	padding: 4px;
 	width: auto;
-	min-width: 24%;
-	position: relative;
+}
+.uploadbox {
+	margin-top: 1em;
+}
+.uploadbox .heading {
+	margin: 0px;
+	padding: 0px;
+	display: block;
+}
+.uploadbox .attachment {
 	float: left;
 }
+.uploadbox .clear {
+	clear: left;
+}
+
 .signature {
 	font-size: 0.9em;
 	color: #555555;
-}
-.uploadbox_br {
-	clear: left;
 }
 
 /* Pagination */
