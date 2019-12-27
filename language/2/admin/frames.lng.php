@@ -6,7 +6,6 @@ $lang['admin_backup_restore'] = 'Backup & Restore Database';
 $lang['admin_bbcodes'] = 'Custom BB Code Manager';
 $lang['admin_blocked_ip'] = 'Banned IPs & Members';
 $lang['admin_cache_manager'] = 'Cache Manager';
-$lang['admin_captcha_manager'] = 'Captcha Manager';
 $lang['admin_censorship'] = 'Censorship Manager';
 $lang['admin_collapse_all'] = 'Collapse All';
 $lang['admin_content_manager'] = 'Content Management';

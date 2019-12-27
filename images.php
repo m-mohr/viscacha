@@ -71,12 +71,6 @@ if ($_GET['action'] == 'vote') {
 
 	$PG->start();
 }
-elseif ($_GET['action'] == 'captcha') {
-	send_nocache_header();
-	$place = $gpc->get('place', none, 'posts');
-	$captcha = newCAPTCHA($place);
-	$captcha->makeImage($lang->phrase('img_captcha_session_expired_error'));
-}
 elseif ($_GET['action'] == 'textimage') {
 	require('classes/graphic/class.text2image.php');
 
