@@ -441,7 +441,7 @@ elseif ($job == 'smileys_add') {
 	if (!empty($_FILES['upload']['name'])) {
 		$my_uploader = new uploader();
 		$my_uploader->max_filesize(200*1024);
-		$my_uploader->file_types(array('gif', 'jpg', 'png', 'bmp', 'jpeg', 'jpe'));
+		$my_uploader->file_types($imagetype_extension);
 		$my_uploader->set_path($dir);
 		if ($my_uploader->upload('upload')) {
 			if ($my_uploader->save_file()) {

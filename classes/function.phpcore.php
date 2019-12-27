@@ -27,6 +27,8 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 // Small hack for the new php 5.3 timezone warnings
 date_default_timezone_set(@date_default_timezone_get());
 
+$imagetype_extension = array('gif', 'jpg', 'jpeg', 'png');
+
 /* Fixed php functions */
 
 define('ENCODING_LIST', 'ISO-8859-1, ISO-8859-15, UTF-8, ASCII, cp1252, cp1251, GB2312, SJIS, KOI8-R');
@@ -176,13 +178,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
+	if (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows') !== false) {
 		return true;
 	}
-	elseif (isset($_SERVER['OS']) && strpos(strtolower($_SERVER['OS']), 'Windows') !== false) {
+	else if (isset($_SERVER['OS']) && mb_stristr($_SERVER['OS'], 'Windows') !== false) {
 		return true;
 	}
-	elseif (function_exists('php_uname') && stristr(@php_uname(), 'windows')) {
+	else if (defined(PHP_OS) && mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
 	else {
@@ -207,23 +209,30 @@ function ini_isSecureHttp() {
 		return false;
 }
 
+function ini_getSize($value) {
+	$size = @ini_get($value);
+	$size = trim($size);
+	$last = mb_strtolower(substr($size, -1));
+	$size = intval($size);
+	
+	switch($last) {
+		case 'g':
+			$size *= 1024;
+		case 'm':
+			$size *= 1024;
+		case 'k':
+			$size *= 1024;
+	}
+	return $size;
+}
+
 function ini_maxupload() {
 	$keys = array(
 		'post_max_size' => 0,
 		'upload_max_filesize' => 0
 	);
 	foreach ($keys as $key => $bytes) {
-		$val = intval(trim(@ini_get($key)));
-		$last = strtolower($val{strlen($val)-1});
-		switch($last) {
-			case 'g':
-				$val *= 1024;
-			case 'm':
-				$val *= 1024;
-			case 'k':
-				$val *= 1024;
-		}
-		$keys[$key] = $val;
+		$keys[$key] = ini_getSize($key);
 	}
 	return min($keys);
 }
@@ -288,16 +297,5 @@ function extract_dir($source, $realpath = true) {
 		$dest = '';
 	}
 	return $dest;
-}
-
-/* Error constants */
-if (!defined('E_RECOVERABLE_ERROR')) {
-	define('E_RECOVERABLE_ERROR', 4096);
-}
-if (!defined('E_DEPRECATED')) {
-	define('E_DEPRECATED', 8192);
-}
-if (!defined('E_USER_DEPRECATED')) {
-	define('E_USER_DEPRECATED', 16384);
 }
 ?>

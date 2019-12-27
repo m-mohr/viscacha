@@ -809,7 +809,7 @@ function sid_login($remember = true) {
 		}
 		makecookie($config['cookie_prefix'].'_vdata', $my->id.'|'.$my->pw, $expire);
 		$this->cookiedata[0] = $my->id;
-		$this->cookiedata[1] = $my->pw;
+		$this->cookiedata[1] = $my->pw; // TODO: Password nicht im Cookie speichern!!!
 		return true;
 	}
 	else {
@@ -1216,7 +1216,7 @@ function ModPermissions ($bid) {
 			return array(1,1,1,1,1,1);
 		}
 		else {
-			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}' AND (time > ".time()." OR time IS NULL)");
+			$result = $db->query("SELECT p_delete, p_mc FROM {$db->pre}moderators WHERE mid = '{$my->id}' AND bid = '{$bid}'");
 			if ($db->num_rows($result) > 0) {
 				$row = $db->fetch_assoc($result);
 				return array(1, $row['p_delete'], $row['p_mc']);

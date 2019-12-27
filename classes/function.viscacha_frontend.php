@@ -280,7 +280,6 @@ function get_mimetype($file) {
 				'browser' => 'inline'
 			);
 		case 'jpeg':
-		case 'jpe':
 		case 'jpg':
 			return array(
 				'mime' => 'image/jpeg',

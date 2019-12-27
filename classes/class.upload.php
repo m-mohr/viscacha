@@ -290,11 +290,7 @@ class uploader {
 				}
 			break;
 			default: // create new with incremental extension
-				
 				$new_path = $filesystem->new_filename($new_path);
-				if ($n > 0) {
-					$this->file['raw_name'] .= '_'.$n;
-				}
 				if (call_user_func($this->copy_func, $this->file['tmp_name'], $new_path)) {
 					$success = true;
 					$this->file['tmp_name'] = $new_path;

@@ -362,15 +362,11 @@ while ($row = $db->fetch_object($result)) {
 			$uppath = 'uploads/topics/'.$file['source'];
 			$imginfo = get_extension($uppath);
 
-			// Dateigroesse
-			$fsize = filesize($uppath);
-			$fsize = formatFilesize($fsize);
-
-			$is_img = ($imginfo == 'gif' || $imginfo == 'jpg' || $imginfo == 'jpeg'  || $imginfo == 'jpe' || $imginfo == 'png') ? true : false;
+			$fsize = formatFilesize(filesize($uppath));
 
 			($code = $plugins->load('showtopic_attachments_prepared')) ? eval($code) : null;
 
-			if ($is_img == true) {
+			if (in_array($imginfo, $imagetype_extension)) {
 				$imagesize = getimagesize($uppath);
 				$inner['image_box'] .= $tpl->parse("showtopic/image_box");
 			}
