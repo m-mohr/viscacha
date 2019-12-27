@@ -3,29 +3,26 @@
 class FlashMessage {
 	
 	public static function addError($messages) {
-		global $my, $lang;
-		$my->settings['messages'][] = array(
-			'type' => 'error',
-			'title' => $lang->phrase('re_error_title'),
-			'messages' => $messages
-		);
+		global $lang;
+		self::addMessage('error', $lang->phrase('re_error_title'), $messages);
 	}
 	
 	public static function addNotice($messages) {
-		global $my, $lang;
-		$my->settings['messages'][] = array(
-			'type' => 'notice',
-			'title' => $lang->phrase('general_notice_title'),
-			'messages' => $messages
-		);
+		global $lang;
+		self::addMessage('notice', $lang->phrase('general_notice_title'), $messages);
 	}
 	
 	public static function addConfirmation($messages) {
-		global $my, $lang;
+		global $lang;
+		self::addMessage('ok', $lang->phrase('re_ok_title'), $messages);
+	}
+
+	public static function addMessage($type, $title, $messages) {
+		global $my, $gpc;
 		$my->settings['messages'][] = array(
-			'type' => 'ok',
-			'title' => $lang->phrase('re_ok_title'),
-			'messages' => $messages
+			'type' => $type,
+			'title' => $gpc->save_str($title, false),
+			'messages' => $gpc->save_str($messages, false)
 		);
 	}
 	

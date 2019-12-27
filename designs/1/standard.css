@@ -192,39 +192,63 @@ h1 a, h1 a:hover {
 }
 
 .message_box {
-	color: #839FBC;
-	border: 1px solid #839FBC;
+	position: fixed;
+	bottom: 1%;
+	right: 1%;
+	z-index: 5;
 	background-color: #ffffff;
-	padding: 4px;
+	border: 1px solid #839FBC; 
 	font-size: 9pt;
+	max-width: 50%;
+}
+.message_box .close {
+	float: right;
+	border: 1px solid transparent;
+	display: block;
+	padding: 0px 2px;
+	text-align: center;
+	margin-top: -1px;
+	cursor: pointer;
+}
+.message_box .close:hover {
+	border: 1px solid #ffffff;
 }
 .message_box strong {
-	float: left;
 	display: block;
-	width: 95px;
-	text-align: center;
+	color: #ffffff;
+	padding: 4px;
 }
-.message_box span {
+.message_box .messages {
+	padding: 4px;
+}
+.message_box span.messages {
 	display: block;
-	margin-left: 100px;
 }
-.message_box ul {
+.message_box ul.messages {
+	margin: 0px;
+	margin-left: 1em;
+}
+.message_box ul.messages li {
 	margin: 0px;
 	padding: 0px;
-	margin-left: 110px;
 }
-.message_box li {
-	margin: 0px;
-	padding: 0px;
-} 
 .notice_box {
-	color: #8a6d3b;
+	border-color: #8a6d3b;
 }
 .error_box {
-	color: #a94442;
+	border-color: #a94442;
 }
 .ok_box {
-	color: #3c763d;
+	border-color: #3c763d;
+}
+.notice_box strong {
+	background-color: #8a6d3b;
+}
+.error_box strong {
+	background-color: #a94442;
+}
+.ok_box strong {
+	background-color: #3c763d;
 }
 
 

@@ -1,13 +1,16 @@
 <div class="message_box <?php echo $type; ?>_box">
-	<strong><?php echo $title; ?></strong>
+	<strong>
+		<?php echo $title; ?>
+		<span class="close" onclick="javascript:this.parentNode.parentNode.style.display='none'">&times;</span>
+	</strong>
 	<?php if(is_array($messages)) { ?>
-	<ul>
+	<ul class="messages">
 		<?php foreach($messages as $message) { ?>
 		<li><?php echo $message; ?></li>
 		<?php } ?>
 	</ul>
 	<?php } else { ?>
-	<span><?php echo $messages; ?></span>
+	<span class="messages"><?php echo $messages; ?></span>
 	<?php } ?>
 </div>
 <br class="minibr" />
