@@ -587,7 +587,7 @@ label, .labeldiv {
 }
 .popup strong {
 	display: block;
-	padding: 2px;
+	padding: 4px 3px;
 	font-size: 9pt;
 	color: #336699;
 	background-color: #BCCADA;
@@ -608,11 +608,11 @@ label, .labeldiv {
 	white-space: normal;
 }
 .popup li form, .popup li p {
-	padding: 2px;
+	padding: 3px;
 	margin: 0px;
 }
 .popup li a, .popup_line {
-	padding: 2px;
+	padding: 3px;
 	color: #336699;
 	text-decoration: none;
 	display: block;

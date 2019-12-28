@@ -19,7 +19,6 @@ INSERT INTO `{:=DBPREFIX=:}plugins` (`id`, `name`, `module`, `ordering`, `active
 (6, 'Last replies', 4, 1, '1', 'addreply_form_end', '0'),
 (7, 'Last reply for Private Messages', 4, 1, '1', 'pm_compose_end', '0'),
 (8, 'Legend for PMs', 5, 1, '1', 'pm_browse_end', '0'),
-(9, 'Legend for PMs', 5, 1, '1', 'pm_index_end', '0'),
 (10, 'Legend for Topics', 5, 1, '1', 'showforum_end', '0'),
 (11, 'Legend for Topics', 5, 1, '1', 'search_result_end', '0'),
 (12, 'Legend for Topics', 5, 1, '1', 'search_active_end', '0'),

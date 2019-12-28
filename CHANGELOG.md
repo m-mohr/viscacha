@@ -24,7 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Design management via File Explorer
 - Offline message stored in config file
 - Simplified "who is online"
-- Template `menu`Â now in `header`Â (may need template changes)
+- Template `menu` now in `header` (may need template changes)
+- PM index is now directly showing the inbox
 
 ### Removed
 

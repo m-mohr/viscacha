@@ -846,19 +846,14 @@ function count_filled($array) {
 }
 
 function get_pmdir ($dir) {
-	global $lang, $plugins;
-
-	if ($dir == '1') {
-		$dir_name = $lang->phrase('pm_dirs_inbox');
-	}
-	elseif ($dir == '2') {
-		$dir_name = $lang->phrase('pm_dirs_outbox');
+	global $lang;
+	if ($dir == '2') {
+		return $lang->phrase('pm_dirs_outbox');
 	}
 	elseif ($dir == '3') {
-		$dir_name = $lang->phrase('pm_dirs_archive');
+		return $lang->phrase('pm_dirs_archive');
 	}
 	else {
-		$dir_name = false;
+		return $lang->phrase('pm_dirs_inbox');
 	}
-	return $dir_name;
 }

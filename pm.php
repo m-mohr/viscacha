@@ -113,18 +113,16 @@ if ($_GET['action'] == 'show') {
 
 	($code = $plugins->load('pm_show_prepared')) ? eval($code) : null;
 
-	$breadcrumb->Add(get_pmdir($row['dir']), 'pm.php?action=browse&amp;id='.$row['dir'].SID2URL_x);
+	$breadcrumb->Add(get_pmdir($row['dir']), 'pm.php?id='.$row['dir'].SID2URL_x);
 	$breadcrumb->Add($lang->phrase('pm_show'));
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 	echo $tpl->parse("pm/show");
 	($code = $plugins->load('pm_show_end')) ? eval($code) : null;
 }
 elseif ($_GET['action'] == "massmanage") {
 	$breadcrumb->Add($lang->phrase('pm_massmanage'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 	$data = implode(',', $_POST['delete']);
 	if (!empty($_POST['move2'])) {
 		if ($_POST['id'] == 3) {
@@ -171,7 +169,7 @@ elseif ($_GET['action'] == "massmove") {
 		$ids = implode(',', $deleteids);
 		$db->query("UPDATE {$db->pre}pm SET dir = '{$verz}' WHERE pm_to = '{$my->id}' AND dir != '2' AND id IN ({$ids})");
 		$anz = $db->affected_rows();
-		ok($lang->phrase('x_entries_moved'), 'pm.php?action=browse&amp;id='.$_GET['id'].SID2URL_x);
+		ok($lang->phrase('x_entries_moved'), 'pm.php?id='.$_GET['id'].SID2URL_x);
 	}
 	else {
 		error($lang->phrase('query_string_error'));
@@ -185,7 +183,6 @@ elseif ($_GET['action'] == "delete") {
 	$info = $db->fetch_assoc($result);
 	$breadcrumb->Add($lang->phrase('pm_manage'));
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 	$data = $info['id'];
 	echo $tpl->parse("pm/delete");
 }
@@ -341,17 +338,15 @@ elseif ($_GET['action'] == "new" || $_GET['action'] == "preview" || $_GET['actio
 	}
 	($code = $plugins->load('pm_compose_data')) ? eval($code) : null;
 
-	echo $tpl->parse("pm/menu");
 	($code = $plugins->load('pm_compose_prepared')) ? eval($code) : null;
 	echo $tpl->parse("pm/new");
 	($code = $plugins->load('pm_compose_end')) ? eval($code) : null;
 }
-elseif ($_GET['action'] == "browse") {
-
-	$dir_name = get_pmdir($_GET['id']);
-	if (!$dir_name) {
-		error($lang->phrase('query_string_error'), 'pm.php'.SID2URL_1);
+else {
+	if ($_GET['id'] != 2 && $_GET['id'] != 3) {
+		$_GET['id'] = 1; // Default to inbox
 	}
+	$dir_name = get_pmdir($_GET['id']);
 	$breadcrumb->Add($dir_name);
 
 	$memberdata_obj = $scache->load('memberdata');
@@ -367,7 +362,7 @@ elseif ($_GET['action'] == "browse") {
 	");
 	$count = $db->fetch_num($result);
 
-	$temp = pages($count[0], $config['pmzahl'], 'pm.php?action=browse&amp;id='.$_GET['id'].'&amp;', $_GET['page']);
+	$temp = pages($count[0], $config['pmzahl'], 'pm.php?id='.$_GET['id'].'&amp;', $_GET['page']);
 	$start = ($_GET['page'] - 1) * $config['pmzahl'];
 
 	$inner['index_bit'] = '';
@@ -382,7 +377,6 @@ elseif ($_GET['action'] == "browse") {
 	");
 
 	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
 
 	while ($row = $db->fetch_assoc($result)) {
 		$row['topic'] = $gpc->prepare($row['topic']);
@@ -406,63 +400,6 @@ elseif ($_GET['action'] == "browse") {
 	}
 	echo $tpl->parse("pm/browse");
 	($code = $plugins->load('pm_browse_end')) ? eval($code) : null;
-}
-else {
-	$breadcrumb->ResetUrl();
-	echo $tpl->parse("header");
-	echo $tpl->parse("pm/menu");
-
-	$memberdata_obj = $scache->load('memberdata');
-	$memberdata = $memberdata_obj->get();
-
-	$time = time()-60*60*24*7;
-	$timestamp = $time > $my->clv ? $my->clv : $time;
-
-	($code = $plugins->load('pm_index_start')) ? eval($code) : null;
-
-	$result = $db->query("
-	SELECT id, pm_from, topic, date, status, pm_to
-	FROM {$db->pre}pm
-	WHERE pm_to = '{$my->id}' AND (date > {$timestamp} OR  status = '0') AND dir != '2'
-	ORDER BY date DESC
-	");
-
-	$count = $db->num_rows($result);
-	$inner['index_bit'] = '';
-	$inner['index_bit_old'] = '';
-	$ib = 0;
-	$ibo = 0;
-	while ($row = $db->fetch_assoc($result)) {
-		$row['topic'] = $gpc->prepare($row['topic']);
-		$row['date_str'] = str_date($lang->phrase('dformat1'), times($row['date']));
-		if ($row['status'] == 0) {
-			$row['alt'] = $lang->phrase('pm_newicon');
-			$row['src'] = $tpl->img('dir_open2');
-		}
-		else {
-			$row['alt'] = $lang->phrase('pm_oldicon');
-			$row['src'] = $tpl->img('dir_open');
-		}
-		if (isset($memberdata[$row['pm_from']])) {
-			$row['name'] = $memberdata[$row['pm_from']];
-		}
-		else {
-			$row['name'] = $lang->phrase('fallback_no_username');
-		}
-		($code = $plugins->load('pm_index_entry_prepared')) ? eval($code) : null;
-		if ($row['date'] >= $my->clv || $row['status'] == '0') {
-			$ib++;
-			$inner['index_bit'] .= $tpl->parse("pm/index_bit");
-		}
-		else {
-			$ibo++;
-			$inner['index_bit_old'] .= $tpl->parse("pm/index_bit");
-		}
-	}
-
-	($code = $plugins->load('pm_index_prepared')) ? eval($code) : null;
-	echo $tpl->parse("pm/index");
-	($code = $plugins->load('pm_index_end')) ? eval($code) : null;
 }
 
 ($code = $plugins->load('pm_end')) ? eval($code) : null;

@@ -77,7 +77,18 @@
 				<?php } if ($my->p['members'] == 0 && $my->p['team'] == 1) { ?>
 					<li><a href="members.php?action=team<?php echo SID2URL_x; ?>"><img src="<?php echo $tpl->img('members'); ?>" alt="" /> <?php echo $lang->phrase('team_short'); ?></a></li>
 				<?php } if ($my->p['pm'] == 1) { ?>
-					<li><a href="pm.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /> <?php echo $lang->phrase('pm_short'); ?></a></li>
+					<li>
+					<a id="menu_pmmenu" href="pm.php<?php echo SID2URL_1; ?>" onmouseover="RegisterMenu('pmmenu');"><img src="<?php echo $tpl->img('desc'); ?>" alt="<?php echo $lang->phrase('box_collapse'); ?>" /> <?php echo $lang->phrase('pm_short'); ?></a>
+					<div class="popup" id="popup_pmmenu">
+					<strong><?php echo $lang->phrase('editprofile_pm'); ?></strong>
+					<ul>
+						<li><a href="pm.php?action=new<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('pm_new_title'); ?></a></li>
+						<li><a href="pm.php<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('pm_dirs_inbox'); ?></a></li>
+						<li><a href="pm.php?id=2<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('pm_dirs_outbox'); ?></a></li>
+						<li><a href="pm.php?id=3<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('pm_dirs_archive'); ?></a></li>
+					</ul>
+					</div>
+					</li>
 				<?php } if ($my->vlogin) { ?>
 					<li><a href="editprofile.php<?php echo SID2URL_1; ?>"><img src="<?php echo $tpl->img('profile'); ?>" alt="" /> <?php echo $lang->phrase('editprofile_short'); ?></a></li>
 				<?php } elseif ($config['disableregistration'] == 0) { ?>
@@ -88,17 +99,17 @@
 					<div class="popup" id="popup_generallinks">
 					<strong><?php echo $lang->phrase('menu_links_misc'); ?></strong>
 					<ul>
-					<li><a href="misc.php?action=markasread<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('mark_all_posts_read'); ?></a></li>
-					<li><a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a></li>
+						<li><a href="misc.php?action=markasread<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('mark_all_posts_read'); ?></a></li>
+						<li><a href="misc.php?action=rules<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('rules'); ?></a></li>
 					</ul>
 					<strong><?php echo $lang->phrase('search_active_topics'); ?></strong>
 					<ul>
-					<li><a href="search.php?action=active&amp;type=days-1<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_24h'); ?></a></li>
-					<?php if ($my->vlogin) { ?>
-					<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
-					<li><a href="search.php?action=active&amp;type=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_fav'); ?></a></li>
-					<?php } ?>
-					<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
+						<li><a href="search.php?action=active&amp;type=days-1<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_24h'); ?></a></li>
+						<?php if ($my->vlogin) { ?>
+						<li><a href="search.php?action=active&amp;type=abo<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_abo'); ?></a></li>
+						<li><a href="search.php?action=active&amp;type=fav<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_fav'); ?></a></li>
+						<?php } ?>
+						<li><a href="search.php?action=active&amp;type=lastvisit<?php echo SID2URL_x; ?>"><?php echo $lang->phrase('sat_lastvisit'); ?></a></li>
 					</ul>
 					</div>
 					</li>

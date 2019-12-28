@@ -260,10 +260,6 @@ pm.php
 -pm_browse_query
 -pm_browse_entry_prepared
 -pm_browse_end
--pm_index_start
--pm_index_entry_prepared
--pm_index_prepared
--pm_index_end
 -pm_end
 
 portal.php
