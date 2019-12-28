@@ -68,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix timeout for overly large folders in file explorer
 - PHP 7 compatibility
 - Mass managing topics keeps track of pagination
+- Prevent users from being logged in twice
 - Various other bugs
 
 ### Deprecated

@@ -11,6 +11,6 @@ CREATE TABLE `{:=DBPREFIX=:}session` (
   `sid` varchar(128) NOT NULL default '',
   `pwfaccess` text NOT NULL,
   `settings` text NOT NULL,
-  KEY `mid` (`mid`),
-  KEY `sid` (`sid`)
+  UNIQUE KEY `mid` (`mid`),
+  UNIQUE KEY `sid` (`sid`)
 ) ENGINE=MyISAM;

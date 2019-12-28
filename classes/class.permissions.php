@@ -696,7 +696,7 @@ function sid_new() {
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
 
-	$db->query("INSERT INTO {$db->pre}session
+	$db->query("REPLACE INTO {$db->pre}session
 	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings) VALUES
 	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."')");
 
