@@ -11,6 +11,7 @@ body {
 	width: 767px;
 	margin: auto;
 }
+
 a {
 	text-decoration: none;
 	color: #336699;
@@ -31,28 +32,6 @@ input, select, textarea {
 acronym {
 	border-bottom: 1px dotted #8B8060;
 	cursor: help;
-}
-.tooltip {
-	left: -1000px;
-	top: -1000px;
-	visibility: hidden;
-	position: absolute;
-	max-width: 300px;
-	max-height: 300px;
-	overflow: auto;
-	border: 1px solid #336699;
-	background-color: #ffffff;
-	font-size: 8pt;
-}
-.tooltip_header {
-	display: block;
-	background-color: #E1E8EF;
-	color: #24486C;
-	padding: 3px;
-	border-bottom: 1px solid #839FBC;
-}
-.tooltip_body {
-	padding: 3px;
 }
 img {
 	vertical-align: middle;
@@ -83,6 +62,15 @@ tt {
 	margin-left: 16px;
 }
 
+@media print {
+	body {
+		background-color: white;
+	}
+	#container {
+		width: 100%;
+	}
+}
+
 /* Header und Breadcrumb-Navigation */
 h1 {
 	margin: 0px;
@@ -103,6 +91,7 @@ h1 a, h1 a:hover {
 	text-decoration: none;
 	color: #fefefe;
 }
+
 .breadcrumb {
  	border: 0px;
 	border-top: 1px solid #fefefe;
@@ -121,6 +110,19 @@ h1 a, h1 a:hover {
 .breadcrumb a:hover {
 	color: #fefefe;
 	border-bottom: 1px solid #ffffff;
+}
+@media print {
+	h1 {
+		background-image: none;
+		border-width: 0;
+		width: 100%;
+	}
+	h1 a, h1 a:hover {
+		color: black;
+	}
+	.breadcrumb {
+		display: none;
+	}
 }
 
 /* Offline und Banned-Seite */
@@ -193,13 +195,13 @@ h1 a, h1 a:hover {
 
 .message_box {
 	position: fixed;
-	bottom: 1%;
-	right: 1%;
+	bottom: 2%;
+	right: 2%;
 	z-index: 5;
 	background-color: #ffffff;
 	border: 1px solid #839FBC; 
 	font-size: 9pt;
-	max-width: 50%;
+	max-width: 40%;
 }
 .message_box .close {
 	float: right;
@@ -237,10 +239,40 @@ h1 a, h1 a:hover {
 }
 .error_box {
 	border-color: #a94442;
+	box-shadow: 0 0 0 0 rgba(169, 58, 66, 1);
+	animation-name: pulse;
+	animation-duration: 2s;
+	animation-iteration-count: 3;
+}
+@keyframes pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(169, 58, 66, 0.7);
+	}
+
+	70% {
+		box-shadow: 0 0 0 10px rgba(169, 58, 66, 0);
+	}
+
+	100% {
+		box-shadow: 0 0 0 0 rgba(169, 58, 66, 0);
+	}
 }
 .ok_box {
 	border-color: #3c763d;
+	animation-name: fadeOut;
+	animation-duration: 3s;
+	animation-delay: 10s;
+    animation-fill-mode: forwards;
 }
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+		display: none;
+	} 
+ }
 .notice_box strong {
 	background-color: #8a6d3b;
 }
@@ -250,7 +282,18 @@ h1 a, h1 a:hover {
 .ok_box strong {
 	background-color: #3c763d;
 }
-
+@media print {
+	#content {
+		float: none;
+		width: 100%;
+	}
+	.message_box {
+		display: none;
+	}
+	#part_quickreply {
+		display: none;
+	}
+}
 
 /* Navigation */
 #navigation {
@@ -311,7 +354,16 @@ h1 a, h1 a:hover {
 	border-top: 1px solid #839FBC;
 }
 
-/* Oberes MenÃ¼ im Forum */
+@media print {
+	#navigation {
+		display: none;
+	}
+	.tables th, #content h3, #blank h3, .h3 {
+		background-image: none;
+	}
+}
+
+/* Oberes Menü im Forum */
 .topmenu {
 	margin: 0px;
 	list-style-type: none;
@@ -327,6 +379,12 @@ h1 a, h1 a:hover {
 	padding-right: 0.5em;
 	padding-left: 0.5em;
 	white-space: nowrap;
+}
+
+@media print {
+	.topmenu {
+		display: none;
+	}
 }
 
 /* Footer */

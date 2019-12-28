@@ -235,9 +235,7 @@ elseif ($is_member) {
 	}
 }
 else {
-	$db->close();
-	sendStatusCode(301, 'members.php');
-	exit;
+	error($lang->phrase('query_string_error'), 'members.php'.SID2URL_1);
 }
 
 ($code = $plugins->load('profile_end')) ? eval($code) : null;

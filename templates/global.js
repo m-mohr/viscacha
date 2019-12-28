@@ -297,44 +297,6 @@ function Hide() {
 	}
 }
 
-///////////////////////// Tooltips /////////////////////////
-function RegisterTooltip(id) {
-	id = "tooltip_"+id
-	var buttonregister = FetchElement("menu_"+id);
-	if(buttonregister) {
-		buttonregister.onmouseover = ShowTooltip;
-		window.onresize = Hide;
-
-		if (typeof buttonregister.title != 'undefined' && buttonregister.title.length > 0) {
-			element = FetchElement("header_"+id);
-			if (typeof element != 'undefined' && element != null) {
-				element.innerHTML = buttonregister.title;
-				element.className = 'tooltip_header';
-			}
-			buttonregister.title = '';
-		}
-
-		if (active != 0 && active != id) {
-			HideMenu(active);
-		}
-		else {
-			this.onmouseout = elemMouseOut;
-		}
-		ShowMenu(id);
-	}
-}
-function ShowTooltip() {
-	id = this.id.replace("menu_","");
-	elemMouseOver();
-	if (active != 0 && active != id) {
-		HideMenu(active);
-	}
-	else {
-		this.onmouseout = elemMouseOut;
-	}
-	ShowMenu(id);
-}
-
 ///////////////////////// PopUp-Menus /////////////////////////
 function RegisterMenu(id) {
 	var buttonregister = FetchElement("menu_"+id);
