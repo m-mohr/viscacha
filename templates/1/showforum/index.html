@@ -12,13 +12,13 @@
 		<span class="left"><?php echo $pages; ?></span>
 		<a id="menu_forumtools" href="#forumtools" onmouseover="RegisterMenu('forumtools');"><img src="<?php echo $tpl->img('desc'); ?>" alt="" /> <?php echo $lang->phrase('forum_options'); ?></a>
 		<div class="popup" id="popup_forumtools">
-		<strong><?php echo $lang->phrase('forum_options_search'); ?></strong>
+		<strong><?php echo $lang->phrase('forum_options_search_forum'); ?></strong>
 		<ul>
 		<li>
-		 <?php echo $lang->phrase('forum_options_search_forum'); ?>
 		 <form method="post" action="search.php?action=search<?php echo SID2URL_x; ?>">
-		   <input type="text" name="search" size="22" />
-		   <input type="submit" value="<?php echo $lang->phrase('forum_options_search_submit'); ?>" /><input type="hidden" name="boards[]" value="<?php echo $board; ?>" />
+		   <input type="text" style="width: 70%" name="search" size="22" />
+		   <input type="submit" style="width: 25%" value="<?php echo $lang->phrase('forum_options_search_submit'); ?>" />
+		   <input type="hidden" name="boards[]" value="<?php echo $board; ?>" />
 		 </form>
 		</li>
 		</ul>
@@ -46,9 +46,9 @@
   <tr>
 	<th width="2%">&nbsp;</th>
 	<th width="48%"><?php echo $lang->phrase('forum_topic'); ?></th>
-	<th width="20%"><?php echo $lang->phrase('forum_start'); ?></th>
-	<th width="10%"><?php echo $lang->phrase('forum_replies'); ?></th>
-	<th width="20%"><?php echo $lang->phrase('forum_last'); ?></th>
+	<th width="20%" class="low"><?php echo $lang->phrase('forum_start'); ?></th>
+	<th width="10%" class="med"><?php echo $lang->phrase('forum_replies'); ?></th>
+	<th width="20%" class="high"><?php echo $lang->phrase('forum_last'); ?></th>
   </tr>
 	<?php echo $inner['index_bit']; ?>
   <tr>

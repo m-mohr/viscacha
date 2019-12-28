@@ -3,17 +3,17 @@
     <a href="profile.php?id=<?php echo $mid.SID2URL_x; ?>"><?php echo $mdata->member; ?></a>
     <?php echo iif($mdata->fullname, "<br /><em>{$mdata->fullname}</em>"); ?>
   </td>
-  <td class="center">
+  <td class="center med">
     <a href="pm.php?action=new&amp;id=<?php echo $mid.SID2URL_x; ?>">
       <img src="<?php echo $tpl->img('pm'); ?>" alt="" />
     </a>
   </td>
-  <td class="center">
+  <td class="center med">
     <a href="profile.php?action=mail&amp;id=<?php echo $mid.SID2URL_x; ?>">
       <img src="<?php echo $tpl->img('email'); ?>" alt="" />
     </a>
   </td>
-  <td>
+  <td class="high">
     <?php if (count($inner['moderator_bit_forum']) > 0) { ?>
     <ul>
       <?php foreach ($inner['moderator_bit_forum'] as $modb) { ?>

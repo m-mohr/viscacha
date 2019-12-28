@@ -256,14 +256,14 @@ elseif ($_GET['action'] == "wwo") {
 			$loc = $lang->phrase('wwo_docs');
 			if (isset($wrap_cache[$id]) && GroupCheck($wrap_cache[$id]['groups'])) {
 				$lid = getDocLangID($wrap_cache[$id]['titles']);
-				$loc .= '<br /><a href="docs.php?id='.$id.'">'.viscacha_htmlspecialchars($wrap_cache[$id]['titles'][$lid]).'</a>';
+				$loc .= '<br /><a href="docs.php?id='.$id.'">'.htmlspecialchars($wrap_cache[$id]['titles'][$lid]).'</a>';
 			}
 			break;
 		case 'showforum':
 			$id = $row->wiw_id;
 			$loc = $lang->phrase('wwo_showforum');
 			if (isset($cat_cache[$id]['name']) && !(($cat_cache[$id]['opt'] == 'pw' && (!isset($my->pwfaccess[$id]) || $my->pwfaccess[$id] != $cat_cache[$id]['optvalue'])) || $my->pb[$id]['forum'] == 0)) {
-				$loc .= '<br /><a href="showforum.php?id='.$id.'">'.viscacha_htmlspecialchars($cat_cache[$id]['name']).'</a>';
+				$loc .= '<br /><a href="showforum.php?id='.$id.'">'.htmlspecialchars($cat_cache[$id]['name']).'</a>';
 			}
 			break;
 		case 'newtopic':
@@ -272,7 +272,7 @@ elseif ($_GET['action'] == "wwo") {
 				$loc = $lang->phrase('wwo_newtopic');
 			}
 			else {
-				$loc = $lang->phrase('wwo_newtopic_forum').' <a href="showforum.php?id='.$id.'">'.viscacha_htmlspecialchars($cat_cache[$id]['name']).'</a>';
+				$loc = $lang->phrase('wwo_newtopic_forum').' <a href="showforum.php?id='.$id.'">'.htmlspecialchars($cat_cache[$id]['name']).'</a>';
 			}
 			break;
 		case 'profile':
@@ -315,7 +315,7 @@ elseif ($_GET['action'] == "wwo") {
 			}
 			$loc = $lang->phrase('wwo_'.$row->wiw_script);
 			if (isset($cache['t'.$id]) && !(($cat_cache[$cache['t'.$id]['board']]['opt'] == 'pw' && (!isset($my->pwfaccess[$cache['t'.$id]['board']]) || $my->pwfaccess[$cache['t'.$id]['board']] != $cat_cache[$cache['t'.$id]['board']]['optvalue'])) || $my->pb[$cache['t'.$id]['board']]['forum'] == 0)) {
-				$loc .= '<br /><a href="showtopic.php?id='.$id.'">'. viscacha_htmlspecialchars($cache['t'.$id]['topic']).'</a>';
+				$loc .= '<br /><a href="showtopic.php?id='.$id.'">'. htmlspecialchars($cache['t'.$id]['topic']).'</a>';
 			}
 			break;
 		case 'misc':

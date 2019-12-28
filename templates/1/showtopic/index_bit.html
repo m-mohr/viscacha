@@ -17,12 +17,14 @@
 		 </ul>
 		</div>
     <?php } ?>
-    <strong class="sep">#<a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank"><?php echo $row->rel_post_num; ?></a></strong>
+    <strong class="low sep"><a href="showtopic.php?action=jumpto&amp;topic_id=<?php echo $row->id.SID2URL_x; ?>" target="_blank">#<?php echo $row->rel_post_num; ?></a></strong>
     <?php if ($my->mp[0] == 1 && $info['posts'] > 0) { ?>
     	<input class="sep" style="vertical-align: middle;" type="checkbox" name="ids[]" value="<?php echo $row->id; ?>" />
     <?php } ?>
     </span>
-    <img src="<?php echo $tpl->img('post_'.$new); ?>" alt="" /> <?php echo $row->date; ?>
+    <span class="date">
+      <img src="<?php echo $tpl->img('post_'.$new); ?>" alt="" /> <?php echo $row->date; ?>
+    </span>
     <?php echo iif($firstnew == 1,'<a name="firstnew" id="firstnew"></a>'); ?>
     <a name="p<?php echo $row->id; ?>" id="p<?php echo $row->id; ?>"></a>
 </div>

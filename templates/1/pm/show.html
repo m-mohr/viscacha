@@ -17,7 +17,7 @@
   </div>
   <div class="viewmemberdetails stext">
     <?php echo $lang->phrase('post_info_registered_since').$row['regdate']; ?><br />
-    <?php echo $lang->phrase('post_info_location').$row['location']; ?>
+    <?php if (!empty($row['location'])) { echo $lang->phrase('post_info_location').$row['location']; } ?>
   </div>
   <br class="invclear" />
 </div>

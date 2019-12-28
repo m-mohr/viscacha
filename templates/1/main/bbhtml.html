@@ -107,7 +107,7 @@
 				<a href="javascript:resize_textarea('<?php echo $id; ?>', 1);"><?php echo $lang->phrase('textarea_increase_size'); ?></a> &middot;
 				<a href="javascript:resize_textarea('<?php echo $id; ?>', -1);"><?php echo $lang->phrase('textarea_decrease_size'); ?></a>
 			</span>
-			<a href="javascript:textarea_length('<?php echo $id; ?>', <?php echo $maxlength; ?>);"><?php echo $lang->phrase('textarea_check_length'); ?></a>
+			<a class="high" href="javascript:textarea_length('<?php echo $id; ?>', <?php echo $maxlength; ?>);"><?php echo $lang->phrase('textarea_check_length'); ?></a>
 	</td></tr>
 	<?php } ?>
 </table>

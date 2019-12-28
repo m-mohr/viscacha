@@ -10,8 +10,8 @@
 <?php foreach ($vote['entries'] as $row) { ?>
   <tr class="tbody">
 	<td width="50%"><?php echo $row['answer']; ?></td>
-	<td width="37%"><div style="width: <?php echo round($row['percent']); ?>%;" class="votebar">&nbsp;</div></td>
-	<td width="5%" class="textright"><?php echo $row['votes']; ?></td>
+	<td width="37%" class="low"><div style="width: <?php echo round($row['percent']); ?>%;" class="votebar">&nbsp;</div></td>
+	<td width="5%" class="textright high"><?php echo $row['votes']; ?></td>
 	<td width="8%" class="textright"><?php echo $row['percent']; ?>%</td>
   </tr>
 <?php if ($my->p['admin'] == 1) { ?>

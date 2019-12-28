@@ -23,14 +23,14 @@
 	<tr class="tfoot">
 		<td width="3%">&nbsp;</td>
 		<td width="45%"><?php echo $lang->phrase('board'); ?></td>
-		<td width="18%"><?php echo $lang->phrase('contentcounter'); ?></td>
-		<td width="34%"><?php echo $lang->phrase('last_post'); ?></td>
+		<td width="18%" class="low"><?php echo $lang->phrase('contentcounter'); ?></td>
+		<td width="34%" class="high"><?php echo $lang->phrase('last_post'); ?></td>
 	</tr>
     <?php foreach ($cat['forums'] as $forum) { if ($forum['opt'] == 're') { ?>
 	<tr class="tbody">
 		<td width="3%" class="center"><img src="<?php echo $tpl->img('cat_redirect'); ?>" alt="<?php echo $forum['name']; ?>" /></td>
 		<td width="97%" colspan="3">
-		<span class="right stext"><?php echo $forum['optvalue']; ?></span>
+		<span class="right stext low"><?php echo $forum['optvalue']; ?></span>
 		<strong><a href="<?php echo $forum['optvalue']; ?>"><?php echo $forum['name']; ?></a></strong>
 		<?php echo iif (!empty($forum['description']), "<br />{$forum['description']}"); ?>
 		</td>
@@ -44,33 +44,33 @@
 			<strong><a href="showforum.php?id=<?php echo $forum['id'].SID2URL_x; ?>"><?php echo $forum['name']; ?></a></strong>
 			<?php echo iif (!empty($forum['description']), "<br />{$forum['description']}"); ?>
 			<?php if (count($forum['mod'])) { ?>
-			<br /><span class="stext">
+			<div class="med stext">
 			<strong><?php echo $lang->phrase('forum_mods'); ?></strong>
 			<?php foreach($forum['mod'] as $m) { ?>
 			<a href="profile.php?id=<?php echo $m['mid'].SID2URL_x; ?>"><?php echo $m['name']; ?></a><?php echo $m['sep']; ?>
 			<?php } ?>
-			</span>
+			</div>
 			<?php } if (count($forum['sub'])) { ?>
-			<br /><span class="stext">
+			<div class="high stext">
 			<strong><?php echo $lang->phrase('forum_subforums'); ?></strong>
 			<?php foreach ($forum['sub'] as $s) { ?>
 			<br />
 			<img<?php echo iif($s['new'], ' title="'.$lang->phrase('forum_options_markread').'" onmouseover="HandCursor(this)" onclick="ajax_markforumread('.$s['id'].',this,1)"'); ?> src="<?php echo $s['foldimg']; ?>" alt="<?php echo $s['name']; ?>" />&nbsp;
 			<a href="<?php echo iif($s['opt'] != 're', 'showforum.php?id='.$s['id'].SID2URL_x, $s['optvalue']); ?>"><?php echo $s['name']; ?></a>
 			<?php } ?>
-			</span>
+			</div>
 			<?php } ?>
 		</td>
-		<td width="18%">
+		<td width="18%" class="low">
 			<?php echo $forum['topics']; ?> <?php echo $lang->phrase('xtopics'); ?><br />
 			<?php echo $forum['replies']; ?> <?php echo $lang->phrase('xreplies'); ?>
 		</td>
-		<td width="34%" class="stext">
+		<td width="34%" class="stext high">
 		<?php if(!empty($forum['l_topic'])) { ?>
 			<a title="<?php echo $forum['l_topic_full']; ?>" href="showtopic.php?id=<?php echo $forum['l_tid'].SID2URL_x; ?>&amp;action=last">
 			<strong><?php echo $forum['l_prefix'].$forum['l_topic']; ?></strong>
 			</a><br />
-			<span class="left nowrap">
+			<span class="left nowrap med">
 			<?php echo $lang->phrase('by'); ?>
 			<?php echo iif ($forum['l_name'][1], '<a href="profile.php?id='.$forum['l_name'][1].SID2URL_x.'">'.$forum['l_name'][0].'</a>', $forum['l_name'][0]); ?>
 			</span>

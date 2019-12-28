@@ -12,7 +12,7 @@
   <input type="checkbox" onclick="check_all(this)" name="all" value="delete[]" />
 </th>
 <th width="42%"><?php echo $lang->phrase('forum_topic'); ?></th>
-<th width="21%"><?php echo $lang->phrase('forum_last'); ?></th>
+<th width="21%" class="low"><?php echo $lang->phrase('forum_last'); ?></th>
 <th width="35%"><?php echo $lang->phrase('editprofile_digest_type'); ?></th> 
 </tr>
 <?php foreach ($cache[$p] as $row) { ?>
@@ -22,7 +22,7 @@
 	<?php echo $row['prefix']; ?><a href="showtopic.php?id=<?php echo $row['tid'].SID2URL_x; ?>"><?php echo $row['topic']; ?></a>
 	<?php echo iif (!empty($row['topic_pages']), '<br /><span class="stext">'.$row['topic_pages'].'</span>'); ?>
 </td>
-<td class="textright stext">
+<td class="textright stext low">
 	<a title="<?php echo $lang->phrase('jump_to_last_post'); ?>" href="showtopic.php?action=last&amp;id=<?php echo $row['tid'].SID2URL_x; ?>"><?php echo $row['last']; ?></a><br />
 	<?php echo $lang->phrase('written_by'); ?> <?php echo $row['last_name']; ?>
 </td>

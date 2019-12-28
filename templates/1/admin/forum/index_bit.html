@@ -1,16 +1,17 @@
 <tr class="tbody">
-	<td width='2%'><input type="checkbox" name="delete[]" value="<?php echo $row->id.SID2URL_x; ?>" /></td>
-	<td width='48%'>
-		<?php echo iif($row->vquestion," <img align='right' src='".$tpl->img('vote')."' alt='".$lang->phrase('vote_titlevote')." $row->vquestion' />"); ?>
-		<?php echo $pref; ?>
-		<a href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'><?php echo iif($showprefix, $lang->phrase('showtopic_prefix_title')).$row->topic; ?></a>
+	<td width="2%"><input type="checkbox" name="delete[]" value="<?php echo $row->id.SID2URL_x; ?>" /></td>
+	<td width="48%">
+		<?php if ($row->vquestion) { ?>
+			<img align="right" src="<?php echo $tpl->img('vote'); ?>" alt="<?php echo $lang->phrase('vote_titlevote').' '.$row->vquestion; ?>" />
+		<?php } echo $pref; ?>
+		<a href="showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo iif($showprefix, $lang->phrase('showtopic_prefix_title')).$row->topic; ?></a>
     </td>
-	<td width='20%' class='stext'>
+	<td width="20%" class="stext low">
 		<?php echo $rstart; ?><br />
-		<?php echo $lang->phrase('written_by'); ?> <?php echo $row->name; ?>
+		<?php echo $lang->phrase("written_by"); ?> <?php echo $row->name; ?>
 	</td>
-	<td width='10%' align='center'><?php echo numbers($row->posts); ?></td>
-	<td width='20%' align='right'><span class='stext'>
+	<td width="10%" align="center" class="med"><?php echo numbers($row->posts); ?></td>
+	<td width="20%" align="right" class="high"><span class="stext">
 		<?php echo $rlast; ?><br />
 		<?php echo $lang->phrase('written_by'); ?> <?php echo $row->last_name; ?>
 	</span></td>

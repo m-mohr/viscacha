@@ -7,14 +7,14 @@
 		<a<?php echo iif($firstnew, ' style="font-weight: bold;"'); ?> href='showtopic.php?id=<?php echo $row->id.SID2URL_x; ?>'>
 			<?php echo iif($showprefix, $lang->phrase('showtopic_prefix_title')).$row->topic; ?>
 		</a>
-		<?php echo iif (!empty($topic_pages), '<br /><span class="stext">'.$topic_pages.'</span>'); ?>
+		<?php echo iif (!empty($topic_pages), '<br class="high" /><span class="high stext">'.$topic_pages.'</span>'); ?>
     </td>
-	<td width='20%' class='stext'>
+	<td width='20%' class='stext low'>
 		<?php echo $rstart; ?><br />
 		<?php echo $lang->phrase('written_by'); ?> <?php echo iif($row->mid,"<a href='profile.php?id=".$row->mid.SID2URL_x."'>".$row->name."</a>",$row->name); ?>
 	</td>
-	<td width='10%' align='center'><?php echo numbers($row->posts); ?></td>
-	<td width='20%' align='right'><span class='stext'>
+	<td width='10%' align='center' class="med"><?php echo numbers($row->posts); ?></td>
+	<td width='20%' align='right' class="high"><span class='stext'>
 		<a title="<?php echo $lang->phrase('jump_to_last_post'); ?>" href="showtopic.php?action=last&amp;id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $rlast; ?></a><br />
 		<?php echo $lang->phrase('written_by'); ?> <?php echo $row->last_name; ?>
 	</span></td>

@@ -6,18 +6,18 @@
     </tr>
     <tr class="tfoot">
       <td width="40%"><?php echo $lang->phrase('th_name'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_pm'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_email'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_homepage'); ?></td>
-      <td width="39%"><?php echo $lang->phrase('th_location'); ?></td>
+      <td width="7%" class="high"><?php echo $lang->phrase('th_pm'); ?></td>
+      <td width="7%" class="high"><?php echo $lang->phrase('th_email'); ?></td>
+      <td width="7%" class="low"><?php echo $lang->phrase('th_homepage'); ?></td>
+      <td width="39%" class="med"><?php echo $lang->phrase('th_location'); ?></td>
     </tr>
 	<?php foreach($admin_cache as $row) { ?>
 	<tr class="tbody">
       <td><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td>
-      <td class="center"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
-      <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td>
-      <td class="center"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
-      <td><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
+      <td class="center high"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
+      <td class="center high"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a></td>
+      <td class="center low"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
+      <td class="med"><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
     </tr>
 	<?php } ?>
 </table>
@@ -29,18 +29,18 @@
     </tr>
     <tr class="tfoot">
       <td width="40%"><?php echo $lang->phrase('th_name'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_pm'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_email'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_homepage'); ?></td>
-      <td width="39%"><?php echo $lang->phrase('th_location'); ?></td>
+      <td width="7%" class="high"><?php echo $lang->phrase('th_pm'); ?></td>
+      <td width="7%" class="high"><?php echo $lang->phrase('th_email'); ?></td>
+      <td width="7%" class="low"><?php echo $lang->phrase('th_homepage'); ?></td>
+      <td width="39%" class="med"><?php echo $lang->phrase('th_location'); ?></td>
     </tr>
 <?php foreach($gmod_cache as $row) { ?>
 	<tr class="tbody">
       <td><a href="profile.php?id=<?php echo $row->id.SID2URL_x; ?>"><?php echo $row->name; ?></a><?php echo iif($row->fullname,"<br /><em>".$row->fullname."</em>"); ?></td>
-      <td class="center"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
-      <td class="center"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a</td>
-      <td class="center"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
-      <td><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
+      <td class="center high"><a href="pm.php?action=new&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a></td>
+      <td class="center high"><a href="profile.php?action=mail&amp;id=<?php echo $row->id.SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a</td>
+      <td class="center low"><?php echo iif($row->hp,'<a href="'.$row->hp.'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>',$lang->phrase('homepage_no_data')); ?></td>
+      <td class="med"><?php echo iif($row->location,$row->location,$lang->phrase('location_no_data')); ?></td>
     </tr>
 <?php } ?>
 </table>
@@ -52,9 +52,9 @@
 	</tr>
     <tr class="tfoot">
       <td width="40%"><?php echo $lang->phrase('th_name'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_pm'); ?></td>
-      <td width="7%"><?php echo $lang->phrase('th_email'); ?></td>
-      <td width="39%"><?php echo $lang->phrase('team_mod_boards'); ?></td>
+      <td width="7%" class="med"><?php echo $lang->phrase('th_pm'); ?></td>
+      <td width="7%" class="med"><?php echo $lang->phrase('th_email'); ?></td>
+      <td width="39%" class="high"><?php echo $lang->phrase('team_mod_boards'); ?></td>
     </tr>
 	<?php echo $inner['moderator_bit']; ?>
 </table>

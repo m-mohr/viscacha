@@ -436,6 +436,7 @@ function head($onload = '') {
 <head>
 	<title><?php echo $config['fname']; ?>: Administration Control Panel - powered by Viscacha</title>
 	<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="Pragma" content="no-cache" />
 	<meta http-equiv="Expires" content="-1" />
 	<meta http-equiv="Cache-Control" content="no-cache" />

@@ -73,7 +73,7 @@ else {
 	$selectDb = $db->select_db();
 	if (!$selectDb) {
 		// Create new database
-		$db->query("CREATE DATABASE `{$config['database']}`");
+		$db->query("CREATE DATABASE `{$config['database']}` CHARACTER SET latin1 COLLATE latin1_general_ci");
 		$selectDb = $db->select_db();
 	}
 	if (!$selectDb) {

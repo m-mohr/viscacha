@@ -6,49 +6,49 @@
    	<?php } ?>
   </td>
   <?php if ($online) { ?>
-  <td class="center">
+  <td class="center high">
    <img src="<?php echo $tpl->img(iif($row['online'] == 1, 'online', 'offline')); ?>"  title="<?php echo $row['lang_online']; ?>" alt="<?php echo $row['lang_online']; ?>" />
   </td>
   <?php } if (isset($row['pic'])) { ?>
-  <td class="center">
+  <td class="center low">
    <?php if (!empty($row['pic'])) { ?>
    <img src="<?php echo $row['pic']; ?>" alt="<?php echo $row['name']; ?>" />
    <?php } ?>
   </td>
   <?php } if ($pm) { ?>
-  <td class="center">
+  <td class="center high">
    <a href="pm.php?action=new&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('pm'); ?>" alt="" /></a>
   </td>
   <?php } if (isset($row['mail'])) { ?>
-  <td class="center">
+  <td class="center med">
    <a href="profile.php?action=mail&amp;id=<?php echo $row['id'].SID2URL_x; ?>"><img src="<?php echo $tpl->img('email'); ?>" alt="" /></a>
   </td>
   <?php } if (isset($row['hp'])) { ?>
-  <td class="center">
+  <td class="center med">
    <?php echo iif($row['hp'], '<a href="'.$row['hp'].'" target="_blank"><img src="'.$tpl->img('homepage').'" alt="" /></a>', $lang->phrase('homepage_no_data')); ?>
   </td>
   <?php } if (isset($row['location'])) { ?>
-  <td>
+  <td class="low">
    <?php echo $row['location']; ?>
   </td>
   <?php } if (isset($row['gender'])) { ?>
-  <td class="center">
+  <td class="center med">
    <?php echo $row['gender']; ?>
   </td>
   <?php } if (isset($row['posts'])) { ?>
-  <td class="textright">
+  <td class="textright high">
    <?php echo $row['posts']; ?>
   </td>
   <?php } if (isset($row['birthday'])) { ?>
-  <td>
+  <td class="low">
    <?php echo $row['birthday']; ?>
   </td>
   <?php } if (isset($row['regdate'])) { ?>
-  <td class="center">
+  <td class="center low">
    <?php echo $row['regdate']; ?>
   </td>
   <?php } if (isset($row['lastvisit'])) { ?>
-  <td>
+  <td class="low">
    <?php echo $row['lastvisit']; ?>
   </td>
   <?php } ?>
