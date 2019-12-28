@@ -765,10 +765,10 @@ function sid_login($remember = true) {
 		if (isset($my->template) == false || isset($cache[$my->template]) == false) {
 			$my->template = $config['templatedir'];
 		}
-		if (isset($my->settings['q_tpl']) && isset($cache2[$my->settings['q_tpl']]) != false) {
+		if (isset($my->settings['q_tpl']) && isset($cache[$my->settings['q_tpl']]) != false) {
 			$my->template = $my->settings['q_tpl'];
 		}
-		if (isset($cache2[$q_tpl]) != false) {
+		if (isset($cache[$q_tpl]) != false) {
 			$my->settings['q_tpl'] = $q_tpl;
 			$my->template = $q_tpl;
 		}
@@ -798,9 +798,6 @@ function sid_login($remember = true) {
 		}
 
 		$this->setlang();
-
-		$action = $gpc->get('action', str);
-		$qid = $gpc->get('id', int);
 
 		$this->change_mid = $my->id;
 		if ($remember == true) {
@@ -912,7 +909,7 @@ function getBoards() {
  * @return array Permissions
  */
 function StrangerPermissions ($groups, $defaultToMemberPerms = true) {
-	global $db, $scache;
+	global $scache;
 
 	$group_cache = $scache->load('groups');
 	if (count($this->statusdata) == 0) {
@@ -921,7 +918,7 @@ function StrangerPermissions ($groups, $defaultToMemberPerms = true) {
 
 	$groups = array_intersect(explode(',', $groups), array_keys($this->statusdata));
 	if (count($groups) == 0) {
-		$groups[] = ($defaultToMemberPerms || $my->vlogin) ? GROUP_MEMBER : GROUP_GUEST;
+		$groups[] = $defaultToMemberPerms ? GROUP_MEMBER : GROUP_GUEST;
 	}
 
 	$keys = array_merge($this->gFields, $this->maxFields, $this->minFields);
@@ -961,7 +958,7 @@ function StrangerPermissions ($groups, $defaultToMemberPerms = true) {
  * @return array Permissions
  */
 function Permissions ($board = 0, $groups = null, $defaultToMemberPerms = null) {
-	global $db, $my, $scache;
+	global $my, $scache;
 
 	if ($groups == null && isset($my->groups)) {
 		$groups = $my->groups;
@@ -1107,7 +1104,7 @@ function Permissions ($board = 0, $groups = null, $defaultToMemberPerms = null) 
  * @return array Permissions
  */
 function GlobalPermissions() {
-	global $db, $my, $scache;
+	global $scache;
 	$parent_forums = $scache->load('parent_forums');
 	$parent = $parent_forums->get();
 	$boardid = array_keys($parent);
