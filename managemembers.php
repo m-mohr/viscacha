@@ -274,7 +274,7 @@ elseif ($_GET['action'] == 'edit2') {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		if (!empty($_POST['pw']) && mb_strlen($_POST['pw']) >= $config['minpwlength']) {
+		if (!empty($_POST['pw']) && strxlen($_POST['pw']) >= $config['minpwlength']) {
 			$hashed_pw = hash_pw($_POST['pw']);
 			$update_sql = ", pw = '{$hashed_pw}' ";
 		}

@@ -131,11 +131,11 @@ if (!SCRIPT_LOCKED) {
 		</div>
 		</form>
 		<?php } elseif (!SCRIPT_LOCKED) { ?>
-		<?php if (version_compare(PHP_VERSION, '5.6.0', '<') && empty($_REQUEST['skip_php'])) { ?>
+		<?php if (version_compare(PHP_VERSION, '7.0.0', '<') && empty($_REQUEST['skip_php'])) { ?>
 		<div class="border">
 			<h3>Error: PHP Version mismatch</h3>
 			<div class="bbody">
-			Please consider upgrading to (the latest version of) PHP 5.6 or PHP 7 or you won't be able to use Viscacha.
+			Please consider upgrading to (the latest version of) PHP 7 or you won't be able to use Viscacha.
 			</div>
 			<div class="bfoot center"><a class="submit" href="index.php?skip_php=1">Continue anyway</a></div>
 		</div>

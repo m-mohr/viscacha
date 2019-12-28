@@ -63,7 +63,7 @@ function hash_pw($password) {
 }
 
 function check_pw($password, $hash) {
-	if (mb_strlen($hash) == 32) {
+	if (strxlen($hash) == 32) {
 		// Old MD5 way to check passwords
 		global $db;
 		$var = mb_convert_encoding($password, "ISO-8859-15");
@@ -1049,7 +1049,7 @@ function numbers ($nvar,$deci=null) {
 	if ($deci == null) {
 		$deci = $config['decimals'];
 	}
-	if (mb_strpos($nvar, '.') === false) {
+	if (strpos($nvar, '.') === false) {
 		$deci = 0;
 	}
 

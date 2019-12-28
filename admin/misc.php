@@ -194,7 +194,7 @@ elseif ($job == "credits") {
 		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);
 	}
 
-	if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
+	if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
 		$phpv = '<span style="color: green">'.$lang->phrase('admin_misc_yes').'</span>';
 	}
 	else {

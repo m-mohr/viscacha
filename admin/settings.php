@@ -597,7 +597,6 @@ elseif ($job == 'server2') {
 	echo head();
 
 	$c->getdata();
-	$c->updateconfig('gdversion', int);
 	$c->updateconfig('error_handler', int);
 	$c->updateconfig('error_log', int);
 	$c->updateconfig('error_reporting', str);

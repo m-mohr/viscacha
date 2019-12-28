@@ -30,14 +30,6 @@ $error_handler_history = array();
 if ($config['error_reporting'] == '-1') {
 	$bitmask = @get_cfg_var('error_reporting');
 }
-elseif ($config['error_reporting'] == 'E_ALL') {
-	if (version_compare(PHP_VERSION, '6.0-dev', '>=')) {
-		$bitmask = E_ALL ^ E_STRICT; // PHP 6 compatibility
-	}
-	else {
-		$bitmask = E_ALL;
-	}
-}
 elseif (defined($config['error_reporting']) == true) {
 	$bitmask = constant($config['error_reporting']);
 }

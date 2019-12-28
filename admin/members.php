@@ -1291,7 +1291,7 @@ elseif ($job == 'edit2') {
 		$query['birthyear'] = leading_zero($query['birthyear'], 4);
 		$bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
 
-		if (!empty($query['pw']) && mb_strlen($query['pw']) >= $config['minpwlength']) {
+		if (!empty($query['pw']) && strxlen($query['pw']) >= $config['minpwlength']) {
 			$update_sql = ", pw = '{".hash_pw($query['pw'])."}' ";
 		}
 		else {

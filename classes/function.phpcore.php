@@ -180,13 +180,13 @@ function sendStatusCode($code, $additional = null) {
 
 // Function to determine which OS is used
 function isWindows() {
-	if (function_exists('php_uname') && mb_stristr(@php_uname(), 'windows') !== false) {
+	if (function_exists('php_uname') && stristr(@php_uname(), 'windows') !== false) {
 		return true;
 	}
-	else if (isset($_SERVER['OS']) && mb_stristr($_SERVER['OS'], 'Windows') !== false) {
+	else if (isset($_SERVER['OS']) && stristr($_SERVER['OS'], 'Windows') !== false) {
 		return true;
 	}
-	else if (defined(PHP_OS) && mb_strtoupper(mb_substr(PHP_OS, 0, 3)) == 'WIN') {
+	else if (defined(PHP_OS) && strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
 		return true;
 	}
 	else {
@@ -214,7 +214,7 @@ function ini_isSecureHttp() {
 function ini_getSize($value) {
 	$size = @ini_get($value);
 	$size = trim($size);
-	$last = mb_strtolower(substr($size, -1));
+	$last = strtolower(substr($size, -1));
 	$size = intval($size);
 	
 	switch($last) {
