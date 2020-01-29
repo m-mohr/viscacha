@@ -24,8 +24,8 @@
 
 if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 
-define('URL_SPECIALCHARS', 'a-zA-ZáàâÁÀÂçÇéèëêÉÈËÊíìîïÍÌÎÏóòôÓÒÔúùûÚÙÛäÄöÖüÜ');
-define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ß\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
+define('URL_SPECIALCHARS', 'a-zA-ZÃ¡Ã Ã¢ÃÃ€Ã‚Ã§Ã‡Ã©Ã¨Ã«ÃªÃ‰ÃˆÃ‹ÃŠÃ­Ã¬Ã®Ã¯ÃÃŒÃŽÃÃ³Ã²Ã´Ã“Ã’Ã”ÃºÃ¹Ã»ÃšÃ™Ã›Ã¤Ã„Ã¶Ã–Ã¼Ãœ');
+define('URL_REGEXP', 'https?://['.URL_SPECIALCHARS.'\d\-\.@]+(?:\.[a-z]{2,7})?(?::\d+)?/?(?:['.URL_SPECIALCHARS.'ÃŸ\d\-\.:_\?\,;/\\\+&%\$#\=\~\[\]]*['.URL_SPECIALCHARS.'ÃŸ\d\-\.:_\?\,;/\\\+&%\$#\=\~])?');
 define('EMAIL_REGEXP', "[".URL_SPECIALCHARS."\d!#\$%&'\*\+/=\?\^_\{\|\}\~\-]+(?:\.[".URL_SPECIALCHARS."\d!#$%&'\*\+/=\?\^_\{\|\}\~\-]+)*@(?:[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?\.)+[".URL_SPECIALCHARS."\d](?:[".URL_SPECIALCHARS."\d\-]*[".URL_SPECIALCHARS."\d])?");
 
 define('REMOTE_INVALID_URL', 100);
@@ -404,17 +404,17 @@ function convert2adress($url, $toLower = true, $spacer = '-') {
 	}
 
 	// International umlauts
-	$url = str_replace (array('á', 'à', 'â', 'Á', 'À', 'Â'),			'a', $url);
-	$url = str_replace (array('ç', 'Ç'), 								'c', $url);
-	$url = str_replace (array('é', 'è', 'ë', 'ê', 'É', 'È', 'Ë', 'Ê'),	'e', $url);
-	$url = str_replace (array('í', 'ì', 'î', 'ï', 'Í', 'Ì', 'Î', 'Ï'),	'i', $url);
-	$url = str_replace (array('ó', 'ò', 'ô', 'Ó', 'Ò', 'Ô'), 			'o', $url);
-	$url = str_replace (array('ú', 'ù', 'û', 'Ú', 'Ù', 'Û'), 			'u', $url);
+	$url = str_replace (array('Ã¡', 'Ã ', 'Ã¢', 'Ã', 'Ã€', 'Ã‚'),			'a', $url);
+	$url = str_replace (array('Ã§', 'Ã‡'), 								'c', $url);
+	$url = str_replace (array('Ã©', 'Ã¨', 'Ã«', 'Ãª', 'Ã‰', 'Ãˆ', 'Ã‹', 'ÃŠ'),	'e', $url);
+	$url = str_replace (array('Ã­', 'Ã¬', 'Ã®', 'Ã¯', 'Ã', 'ÃŒ', 'ÃŽ', 'Ã'),	'i', $url);
+	$url = str_replace (array('Ã³', 'Ã²', 'Ã´', 'Ã“', 'Ã’', 'Ã”'), 			'o', $url);
+	$url = str_replace (array('Ãº', 'Ã¹', 'Ã»', 'Ãš', 'Ã™', 'Ã›'), 			'u', $url);
 	// German umlauts
-	$url = str_replace (array('ä', 'Ä'), 'ae', $url);
-	$url = str_replace (array('ö', 'Ö'), 'oe', $url);
-	$url = str_replace (array('ü', 'Ü'), 'ue', $url);
-	$url = str_replace (array('ß'), 'ss', $url);
+	$url = str_replace (array('Ã¤', 'Ã„'), 'ae', $url);
+	$url = str_replace (array('Ã¶', 'Ã–'), 'oe', $url);
+	$url = str_replace (array('Ã¼', 'Ãœ'), 'ue', $url);
+	$url = str_replace (array('ÃŸ'), 'ss', $url);
 	// Replace some special chars with delimiter
 	$url = preg_replace('/[\+\s\r\n\t]+/', $spacer, $url);
 	// Replace multiple delimiter chars with only one char
@@ -770,31 +770,11 @@ function getip($dots = 4) {
 		}
 	}
 
-	$b = _EnvValToInt('HTTP_USER_AGENT');
-	$c = _EnvValToInt('HTTP_ACCEPT');
-	$d = _EnvValToInt('HTTP_ACCEPT_LANGUAGE');
+	$b = mt_rand(1, 254);
+	$c = mt_rand(1, 254);
+	$d = mt_rand(1, 254);
 	$ip = "0.{$b}.{$c}.{$d}";
 	return ext_iptrim($ip, $dots);
-}
-
-function _EnvValToInt($x) {
-	$y = getenv($x);
-	if (empty($y)) {
-		if (isset($_SERVER[$y])) {
-			$y = $_SERVER[$y];
-		}
-		else {
-			$y = 7;
-		}
-	}
-	$length = strlen($y)-1;
-	if ($length > 0) {
-		$i = ord($y{$length});
-	}
-	else {
-		$i = 5;
-	}
-	return $i;
 }
 
 function ext_iptrim ($text, $peaces) {
