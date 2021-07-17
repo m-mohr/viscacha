@@ -707,7 +707,7 @@ function banish($reason = null, $until = null) {
  * Checks whether a user has to be banned, and if so, calls $this->banisch().
  */
 function checkBan() {
-	global $my;
+	global $my, $filesystem;
 	if (!empty($this->bots[$my->is_bot]['type']) && $this->bots[$my->is_bot]['type'] == 'e') {
 		$this->banish('lang->bot_banned'); // Ban sucking spam bots
 	}
@@ -762,7 +762,7 @@ function checkBan() {
  * @return object Data of the user who is calling this script
  */
 function sid_load() {
-	global $config, $db, $gpc;
+	global $config, $db;
 	if ($config['session_checkip'] > 0) {
 		$short_ip = ext_iptrim($this->ip, $config['session_checkip']);
 		if ($config['session_checkip'] != 4) {
@@ -851,14 +851,14 @@ function sid_new() {
 	}
 
 	if ($nodata == false && $my->confirm == '11') {
-		$id = &$my->id;
+		$id = "'{$my->id}'";
 		$lastvisit = $my->lastvisit;
 		$my->clv = $my->lastvisit;
 		$my->vlogin = true;
 		makecookie($config['cookie_prefix'].'_vdata', $my->id."|".$my->pw);
 	}
 	else {
-		$id = 0;
+		$id = 'NULL';
 		$lastvisit = $gpc->save_int(getcookie('vlastvisit'));
 		$my->clv = $lastvisit;
 		$my->vlogin = false;
@@ -876,9 +876,9 @@ function sid_new() {
 	$action = $gpc->get('action', str);
 	$qid = $gpc->get('id', int);
 
-	$db->query("INSERT INTO {$db->pre}session
+	$db->query("INSERT IGNORE {$db->pre}session
 	(sid, mid, wiw_script, wiw_action, wiw_id, active, ip, user_agent, lastvisit, mark, pwfaccess, settings, is_bot) VALUES
-	('{$this->sid}', '{$id}','".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."','{$my->is_bot}')");
+	('{$this->sid}', $id,'".SCRIPTNAME."','{$action}','{$qid}','".time()."','{$this->ip}','".$gpc->save_str($this->user_agent)."','{$lastvisit}','".$db->escape_string($my->mark)."','".$db->escape_string($my->pwfaccess)."','".$db->escape_string($my->settings)."','{$my->is_bot}')");
 
 	return $my;
 }
@@ -1129,7 +1129,7 @@ function getBoards() {
  * @return array Permissions
  */
 function StrangerPermissions ($groups, $defaultToMemberPerms = true) {
-	global $db, $scache;
+	global $scache, $my;
 
 	$group_cache = $scache->load('groups');
 	if (count($this->statusdata) == 0) {
