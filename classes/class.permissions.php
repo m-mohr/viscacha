@@ -28,7 +28,7 @@ if (defined('VISCACHA_CORE') == false) { die('Error: Hacking Attempt'); }
 include_once("classes/function.flood.php");
 
 // TODO: Dieser Code sollte nicht auf $my basieren, da sonst bei der Abfrage von fremden Rechten
-// eine gefährliche Vermischung stattfindet.
+// eine gefÃ¤hrliche Vermischung stattfindet.
 
 class slog {
 
@@ -469,7 +469,7 @@ function updatelogged () {
 	}
 
 	if ($my->vlogin) {
-		// Eigentlich könnten wir uns das Updaten der User-Lastvisit-Spalte sparen, für alle User die Cookies nutzen. Einmal, am Anfang der Session würde dann reichen
+		// Eigentlich kÃ¶nnten wir uns das Updaten der User-Lastvisit-Spalte sparen, fÃ¼r alle User die Cookies nutzen. Einmal, am Anfang der Session wÃ¼rde dann reichen
 		$db->query("UPDATE {$db->pre}user SET lastvisit = '".time()."'  WHERE id = '{$my->id}'");
 	}
 
@@ -895,7 +895,7 @@ function sid_logout() {
 
 	$db->query ("
 	UPDATE {$db->pre}session
-	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = '0', pwfaccess = ''
+	SET wiw_script = '".SCRIPTNAME."', wiw_action = '{$action}', wiw_id = '{$qid}', active = '{$time}', mid = NULL, pwfaccess = ''
 	WHERE ".iif($my->id > 0, "mid = '{$my->id}'", "sid = '{$this->sid}'")."
 	LIMIT 1
 	");
@@ -1531,7 +1531,7 @@ function setTopicRead($tid, $parents) {
 	global $my, $db;
 	$my->mark['t'][$tid] = time();
 
-	// Erstelle ein Array mit schon gelesenen Beiträgen
+	// Erstelle ein Array mit schon gelesenen BeitrÃ¤gen
 	$inkeys = implode(',', array_keys($my->mark['t']));
 	foreach ($parents as $tf) {
 		$result = $db->query("SELECT COUNT(*) FROM {$db->pre}topics WHERE board = '{$tf}' AND last >= '{$my->clv}' AND id NOT IN({$inkeys})");
