@@ -13,7 +13,7 @@
  <tr>
   <td class="tbody center" colspan="<?php echo $colspan; ?>">
    <?php foreach ($letter as $compare => $row) {
-   	if ($_GET['letter'] == $compare) { ?>
+   	if ($_GET['letter'] === $compare) { ?>
 	[<strong><?php echo $row['html']; ?></strong>]
 	<?php } else { ?>
 	[<a href="members.php?letter=<?php echo $row['url']; ?>&amp;<?php echo $query_letter; ?>"><?php echo $row['html']; ?></a>]
