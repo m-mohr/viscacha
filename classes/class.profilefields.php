@@ -182,13 +182,13 @@ class ProfileFieldViewer {
 
 			if($profilefield['type'] == "multiselect") {
 				$useropts = @explode("\n", $fielddata);
-				while(list($key, $val) = each($useropts)) {
+				foreach($useropts as $key => $val) {
 					$seloptions[$val] = $val;
 				}
 				$expoptions = explode("\n", $profilefield['options']);
 				if(is_array($expoptions)) {
 					$select = array();
-					while(list($key, $val) = each($expoptions)) {
+					foreach($expoptions as $key => $val) {
 						list($key, $val) = explode('=', $val, 2);
 						if(isset($seloptions[$key]) && $key == $seloptions[$key]) {
 							$select[] = trim($val);
@@ -200,7 +200,7 @@ class ProfileFieldViewer {
 			elseif($profilefield['type'] == "select") {
 				$expoptions = explode("\n", $profilefield['options']);
 				if(is_array($expoptions)) {
-					while(list($key, $val) = each($expoptions)) {
+					foreach($expoptions as $key => $val) {
 						list($key, $val) = explode('=', $val, 2);
 						if ($key == $fielddata) {
 							$code = trim($val);
@@ -211,7 +211,7 @@ class ProfileFieldViewer {
 			elseif($profilefield['type'] == "radio") {
 				$expoptions = explode("\n", $profilefield['options']);
 				if(is_array($expoptions)) {
-					while(list($key, $val) = each($expoptions)) {
+					foreach($expoptions as $key => $val) {
 						list($key, $val) = explode('=', $val, 2);
 						if ($key == $fielddata) {
 							$code = trim($val);
@@ -221,13 +221,13 @@ class ProfileFieldViewer {
 			}
 			elseif($profilefield['type'] == "checkbox") {
 				$useropts = @explode("\n", $fielddata);
-				while(list($key, $val) = each($useropts)) {
+				foreach($useropts as $key => $val) {
 					$seloptions[$val] = $val;
 				}
 				$expoptions = explode("\n", $profilefield['options']);
 				if(is_array($expoptions)) {
 					$select = array();
-					while(list($key, $val) = each($expoptions)) {
+					foreach($expoptions as $key => $val) {
 						list($key, $val) = explode('=', $val, 2);
 						if (isset($seloptions[$key]) && $key == $seloptions[$key]) {
 							$select[] = trim($val);

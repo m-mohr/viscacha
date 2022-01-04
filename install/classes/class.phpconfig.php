@@ -96,7 +96,7 @@ class manageconfig {
 		$top .= '$'.$this->varname.' = array();'."\n";
 
 		$cfg = array();
-		while (list($key, $val) = each($this->data)) {
+		foreach($this->data as $key => $val) {
 			if (is_array($val)) {
 				foreach ($val as $key2 => $val2) {
 					if ((isset($this->opt[$key][$key2]) && $this->opt[$key][$key2] == int) || is_int($val2)) {
