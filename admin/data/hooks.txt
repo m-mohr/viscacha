@@ -313,9 +313,6 @@ profile.php
 -profile_mail_errordata
 -profile_mail_prepared
 -profile_mail_end
--profile_ims_start
--profile_ims_prepared
--profile_ims_start
 -profile_guest_prepared
 -profile_member_start
 -profile_member_prepared

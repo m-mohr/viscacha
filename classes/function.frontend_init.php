@@ -81,15 +81,11 @@ $http_vars = array(
 	'location' => str,
 	'signature' => str,
 	'hp' => str,
-	'icq' => str,
 	'pic' => db_esc,
 	'question' => str,
 	'type' => str,
 	'gender' => str,
-	'aol' => db_esc,
-	'msn' => db_esc,
 	'skype' => db_esc,
-	'yahoo' => db_esc,
 	'jabber' => db_esc,
 	'board' => int,
 	'topic_id' => int,
@@ -171,7 +167,7 @@ if (!file_exists('.htaccess')) {
 	if ($config['hterrordocs'] == 1) {
 		$htaccess[] = "ErrorDocument 400	{$config['furl']}/misc.php?action=error&id=400";
 		// 401 ErrorDocument entfernt wegen Fehlermeldung (Bug #293): "Cannot use a full URL in a 401 ErrorDocument directive"
-		// Grund: Relative Angaben beschädigen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
+		// Grund: Relative Angaben beschï¿½digen bei Adressen in Unterverzeichnissen die relativen Verlinkungen zu Bildern etc.
 		$htaccess[] = "ErrorDocument 403	{$config['furl']}/misc.php?action=error&id=403";
 		$htaccess[] = "ErrorDocument 404	{$config['furl']}/misc.php?action=error&id=404";
 		$htaccess[] = "ErrorDocument 500	{$config['furl']}/misc.php?action=error&id=500";

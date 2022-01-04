@@ -526,7 +526,6 @@ elseif ($_GET['action'] == "profile") {
 	if (empty($bday[2])) {
 		$bday[2] = '00';
 	}
-	$my->icq = iif(empty($my->icq), '', $my->icq);
 	$year = gmdate('Y');
 	$maxy = $year-6;
 	$miny = $year-100;
@@ -612,11 +611,6 @@ elseif ($_GET['action'] == "profile2") {
 		$_POST['birthyear'] = leading_zero($_POST['birthyear'], 4);
 		$bday = $_POST['birthyear'].'-'.$_POST['birthmonth'].'-'.$_POST['birthday'];
 
-		$_POST['icq'] = str_replace('-', '', $_POST['icq']);
-		if (!is_id($_POST['icq'])) {
-			$_POST['icq'] = 0;
-		}
-
 		if ($config['changename_allowed'] == 1 && $_POST['name'] != $my->name) {
 			$changename = ", name = '{$_POST['name']}'";
 			$cache = $scache->load('memberdata');
@@ -628,7 +622,7 @@ elseif ($_GET['action'] == "profile2") {
 
 		($code = $plugins->load('editprofile_profile2_query')) ? eval($code) : null;
 
-		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', icq = '{$_POST['icq']}', yahoo = '{$_POST['yahoo']}', aol = '{$_POST['aol']}', msn = '{$_POST['msn']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
+		$db->query("UPDATE {$db->pre}user SET skype = '{$_POST['skype']}', jabber = '{$_POST['jabber']}', birthday = '{$bday}', gender = '{$_POST['gender']}', hp = '{$_POST['hp']}', location = '{$_POST['location']}', fullname = '{$_POST['fullname']}', mail = '{$_POST['email']}'{$changename} WHERE id = '{$my->id}' LIMIT 1");
 		ok($lang->phrase('data_success'), "editprofile.php?action=profile".SID2URL_x);
 	}
 

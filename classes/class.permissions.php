@@ -1055,7 +1055,7 @@ function sid2url($my = null) {
 function cleanUserData($data) {
 	global $gpc;
 	$trust = array(
-		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'icq', 'opt_textarea', 'language',
+		'id', 'pw', 'regdate', 'posts', 'gender', 'birthday', 'lastvisit', 'opt_textarea', 'language',
 		'opt_pmnotify', 'opt_hidebad', 'opt_hidemail', 'opt_newsletter', 'opt_showsig', 'template', 'confirm', // from user-table
 		'ufid', // from userfields-table
 		'mid', 'active', 'wiw_id', 'last_visit', 'is_bot', 'mark', 'pwfaccess', 'settings' // from session-table

@@ -213,50 +213,6 @@ elseif ($job == 'cache_delete_plugins') {
 	}
 	ok('admin.php?action=misc&job=cache', $lang->phrase('admin_misc_cache_deleted_rebuilt_when_needed'));
 }
-elseif ($job == 'onlinestatus') {
-	echo head();
-	$b = file_get_contents('data/imservers.php');
-	?>
-<form name="form" method="post" action="admin.php?action=misc&job=onlinestatus2">
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_online_status_server'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox" width="30%">
-   <?php echo $lang->phrase('admin_misc_server'); ?><br />
-   <span class="stext"><?php echo $lang->phrase('admin_misc_per_line_one_user'); ?><br /><a href="http://osi.viscacha.org/" target="_blank"><?php echo $lang->phrase('admin_misc_online_status_server_overview'); ?></a></span>
-   </td>
-   <td class="mbox" width="70%"><textarea name="servers" rows="10" cols="90"><?php echo $b; ?></textarea></td>
-  </tr>
-  <tr>
-   <td class="ubox" colspan="2" align="center"><input type="submit" name="Submit" value="Submit"></td>
-  </tr>
- </table>
-</form>
-<br />
- <table class="border" border="0" cellspacing="0" cellpadding="4" align="center">
-  <tr>
-   <td class="obox" colspan="2"><b><?php echo $lang->phrase('admin_misc_online_status_server_info'); ?></b></td>
-  </tr>
-  <tr>
-   <td class="mbox">
-   <p><strong><?php echo $lang->phrase('admin_misc_online_status_meaning_title'); ?></strong><br />
-   <?php echo $lang->phrase('admin_misc_online_status_meaning'); ?></p>
-   <p><strong><?php echo $lang->phrase('admin_misc_from_where_data_for_online_status'); ?></strong><br />
-   <?php echo $lang->phrase('admin_misc_from_where_data_for_online_status_info'); ?>
-   </p>
-   </td>
-  </tr>
- </table>
-	<?php
-	echo foot();
-}
-elseif ($job == 'onlinestatus2') {
-	echo head();
-	$filesystem->file_put_contents('data/imservers.php', $gpc->get('servers', none));
-	ok('admin.php?action=misc&job=onlinestatus');
-}
 elseif ($job == 'sessionmails') {
 	echo head();
 	$mails = file_get_contents('data/sessionmails.php');

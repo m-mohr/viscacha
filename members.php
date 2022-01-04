@@ -136,10 +136,6 @@ else {
 	$im = false;
 	$colspan = 1+count($fields);
 	if (in_array('fullname', $fields)) {$colspan--; }
-	if (in_array('icq', $fields)) {		$colspan--; $im = true; }
-	if (in_array('aol', $fields)) {		$colspan--; $im = true; }
-	if (in_array('yahoo', $fields))	{	$colspan--; $im = true; }
-	if (in_array('msn', $fields)) {		$colspan--; $im = true; }
 	if (in_array('jabber', $fields)) {	$colspan--; $im = true; }
 	if (in_array('skype', $fields)) {	$colspan--; $im = true; }
 	if ($im == true) {					$colspan++; }

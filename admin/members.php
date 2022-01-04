@@ -998,23 +998,11 @@ elseif ($job == 'merge2') {
 	if (empty($base['pic']) && !empty($old['pic'])) {
 		$newdata[] ="pic = '{$old['pic']}'";
 	}
-	if (empty($base['yahoo']) && !empty($old['yahoo'])) {
-		$newdata[] ="yahoo = '{$old['yahoo']}'";
-	}
-	if (empty($base['msn']) && !empty($old['msn'])) {
-		$newdata[] ="msn = '{$old['msn']}'";
-	}
 	if (empty($base['skype']) && !empty($old['skype'])) {
 		$newdata[] ="skype = '{$old['skype']}'";
 	}
 	if (empty($base['jabber']) && !empty($old['jabber'])) {
 		$newdata[] ="jabber = '{$old['jabber']}'";
-	}
-	if (empty($base['aol']) && !empty($old['aol'])) {
-		$newdata[] ="aol = '{$old['aol']}'";
-	}
-	if (empty($base['icq']) && !empty($old['icq'])) {
-		$newdata[] ="icq = '{$old['icq']}'";
 	}
 	if (($base['birthday'] == '0000-00-00' || $base['birthday'] == '1000-00-00') && $old['birthday'] != '0000-00-00' && $old['birthday'] != '1000-00-00') {
 		$newdata[] ="birthday = '{$old['birthday']}'";
@@ -1525,18 +1513,6 @@ elseif ($job == 'edit') {
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_homepage'); ?></td><td class="mbox">
 <input type="text" name="hp" id="hp" size="40" value="<?php echo $user['hp']; ?>" />
 </td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_icq'); ?></td><td class="mbox">
-<input type="text" name="icq" id="icq" size="40" value="<?php echo iif(!empty($user['icq']), $user['icq']); ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_aol'); ?></td><td class="mbox">
-<input type="text" name="aol" id="aol" size="40" value="<?php echo $user['aol']; ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_yim'); ?></td><td class="mbox">
-<input type="text" name="yahoo" id="yahoo" size="40" value="<?php echo $user['yahoo']; ?>" />
-</td></tr>
-<tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_msn'); ?></td><td class="mbox">
-<input type="text" name="msn" id="msn" size="40" value="<?php echo $user['msn']; ?>" />
-</td></tr>
 <tr><td class="mbox"><?php echo $lang->phrase('admin_member_cmp_jabber'); ?></td><td class="mbox">
 <input type="text" name="jabber" id="jabber" size="40" value="<?php echo $user['jabber']; ?>" />
 </td></tr>
@@ -1673,8 +1649,8 @@ elseif ($job == 'edit2') {
 	$cache2 = $loadlanguage_obj->get();
 
 	$keys_int = array('id', 'birthday', 'birthmonth', 'birthyear', 'opt_0', 'opt_1', 'opt_2', 'opt_3', 'opt_4', 'opt_5');
-	$keys_str = array('groups', 'fullname', 'location', 'icq', 'gender', 'hp', 'signature', 'temp', 'comment');
-	$keys_db = array('email', 'aol', 'yahoo', 'msn', 'jabber', 'pic', 'skype');
+	$keys_str = array('groups', 'fullname', 'location', 'gender', 'hp', 'signature', 'temp', 'comment');
+	$keys_db = array('email', 'jabber', 'pic', 'skype');
 	foreach ($keys_int as $val) {
 		$query[$val] = $gpc->get($val, int);
 	}
@@ -1816,11 +1792,6 @@ elseif ($job == 'edit2') {
 		$query['birthyear'] = leading_zero($query['birthyear'], 4);
 		$bday = $query['birthyear'].'-'.$query['birthmonth'].'-'.$query['birthday'];
 
-		$query['icq'] = str_replace('-', '', $query['icq']);
-		if (!is_id($query['icq'])) {
-			$query['icq'] = 0;
-		}
-
 		if (!empty($query['pw']) && strlen($query['pw']) >= $config['minpwlength']) {
 			$md5 = md5($query['pw']);
 			$update_sql = ", pw = '{$md5}' ";
@@ -1831,7 +1802,7 @@ elseif ($job == 'edit2') {
 
 		admin_customsave($query['id']);
 
-		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_textarea = '{$query['opt_0']}', opt_pmnotify = '{$query['opt_1']}', opt_hidebad = '{$query['opt_2']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', icq = '{$query['icq']}', yahoo = '{$query['yahoo']}', aol = '{$query['aol']}', msn = '{$query['msn']}', jabber = '{$query['jabber']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', skype = '{$query['skype']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
+		$db->query("UPDATE {$db->pre}user SET groups = '".saveCommaSeparated($query['groups'])."', timezone = '{$query['temp']}', opt_textarea = '{$query['opt_0']}', opt_pmnotify = '{$query['opt_1']}', opt_hidebad = '{$query['opt_2']}', opt_hidemail = '{$query['opt_3']}', template = '{$query['opt_4']}', language = '{$query['opt_5']}', pic = '{$query['pic']}', about = '{$query['comment']}', jabber = '{$query['jabber']}', birthday = '{$bday}', gender = '{$query['gender']}', hp = '{$query['hp']}', signature = '{$query['signature']}', location = '{$query['location']}', fullname = '{$query['fullname']}', skype = '{$query['skype']}', mail = '{$query['email']}', name = '{$query['name']}' {$update_sql} WHERE id = '{$user['id']}'");
 
 		$cache = $scache->load('memberdata');
 		$cache = $cache->delete();
@@ -2476,34 +2447,6 @@ elseif ($job == 'search') {
    <td class="mbox"><input type="checkbox" name="show[lastvisit]" value="1" checked></td>
   </tr>
   <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_icq_uin'); ?></td>
-   <td class="mbox" align="center"><select size="1" name="compare[icq]">
-	  <option value="-1">&lt;</option>
-	  <option value="0" selected="selected">=</option>
-	  <option value="1">&gt;</option>
-	</select></td>
-   <td class="mbox"><input type="text" name="icq" size="12"></td>
-   <td class="mbox"><input type="checkbox" name="show[icq]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_yahoo_id'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="yahoo" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[yahoo]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_aol_name'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="aol" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[aol]" value="1"></td>
-  </tr>
-  <tr>
-   <td class="mbox"><?php echo $lang->phrase('admin_member_msn_address'); ?></td>
-   <td class="mbox" align="center">=</td>
-   <td class="mbox"><input type="text" name="msn" size="50"></td>
-   <td class="mbox"><input type="checkbox" name="show[msn]" value="1"></td>
-  </tr>
-  <tr>
    <td class="mbox"><?php echo $lang->phrase('admin_member_jabber_address'); ?></td>
    <td class="mbox" align="center">=</td>
    <td class="mbox"><input type="text" name="jabber" size="50"></td>
@@ -2642,10 +2585,6 @@ elseif ($job == 'search2') {
 		'gender' => array($lang->phrase('admin_member_gender'), str),
 		'birthday' => array($lang->phrase('admin_member_birthday'), arr_none),
 		'lastvisit' => array($lang->phrase('admin_member_last_visit'), arr_int),
-		'icq' => array($lang->phrase('admin_member_icq'), int),
-		'yahoo' => array($lang->phrase('admin_member_yahoo'), str),
-		'aol' => array($lang->phrase('admin_member_aol'), str),
-		'msn' => array($lang->phrase('admin_member_msn'), str),
 		'skype' => array($lang->phrase('admin_member_skype'), str),
 		'jabber' => array($lang->phrase('admin_member_jabber'), str),
 		'timezone' => array($lang->phrase('admin_member_time_zone'), db_esc),
@@ -2757,7 +2696,7 @@ elseif ($job == 'search2') {
 				$input[$key] = $value;
 			}
 		}
-		elseif ($key == 'id' || $key == 'posts' || $key == 'icq' || $key == 'design' || $key == 'lang') {
+		elseif ($key == 'id' || $key == 'posts' || $key == 'design' || $key == 'lang') {
 			$input[$key] = $value;
 		}
 		else {
@@ -2835,9 +2774,6 @@ elseif ($job == 'search2') {
 				}
 				if (isset($row['regdate'])) {
 					$row['regdate'] = gmdate('d.m.Y', times($row['regdate']));
-				}
-				if (empty($row['icq'])) {
-					$row['icq'] = '-';
 				}
 				if (!isset($row['timezone']) || $row['timezone'] === null || $row['timezone'] === '') {
 					$row['timezone'] = $config['timezone'];

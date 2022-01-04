@@ -80,7 +80,7 @@ if ($_GET['action'] == 'firstnew' && $info['last'] >= $my->clv) {
 	exit;
 }
 elseif ($_GET['action'] == 'last') {
-	// Todo: Resourcen sparender wäre es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wäre diese Query gespart
+	// Todo: Resourcen sparender wï¿½re es in der Themenansicht einen Anker "last" zu setzen und diesen anzuspringen... damit wï¿½re diese Query gespart
 	// For post_order = 1: Query could be saved, we can just jump to the first page, first post is the post we are looking for...
 	$result = $db->query("SELECT id FROM {$db->pre}replies WHERE topic_id = '{$info['id']}' ORDER BY date DESC LIMIT 1");
 	$new = $db->fetch_num($result);
@@ -288,7 +288,7 @@ $sql_order = iif($last['post_order'] == 1, 'DESC', 'ASC');
 $result = $db->query("
 SELECT
 	r.id, r.edit, r.dosmileys, r.dowords, r.topic, r.comment, r.date, r.email as gmail, r.guest, r.name as gname, r.report, r.tstart,
-	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.icq, u.yahoo, u.aol, u.msn, u.jabber, u.skype, u.groups,
+	u.id as mid, u.name as uname, u.mail, u.regdate, u.posts, u.fullname, u.hp, u.signature, u.location, u.gender, u.birthday, u.pic, u.lastvisit, u.jabber, u.skype, u.groups,
 	f.* {$sql_select}
 FROM {$db->pre}replies AS r
 	LEFT JOIN {$db->pre}user AS u ON r.name = u.id AND r.guest = '0'
