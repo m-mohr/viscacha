@@ -62,11 +62,6 @@ class DB extends DB_Driver { // MySQLi
 			254 => "char",
 			255 => "geometry"
 		);
-		$this->freeResult = false;
-	}
-
-	function setPersistence($persistence = false) {
-		$this->persistence = false;
 	}
 
 	function version () {
@@ -92,11 +87,6 @@ class DB extends DB_Driver { // MySQLi
 
 	function close() {
 		if ($this->hasConnection()) {
-			if ($this->freeResult == true) {
-				foreach ($this->all_results as $result) {
-					$this->free_result($result);
-				}
-		    }
 			return mysqli_close($this->conn);
 		}
 		else {
@@ -174,10 +164,6 @@ class DB extends DB_Driver { // MySQLi
 			'time' => round($time, 5)
 		);
 
-		if ($this->freeResult == true && $this->isResultSet($this->result)) {
-			$this->all_results[] = $this->result;
-		}
-
 	    return $this->result;
 	}
 
@@ -226,41 +212,14 @@ class DB extends DB_Driver { // MySQLi
 		return mysqli_real_escape_string($this->conn, $value);
 	}
 
-	function num_fields($result = null) {
+	function num_fields($result) {
 		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
 		return mysqli_num_fields($result);
 	}
 
-	function field_len($result = null, $k) {
-		if (!$this->isResultSet($result)) {
-	    	$result = $this->result;
-	    }
-	    $data = mysqli_fetch_field_direct($result, $k);
-	    if (!empty($data->length)) {
-			return $data->length;
-	    }
-	    else {
-	    	return null;
-	    }
-	}
-
-	function field_type($result = null, $k) {
-		if (!$this->isResultSet($result)) {
-	    	$result = $this->result;
-	    }
-
-	    $data = mysqli_fetch_field_direct($result, $k);
-	    if ($data != false && isset($this->fieldType[$data])) {
-			return $this->fieldType[$data];
-	    }
-	    else {
-	    	return null;
-	    }
-	}
-
-	function field_name($result = null, $k) {
+	function field_name($result, $k) {
 		if (!$this->isResultSet($result)) {
 	    	$result = $this->result;
 	    }
@@ -270,22 +229,6 @@ class DB extends DB_Driver { // MySQLi
 	    }
 	    elseif (!empty($data->name)) {
 	    	return $data->name;
-	    }
-	    else {
-	    	return null;
-	    }
-	}
-
-	function field_table($result = null, $k) {
-		if (!$this->isResultSet($result)) {
-	    	$result = $this->result;
-	    }
-	    $data = mysqli_fetch_field_direct($result, $k);
-	    if (!empty($data->orgtable)) {
-			return $data->orgtable;
-	    }
-	    elseif (!empty($data->table)) {
-	    	return $data->table;
 	    }
 	    else {
 	    	return null;

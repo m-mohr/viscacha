@@ -553,7 +553,7 @@ elseif ($job == "credits") {
 	echo head();
 
 	$loaded_extensions = array_map('strtolower', get_loaded_extensions());
-	$needed_extensions = array('MySQL', 'MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
+	$needed_extensions = array('MySQLi', 'Sockets', 'FTP', 'PCRE', 'GD', 'Zlib', 'XML', 'Mime_Magic', 'MBString', 'XDiff');
 	$extensions = array();
 	foreach ($needed_extensions as $needed) {
 		$extensions[$needed] = in_array(strtolower($needed), $loaded_extensions);
@@ -601,7 +601,7 @@ elseif ($job == "credits") {
 		<li><a href="http://www.phpclasses.org/browse/author/169072.html" target="_blank">PowerGraphic 1.0 by Carlos Reche</a> (Charts &amp; Diagrams; GNU GPL)</li>
 		<li><a href="http://www.invisionpower.com" target="_blank">PHP TAR by Matt Mecham</a> (TAR file handling; GNU GPL)</li>
 		<li><a href="http://www.phpclasses.org/browse/author/98157.html" target="_blank">Advanced FTP client class (Build 2008-09-17) by Alexey Dotsenko</a> (PHP FTP Client; Freely Distributable)</li>
-		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.8.0 by phlyLabs</a> (Punycode converter; GNU LGPL)</li>
+		<li><a href="http://phlymail.com/en/downloads/idna/" target="_blank">Net_IDNA 0.9.0 by phlyLabs</a> (Punycode converter; GNU LGPL)</li>
 		<li><a href="http://www.openwebware.com" target="_blank">openWYSIWYG 1.4.7 by openwebware.com</a> (WYSIWYG editor; GNU LGPL)</li>
 		<li><a href="http://snoopy.sourceforge.net" target="_blank">Snoopy 1.2.4 by New Digital Group</a> (HTTP file access; GNU LGPL)</li>
 		<li>and many more code snippets, classes and functions...</li>

@@ -31,7 +31,7 @@ if (in_array('config', array_keys(array_change_key_case($_REQUEST)))) {
 // Gets a file with php-functions
 require_once("classes/function.phpcore.php");
 
-if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
+if (empty($config['cryptkey']) || empty($config['database'])) {
 	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "README.md"!', E_USER_ERROR);
 }
 if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'] == 0) {
@@ -54,9 +54,8 @@ $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config
 $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 
 // Database functions
-require_once('classes/database/'.$config['dbsystem'].'.inc.php');
+require_once('classes/database/mysqli.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 
 /* 	Handling of _GET, _POST, _REQUEST, _COOKIE, _SERVER, _ENV
  	_ENV, _SERVER: Won't be checked, but null-byte is deleted

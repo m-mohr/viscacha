@@ -89,9 +89,9 @@ if ($job == 'optimize') {
 	while($table = $db->fetch_assoc($result)) {
 		$table['Engine'] = (!empty($table['Type']) ? $table['Type'] : $table['Engine']);
 		$table['possible'] = (!in_array(strtolower($table['Engine']), array('heap', 'memory')));
-		$data_length += $table['Data_length'];
-		$index_length += $table['Index_length'];
-		$data_free += $table['Data_free'];
+		$data_length += is_numeric($table['Data_length']) ? $table['Data_length'] : 0;
+		$index_length += is_numeric($table['Index_length']) ? $table['Index_length'] : 0;
+		$data_free += is_numeric($table['Data_free']) ? $table['Data_free'] : 0;
 		$tables[] = $table;
 	}
 	?>
@@ -111,9 +111,7 @@ if ($job == 'optimize') {
   <tr>
    <td class="mbox"><input type="checkbox" onclick="check_all(this)" name="repair_all" value="repair[]" /></td>
    <td class="mbox"><input type="checkbox" onclick="check_all(this)" name="optimize_all" value="optimize[]" /></td>
-   <td class="mbox"><strong><?php echo $lang->phrase('admin_db_all'); ?></strong></td><?php
-   	$data_length = formatFilesize($data_length);
-   ?>
+   <td class="mbox"><strong><?php echo $lang->phrase('admin_db_all'); ?></strong></td>
    <td class="mbox"><strong><?php echo formatFilesize($data_length); ?></strong></td>
    <td class="mbox"><strong><?php echo formatFilesize($index_length); ?></strong></td>
    <td class="mbox"><strong><?php echo formatFilesize($data_free); ?></strong></td>

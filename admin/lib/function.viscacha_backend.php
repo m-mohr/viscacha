@@ -29,9 +29,8 @@ define('IMPTYPE_LANGUAGE', 4);
 define('IMPTYPE_BBCODE', 5);
 
 // Database functions
-require_once('classes/database/'.$config['dbsystem'].'.inc.php');
+require_once('classes/database/mysqli.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 // Variables
 require_once ("classes/function.gpc.php");
 $action = $gpc->get('action', none);
@@ -370,21 +369,22 @@ function recur_dir($dir, $clevel = 0) {
 }
 
 function formatFilesize($byte) {
+	$byte = intval($byte);
 	$string = 'Byte';
-	if($byte>=1024) {
-		$byte/=1024;
+	if($byte >= 1024) {
+		$byte /= 1024;
 		$string = 'KB';
 	}
-	if($byte>=1024) {
-		$byte/=1024;
+	if($byte >= 1024) {
+		$byte /= 1024;
 		$string = 'MB';
 	}
-	if($byte>=1024) {
-		$byte/=1024;
+	if($byte >= 1024) {
+		$byte /= 1024;
 		$string = 'GB';
 	}
-	if($byte>=1024) {
-		$byte/=1024;
+	if($byte >= 1024) {
+		$byte /= 1024;
 		$string = 'TB';
 	}
 	return round($byte, 2)." ".$string;

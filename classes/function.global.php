@@ -796,7 +796,7 @@ function _EnvValToInt($x) {
 	}
 	$length = strlen($y)-1;
 	if ($length > 0) {
-		$i = ord($y{$length});
+		$i = ord($y[$length]);
 	}
 	else {
 		$i = 5;
@@ -960,7 +960,7 @@ Params:
 	(string)		$comment 	= Content
 */
 
-function xmail ($to, $from = array(), $topic, $comment) {
+function xmail ($to, $from, $topic, $comment) {
 	global $config, $gpc;
 
 	require_once("classes/mail/class.phpmailer.php");
@@ -970,13 +970,13 @@ function xmail ($to, $from = array(), $topic, $comment) {
 
 	// Added Check_mail for better security
 	// Now it is not possible to add various headers to the mail
-	if (!isset($from['mail']) || !check_mail($from['mail'])) {
+	if (!is_array($from) || !isset($from['mail']) || !check_mail($from['mail'])) {
 		$mail->From = $config['forenmail'];
 	}
 	else {
 		$mail->From = $gpc->plain_str($from['mail']);
 	}
-	if (!isset($from['name'])) {
+	if (!is_array($from) || !isset($from['name'])) {
 		$mail->FromName = $gpc->plain_str($config['fname']);
 	}
 	else {

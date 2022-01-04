@@ -62,7 +62,7 @@ class ServerNavigator
 
 	function ext() {
 		global $db;
-		if (count($this->icon) == 0) {
+		if (empty($this->icon)) {
 			$this->icon = array();
 			$result = $db->query('SELECT extension, icon, mimetype, stream FROM '.$db->pre.'filetypes');
 			while ($row = $db->fetch_assoc($result)) {
@@ -74,16 +74,16 @@ class ServerNavigator
 				}
 			}
 			$this->icon['directory'] = array(
-			'extension' => 'directory',
-			'icon' => 'folder',
-			'mimetype' => 'text/html',
-			'stream' => 'inline'
+				'extension' => 'directory',
+				'icon' => 'folder',
+				'mimetype' => 'text/html',
+				'stream' => 'inline'
 			);
 		}
 	}
 
 	function icons($ext) {
-		global $my, $tpl;
+		global $tpl;
 		$this->ext();
 		$ext = strtolower($ext);
 		if ($this->use_image_icons && is_a($tpl, 'tpl')) {

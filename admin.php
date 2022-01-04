@@ -30,7 +30,7 @@ define('VISCACHA_CORE', '1');
 include ("data/config.inc.php");
 include ("admin/data/config.inc.php");
 
-if (empty($config['cryptkey']) || empty($config['database']) || empty($config['dbsystem'])) {
+if (empty($config['cryptkey']) || empty($config['database'])) {
 	trigger_error('Viscacha is currently not installed. How to install Viscacha is described in the file "README.md"!', E_USER_ERROR);
 }
 if ((empty($config['dbpw']) || empty($config['dbuser'])) && $config['local_mode'] == 0) {

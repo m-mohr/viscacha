@@ -20,23 +20,11 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	if (isset($_REQUEST['database'])) {
 		$config['database'] = $_REQUEST['database'];
 	}
-	if (isset($_REQUEST['pconnect']) && isset($_REQUEST['dbsystem']) && $_REQUEST['dbsystem'] == 'mysql') {
-		$config['pconnect'] = $_REQUEST['pconnect'];
-	}
-	else {
-		$config['pconnect'] = 0;
-	}
 	if (isset($_REQUEST['dbprefix'])) {
 		$config['dbprefix'] = $_REQUEST['dbprefix'];
 	}
 	else {
 		$config['dbprefix'] = '';
-	}
-	if (isset($_REQUEST['dbsystem'])) {
-		$config['dbsystem'] = GPC_escape($_REQUEST['dbsystem'], GPC_ALNUM);
-	}
-	else {
-		$config['dbsystem'] = 'mysql';
 	}
 	$c = new manageconfig();
 	$c->getdata('data/config.inc.php');
@@ -44,12 +32,10 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	$c->updateconfig('dbuser',str);
 	$c->updateconfig('dbpw',str);
 	$c->updateconfig('database',str);
-	$c->updateconfig('pconnect',int);
 	$c->updateconfig('dbprefix',str);
-	$c->updateconfig('dbsystem',str);
 	$c->savedata();
 
-	$errlog = 'data/errlog_'.$config['dbsystem'].'.inc.php';
+	$errlog = 'data/errlog_mysqli.inc.php';
 	if (!file_exists($errlog)) {
 		$filesystem->file_put_contents($errlog, '', true);
 		$filesystem->chmod($errlog, 0666);
@@ -67,9 +53,8 @@ if ($prefix != $config['dbprefix']) {
 	<?php
 }
 else {
-require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
+require_once('install/classes/database/mysqli.inc.php');
 $db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-$db->setPersistence($config['pconnect']);
 $db->connect(false);
 if (!$db->hasConnection()) {
 	?>

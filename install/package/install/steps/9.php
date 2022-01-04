@@ -5,9 +5,8 @@ require_once('install/classes/class.filesystem.php');
 $filesystem = new filesystem($config['ftp_server'], $config['ftp_user'], $config['ftp_pw'], $config['ftp_port']);
 $filesystem->set_wd($config['ftp_path'], $config['fpath']);
 if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
-	require_once('install/classes/database/'.$config['dbsystem'].'.inc.php');
+	require_once('install/classes/database/mysqli.inc.php');
 	$db = new DB($config['host'], $config['dbuser'], $config['dbpw'], $config['database'], $config['dbprefix']);
-	$db->setPersistence($config['pconnect']);
 	$db->connect(false);
 	if (!$db->hasConnection()) {
 		?>
@@ -99,7 +98,7 @@ if (isset($_REQUEST['save']) && $_REQUEST['save'] == 1) {
 	}
 }
 
-// Cache löschen
+// Cache lï¿½schen
 $cachedir = 'cache/';
 if ($dh = @opendir($dir)) {
 	while (($file = readdir($dh)) !== false) {
