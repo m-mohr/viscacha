@@ -44,7 +44,7 @@
 	  <?php if ($config['osi_profile'] == 1) { ?>
 	  <br />
 	  <h5><?php echo $lang->phrase('profile_osi'); ?></h5>
-	  <?php echo iif($osi, '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online'), '<em>'.$lang->phrase('profile_offline')); ?></em>
+	  <?php echo $osi ? '<em class="highlight_pos" title=" '.$lang->phrase('profile_osi_lastactivity').$wwo[1].'">'.$lang->phrase('profile_online') : '<em>'.$lang->phrase('profile_offline'); ?></em>
 	  <?php } foreach ($customfields['2'] as $field) { ?>
 	  <br />
 	  <h5><?php echo $field['name']; ?>:</h5>

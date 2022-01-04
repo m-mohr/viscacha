@@ -271,7 +271,7 @@ elseif ($is_member) {
 		if ($config['osi_profile'] == 1) {
 			$result = $db->query('SELECT mid, active FROM '.$db->pre.'session WHERE mid = '.$_GET['id']);
 			$wwo = $db->fetch_num($result);
-			if ($wwo[0] > 0) {
+			if (!empty($wwo) && $wwo[0] > 0) {
 				$wwo[1] = gmdate($lang->phrase('dformat3'),times($wwo[1]));
 				$osi = 1;
 			}
