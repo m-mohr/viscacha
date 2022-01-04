@@ -61,7 +61,7 @@ elseif ($job == 'add2') {
 	$mimetype = $gpc->get('mimetype', str);
 	$stream = $gpc->get('stream', str);
 
-    if ($extension{0} == '.') {
+    if ($extension[0] == '.') {
         $extension = substr($extension, 1);
     }
 	$error = array();
@@ -147,7 +147,7 @@ elseif ($job == 'edit2') {
 	$mimetype = $gpc->get('mimetype', str);
 	$stream = $gpc->get('stream', str);
 
-    if ($extension{0} == '.') {
+    if ($extension[0] == '.') {
         $extension = substr($extension, 1);
     }
 	$error = array();

@@ -209,12 +209,12 @@ function getHookArray() {
 		if (empty($line)) {
 			continue;
 		}
-		if ($line{0} != '-') {
+		if ($line[0] != '-') {
 			$hooks[$line] = array();
 			$group = $line;
 			continue;
 		}
-		if ($group != null && $line{0} == '-') {
+		if ($group != null && $line[0] == '-') {
 			$hooks[$group][] = substr($line, 1);
 		}
 	}

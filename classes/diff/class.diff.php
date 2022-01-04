@@ -45,7 +45,7 @@ class Text_Diff {
         $engine = basename($engine);
 
         $class = 'Text_Diff_Engine_' . $engine;
-        $diff_engine = &new $class();
+        $diff_engine = new $class();
 
         $this->_edits = call_user_func_array(array($diff_engine, 'diff'), $params);
     }
@@ -63,7 +63,7 @@ class Text_Diff {
      *
      * Example:
      * <code>
-     * $diff = &new Text_Diff($lines1, $lines2);
+     * $diff = new Text_Diff($lines1, $lines2);
      * $rev = $diff->reverse();
      * </code>
      *
@@ -236,13 +236,13 @@ class Text_MappedDiff extends Text_Diff {
 
         $xi = $yi = 0;
         for ($i = 0; $i < count($this->_edits); $i++) {
-            $orig = &$this->_edits[$i]->orig;
+            $orig = $this->_edits[$i]->orig;
             if (is_array($orig)) {
                 $orig = array_slice($from_lines, $xi, count($orig));
                 $xi += count($orig);
             }
 
-            $final = &$this->_edits[$i]->final;
+            $final = $this->_edits[$i]->final;
             if (is_array($final)) {
                 $final = array_slice($to_lines, $yi, count($final));
                 $yi += count($final);
@@ -297,9 +297,9 @@ class Text_Diff_Op_copy extends Text_Diff_Op {
         $this->final = $final;
     }
 
-    function &reverse()
+    function reverse()
     {
-        $reverse = &new Text_Diff_Op_copy($this->final, $this->orig);
+        $reverse = new Text_Diff_Op_copy($this->final, $this->orig);
         return $reverse;
     }
 
@@ -319,9 +319,9 @@ class Text_Diff_Op_delete extends Text_Diff_Op {
         $this->final = false;
     }
 
-    function &reverse()
+    function reverse()
     {
-        $reverse = &new Text_Diff_Op_add($this->orig);
+        $reverse = new Text_Diff_Op_add($this->orig);
         return $reverse;
     }
 
@@ -341,9 +341,9 @@ class Text_Diff_Op_add extends Text_Diff_Op {
         $this->orig = false;
     }
 
-    function &reverse()
+    function reverse()
     {
-        $reverse = &new Text_Diff_Op_delete($this->final);
+        $reverse = new Text_Diff_Op_delete($this->final);
         return $reverse;
     }
 
@@ -363,9 +363,9 @@ class Text_Diff_Op_change extends Text_Diff_Op {
         $this->final = $final;
     }
 
-    function &reverse()
+    function reverse()
     {
-        $reverse = &new Text_Diff_Op_change($this->final, $this->orig);
+        $reverse = new Text_Diff_Op_change($this->final, $this->orig);
         return $reverse;
     }
 
@@ -408,15 +408,15 @@ class Text_Diff_Engine_xdiff {
         foreach ($diff as $line) {
             switch ($line[0]) {
             case ' ':
-                $edits[] = &new Text_Diff_Op_copy(array(substr($line, 1)));
+                $edits[] = new Text_Diff_Op_copy(array(substr($line, 1)));
                 break;
 
             case '+':
-                $edits[] = &new Text_Diff_Op_add(array(substr($line, 1)));
+                $edits[] = new Text_Diff_Op_add(array(substr($line, 1)));
                 break;
 
             case '-':
-                $edits[] = &new Text_Diff_Op_delete(array(substr($line, 1)));
+                $edits[] = new Text_Diff_Op_delete(array(substr($line, 1)));
                 break;
             }
         }
@@ -530,7 +530,7 @@ class Text_Diff_Engine_native {
                 ++$yi;
             }
             if ($copy) {
-                $edits[] = &new Text_Diff_Op_copy($copy);
+                $edits[] = new Text_Diff_Op_copy($copy);
             }
 
             // Find deletes & adds.
@@ -545,11 +545,11 @@ class Text_Diff_Engine_native {
             }
 
             if ($delete && $add) {
-                $edits[] = &new Text_Diff_Op_change($delete, $add);
+                $edits[] = new Text_Diff_Op_change($delete, $add);
             } elseif ($delete) {
-                $edits[] = &new Text_Diff_Op_delete($delete);
+                $edits[] = new Text_Diff_Op_delete($delete);
             } elseif ($add) {
-                $edits[] = &new Text_Diff_Op_add($add);
+                $edits[] = new Text_Diff_Op_add($add);
             }
         }
 

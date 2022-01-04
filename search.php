@@ -58,7 +58,7 @@ if ($_GET['action'] == "search") {
 	$ignored = array();
 	$used = array();
 	foreach ($searchwords as $sw) {
-		if ($sw{0} == '-') {
+		if ($sw[0] == '-') {
 			$sw2 = substr($sw, 1);
 		}
 		else {
@@ -106,7 +106,7 @@ if ($_GET['action'] == "search") {
 	$range = count($used);
 	for ($i=0;$i<$range;$i++) {
 		$str = $used[$i];
-		if ($str{0} == '-') {
+		if ($str[0] == '-') {
 			$not = 'NOT ';
 			$str = substr($str, 1);
 		}

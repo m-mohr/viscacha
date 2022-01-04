@@ -60,7 +60,7 @@ function parseElement($element, &$targetArray, $numberOfElements) {
 			elseif (empty($matches[4])) {
 				$matches[4] = $matches[2];
 			}
-			if (!isset($matches[5]) || (isset($matches[5]) && $matches[5]{0}!="/")) {
+			if (!isset($matches[5]) || (isset($matches[5]) && $matches[5][0]!="/")) {
 				$matches[6] = 1;
 			}
 			for ($j=lTrimZeros($matches[2]);$j<=lTrimZeros($matches[4]);$j+=lTrimZeros($matches[6])) {

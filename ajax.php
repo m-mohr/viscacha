@@ -122,7 +122,7 @@ elseif ($action == 'search') {
 		$ignored = array();
 		foreach ($searchwords as $sw) {
 			$sw = trim($sw);
-			if ($sw{0} == '-') {
+			if ($sw[0] == '-') {
 				$sw2 = substr($sw, 1);
 			}
 			else {
