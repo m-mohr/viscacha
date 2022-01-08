@@ -224,12 +224,11 @@ if (!empty($info['vquestion'])) {
 			foreach ($vote['entries'] as $key => $row) {
 				if ($row['votes'] > 0) {
 					$row['percent'] = $row['votes'] / $vote['count'] * 100;
-					if (strstr($row['percent'], '.') > 0) {
-						$row['percent'] = numbers($row['percent'], 1);
-					}
+					$row['percent_str'] = numbers($row['percent'], 1);
 				}
 				else {
 					$row['percent'] = 0;
+					$row['percent_str'] = 0;
 				}
 				$vote['entries'][$key] = $row;
 
