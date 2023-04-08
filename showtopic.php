@@ -228,7 +228,7 @@ if (!empty($info['vquestion'])) {
 				}
 				else {
 					$row['percent'] = 0;
-					$row['percent_str'] = 0;
+					$row['percent_str'] = "0";
 				}
 				$vote['entries'][$key] = $row;
 
@@ -466,7 +466,7 @@ if ($my->vlogin && is_id($info['id'])) {
 	$result = $db->query("SELECT id, type FROM {$db->pre}abos WHERE mid = '{$my->id}' AND tid = '{$info['id']}'");
 	$abox = $db->fetch_assoc($result);
 }
-else {
+if (empty($abox)) {
 	$abox = array('id' => null, 'type' => null);
 }
 

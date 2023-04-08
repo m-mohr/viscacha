@@ -272,7 +272,7 @@ if ($_GET['action'] == "save") {
 					LEFT JOIN {$db->pre}topics AS t ON t.id = a.tid
 					INNER JOIN {$db->pre}replies AS r ON r.topic_id = t.id AND r.date >= u.lastvisit
 				WHERE a.type = '' AND a.tid = '{$id}' AND a.mid != '{$my->id}'
-				GROUP BY t.id HAVING num = 1
+				GROUP BY u.id HAVING num = 1
 			";
 		}
 		$result = $db->query($notification_query);
